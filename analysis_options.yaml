@@ -1,0 +1,13 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.gr.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gen.dart"
+    - "**/*.chopper.dart"
+  errors:
+    invalid_annotation_target: ignore
+  plugins:
+    - custom_lint

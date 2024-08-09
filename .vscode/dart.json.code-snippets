@@ -1,0 +1,12 @@
+{
+    "g part import": {
+      "prefix": "ptg",
+      "body": ["part '${TM_FILENAME_BASE}.g.dart';", ""],
+      "description": "part import for g generated file"
+    },
+    "classfile": {
+    "prefix": "classfile",
+    "body": ["class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} {", "\t$1", "}"],
+    "description": "Create a class with base file name and pascalcase"
+  },
+  }

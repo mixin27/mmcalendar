@@ -1,0 +1,50 @@
+name: mmcalendar
+description: "Simple myanmar calendar."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  auto_route: ^9.2.0
+  intl: ^0.19.0
+  flutter_mmcalendar: ^1.0.0
+  table_calendar: ^3.1.2
+
+  hooks_riverpod: ^2.5.1
+  flutter_hooks: ^0.20.5
+  riverpod_annotation: ^2.3.5
+
+  easy_localization: ^3.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.12
+  flutter_lints: ^4.0.0
+  custom_lint:
+  auto_route_generator: ^9.0.0
+  riverpod_generator: ^2.4.2
+  riverpod_lint: ^2.3.12
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/translations/
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700

@@ -1,0 +1,43 @@
+name: Run analyze
+
+concurrency:
+  group: $-$
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  drive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v1
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+          cache-key: flutter-:os:-:channel:-:version:-:arch:-:hash:-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: 📦 Install Dependencies
+        run: |
+          flutter packages get
+
+      - name: ✨ Check Formatting
+        run: dart format --line-length 80 --set-exit-if-changed lib test
+
+      - name: 🏗️ Generate build_runner
+        run: dart run build_runner build -d
+
+      - name: 🌐 Generate Locale Keys
+        run: dart run easy_localization:generate -S assets/translations -O lib/src/l10n -o locale_keys.g.dart -f keys
+
+      - name: 🕵️ Analyze
+        run: |
+          flutter analyze lib/src
+          dart run custom_lint
