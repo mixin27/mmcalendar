@@ -10,5 +10,13 @@ class AppRouter extends RootStackRouter {
           path: '/',
         ),
         AutoRoute(page: MmCalendarDetailRoute.page, path: '/calendar/:date'),
+
+        // settings
+        AutoRoute(page: AppSettingsRoute.page, path: '/settings'),
+        AutoRoute(page: AboutRoute.page, path: '/settings/about'),
+        AutoRoute(
+          page: PrivacyPolicyRoute.page,
+          path: '/settings/privacy-policy',
+        ),
       ];
 }

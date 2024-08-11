@@ -51,5 +51,13 @@
 		<string>en</string>
 		<string>my</string>
 	</array>
+	<!-- url_launcher -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+	<string>sms</string>
+	<string>tel</string>
+	<string>http</string>
+	<string>https</string>
+	</array>
 </dict>
 </plist>

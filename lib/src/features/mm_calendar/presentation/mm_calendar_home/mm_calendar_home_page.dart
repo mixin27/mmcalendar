@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:iconly/iconly.dart';
 import 'package:mmcalendar/src/routes/routes.dart';
 import 'package:mmcalendar/src/utils/dates.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -39,6 +40,12 @@ class _MmCalendarHomePageState extends State<MmCalendarHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('MM Calendar'),
+        actions: [
+          IconButton(
+            onPressed: () => context.router.push(const AppSettingsRoute()),
+            icon: const Icon(IconlyLight.setting),
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

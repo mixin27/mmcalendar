@@ -21,6 +21,8 @@ dependencies:
 
   easy_localization: ^3.0.7
   iconly: ^1.0.1
+  url_launcher: ^6.3.0
+  flutter_markdown: ^0.7.3+1
 
 dev_dependencies:
   flutter_test:
