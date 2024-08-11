@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/src/features/app/app.dart';
+import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+
+  await initOnesignal();
 
   MmCalendarConfig.initDefault(
     const MmCalendarOptions(
