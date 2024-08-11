@@ -5,6 +5,10 @@ import 'package:mmcalendar/src/routes/routes.dart';
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
-        AutoRoute(page: MmCalendarHomeRoute.page, path: '/'),
+        AutoRoute(
+          page: MmCalendarHomeRoute.page,
+          path: '/',
+        ),
+        AutoRoute(page: MmCalendarDetailRoute.page, path: '/calendar/:date'),
       ];
 }
