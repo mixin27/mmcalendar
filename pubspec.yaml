@@ -29,8 +29,11 @@ dependencies:
   iconly: ^1.0.1
   url_launcher: ^6.3.0
   flutter_markdown: ^0.7.3+1
-  onesignal_flutter: ^5.2.2
   native_id: ^0.0.5
+
+  # Currently having an issue with onesignal after flutter version upgrade to 3.24.0
+  # https://github.com/OneSignal/OneSignal-Flutter-SDK/issues/930
+  # onesignal_flutter: ^5.2.2
 
 dev_dependencies:
   flutter_test:

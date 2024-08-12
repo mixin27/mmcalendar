@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/firebase_options.dart';
-import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
+// import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_start_up.g.dart';
@@ -28,7 +28,7 @@ FutureOr<void> appStartup(AppStartupRef ref) async {
     Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     ),
-    initOnesignal(),
+    // initOnesignal(),
 
     // list of providers to be warmed up
     // ref.watch(onboardingRepositoryProvider.future),

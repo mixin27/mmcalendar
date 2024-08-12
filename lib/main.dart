@@ -9,7 +9,7 @@ import 'package:mmcalendar/firebase_options.dart';
 import 'package:mmcalendar/src/features/app/app.dart';
 import 'package:mmcalendar/src/shared/errors/async_error_logger.dart';
 import 'package:mmcalendar/src/shared/errors/error_logger.dart';
-import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
+// import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +25,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  await initOnesignal();
+  // await initOnesignal();
 
   final container = ProviderContainer(
     observers: [AsyncErrorLogger()],
