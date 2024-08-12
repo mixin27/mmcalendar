@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:mmcalendar/src/routes/routes.dart';
@@ -22,14 +21,13 @@ class AppSettingsPage extends StatelessWidget {
           const AppLanguageListTile(),
           const RateMeListTile(),
           const PrivacyPolicyListTile(),
-          AboutListTile(
-            icon: const Icon(IconlyLight.document),
+          const AboutListTile(
+            icon: Icon(IconlyLight.document),
             applicationName: 'Myanmar Calendar',
             applicationVersion: 'v1.0.0',
-            applicationIcon: const Icon(IconlyBroken.calendar),
-            applicationLegalese:
-                'Copyright (c) ${DateFormat().add_y().format(DateTime.now())} Kyaw Zayar Tun',
-            child: const Text('License'),
+            applicationIcon: Icon(IconlyBroken.calendar),
+            applicationLegalese: 'Copyright (c) 2024 Kyaw Zayar Tun',
+            child: Text('License'),
           ),
           ListTile(
             onTap: () => context.router.push(const AboutRoute()),

@@ -1,16 +1,36 @@
-# mmcalendar
+# Myanmar Calendar
 
-A new Flutter project.
+The Myanmar Calendar app is a beautifully designed tool that brings the traditional Myanmar calendar to your fingertips. Built with Flutter, this app offers a seamless experience across devices, ensuring you stay connected with Myanmar’s rich cultural heritage.
 
-## Getting Started
+## Libraries
 
-This project is a starting point for a Flutter application.
+- [flutter_mmcalendar](https://pub.dev/packages/flutter_mmcalendar)
+- [table_calendar](https://pub.dev/packages/table_calendar)
 
-A few resources to get you started if this is your first Flutter project:
+## Project Setup
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+To clone the repo for the first time
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+git clone https://github.com/mixin27/mmcalendar.git
+cd mmcalendar/
+flutter packages get
+```
+
+Generate `build_runner` and `easy_localization`
+
+```bash
+# build_runner
+dart run build_runner build
+
+# easy_localization
+dart run easy_localization:generate -S assets/translations -O lib/src/l10n -o locale_keys.g.dart -f keys
+```
+
+You will need to create firebase project to configure firebase
+
+```bash
+flutterfire configure
+```
+
+Go to onesignal, login or create an account and create an app. Then copy onesignalAppId and paste to `.env` file.
