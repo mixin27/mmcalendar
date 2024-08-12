@@ -17,7 +17,8 @@ class AppSettingsPage extends StatelessWidget {
       body: ListView(
         children: [
           // const NotificationSwitchListTile(),
-          const CalendarLanguageListTile(),
+          const ThemeModeSwitchTile(),
+          // const CalendarLanguageListTile(),
           const AppLanguageListTile(),
           const RateMeListTile(),
           const PrivacyPolicyListTile(),

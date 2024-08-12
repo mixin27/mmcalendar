@@ -30,6 +30,7 @@ dependencies:
   url_launcher: ^6.3.0
   flutter_markdown: ^0.7.3+1
   native_id: ^0.0.5
+  shared_preferences: ^2.3.1
 
   # Currently having an issue with onesignal after flutter version upgrade to 3.24.0
   # https://github.com/OneSignal/OneSignal-Flutter-SDK/issues/930

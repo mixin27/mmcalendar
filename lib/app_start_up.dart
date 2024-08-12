@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/firebase_options.dart';
+import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
+import 'package:mmcalendar/src/widgets/widgets.dart';
 // import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -11,15 +13,11 @@ part 'app_start_up.g.dart';
 @Riverpod(keepAlive: true)
 FutureOr<void> appStartup(AppStartupRef ref) async {
   ref.onDispose(() {
-    // ensure dependent providers are disposed as well
+    // ensure we invalidate all the providers we depend on
     // ref.invalidate(onboardingRepositoryProvider);
+    ref.invalidate(sharedPreferencesProvider);
+    ref.invalidate(calendarLanguageControllerProvider);
   });
-
-  MmCalendarConfig.initDefault(
-    const MmCalendarOptions(
-      language: Language.myanmar,
-    ),
-  );
 
   // await for all initialization code to be complete before returning
   // we can use `Future.wait` for independent long run tasks.
@@ -32,8 +30,14 @@ FutureOr<void> appStartup(AppStartupRef ref) async {
 
     // list of providers to be warmed up
     // ref.watch(onboardingRepositoryProvider.future),
-    // Future.delayed(const Duration(seconds: 5)),
+    ref.watch(sharedPreferencesProvider.future),
   ]);
+
+  MmCalendarConfig.initDefault(
+    MmCalendarOptions(
+      language: ref.watch(calendarLanguageControllerProvider),
+    ),
+  );
 }
 
 /// Widget class to manage asynchronous app initialization
@@ -66,6 +70,7 @@ class AppStartupLoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
           child: Column(
@@ -99,6 +104,7 @@ class AppStartupErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
           child: Column(

@@ -1,11 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mmcalendar/firebase_options.dart';
+import 'package:mmcalendar/app_start_up.dart';
 import 'package:mmcalendar/src/features/app/app.dart';
 import 'package:mmcalendar/src/shared/errors/async_error_logger.dart';
 import 'package:mmcalendar/src/shared/errors/error_logger.dart';
@@ -14,18 +12,6 @@ import 'package:mmcalendar/src/shared/errors/error_logger.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-
-  MmCalendarConfig.initDefault(
-    const MmCalendarOptions(
-      language: Language.myanmar,
-    ),
-  );
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // await initOnesignal();
 
   final container = ProviderContainer(
     observers: [AsyncErrorLogger()],
@@ -47,7 +33,9 @@ Future<void> main() async {
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('en', 'US'),
-        child: AppWidget(),
+        child: AppStartUpWidget(
+          onLoaded: (context) => AppWidget(),
+        ),
       ),
     ),
   );
