@@ -1,0 +1,22 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "myanmar-calendar-4d21f",
+          "appId": "1:530401327335:android:6d9eec4eb85c1dcc5b4a42",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "myanmar-calendar-4d21f",
+          "configurations": {
+            "android": "1:530401327335:android:6d9eec4eb85c1dcc5b4a42",
+            "ios": "1:530401327335:ios:a608855a63e139e35b4a42"
+          }
+        }
+      }
+    }
+  }
+}

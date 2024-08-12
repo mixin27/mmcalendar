@@ -18,8 +18,6 @@ Future<void> initOnesignal() async {
   if (deviceId != null) {
     await OneSignal.login(deviceId);
   }
-
-  OneSignal.InAppMessages.addTrigger('current_build_number', '2');
 }
 
 Future<void> disablePush([bool disable = true]) async {

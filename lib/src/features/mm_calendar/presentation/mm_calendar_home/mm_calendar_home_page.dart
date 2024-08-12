@@ -32,6 +32,7 @@ class _MmCalendarHomePageState extends State<MmCalendarHomePage> {
 
     setState(() {
       _selectedDay = selectedDate;
+      _focusDay = selectedDate;
     });
   }
 
@@ -117,8 +118,8 @@ class _MmCalendarHomePageState extends State<MmCalendarHomePage> {
                 defaultBuilder: (context, day, focusedDay) {
                   final enDay = DateFormat().add_d().format(day);
 
-                  final moonPhase = day.mmDate.format(pattern: 'p');
-                  final fortnightDay = day.mmDate.format(pattern: 'f');
+                  final moonPhase = day.mmDate.format('p');
+                  final fortnightDay = day.mmDate.format('f');
 
                   final mmDay = fortnightDay.isEmpty ? moonPhase : fortnightDay;
 

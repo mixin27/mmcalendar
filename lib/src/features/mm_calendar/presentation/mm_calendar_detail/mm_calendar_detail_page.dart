@@ -19,7 +19,7 @@ class MmCalendarDetailPage extends StatefulWidget {
 
 class _MmCalendarDetailPageState extends State<MmCalendarDetailPage> {
   // ignore: prefer_final_fields
-  int _currentPageIndex = 100;
+  int _currentPageIndex = 600;
   PageController? _pageController;
 
   DateTime _date = DateTime.now();
@@ -93,15 +93,15 @@ class _MmCalendarDetailPageState extends State<MmCalendarDetailPage> {
     final mmDate = _date.mmDate;
     final fortnightDay = mmDate.getFortnightDay();
 
-    final mmDow = mmDate.format(pattern: 'En');
+    final mmDow = mmDate.format('En');
 
     final mmDay = fortnightDay.isNotEmpty
-        ? mmDate.format(pattern: 'M p f r n')
-        : mmDate.format(pattern: 'M p n');
+        ? mmDate.format('M p f r n')
+        : mmDate.format('M p n');
 
     final mmDateFull = fortnightDay.isNotEmpty
         ? mmDate.format()
-        : mmDate.format(pattern: 'S s k, B y k, M p, En');
+        : mmDate.format('S s k, B y k, M p, En');
 
     final languageCatalog = LanguageCatalog();
     final astro = mmDate.astro;
@@ -365,7 +365,7 @@ class MmDate extends StatelessWidget {
         ? 'S s k, B y k, M p f r, En'
         : 'S s k, B y k, M p f, En';
 
-    final text = mmDate.format(pattern: pattern);
+    final text = mmDate.format(pattern);
 
     return Text(
       text,
@@ -386,7 +386,7 @@ class DayOfWeek extends StatelessWidget {
   Widget build(BuildContext context) {
     final day = DateFormat('MMMM, yyyy').format(date);
     final dow = DateFormat().add_EEEE().format(date);
-    final mmDow = date.mmDate.format(pattern: 'E n');
+    final mmDow = date.mmDate.format('E n');
 
     final astrologicalDay = date.mmDate.astro.getAstrologicalDay();
     final sabbath = date.mmDate.astro.getSabbath();
@@ -477,10 +477,10 @@ class MmYear extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mmYearLabel = mmDate.format(pattern: 'B');
-    final mmYear = mmDate.format(pattern: 'y k');
-    final buddhistEraLabel = mmDate.format(pattern: 'S');
-    final buddhistEra = mmDate.format(pattern: 's k');
+    final mmYearLabel = mmDate.format('B');
+    final mmYear = mmDate.format('y k');
+    final buddhistEraLabel = mmDate.format('S');
+    final buddhistEra = mmDate.format('s k');
 
     return Row(
       children: [
