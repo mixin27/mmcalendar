@@ -58,6 +58,9 @@ class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
         children: [
           Expanded(
             child: TableCalendar(
+              availableCalendarFormats: const {
+                CalendarFormat.month: 'Month',
+              },
               locale: context.locale.languageCode,
               shouldFillViewport: true,
               daysOfWeekHeight: 50,
