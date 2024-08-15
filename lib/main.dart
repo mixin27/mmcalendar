@@ -24,13 +24,13 @@ Future<void> main() async {
   registerErrorHandlers(errorLogger);
 
   runApp(
-    EasyLocalization(
-      supportedLocales: L10n.all,
-      path: L10n.translationPath,
-      fallbackLocale: L10n.en,
-      useOnlyLangCode: true,
-      child: UncontrolledProviderScope(
-        container: container,
+    UncontrolledProviderScope(
+      container: container,
+      child: EasyLocalization(
+        supportedLocales: L10n.all,
+        path: L10n.translationPath,
+        fallbackLocale: L10n.en,
+        useOnlyLangCode: true,
         child: AppStartUpWidget(
           onLoaded: (context) => AppWidget(),
         ),
