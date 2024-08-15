@@ -17,5 +17,7 @@
   "dark_theme": "Dark",
   "light_theme": "Light",
   "system_theme": "System",
-  "license": "License"
+  "license": "License",
+
+  "myanmar_calendar": "Myanmar Calendar"
 }

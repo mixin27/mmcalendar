@@ -39,7 +39,7 @@ class LanguageChooserDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text(LocaleKeys.choose_language).tr(),
+      title: Text(LocaleKeys.choose_language.tr()),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(

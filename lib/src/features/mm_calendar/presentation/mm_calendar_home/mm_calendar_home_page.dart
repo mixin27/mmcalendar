@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
+import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/routes/routes.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -41,15 +42,15 @@ class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
   Widget build(BuildContext context) {
     final mmCalendar = ref.watch(mmCalendarProvider);
     final config = ref.watch(mmCalendarConfigControllerProvider);
-    final mmDate = mmCalendar.fromDateTime(_selectedDay, config: config);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MM Calendar'),
+        title: const Text(LocaleKeys.myanmar_calendar).tr(),
         actions: [
           IconButton(
             onPressed: () => context.router.push(const AppSettingsRoute()),
             icon: const Icon(IconlyLight.setting),
+            tooltip: LocaleKeys.settings.tr(),
           ),
         ],
       ),
@@ -126,12 +127,15 @@ class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
                 defaultBuilder: (context, day, focusedDay) {
                   final enDay = DateFormat().add_d().format(day);
 
-                  final moonPhase = mmDate.format('p');
-                  final fortnightDay = mmDate.format('f');
+                  final myanmarDate =
+                      mmCalendar.fromDateTime(day, config: config);
+
+                  final moonPhase = myanmarDate.format('p');
+                  final fortnightDay = myanmarDate.format('f');
 
                   final mmDay = fortnightDay.isEmpty ? moonPhase : fortnightDay;
 
-                  final holidays = mmDate.holidays;
+                  final holidays = myanmarDate.holidays;
 
                   return Container(
                     padding: const EdgeInsets.all(2),

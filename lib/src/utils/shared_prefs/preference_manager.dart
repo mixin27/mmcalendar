@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +16,6 @@ class PreferenceManager {
       T == String || T == bool || T == int || T == double || T == List<String>,
       invalidTypeError,
     );
-    log('data: $data');
 
     final setFuncs = <Type, Future<bool> Function()>{
       String: () => _prefs.setString(key, data as String),
