@@ -29,7 +29,7 @@ class AppSettingsPage extends StatelessWidget {
           AboutListTile(
             icon: const Icon(IconlyLight.document),
             applicationName: LocaleKeys.myanmar_calendar.tr(),
-            applicationVersion: 'v1.0.0',
+            applicationVersion: 'v1.0.1',
             applicationIcon: const Icon(IconlyBroken.calendar),
             applicationLegalese: 'Copyright (c) 2024 Kyaw Zayar Tun',
             child: Text(LocaleKeys.license.tr()),
