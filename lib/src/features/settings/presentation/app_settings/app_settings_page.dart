@@ -1,7 +1,8 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
-import 'package:mmcalendar/src/routes/routes.dart';
+import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/widgets/widgets.dart';
 
 @RoutePage()
@@ -18,23 +19,19 @@ class AppSettingsPage extends StatelessWidget {
         children: [
           // const NotificationSwitchListTile(),
           const ThemeModeSwitchTile(),
-          // const CalendarLanguageListTile(),
+          const CalendarLanguageListTile(),
           const AppLanguageListTile(),
           const RateMeListTile(),
           const PrivacyPolicyListTile(),
-          const AboutListTile(
-            icon: Icon(IconlyLight.document),
+          AboutListTile(
+            icon: const Icon(IconlyLight.document),
             applicationName: 'Myanmar Calendar',
             applicationVersion: 'v1.0.0',
-            applicationIcon: Icon(IconlyBroken.calendar),
+            applicationIcon: const Icon(IconlyBroken.calendar),
             applicationLegalese: 'Copyright (c) 2024 Kyaw Zayar Tun',
-            child: Text('License'),
+            child: const Text(LocaleKeys.license).tr(),
           ),
-          ListTile(
-            onTap: () => context.router.push(const AboutRoute()),
-            leading: const Icon(IconlyLight.info_circle),
-            title: const Text('About Myanmar Calendar'),
-          ),
+          const AboutAppListTile(),
         ],
       ),
     );

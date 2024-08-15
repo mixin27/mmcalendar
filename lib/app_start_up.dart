@@ -1,10 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/firebase_options.dart';
+import 'package:mmcalendar/src/shared/providers/mm_calendar_providers.dart';
 import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
-import 'package:mmcalendar/src/widgets/widgets.dart';
 // import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -16,7 +15,7 @@ FutureOr<void> appStartup(AppStartupRef ref) async {
     // ensure we invalidate all the providers we depend on
     // ref.invalidate(onboardingRepositoryProvider);
     ref.invalidate(sharedPreferencesProvider);
-    ref.invalidate(calendarLanguageControllerProvider);
+    ref.invalidate(mmCalendarConfigControllerProvider);
   });
 
   // await for all initialization code to be complete before returning
@@ -33,11 +32,7 @@ FutureOr<void> appStartup(AppStartupRef ref) async {
     ref.watch(sharedPreferencesProvider.future),
   ]);
 
-  MmCalendarConfig.initDefault(
-    MmCalendarOptions(
-      language: ref.watch(calendarLanguageControllerProvider),
-    ),
-  );
+  ref.watch(mmCalendarConfigControllerProvider);
 }
 
 /// Widget class to manage asynchronous app initialization

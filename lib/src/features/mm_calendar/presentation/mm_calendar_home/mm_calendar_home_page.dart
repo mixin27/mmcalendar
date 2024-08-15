@@ -2,20 +2,21 @@ import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
 import 'package:mmcalendar/src/routes/routes.dart';
-import 'package:mmcalendar/src/utils/dates.dart';
+import 'package:mmcalendar/src/shared/shared.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 @RoutePage()
-class MmCalendarHomePage extends StatefulWidget {
+class MmCalendarHomePage extends StatefulHookConsumerWidget {
   const MmCalendarHomePage({super.key});
 
   @override
-  State<MmCalendarHomePage> createState() => _MmCalendarHomePageState();
+  ConsumerState<MmCalendarHomePage> createState() => _MmCalendarHomePageState();
 }
 
-class _MmCalendarHomePageState extends State<MmCalendarHomePage> {
+class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _selectedDay = DateTime.now();
   DateTime _focusDay = DateTime.now();
@@ -38,6 +39,10 @@ class _MmCalendarHomePageState extends State<MmCalendarHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final mmCalendar = ref.watch(mmCalendarProvider);
+    final config = ref.watch(mmCalendarConfigControllerProvider);
+    final mmDate = mmCalendar.fromDateTime(_selectedDay, config: config);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('MM Calendar'),
@@ -118,12 +123,12 @@ class _MmCalendarHomePageState extends State<MmCalendarHomePage> {
                 defaultBuilder: (context, day, focusedDay) {
                   final enDay = DateFormat().add_d().format(day);
 
-                  final moonPhase = day.mmDate.format('p');
-                  final fortnightDay = day.mmDate.format('f');
+                  final moonPhase = mmDate.format('p');
+                  final fortnightDay = mmDate.format('f');
 
                   final mmDay = fortnightDay.isEmpty ? moonPhase : fortnightDay;
 
-                  final holidays = day.mmDate.holidays;
+                  final holidays = mmDate.holidays;
 
                   return Container(
                     padding: const EdgeInsets.all(2),

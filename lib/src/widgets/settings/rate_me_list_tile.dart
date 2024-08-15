@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
+import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class RateMeListTile extends StatelessWidget {
@@ -19,7 +21,7 @@ class RateMeListTile extends StatelessWidget {
         }
       },
       leading: const Icon(IconlyLight.star),
-      title: const Text('Rated Me'),
+      title: const Text(LocaleKeys.rate_me).tr(),
     );
   }
 }

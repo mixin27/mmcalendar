@@ -452,10 +452,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_mmcalendar
-      sha256: "096d432a0053d00b65d5380e0a1f5289de943cfd7c998ce0c58cbb1df8064e17"
+      sha256: "36954e54324b949537632468383f05b5cb4561ed1b8d90ef9dd247fe432f5185"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "1.1.1"
   flutter_riverpod:
     dependency: transitive
     description:

@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -29,27 +31,27 @@ class ThemeModeSwitchTile extends HookConsumerWidget {
       showAdaptiveDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Theme'),
+          title: const Text(LocaleKeys.theme).tr(),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 onTap: () => changeTheme(ThemeMode.system),
-                title: const Text('System'),
+                title: const Text(LocaleKeys.system_theme).tr(),
                 trailing: themeMode == ThemeMode.system
                     ? const Icon(Icons.check_outlined, color: Colors.green)
                     : null,
               ),
               ListTile(
                 onTap: () => changeTheme(ThemeMode.light),
-                title: const Text('Light'),
+                title: const Text(LocaleKeys.light_theme).tr(),
                 trailing: themeMode == ThemeMode.light
                     ? const Icon(Icons.check_outlined, color: Colors.green)
                     : null,
               ),
               ListTile(
                 onTap: () => changeTheme(ThemeMode.dark),
-                title: const Text('Dark'),
+                title: const Text(LocaleKeys.dark_theme).tr(),
                 trailing: themeMode == ThemeMode.dark
                     ? const Icon(Icons.check_outlined, color: Colors.green)
                     : null,

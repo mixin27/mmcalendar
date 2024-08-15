@@ -1,5 +1,21 @@
 {
   "developer": "Kyaw Zayar Tun",
 
-  "nagahle": "နဂါးခေါင်း {}သို့"
+  "language": "ဘာသာစကား",
+  "choose_language": "ဘာသာစကားကို ရွေးပါ",
+  "locale_en": "အင်္ဂလိပ်",
+  "locale_en_US": "အင်္ဂလိပ် (US)",
+  "locale_my": "မြန်မာ",
+
+  "home": "ပင်မစာမျက်နှာ",
+  "settings": "ဆက်တင်များ",
+
+  "privacy_policy": "ကိုယ်ရေးအချက်အလက်မူဝါဒ",
+  "about_myanmar_calendar": "မြန်မာပြက္ခဒိန်အကြောင်း",
+  "rate_me": "အဆင့်သတ်မှတ်ပါ",
+  "theme": "အပြင်အဆင်",
+  "dark_theme": "အမှောင်",
+  "light_theme": "အလင်း",
+  "system_theme": "စနစ်",
+  "license": "လိုင်စင်"
 }

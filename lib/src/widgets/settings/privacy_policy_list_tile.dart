@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
+import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/routes/routes.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -14,7 +16,7 @@ class PrivacyPolicyListTile extends StatelessWidget {
     return ListTile(
       onTap: () => context.router.push(const PrivacyPolicyRoute()),
       leading: const Icon(IconlyLight.shield_done),
-      title: const Text('Privacy policy'),
+      title: const Text(LocaleKeys.privacy_policy).tr(),
       trailing: IconButton(
         onPressed: () async {
           final url = Uri.parse(

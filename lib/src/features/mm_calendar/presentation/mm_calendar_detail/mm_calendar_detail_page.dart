@@ -2,22 +2,24 @@ import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
+import 'package:mmcalendar/src/shared/shared.dart';
 import 'package:mmcalendar/src/utils/dates.dart';
-import 'package:mmcalendar/src/widgets/widgets.dart';
 
 @RoutePage()
-class MmCalendarDetailPage extends StatefulWidget {
+class MmCalendarDetailPage extends StatefulHookConsumerWidget {
   const MmCalendarDetailPage({super.key, required this.date});
 
   @PathParam('date')
   final DateTime date;
 
   @override
-  State<MmCalendarDetailPage> createState() => _MmCalendarDetailPageState();
+  ConsumerState<MmCalendarDetailPage> createState() =>
+      _MmCalendarDetailPageState();
 }
 
-class _MmCalendarDetailPageState extends State<MmCalendarDetailPage> {
+class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
   // ignore: prefer_final_fields
   int _currentPageIndex = 600;
   PageController? _pageController;
@@ -86,11 +88,16 @@ class _MmCalendarDetailPageState extends State<MmCalendarDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final mmCalendar = ref.watch(mmCalendarProvider);
+
+    // final calLanguage = ref.watch(calendarLanguageControllerProvider);
+    // final langCatalog = LanguageCatalog(language: calLanguage);
+
     final day = DateFormat().add_d().format(_date);
     final dow = DateFormat().add_EEEE().format(_date);
     final monthAndYear = DateFormat('MMMM, yyyy').format(_date);
 
-    final mmDate = _date.mmDate;
+    final mmDate = mmCalendar.fromDateTime(_date);
     final fortnightDay = mmDate.getFortnightDay();
 
     final mmDow = mmDate.format('En');
@@ -127,7 +134,7 @@ class _MmCalendarDetailPageState extends State<MmCalendarDetailPage> {
 
     List<String> holidays = mmDate.holidays;
     final holidayColor = Theme.of(context).colorScheme.error;
-    final isPublicHoliday = isHoliday(_date);
+    final isPublicHoliday = isHoliday(_date, mmDate);
 
     return Scaffold(
       appBar: AppBar(
@@ -317,10 +324,7 @@ class _MmCalendarDetailPageState extends State<MmCalendarDetailPage> {
                           const SizedBox(height: 20),
                           MoonPhaseWidget(
                             date: _date,
-                            settings: MoonSettings(
-                              size: MediaQuery.sizeOf(context).width / 6,
-                              lightColor: const Color(0xFFF7EAC6),
-                            ),
+                            size: MediaQuery.sizeOf(context).width / 6,
                           ),
                           const SizedBox(height: 20),
                           Text(
@@ -347,7 +351,7 @@ class _MmCalendarDetailPageState extends State<MmCalendarDetailPage> {
   }
 }
 
-class MmDate extends StatelessWidget {
+class MmDate extends HookConsumerWidget {
   const MmDate({
     super.key,
     required this.date,
@@ -356,8 +360,9 @@ class MmDate extends StatelessWidget {
   final DateTime date;
 
   @override
-  Widget build(BuildContext context) {
-    final mmDate = date.mmDate;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mmCalendar = ref.watch(mmCalendarProvider);
+    final mmDate = mmCalendar.fromDateTime(date);
 
     final fortnightDay = mmDate.getFortnightDay();
 
@@ -374,7 +379,7 @@ class MmDate extends StatelessWidget {
   }
 }
 
-class DayOfWeek extends StatelessWidget {
+class DayOfWeek extends HookConsumerWidget {
   const DayOfWeek({
     super.key,
     required this.date,
@@ -383,15 +388,18 @@ class DayOfWeek extends StatelessWidget {
   final DateTime date;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mmCalendar = ref.watch(mmCalendarProvider);
+    final mmDate = mmCalendar.fromDateTime(date);
+
     final day = DateFormat('MMMM, yyyy').format(date);
     final dow = DateFormat().add_EEEE().format(date);
-    final mmDow = date.mmDate.format('E n');
+    final mmDow = mmDate.format('E n');
 
-    final astrologicalDay = date.mmDate.astro.getAstrologicalDay();
-    final sabbath = date.mmDate.astro.getSabbath();
+    final astrologicalDay = mmDate.astro.getAstrologicalDay();
+    final sabbath = mmDate.astro.getSabbath();
 
-    final nagahle = date.mmDate.astro.getNagahle();
+    final nagahle = mmDate.astro.getNagahle();
     final nagahleText = 'နဂါးခေါင်း $nagahle မြောက်သို့';
 
     return Column(

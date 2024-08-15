@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/app_start_up.dart';
 import 'package:mmcalendar/src/features/app/app.dart';
+import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/shared/errors/async_error_logger.dart';
 import 'package:mmcalendar/src/shared/errors/error_logger.dart';
 // import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
@@ -26,13 +27,9 @@ Future<void> main() async {
     UncontrolledProviderScope(
       container: container,
       child: EasyLocalization(
-        supportedLocales: const [
-          Locale('en'),
-          Locale('en', 'US'),
-          Locale('my')
-        ],
-        path: 'assets/translations',
-        fallbackLocale: const Locale('en', 'US'),
+        supportedLocales: L10n.all,
+        path: L10n.translationPath,
+        fallbackLocale: L10n.en,
         child: AppStartUpWidget(
           onLoaded: (context) => AppWidget(),
         ),
