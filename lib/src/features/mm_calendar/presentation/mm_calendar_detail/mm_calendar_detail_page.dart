@@ -5,7 +5,9 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
-import 'package:mmcalendar/src/utils/dates.dart';
+
+import 'widgets/landscape_date_detail_widget.dart';
+import 'widgets/portrait_date_detail_widget.dart';
 
 @RoutePage()
 class MmCalendarDetailPage extends StatefulHookConsumerWidget {
@@ -88,54 +90,6 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final mmCalendar = ref.watch(mmCalendarProvider);
-
-    // final calLanguage = ref.watch(calendarLanguageControllerProvider);
-    // final langCatalog = LanguageCatalog(language: calLanguage);
-
-    final day = DateFormat().add_d().format(_date);
-    final dow = DateFormat().add_EEEE().format(_date);
-    final monthAndYear = DateFormat('MMMM, yyyy').format(_date);
-
-    final mmDate = mmCalendar.fromDateTime(_date);
-    final fortnightDay = mmDate.getFortnightDay();
-
-    final mmDow = mmDate.format('En');
-
-    final mmDay = fortnightDay.isNotEmpty
-        ? mmDate.format('M p f r n')
-        : mmDate.format('M p n');
-
-    final mmDateFull = fortnightDay.isNotEmpty
-        ? mmDate.format()
-        : mmDate.format('S s k, B y k, M p, En');
-
-    final languageCatalog = LanguageCatalog();
-    final astro = mmDate.astro;
-
-    final sabbath = astro.getSabbath();
-    final astrologicalDay = astro.getAstrologicalDay();
-
-    final nagaMM = languageCatalog.translate('Naga');
-    final headMM = languageCatalog.translate('Head');
-    final facingMM = languageCatalog.translate('Facing');
-    final nagahle = astro.getNagahle();
-
-    final bornMM = languageCatalog.translate('Born');
-    final mahabote = astro.getMahabote();
-
-    final yearMM = languageCatalog.translate('Year');
-    final yearname = astro.getYearName();
-
-    final nakhatMM = languageCatalog.translate('Nakhat');
-    final nakhat = astro.getNakhat();
-
-    final nagapor = astro.getNagapor();
-
-    List<String> holidays = mmDate.holidays;
-    final holidayColor = Theme.of(context).colorScheme.error;
-    final isPublicHoliday = isHoliday(_date, mmDate);
-
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -149,202 +103,21 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
         controller: _pageController,
         onPageChanged: _handlePageChange,
         itemBuilder: (context, index) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isPublicHoliday
-                        ? Theme.of(context).colorScheme.errorContainer
-                        : Theme.of(context).colorScheme.primaryContainer,
-                    border: Border.all(
-                      color: isPublicHoliday
-                          ? holidayColor
-                          : Theme.of(context).colorScheme.primary,
-                    ),
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  ),
-                  child: Text(
-                    mmDateFull,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        sabbath,
-                        textAlign: TextAlign.start,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        // tr(LocaleKeys.nagahle, args: [nagahle]),
-                        nagahle.isEmpty
-                            ? ''
-                            : '$nagaMM$headMM $nagahle $facingMM',
-                        textAlign: TextAlign.end,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        astrologicalDay,
-                        textAlign: TextAlign.start,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        mahabote.isEmpty ? '' : '$mahabote $bornMM',
-                        textAlign: TextAlign.end,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        yearname.isEmpty ? '' : '$yearname $yearMM',
-                        textAlign: TextAlign.start,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        nakhat.isEmpty ? '' : '$nakhat $nakhatMM',
-                        textAlign: TextAlign.end,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        nagapor,
-                        textAlign: TextAlign.start,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        '',
-                        textAlign: TextAlign.end,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: _handlePreviousPage,
-                      iconSize: 35,
-                      icon: const Icon(Icons.chevron_left),
-                    ),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '$mmDow ($dow)',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          if (isPublicHoliday) ...[
-                            const SizedBox(height: 10),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                holidays.join(', '),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(color: holidayColor),
-                              ),
-                            ),
-                          ],
-                          Text(
-                            day,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge
-                                ?.copyWith(
-                                  fontSize:
-                                      MediaQuery.sizeOf(context).width / 2,
-                                  color: isPublicHoliday
-                                      ? holidayColor
-                                      : Theme.of(context).colorScheme.onSurface,
-                                ),
-                          ),
-                          Text(
-                            monthAndYear,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 20),
-                          MoonPhaseWidget(
-                            date: _date,
-                            size: MediaQuery.sizeOf(context).width / 6,
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            mmDay,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: _handleNextPage,
-                      iconSize: 35,
-                      icon: const Icon(Icons.chevron_right),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          );
+          return OrientationBuilder(builder: (context, orientation) {
+            if (orientation == Orientation.landscape) {
+              return LandscapeDateDetailWidget(
+                date: _date,
+                onPrevTap: _handlePreviousPage,
+                onNextTap: _handleNextPage,
+              );
+            }
+
+            return PortraitDateDetailWidget(
+              date: _date,
+              onPrevTap: _handlePreviousPage,
+              onNextTap: _handleNextPage,
+            );
+          });
         },
       ),
     );
