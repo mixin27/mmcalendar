@@ -61,7 +61,8 @@ class PortraitDateDetailWidget extends HookConsumerWidget {
 
     final nagapor = astro.getNagapor();
 
-    List<String> holidays = mmDate.holidays;
+    List<String> holidays =
+        mmDate.getHolidays(langCatalog: mmCalendar.languageCatalog);
     final holidayColor = Theme.of(context).colorScheme.error;
     final isPublicHoliday = isHoliday(date, mmDate);
 
@@ -199,7 +200,9 @@ class PortraitDateDetailWidget extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '$mmDow ($dow)',
+                    mmCalendar.language == Language.english
+                        ? dow
+                        : '$mmDow ($dow)',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   if (isPublicHoliday) ...[
