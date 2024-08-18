@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
+import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/shared/providers/mm_calendar_providers.dart';
 import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
 
@@ -25,7 +27,7 @@ class CalendarLanguageListTile extends HookConsumerWidget {
       showAdaptiveDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Theme'),
+          title: const Text(LocaleKeys.choose_calendar_language).tr(),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
