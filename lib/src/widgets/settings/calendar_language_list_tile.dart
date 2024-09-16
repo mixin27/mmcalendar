@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
+import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/shared/providers/mm_calendar_providers.dart';
 import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
 
@@ -25,53 +27,55 @@ class CalendarLanguageListTile extends HookConsumerWidget {
       showAdaptiveDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Theme'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                onTap: () => changeCalendarLanguage(Language.myanmar),
-                title: const Text('Myanmar (Unicode)'),
-                trailing: mmCalendarConfig.language == Language.myanmar
-                    ? const Icon(Icons.check_outlined, color: Colors.green)
-                    : null,
-              ),
-              ListTile(
-                onTap: () => changeCalendarLanguage(Language.zawgyi),
-                title: const Text('Myanmar (Zawgyi)'),
-                trailing: mmCalendarConfig.language == Language.zawgyi
-                    ? const Icon(Icons.check_outlined, color: Colors.green)
-                    : null,
-              ),
-              ListTile(
-                onTap: () => changeCalendarLanguage(Language.english),
-                title: const Text('English'),
-                trailing: mmCalendarConfig.language == Language.english
-                    ? const Icon(Icons.check_outlined, color: Colors.green)
-                    : null,
-              ),
-              ListTile(
-                onTap: () => changeCalendarLanguage(Language.karen),
-                title: const Text('Karen'),
-                trailing: mmCalendarConfig.language == Language.karen
-                    ? const Icon(Icons.check_outlined, color: Colors.green)
-                    : null,
-              ),
-              ListTile(
-                onTap: () => changeCalendarLanguage(Language.mon),
-                title: const Text('Mon'),
-                trailing: mmCalendarConfig.language == Language.mon
-                    ? const Icon(Icons.check_outlined, color: Colors.green)
-                    : null,
-              ),
-              ListTile(
-                onTap: () => changeCalendarLanguage(Language.tai),
-                title: const Text('Tai'),
-                trailing: mmCalendarConfig.language == Language.tai
-                    ? const Icon(Icons.check_outlined, color: Colors.green)
-                    : null,
-              ),
-            ],
+          title: const Text(LocaleKeys.choose_calendar_language).tr(),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  onTap: () => changeCalendarLanguage(Language.myanmar),
+                  title: const Text('Myanmar (Unicode)'),
+                  trailing: mmCalendarConfig.language == Language.myanmar
+                      ? const Icon(Icons.check_outlined, color: Colors.green)
+                      : null,
+                ),
+                ListTile(
+                  onTap: () => changeCalendarLanguage(Language.zawgyi),
+                  title: const Text('Myanmar (Zawgyi)'),
+                  trailing: mmCalendarConfig.language == Language.zawgyi
+                      ? const Icon(Icons.check_outlined, color: Colors.green)
+                      : null,
+                ),
+                ListTile(
+                  onTap: () => changeCalendarLanguage(Language.english),
+                  title: const Text('English'),
+                  trailing: mmCalendarConfig.language == Language.english
+                      ? const Icon(Icons.check_outlined, color: Colors.green)
+                      : null,
+                ),
+                ListTile(
+                  onTap: () => changeCalendarLanguage(Language.karen),
+                  title: const Text('Karen'),
+                  trailing: mmCalendarConfig.language == Language.karen
+                      ? const Icon(Icons.check_outlined, color: Colors.green)
+                      : null,
+                ),
+                ListTile(
+                  onTap: () => changeCalendarLanguage(Language.mon),
+                  title: const Text('Mon'),
+                  trailing: mmCalendarConfig.language == Language.mon
+                      ? const Icon(Icons.check_outlined, color: Colors.green)
+                      : null,
+                ),
+                ListTile(
+                  onTap: () => changeCalendarLanguage(Language.tai),
+                  title: const Text('Tai'),
+                  trailing: mmCalendarConfig.language == Language.tai
+                      ? const Icon(Icons.check_outlined, color: Colors.green)
+                      : null,
+                ),
+              ],
+            ),
           ),
         ),
       );

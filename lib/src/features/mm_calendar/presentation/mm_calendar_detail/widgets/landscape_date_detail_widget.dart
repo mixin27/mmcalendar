@@ -83,7 +83,9 @@ class LandscapeDateDetailWidget extends HookConsumerWidget {
                     child: Column(
                       children: [
                         Text(
-                          '$mmDow ($dow)',
+                          mmCalendar.language == Language.english
+                              ? dow
+                              : '$mmDow ($dow)',
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         if (isPublicHoliday && holidays.isNotEmpty) ...[
