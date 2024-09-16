@@ -8,7 +8,6 @@ import 'package:mmcalendar/src/features/app/app.dart';
 import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/shared/errors/async_error_logger.dart';
 import 'package:mmcalendar/src/shared/errors/error_logger.dart';
-// import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
