@@ -1,11 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
+import 'package:mmcalendar/src/utils/google_ads/ads_helper.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class PortraitCalendarView extends HookConsumerWidget {
+class PortraitCalendarView extends ConsumerStatefulWidget {
   const PortraitCalendarView({
     super.key,
     required this.selectedDay,
@@ -28,7 +30,35 @@ class PortraitCalendarView extends HookConsumerWidget {
   final void Function(DateTime, DateTime)? onDaySelected;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PortraitCalendarView> createState() =>
+      _PortraitCalendarViewState();
+}
+
+class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
+  NativeAd? _nativeAd;
+  bool _isNativeAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadNativeAd();
+  }
+
+  void loadNativeAd() {
+    final ad = AdsHelper.loadNativeAd(
+        onLoaded: () {
+          setState(() {
+            _isNativeAdLoaded = true;
+          });
+        },
+        type: TemplateType.small);
+    setState(() {
+      _nativeAd = ad;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final mmCalendar = ref.watch(mmCalendarProvider);
     final config = ref.watch(mmCalendarConfigControllerProvider);
 
@@ -43,8 +73,8 @@ class PortraitCalendarView extends HookConsumerWidget {
             daysOfWeekHeight: 50,
             firstDay: DateTime.utc(1900, 01, 01),
             lastDay: DateTime.utc(3000, 01, 01),
-            focusedDay: focusedDay,
-            calendarFormat: calendarFormat,
+            focusedDay: widget.focusedDay,
+            calendarFormat: widget.calendarFormat,
             calendarStyle: CalendarStyle(
               selectedDecoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -55,14 +85,14 @@ class PortraitCalendarView extends HookConsumerWidget {
                 color: Theme.of(context).colorScheme.secondary,
               ),
             ),
-            onHeaderTapped: onHeaderTapped,
-            onFormatChanged: onFormatChanged,
-            selectedDayPredicate: selectedDayPredicate ??
+            onHeaderTapped: widget.onHeaderTapped,
+            onFormatChanged: widget.onFormatChanged,
+            selectedDayPredicate: widget.selectedDayPredicate ??
                 (day) {
-                  return isSameDay(selectedDay, day);
+                  return isSameDay(widget.selectedDay, day);
                 },
-            onDaySelected: onDaySelected,
-            onPageChanged: onPageChanged,
+            onDaySelected: widget.onDaySelected,
+            onPageChanged: widget.onPageChanged,
             calendarBuilders: CalendarBuilders(
               dowBuilder: (context, day) {
                 final text = DateFormat().add_E().format(day);
@@ -182,7 +212,21 @@ class PortraitCalendarView extends HookConsumerWidget {
             ),
           ),
         ),
-        SizedBox(height: MediaQuery.sizeOf(context).height * 0.2),
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.2,
+          child: _nativeAd != null && _isNativeAdLoaded
+              ? SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
+                    child: SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.2,
+                      child: AdWidget(ad: _nativeAd!),
+                    ),
+                  ),
+                )
+              : null,
+        ),
       ],
     );
   }

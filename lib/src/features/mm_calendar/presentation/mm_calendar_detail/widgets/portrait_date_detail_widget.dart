@@ -73,15 +73,14 @@ class PortraitDateDetailWidget extends HookConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isPublicHoliday
-                  ? Theme.of(context).colorScheme.errorContainer
-                  : Theme.of(context).colorScheme.primaryContainer,
-              border: Border.all(
-                color: isPublicHoliday
-                    ? holidayColor
-                    : Theme.of(context).colorScheme.primary,
+              border: Border(
+                left: BorderSide(
+                  width: 8,
+                  color: isPublicHoliday
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(context).colorScheme.primary,
+                ),
               ),
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
             child: Text(
               mmDateFull,
@@ -92,101 +91,7 @@ class PortraitDateDetailWidget extends HookConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  sabbath,
-                  textAlign: TextAlign.start,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text(
-                  // tr(LocaleKeys.nagahle, args: [nagahle]),
-                  nagahle.isEmpty ? '' : '$nagaMM$headMM $nagahle $facingMM',
-                  textAlign: TextAlign.end,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  astrologicalDay,
-                  textAlign: TextAlign.start,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  mahabote.isEmpty ? '' : '$mahabote $bornMM',
-                  textAlign: TextAlign.end,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  yearname.isEmpty ? '' : '$yearname $yearMM',
-                  textAlign: TextAlign.start,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  nakhat.isEmpty ? '' : '$nakhat $nakhatMM',
-                  textAlign: TextAlign.end,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  nagapor,
-                  textAlign: TextAlign.start,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  '',
-                  textAlign: TextAlign.end,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
         Row(
           children: [
             if (onPrevTap != null)
@@ -197,49 +102,121 @@ class PortraitDateDetailWidget extends HookConsumerWidget {
               ),
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    mmCalendar.language == Language.english
-                        ? dow
-                        : '$mmDow ($dow)',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  if (isPublicHoliday) ...[
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        holidays.join(', '),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        mmCalendar.language == Language.english
+                            ? dow
+                            : '$mmDow ($dow)',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      if (isPublicHoliday) ...[
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            holidays.join(', '),
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(color: holidayColor),
+                          ),
+                        ),
+                      ],
+                      Text(
+                        day,
+                        textAlign: TextAlign.center,
                         style: Theme.of(context)
                             .textTheme
-                            .titleMedium
-                            ?.copyWith(color: holidayColor),
+                            .headlineLarge
+                            ?.copyWith(
+                              fontSize: MediaQuery.sizeOf(context).width / 2.5,
+                              color: isPublicHoliday
+                                  ? holidayColor
+                                  : Theme.of(context).colorScheme.onSurface,
+                            ),
                       ),
-                    ),
-                  ],
-                  Text(
-                    day,
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          fontSize: MediaQuery.sizeOf(context).width / 2,
-                          color: isPublicHoliday
-                              ? holidayColor
-                              : Theme.of(context).colorScheme.onSurface,
+                      Text(
+                        monthAndYear,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 20),
+                      MoonPhaseWidget(
+                        date: date,
+                        size: MediaQuery.sizeOf(context).width / 6,
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        mmDay,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (sabbath.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '\u2022 $sabbath',
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                  ),
-                  Text(
-                    monthAndYear,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 20),
-                  MoonPhaseWidget(
-                    date: date,
-                    size: MediaQuery.sizeOf(context).width / 6,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    mmDay,
-                    style: Theme.of(context).textTheme.titleMedium,
+                      ],
+                      if (nagapor.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '\u2022 $nagapor',
+                          textAlign: TextAlign.start,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                      if (nagahle.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '\u2022 $nagaMM$headMM $nagahle $facingMM',
+                          textAlign: TextAlign.end,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                      if (astrologicalDay.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '\u2022 $astrologicalDay',
+                          textAlign: TextAlign.start,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                      if (mahabote.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '\u2022 $mahabote $bornMM',
+                          textAlign: TextAlign.end,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                      if (nakhat.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '\u2022 $nakhat $nakhatMM',
+                          textAlign: TextAlign.end,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                      if (yearname.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '\u2022 $yearname $yearMM',
+                          textAlign: TextAlign.start,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),

@@ -1,3 +1,5 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mmcalendar/main.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,12 +52,6 @@ class PreferenceManager {
 }
 
 @riverpod
-PreferenceManager preferenceManager(PreferenceManagerRef ref) {
-  final prefs = ref.read(sharedPreferencesProvider).requireValue;
-  return PreferenceManager(prefs);
-}
-
-@Riverpod(keepAlive: true)
-Future<SharedPreferences> sharedPreferences(SharedPreferencesRef ref) {
-  return SharedPreferences.getInstance();
+PreferenceManager preferenceManager(Ref ref) {
+  return PreferenceManager(sharedPreferences);
 }

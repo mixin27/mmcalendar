@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class LanscapeCalendarView extends HookConsumerWidget {
+class LanscapeCalendarView extends ConsumerStatefulWidget {
   const LanscapeCalendarView({
     super.key,
     required this.selectedDay,
@@ -28,7 +28,13 @@ class LanscapeCalendarView extends HookConsumerWidget {
   final void Function(DateTime, DateTime)? onDaySelected;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LanscapeCalendarView> createState() =>
+      _LanscapeCalendarViewState();
+}
+
+class _LanscapeCalendarViewState extends ConsumerState<LanscapeCalendarView> {
+  @override
+  Widget build(BuildContext context) {
     final mmCalendar = ref.watch(mmCalendarProvider);
     final config = ref.watch(mmCalendarConfigControllerProvider);
 
@@ -39,8 +45,8 @@ class LanscapeCalendarView extends HookConsumerWidget {
       daysOfWeekHeight: 50,
       firstDay: DateTime.utc(1900, 01, 01),
       lastDay: DateTime.utc(3000, 01, 01),
-      focusedDay: focusedDay,
-      calendarFormat: calendarFormat,
+      focusedDay: widget.focusedDay,
+      calendarFormat: widget.calendarFormat,
       calendarStyle: CalendarStyle(
         selectedDecoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -51,14 +57,14 @@ class LanscapeCalendarView extends HookConsumerWidget {
           color: Theme.of(context).colorScheme.secondary,
         ),
       ),
-      onHeaderTapped: onHeaderTapped,
-      onFormatChanged: onFormatChanged,
-      selectedDayPredicate: selectedDayPredicate ??
+      onHeaderTapped: widget.onHeaderTapped,
+      onFormatChanged: widget.onFormatChanged,
+      selectedDayPredicate: widget.selectedDayPredicate ??
           (day) {
-            return isSameDay(selectedDay, day);
+            return isSameDay(widget.selectedDay, day);
           },
-      onDaySelected: onDaySelected,
-      onPageChanged: onPageChanged,
+      onDaySelected: widget.onDaySelected,
+      onPageChanged: widget.onPageChanged,
       calendarBuilders: CalendarBuilders(
         dowBuilder: (context, day) {
           final text = DateFormat().add_E().format(day);

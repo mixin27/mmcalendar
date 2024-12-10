@@ -2,9 +2,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
+import 'package:mmcalendar/src/utils/google_ads/ads_helper.dart';
 
 import 'widgets/landscape_date_detail_widget.dart';
 import 'widgets/portrait_date_detail_widget.dart';
@@ -28,11 +30,19 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
 
   DateTime _date = DateTime.now();
 
+  BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
+
+  // NativeAd? _nativeAd;
+  // bool _isNativeAdLoaded = false;
+
   @override
   void initState() {
     _date = widget.date;
     _pageController = PageController(initialPage: _currentPageIndex);
     super.initState();
+    loadBannerAd();
+    // loadNativeAd();
   }
 
   @override
@@ -40,6 +50,30 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
     _pageController?.dispose();
     super.dispose();
   }
+
+  void loadBannerAd() {
+    final ad = AdsHelper.loadBannerAd(
+      onLoaded: () {
+        setState(() {
+          _isAdLoaded = true;
+        });
+      },
+    );
+    setState(() {
+      _bannerAd = ad;
+    });
+  }
+
+  // void loadNativeAd() {
+  //   final ad = AdsHelper.loadNativeAd(onLoaded: () {
+  //     setState(() {
+  //       _isNativeAdLoaded = true;
+  //     });
+  //   });
+  //   setState(() {
+  //     _nativeAd = ad;
+  //   });
+  // }
 
   void _handlePageChange(int position) {
     if (_currentPageIndex > position) {
@@ -90,6 +124,8 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final orientation = MediaQuery.orientationOf(context);
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -99,6 +135,15 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
           ),
         ],
       ),
+      bottomNavigationBar: (_bannerAd != null &&
+              _isAdLoaded &&
+              orientation == Orientation.portrait)
+          ? SizedBox(
+              width: double.infinity,
+              height: _bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd!),
+            )
+          : null,
       body: PageView.builder(
         controller: _pageController,
         onPageChanged: _handlePageChange,

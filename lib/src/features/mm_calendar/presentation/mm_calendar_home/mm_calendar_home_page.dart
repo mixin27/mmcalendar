@@ -5,6 +5,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
 import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/routes/routes.dart';
+import 'package:mmcalendar/src/utils/google_ads/ads_helper.dart';
+import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'widgets/lanscape_calendar_view.dart';
 import 'widgets/portrait_calendar_view.dart';
@@ -20,6 +23,29 @@ class MmCalendarHomePage extends StatefulHookConsumerWidget {
 class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusDay = DateTime.now();
+
+  BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initOnesignal();
+    loadBannerAd();
+  }
+
+  void loadBannerAd() {
+    final ad = AdsHelper.loadBannerAd(
+      onLoaded: () {
+        setState(() {
+          _isAdLoaded = true;
+        });
+      },
+    );
+    setState(() {
+      _bannerAd = ad;
+    });
+  }
 
   void _handleHeaderTap(DateTime date) async {
     final selectedDate = await showDatePicker(
@@ -75,12 +101,26 @@ class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
             onPageChanged: _handlePageChanged,
           );
         }
-        return PortraitCalendarView(
-          selectedDay: _selectedDay,
-          focusedDay: _focusDay,
-          onHeaderTapped: _handleHeaderTap,
-          onDaySelected: _handleDaySelected,
-          onPageChanged: _handlePageChanged,
+        return Column(
+          children: [
+            if (_bannerAd != null && _isAdLoaded) ...[
+              SizedBox(
+                width: double.infinity,
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+              const SizedBox(height: 16),
+            ],
+            Expanded(
+              child: PortraitCalendarView(
+                selectedDay: _selectedDay,
+                focusedDay: _focusDay,
+                onHeaderTapped: _handleHeaderTap,
+                onDaySelected: _handleDaySelected,
+                onPageChanged: _handlePageChanged,
+              ),
+            ),
+          ],
         );
       }),
     );

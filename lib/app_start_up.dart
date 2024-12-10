@@ -1,36 +1,24 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mmcalendar/firebase_options.dart';
 import 'package:mmcalendar/src/shared/providers/mm_calendar_providers.dart';
-import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
-import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_start_up.g.dart';
 
 @Riverpod(keepAlive: true)
-FutureOr<void> appStartup(AppStartupRef ref) async {
+FutureOr<void> appStartup(Ref ref) async {
   ref.onDispose(() {
     // ensure we invalidate all the providers we depend on
     // ref.invalidate(onboardingRepositoryProvider);
-    ref.invalidate(sharedPreferencesProvider);
     ref.invalidate(mmCalendarConfigControllerProvider);
   });
 
   // await for all initialization code to be complete before returning
   // we can use `Future.wait` for independent long run tasks.
-  await Future.wait([
-    // Firebase init
-    Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    ),
-    initOnesignal(),
-
-    // list of providers to be warmed up
-    // ref.watch(onboardingRepositoryProvider.future),
-    ref.watch(sharedPreferencesProvider.future),
-  ]);
+  // await Future.wait([
+  // list of providers to be warmed up
+  // ref.watch(onboardingRepositoryProvider.future),
+  // ]);
 
   ref.watch(mmCalendarConfigControllerProvider);
 }

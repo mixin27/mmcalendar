@@ -1,17 +1,40 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/app_start_up.dart';
+import 'package:mmcalendar/firebase_options.dart';
 import 'package:mmcalendar/src/features/app/app.dart';
 import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/shared/errors/async_error_logger.dart';
 import 'package:mmcalendar/src/shared/errors/error_logger.dart';
+// ignore:depend_on_referenced_packages
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'src/utils/google_ads/ads_helper.dart';
+import 'src/utils/remote_config/app_remote_config.dart';
+
+late SharedPreferences sharedPreferences;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+
+  sharedPreferences = await SharedPreferences.getInstance();
+
+  // Firebase init
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  await AppRemoteConfig.initConfig();
+  await AdsHelper.initAds();
+
+  // turn off the # in the URLs on the web
+  usePathUrlStrategy();
 
   final container = ProviderContainer(
     observers: [AsyncErrorLogger()],

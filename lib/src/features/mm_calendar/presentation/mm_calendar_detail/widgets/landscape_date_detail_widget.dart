@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
 import 'package:mmcalendar/src/utils/dates.dart';
+import 'package:mmcalendar/src/utils/google_ads/ads_helper.dart';
 
-class LandscapeDateDetailWidget extends HookConsumerWidget {
+class LandscapeDateDetailWidget extends ConsumerStatefulWidget {
   const LandscapeDateDetailWidget({
     super.key,
     required this.date,
@@ -18,15 +20,44 @@ class LandscapeDateDetailWidget extends HookConsumerWidget {
   final VoidCallback? onNextTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LandscapeDateDetailWidget> createState() =>
+      _LandscapeDateDetailWidgetState();
+}
+
+class _LandscapeDateDetailWidgetState
+    extends ConsumerState<LandscapeDateDetailWidget> {
+  BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadBannerAd();
+  }
+
+  void loadBannerAd() {
+    final ad = AdsHelper.loadBannerAd(
+      onLoaded: () {
+        setState(() {
+          _isAdLoaded = true;
+        });
+      },
+    );
+    setState(() {
+      _bannerAd = ad;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final mmCalendar = ref.watch(mmCalendarProvider);
     final config = ref.watch(mmCalendarConfigControllerProvider);
 
-    final day = DateFormat().add_d().format(date);
-    final dow = DateFormat().add_EEEE().format(date);
-    final monthAndYear = DateFormat('MMMM, yyyy').format(date);
+    final day = DateFormat().add_d().format(widget.date);
+    final dow = DateFormat().add_EEEE().format(widget.date);
+    final monthAndYear = DateFormat('MMMM, yyyy').format(widget.date);
 
-    final mmDate = mmCalendar.fromDateTime(date);
+    final mmDate = mmCalendar.fromDateTime(widget.date);
     final fortnightDay = mmDate.getFortnightDay();
 
     final mmDow = mmDate.format('En');
@@ -63,13 +94,13 @@ class LandscapeDateDetailWidget extends HookConsumerWidget {
 
     List<String> holidays = mmDate.holidays;
     final holidayColor = Theme.of(context).colorScheme.error;
-    final isPublicHoliday = isHoliday(date, mmDate);
+    final isPublicHoliday = isHoliday(widget.date, mmDate);
 
     return Row(
       children: [
-        if (onPrevTap != null)
+        if (widget.onPrevTap != null)
           IconButton(
-            onPressed: onPrevTap,
+            onPressed: widget.onPrevTap,
             iconSize: 35,
             icon: const Icon(Icons.chevron_left),
           ),
@@ -119,7 +150,7 @@ class LandscapeDateDetailWidget extends HookConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                         MoonPhaseWidget(
-                          date: date,
+                          date: widget.date,
                           size: 50,
                         ),
                         const SizedBox(height: 10),
@@ -166,6 +197,14 @@ class LandscapeDateDetailWidget extends HookConsumerWidget {
                           padding: EdgeInsets.symmetric(vertical: 10),
                           child: Divider(),
                         ),
+                        if (_bannerAd != null && _isAdLoaded) ...[
+                          SizedBox(
+                            width: double.infinity,
+                            height: _bannerAd!.size.height.toDouble(),
+                            child: AdWidget(ad: _bannerAd!),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
                         if (sabbath.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
@@ -229,9 +268,9 @@ class LandscapeDateDetailWidget extends HookConsumerWidget {
             ],
           ),
         ),
-        if (onNextTap != null)
+        if (widget.onNextTap != null)
           IconButton(
-            onPressed: onNextTap,
+            onPressed: widget.onNextTap,
             iconSize: 35,
             icon: const Icon(Icons.chevron_right),
           ),

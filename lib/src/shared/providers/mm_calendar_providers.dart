@@ -1,4 +1,5 @@
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
 import 'package:mmcalendar/src/widgets/settings/calendar_language_list_tile.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -6,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'mm_calendar_providers.g.dart';
 
 @Riverpod(keepAlive: true)
-MmCalendar mmCalendar(MmCalendarRef ref) {
+MmCalendar mmCalendar(Ref ref) {
   final config = ref.watch(mmCalendarConfigControllerProvider);
   return MmCalendar(config: config);
 }

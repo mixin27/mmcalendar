@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'exceptions.dart';
@@ -29,6 +30,6 @@ class AppErrorLogger implements ErrorLogger {
 }
 
 @riverpod
-ErrorLogger errorLogger(ErrorLoggerRef ref) {
+ErrorLogger errorLogger(Ref ref) {
   return AppErrorLogger();
 }
