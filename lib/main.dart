@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -30,8 +32,8 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  await AppRemoteConfig.initConfig();
-  await AdsHelper.initAds();
+  unawaited(AdsHelper.initAds());
+  unawaited(AppRemoteConfig.initConfig());
 
   // turn off the # in the URLs on the web
   usePathUrlStrategy();
