@@ -115,11 +115,14 @@ class _LanscapeCalendarViewState extends ConsumerState<LanscapeCalendarView> {
                     : null,
                 border: Border.all(
                   color: isWeekend
-                      ? Theme.of(context).colorScheme.error.withOpacity(0.2)
+                      ? Theme.of(context)
+                          .colorScheme
+                          .error
+                          .withValues(alpha: 0.2)
                       : Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.2),
+                          .withValues(alpha: 0.2),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(8)),
               ),

@@ -32,8 +32,8 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  unawaited(AdsHelper.initAds());
   unawaited(AppRemoteConfig.initConfig());
+  unawaited(AdsHelper.initAds());
 
   // turn off the # in the URLs on the web
   usePathUrlStrategy();

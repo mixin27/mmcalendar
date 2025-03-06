@@ -22,14 +22,14 @@ class AppSettingsPage extends StatelessWidget {
         children: [
           const NotificationSwitchListTile(),
           const ThemeModeSwitchTile(),
-          const CalendarLanguageListTile(),
-          const AppLanguageListTile(),
+          // const CalendarLanguageListTile(),
+          // const AppLanguageListTile(),
           const RateMeListTile(),
           const PrivacyPolicyListTile(),
           AboutListTile(
             icon: const Icon(IconlyLight.document),
             applicationName: LocaleKeys.myanmar_calendar.tr(),
-            applicationVersion: 'v1.0.1',
+            applicationVersion: 'v1.0.4',
             applicationIcon: const Icon(IconlyBroken.calendar),
             applicationLegalese: 'Copyright (c) 2024 Kyaw Zayar Tun',
             child: Text(LocaleKeys.license.tr()),

@@ -19,15 +19,16 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "dev.mixin27.mmcalendar"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
+    // ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = JavaVersion.VERSION_11
     }
 
     defaultConfig {
@@ -60,6 +61,7 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+            debuggable false
             // Enables code shrinking, obfuscation, and optimization for only
             // your project's release build type. Make sure to use a build
             // variant with `debuggable false`.
@@ -71,6 +73,7 @@ android {
         }
         debug {
             signingConfig signingConfigs.debug
+            debuggable true
         }
     }
 }

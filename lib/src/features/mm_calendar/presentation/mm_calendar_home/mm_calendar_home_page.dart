@@ -82,7 +82,26 @@ class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(LocaleKeys.myanmar_calendar).tr(),
+        // title: const Text().tr(),
+        title: Text(
+          LocaleKeys.myanmar_calendar,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 30,
+            letterSpacing: 1.5,
+            shadows: [
+              BoxShadow(
+                blurRadius: 10,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.4),
+                offset: const Offset(2, 2),
+              ),
+            ],
+          ),
+        ).tr(),
         actions: [
           IconButton(
             onPressed: () => context.router.push(const AppSettingsRoute()),
