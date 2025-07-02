@@ -17,21 +17,25 @@ class AdsHelper {
     await MobileAds.instance.initialize();
   }
 
-  static String get nativeAdUnit => _isDebug
-      ? "ca-app-pub-3940256099942544/2247696110"
-      : 'ca-app-pub-7567997114394639/4179011671';
+  static String get nativeAdUnit =>
+      _isDebug
+          ? "ca-app-pub-3940256099942544/2247696110"
+          : 'ca-app-pub-7567997114394639/4179011671';
 
-  static String get bannerAdUnit => _isDebug
-      ? "ca-app-pub-3940256099942544/9214589741"
-      : 'ca-app-pub-7567997114394639/3249073381';
+  static String get bannerAdUnit =>
+      _isDebug
+          ? "ca-app-pub-3940256099942544/9214589741"
+          : 'ca-app-pub-7567997114394639/3249073381';
 
-  static String get interstitialAdUnit => _isDebug
-      ? "ca-app-pub-3940256099942544/1033173712"
-      : 'ca-app-pub-7567997114394639/2865930008';
+  static String get interstitialAdUnit =>
+      _isDebug
+          ? "ca-app-pub-3940256099942544/1033173712"
+          : 'ca-app-pub-7567997114394639/2865930008';
 
-  static String get appOpenAdUnit => _isDebug
-      ? "ca-app-pub-3940256099942544/9257395921"
-      : 'ca-app-pub-7567997114394639/3754944612';
+  static String get appOpenAdUnit =>
+      _isDebug
+          ? "ca-app-pub-3940256099942544/9257395921"
+          : 'ca-app-pub-7567997114394639/3754944612';
 
   static InterstitialAd? _interstitialAd;
   static bool _interstitialAdLoaded = false;
@@ -99,12 +103,13 @@ class AdsHelper {
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           //ad listener
-          ad.fullScreenContentCallback =
-              FullScreenContentCallback(onAdDismissedFullScreenContent: (ad) {
-            onComplete();
-            _resetInterstitialAd();
-            precacheInterstitialAd();
-          });
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              onComplete();
+              _resetInterstitialAd();
+              precacheInterstitialAd();
+            },
+          );
           Navigator.pop(context);
           ad.show();
         },
@@ -174,9 +179,7 @@ class AdsHelper {
       ),
       request: const AdRequest(),
       // Styling
-      nativeTemplateStyle: NativeTemplateStyle(
-        templateType: type,
-      ),
+      nativeTemplateStyle: NativeTemplateStyle(templateType: type),
     )..load();
   }
 
@@ -235,7 +238,7 @@ class AdsHelper {
   }
 
   // ****************** Consent ****************************
-  static showConsentUMP() {
+  static void showConsentUMP() {
     log("showConsentUMP called");
     if (AppRemoteConfig.hideAds) return;
 
@@ -258,11 +261,9 @@ class AdsHelper {
       (ConsentForm consentForm) async {
         var status = await ConsentInformation.instance.getConsentStatus();
         if (status == ConsentStatus.required) {
-          consentForm.show(
-            (FormError? formError) {
-              loadForm();
-            },
-          );
+          consentForm.show((FormError? formError) {
+            loadForm();
+          });
         }
       },
       (formError) {
