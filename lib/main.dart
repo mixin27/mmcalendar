@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:calendar_home_widgets/calendar_home_widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -20,17 +21,15 @@ import 'src/utils/google_ads/ads_helper.dart';
 import 'src/utils/remote_config/app_remote_config.dart';
 
 late SharedPreferences sharedPreferences;
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-
   sharedPreferences = await SharedPreferences.getInstance();
 
+  await CalendarHomeWidgets.initCalendarWidgets(title: "MyanmarCalendar");
+
   // Firebase init
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   unawaited(AppRemoteConfig.initConfig());
   unawaited(AdsHelper.initAds());
@@ -38,9 +37,7 @@ Future<void> main() async {
   // turn off the # in the URLs on the web
   usePathUrlStrategy();
 
-  final container = ProviderContainer(
-    observers: [AsyncErrorLogger()],
-  );
+  final container = ProviderContainer(observers: [AsyncErrorLogger()]);
 
   // * Register error handlers. For more info, see:
   // * https://docs.flutter.dev/testing/errors
@@ -55,9 +52,7 @@ Future<void> main() async {
         path: L10n.translationPath,
         fallbackLocale: L10n.en,
         useOnlyLangCode: true,
-        child: AppStartUpWidget(
-          onLoaded: (context) => AppWidget(),
-        ),
+        child: AppStartUpWidget(onLoaded: (context) => AppWidget()),
       ),
     ),
   );

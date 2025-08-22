@@ -1,0 +1,43 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="dev.mixin27.calendar_home_widgets">
+    <application>
+        <!-- Moon Phase Widget -->
+        <receiver
+            android:name=".MoonPhaseWidget"
+            android:label="Moon Phase"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/plugin_moon_phase_widget_info"/>
+        </receiver>
+
+        <!-- Date Info Widget -->
+        <receiver
+            android:name=".DateAndAstroInfoWidget"
+            android:label="Date Info"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/plugin_date_info_widget_info"/>
+        </receiver>
+
+        <!--    MyanmarDate and MoonPhase -->
+        <receiver
+            android:name=".MmDateMoonPhaseWidget"
+            android:label="Myanmar Date and Moon Phase"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/plugin_mmdate_mp_widget_info"/>
+        </receiver>
+    </application>
+</manifest>

@@ -1,3 +1,4 @@
+import 'package:calendar_home_widgets/calendar_home_widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
@@ -10,9 +11,7 @@ import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
 const PreferenceKey keyCalendarLang = 'key_cal_lang';
 
 class CalendarLanguageListTile extends HookConsumerWidget {
-  const CalendarLanguageListTile({
-    super.key,
-  });
+  const CalendarLanguageListTile({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,6 +19,7 @@ class CalendarLanguageListTile extends HookConsumerWidget {
 
     void changeCalendarLanguage(Language lang) {
       ref.read(mmCalendarConfigControllerProvider.notifier).setLanguage(lang);
+      CalendarHomeWidgets.updateCalendarLanguage(lang);
       Navigator.of(context).pop();
     }
 

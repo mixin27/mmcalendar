@@ -15,15 +15,13 @@ class AppSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     log('rebuild...');
     return Scaffold(
-      appBar: AppBar(
-        title: Text(LocaleKeys.settings.tr()),
-      ),
+      appBar: AppBar(title: Text(LocaleKeys.settings.tr())),
       body: ListView(
         children: [
           const NotificationSwitchListTile(),
           const ThemeModeSwitchTile(),
-          // const CalendarLanguageListTile(),
-          // const AppLanguageListTile(),
+          const CalendarLanguageListTile(),
+          const AppLanguageListTile(),
           const RateMeListTile(),
           const PrivacyPolicyListTile(),
           AboutListTile(

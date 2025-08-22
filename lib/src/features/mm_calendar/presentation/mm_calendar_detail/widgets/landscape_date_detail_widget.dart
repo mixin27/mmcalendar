@@ -125,18 +125,14 @@ class _LandscapeDateDetailWidgetState
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               holidays.join(', '),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(color: holidayColor),
                             ),
                           ),
                         ],
                         Text(
                           day,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineLarge
+                          style: Theme.of(context).textTheme.headlineLarge
                               ?.copyWith(
                                 fontSize: MediaQuery.sizeOf(context).height / 4,
                                 color: isPublicHoliday
@@ -149,10 +145,7 @@ class _LandscapeDateDetailWidgetState
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 10),
-                        MoonPhaseWidget(
-                          date: widget.date,
-                          size: 50,
-                        ),
+                        MoonPhaseWidget(date: widget.date, size: 50),
                         const SizedBox(height: 10),
                         Text(
                           mmDay,
@@ -182,13 +175,11 @@ class _LandscapeDateDetailWidgetState
                           ),
                           child: Text(
                             mmDateFull,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimaryContainer,
                                   fontWeight: FontWeight.w500,
                                 ),
                           ),
