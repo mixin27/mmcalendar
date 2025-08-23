@@ -2,7 +2,7 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="160dp"
     android:minHeight="70dp"
-    android:updatePeriodMillis="86400000"
+    android:updatePeriodMillis="0"
     android:initialLayout="@layout/plugin_moon_phase_widget"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"/>
