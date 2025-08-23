@@ -61,8 +61,9 @@ class PortraitDateDetailWidget extends HookConsumerWidget {
 
     final nagapor = astro.getNagapor();
 
-    List<String> holidays =
-        mmDate.getHolidays(langCatalog: mmCalendar.languageCatalog);
+    List<String> holidays = mmDate.getHolidays(
+      langCatalog: mmCalendar.languageCatalog,
+    );
     final holidayColor = Theme.of(context).colorScheme.error;
     final isPublicHoliday = isHoliday(date, mmDate);
 
@@ -85,9 +86,9 @@ class PortraitDateDetailWidget extends HookConsumerWidget {
             child: Text(
               mmDateFull,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w500,
-                  ),
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),
@@ -121,9 +122,7 @@ class PortraitDateDetailWidget extends HookConsumerWidget {
                           child: Text(
                             holidays.join(', '),
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(color: holidayColor),
                           ),
                         ),
@@ -131,9 +130,7 @@ class PortraitDateDetailWidget extends HookConsumerWidget {
                       Text(
                         day,
                         textAlign: TextAlign.center,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineLarge
+                        style: Theme.of(context).textTheme.headlineLarge
                             ?.copyWith(
                               fontSize: MediaQuery.sizeOf(context).width / 2.5,
                               color: isPublicHoliday
