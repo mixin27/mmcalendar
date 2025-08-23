@@ -22,7 +22,7 @@ Map<String, dynamic> getMyanmarDateAndAstroInfo(
       : mmDate.format('M p n');
 
   final mmDateFull = fortnightDay.isNotEmpty
-      ? mmDate.format()
+      ? mmDate.format('S s k, B y k, M p f r, En')
       : mmDate.format('S s k, B y k, M p, En');
 
   final moonPhaseMM = mmDate.format('M p');
