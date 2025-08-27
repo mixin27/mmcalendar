@@ -1,16 +1,11 @@
+import 'package:mmcalendar/env.dart';
 import 'package:mmcalendar/src/utils/native_id.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
-const String onesignalAppId = String.fromEnvironment('ONESIGNAL_APP_ID');
-
 Future<void> initOnesignal() async {
-  if (onesignalAppId.isEmpty) {
-    throw AssertionError('ONESIGNAL_APP_ID is not set');
-  }
-
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
 
-  OneSignal.initialize(onesignalAppId);
+  OneSignal.initialize(Env.onesignalAppId);
 
   OneSignal.Notifications.requestPermission(true);
 

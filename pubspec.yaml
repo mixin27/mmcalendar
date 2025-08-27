@@ -38,6 +38,7 @@ dependencies:
 
   calendar_home_widgets:
     path: packages/calendar_home_widgets
+  envied: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +49,7 @@ dev_dependencies:
   auto_route_generator: ^10.2.3
   riverpod_generator: ^2.4.2
   riverpod_lint: ^2.3.12
+  envied_generator: ^1.1.1
 
 flutter:
   uses-material-design: true
