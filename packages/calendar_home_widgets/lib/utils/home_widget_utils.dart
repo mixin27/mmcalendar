@@ -91,7 +91,10 @@ Future<void> updateWidgetData({
     // Moon Phase
     final mpDate = date ?? DateTime.now();
     final moonPhaseData = getMoonPhaseData(mpDate, config: config);
-    await HomeWidget.saveWidgetData<String>("moonPhaseTitle", "Moon Phase");
+    await HomeWidget.saveWidgetData<String>(
+      "moonPhaseTitle",
+      "MyanmarCalendar",
+    );
     await HomeWidget.saveWidgetData<String>(
       "moonPhaseMM",
       moonPhaseData["moonPhaseMM"],

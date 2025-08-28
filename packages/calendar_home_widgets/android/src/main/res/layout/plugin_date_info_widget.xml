@@ -29,7 +29,10 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:paddingTop="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -76,8 +79,8 @@
 
                 <ImageView
                     android:id="@+id/widget_date_info_moon_phase"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
                     android:contentDescription="Moon Phase"
                     android:layout_gravity="center"
                     android:paddingTop="8dp"/>
@@ -101,7 +104,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="astrologicalDay"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textColor="@android:color/black"/>
 
                 <TextView
@@ -109,7 +112,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="sabbath"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textColor="@android:color/black"/>
 
                 <TextView
@@ -117,7 +120,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="nagapor"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textColor="@android:color/black"/>
 
                 <TextView
@@ -125,7 +128,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="naga"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textColor="@android:color/black"/>
@@ -135,7 +138,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="mahabote"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textColor="@android:color/black"/>
@@ -145,7 +148,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="nakhat"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textColor="@android:color/black"/>
@@ -155,7 +158,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="yearname"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textColor="@android:color/black"/>

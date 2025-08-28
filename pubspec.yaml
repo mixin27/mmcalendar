@@ -1,7 +1,7 @@
 name: mmcalendar
 description: "Simple myanmar calendar."
 publish_to: "none"
-version: 1.0.7+107
+version: 1.0.8+108
 
 environment:
   sdk: ^3.8.1
