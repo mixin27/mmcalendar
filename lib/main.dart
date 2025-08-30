@@ -15,9 +15,9 @@ import 'package:mmcalendar/src/shared/errors/async_error_logger.dart';
 import 'package:mmcalendar/src/shared/errors/error_logger.dart';
 // ignore:depend_on_referenced_packages
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:mmcalendar/src/utils/ads/app_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'src/utils/google_ads/ads_helper.dart';
 import 'src/utils/remote_config/app_remote_config.dart';
 
 late SharedPreferences sharedPreferences;
@@ -32,7 +32,8 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   unawaited(AppRemoteConfig.initConfig());
-  unawaited(AdsHelper.initAds());
+  unawaited(AppAds.init());
+  // unawaited(AdsHelper.initAds());
 
   // turn off the # in the URLs on the web
   usePathUrlStrategy();

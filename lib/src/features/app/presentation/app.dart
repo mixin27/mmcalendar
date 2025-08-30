@@ -1,10 +1,12 @@
+import 'package:ads_manager/ads_manager.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/routes/routes.dart';
-import 'package:mmcalendar/src/utils/google_ads/app_open_ads_widget.dart';
+import 'package:mmcalendar/src/shared/shared.dart';
+import 'package:mmcalendar/src/utils/ads/app_ads.dart';
 import 'package:mmcalendar/src/widgets/settings/theme_mode_switch_tile.dart';
 
 class AppWidget extends HookConsumerWidget {
@@ -44,7 +46,11 @@ class AppWidget extends HookConsumerWidget {
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       builder: (context, child) {
-        return AppOpenAdsWidget(child: child!);
+        return AppOpenAdWidget(
+          adUnitId: AppAds.appOpenAdUnitId,
+          adsRepo: ref.read(adsRepositoryProvider),
+          child: child!,
+        );
       },
     );
   }

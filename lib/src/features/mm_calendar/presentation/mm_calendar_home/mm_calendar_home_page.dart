@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:ads_manager/ads_manager.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -5,9 +8,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
 import 'package:mmcalendar/src/l10n/l10n.dart';
 import 'package:mmcalendar/src/routes/routes.dart';
-import 'package:mmcalendar/src/utils/google_ads/ads_helper.dart';
+import 'package:mmcalendar/src/shared/shared.dart';
+import 'package:mmcalendar/src/utils/ads/app_ads.dart';
 import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'widgets/lanscape_calendar_view.dart';
 import 'widgets/portrait_calendar_view.dart';
@@ -21,30 +24,15 @@ class MmCalendarHomePage extends StatefulHookConsumerWidget {
 }
 
 class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
+  bool adLoaded = false;
+
   DateTime _selectedDay = DateTime.now();
   DateTime _focusDay = DateTime.now();
-
-  BannerAd? _bannerAd;
-  bool _isAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
     initOnesignal();
-    loadBannerAd();
-  }
-
-  void loadBannerAd() {
-    final ad = AdsHelper.loadBannerAd(
-      onLoaded: () {
-        setState(() {
-          _isAdLoaded = true;
-        });
-      },
-    );
-    setState(() {
-      _bannerAd = ad;
-    });
   }
 
   void _handleHeaderTap(DateTime date) async {
@@ -80,6 +68,8 @@ class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final adsRepo = ref.watch(adsRepositoryProvider);
+
     return Scaffold(
       appBar: AppBar(
         // title: const Text().tr(),
@@ -93,10 +83,9 @@ class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
             shadows: [
               BoxShadow(
                 blurRadius: 10,
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.4),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.4),
                 offset: const Offset(2, 2),
               ),
             ],
@@ -110,38 +99,61 @@ class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
           ),
         ],
       ),
-      body: OrientationBuilder(builder: (context, orientation) {
-        if (orientation == Orientation.landscape) {
-          return LanscapeCalendarView(
-            selectedDay: _selectedDay,
-            focusedDay: _focusDay,
-            onHeaderTapped: _handleHeaderTap,
-            onDaySelected: _handleDaySelected,
-            onPageChanged: _handlePageChanged,
-          );
-        }
-        return Column(
-          children: [
-            if (_bannerAd != null && _isAdLoaded) ...[
-              SizedBox(
-                width: double.infinity,
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          if (orientation == Orientation.landscape) {
+            return LanscapeCalendarView(
+              selectedDay: _selectedDay,
+              focusedDay: _focusDay,
+              onHeaderTapped: _handleHeaderTap,
+              onDaySelected: _handleDaySelected,
+              onPageChanged: _handlePageChanged,
+            );
+          }
+          return Column(
+            children: [
+              // Home banner ad widget
+              // banner at bottom
+              BannerAdView(
+                bannerControllerFuture: adsRepo.loadBanner(
+                  AppAds.homeBannerAdUnitId,
+                  width: AdSizeConfig.banner.width,
+                  height: AdSizeConfig.banner.height,
+                ),
+                height: AdSizeConfig.banner.height.toDouble(),
               ),
-              const SizedBox(height: 16),
+              Expanded(
+                child: PortraitCalendarView(
+                  selectedDay: _selectedDay,
+                  focusedDay: _focusDay,
+                  onHeaderTapped: _handleHeaderTap,
+                  onDaySelected: _handleDaySelected,
+                  onPageChanged: _handlePageChanged,
+                ),
+              ),
             ],
-            Expanded(
-              child: PortraitCalendarView(
-                selectedDay: _selectedDay,
-                focusedDay: _focusDay,
-                onHeaderTapped: _handleHeaderTap,
-                onDaySelected: _handleDaySelected,
-                onPageChanged: _handlePageChanged,
-              ),
-            ),
-          ],
-        );
-      }),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          try {
+            final inter = await adsRepo.loadInterstitial(
+              AppAds.homeInterAdUnitId,
+            );
+            await inter.show();
+          } catch (e) {
+            log('Interstitial failed: $e');
+          }
+        },
+        child: const Icon(Icons.ad_units),
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    // banner.dispose();
+    super.dispose();
   }
 }

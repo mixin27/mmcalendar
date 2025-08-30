@@ -1,7 +1,7 @@
 name: mmcalendar
 description: "Simple myanmar calendar."
 publish_to: "none"
-version: 1.0.8+108
+version: 1.0.9+109
 
 environment:
   sdk: ^3.8.1
@@ -35,10 +35,12 @@ dependencies:
   google_mobile_ads: ^6.0.0
   workmanager: ^0.9.0+2
   path_provider: ^2.1.5
+  envied: ^1.2.0
 
   calendar_home_widgets:
     path: packages/calendar_home_widgets
-  envied: ^1.2.0
+  ads_manager:
+    path: packages/ads_manager
 
 dev_dependencies:
   flutter_test:
