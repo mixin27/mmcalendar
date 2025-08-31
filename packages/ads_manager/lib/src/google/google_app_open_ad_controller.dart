@@ -1,24 +1,34 @@
 import 'dart:async';
 
+import 'package:ads_manager/src/config/ads_config.dart';
 import 'package:ads_manager/src/controllers/app_open_ad_controller.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class GoogleAppOpenAdController implements AppOpenAdController {
   final String adUnitId;
+  final AdsConfig config;
   AppOpenAd? _ad;
   bool _isLoaded = false;
 
   /// Callback when ad finishes loading
   VoidCallback? onAdLoadedCallback;
 
-  GoogleAppOpenAdController({required this.adUnitId});
+  GoogleAppOpenAdController({required this.adUnitId, required this.config});
 
   @override
   bool get isLoaded => _isLoaded;
 
   @override
-  Future<void> load() {
+  bool get isEnabled => config.enabled;
+
+  @override
+  Future<void> load() async {
+    if (!isEnabled) {
+      debugPrint("Ads are disabled, skipping app open ad load.");
+      return;
+    }
+
     final completer = Completer<void>();
     AppOpenAd.load(
       adUnitId: adUnitId,
@@ -60,6 +70,11 @@ class GoogleAppOpenAdController implements AppOpenAdController {
 
   @override
   Future<void> show() async {
+    if (!isEnabled) {
+      debugPrint("Ads disabled: skipping show()");
+      return;
+    }
+
     if (_ad == null) return;
     await _ad!.show();
   }

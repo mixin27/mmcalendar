@@ -1,7 +1,7 @@
 import 'package:ads_manager/ads_manager.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mmcalendar/src/utils/ads/app_ads.dart';
+import 'package:mmcalendar/src/utils/remote_config/app_remote_config.dart';
 import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
 import 'package:mmcalendar/src/widgets/settings/calendar_language_list_tile.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -46,18 +46,7 @@ class MmCalendarConfigController extends _$MmCalendarConfigController {
 
 @Riverpod()
 AdsRepository adsRepository(Ref ref) {
-  // Example config (test ids)
-  // todo(me): change adUnitIds
-  final config = AdsConfig(
-    appId: 'ca-app-pub-7567997114394639~3076287765',
-    adUnitIds: {
-      'banner': AppAds.homeBannerAdUnitId, // test banner
-      'interstitial': AppAds.homeInterAdUnitId, // test interstitial
-      'rewarded': 'ca-app-pub-3940256099942544/5224354917', // test rewarded
-      'appopen': 'ca-app-pub-3940256099942544/3419835294', // test app open
-      'native': 'ca-app-pub-3940256099942544/2247696110', // test native
-    },
-  );
+  final config = AdsConfig(enabled: AppRemoteConfig.enabedAds);
   final adapter = GoogleAdsAdapter();
   final repo = AdsRepository(adapter, config);
   return repo;

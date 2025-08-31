@@ -5,6 +5,11 @@ import 'package:ads_manager/src/ads_adapter.dart';
 import 'package:ads_manager/src/config/ads_config.dart';
 import 'package:ads_manager/src/controllers/app_open_ad_controller.dart';
 import 'package:ads_manager/src/controllers/banner_ad_controller.dart';
+import 'package:ads_manager/src/controllers/dummy/dummy_app_open_ad_controller.dart';
+import 'package:ads_manager/src/controllers/dummy/dummy_banner_ad_controller.dart';
+import 'package:ads_manager/src/controllers/dummy/dummy_interstitial_ad_controller.dart';
+import 'package:ads_manager/src/controllers/dummy/dummy_native_ad_controller.dart';
+import 'package:ads_manager/src/controllers/dummy/dummy_rewarded_ad_controller.dart';
 import 'package:ads_manager/src/controllers/interstitial_ad_controller.dart';
 import 'package:ads_manager/src/controllers/native_ad_controller.dart';
 import 'package:ads_manager/src/controllers/rewarded_ad_controller.dart';
@@ -24,7 +29,7 @@ class AdsRepository {
 
   /// Start init but don't block caller (unawaited)
   void initialize() {
-    if (_initStarted) return;
+    if (_initStarted || !_config.enabled) return;
     _initStarted = true;
     unawaited(_initInternal());
   }
@@ -33,14 +38,11 @@ class AdsRepository {
     try {
       await _adapter.initialize(_config);
       _initialized = true;
-      // flush queue
       while (_queue.isNotEmpty) {
         final task = _queue.removeFirst();
-        // run tasks synchronously and ignore returned Future (they will complete their own completers)
         task();
       }
     } catch (e) {
-      // If init fails, complete queued tasks with error
       while (_queue.isNotEmpty) {
         final t = _queue.removeFirst();
         try {
@@ -51,8 +53,17 @@ class AdsRepository {
     }
   }
 
-  Future<T> _enqueue<T>(Future<T> Function() action) {
+  Future<T> _enqueue<T>(
+    Future<T> Function() action, {
+    required T Function() disabledFactory,
+  }) {
     final completer = Completer<T>();
+
+    if (!_config.enabled) {
+      // ads disabled → return dummy controller immediately
+      completer.complete(disabledFactory());
+      return completer.future;
+    }
 
     void wrapped() {
       action().then(completer.complete).catchError(completer.completeError);
@@ -75,28 +86,43 @@ class AdsRepository {
   }) {
     return _enqueue(
       () => _adapter.createBanner(adUnitId, width: width, height: height),
+      disabledFactory: () => DummyBannerAdController(),
     );
   }
 
   Future<NativeAdController> loadNative(String adUnitId, {String? factoryId}) {
     return _enqueue(
       () => _adapter.createNative(adUnitId, factoryId: factoryId),
+      disabledFactory: () => DummyNativeAdController(),
     );
   }
 
   Future<InterstitialAdController> loadInterstitial(String adUnitId) {
-    return _enqueue(() => _adapter.createInterstitial(adUnitId));
+    return _enqueue(
+      () => _adapter.createInterstitial(adUnitId),
+      disabledFactory: () => DummyInterstitialAdController(),
+    );
   }
 
   Future<RewardedAdController> loadRewarded(String adUnitId) {
-    return _enqueue(() => _adapter.createRewarded(adUnitId));
+    return _enqueue(
+      () => _adapter.createRewarded(adUnitId),
+      disabledFactory: () => DummyRewardedAdController(),
+    );
   }
 
   Future<AppOpenAdController> loadAppOpen(String adUnitId) {
-    return _enqueue(() => _adapter.createAppOpen(adUnitId));
+    return _enqueue(
+      () => _adapter.createAppOpen(adUnitId),
+      disabledFactory: () => DummyAppOpenAdController(),
+    );
   }
 
   Future<void> showConsentFormIfRequired() {
-    return _enqueue(() => _adapter.showConsentFormIfRequired());
+    if (!_config.enabled) return Future.value();
+    return _enqueue(
+      () => _adapter.showConsentFormIfRequired(),
+      disabledFactory: () => Future.value(),
+    );
   }
 }

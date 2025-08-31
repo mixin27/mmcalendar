@@ -3,4 +3,6 @@ abstract class BaseAdController {
   Future<void> load();
   Future<void> show();
   void dispose();
+
+  bool get isEnabled;
 }

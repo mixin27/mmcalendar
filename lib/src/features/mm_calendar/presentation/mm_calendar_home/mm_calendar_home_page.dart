@@ -11,6 +11,7 @@ import 'package:mmcalendar/src/routes/routes.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
 import 'package:mmcalendar/src/utils/ads/app_ads.dart';
 import 'package:mmcalendar/src/utils/onesignal/onesignal.dart';
+import 'package:mmcalendar/src/utils/remote_config/app_remote_config.dart';
 
 import 'widgets/lanscape_calendar_view.dart';
 import 'widgets/portrait_calendar_view.dart';
@@ -114,14 +115,15 @@ class _MmCalendarHomePageState extends ConsumerState<MmCalendarHomePage> {
             children: [
               // Home banner ad widget
               // banner at bottom
-              BannerAdView(
-                bannerControllerFuture: adsRepo.loadBanner(
-                  AppAds.homeBannerAdUnitId,
-                  width: AdSizeConfig.banner.width,
-                  height: AdSizeConfig.banner.height,
+              if (AppRemoteConfig.enabedAds)
+                BannerAdView(
+                  bannerControllerFuture: adsRepo.loadBanner(
+                    AppAds.homeBannerAdUnitId,
+                    width: AdSizeConfig.banner.width,
+                    height: AdSizeConfig.banner.height,
+                  ),
+                  height: AdSizeConfig.banner.height.toDouble(),
                 ),
-                height: AdSizeConfig.banner.height.toDouble(),
-              ),
               Expanded(
                 child: PortraitCalendarView(
                   selectedDay: _selectedDay,
