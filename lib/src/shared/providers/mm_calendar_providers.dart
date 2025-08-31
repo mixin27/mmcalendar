@@ -1,5 +1,7 @@
+import 'package:ads_manager/ads_manager.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mmcalendar/src/utils/remote_config/app_remote_config.dart';
 import 'package:mmcalendar/src/utils/shared_prefs/preference_manager.dart';
 import 'package:mmcalendar/src/widgets/settings/calendar_language_list_tile.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -40,4 +42,12 @@ class MmCalendarConfigController extends _$MmCalendarConfigController {
     prefs.setData<String>(language.toString(), keyCalendarLang);
     state = MmCalendarConfig(language: language);
   }
+}
+
+@Riverpod()
+AdsRepository adsRepository(Ref ref) {
+  final config = AdsConfig(enabled: AppRemoteConfig.enabedAds);
+  final adapter = GoogleAdsAdapter();
+  final repo = AdsRepository(adapter, config);
+  return repo;
 }

@@ -1,12 +1,12 @@
+import 'package:ads_manager/ads_manager.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iconly/iconly.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
-import 'package:mmcalendar/src/utils/google_ads/ads_helper.dart';
+import 'package:mmcalendar/src/utils/ads/app_ads.dart';
 
 import 'widgets/landscape_date_detail_widget.dart';
 import 'widgets/portrait_date_detail_widget.dart';
@@ -30,19 +30,11 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
 
   DateTime _date = DateTime.now();
 
-  BannerAd? _bannerAd;
-  bool _isAdLoaded = false;
-
-  // NativeAd? _nativeAd;
-  // bool _isNativeAdLoaded = false;
-
   @override
   void initState() {
     _date = widget.date;
     _pageController = PageController(initialPage: _currentPageIndex);
     super.initState();
-    loadBannerAd();
-    // loadNativeAd();
   }
 
   @override
@@ -50,30 +42,6 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
     _pageController?.dispose();
     super.dispose();
   }
-
-  void loadBannerAd() {
-    final ad = AdsHelper.loadBannerAd(
-      onLoaded: () {
-        setState(() {
-          _isAdLoaded = true;
-        });
-      },
-    );
-    setState(() {
-      _bannerAd = ad;
-    });
-  }
-
-  // void loadNativeAd() {
-  //   final ad = AdsHelper.loadNativeAd(onLoaded: () {
-  //     setState(() {
-  //       _isNativeAdLoaded = true;
-  //     });
-  //   });
-  //   setState(() {
-  //     _nativeAd = ad;
-  //   });
-  // }
 
   void _handlePageChange(int position) {
     if (_currentPageIndex > position) {
@@ -124,7 +92,8 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final orientation = MediaQuery.orientationOf(context);
+    // final orientation = MediaQuery.orientationOf(context);
+    final adsRepo = ref.watch(adsRepositoryProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -135,34 +104,35 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
           ),
         ],
       ),
-      bottomNavigationBar: (_bannerAd != null &&
-              _isAdLoaded &&
-              orientation == Orientation.portrait)
-          ? SizedBox(
-              width: double.infinity,
-              height: _bannerAd!.size.height.toDouble(),
-              child: AdWidget(ad: _bannerAd!),
-            )
-          : null,
+      bottomNavigationBar: BannerAdView(
+        bannerControllerFuture: adsRepo.loadBanner(
+          AppAds.homeBannerAdUnitId,
+          width: AdSizeConfig.banner.width,
+          height: AdSizeConfig.banner.height,
+        ),
+        height: AdSizeConfig.banner.height.toDouble(),
+      ),
       body: PageView.builder(
         controller: _pageController,
         onPageChanged: _handlePageChange,
         itemBuilder: (context, index) {
-          return OrientationBuilder(builder: (context, orientation) {
-            if (orientation == Orientation.landscape) {
-              return LandscapeDateDetailWidget(
+          return OrientationBuilder(
+            builder: (context, orientation) {
+              if (orientation == Orientation.landscape) {
+                return LandscapeDateDetailWidget(
+                  date: _date,
+                  onPrevTap: _handlePreviousPage,
+                  onNextTap: _handleNextPage,
+                );
+              }
+
+              return PortraitDateDetailWidget(
                 date: _date,
                 onPrevTap: _handlePreviousPage,
                 onNextTap: _handleNextPage,
               );
-            }
-
-            return PortraitDateDetailWidget(
-              date: _date,
-              onPrevTap: _handlePreviousPage,
-              onNextTap: _handleNextPage,
-            );
-          });
+            },
+          );
         },
       ),
     );
@@ -170,10 +140,7 @@ class _MmCalendarDetailPageState extends ConsumerState<MmCalendarDetailPage> {
 }
 
 class MmDate extends HookConsumerWidget {
-  const MmDate({
-    super.key,
-    required this.date,
-  });
+  const MmDate({super.key, required this.date});
 
   final DateTime date;
 
@@ -190,18 +157,12 @@ class MmDate extends HookConsumerWidget {
 
     final text = mmDate.format(pattern);
 
-    return Text(
-      text,
-      style: Theme.of(context).textTheme.titleMedium,
-    );
+    return Text(text, style: Theme.of(context).textTheme.titleMedium);
   }
 }
 
 class DayOfWeek extends HookConsumerWidget {
-  const DayOfWeek({
-    super.key,
-    required this.date,
-  });
+  const DayOfWeek({super.key, required this.date});
 
   final DateTime date;
 
@@ -226,35 +187,35 @@ class DayOfWeek extends HookConsumerWidget {
         Text(
           day,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontSize: 24,
-                fontWeight: FontWeight.w300,
-                // color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-              ),
+            fontSize: 24,
+            fontWeight: FontWeight.w300,
+            // color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          ),
         ),
         const SizedBox(height: 10),
         Text(
           dow,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontSize: 28,
-                fontWeight: FontWeight.w500,
-                // color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-              ),
+            fontSize: 28,
+            fontWeight: FontWeight.w500,
+            // color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          ),
         ),
         const SizedBox(height: 10),
         Text(
           mmDow,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontSize: 28,
-                fontWeight: FontWeight.w500,
-              ),
+            fontSize: 28,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         if (nagahle.isNotEmpty) ...[
           const SizedBox(height: 2),
           Text(
             nagahleText,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500),
           ),
         ],
         if (astrologicalDay.isNotEmpty || sabbath.isNotEmpty) ...[
@@ -264,25 +225,25 @@ class DayOfWeek extends HookConsumerWidget {
               Text(
                 astrologicalDay,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
               if (sabbath.isNotEmpty) ...[
                 if (astrologicalDay.isNotEmpty)
                   Text(
                     ', ',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                 Text(
                   sabbath,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ],
             ],
@@ -294,10 +255,7 @@ class DayOfWeek extends HookConsumerWidget {
 }
 
 class MmYear extends StatelessWidget {
-  const MmYear({
-    super.key,
-    required this.mmDate,
-  });
+  const MmYear({super.key, required this.mmDate});
 
   final MyanmarDate mmDate;
 
@@ -314,10 +272,9 @@ class MmYear extends StatelessWidget {
           child: ListTile(
             title: Text(
               buddhistEra,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             subtitle: Text(buddhistEraLabel),
           ),
@@ -326,10 +283,9 @@ class MmYear extends StatelessWidget {
           child: ListTile(
             title: Text(
               mmYear,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             subtitle: Text(mmYearLabel),
           ),
@@ -340,10 +296,7 @@ class MmYear extends StatelessWidget {
 }
 
 class AstroList extends StatelessWidget {
-  const AstroList({
-    super.key,
-    required this.astro,
-  });
+  const AstroList({super.key, required this.astro});
 
   final Astro astro;
 
@@ -355,24 +308,12 @@ class AstroList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Astro',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        ListTile(
-          title: const Text('Mahabote'),
-          subtitle: Text(mahabote),
-        ),
+        Text('Astro', style: Theme.of(context).textTheme.titleLarge),
+        ListTile(title: const Text('Mahabote'), subtitle: Text(mahabote)),
         const Divider(),
-        ListTile(
-          title: const Text('Year name'),
-          subtitle: Text(yearName),
-        ),
+        ListTile(title: const Text('Year name'), subtitle: Text(yearName)),
         const Divider(),
-        ListTile(
-          title: const Text('Mahabote'),
-          subtitle: Text(mahabote),
-        ),
+        ListTile(title: const Text('Mahabote'), subtitle: Text(mahabote)),
         const Divider(),
       ],
     );

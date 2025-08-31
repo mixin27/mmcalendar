@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
 import 'package:mmcalendar/src/utils/dates.dart';
-import 'package:mmcalendar/src/utils/google_ads/ads_helper.dart';
 
 class LandscapeDateDetailWidget extends ConsumerStatefulWidget {
   const LandscapeDateDetailWidget({
@@ -26,26 +24,9 @@ class LandscapeDateDetailWidget extends ConsumerStatefulWidget {
 
 class _LandscapeDateDetailWidgetState
     extends ConsumerState<LandscapeDateDetailWidget> {
-  BannerAd? _bannerAd;
-  bool _isAdLoaded = false;
-
   @override
   void initState() {
     super.initState();
-    loadBannerAd();
-  }
-
-  void loadBannerAd() {
-    final ad = AdsHelper.loadBannerAd(
-      onLoaded: () {
-        setState(() {
-          _isAdLoaded = true;
-        });
-      },
-    );
-    setState(() {
-      _bannerAd = ad;
-    });
   }
 
   @override
@@ -188,14 +169,14 @@ class _LandscapeDateDetailWidgetState
                           padding: EdgeInsets.symmetric(vertical: 10),
                           child: Divider(),
                         ),
-                        if (_bannerAd != null && _isAdLoaded) ...[
-                          SizedBox(
-                            width: double.infinity,
-                            height: _bannerAd!.size.height.toDouble(),
-                            child: AdWidget(ad: _bannerAd!),
-                          ),
-                          const SizedBox(height: 8),
-                        ],
+                        // if (_bannerAd != null && _isAdLoaded) ...[
+                        //   SizedBox(
+                        //     width: double.infinity,
+                        //     height: _bannerAd!.size.height.toDouble(),
+                        //     child: AdWidget(ad: _bannerAd!),
+                        //   ),
+                        //   const SizedBox(height: 8),
+                        // ],
                         if (sabbath.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(

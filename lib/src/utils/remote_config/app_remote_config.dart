@@ -5,9 +5,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 class AppRemoteConfig {
   static final _config = FirebaseRemoteConfig.instance;
 
-  static final _defaultValues = {
-    "show_ads": true,
-  };
+  static final _defaultValues = {"show_ads": true};
 
   static Future<void> initConfig() async {
     await _config.setConfigSettings(
@@ -36,5 +34,5 @@ class AppRemoteConfig {
   // static String get apiKey => _config.getString("api_key");
 
   static bool get _showAds => _config.getBool('show_ads');
-  static bool get hideAds => !_showAds;
+  static bool get enabedAds => _showAds;
 }

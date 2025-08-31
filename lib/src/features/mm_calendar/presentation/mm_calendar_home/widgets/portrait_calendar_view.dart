@@ -1,10 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mmcalendar/src/shared/shared.dart';
-import 'package:mmcalendar/src/utils/google_ads/ads_helper.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class PortraitCalendarView extends ConsumerStatefulWidget {
@@ -35,26 +33,9 @@ class PortraitCalendarView extends ConsumerStatefulWidget {
 }
 
 class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
-  NativeAd? _nativeAd;
-  bool _isNativeAdLoaded = false;
-
   @override
   void initState() {
     super.initState();
-    loadNativeAd();
-  }
-
-  void loadNativeAd() {
-    final ad = AdsHelper.loadNativeAd(
-        onLoaded: () {
-          setState(() {
-            _isNativeAdLoaded = true;
-          });
-        },
-        type: TemplateType.small);
-    setState(() {
-      _nativeAd = ad;
-    });
   }
 
   @override
@@ -87,7 +68,8 @@ class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
             ),
             onHeaderTapped: widget.onHeaderTapped,
             onFormatChanged: widget.onFormatChanged,
-            selectedDayPredicate: widget.selectedDayPredicate ??
+            selectedDayPredicate:
+                widget.selectedDayPredicate ??
                 (day) {
                   return isSameDay(widget.selectedDay, day);
                 },
@@ -103,7 +85,8 @@ class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
                     child: Text(
                       text,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.error),
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   );
                 }
@@ -112,15 +95,18 @@ class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
                   child: Text(
                     text,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.primary),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                 );
               },
               defaultBuilder: (context, day, focusedDay) {
                 final enDay = DateFormat().add_d().format(day);
 
-                final myanmarDate =
-                    mmCalendar.fromDateTime(day, config: config);
+                final myanmarDate = mmCalendar.fromDateTime(
+                  day,
+                  config: config,
+                );
 
                 final isWeekend = myanmarDate.isWeekend();
 
@@ -140,14 +126,12 @@ class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
                           : null,
                       border: Border.all(
                         color: isWeekend
-                            ? Theme.of(context)
-                                .colorScheme
-                                .error
-                                .withValues(alpha: 0.2)
-                            : Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.2),
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.error.withValues(alpha: 0.2)
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.2),
                       ),
                       borderRadius: const BorderRadius.all(Radius.circular(8)),
                     ),
@@ -171,10 +155,9 @@ class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
                           child: Text(
                             enDay,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(fontSize: 14),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.labelSmall?.copyWith(fontSize: 14),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -182,9 +165,7 @@ class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
                           child: Text(
                             mmDay,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
+                            style: Theme.of(context).textTheme.labelSmall
                                 ?.copyWith(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -196,10 +177,9 @@ class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
                             child: Text(
                               moonPhase,
                               textAlign: TextAlign.center,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
-                                  ?.copyWith(fontSize: 10),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.labelSmall?.copyWith(fontSize: 10),
                             ),
                           ),
                         ],
@@ -214,18 +194,11 @@ class _PortraitCalendarViewState extends ConsumerState<PortraitCalendarView> {
         ),
         SizedBox(
           height: MediaQuery.sizeOf(context).height * 0.2,
-          child: _nativeAd != null && _isNativeAdLoaded
-              ? SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
-                    child: SizedBox(
-                      height: MediaQuery.sizeOf(context).height * 0.2,
-                      child: AdWidget(ad: _nativeAd!),
-                    ),
-                  ),
-                )
-              : null,
+          // child: NativeAdViewWidget(
+          //   adUnitId: AppAds.homeNativeAdUnitId,
+          //   adsRepo: ref.read(adsRepositoryProvider),
+          //   height: 120,
+          // ),
         ),
       ],
     );
