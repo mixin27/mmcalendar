@@ -80,7 +80,7 @@ class GoogleRewardedAdController implements RewardedAdController {
   Future<void> show() async {
     // fallback → just call showRewarded with a no-op callback
     if (_ad != null) {
-      await showRewarded((_, __) {});
+      await showRewarded((_, _) {});
     }
   }
 
