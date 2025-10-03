@@ -208,6 +208,9 @@ class _MoonPhasePainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
 
+    // Save canvas state
+    canvas.save();
+
     // Clip to circle to prevent overflow
     canvas.clipPath(
       Path()..addOval(Rect.fromCircle(center: center, radius: radius)),
@@ -240,11 +243,10 @@ class _MoonPhasePainter extends CustomPainter {
     // Draw crater marks for realism
     _drawCraters(canvas, center, radius);
 
-    // Reset clip for glow ring
+    // Restore canvas before drawing glow ring
     canvas.restore();
-    canvas.save();
 
-    // Draw glow ring
+    // Draw glow ring (outside the clip)
     final glowPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
