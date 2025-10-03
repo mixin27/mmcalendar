@@ -1,0 +1,71 @@
+name: mmcalendar
+description: "Myanmar Calendar Application"
+publish_to: 'none'
+version: 2.0.0+200
+resolution: workspace
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Core packages
+  core:
+    path: ../../packages/core
+  data:
+    path: ../../packages/data
+
+  # Features
+  calendar:
+    path: ../../packages/features/calendar
+  settings:
+    path: ../../packages/features/settings
+  views:
+    path: ../../packages/features/views
+  converter:
+    path: ../../packages/features/converter
+
+  # Myanmar calendar
+  flutter_mmcalendar: ^3.1.0
+
+  # State management
+  bloc: ^9.0.1
+  flutter_bloc: ^9.1.1
+
+  # Dependency injection
+  get_it: ^8.2.0
+  injectable: ^2.5.2
+
+  # Navigation
+  go_router: ^16.2.4
+
+  # Utilites
+  intl: ^0.20.2
+  cupertino_icons: ^1.0.8
+  equatable: ^2.0.7
+  url_launcher: ^6.3.2
+
+  # Firebase
+  firebase_core: ^4.1.1
+  firebase_analytics: ^12.0.2
+  firebase_crashlytics: ^5.0.2
+  firebase_remote_config: ^6.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.8.0
+  injectable_generator: ^2.9.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/fonts/google_fonts/
+    - assets/images/logo.png
