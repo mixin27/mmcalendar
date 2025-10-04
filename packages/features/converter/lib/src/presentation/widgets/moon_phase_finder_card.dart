@@ -76,10 +76,12 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
 
     return Card(
       elevation: 0,
-      color: Colors.indigo.shade50,
+      color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.indigo.shade200),
+        side: BorderSide(
+          color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -88,12 +90,12 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.indigo.shade100,
+                color: theme.colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 Icons.brightness_3,
-                color: Colors.indigo.shade700,
+                color: theme.colorScheme.onSecondaryContainer,
                 size: 32,
               ),
             ),
