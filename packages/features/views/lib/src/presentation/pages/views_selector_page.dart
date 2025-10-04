@@ -12,62 +12,155 @@ class ViewsSelectorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Views'), centerTitle: true),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Title
-            Text(
-              'Select Calendar View',
-              style: context.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+      body: CustomScrollView(
+        slivers: [
+          // Modern App Bar
+          SliverAppBar.large(
+            expandedHeight: 140,
+            pinned: true,
+            // backgroundColor: context.colorScheme.tertiaryContainer,
+            // foregroundColor: context.colorScheme.onTertiaryContainer,
+            flexibleSpace: FlexibleSpaceBar(
+              title: const Text(
+                'Calendar Views',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              textAlign: TextAlign.center,
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      context.colorScheme.primaryContainer,
+                      context.colorScheme.primaryContainer.withValues(
+                        alpha: 0.8,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 32),
+          ),
 
-            // Year View Card
-            // _ViewCard(
-            //   icon: Icons.calendar_view_month,
-            //   title: 'Year View',
-            //   description: 'See all 12 months of the year at a glance',
-            //   color: Colors.blue,
-            //   onTap: () {
-            //     context.read<ViewsBloc>().add(
-            //       LoadYearView(DateTime.now().year),
-            //     );
-            //     GoRouter.of(context).push(RoutePaths.yearView);
-            //   },
-            // ),
+          // Content
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Intro Card
+                _IntroCard(),
+                const SizedBox(height: 24),
 
-            // const SizedBox(height: 16),
+                // Year View Card
+                _ViewCard(
+                  icon: Icons.calendar_view_month,
+                  title: 'Year View',
+                  description: 'Browse all 12 months at once',
+                  details:
+                      'Perfect for planning ahead and seeing the big picture',
+                  color: Colors.blue,
+                  gradient: [Colors.blue.shade400, Colors.blue.shade600],
+                  onTap: () {
+                    context.read<ViewsBloc>().add(
+                      LoadYearView(DateTime.now().year),
+                    );
+                    context.go('/views/year');
+                  },
+                ),
 
-            // Week View Card
-            _ViewCard(
-              icon: Icons.calendar_view_week,
-              title: 'Week View',
-              description: 'View a detailed week with all days',
-              color: Colors.green,
-              onTap: () {
-                context.read<ViewsBloc>().add(LoadWeekView(DateTime.now()));
-                GoRouter.of(context).push(RoutePaths.weekView);
-              },
+                const SizedBox(height: 16),
+
+                // Week View Card
+                _ViewCard(
+                  icon: Icons.calendar_view_week,
+                  title: 'Week View',
+                  description: 'See a detailed 7-day view',
+                  details: 'Ideal for weekly planning and tracking',
+                  color: Colors.green,
+                  gradient: [Colors.green.shade400, Colors.green.shade600],
+                  onTap: () {
+                    context.read<ViewsBloc>().add(LoadWeekView(DateTime.now()));
+                    context.go('/views/week');
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Day View Card
+                _ViewCard(
+                  icon: Icons.calendar_today,
+                  title: 'Day View',
+                  description: 'Comprehensive single-day information',
+                  details: 'All details for holidays, astrology, and more',
+                  color: Colors.orange,
+                  gradient: [Colors.orange.shade400, Colors.orange.shade600],
+                  onTap: () {
+                    context.read<ViewsBloc>().add(LoadDayView(DateTime.now()));
+                    context.go('/views/day');
+                  },
+                ),
+
+                const SizedBox(height: 32),
+              ]),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-            const SizedBox(height: 16),
+/// Intro Card explaining the purpose
+class _IntroCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-            // Day View Card
-            _ViewCard(
-              icon: Icons.calendar_today,
-              title: 'Day View',
-              description: 'See comprehensive information for a single day',
-              color: Colors.orange,
-              onTap: () {
-                context.read<ViewsBloc>().add(LoadDayView(DateTime.now()));
-                GoRouter.of(context).push(RoutePaths.dayView);
-              },
+    return Card(
+      elevation: 0,
+      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.view_module,
+                color: colorScheme.onPrimaryContainer,
+                size: 32,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Choose Your View',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Select how you want to explore the calendar',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -76,66 +169,166 @@ class ViewsSelectorPage extends StatelessWidget {
   }
 }
 
-class _ViewCard extends StatelessWidget {
+/// Enhanced View Card with gradient and better visual hierarchy
+class _ViewCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final String description;
+  final String details;
   final Color color;
+  final List<Color> gradient;
   final VoidCallback onTap;
 
   const _ViewCard({
     required this.icon,
     required this.title,
     required this.description,
+    required this.details,
     required this.color,
+    required this.gradient,
     required this.onTap,
   });
 
   @override
+  State<_ViewCard> createState() => _ViewCardState();
+}
+
+class _ViewCardState extends State<_ViewCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, size: 40, color: color),
+    final theme = Theme.of(context);
+
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Card(
+        elevation: _isPressed ? 1 : 3,
+        shadowColor: widget.color.withValues(alpha: 0.3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: InkWell(
+          onTap: widget.onTap,
+          onTapDown: (_) {
+            setState(() => _isPressed = true);
+            _controller.forward();
+          },
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            _controller.reverse();
+          },
+          onTapCancel: () {
+            setState(() => _isPressed = false);
+            _controller.reverse();
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  widget.color.withValues(alpha: 0.05),
+                  widget.color.withValues(alpha: 0.02),
+                ],
               ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: context.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  // Icon with gradient background
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: widget.gradient,
                       ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: widget.color.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
+                    child: Icon(widget.icon, size: 40, color: Colors.white),
+                  ),
+                  const SizedBox(width: 20),
+
+                  // Text content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.description,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.details,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+
+                  // Arrow icon
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: widget.color.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 20,
+                      color: widget.color,
+                    ),
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right,
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-            ],
+            ),
           ),
         ),
       ),

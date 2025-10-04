@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
     hide MoonPhaseIndicator;
+import 'package:views/src/utils/utils.dart';
 
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
@@ -276,7 +277,7 @@ class _DayViewPageState extends State<DayViewPage>
                 Expanded(
                   child: _buildInfoChip(
                     Icons.calendar_month,
-                    'Year ${completeDate.myanmarYear}',
+                    translateNumbers('Year ${completeDate.myanmarYear}'),
                     context.colorScheme.tertiary,
                   ),
                 ),
@@ -284,7 +285,7 @@ class _DayViewPageState extends State<DayViewPage>
                 Expanded(
                   child: _buildInfoChip(
                     Icons.today,
-                    'Day ${completeDate.myanmarDay}',
+                    translateNumbers('Day ${completeDate.myanmarDay}'),
                     context.colorScheme.secondary,
                   ),
                 ),
@@ -366,6 +367,12 @@ class _DayViewPageState extends State<DayViewPage>
               moonPhase: completeDate.moonPhase,
               fortnightDay: completeDate.fortnightDay,
               size: 100,
+              getMoonPhaseName: (mp) {
+                return TranslationService.getMoonPhaseName(mp);
+              },
+              getFortnightDay: (fd) {
+                return translateNumbers('Day $fd');
+              },
             ),
           ],
         ),
@@ -596,7 +603,7 @@ class _DayViewPageState extends State<DayViewPage>
       items.add(
         _AstroItemData(
           'Sabbath',
-          completeDate.sabbath,
+          translateSentence(completeDate.sabbath),
           Icons.brightness_2,
           Colors.orange,
         ),
@@ -606,7 +613,7 @@ class _DayViewPageState extends State<DayViewPage>
       items.add(
         _AstroItemData(
           'Yatyaza',
-          completeDate.yatyaza,
+          translateSentence(completeDate.yatyaza),
           Icons.warning_amber,
           Colors.red,
         ),
@@ -616,7 +623,7 @@ class _DayViewPageState extends State<DayViewPage>
       items.add(
         _AstroItemData(
           'Pyathada',
-          completeDate.pyathada,
+          translateSentence(completeDate.pyathada),
           Icons.info_outline,
           Colors.blue,
         ),
@@ -626,7 +633,7 @@ class _DayViewPageState extends State<DayViewPage>
       items.add(
         _AstroItemData(
           'Nagahle',
-          completeDate.nagahle,
+          translateSentence(completeDate.nagahle),
           Icons.explore,
           Colors.green,
         ),
@@ -636,7 +643,7 @@ class _DayViewPageState extends State<DayViewPage>
       items.add(
         _AstroItemData(
           'Mahabote',
-          completeDate.mahabote,
+          translateSentence(completeDate.mahabote),
           Icons.star,
           Colors.purple,
         ),
@@ -646,7 +653,7 @@ class _DayViewPageState extends State<DayViewPage>
       items.add(
         _AstroItemData(
           'Nakhat',
-          completeDate.nakhat,
+          translateSentence(completeDate.nakhat),
           Icons.castle,
           Colors.indigo,
         ),
@@ -656,7 +663,7 @@ class _DayViewPageState extends State<DayViewPage>
       items.add(
         _AstroItemData(
           'Year Name',
-          completeDate.yearName,
+          translateSentence(completeDate.yearName),
           Icons.calendar_today,
           Colors.teal,
         ),

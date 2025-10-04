@@ -316,7 +316,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     // Add subtle haptic feedback
     HapticFeedback.lightImpact();
 
-    GoRouter.of(context).push('/home/day-details', extra: date);
+    GoRouter.of(context).go("/home/${RoutePaths.dayDetails}", extra: date);
   }
 
   void _showMonthYearPicker(BuildContext context, DateTime currentMonth) {

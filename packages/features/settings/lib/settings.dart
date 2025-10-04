@@ -19,7 +19,5 @@ export 'src/presentation/bloc/settings_bloc.dart';
 export 'src/presentation/bloc/settings_event.dart';
 export 'src/presentation/bloc/settings_state.dart';
 export 'src/presentation/pages/settings_page.dart';
-export 'src/presentation/widgets/settings_section.dart';
-export 'src/presentation/widgets/settings_tile.dart';
 
 export 'src/di/settings_injection.dart' hide getIt;

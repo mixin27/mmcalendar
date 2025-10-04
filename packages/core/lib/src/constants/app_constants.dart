@@ -32,6 +32,7 @@ class AppConstants {
   // Animation
   static const Duration animationDuration = Duration(milliseconds: 300);
   static const Duration shortAnimationDuration = Duration(milliseconds: 150);
+  static const Duration mediumAnimationDuration = Duration(milliseconds: 400);
   static const Duration longAnimationDuration = Duration(milliseconds: 500);
 
   // Cache

@@ -22,19 +22,6 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const SplashPage(),
     ),
 
-    GoRoute(
-      path: RoutePaths.yearView,
-      builder: (context, state) => const YearViewPage(),
-    ),
-    GoRoute(
-      path: RoutePaths.weekView,
-      builder: (context, state) => const WeekViewPage(),
-    ),
-    GoRoute(
-      path: RoutePaths.dayView,
-      builder: (context, state) => const DayViewPage(),
-    ),
-
     // Main App Shell with Bottom Navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -68,6 +55,20 @@ final GoRouter router = GoRouter(
             GoRoute(
               path: RoutePaths.views,
               builder: (context, state) => const ViewsSelectorPage(),
+              routes: [
+                GoRoute(
+                  path: RoutePaths.yearView,
+                  builder: (context, state) => const YearViewPage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.weekView,
+                  builder: (context, state) => const WeekViewPage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.dayView,
+                  builder: (context, state) => const DayViewPage(),
+                ),
+              ],
             ),
           ],
         ),

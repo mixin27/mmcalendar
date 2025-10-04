@@ -7,6 +7,8 @@ class MoonPhaseIndicator extends StatelessWidget {
   final double size;
   final bool showLabel;
   final bool showDay;
+  final String Function(int mp)? getMoonPhaseName;
+  final String Function(int fd)? getFortnightDay;
 
   const MoonPhaseIndicator({
     super.key,
@@ -15,6 +17,8 @@ class MoonPhaseIndicator extends StatelessWidget {
     this.size = 80,
     this.showLabel = true,
     this.showDay = true,
+    this.getMoonPhaseName,
+    this.getFortnightDay,
   });
 
   @override
@@ -51,7 +55,7 @@ class MoonPhaseIndicator extends StatelessWidget {
           // Moon phase name
           if (showLabel)
             Text(
-              _getMoonPhaseName(),
+              getMoonPhaseName?.call(moonPhase) ?? _getMoonPhaseName(),
               style: context.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: _getMoonColor(),
@@ -62,7 +66,7 @@ class MoonPhaseIndicator extends StatelessWidget {
           if (showDay && !(moonPhase == 1 || moonPhase == 3)) ...[
             const SizedBox(height: 4),
             Text(
-              'Day $fortnightDay',
+              getFortnightDay?.call(fortnightDay) ?? 'Day $fortnightDay',
               style: context.textTheme.bodySmall?.copyWith(
                 color: context.colorScheme.onSurfaceVariant,
               ),

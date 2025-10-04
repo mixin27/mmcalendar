@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings.dart';
@@ -48,7 +49,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
-      (settings) => emit(SettingsLoaded(settings)),
+      (settings) {
+        _applyCalendarConfiguration(settings.calendarConfig);
+        MyanmarCalendar.setLanguage(settings.calendarLanguage);
+
+        emit(SettingsLoaded(settings));
+      },
     );
   }
 
@@ -131,6 +137,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        MyanmarCalendar.setLanguage(event.language);
+
+        // Fire event bus event so other features can react
+        AppEventBus.fire(CalendarLanguageChangedEvent(event.language.name));
+
         final updatedSettings = currentState.settings.copyWith(
           calendarLanguage: event.language,
         );
@@ -151,6 +162,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        _applyCalendarConfiguration(event.config);
+        // AppEventBus.fire(CalendarConfigurationChangedEvent(event.config));
+
         final updatedSettings = currentState.settings.copyWith(
           calendarConfig: event.config,
         );
@@ -193,6 +207,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        _applyCalendarConfiguration(null);
+
         // Reload settings after reset
         add(const LoadSettings());
       },
@@ -226,6 +242,21 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return 'Invalid settings data';
       default:
         return 'Unexpected error occurred';
+    }
+  }
+
+  // Helper method to apply calendar configuration
+  void _applyCalendarConfiguration(CalendarConfig? config) {
+    if (config == null) {
+      MyanmarCalendar.configure();
+    } else {
+      MyanmarCalendar.configure(
+        language: Language.fromCode(config.defaultLanguage),
+        timezoneOffset: config.timezoneOffset,
+        sasanaYearType: config.sasanaYearType,
+        calendarType: config.calendarType,
+        gregorianStart: config.gregorianStart,
+      );
     }
   }
 }

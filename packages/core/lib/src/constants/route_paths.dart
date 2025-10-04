@@ -10,9 +10,9 @@ class RoutePaths {
   static const String dayDetails = 'day-details';
 
   // Views Routes
-  static const String yearView = '$views/year';
-  static const String weekView = '$views/week';
-  static const String dayView = '$views/day';
+  static const String yearView = 'year';
+  static const String weekView = 'week';
+  static const String dayView = 'day';
 
   // Settings Routes
   static const String languageSettings = 'language';

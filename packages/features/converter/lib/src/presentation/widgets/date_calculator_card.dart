@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
+import '../../domain/entities/date_calculation_result.dart';
 import '../bloc/converter_bloc.dart';
 import '../bloc/converter_event.dart';
 import '../bloc/converter_state.dart';
@@ -12,23 +14,19 @@ class DateCalculatorCard extends StatefulWidget {
   State<DateCalculatorCard> createState() => _DateCalculatorCardState();
 }
 
-class _DateCalculatorCardState extends State<DateCalculatorCard> {
+class _DateCalculatorCardState extends State<DateCalculatorCard>
+    with SingleTickerProviderStateMixin {
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 30));
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   void _calculate() {
     context.read<ConverterBloc>().add(
       CalculateDateDifferenceEvent(_startDate, _endDate),
     );
   }
-
-  // void _reset() {
-  //   context.read<ConverterBloc>().add(ResetCalculatorEvent());
-  //   setState(() {
-  //     _startDate = DateTime.now();
-  //     _endDate = DateTime.now().add(const Duration(days: 30));
-  //   });
-  // }
 
   void _swapDates() {
     setState(() {
@@ -38,117 +36,144 @@ class _DateCalculatorCardState extends State<DateCalculatorCard> {
     });
   }
 
+  void _setToday(bool isStart) {
+    setState(() {
+      if (isStart) {
+        _startDate = DateTime.now();
+      } else {
+        _endDate = DateTime.now();
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeaderCard(),
+            const SizedBox(height: 16),
+            _buildDateInputCard(),
+            const SizedBox(height: 16),
+            _buildCalculateButton(),
+            const SizedBox(height: 16),
+            _buildResultSection(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderCard() {
     final theme = Theme.of(context);
 
     return Card(
-      elevation: 2,
+      elevation: 0,
+      color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.all(20),
+        child: Row(
           children: [
-            // Header
-            Row(
-              children: [
-                Icon(Icons.calculate, color: theme.colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  'Date Difference Calculator',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.secondaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.calculate,
+                color: theme.colorScheme.onSecondaryContainer,
+                size: 32,
+              ),
             ),
-            const Divider(),
-            const SizedBox(height: 16),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Date Calculator',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Calculate difference between two dates',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // Start Date
+  Widget _buildDateInputCard() {
+    final theme = Theme.of(context);
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
             _buildDateSelector(
-              theme,
-              'Start Date:',
+              'Start Date',
               _startDate,
               (date) => setState(() => _startDate = date),
+              () => _setToday(true),
+              theme.colorScheme.primary,
             ),
-            const SizedBox(height: 12),
-
-            // Swap Button
-            Center(
-              child: IconButton.outlined(
-                onPressed: _swapDates,
-                icon: const Icon(Icons.swap_vert),
-                tooltip: 'Swap dates',
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // End Date
+            const SizedBox(height: 16),
+            _buildSwapButton(),
+            const SizedBox(height: 16),
             _buildDateSelector(
-              theme,
-              'End Date:',
+              'End Date',
               _endDate,
               (date) => setState(() => _endDate = date),
-            ),
-            const SizedBox(height: 16),
-
-            // Calculate Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _calculate,
-                icon: const Icon(Icons.timeline),
-                label: const Text('Calculate Difference'),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Result Section
-            BlocBuilder<ConverterBloc, ConverterState>(
-              builder: (context, state) {
-                if (state is CalculationLoading) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-
-                if (state is CalculationError) {
-                  return Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.errorContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: theme.colorScheme.error,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            state.message,
-                            style: TextStyle(
-                              color: theme.colorScheme.onErrorContainer,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (state is CalculationSuccess) {
-                  return _buildResultSection(theme, state);
-                }
-
-                return const SizedBox.shrink();
-              },
+              () => _setToday(false),
+              theme.colorScheme.tertiary,
             ),
           ],
         ),
@@ -157,15 +182,34 @@ class _DateCalculatorCardState extends State<DateCalculatorCard> {
   }
 
   Widget _buildDateSelector(
-    ThemeData theme,
     String label,
     DateTime date,
     Function(DateTime) onDateChanged,
+    VoidCallback onTodayPressed,
+    Color accentColor,
   ) {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: theme.textTheme.titleMedium),
+        Row(
+          children: [
+            Text(
+              label,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            TextButton.icon(
+              onPressed: onTodayPressed,
+              icon: const Icon(Icons.today, size: 16),
+              label: const Text('Today'),
+              style: TextButton.styleFrom(foregroundColor: accentColor),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
@@ -179,22 +223,49 @@ class _DateCalculatorCardState extends State<DateCalculatorCard> {
               onDateChanged(selectedDate);
             }
           },
+          borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              border: Border.all(color: theme.colorScheme.outline),
-              borderRadius: BorderRadius.circular(8),
+              color: accentColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: accentColor.withValues(alpha: 0.3),
+                width: 2,
+              ),
             ),
             child: Row(
               children: [
-                Icon(Icons.calendar_today, color: theme.colorScheme.primary),
-                const SizedBox(width: 12),
-                Text(
-                  '${date.day}/${date.month}/${date.year}',
-                  style: theme.textTheme.titleMedium,
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.calendar_today, color: accentColor),
                 ),
-                const Spacer(),
-                Icon(Icons.edit, color: theme.colorScheme.onSurfaceVariant),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _formatDate(date),
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _getWeekdayName(date.weekday),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.edit, color: accentColor),
               ],
             ),
           ),
@@ -203,126 +274,223 @@ class _DateCalculatorCardState extends State<DateCalculatorCard> {
     );
   }
 
-  Widget _buildResultSection(ThemeData theme, CalculationSuccess state) {
-    final result = state.result;
+  Widget _buildSwapButton() {
+    return Center(
+      child: IconButton.filledTonal(
+        onPressed: _swapDates,
+        icon: const Icon(Icons.swap_vert),
+        tooltip: 'Swap dates',
+        iconSize: 28,
+      ),
+    );
+  }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
+  Widget _buildCalculateButton() {
+    return FilledButton.icon(
+      onPressed: _calculate,
+      icon: const Icon(Icons.timeline),
+      label: const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Text('Calculate Difference', style: TextStyle(fontSize: 16)),
+      ),
+      style: FilledButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.tertiary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Widget _buildResultSection() {
+    return BlocBuilder<ConverterBloc, ConverterState>(
+      builder: (context, state) {
+        if (state is CalculationLoading) {
+          return const Card(
+            child: Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        if (state is CalculationError) {
+          return _buildErrorCard(state.message);
+        }
+
+        if (state is CalculationSuccess) {
+          return _buildSuccessCard(state.result);
+        }
+
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildErrorCard(String message) {
+    final theme = Theme.of(context);
+
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.errorContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: theme.colorScheme.onErrorContainer,
+              size: 32,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                message,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSuccessCard(DateCalculationResult result) {
+    final theme = Theme.of(context);
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
           color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+          width: 2,
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.check_circle, color: theme.colorScheme.secondary),
-              const SizedBox(width: 8),
-              Text(
-                'Calculation Result',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.secondary,
-                ),
+          // Header
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  theme.colorScheme.secondaryContainer,
+                  theme.colorScheme.secondaryContainer.withValues(alpha: 0.5),
+                ],
               ),
-            ],
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(14),
+                topRight: Radius.circular(14),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: theme.colorScheme.secondary,
+                  size: 32,
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  'Calculation Result',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const Divider(),
-          const SizedBox(height: 12),
 
-          // Total Days - Large Display
-          Center(
+          // Total Days Display
+          Container(
+            padding: const EdgeInsets.all(32),
             child: Column(
               children: [
                 Text(
                   result.totalDays.abs().toString(),
                   style: theme.textTheme.displayLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
+                    color: theme.colorScheme.secondary,
                   ),
                 ),
                 Text(
                   result.totalDays.abs() == 1 ? 'Day' : 'Days',
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: theme.textTheme.titleLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 12),
+
+          const Divider(height: 1),
 
           // Breakdown
-          Text(
-            'Breakdown:',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          _buildBreakdownRow(
-            theme,
-            'Years',
-            result.years.toString(),
-            Icons.calendar_view_week,
-          ),
-          const SizedBox(height: 4),
-
-          _buildBreakdownRow(
-            theme,
-            'Months',
-            result.months.toString(),
-            Icons.calendar_view_month,
-          ),
-          const SizedBox(height: 4),
-
-          _buildBreakdownRow(
-            theme,
-            'Days',
-            result.days.toString(),
-            Icons.calendar_view_day,
-          ),
-          const SizedBox(height: 4),
-
-          _buildBreakdownRow(
-            theme,
-            'Weeks',
-            result.weeks.toString(),
-            Icons.calendar_view_week,
-          ),
-          const SizedBox(height: 12),
-
-          // Formatted Difference
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: theme.colorScheme.outline.withValues(alpha: 0.5),
-              ),
-            ),
-            child: Row(
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.info_outline,
-                  size: 20,
-                  color: theme.colorScheme.primary,
+                Text(
+                  'Breakdown',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    result.formattedDifference,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                const SizedBox(height: 16),
+                _buildBreakdownItem(
+                  'Years',
+                  result.years.toString(),
+                  Icons.calendar_view_week,
+                  theme.colorScheme.primary,
+                ),
+                const SizedBox(height: 12),
+                _buildBreakdownItem(
+                  'Months',
+                  result.months.toString(),
+                  Icons.calendar_view_month,
+                  theme.colorScheme.secondary,
+                ),
+                const SizedBox(height: 12),
+                _buildBreakdownItem(
+                  'Weeks',
+                  result.weeks.toString(),
+                  Icons.date_range,
+                  theme.colorScheme.tertiary,
+                ),
+                const SizedBox(height: 12),
+                _buildBreakdownItem(
+                  'Days',
+                  result.days.toString(),
+                  Icons.calendar_view_day,
+                  theme.colorScheme.error,
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 20,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          result.formattedDifference,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -333,25 +501,57 @@ class _DateCalculatorCardState extends State<DateCalculatorCard> {
     );
   }
 
-  Widget _buildBreakdownRow(
-    ThemeData theme,
+  Widget _buildBreakdownItem(
     String label,
     String value,
     IconData icon,
+    Color color,
   ) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: theme.colorScheme.onSurfaceVariant),
-        const SizedBox(width: 8),
-        Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
-        Text(
-          value,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.primary,
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
           ),
-        ),
-      ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String _getWeekdayName(int weekday) {
+    return TranslationService.getWeekdayName(weekday);
   }
 }
