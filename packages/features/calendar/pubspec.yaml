@@ -1,0 +1,48 @@
+name: calendar
+description: "Calendar feature with Myanmar calendar support"
+version: 0.0.1
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Core packages
+  core:
+    path: ../../core
+  data:
+    path: ../../data
+
+  settings:
+    path: ../settings
+
+  # Myanmar Calendar Package
+  flutter_mmcalendar: ^3.1.0
+
+  # Utilities
+  intl: ^0.20.2
+  equatable: ^2.0.7
+
+  # Functional Programming
+  dartz: ^0.10.1
+
+  # State Management
+  bloc: ^9.0.1
+  flutter_bloc: ^9.1.1
+
+  # Dependency Injection
+  get_it: ^8.2.0
+  injectable: ^2.5.2
+  go_router: ^16.2.4
+  drift: ^2.28.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.8.0
+  injectable_generator: ^2.9.0

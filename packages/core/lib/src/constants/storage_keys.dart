@@ -1,0 +1,31 @@
+class StorageKeys {
+  // Settings
+  static const String themeMode = 'theme_mode';
+  static const String themePreset = 'theme_preset';
+  static const String customColors = 'custom_colors';
+  static const String appLanguage = 'app_language';
+  static const String calendarLanguage = 'calendar_language';
+
+  // Calendar Configuration
+  static const String sasanaYearType = 'sasana_year_type';
+  static const String calendarType = 'calendar_type';
+  static const String gregorianStart = 'gregorian_start';
+  static const String timezoneOffset = 'timezone_offset';
+
+  // Display Preferences
+  static const String firstDayOfWeek = 'first_day_of_week';
+  static const String showWeekNumbers = 'show_week_numbers';
+  static const String showHolidays = 'show_holidays';
+  static const String showAstrology = 'show_astrology';
+  static const String showMyanmarDates = 'show_myanmar_dates';
+  static const String showWesternDates = 'show_western_dates';
+
+  // UI Preferences
+  static const String calendarView = 'calendar_view'; // month, year, week, day
+  static const String lastViewedDate = 'last_viewed_date';
+  static const String astrologyCardExpanded = 'astrology_card_expanded';
+
+  // Onboarding
+  static const String isFirstLaunch = 'is_first_launch';
+  static const String onboardingCompleted = 'onboarding_completed';
+}

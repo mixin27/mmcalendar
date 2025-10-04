@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'date_cell.dart';
+
+class CalendarGrid extends StatelessWidget {
+  final List<CompleteDate> gridDates;
+  final DateTime currentMonth;
+  final DateTime? selectedDate;
+  final DateTime today;
+  final Function(DateTime) onDateTap;
+
+  const CalendarGrid({
+    super.key,
+    required this.gridDates,
+    required this.currentMonth,
+    this.selectedDate,
+    required this.today,
+    required this.onDateTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      crossAxisCount: 7,
+      childAspectRatio: 0.75,
+      children: gridDates.map((dateInfo) {
+        final date = dateInfo.western.toDateTime();
+        return DateCell(
+          dateInfo: dateInfo,
+          isSelected: _isSelected(date),
+          isToday: _isToday(date),
+          isInCurrentMonth: _isInCurrentMonth(date),
+          onTap: () => onDateTap(date),
+        );
+      }).toList(),
+    );
+  }
+
+  bool _isToday(DateTime date) =>
+      date.year == today.year &&
+      date.month == today.month &&
+      date.day == today.day;
+
+  bool _isSelected(DateTime date) {
+    if (selectedDate == null) return false;
+    return date.year == selectedDate!.year &&
+        date.month == selectedDate!.month &&
+        date.day == selectedDate!.day;
+  }
+
+  bool _isInCurrentMonth(DateTime date) =>
+      date.year == currentMonth.year && date.month == currentMonth.month;
+}

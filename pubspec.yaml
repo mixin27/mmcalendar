@@ -1,73 +1,30 @@
-name: mmcalendar
-description: "Simple myanmar calendar."
-publish_to: "none"
-version: 1.0.9+109
+
+name: myanmar_calendar_workspace
+description: Myanmar Calendar Application Workspace
+version: 1.0.0
+publish_to: none
 
 environment:
-  sdk: ^3.8.1
+  sdk: ^3.9.0
 
+# Workspace configuration
+workspace:
+  - packages/core
+  - packages/data
+  - packages/features/calendar
+  - packages/features/views
+  - packages/features/converter
+  - packages/features/settings
+  - packages/features/notes
+  - packages/features/events
+  - apps/myanmar_calendar
+
+# Workspace-level dependencies (shared across all packages)
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  auto_route: ^10.1.2
-  intl: ^0.20.0
-  flutter_mmcalendar: ^1.1.2
-  table_calendar: ^3.2.0
-
-  hooks_riverpod: ^2.6.1
-  flutter_hooks: ^0.21.3
-  riverpod_annotation: ^2.6.1
-
-  firebase_core: ^4.0.0
-  firebase_analytics: ^12.0.0
-  firebase_crashlytics: ^5.0.0
-  firebase_remote_config: ^6.0.0
-  firebase_performance: ^0.11.0
-
-  easy_localization: ^3.0.8
-  iconly: ^1.0.1
-  url_launcher: ^6.3.2
-  gpt_markdown: ^1.1.2
-  native_id: ^0.0.5
-  shared_preferences: ^2.5.3
-  onesignal_flutter: ^5.3.4
-  google_mobile_ads: ^6.0.0
-  workmanager: ^0.9.0+2
-  path_provider: ^2.1.5
-  envied: ^1.2.0
-
-  calendar_home_widgets:
-    path: packages/calendar_home_widgets
-  ads_manager:
-    path: packages/ads_manager
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^2.5.4
   flutter_lints: ^6.0.0
-  custom_lint: ^0.7.5
-  auto_route_generator: ^10.2.3
-  riverpod_generator: ^2.4.2
-  riverpod_lint: ^2.3.12
-  envied_generator: ^1.1.1
-
-flutter:
-  uses-material-design: true
-
-  assets:
-    - assets/translations/
-    - assets/images/logo.png
-
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700

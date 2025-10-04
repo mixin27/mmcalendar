@@ -1,13 +1,58 @@
 include: package:flutter_lints/flutter.yaml
 
+linter:
+  rules:
+    # Dart style rules
+    - always_declare_return_types
+    - always_put_control_body_on_new_line
+    - always_put_required_named_parameters_first
+    - always_require_non_null_named_parameters
+    - annotate_overrides
+    - avoid_bool_literals_in_conditional_expressions
+    - avoid_empty_else
+    - avoid_init_to_null
+    - avoid_print
+    - avoid_relative_lib_imports
+    - avoid_return_types_on_setters
+    - avoid_types_as_parameter_names
+    - avoid_unnecessary_containers
+    - await_only_futures
+    - camel_case_extensions
+    - camel_case_types
+    - constant_identifier_names
+    - curly_braces_in_flow_control_structures
+    - empty_catches
+    - empty_constructor_bodies
+    - file_names
+    - implementation_imports
+    - library_names
+    - library_prefixes
+    - no_duplicate_case_values
+    - null_closures
+    - prefer_adjacent_string_concatenation
+    - prefer_collection_literals
+    - prefer_conditional_assignment
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_contains
+    - prefer_equal_for_default_values
+    - prefer_final_fields
+    - prefer_for_elements_to_map_fromIterable
+    - prefer_if_null_operators
+    - prefer_is_empty
+    - prefer_is_not_empty
+    - prefer_single_quotes
+    - require_trailing_commas
+    - sort_child_properties_last
+    - use_function_type_syntax_for_parameters
+    - use_rethrow_when_possible
+
 analyzer:
+  errors:
+    missing_required_param: error
+    missing_return: error
+    todo: ignore
   exclude:
     - "**/*.g.dart"
-    - "**/*.gr.dart"
     - "**/*.freezed.dart"
-    - "**/*.gen.dart"
-    - "**/*.chopper.dart"
-  errors:
-    invalid_annotation_target: ignore
-  plugins:
-    - custom_lint
+    - "**/*.config.dart"
