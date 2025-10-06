@@ -8,6 +8,10 @@ class DateCell extends StatefulWidget {
   final bool isToday;
   final bool isInCurrentMonth;
   final VoidCallback onTap;
+  final bool showHolidays;
+  final bool showAstrology;
+  final bool showWesternDates;
+  final bool showMyanmarDates;
 
   const DateCell({
     super.key,
@@ -16,6 +20,10 @@ class DateCell extends StatefulWidget {
     required this.isToday,
     required this.isInCurrentMonth,
     required this.onTap,
+    this.showHolidays = true,
+    this.showAstrology = true,
+    this.showWesternDates = true,
+    this.showMyanmarDates = true,
   });
 
   @override
@@ -114,19 +122,20 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Western day
-                  Text(
-                    widget.dateInfo.westernDay.toString(),
-                    style: context.textTheme.titleMedium?.copyWith(
-                      color: textColor.withValues(alpha: opacity),
-                      fontWeight: widget.isToday
-                          ? FontWeight.bold
-                          : FontWeight.w600,
-                      fontSize: 18,
+                  if (widget.showWesternDates)
+                    Text(
+                      widget.dateInfo.westernDay.toString(),
+                      style: context.textTheme.titleMedium?.copyWith(
+                        color: textColor.withValues(alpha: opacity),
+                        fontWeight: widget.isToday
+                            ? FontWeight.bold
+                            : FontWeight.w600,
+                        fontSize: 18,
+                      ),
                     ),
-                  ),
 
                   // Myanmar fortnight day and moon phase
-                  if (widget.isInCurrentMonth) ...[
+                  if (widget.isInCurrentMonth && widget.showMyanmarDates) ...[
                     const SizedBox(height: 2),
                     // Myanmar date info - simplified
                     _buildMyanmarDateInfo(textColor, opacity),
@@ -135,7 +144,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
               ),
             ),
 
-            if (widget.isInCurrentMonth) ...[
+            if (widget.isInCurrentMonth && widget.showHolidays) ...[
               // Holiday
               if (widget.dateInfo.hasHolidays)
                 Positioned(
@@ -154,7 +163,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
                 ),
 
               // Sabbath indicator
-              if (widget.dateInfo.isSabbath)
+              if (widget.dateInfo.isSabbath && widget.showAstrology)
                 Positioned(
                   bottom: 4,
                   left: 0,
@@ -212,7 +221,10 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
         if (!(widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon)) ...[
           const SizedBox(width: 2),
           Text(
-            widget.dateInfo.fortnightDay.toString(),
+            MyanmarCalendar.formatMyanmar(
+              widget.dateInfo.myanmar,
+              pattern: '&f',
+            ),
             style: context.textTheme.labelSmall?.copyWith(
               fontSize: 10,
               color: textColor.withValues(alpha: opacity * 0.6),

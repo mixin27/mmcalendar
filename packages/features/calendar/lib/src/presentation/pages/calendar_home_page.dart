@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
+import 'package:settings/settings.dart';
 
 import '../bloc/calendar_bloc.dart';
 import '../bloc/calendar_event.dart';
@@ -70,61 +71,91 @@ class _CalendarHomePageState extends State<CalendarHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // Compact App Bar
-          const SliverToBoxAdapter(child: CalendarAppBar()),
+      body: BlocBuilder<SettingsBloc, SettingsState>(
+        builder: (context, settingsState) {
+          // Get display preferences from settings
+          final showHolidays = settingsState is SettingsLoaded
+              ? settingsState.settings.showHolidays
+              : true;
+          final showAstrology = settingsState is SettingsLoaded
+              ? settingsState.settings.showAstrology
+              : false;
+          final showWesternDates = settingsState is SettingsLoaded
+              ? settingsState.settings.showWesternDates
+              : true;
+          final showMyanmarDates = settingsState is SettingsLoaded
+              ? settingsState.settings.showMyanmarDates
+              : true;
 
-          // Main Calendar Content
-          SliverToBoxAdapter(
-            child: BlocConsumer<CalendarBloc, CalendarState>(
-              listener: (context, state) {
-                if (state is CalendarError) {
-                  _showErrorSnackBar(context, state.message);
-                }
-                // Replay animation on month change
-                // if (state is CalendarLoaded) {
-                //   _slideController.reset();
-                //   _slideController.forward();
-                // }
-              },
-              builder: (context, state) {
-                if (state is CalendarInitial) {
-                  context.read<CalendarBloc>().add(
-                    LoadCalendarMonth(DateTime.now()),
-                  );
-                  return _buildLoadingState();
-                }
+          return CustomScrollView(
+            slivers: [
+              // Compact App Bar
+              const SliverToBoxAdapter(child: CalendarAppBar()),
 
-                if (state is CalendarLoading) {
-                  return _buildLoadingState();
-                }
+              // Main Calendar Content
+              SliverToBoxAdapter(
+                child: BlocConsumer<CalendarBloc, CalendarState>(
+                  listener: (context, state) {
+                    if (state is CalendarError) {
+                      _showErrorSnackBar(context, state.message);
+                    }
+                    // Replay animation on month change
+                    // if (state is CalendarLoaded) {
+                    //   _slideController.reset();
+                    //   _slideController.forward();
+                    // }
+                  },
+                  builder: (context, state) {
+                    if (state is CalendarInitial) {
+                      context.read<CalendarBloc>().add(
+                        LoadCalendarMonth(DateTime.now()),
+                      );
+                      return _buildLoadingState();
+                    }
 
-                if (state is CalendarError) {
-                  return _buildErrorState(state.message);
-                }
+                    if (state is CalendarLoading) {
+                      return _buildLoadingState();
+                    }
 
-                if (state is CalendarLoaded) {
-                  return FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: _buildCalendarContent(state),
-                    // child: SlideTransition(
-                    //   position: _slideAnimation,
-                    //   child: _buildCalendarContent(state),
-                    // ),
-                  );
-                }
+                    if (state is CalendarError) {
+                      return _buildErrorState(state.message);
+                    }
 
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-        ],
+                    if (state is CalendarLoaded) {
+                      return FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: _buildCalendarContent(
+                          state,
+                          showHolidays: showHolidays,
+                          showAstrology: showAstrology,
+                          showWesternDates: showWesternDates,
+                          showMyanmarDates: showMyanmarDates,
+                        ),
+                        // child: SlideTransition(
+                        //   position: _slideAnimation,
+                        //   child: _buildCalendarContent(state),
+                        // ),
+                      );
+                    }
+
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildCalendarContent(CalendarLoaded state) {
+  Widget _buildCalendarContent(
+    CalendarLoaded state, {
+    bool showHolidays = true,
+    bool showAstrology = true,
+    bool showWesternDates = true,
+    bool showMyanmarDates = true,
+  }) {
     return Column(
       children: [
         // Calendar Header with smooth transitions
@@ -184,6 +215,10 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             currentMonth: state.calendarMonth.month,
             selectedDate: state.selectedDate?.date,
             today: state.today,
+            showHolidays: showHolidays,
+            showAstrology: showAstrology,
+            showWesternDates: showWesternDates,
+            showMyanmarDates: showMyanmarDates,
             onDateTap: (date) {
               context.read<CalendarBloc>().add(SelectDateEvent(date));
               _navigateToDayDetails(context, date);

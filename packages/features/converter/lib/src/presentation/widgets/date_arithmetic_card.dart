@@ -67,22 +67,6 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
     );
   }
 
-  // void _showErrorSnackBar(String message) {
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(
-  //       content: Row(
-  //         children: [
-  //           const Icon(Icons.error_outline, color: Colors.white),
-  //           const SizedBox(width: 12),
-  //           Expanded(child: Text(message)),
-  //         ],
-  //       ),
-  //       backgroundColor: Theme.of(context).colorScheme.error,
-  //       behavior: SnackBarBehavior.floating,
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(

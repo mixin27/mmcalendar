@@ -30,15 +30,15 @@ class CalendarAppBar extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    _getGreeting(),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer.withValues(
-                        alpha: 0.8,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
+                  // Text(
+                  //   _getGreeting(),
+                  //   style: theme.textTheme.bodySmall?.copyWith(
+                  //     color: theme.colorScheme.onPrimaryContainer.withValues(
+                  //       alpha: 0.8,
+                  //     ),
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 4),
                   Text(
                     AppConstants.appName,
                     style: theme.textTheme.headlineSmall?.copyWith(
@@ -87,16 +87,16 @@ class CalendarAppBar extends StatelessWidget {
   }
 
   // Helper methods
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return 'Good Morning';
-    } else if (hour < 17) {
-      return 'Good Afternoon';
-    } else {
-      return 'Good Evening';
-    }
-  }
+  // String _getGreeting() {
+  //   final hour = DateTime.now().hour;
+  //   if (hour < 12) {
+  //     return 'Good Morning';
+  //   } else if (hour < 17) {
+  //     return 'Good Afternoon';
+  //   } else {
+  //     return 'Good Evening';
+  //   }
+  // }
 }
 
 /// Compact home app bar for smaller screens

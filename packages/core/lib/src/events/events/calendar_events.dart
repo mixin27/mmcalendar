@@ -1,3 +1,5 @@
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+
 import '../app_event.dart';
 
 /// Fired when a date is selected
@@ -17,4 +19,14 @@ class MonthChangedEvent extends AppEvent {
 /// Fired when calendar needs to be refreshed
 class CalendarRefreshEvent extends AppEvent {
   CalendarRefreshEvent();
+}
+
+class CalendarConfigurationChangedEvent extends AppEvent {
+  final CalendarConfig config;
+  CalendarConfigurationChangedEvent(this.config);
+}
+
+class CalendarLanguageChangedEvent extends AppEvent {
+  final Language language;
+  CalendarLanguageChangedEvent(this.language);
 }

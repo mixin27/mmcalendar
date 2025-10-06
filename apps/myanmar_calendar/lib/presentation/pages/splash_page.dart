@@ -171,7 +171,7 @@ class _SplashPageState extends State<SplashPage>
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Text(
-                    'Myanmar Calendar',
+                    AppConstants.appName,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,
@@ -230,7 +230,7 @@ class _SplashPageState extends State<SplashPage>
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: Text(
-                      'Version 1.0.0',
+                      'Version ${AppConstants.appVersion}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(
                           alpha: 0.5,

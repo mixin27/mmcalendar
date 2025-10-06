@@ -30,7 +30,7 @@ dependencies:
     path: ../../packages/features/converter
 
   # Myanmar calendar
-  flutter_mmcalendar: ^3.1.0
+  flutter_mmcalendar: ^3.1.1
 
   # State management
   bloc: ^9.0.1

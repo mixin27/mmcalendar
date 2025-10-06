@@ -8,6 +8,10 @@ class CalendarGrid extends StatelessWidget {
   final DateTime? selectedDate;
   final DateTime today;
   final Function(DateTime) onDateTap;
+  final bool showHolidays;
+  final bool showAstrology;
+  final bool showWesternDates;
+  final bool showMyanmarDates;
 
   const CalendarGrid({
     super.key,
@@ -16,6 +20,10 @@ class CalendarGrid extends StatelessWidget {
     this.selectedDate,
     required this.today,
     required this.onDateTap,
+    this.showHolidays = true,
+    this.showAstrology = true,
+    this.showWesternDates = true,
+    this.showMyanmarDates = true,
   });
 
   @override
@@ -33,6 +41,10 @@ class CalendarGrid extends StatelessWidget {
           isSelected: _isSelected(date),
           isToday: _isToday(date),
           isInCurrentMonth: _isInCurrentMonth(date),
+          showHolidays: showHolidays,
+          showAstrology: showAstrology,
+          showWesternDates: showWesternDates,
+          showMyanmarDates: showMyanmarDates,
           onTap: () => onDateTap(date),
         );
       }).toList(),

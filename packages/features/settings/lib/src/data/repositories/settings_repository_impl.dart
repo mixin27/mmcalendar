@@ -97,9 +97,6 @@ class SettingsRepositoryImpl extends BaseRepository
         _themeModeToString(themeMode),
       );
 
-      // Fire event to event bus
-      AppEventBus.fire(ThemeModeChangedEvent(themeMode));
-
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
@@ -112,9 +109,6 @@ class SettingsRepositoryImpl extends BaseRepository
   Future<Either<Failure, void>> updateThemePreset(String presetId) async {
     try {
       await localDataSource.setSetting(StorageKeys.themePreset, presetId);
-
-      // Fire event to event bus
-      AppEventBus.fire(ThemePresetChangedEvent(presetId));
 
       return const Right(null);
     } on CacheException catch (e) {
@@ -131,9 +125,6 @@ class SettingsRepositoryImpl extends BaseRepository
       // For now, we'll use presets only
       await localDataSource.setSetting(StorageKeys.customColors, 'custom');
 
-      // Fire event to event bus
-      AppEventBus.fire(CustomColorsChangedEvent(colors));
-
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
@@ -146,9 +137,6 @@ class SettingsRepositoryImpl extends BaseRepository
   Future<Either<Failure, void>> updateAppLanguage(String languageCode) async {
     try {
       await localDataSource.setSetting(StorageKeys.appLanguage, languageCode);
-
-      // Fire event to event bus
-      AppEventBus.fire(LanguageChangedEvent(languageCode));
 
       return const Right(null);
     } on CacheException catch (e) {
@@ -167,12 +155,6 @@ class SettingsRepositoryImpl extends BaseRepository
         StorageKeys.calendarLanguage,
         language.code,
       );
-
-      // Update Myanmar Calendar package
-      MyanmarCalendar.setLanguage(language);
-
-      // Fire event to event bus
-      AppEventBus.fire(CalendarLanguageChangedEvent(language.code));
 
       return const Right(null);
     } on CacheException catch (e) {
@@ -198,18 +180,6 @@ class SettingsRepositoryImpl extends BaseRepository
         ),
       );
 
-      // Update Myanmar Calendar package
-      MyanmarCalendar.configure(
-        language: Language.fromCode(config.defaultLanguage),
-        timezoneOffset: config.timezoneOffset,
-        sasanaYearType: config.sasanaYearType,
-        calendarType: config.calendarType,
-        gregorianStart: config.gregorianStart,
-      );
-
-      // Fire refresh event
-      AppEventBus.fire(CalendarRefreshEvent());
-
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
@@ -225,9 +195,6 @@ class SettingsRepositoryImpl extends BaseRepository
   ) async {
     try {
       await localDataSource.setSetting(key, value.toString());
-
-      // Fire event if needed
-      AppEventBus.fire(SettingsUpdatedEvent(key, value));
 
       return const Right(null);
     } on CacheException catch (e) {
@@ -253,13 +220,6 @@ class SettingsRepositoryImpl extends BaseRepository
           updatedAt: Value(DateTime.now()),
         ),
       );
-
-      // Reset Myanmar Calendar to defaults
-      MyanmarCalendar.reset();
-
-      // Fire refresh event
-      AppEventBus.fire(CalendarRefreshEvent());
-
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));

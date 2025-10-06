@@ -2,13 +2,13 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
+    hide MoonPhaseIndicator, CompactMoonPhaseIndicator;
 import 'package:go_router/go_router.dart';
 
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
 import '../bloc/views_state.dart';
-import '../widgets/moon_phase_indicator.dart';
 
 class WeekViewPage extends StatefulWidget {
   const WeekViewPage({super.key});

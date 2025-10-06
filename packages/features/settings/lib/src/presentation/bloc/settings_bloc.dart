@@ -50,6 +50,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (settings) {
+        // Apply both config AND language
         _applyCalendarConfiguration(settings.calendarConfig);
         MyanmarCalendar.setLanguage(settings.calendarLanguage);
 
@@ -70,8 +71,16 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        final preset = ThemePresets.getPreset(
+          currentState.settings.themePreset,
+        );
+        final newColors = event.themeMode == ThemeMode.dark
+            ? preset.darkColors
+            : preset.lightColors;
+
         final updatedSettings = currentState.settings.copyWith(
           themeMode: event.themeMode,
+          customColors: newColors,
         );
         emit(SettingsLoaded(updatedSettings));
       },
@@ -139,8 +148,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (_) {
         MyanmarCalendar.setLanguage(event.language);
 
-        // Fire event bus event so other features can react
-        AppEventBus.fire(CalendarLanguageChangedEvent(event.language.name));
+        // Fire calendar language changed event
+        AppEventBus.fire(CalendarLanguageChangedEvent(event.language));
 
         final updatedSettings = currentState.settings.copyWith(
           calendarLanguage: event.language,
@@ -163,7 +172,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
         _applyCalendarConfiguration(event.config);
-        // AppEventBus.fire(CalendarConfigurationChangedEvent(event.config));
+
+        // Fire clanedar configuraton changed event
+        AppEventBus.fire(CalendarConfigurationChangedEvent(event.config));
 
         final updatedSettings = currentState.settings.copyWith(
           calendarConfig: event.config,

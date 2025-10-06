@@ -28,12 +28,3 @@ final class ChangeThemePreset extends AppEvent {
   @override
   List<Object?> get props => [presetId];
 }
-
-final class ChangeLanguage extends AppEvent {
-  final String languageCode;
-
-  const ChangeLanguage(this.languageCode);
-
-  @override
-  List<Object?> get props => [languageCode];
-}

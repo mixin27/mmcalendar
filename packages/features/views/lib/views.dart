@@ -21,5 +21,6 @@ export 'src/presentation/pages/views_selector_page.dart';
 export 'src/presentation/pages/year_view_page.dart';
 export 'src/presentation/pages/week_view_page.dart';
 export 'src/presentation/pages/day_view_page.dart';
+export 'src/presentation/widgets/moon_phase_indicator.dart';
 
 export 'src/di/views_injection.dart' hide getIt;

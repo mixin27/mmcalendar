@@ -200,10 +200,13 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.indigo.shade100,
+                color: theme.colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(Icons.calendar_today, color: Colors.indigo.shade700),
+              child: Icon(
+                Icons.calendar_today,
+                color: theme.colorScheme.onPrimaryContainer,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -214,7 +217,7 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                 ),
               ),
             ),
-            Icon(Icons.edit, color: Colors.indigo.shade700),
+            Icon(Icons.edit, color: theme.colorScheme.primary),
           ],
         ),
       ),
@@ -463,7 +466,7 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                   'Weekday',
                   _getWeekdayName(completeDate.weekday),
                   Icons.today,
-                  theme.colorScheme.tertiary,
+                  theme.colorScheme.primary,
                 ),
                 const SizedBox(height: 12),
                 _buildInfoTile(
@@ -473,7 +476,7 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                     pattern: "&f",
                   ),
                   Icons.looks_one,
-                  Colors.teal,
+                  theme.colorScheme.tertiary,
                 ),
 
                 // Holidays

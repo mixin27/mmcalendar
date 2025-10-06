@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:converter/converter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:calendar/calendar.dart';
 import 'package:flutter/material.dart';
@@ -8,79 +11,72 @@ import 'package:views/views.dart';
 
 import 'config/di_setup.dart';
 import 'config/router.dart';
-import 'presentation/bloc/app_bloc.dart';
 
 class MyanmarCalendarApp extends StatelessWidget {
   const MyanmarCalendarApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AppBloc()..add(InitializeApp()),
-      child: BlocBuilder<AppBloc, AppState>(
-        builder: (context, state) {
-          if (state is AppInitializing) {
-            return const MaterialApp(
-              debugShowCheckedModeBanner: false,
-              home: Scaffold(body: Center(child: CircularProgressIndicator())),
-            );
-          }
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              getIt<CalendarBloc>()..add(LoadCalendarMonth(DateTime.now())),
+        ),
+        BlocProvider(
+          create: (context) => getIt<SettingsBloc>()..add(const LoadSettings()),
+        ),
+        BlocProvider(create: (context) => getIt<ViewsBloc>()),
+        BlocProvider(create: (context) => getIt<ConverterBloc>()),
+      ],
+      child: _AppContent(),
+    );
+  }
+}
 
-          return MultiBlocProvider(
-            providers: [
-              // Calendar BLoC
-              BlocProvider(
-                create: (context) =>
-                    getIt<CalendarBloc>()
-                      ..add(LoadCalendarMonth(DateTime.now())),
-              ),
-              // Settings BLoC
-              BlocProvider(
-                create: (context) =>
-                    getIt<SettingsBloc>()..add(const LoadSettings()),
-              ),
-              // Views BLoC
-              BlocProvider(create: (context) => getIt<ViewsBloc>()),
-              // Add more BLoC providers here when features are ready
-            ],
-            child: BlocBuilder<SettingsBloc, SettingsState>(
-              builder: (context, settingsState) {
-                // Get theme from settings or use default
-                final themeColors = settingsState is SettingsLoaded
-                    ? settingsState.settings.customColors
-                    : null;
-                final themeMode = settingsState is SettingsLoaded
-                    ? settingsState.settings.themeMode
-                    : ThemeMode.system;
+class _AppContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsBloc, SettingsState>(
+      buildWhen: (prev, curr) {
+        if (prev is SettingsLoaded && curr is SettingsLoaded) {
+          return prev.settings.themeMode != curr.settings.themeMode ||
+              prev.settings.customColors != curr.settings.customColors;
+        }
+        return true;
+      },
+      builder: (context, settingsState) {
+        // Get theme mode from settings
+        ThemeMode themeMode = ThemeMode.system;
+        if (settingsState is SettingsLoaded) {
+          log(settingsState.settings.themeMode.toString());
+          themeMode = settingsState.settings.themeMode;
+        }
 
-                return MaterialApp.router(
-                  title: AppConstants.appName,
-                  debugShowCheckedModeBanner: false,
+        final themeColors = settingsState is SettingsLoaded
+            ? settingsState.settings.customColors
+            : null;
+        final lightTheme = AppTheme.lightTheme(customColors: themeColors);
+        final darkTheme = AppTheme.darkTheme(customColors: themeColors);
 
-                  // Theme
-                  theme: AppTheme.lightTheme(customColors: themeColors),
-                  darkTheme: AppTheme.darkTheme(customColors: themeColors),
-                  themeMode: themeMode,
-
-                  // Localization
-                  localizationsDelegates: [
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  supportedLocales: [
-                    Locale('en'), // English
-                    Locale('my'), // Myanmar
-                  ],
-
-                  // Routing
-                  routerConfig: router,
-                );
-              },
-            ),
-          );
-        },
-      ),
+        return MaterialApp.router(
+          key: ValueKey(
+            'theme-${themeMode.name}-${themeColors?.toStringShort()}',
+          ),
+          title: AppConstants.appName,
+          debugShowCheckedModeBanner: false,
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: themeMode,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('en'), Locale('my')],
+          routerConfig: router,
+        );
+      },
     );
   }
 }

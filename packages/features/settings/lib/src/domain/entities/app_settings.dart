@@ -59,6 +59,7 @@ class AppSettingsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
+    themeMode.index,
     themeMode,
     themePreset,
     customColors,

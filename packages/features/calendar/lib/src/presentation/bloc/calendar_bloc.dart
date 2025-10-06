@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:core/core.dart';
 
@@ -13,6 +15,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   final NavigateMonth navigateMonth;
   final SelectDate selectDateUseCase;
   final ToggleAstrology toggleAstrology;
+
+  StreamSubscription<CalendarConfigurationChangedEvent>? _configSubscription;
+  StreamSubscription<CalendarLanguageChangedEvent>? _languageSubscription;
 
   CalendarBloc({
     required this.getCalendarMonth,
@@ -33,15 +38,15 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 
   void _subscribeToEvents() {
-    // Listen to calendar refresh events
-    AppEventBus.on<CalendarRefreshEvent>().listen((event) {
-      add(const RefreshCalendar());
-    });
+    _configSubscription = AppEventBus.on<CalendarConfigurationChangedEvent>()
+        .listen((event) {
+          add(RefreshCalendar());
+        });
 
-    // Listen to settings changes that affect calendar
-    AppEventBus.on<CalendarLanguageChangedEvent>().listen((event) {
-      add(const RefreshCalendar());
-    });
+    _languageSubscription = AppEventBus.on<CalendarLanguageChangedEvent>()
+        .listen((event) {
+          add(RefreshCalendar());
+        });
   }
 
   Future<void> _onLoadCalendarMonth(
@@ -243,5 +248,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       default:
         return 'Unexpected error occurred';
     }
+  }
+
+  @override
+  Future<void> close() {
+    _configSubscription?.cancel();
+    _languageSubscription?.cancel();
+    return super.close();
   }
 }

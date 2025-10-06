@@ -1,3 +1,4 @@
+import 'package:data/data.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -24,19 +25,14 @@ void main() async {
   // Firebase init
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Configure Myanmar Calendar package with default settings
-  MyanmarCalendar.configure(
-    language: Language.myanmar,
-    timezoneOffset: 6.5, // Myanmar Time (UTC+6:30)
-    sasanaYearType: 0,
-    calendarType: 0,
-  );
-
   // Configure system UI
   await _configureSystemUI();
 
   // Initialize dependency injection
   await initializeDependencies();
+
+  // Load saved settings and configure Myanmar Calendar
+  await _initializeMyanmarCalendar();
 
   // Set up Bloc observer
   Bloc.observer = AppBlocObserver();
@@ -44,6 +40,42 @@ void main() async {
   registerErrorHandlers();
 
   runApp(const MyanmarCalendarApp());
+}
+
+// Initialize Myanmar Calendar with saved settings
+Future<void> _initializeMyanmarCalendar() async {
+  try {
+    final database = getIt<AppDatabase>();
+    final settingsDao = database.settingsDao;
+
+    // Load calendar configuration from database
+    final sasanaYearType = await settingsDao.getSetting('sasana_year_type');
+    final calendarType = await settingsDao.getSetting('calendar_type');
+    final timezoneOffset = await settingsDao.getSetting('timezone_offset');
+    final gregorianStart = await settingsDao.getSetting('gregorian_start');
+    final calendarLanguage = await settingsDao.getSetting('calendar_language');
+
+    // Configure Myanmar Calendar with saved settings
+    MyanmarCalendar.configure(
+      language: Language.fromCode(calendarLanguage ?? 'en'),
+      timezoneOffset: double.tryParse(timezoneOffset ?? '6.5') ?? 6.5,
+      sasanaYearType: int.tryParse(sasanaYearType ?? '0') ?? 0,
+      calendarType: int.tryParse(calendarType ?? '0') ?? 0,
+      gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
+    );
+
+    debugPrint('✅ Myanmar Calendar initialized with saved settings');
+  } catch (e) {
+    // If loading fails, use defaults
+    MyanmarCalendar.configure(
+      language: Language.english,
+      timezoneOffset: 6.5,
+      sasanaYearType: 0,
+      calendarType: 0,
+      gregorianStart: 2361222,
+    );
+    debugPrint('⚠️ Myanmar Calendar initialized with defaults: $e');
+  }
 }
 
 /// Configure system UI overlays and orientation

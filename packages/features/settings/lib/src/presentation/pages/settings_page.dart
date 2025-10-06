@@ -570,11 +570,10 @@ class _SettingsContent extends StatelessWidget {
               icon: Icons.looks_one,
               value: 0,
               groupValue: settings.calendarConfig.sasanaYearType,
-              onChanged: (value) => _updateCalendarConfig(
-                context,
-                settings,
-                sasanaYearType: value,
-              ),
+              onChanged: (value) {
+                _updateCalendarConfig(context, settings, sasanaYearType: value);
+                Navigator.pop(dialogContext);
+              },
             ),
             _RadioOption<int>(
               title: 'Type 1',
@@ -582,11 +581,10 @@ class _SettingsContent extends StatelessWidget {
               icon: Icons.looks_two,
               value: 1,
               groupValue: settings.calendarConfig.sasanaYearType,
-              onChanged: (value) => _updateCalendarConfig(
-                context,
-                settings,
-                sasanaYearType: value,
-              ),
+              onChanged: (value) {
+                _updateCalendarConfig(context, settings, sasanaYearType: value);
+                Navigator.pop(dialogContext);
+              },
             ),
             _RadioOption<int>(
               title: 'Type 2',
@@ -594,11 +592,10 @@ class _SettingsContent extends StatelessWidget {
               icon: Icons.looks_3,
               value: 2,
               groupValue: settings.calendarConfig.sasanaYearType,
-              onChanged: (value) => _updateCalendarConfig(
-                context,
-                settings,
-                sasanaYearType: value,
-              ),
+              onChanged: (value) {
+                _updateCalendarConfig(context, settings, sasanaYearType: value);
+                Navigator.pop(dialogContext);
+              },
             ),
           ],
         ),
@@ -624,8 +621,10 @@ class _SettingsContent extends StatelessWidget {
               icon: Icons.flag,
               value: 0,
               groupValue: settings.calendarConfig.calendarType,
-              onChanged: (value) =>
-                  _updateCalendarConfig(context, settings, calendarType: value),
+              onChanged: (value) {
+                _updateCalendarConfig(context, settings, calendarType: value);
+                Navigator.pop(dialogContext);
+              },
             ),
             _RadioOption<int>(
               title: 'Gregorian',
@@ -633,8 +632,10 @@ class _SettingsContent extends StatelessWidget {
               icon: Icons.calendar_month,
               value: 1,
               groupValue: settings.calendarConfig.calendarType,
-              onChanged: (value) =>
-                  _updateCalendarConfig(context, settings, calendarType: value),
+              onChanged: (value) {
+                _updateCalendarConfig(context, settings, calendarType: value);
+                Navigator.pop(dialogContext);
+              },
             ),
             _RadioOption<int>(
               title: 'Julian',
@@ -642,8 +643,10 @@ class _SettingsContent extends StatelessWidget {
               icon: Icons.calendar_today,
               value: 2,
               groupValue: settings.calendarConfig.calendarType,
-              onChanged: (value) =>
-                  _updateCalendarConfig(context, settings, calendarType: value),
+              onChanged: (value) {
+                _updateCalendarConfig(context, settings, calendarType: value);
+                Navigator.pop(dialogContext);
+              },
             ),
           ],
         ),
@@ -710,7 +713,6 @@ class _SettingsContent extends StatelessWidget {
       defaultLanguage: settings.calendarConfig.defaultLanguage,
     );
     context.read<SettingsBloc>().add(UpdateCalendarConfiguration(newConfig));
-    Navigator.pop(context);
   }
 }
 

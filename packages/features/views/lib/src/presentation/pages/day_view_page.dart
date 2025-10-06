@@ -9,7 +9,6 @@ import 'package:views/src/utils/utils.dart';
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
 import '../bloc/views_state.dart';
-import '../widgets/moon_phase_indicator.dart';
 
 class DayViewPage extends StatefulWidget {
   const DayViewPage({super.key, this.date});
