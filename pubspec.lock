@@ -399,10 +399,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_mmcalendar
-      sha256: "96be954781f08eb8518efe0c82b9962223dd55b2a697b2caff156a794b6e9389"
+      sha256: "6b0a73ba93d9ad621747b1f13c59f6bf9d1344fe0372171969d0f13cbcd6199a"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.1"
+    version: "3.2.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
