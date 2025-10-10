@@ -10,6 +10,11 @@ class AppException implements Exception {
       'AppException: $message ${code != null ? '(code: $code)' : ''}';
 }
 
+/// Not found exception
+class NotFoundException extends AppException {
+  const NotFoundException(super.message, [super.code]);
+}
+
 /// Exception from server/API
 class ServerException extends AppException {
   const ServerException(super.message, [super.code]);

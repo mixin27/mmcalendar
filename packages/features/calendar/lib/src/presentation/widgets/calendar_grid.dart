@@ -1,3 +1,4 @@
+import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'date_cell.dart';
@@ -12,6 +13,7 @@ class CalendarGrid extends StatelessWidget {
   final bool showAstrology;
   final bool showWesternDates;
   final bool showMyanmarDates;
+  final Map<DateTime, List<Event>> eventsByDate;
 
   const CalendarGrid({
     super.key,
@@ -24,6 +26,7 @@ class CalendarGrid extends StatelessWidget {
     this.showAstrology = true,
     this.showWesternDates = true,
     this.showMyanmarDates = true,
+    this.eventsByDate = const {},
   });
 
   @override
@@ -36,6 +39,9 @@ class CalendarGrid extends StatelessWidget {
       childAspectRatio: 0.75,
       children: gridDates.map((dateInfo) {
         final date = dateInfo.western.toDateTime();
+        final dateKey = DateTime(date.year, date.month, date.day);
+        final events = eventsByDate[dateKey] ?? [];
+
         return DateCell(
           dateInfo: dateInfo,
           isSelected: _isSelected(date),
@@ -45,7 +51,9 @@ class CalendarGrid extends StatelessWidget {
           showAstrology: showAstrology,
           showWesternDates: showWesternDates,
           showMyanmarDates: showMyanmarDates,
+          showEvents: false,
           onTap: () => onDateTap(date),
+          events: events,
         );
       }).toList(),
     );

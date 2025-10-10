@@ -1,4 +1,5 @@
 import 'package:data/data.dart';
+import 'package:events/events.dart';
 import 'package:get_it/get_it.dart';
 
 import '../data/datasources/calendar_local_datasource.dart';
@@ -45,6 +46,7 @@ Future<void> initCalendarDependencies() async {
       navigateMonth: getIt<NavigateMonth>(),
       selectDateUseCase: getIt<SelectDate>(),
       toggleAstrology: getIt<ToggleAstrology>(),
+      getEventsByDateRange: getIt<GetEventsByDateRange>(),
     ),
   );
 }

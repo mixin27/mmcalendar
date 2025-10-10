@@ -1,3 +1,4 @@
+import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:core/core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
@@ -12,6 +13,8 @@ class DateCell extends StatefulWidget {
   final bool showAstrology;
   final bool showWesternDates;
   final bool showMyanmarDates;
+  final List<Event> events;
+  final bool showEvents;
 
   const DateCell({
     super.key,
@@ -24,6 +27,8 @@ class DateCell extends StatefulWidget {
     this.showAstrology = true,
     this.showWesternDates = true,
     this.showMyanmarDates = true,
+    this.events = const [],
+    this.showEvents = true,
   });
 
   @override
@@ -144,6 +149,49 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
               ),
             ),
 
+            // Event indicators
+            if (widget.events.isNotEmpty && widget.showEvents)
+              Positioned(
+                bottom: 2,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (
+                      int i = 0;
+                      i < (widget.events.length > 3 ? 3 : widget.events.length);
+                      i++
+                    )
+                      Container(
+                        width: 6,
+                        height: 6,
+                        margin: const EdgeInsets.symmetric(horizontal: 1),
+                        decoration: BoxDecoration(
+                          color:
+                              // widget.events[i].colorCode != null
+                              //     ? Color(widget.events[i].colorCode!)
+                              //     :
+                              Theme.of(context).colorScheme.secondary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    if (widget.events.length > 3)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 2),
+                        child: Text(
+                          '+${widget.events.length - 3}',
+                          style: TextStyle(
+                            fontSize: 8,
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
             if (widget.isInCurrentMonth && widget.showHolidays) ...[
               // Holiday
               if (widget.dateInfo.hasHolidays)
@@ -163,40 +211,22 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
                 ),
 
               // Sabbath indicator
-              if (widget.dateInfo.isSabbath && widget.showAstrology)
-                Positioned(
-                  bottom: 4,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Container(
-                      width: 4,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.8),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ),
-              // Container(
-              //   margin: const EdgeInsets.only(top: 1),
-              //   padding: const EdgeInsets.symmetric(
-              //     horizontal: 4,
-              //     vertical: 1,
+              // if (widget.dateInfo.isSabbath && widget.showAstrology)
+              //   Positioned(
+              //     bottom: 4,
+              //     left: 0,
+              //     right: 0,
+              //     child: Center(
+              //       child: Container(
+              //         width: 4,
+              //         height: 4,
+              //         decoration: BoxDecoration(
+              //           color: Colors.orange.withValues(alpha: 0.8),
+              //           shape: BoxShape.circle,
+              //         ),
+              //       ),
+              //     ),
               //   ),
-              //   decoration: BoxDecoration(
-              //     color: Theme.of(context).colorScheme.surface,
-              //     shape: BoxShape.circle,
-              //   ),
-              //   child: Image.asset(
-              //     'assets/icons/meditation.png',
-              //     package: 'calendar',
-              //     fit: BoxFit.contain,
-              //     width: 10,
-              //     height: 10,
-              //   ),
-              // ),
             ],
           ],
         ),

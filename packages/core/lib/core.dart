@@ -11,6 +11,7 @@ export 'src/events/event_bus.dart';
 export 'src/events/events/calendar_events.dart';
 export 'src/events/events/theme_events.dart';
 export 'src/events/events/settings_events.dart';
+export 'src/events/events/event_events.dart';
 
 // Theme
 export 'src/theme/app_theme.dart';
@@ -26,6 +27,8 @@ export 'src/extensions/string_extension.dart';
 // Errors
 export 'src/errors/failures.dart';
 export 'src/errors/exceptions.dart';
+
+export 'src/usecases/usecase.dart';
 
 // Utils
 export 'src/utils/date_utils.dart';

@@ -1,6 +1,7 @@
 import 'package:calendar/calendar.dart';
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
+import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +29,7 @@ final GoRouter router = GoRouter(
         return AppShell(navigationShell: navigationShell);
       },
       branches: [
-        // Branch 0: Home (Calendar)
+        // Home (Calendar)
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -39,9 +40,11 @@ final GoRouter router = GoRouter(
                 GoRoute(
                   path: RoutePaths.dayDetails,
                   builder: (context, state) {
-                    final date = state.extra as DateTime;
-                    context.read<ViewsBloc>().add(LoadDayView(date));
-                    return DayViewPage(date: date);
+                    final data = state.extra as Map<String, dynamic>;
+                    final date = data["date"] as DateTime;
+                    final events = data["events"] as List<Event>;
+                    // context.read<ViewsBloc>().add(LoadDayView(date));
+                    return DayDetailsPage(date: date, events: events);
                   },
                 ),
               ],
@@ -49,7 +52,7 @@ final GoRouter router = GoRouter(
           ],
         ),
 
-        // Branch 1: Views (Placeholder for now)
+        // Views
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -73,7 +76,7 @@ final GoRouter router = GoRouter(
           ],
         ),
 
-        // Branch 2: Converter (Placeholder for now)
+        // Converter
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -86,7 +89,56 @@ final GoRouter router = GoRouter(
           ],
         ),
 
-        // Branch 3: Settings (Placeholder for now)
+        // Events shell
+        // StatefulShellBranch(
+        //   routes: [
+        //     GoRoute(
+        //       path: '/events',
+        //       builder: (context, state) => BlocProvider(
+        //         create: (context) => getIt<EventsBloc>(),
+        //         child: const EventsListPage(),
+        //       ),
+        //       routes: [
+        //         GoRoute(
+        //           path: 'create',
+        //           builder: (context, state) => BlocProvider.value(
+        //             value: context.read<EventsBloc>(),
+        //             child: const EventFormPage(),
+        //           ),
+        //         ),
+        //         GoRoute(
+        //           path: 'categories',
+        //           builder: (context, state) => BlocProvider.value(
+        //             value: context.read<EventsBloc>(),
+        //             child: const CategoriesPage(),
+        //           ),
+        //         ),
+        //         GoRoute(
+        //           path: ':id',
+        //           builder: (context, state) {
+        //             final id = int.parse(state.pathParameters['id']!);
+        //             return BlocProvider.value(
+        //               value: context.read<EventsBloc>(),
+        //               child: EventFormPage(eventId: id),
+        //             );
+        //           },
+        //         ),
+        //         GoRoute(
+        //           path: ':id/detail',
+        //           builder: (context, state) {
+        //             final id = int.parse(state.pathParameters['id']!);
+        //             return BlocProvider.value(
+        //               value: context.read<EventsBloc>(),
+        //               child: EventDetailPage(eventId: id),
+        //             );
+        //           },
+        //         ),
+        //       ],
+        //     ),
+        //   ],
+        // ),
+
+        // Settings
         StatefulShellBranch(
           routes: [
             GoRoute(

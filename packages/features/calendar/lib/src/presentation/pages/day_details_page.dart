@@ -1,18 +1,36 @@
+import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:core/core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:go_router/go_router.dart';
 
 class DayDetailsPage extends StatelessWidget {
   final DateTime date;
+  final List<Event> events;
 
-  const DayDetailsPage({super.key, required this.date});
+  const DayDetailsPage({super.key, required this.date, this.events = const []});
 
   @override
   Widget build(BuildContext context) {
     final completeDate = MyanmarCalendar.getCompleteDate(date);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Day Details')),
+      appBar: AppBar(
+        title: const Text('Day Details'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              // Navigate to create event with pre-filled date
+              GoRouter.of(
+                context,
+              ).push('/events/create?date=${date.toIso8601String()}');
+            },
+            tooltip: 'Add Event',
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -31,9 +49,81 @@ class DayDetailsPage extends StatelessWidget {
 
             // Full astrology information
             _buildAstrologyCard(context, completeDate),
+
+            const SizedBox(height: 16),
+
+            // Events section
+            _buildEventsSection(context, date),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEventsSection(BuildContext context, DateTime date) {
+    return BlocBuilder<EventsBloc, EventsState>(
+      builder: (context, state) {
+        if (state is! EventsLoaded) {
+          // Load events for this date
+          context.read<EventsBloc>().add(LoadEventsByDate(date));
+          return const SizedBox.shrink();
+        }
+
+        final events = state.events;
+        if (events.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.event,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Events (${events.length})',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              ...events.map(
+                (event) => ListTile(
+                  leading: Container(
+                    width: 4,
+                    color: event.colorCode != null
+                        ? Color(event.colorCode!)
+                        : Theme.of(context).colorScheme.primary,
+                  ),
+                  title: Text(event.title),
+                  subtitle: event.eventTime != null
+                      ? Text(
+                          TimeOfDay.fromDateTime(
+                            event.eventTime!,
+                          ).format(context),
+                        )
+                      : const Text('All day'),
+                  trailing: Icon(
+                    event.priority > 0 ? Icons.flag : null,
+                    color: _getPriorityColor(event.priority),
+                  ),
+                  onTap: () {
+                    GoRouter.of(context).push('/events/${event.id}/detail');
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -185,5 +275,18 @@ class DayDetailsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Color? _getPriorityColor(int priority) {
+    switch (priority) {
+      case 3:
+        return Colors.red;
+      case 2:
+        return Colors.orange;
+      case 1:
+        return Colors.blue;
+      default:
+        return null;
+    }
   }
 }
