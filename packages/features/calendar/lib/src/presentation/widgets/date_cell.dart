@@ -143,7 +143,11 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
                   if (widget.isInCurrentMonth && widget.showMyanmarDates) ...[
                     const SizedBox(height: 2),
                     // Myanmar date info - simplified
-                    _buildMyanmarDateInfo(textColor, opacity),
+                    _buildMyanmarDateInfo(
+                      textColor,
+                      opacity,
+                      widget.showWesternDates,
+                    ),
                   ],
                 ],
               ),
@@ -210,23 +214,39 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
                   ),
                 ),
 
+              // Astro indicator
+              if (widget.showAstrology && widget.dateInfo.hasAstrologicalDays)
+                Positioned(
+                  top: 4,
+                  left: 4,
+                  child: Center(
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurple.withValues(alpha: 0.8),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+
               // Sabbath indicator
-              // if (widget.dateInfo.isSabbath && widget.showAstrology)
-              //   Positioned(
-              //     bottom: 4,
-              //     left: 0,
-              //     right: 0,
-              //     child: Center(
-              //       child: Container(
-              //         width: 4,
-              //         height: 4,
-              //         decoration: BoxDecoration(
-              //           color: Colors.orange.withValues(alpha: 0.8),
-              //           shape: BoxShape.circle,
-              //         ),
-              //       ),
-              //     ),
-              //   ),
+              if (widget.dateInfo.isSabbath && widget.showAstrology)
+                Positioned(
+                  bottom: 4,
+                  left: 4,
+                  child: Center(
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.8),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ],
         ),
@@ -234,20 +254,68 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildMyanmarDateInfo(Color textColor, double opacity) {
+  Widget _buildMyanmarDateInfo(
+    Color textColor,
+    double opacity,
+    bool showWestern,
+  ) {
     final moonPhaseIcon = _getMoonPhaseIcon(widget.dateInfo.moonPhase);
+
+    if (!showWestern) {
+      return Column(
+        children: [
+          Text(
+            MyanmarCalendar.formatMyanmar(
+              widget.dateInfo.myanmar,
+              pattern: '&f',
+            ),
+            style: context.textTheme.titleMedium?.copyWith(
+              color: textColor.withValues(alpha: opacity),
+              fontWeight: widget.isToday ? FontWeight.bold : FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(width: 2),
+          if (!(widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon))
+            Text(
+              moonPhaseIcon,
+              style: TextStyle(
+                fontSize: 11,
+                color: textColor.withValues(alpha: opacity * 0.7),
+              ),
+            ),
+          if (widget.dateInfo.isNewMoon || widget.dateInfo.isFullMoon)
+            CustomPaint(
+              size: Size(10, 10),
+              painter: MoonPhasePainter(
+                moonPhase: widget.dateInfo.moonPhase,
+                fortnightDay: widget.dateInfo.fortnightDay,
+              ),
+            ),
+        ],
+      );
+    }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          moonPhaseIcon,
-          style: TextStyle(
-            fontSize: 11,
-            color: textColor.withValues(alpha: opacity * 0.7),
+        if (!(widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon))
+          Text(
+            moonPhaseIcon,
+            style: TextStyle(
+              fontSize: 11,
+              color: textColor.withValues(alpha: opacity * 0.7),
+            ),
           ),
-        ),
+        if (widget.dateInfo.isNewMoon || widget.dateInfo.isFullMoon)
+          CustomPaint(
+            size: Size(10, 10),
+            painter: MoonPhasePainter(
+              moonPhase: widget.dateInfo.moonPhase,
+              fortnightDay: widget.dateInfo.fortnightDay,
+            ),
+          ),
         if (!(widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon)) ...[
           const SizedBox(width: 2),
           Text(
@@ -255,11 +323,19 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
               widget.dateInfo.myanmar,
               pattern: '&f',
             ),
-            style: context.textTheme.labelSmall?.copyWith(
-              fontSize: 10,
-              color: textColor.withValues(alpha: opacity * 0.6),
-              fontWeight: FontWeight.w500,
-            ),
+            style: !showWestern
+                ? context.textTheme.titleMedium?.copyWith(
+                    color: textColor.withValues(alpha: opacity),
+                    fontWeight: widget.isToday
+                        ? FontWeight.bold
+                        : FontWeight.w600,
+                    fontSize: 18,
+                  )
+                : context.textTheme.labelSmall?.copyWith(
+                    fontSize: 10,
+                    color: textColor.withValues(alpha: opacity * 0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
           ),
         ],
       ],

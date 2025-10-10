@@ -1,5 +1,6 @@
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 
 class CalendarAppBar extends StatelessWidget {
@@ -40,6 +41,15 @@ class CalendarAppBar extends StatelessWidget {
                   // ),
                   // const SizedBox(height: 4),
                   Text(
+                    _getTodayString(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer.withValues(
+                        alpha: 0.8,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
                     AppConstants.appName,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer,
@@ -47,8 +57,9 @@ class CalendarAppBar extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
+
                   Text(
-                    _getTodayString(),
+                    _getTodayMyanmarString(),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer.withValues(
                         alpha: 0.8,
@@ -81,6 +92,21 @@ class CalendarAppBar extends StatelessWidget {
   String _getTodayString() {
     final now = DateTime.now();
     return now.format('EEEE, MMMM d');
+  }
+
+  String _getTodayMyanmarString() {
+    final now = DateTime.now();
+    final myanmarDate = MyanmarCalendar.fromWestern(
+      now.year,
+      now.month,
+      now.day,
+    );
+
+    final s = TranslationService.translate('Sasana Year');
+    final sv = TranslationService.translate(myanmarDate.sasanaYear.toString());
+    final formatted = "$s $sv, ${myanmarDate.formatMyanmar()}";
+
+    return formatted;
   }
 
   // todo(mixin27): implement search functionality

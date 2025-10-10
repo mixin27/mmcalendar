@@ -37,6 +37,7 @@ export 'src/utils/debouncer.dart';
 export 'src/utils/throttler.dart';
 
 export 'src/widgets/moon_phase.dart';
+export 'src/widgets/markdown_render.dart';
 
 // Dependency Injection
 export 'src/di/injection.dart' hide getIt;

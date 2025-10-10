@@ -604,7 +604,12 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                     shape: BoxShape.circle,
                   ),
                 ),
-                Expanded(child: Text(item, style: theme.textTheme.bodyMedium)),
+                Expanded(
+                  child: Text(
+                    TranslationService.translate(item),
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
               ],
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../bloc/settings_bloc.dart';
@@ -244,6 +245,7 @@ class _SettingsContent extends StatelessWidget {
                     title: 'Show Holidays',
                     subtitle: 'Display holiday indicators',
                     icon: Icons.celebration,
+                    iconColor: Colors.red.shade700,
                     value: settings.showHolidays,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
@@ -256,8 +258,10 @@ class _SettingsContent extends StatelessWidget {
                   ),
                   _AnimatedSwitchTile(
                     title: 'Show Astrology',
-                    subtitle: 'Display astrological information',
+                    subtitle:
+                        'Display astrological indicators including Sabbath',
                     icon: Icons.star,
+                    iconColor: Colors.deepPurple.shade700,
                     value: settings.showAstrology,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
@@ -353,6 +357,13 @@ class _SettingsContent extends StatelessWidget {
                     subtitle: 'View all licenses',
                     leading: const Icon(Icons.description),
                     onTap: () => showLicensePage(context: context),
+                  ),
+                  _SettingsTile(
+                    leading: const Icon(Icons.privacy_tip_outlined),
+                    title: 'Privacy policy',
+                    subtitle: "View privacy & policy",
+                    onTap: () =>
+                        GoRouter.of(context).push(RoutePaths.privacyPolicy),
                   ),
                 ],
               ),
@@ -806,6 +817,7 @@ class _AnimatedSwitchTile extends StatelessWidget {
   final String subtitle;
   final IconData icon;
   final bool value;
+  final Color? iconColor;
   final ValueChanged<bool> onChanged;
 
   const _AnimatedSwitchTile({
@@ -814,12 +826,13 @@ class _AnimatedSwitchTile extends StatelessWidget {
     required this.icon,
     required this.value,
     required this.onChanged,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return SwitchListTile(
-      secondary: Icon(icon),
+      secondary: Icon(icon, color: iconColor),
       title: Text(title),
       subtitle: Text(subtitle),
       value: value,

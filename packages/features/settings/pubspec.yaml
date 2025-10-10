@@ -25,6 +25,9 @@ dependencies:
   equatable: ^2.0.7
   flutter_colorpicker: ^1.1.0
 
+  # Navigation
+  go_router: ^16.2.4
+
   # Functional Programming
   dartz: ^0.10.1
 

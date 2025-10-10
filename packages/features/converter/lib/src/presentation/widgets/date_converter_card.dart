@@ -644,7 +644,12 @@ class _DateConverterCardState extends State<DateConverterCard>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('•  ', style: TextStyle(color: color)),
-                Expanded(child: Text(item, style: theme.textTheme.bodyMedium)),
+                Expanded(
+                  child: Text(
+                    TranslationService.translate(item),
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
               ],
             ),
           ),

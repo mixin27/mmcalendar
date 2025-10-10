@@ -204,13 +204,8 @@ class CompactMoonPhaseIndicator extends StatelessWidget {
 class MoonPhasePainter extends CustomPainter {
   final int moonPhase;
   final int fortnightDay;
-  final Color? newMoonColor;
 
-  MoonPhasePainter({
-    required this.moonPhase,
-    required this.fortnightDay,
-    this.newMoonColor,
-  });
+  MoonPhasePainter({required this.moonPhase, required this.fortnightDay});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -227,9 +222,7 @@ class MoonPhasePainter extends CustomPainter {
 
     // Draw moon surface
     final surfacePaint = Paint()
-      ..color =
-          newMoonColor?.withValues(alpha: 0.9) ??
-          Colors.white.withValues(alpha: 0.9)
+      ..color = Colors.white.withValues(alpha: 0.9)
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(center, radius, surfacePaint);
@@ -259,9 +252,7 @@ class MoonPhasePainter extends CustomPainter {
 
     // Draw glow ring (outside the clip)
     final glowPaint = Paint()
-      ..color =
-          newMoonColor?.withValues(alpha: 0.3) ??
-          Colors.white.withValues(alpha: 0.3)
+      ..color = Colors.white.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     canvas.drawCircle(center, radius, glowPaint);

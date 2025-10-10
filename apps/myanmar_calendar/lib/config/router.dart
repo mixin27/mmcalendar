@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
 
+import '../presentation/pages/privacy_policy_page.dart';
 import '../presentation/pages/splash_page.dart';
 import '../presentation/shell/app_shell.dart';
 import 'analytics_navigator_observer.dart';
@@ -22,6 +23,13 @@ final GoRouter router = GoRouter(
       path: RoutePaths.splash,
       builder: (context, state) => const SplashPage(),
     ),
+    GoRoute(
+      path: RoutePaths.privacyPolicy,
+      builder: (context, state) => PrivacyPolicyPage(
+        title: "Privacy policy",
+        message: "App privacy & policy contents will be here.",
+      ),
+    ),
 
     // Main App Shell with Bottom Navigation
     StatefulShellRoute.indexedStack(
@@ -34,7 +42,13 @@ final GoRouter router = GoRouter(
           routes: [
             GoRoute(
               path: RoutePaths.home,
-              builder: (context, state) => const CalendarHomePage(),
+              builder: (context, state) {
+                // final date = state.extra as DateTime?;
+                // if (date != null) {
+                //   context.read<CalendarBloc>().add(LoadCalendarMonth(date));
+                // }
+                return const CalendarHomePage();
+              },
               routes: [
                 // Day details
                 GoRoute(

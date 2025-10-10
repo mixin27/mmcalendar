@@ -5,6 +5,7 @@ class RoutePaths {
   static const String views = '/views';
   static const String converter = '/converter';
   static const String settings = '/settings';
+  static const String privacyPolicy = '/privacy-policy';
 
   // Calendar Routes
   static const String dayDetails = 'day-details';

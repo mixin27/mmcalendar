@@ -1,3 +1,4 @@
+import 'package:calendar/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:core/core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
@@ -173,7 +174,7 @@ class _AstrologyExpandableCardState extends State<AstrologyExpandableCard>
             runSpacing: 8,
             children: widget.dateInfo.astrologicalDays.map((day) {
               return Chip(
-                label: Text(day),
+                label: Text(TranslationService.translate(day)),
                 labelStyle: context.textTheme.bodySmall,
                 backgroundColor: context.colorScheme.secondaryContainer,
                 side: BorderSide.none,
@@ -236,14 +237,19 @@ class _AstrologyExpandableCardState extends State<AstrologyExpandableCard>
 
     if (widget.dateInfo.isSabbath) {
       items.add(
-        _AstroItem('Sabbath', 'Sabbath Day', Icons.brightness_2, Colors.orange),
+        _AstroItem(
+          'Sabbath',
+          translateSentence('Sabbath Day'),
+          Icons.brightness_2,
+          Colors.orange,
+        ),
       );
     }
     if (widget.dateInfo.yatyaza.isNotEmpty) {
       items.add(
         _AstroItem(
           'Yatyaza',
-          widget.dateInfo.yatyaza,
+          translateSentence(widget.dateInfo.yatyaza),
           Icons.warning_amber,
           Colors.red,
         ),
@@ -253,7 +259,7 @@ class _AstrologyExpandableCardState extends State<AstrologyExpandableCard>
       items.add(
         _AstroItem(
           'Pyathada',
-          widget.dateInfo.pyathada,
+          translateSentence(widget.dateInfo.pyathada),
           Icons.info_outline,
           Colors.blue,
         ),
@@ -263,7 +269,7 @@ class _AstrologyExpandableCardState extends State<AstrologyExpandableCard>
       items.add(
         _AstroItem(
           'Nagahle',
-          widget.dateInfo.nagahle,
+          translateSentence(widget.dateInfo.nagahle),
           Icons.explore,
           Colors.green,
         ),
@@ -273,7 +279,7 @@ class _AstrologyExpandableCardState extends State<AstrologyExpandableCard>
       items.add(
         _AstroItem(
           'Mahabote',
-          widget.dateInfo.mahabote,
+          translateSentence(widget.dateInfo.mahabote),
           Icons.star,
           Colors.purple,
         ),
@@ -283,7 +289,7 @@ class _AstrologyExpandableCardState extends State<AstrologyExpandableCard>
       items.add(
         _AstroItem(
           'Year',
-          widget.dateInfo.yearName,
+          translateSentence(widget.dateInfo.yearName),
           Icons.calendar_today,
           Colors.teal,
         ),
