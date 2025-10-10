@@ -76,6 +76,8 @@ Future<void> _initializeMyanmarCalendar() async {
     );
     debugPrint('⚠️ Myanmar Calendar initialized with defaults: $e');
   }
+
+  MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
 }
 
 /// Configure system UI overlays and orientation

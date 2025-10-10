@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:converter/converter.dart';
+import 'package:events/events.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:calendar/calendar.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,12 @@ class MyanmarCalendarApp extends StatelessWidget {
         ),
         BlocProvider(create: (context) => getIt<ViewsBloc>()),
         BlocProvider(create: (context) => getIt<ConverterBloc>()),
+        BlocProvider(
+          create: (context) => getIt<EventsBloc>()
+            ..add(InitializeDefaultCategories())
+            ..add(LoadAllEvents())
+            ..add(LoadCategories()),
+        ),
       ],
       child: _AppContent(),
     );

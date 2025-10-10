@@ -1,5 +1,6 @@
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 
 class CalendarAppBar extends StatelessWidget {
@@ -40,6 +41,15 @@ class CalendarAppBar extends StatelessWidget {
                   // ),
                   // const SizedBox(height: 4),
                   Text(
+                    _getTodayString(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer.withValues(
+                        alpha: 0.8,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
                     AppConstants.appName,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer,
@@ -47,8 +57,9 @@ class CalendarAppBar extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
+
                   Text(
-                    _getTodayString(),
+                    _getTodayMyanmarString(),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer.withValues(
                         alpha: 0.8,
@@ -60,11 +71,12 @@ class CalendarAppBar extends StatelessWidget {
             ),
 
             // Action buttons
-            IconButton.filledTonal(
-              icon: const Icon(Icons.search, size: 22),
-              onPressed: () => _showSearch(context),
-              tooltip: 'Search',
-            ),
+            // todo(mixin27): implement search functionality
+            // IconButton.filledTonal(
+            //   icon: const Icon(Icons.search, size: 22),
+            //   onPressed: () => _showSearch(context),
+            //   tooltip: 'Search',
+            // ),
             const SizedBox(width: 8),
             IconButton.filledTonal(
               icon: const Icon(Icons.settings_outlined, size: 22),
@@ -82,9 +94,25 @@ class CalendarAppBar extends StatelessWidget {
     return now.format('EEEE, MMMM d');
   }
 
-  void _showSearch(BuildContext context) {
-    showSearch(context: context, delegate: _CalendarSearchDelegate());
+  String _getTodayMyanmarString() {
+    final now = DateTime.now();
+    final myanmarDate = MyanmarCalendar.fromWestern(
+      now.year,
+      now.month,
+      now.day,
+    );
+
+    final s = TranslationService.translate('Sasana Year');
+    final sv = TranslationService.translate(myanmarDate.sasanaYear.toString());
+    final formatted = "$s $sv, ${myanmarDate.formatMyanmar()}";
+
+    return formatted;
   }
+
+  // todo(mixin27): implement search functionality
+  // void _showSearch(BuildContext context) {
+  //   showSearch(context: context, delegate: _CalendarSearchDelegate());
+  // }
 
   // Helper methods
   // String _getGreeting() {
@@ -133,24 +161,25 @@ class CompactHomeAppBar extends StatelessWidget {
   }
 }
 
+// todo(mixin27): implement search functionality
 // Simple search delegate
-class _CalendarSearchDelegate extends SearchDelegate {
-  @override
-  List<Widget> buildActions(BuildContext context) => [
-    IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
-  ];
+// class _CalendarSearchDelegate extends SearchDelegate {
+//   @override
+//   List<Widget> buildActions(BuildContext context) => [
+//     IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
+//   ];
 
-  @override
-  Widget buildLeading(BuildContext context) => IconButton(
-    icon: const Icon(Icons.arrow_back),
-    onPressed: () => close(context, null),
-  );
+//   @override
+//   Widget buildLeading(BuildContext context) => IconButton(
+//     icon: const Icon(Icons.arrow_back),
+//     onPressed: () => close(context, null),
+//   );
 
-  @override
-  Widget buildResults(BuildContext context) =>
-      const Center(child: Text('Search results will appear here'));
+//   @override
+//   Widget buildResults(BuildContext context) =>
+//       const Center(child: Text('Search results will appear here'));
 
-  @override
-  Widget buildSuggestions(BuildContext context) =>
-      const Center(child: Text('Search for dates, holidays...'));
-}
+//   @override
+//   Widget buildSuggestions(BuildContext context) =>
+//       const Center(child: Text('Search for dates, holidays...'));
+// }

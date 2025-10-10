@@ -193,6 +193,10 @@ class _YearViewPageState extends State<YearViewPage>
           onTap: () {
             // Navigate to calendar for that month
             context.showSnackBar('${month.monthName} ${month.firstDay.year}');
+            // context.go(
+            //   RoutePaths.home,
+            //   extra: DateTime(month.firstDay.year, month.monthNumber, 1),
+            // );
           },
           borderRadius: BorderRadius.circular(16),
           child: Container(

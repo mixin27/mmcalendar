@@ -1,3 +1,4 @@
+import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -219,9 +220,15 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             showAstrology: showAstrology,
             showWesternDates: showWesternDates,
             showMyanmarDates: showMyanmarDates,
+            eventsByDate: state.eventsByDate,
             onDateTap: (date) {
               context.read<CalendarBloc>().add(SelectDateEvent(date));
-              _navigateToDayDetails(context, date);
+              final dateKey = DateTime(date.year, date.month, date.day);
+              _navigateToDayDetails(
+                context,
+                date,
+                state.eventsByDate[dateKey] ?? [],
+              );
             },
           ),
         ),
@@ -347,11 +354,18 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
   }
 
-  void _navigateToDayDetails(BuildContext context, DateTime date) {
+  void _navigateToDayDetails(
+    BuildContext context,
+    DateTime date,
+    List<Event> events,
+  ) {
     // Add subtle haptic feedback
     HapticFeedback.lightImpact();
 
-    GoRouter.of(context).go("/home/${RoutePaths.dayDetails}", extra: date);
+    GoRouter.of(context).go(
+      "/home/${RoutePaths.dayDetails}",
+      extra: {"date": date, "events": events},
+    );
   }
 
   void _showMonthYearPicker(BuildContext context, DateTime currentMonth) {

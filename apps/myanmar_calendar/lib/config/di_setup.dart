@@ -1,5 +1,6 @@
 import 'package:calendar/calendar.dart';
 import 'package:converter/converter.dart';
+import 'package:events/events.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:data/data.dart';
@@ -19,6 +20,7 @@ Future<void> initializeDependencies() async {
   await initSettingsDependencies();
   await initViewsDependencies();
   await initConverterDependencies();
+  await initEventsFeature();
 
   debugPrint('✅ All dependencies initialized');
 }

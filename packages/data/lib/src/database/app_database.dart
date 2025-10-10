@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
+import 'daos/events_dao.dart';
 import 'tables/calendar_settings_table.dart';
 import 'tables/app_settings_table.dart';
 import 'tables/custom_holidays_table.dart';
@@ -17,8 +18,14 @@ import 'daos/holidays_dao.dart';
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [CalendarSettings, AppSettings, CustomHolidays, UserEvents],
-  daos: [CalendarDao, SettingsDao, HolidaysDao],
+  tables: [
+    CalendarSettings,
+    AppSettings,
+    CustomHolidays,
+    UserEvents,
+    EventCategories,
+  ],
+  daos: [CalendarDao, SettingsDao, HolidaysDao, EventsDao],
 )
 class AppDatabase extends _$AppDatabase {
   // Singleton pattern
@@ -45,9 +52,9 @@ class AppDatabase extends _$AppDatabase {
       },
       onUpgrade: (Migrator m, int from, int to) async {
         // Handle database migrations here
-        // Example:
         // if (from < 2) {
-        //   await m.addColumn(appSettings, appSettings.newColumn);
+        //   await m.createTable(userEvents);
+        //   await m.createTable(eventCategories);
         // }
       },
       beforeOpen: (details) async {

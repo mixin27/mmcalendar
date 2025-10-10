@@ -9,6 +9,7 @@ export 'src/database/tables/custom_holidays_table.dart';
 export 'src/database/daos/calendar_dao.dart';
 export 'src/database/daos/settings_dao.dart';
 export 'src/database/daos/holidays_dao.dart';
+export 'src/database/daos/events_dao.dart';
 
 // Models
 export 'src/models/base_model.dart';
