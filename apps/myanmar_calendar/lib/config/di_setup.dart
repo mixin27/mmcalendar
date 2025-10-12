@@ -4,6 +4,7 @@ import 'package:events/events.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:data/data.dart';
+import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
 
@@ -21,6 +22,7 @@ Future<void> initializeDependencies() async {
   await initViewsDependencies();
   await initConverterDependencies();
   await initEventsFeature();
+  await initHomeWidgetsDependencies();
 
   debugPrint('✅ All dependencies initialized');
 }

@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
+import 'package:home_widgets/home_widgets.dart';
 
+import '../../di/settings_injection.dart';
 import '../../domain/entities/app_settings.dart';
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
@@ -216,14 +218,14 @@ class _SettingsContent extends StatelessWidget {
                 icon: Icons.language,
                 iconColor: colorScheme.secondary,
                 children: [
-                  _SettingsTile(
-                    title: 'App Language',
-                    subtitle: settings.appLanguage == 'en'
-                        ? 'English'
-                        : 'Myanmar',
-                    leading: const Icon(Icons.translate),
-                    onTap: () => _showAppLanguageDialog(context, settings),
-                  ),
+                  // _SettingsTile(
+                  //   title: 'App Language',
+                  //   subtitle: settings.appLanguage == 'en'
+                  //       ? 'English'
+                  //       : 'Myanmar',
+                  //   leading: const Icon(Icons.translate),
+                  //   onTap: () => _showAppLanguageDialog(context, settings),
+                  // ),
                   _SettingsTile(
                     title: 'Calendar Language',
                     subtitle: settings.calendarLanguage.name,
@@ -336,6 +338,56 @@ class _SettingsContent extends StatelessWidget {
 
               const SizedBox(height: 16),
 
+              // Home Screen Widget Section
+              _SettingsSection(
+                title: 'Home Screen Widget',
+                icon: Icons.settings,
+                iconColor: colorScheme.error,
+                children: [
+                  _SettingsTile(
+                    title: 'Widget Settings',
+                    subtitle: 'Configure home screen widget appearance',
+                    leading: const Icon(Icons.widgets_outlined),
+                    onTap: () {
+                      GoRouter.of(
+                        context,
+                      ).push('${RoutePaths.settings}/${RoutePaths.widgets}');
+                    },
+                  ),
+                  _SettingsTile(
+                    title: 'Update Widget Now',
+                    subtitle: 'Manually refresh the widget data',
+                    leading: const Icon(Icons.refresh),
+                    onTap: () async {
+                      try {
+                        final widgetRepo = getIt<WidgetRepository>();
+                        await widgetRepo.refreshWidget();
+
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Widget updated successfully!'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to update widget: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
               // About Section
               _SettingsSection(
                 title: 'About',
@@ -362,8 +414,9 @@ class _SettingsContent extends StatelessWidget {
                     leading: const Icon(Icons.privacy_tip_outlined),
                     title: 'Privacy policy',
                     subtitle: "View privacy & policy",
-                    onTap: () =>
-                        GoRouter.of(context).push(RoutePaths.privacyPolicy),
+                    onTap: () => GoRouter.of(
+                      context,
+                    ).go("${RoutePaths.settings}/${RoutePaths.privacyPolicy}"),
                   ),
                 ],
               ),
@@ -490,45 +543,45 @@ class _SettingsContent extends StatelessWidget {
     );
   }
 
-  void _showAppLanguageDialog(
-    BuildContext context,
-    AppSettingsEntity settings,
-  ) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => _EnhancedDialog(
-        title: 'App Language',
-        icon: Icons.translate,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _RadioOption<String>(
-              title: 'English',
-              subtitle: 'Display app in English',
-              icon: Icons.language,
-              value: 'en',
-              groupValue: settings.appLanguage,
-              onChanged: (value) {
-                context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
-                Navigator.pop(dialogContext);
-              },
-            ),
-            _RadioOption<String>(
-              title: 'Myanmar',
-              subtitle: 'Display app in Myanmar',
-              icon: Icons.language,
-              value: 'my',
-              groupValue: settings.appLanguage,
-              onChanged: (value) {
-                context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
-                Navigator.pop(dialogContext);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // void _showAppLanguageDialog(
+  //   BuildContext context,
+  //   AppSettingsEntity settings,
+  // ) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (dialogContext) => _EnhancedDialog(
+  //       title: 'App Language',
+  //       icon: Icons.translate,
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           _RadioOption<String>(
+  //             title: 'English',
+  //             subtitle: 'Display app in English',
+  //             icon: Icons.language,
+  //             value: 'en',
+  //             groupValue: settings.appLanguage,
+  //             onChanged: (value) {
+  //               context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
+  //               Navigator.pop(dialogContext);
+  //             },
+  //           ),
+  //           _RadioOption<String>(
+  //             title: 'Myanmar',
+  //             subtitle: 'Display app in Myanmar',
+  //             icon: Icons.language,
+  //             value: 'my',
+  //             groupValue: settings.appLanguage,
+  //             onChanged: (value) {
+  //               context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
+  //               Navigator.pop(dialogContext);
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   void _showCalendarLanguageDialog(
     BuildContext context,

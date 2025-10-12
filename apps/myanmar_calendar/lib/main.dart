@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:home_widgets/home_widgets.dart';
+import 'package:workmanager/workmanager.dart';
 
 import 'app.dart';
 import 'config/bloc_observer.dart';
@@ -31,8 +33,14 @@ void main() async {
   // Initialize dependency injection
   await initializeDependencies();
 
+  // Initialize WorkManager for background widget updates
+  await Workmanager().initialize(callbackDispatcher);
+
   // Load saved settings and configure Myanmar Calendar
   await _initializeMyanmarCalendar();
+
+  // Schedule widget updates on app start
+  await _initializeWidgetUpdates();
 
   // Set up Bloc observer
   Bloc.observer = AppBlocObserver();
@@ -78,6 +86,24 @@ Future<void> _initializeMyanmarCalendar() async {
   }
 
   MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+}
+
+// Initialize widget updates
+Future<void> _initializeWidgetUpdates() async {
+  try {
+    // Import the repository from DI
+    final widgetRepository = getIt<WidgetRepository>();
+
+    // Schedule daily updates at 12:01 AM
+    await widgetRepository.scheduleWidgetUpdates();
+
+    // Update widget immediately on app start
+    await widgetRepository.refreshWidget();
+
+    debugPrint('✅ Widget updates scheduled successfully');
+  } catch (e) {
+    debugPrint('⚠️ Failed to initialize widget updates: $e');
+  }
 }
 
 /// Configure system UI overlays and orientation

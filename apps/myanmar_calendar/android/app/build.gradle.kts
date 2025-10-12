@@ -22,6 +22,10 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+//    buildFeatures {
+//        compose = true
+//    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -53,6 +57,11 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
+}
+
+dependencies {
+    // For AppWidgets support
+    implementation("androidx.glance:glance-appwidget:1.2.0-beta01")
 }
 
 flutter {

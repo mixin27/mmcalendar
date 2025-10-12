@@ -1,5 +1,13 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <!-- For Android 12+ (API 31+) exact alarms -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"
+        tools:ignore="ExactAlarmPolicy" />
 
     <application
         android:label="Myanmar Calendar"
@@ -36,12 +44,33 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-7567997114394639~3076287765"/>
-    </application>
-    <!-- Required to query activities that can process text, see:
-         https://developer.android.com/training/package-visibility and
-         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
 
-         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+        <!-- HomeWidgets es.antonborri.home_widget -->
+        <receiver
+            android:name=".AppHomeWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/home_widget_info" />
+        </receiver>
+
+        <!-- BOOT RECEIVER FOR WIDGET UPDATES -->
+        <receiver
+            android:name=".WidgetBootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
+    </application>
+
+    <!-- Required for package visibility -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
