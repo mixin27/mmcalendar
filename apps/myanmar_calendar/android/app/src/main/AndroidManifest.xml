@@ -41,9 +41,9 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <meta-data
+        <!-- <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-7567997114394639~3076287765"/>
+            android:value="ca-app-pub-7567997114394639~3076287765"/> -->
 
         <!-- HomeWidgets es.antonborri.home_widget -->
         <receiver

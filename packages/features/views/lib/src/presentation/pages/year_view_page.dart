@@ -1,7 +1,11 @@
+import 'dart:developer';
+
+import 'package:calendar/calendar.dart';
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../domain/entities/year_data.dart';
 import '../bloc/views_bloc.dart';
@@ -191,12 +195,9 @@ class _YearViewPageState extends State<YearViewPage>
         ),
         child: InkWell(
           onTap: () {
-            // Navigate to calendar for that month
-            context.showSnackBar('${month.monthName} ${month.firstDay.year}');
-            // context.go(
-            //   RoutePaths.home,
-            //   extra: DateTime(month.firstDay.year, month.monthNumber, 1),
-            // );
+            final date = DateTime(month.firstDay.year, month.monthNumber, 1);
+            context.read<CalendarBloc>().add(LoadCalendarMonth(date));
+            _showMonthModal(context, date);
           },
           borderRadius: BorderRadius.circular(16),
           child: Container(
@@ -410,6 +411,88 @@ class _YearViewPageState extends State<YearViewPage>
         backgroundColor: context.colorScheme.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  void _showMonthModal(BuildContext context, DateTime month) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.8,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              children: [
+                // Handle bar
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                // Month preview content
+                Expanded(
+                  child: MonthPreview(
+                    date: month,
+                    onDateTap: (date) {
+                      log("selected: ${date.toIso8601String()}");
+                      // Haptic feedback
+                      HapticFeedback.lightImpact();
+
+                      Navigator.pop(context);
+                      context.read<CalendarBloc>().add(LoadCalendarMonth(date));
+                      context.go('/home');
+                    },
+                  ),
+                ),
+                // Actions
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Close'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            // Haptic feedback
+                            HapticFeedback.lightImpact();
+
+                            Navigator.pop(context);
+                            // context.read<CalendarBloc>().add(
+                            //   LoadCalendarMonth(month),
+                            // );
+                            context.go('/home');
+                          },
+                          child: const Text('View Full Month'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

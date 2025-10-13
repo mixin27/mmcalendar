@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
     hide MoonPhaseIndicator;
+import 'package:localizations/localizations.dart';
 import 'package:views/src/utils/utils.dart';
 
 import '../bloc/views_bloc.dart';
@@ -202,7 +203,7 @@ class _DayViewPageState extends State<DayViewPage>
             HapticFeedback.lightImpact();
             context.read<ViewsBloc>().add(LoadDayView(DateTime.now()));
           },
-          tooltip: 'Today',
+          tooltip: AppLocalizations.of(context)?.today ?? 'Today',
         ),
         // Next Day
         IconButton(

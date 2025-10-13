@@ -18,6 +18,8 @@ dependencies:
     path: ../../packages/core
   data:
     path: ../../packages/data
+  localizations:
+    path: ../../packages/localizations
 
   # Features
   calendar:
@@ -71,7 +73,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  generate: true
 
   assets:
     - assets/fonts/google_fonts/

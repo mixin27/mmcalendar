@@ -37,10 +37,6 @@ final GoRouter router = GoRouter(
             GoRoute(
               path: RoutePaths.home,
               builder: (context, state) {
-                // final date = state.extra as DateTime?;
-                // if (date != null) {
-                //   context.read<CalendarBloc>().add(LoadCalendarMonth(date));
-                // }
                 return const CalendarHomePage();
               },
               routes: [

@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:localizations/l10n/app_localizations.dart';
 
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
@@ -54,7 +55,7 @@ class ViewsSelectorPage extends StatelessWidget {
                 // Year View Card
                 _ViewCard(
                   icon: Icons.calendar_view_month,
-                  title: 'Year View',
+                  title: AppLocalizations.of(context)?.year_view ?? 'Year View',
                   description: 'Browse all 12 months at once',
                   details:
                       'Perfect for planning ahead and seeing the big picture',
@@ -73,7 +74,7 @@ class ViewsSelectorPage extends StatelessWidget {
                 // Week View Card
                 _ViewCard(
                   icon: Icons.calendar_view_week,
-                  title: 'Week View',
+                  title: AppLocalizations.of(context)?.week_view ?? 'Week View',
                   description: 'See a detailed 7-day view',
                   details: 'Ideal for weekly planning and tracking',
                   color: Colors.green,
@@ -89,7 +90,7 @@ class ViewsSelectorPage extends StatelessWidget {
                 // Day View Card
                 _ViewCard(
                   icon: Icons.calendar_today,
-                  title: 'Day View',
+                  title: AppLocalizations.of(context)?.day_view ?? 'Day View',
                   description: 'Comprehensive single-day information',
                   details: 'All details for holidays, astrology, and more',
                   color: Colors.orange,
@@ -146,7 +147,8 @@ class _IntroCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Choose Your View',
+                    AppLocalizations.of(context)?.choose_your_view ??
+                        'Choose Your View',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onSurface,

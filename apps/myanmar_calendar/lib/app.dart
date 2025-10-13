@@ -2,11 +2,11 @@ import 'dart:developer';
 
 import 'package:converter/converter.dart';
 import 'package:events/events.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:calendar/calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core.dart';
+import 'package:localizations/localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
 
@@ -48,7 +48,8 @@ class _AppContent extends StatelessWidget {
       buildWhen: (prev, curr) {
         if (prev is SettingsLoaded && curr is SettingsLoaded) {
           return prev.settings.themeMode != curr.settings.themeMode ||
-              prev.settings.customColors != curr.settings.customColors;
+              prev.settings.customColors != curr.settings.customColors ||
+              prev.settings.appLanguage != curr.settings.appLanguage;
         }
         return true;
       },
@@ -66,6 +67,10 @@ class _AppContent extends StatelessWidget {
         final lightTheme = AppTheme.lightTheme(customColors: themeColors);
         final darkTheme = AppTheme.darkTheme(customColors: themeColors);
 
+        final locale = settingsState is SettingsLoaded
+            ? Locale(settingsState.settings.appLanguage)
+            : Locale('en');
+
         return MaterialApp.router(
           key: ValueKey(
             'theme-${themeMode.name}-${themeColors?.toStringShort()}',
@@ -75,12 +80,9 @@ class _AppContent extends StatelessWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeMode,
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('en'), Locale('my')],
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: locale,
           routerConfig: router,
         );
       },

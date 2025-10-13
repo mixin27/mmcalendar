@@ -6,6 +6,7 @@ import 'package:core/core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:settings/settings.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../bloc/calendar_bloc.dart';
 import '../bloc/calendar_event.dart';
@@ -14,7 +15,7 @@ import '../widgets/calendar_app_bar.dart';
 import '../widgets/calendar_header.dart';
 import '../widgets/weekday_header.dart';
 import '../widgets/calendar_grid.dart';
-import '../widgets/astrology_expandable_card.dart';
+// import '../widgets/astrology_expandable_card.dart';
 
 class CalendarHomePage extends StatefulWidget {
   const CalendarHomePage({super.key});
@@ -88,10 +89,16 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               ? settingsState.settings.showMyanmarDates
               : true;
 
+          final calendarLanguage = settingsState is SettingsLoaded
+              ? settingsState.settings.calendarLanguage
+              : Language.myanmar;
+
           return CustomScrollView(
             slivers: [
               // Compact App Bar
-              const SliverToBoxAdapter(child: CalendarAppBar()),
+              SliverToBoxAdapter(
+                child: CalendarAppBar(language: calendarLanguage),
+              ),
 
               // Main Calendar Content
               SliverToBoxAdapter(
@@ -107,15 +114,15 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                     // }
                   },
                   builder: (context, state) {
-                    if (state is CalendarInitial) {
-                      context.read<CalendarBloc>().add(
-                        LoadCalendarMonth(DateTime.now()),
-                      );
-                      return _buildLoadingState();
-                    }
+                    // if (state is CalendarInitial) {
+                    //   context.read<CalendarBloc>().add(
+                    //     LoadCalendarMonth(DateTime.now()),
+                    //   );
+                    //   return _buildLoadingSkeleton();
+                    // }
 
                     if (state is CalendarLoading) {
-                      return _buildLoadingState();
+                      return _buildLoadingSkeleton();
                     }
 
                     if (state is CalendarError) {
@@ -233,69 +240,77 @@ class _CalendarHomePageState extends State<CalendarHomePage>
           ),
         ),
 
-        const SizedBox(height: 8),
+        // const SizedBox(height: 8),
 
-        // Astrology Card with smooth expansion
-        _buildAstrologyCard(state),
-
+        // // Astrology Card with smooth expansion
+        // _buildAstrologyCard(state),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildAstrologyCard(CalendarLoaded state) {
-    // Determine which date to show
-    CompleteDate? dateToShow;
+  // Widget _buildAstrologyCard(CalendarLoaded state) {
+  //   // Determine which date to show
+  //   CompleteDate? dateToShow;
 
-    if (state.selectedDate != null) {
-      dateToShow = state.selectedDate!.completeDate;
-    } else if (state.todayCompleteDate != null) {
-      dateToShow = state.todayCompleteDate;
-    } else if (state.calendarMonth.dates.isNotEmpty) {
-      dateToShow = state.calendarMonth.dates.first;
-    }
+  //   if (state.selectedDate != null) {
+  //     dateToShow = state.selectedDate!.completeDate;
+  //   } else if (state.todayCompleteDate != null) {
+  //     dateToShow = state.todayCompleteDate;
+  //   } else if (state.calendarMonth.dates.isNotEmpty) {
+  //     dateToShow = state.calendarMonth.dates.first;
+  //   }
 
-    if (dateToShow == null) {
-      return const SizedBox.shrink();
-    }
+  //   if (dateToShow == null) {
+  //     return const SizedBox.shrink();
+  //   }
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      child: AstrologyExpandableCard(
-        key: ValueKey(
-          '${dateToShow.western.year}-${dateToShow.western.month}-${dateToShow.western.day}',
-        ),
-        dateInfo: dateToShow,
-        isExpanded: state.isAstrologyExpanded,
-        onToggle: () {
-          context.read<CalendarBloc>().add(const ToggleAstrologyCard());
-        },
-      ),
-    );
-  }
+  //   return AnimatedSwitcher(
+  //     duration: const Duration(milliseconds: 300),
+  //     child: AstrologyExpandableCard(
+  //       key: ValueKey(
+  //         '${dateToShow.western.year}-${dateToShow.western.month}-${dateToShow.western.day}',
+  //       ),
+  //       dateInfo: dateToShow,
+  //       isExpanded: state.isAstrologyExpanded,
+  //       onToggle: () {
+  //         context.read<CalendarBloc>().add(const ToggleAstrologyCard());
+  //       },
+  //     ),
+  //   );
+  // }
 
-  Widget _buildLoadingState() {
-    return Container(
-      padding: const EdgeInsets.all(48),
-      child: Center(
+  Widget _buildLoadingSkeleton() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Shimmer.fromColors(
+        baseColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+        highlightColor: Theme.of(
+          context,
+        ).colorScheme.secondary.withValues(alpha: 0.2),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 40,
-              height: 40,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  context.colorScheme.primary,
-                ),
+            Container(
+              height: 250,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Loading calendar...',
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
+            Container(
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
           ],

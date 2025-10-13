@@ -42,18 +42,21 @@ class CalendarGrid extends StatelessWidget {
         final dateKey = DateTime(date.year, date.month, date.day);
         final events = eventsByDate[dateKey] ?? [];
 
-        return DateCell(
-          dateInfo: dateInfo,
-          isSelected: _isSelected(date),
-          isToday: _isToday(date),
-          isInCurrentMonth: _isInCurrentMonth(date),
-          showHolidays: showHolidays,
-          showAstrology: showAstrology,
-          showWesternDates: showWesternDates,
-          showMyanmarDates: showMyanmarDates,
-          showEvents: false,
-          onTap: () => onDateTap(date),
-          events: events,
+        return Hero(
+          tag: 'date_${date.toIso8601String()}',
+          child: DateCell(
+            dateInfo: dateInfo,
+            isSelected: _isSelected(date),
+            isToday: _isToday(date),
+            isInCurrentMonth: _isInCurrentMonth(date),
+            showHolidays: showHolidays,
+            showAstrology: showAstrology,
+            showWesternDates: showWesternDates,
+            showMyanmarDates: showMyanmarDates,
+            showEvents: false,
+            onTap: () => onDateTap(date),
+            events: events,
+          ),
         );
       }).toList(),
     );

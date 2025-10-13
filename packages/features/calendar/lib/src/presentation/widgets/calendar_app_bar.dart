@@ -2,9 +2,12 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
+import 'package:localizations/localizations.dart';
 
 class CalendarAppBar extends StatelessWidget {
-  const CalendarAppBar({super.key});
+  final Language language;
+
+  const CalendarAppBar({super.key, this.language = Language.myanmar});
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +84,7 @@ class CalendarAppBar extends StatelessWidget {
             IconButton.filledTonal(
               icon: const Icon(Icons.settings_outlined, size: 22),
               onPressed: () => GoRouter.of(context).go(RoutePaths.settings),
-              tooltip: 'Settings',
+              tooltip: AppLocalizations.of(context)?.settings ?? 'Settings',
             ),
           ],
         ),
@@ -101,12 +104,13 @@ class CalendarAppBar extends StatelessWidget {
       now.month,
       now.day,
     );
+    return myanmarDate.formatMyanmar(null, language);
 
-    final s = TranslationService.translate('Sasana Year');
-    final sv = TranslationService.translate(myanmarDate.sasanaYear.toString());
-    final formatted = "$s $sv, ${myanmarDate.formatMyanmar()}";
+    // final s = TranslationService.translate('Sasana Year');
+    // final sv = TranslationService.translate(myanmarDate.sasanaYear.toString());
+    // final formatted = "$s $sv, ${myanmarDate.formatMyanmar()}";
 
-    return formatted;
+    // return formatted;
   }
 
   // todo(mixin27): implement search functionality

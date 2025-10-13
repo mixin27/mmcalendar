@@ -16,6 +16,10 @@ dependencies:
     path: ../../core
   data:
     path: ../../data
+  localizations:
+    path: ../../localizations
+  calendar:
+    path: ../calendar
 
   # Myanmar Calendar Package
   flutter_mmcalendar: ^3.2.0

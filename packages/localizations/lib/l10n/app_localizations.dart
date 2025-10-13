@@ -103,6 +103,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Kyaw Zayar Tun'**
   String get developer;
+
+  /// Home label
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// Views label
+  ///
+  /// In en, this message translates to:
+  /// **'Views'**
+  String get views;
+
+  /// Converter label
+  ///
+  /// In en, this message translates to:
+  /// **'Converter'**
+  String get converter;
+
+  /// Events label
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get events;
+
+  /// Settings label
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// Next Month label
+  ///
+  /// In en, this message translates to:
+  /// **'Next Month'**
+  String get next_month;
+
+  /// Previous Month label
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Month'**
+  String get previous_month;
+
+  /// Go To Today label
+  ///
+  /// In en, this message translates to:
+  /// **'Go To Today'**
+  String get go_to_today;
+
+  /// Today label
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// Choose Your View label
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Your View'**
+  String get choose_your_view;
+
+  /// Year View label
+  ///
+  /// In en, this message translates to:
+  /// **'Year View'**
+  String get year_view;
+
+  /// Week View label
+  ///
+  /// In en, this message translates to:
+  /// **'Week View'**
+  String get week_view;
+
+  /// Day View label
+  ///
+  /// In en, this message translates to:
+  /// **'Day View'**
+  String get day_view;
+
+  /// Convert label
+  ///
+  /// In en, this message translates to:
+  /// **'Convert'**
+  String get convert;
+
+  /// Calculate label
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get calculate;
+
+  /// Arithmetic label
+  ///
+  /// In en, this message translates to:
+  /// **'Arithmetic'**
+  String get arithmetic;
+
+  /// Appearance label
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// Language label
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// Display Preferences label
+  ///
+  /// In en, this message translates to:
+  /// **'Display Preferences'**
+  String get display_preferences;
+
+  /// Calendar Configuration label
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar Configuration'**
+  String get calendar_configuration;
+
+  /// Home Screen Widget label
+  ///
+  /// In en, this message translates to:
+  /// **'Home Screen Widget'**
+  String get home_screen_widget;
+
+  /// About label
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// Theme Preset label
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Preset'**
+  String get theme_preset;
+
+  /// Nagahle label
+  ///
+  /// In en, this message translates to:
+  /// **'Nagahle'**
+  String get nagahle;
+
+  /// Nakhat label
+  ///
+  /// In en, this message translates to:
+  /// **'Nakhat'**
+  String get nakhat;
+
+  /// Year name label
+  ///
+  /// In en, this message translates to:
+  /// **'Year Name'**
+  String get year_name;
+
+  /// Moon Phase label
+  ///
+  /// In en, this message translates to:
+  /// **'Moon Phase'**
+  String get moon_phase;
+
+  /// Year label
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get year;
+
+  /// Month label
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get month;
+
+  /// Day label
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get day;
+
+  /// Weekday label
+  ///
+  /// In en, this message translates to:
+  /// **'Weekday'**
+  String get weekday;
+
+  /// Astrological Information label
+  ///
+  /// In en, this message translates to:
+  /// **'Astrological Information'**
+  String get astrological_information;
+
+  /// Holidays label
+  ///
+  /// In en, this message translates to:
+  /// **'Holidays'**
+  String get holidays;
+
+  /// Special Days label
+  ///
+  /// In en, this message translates to:
+  /// **'Special Days'**
+  String get special_days;
+
+  /// Buddhist Era label
+  ///
+  /// In en, this message translates to:
+  /// **'Buddhist Era (BE)'**
+  String get buddhist_era;
+
+  /// Sasana Year label
+  ///
+  /// In en, this message translates to:
+  /// **'Sasana Year'**
+  String get sasana_year;
+
+  /// Myanmar Era label
+  ///
+  /// In en, this message translates to:
+  /// **'Myanmar Era (ME)'**
+  String get myanmar_era;
 }
 
 class _AppLocalizationsDelegate

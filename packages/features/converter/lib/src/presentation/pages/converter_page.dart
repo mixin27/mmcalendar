@@ -1,5 +1,6 @@
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:localizations/l10n/app_localizations.dart';
 
 import '../widgets/date_arithmetic_card.dart';
 import '../widgets/date_calculator_card.dart';
@@ -37,14 +38,15 @@ class _ConverterPageState extends State<ConverterPage>
     return Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar.large(
-            expandedHeight: 120,
+          SliverAppBar(
+            expandedHeight: 140,
+            floating: false,
             pinned: true,
+            title: const Text(
+              'Date Converter & Tools',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
-                'Date Converter & Tools',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -75,14 +77,16 @@ class _ConverterPageState extends State<ConverterPage>
                   indicatorColor: colorScheme.primary,
                   indicatorWeight: 3,
                   dividerHeight: 0,
-                  tabs: const [
+                  tabs: [
                     Tab(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.sync_alt, size: 20),
                           SizedBox(width: 8),
-                          Text('Convert'),
+                          Text(
+                            AppLocalizations.of(context)?.convert ?? 'Convert',
+                          ),
                         ],
                       ),
                     ),
@@ -92,7 +96,10 @@ class _ConverterPageState extends State<ConverterPage>
                         children: [
                           Icon(Icons.calculate, size: 20),
                           SizedBox(width: 8),
-                          Text('Calculate'),
+                          Text(
+                            AppLocalizations.of(context)?.calculate ??
+                                'Calculate',
+                          ),
                         ],
                       ),
                     ),
@@ -102,7 +109,10 @@ class _ConverterPageState extends State<ConverterPage>
                         children: [
                           Icon(Icons.add_circle_outline, size: 20),
                           SizedBox(width: 8),
-                          Text('Arithmetic'),
+                          Text(
+                            AppLocalizations.of(context)?.arithmetic ??
+                                'Arithmetic',
+                          ),
                         ],
                       ),
                     ),
@@ -112,7 +122,10 @@ class _ConverterPageState extends State<ConverterPage>
                         children: [
                           Icon(Icons.brightness_3, size: 20),
                           SizedBox(width: 8),
-                          Text('Moon Phase'),
+                          Text(
+                            AppLocalizations.of(context)?.moon_phase ??
+                                'Moon Phase',
+                          ),
                         ],
                       ),
                     ),
@@ -132,29 +145,6 @@ class _ConverterPageState extends State<ConverterPage>
           ],
         ),
       ),
-      // body: SingleChildScrollView(
-      //   padding: const EdgeInsets.all(16.0),
-      //   child: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.stretch,
-      //     children: [
-      //       // Date Converter Card
-      //       DateConverterCard(),
-      //       const SizedBox(height: 16),
-
-      //       // Date Calculator Card
-      //       DateCalculatorCard(),
-      //       const SizedBox(height: 16),
-
-      //       // Date Arithmetic Card
-      //       DateArithmeticCard(),
-      //       const SizedBox(height: 16),
-
-      //       // Moon Phase Finder Card
-      //       MoonPhaseFinderCard(),
-      //       const SizedBox(height: 16),
-      //     ],
-      //   ),
-      // ),
     );
   }
 }

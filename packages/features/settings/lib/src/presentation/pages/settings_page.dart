@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:localizations/l10n/app_localizations.dart';
 
 import '../../di/settings_injection.dart';
 import '../../domain/entities/app_settings.dart';
@@ -161,12 +162,12 @@ class _SettingsContent extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         // Modern App Bar
-        SliverAppBar.large(
-          expandedHeight: 120,
+        SliverAppBar(
+          expandedHeight: 140,
           pinned: true,
           flexibleSpace: FlexibleSpaceBar(
-            title: const Text(
-              'Settings',
+            title: Text(
+              AppLocalizations.of(context)?.settings ?? 'Settings',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             background: Container(
@@ -191,7 +192,7 @@ class _SettingsContent extends StatelessWidget {
             delegate: SliverChildListDelegate([
               // Appearance Section
               _SettingsSection(
-                title: 'Appearance',
+                title: AppLocalizations.of(context)?.appearance ?? 'Appearance',
                 icon: Icons.palette,
                 iconColor: colorScheme.primary,
                 children: [
@@ -202,7 +203,9 @@ class _SettingsContent extends StatelessWidget {
                     onTap: () => _showThemeModeDialog(context, settings),
                   ),
                   _SettingsTile(
-                    title: 'Theme Preset',
+                    title:
+                        AppLocalizations.of(context)?.theme_preset ??
+                        'Theme Preset',
                     subtitle: _getThemePresetName(settings.themePreset),
                     leading: const Icon(Icons.color_lens),
                     onTap: () => _showThemePresetDialog(context, settings),
@@ -214,21 +217,21 @@ class _SettingsContent extends StatelessWidget {
 
               // Language Section
               _SettingsSection(
-                title: 'Language',
+                title: AppLocalizations.of(context)?.language ?? 'Language',
                 icon: Icons.language,
                 iconColor: colorScheme.secondary,
                 children: [
-                  // _SettingsTile(
-                  //   title: 'App Language',
-                  //   subtitle: settings.appLanguage == 'en'
-                  //       ? 'English'
-                  //       : 'Myanmar',
-                  //   leading: const Icon(Icons.translate),
-                  //   onTap: () => _showAppLanguageDialog(context, settings),
-                  // ),
+                  _SettingsTile(
+                    title: 'App Language',
+                    subtitle: settings.appLanguage == 'en'
+                        ? 'English'
+                        : 'Myanmar',
+                    leading: const Icon(Icons.translate),
+                    onTap: () => _showAppLanguageDialog(context, settings),
+                  ),
                   _SettingsTile(
                     title: 'Calendar Language',
-                    subtitle: settings.calendarLanguage.name,
+                    subtitle: settings.calendarLanguage.name.capitalize,
                     leading: const Icon(Icons.calendar_today),
                     onTap: () => _showCalendarLanguageDialog(context, settings),
                   ),
@@ -239,7 +242,9 @@ class _SettingsContent extends StatelessWidget {
 
               // Display Preferences Section
               _SettingsSection(
-                title: 'Display Preferences',
+                title:
+                    AppLocalizations.of(context)?.display_preferences ??
+                    'Display Preferences',
                 icon: Icons.visibility,
                 iconColor: colorScheme.tertiary,
                 children: [
@@ -309,7 +314,9 @@ class _SettingsContent extends StatelessWidget {
 
               // Calendar Configuration Section
               _SettingsSection(
-                title: 'Calendar Configuration',
+                title:
+                    AppLocalizations.of(context)?.calendar_configuration ??
+                    'Calendar Configuration',
                 icon: Icons.settings,
                 iconColor: colorScheme.error,
                 children: [
@@ -340,7 +347,9 @@ class _SettingsContent extends StatelessWidget {
 
               // Home Screen Widget Section
               _SettingsSection(
-                title: 'Home Screen Widget',
+                title:
+                    AppLocalizations.of(context)?.home_screen_widget ??
+                    'Home Screen Widget',
                 icon: Icons.settings,
                 iconColor: colorScheme.error,
                 children: [
@@ -390,7 +399,7 @@ class _SettingsContent extends StatelessWidget {
 
               // About Section
               _SettingsSection(
-                title: 'About',
+                title: AppLocalizations.of(context)?.about ?? 'About',
                 icon: Icons.info_outline,
                 iconColor: Colors.blue,
                 children: [
@@ -519,7 +528,7 @@ class _SettingsContent extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => _EnhancedDialog(
-        title: 'Theme Preset',
+        title: AppLocalizations.of(context)?.theme_preset ?? 'Theme Preset',
         icon: Icons.color_lens,
         child: SingleChildScrollView(
           child: Column(
@@ -543,45 +552,45 @@ class _SettingsContent extends StatelessWidget {
     );
   }
 
-  // void _showAppLanguageDialog(
-  //   BuildContext context,
-  //   AppSettingsEntity settings,
-  // ) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (dialogContext) => _EnhancedDialog(
-  //       title: 'App Language',
-  //       icon: Icons.translate,
-  //       child: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: [
-  //           _RadioOption<String>(
-  //             title: 'English',
-  //             subtitle: 'Display app in English',
-  //             icon: Icons.language,
-  //             value: 'en',
-  //             groupValue: settings.appLanguage,
-  //             onChanged: (value) {
-  //               context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
-  //               Navigator.pop(dialogContext);
-  //             },
-  //           ),
-  //           _RadioOption<String>(
-  //             title: 'Myanmar',
-  //             subtitle: 'Display app in Myanmar',
-  //             icon: Icons.language,
-  //             value: 'my',
-  //             groupValue: settings.appLanguage,
-  //             onChanged: (value) {
-  //               context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
-  //               Navigator.pop(dialogContext);
-  //             },
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+  void _showAppLanguageDialog(
+    BuildContext context,
+    AppSettingsEntity settings,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => _EnhancedDialog(
+        title: 'App Language',
+        icon: Icons.translate,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _RadioOption<String>(
+              title: 'English',
+              subtitle: 'Display app in English',
+              icon: Icons.language,
+              value: 'en',
+              groupValue: settings.appLanguage,
+              onChanged: (value) {
+                context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
+                Navigator.pop(dialogContext);
+              },
+            ),
+            _RadioOption<String>(
+              title: 'Myanmar',
+              subtitle: 'Display app in Myanmar',
+              icon: Icons.language,
+              value: 'my',
+              groupValue: settings.appLanguage,
+              onChanged: (value) {
+                context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
+                Navigator.pop(dialogContext);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   void _showCalendarLanguageDialog(
     BuildContext context,
@@ -597,7 +606,7 @@ class _SettingsContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: Language.values.map((language) {
               return _RadioOption<Language>(
-                title: language.name,
+                title: language.name.capitalize,
                 subtitle: 'Display calendar in ${language.name}',
                 icon: Icons.calendar_month,
                 value: language,

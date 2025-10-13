@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:core/core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:localizations/localizations.dart';
 
 class CalendarHeader extends StatelessWidget {
   final DateTime currentMonth;
@@ -36,7 +37,9 @@ class CalendarHeader extends StatelessWidget {
           IconButton.filled(
             icon: const Icon(Icons.chevron_left, size: 20),
             onPressed: onPreviousMonth,
-            tooltip: 'Previous Month',
+            tooltip:
+                AppLocalizations.of(context)?.previous_month ??
+                'Previous Month',
             style: IconButton.styleFrom(
               backgroundColor: context.colorScheme.surfaceContainerHighest,
               foregroundColor: context.colorScheme.onSurface,
@@ -93,7 +96,7 @@ class CalendarHeader extends StatelessWidget {
           IconButton.filled(
             icon: const Icon(Icons.chevron_right, size: 20),
             onPressed: onNextMonth,
-            tooltip: 'Next Month',
+            tooltip: AppLocalizations.of(context)?.next_month ?? 'Next Month',
             style: IconButton.styleFrom(
               backgroundColor: context.colorScheme.surfaceContainerHighest,
               foregroundColor: context.colorScheme.onSurface,
@@ -106,7 +109,7 @@ class CalendarHeader extends StatelessWidget {
           IconButton.filledTonal(
             icon: const Icon(Icons.today, size: 20),
             onPressed: onTodayTap,
-            tooltip: 'Go to Today',
+            tooltip: AppLocalizations.of(context)?.go_to_today ?? 'Go to Today',
           ),
         ],
       ),

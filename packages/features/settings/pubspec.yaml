@@ -16,6 +16,8 @@ dependencies:
     path: ../../core
   data:
     path: ../../data
+  localizations:
+    path: ../../localizations
 
   home_widgets:
     path: ../home_widgets
