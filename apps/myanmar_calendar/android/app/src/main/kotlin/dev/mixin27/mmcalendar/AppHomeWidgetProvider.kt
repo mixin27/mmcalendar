@@ -269,6 +269,9 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
             "light" -> R.drawable.widget_background_light
             "dark" -> R.drawable.widget_background_dark
             "traditional" -> R.drawable.widget_background_traditional
+            "gradientBlue" -> R.drawable.widget_background_gradient_blue
+            "gradientPurple" -> R.drawable.widget_background_gradient_purple
+            "gradientTeal" -> R.drawable.widget_background_gradient_teal
             "auto" -> {
                 val isDarkMode = context.resources.configuration.uiMode and
                         android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
@@ -285,6 +288,9 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
             "light" -> "#212121".toColorInt()
             "dark" -> Color.WHITE
             "traditional" -> Color.WHITE
+            "gradientBlue" -> Color.WHITE
+            "gradientPurple" -> Color.WHITE
+            "gradientTeal" -> Color.WHITE
             "auto" -> {
                 val isDarkMode = context.resources.configuration.uiMode and
                         android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
@@ -298,6 +304,9 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
             "light" -> "#757575".toColorInt()
             "dark" -> "#E0E0E0".toColorInt()
             "traditional" -> "#FFF9C4".toColorInt()
+            "gradientBlue" -> "#FFF9C4".toColorInt()
+            "gradientPurple" -> "#FFF9C4".toColorInt()
+            "gradientTeal" -> "#FFF9C4".toColorInt()
             "auto" -> {
                 val isDarkMode = context.resources.configuration.uiMode and
                         android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
@@ -328,13 +337,13 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
         val items = mutableListOf<String>()
 
         if (!sabbath.isNullOrEmpty() && sabbath != "null" && sabbath != "") {
-            items.add("☸️ $sabbath")
+            items.add(sabbath)
         }
         if (!yatyaza.isNullOrEmpty() && yatyaza != "null" && yatyaza != "") {
-            items.add("⚠️ $yatyaza")
+            items.add(yatyaza)
         }
         if (!pyathada.isNullOrEmpty() && pyathada != "null" && pyathada != "") {
-            items.add("✨ $pyathada")
+            items.add(pyathada)
         }
 
         return items.joinToString(" • ")

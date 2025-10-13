@@ -469,6 +469,12 @@ class WidgetSettingsPage extends StatelessWidget {
         return 'Traditional Myanmar';
       case WidgetTheme.auto:
         return 'Auto (System)';
+      case WidgetTheme.gradientBlue:
+        return 'Gradient Blue';
+      case WidgetTheme.gradientPurple:
+        return 'Gradient Purple';
+      case WidgetTheme.gradientTeal:
+        return 'Gradient Teal';
     }
   }
 
@@ -482,6 +488,12 @@ class WidgetSettingsPage extends StatelessWidget {
         return 'Myanmar traditional red and gold colors';
       case WidgetTheme.auto:
         return 'Follow system dark mode setting';
+      case WidgetTheme.gradientBlue:
+        return 'Gradient blue colors';
+      case WidgetTheme.gradientPurple:
+        return 'Gradient purple colors';
+      case WidgetTheme.gradientTeal:
+        return 'Gradient teal colors';
     }
   }
 

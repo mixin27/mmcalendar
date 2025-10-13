@@ -21,7 +21,6 @@ class WidgetRenderer {
       // Create the widget
       final widget = MoonPhaseWidget(
         moonPhase: moonPhase,
-        fortnightDay: fortnightDay,
         size: size,
         moonColor: moonColor,
         shadowColor: shadowColor,

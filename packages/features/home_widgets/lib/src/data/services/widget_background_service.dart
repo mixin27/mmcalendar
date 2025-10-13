@@ -40,7 +40,9 @@ void callbackDispatcher() {
       final westernDate = myanmarDateTime.formatWestern('%d %M %yyyy');
       final moonPhase = _getMoonPhaseName(myanmarDateTime.moonPhase);
       final moonPhaseEmoji = _getMoonPhaseEmoji(myanmarDateTime.moonPhase);
-      final holidays = myanmarDateTime.allHolidays.join(', ');
+      final holidays = myanmarDateTime.allHolidays
+          .map((h) => TranslationService.translate(h))
+          .join(', ');
 
       // Get astrology info
       String sabbathInfo = '';
@@ -48,15 +50,15 @@ void callbackDispatcher() {
       String pyathadaInfo = '';
 
       if (myanmarDateTime.isSabbath || myanmarDateTime.isSabbathEve) {
-        sabbathInfo = myanmarDateTime.sabbath;
+        sabbathInfo = TranslationService.translate(myanmarDateTime.sabbath);
       }
 
       if (myanmarDateTime.isYatyaza) {
-        yatyazaInfo = myanmarDateTime.yatyaza;
+        yatyazaInfo = TranslationService.translate(myanmarDateTime.yatyaza);
       }
 
       if (myanmarDateTime.hasPyathada) {
-        pyathadaInfo = myanmarDateTime.pyathada;
+        pyathadaInfo = TranslationService.translate(myanmarDateTime.pyathada);
       }
 
       debugPrint('📅 Myanmar Date: $myanmarDate');

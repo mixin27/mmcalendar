@@ -5,7 +5,6 @@ import 'moon_phase_painter.dart';
 /// Widget wrapper for the moon phase painter
 class MoonPhaseWidget extends StatelessWidget {
   final int moonPhase;
-  final int fortnightDay;
   final double size;
   final Color? moonColor;
   final Color? shadowColor;
@@ -14,7 +13,6 @@ class MoonPhaseWidget extends StatelessWidget {
   const MoonPhaseWidget({
     super.key,
     required this.moonPhase,
-    required this.fortnightDay,
     this.size = 80,
     this.moonColor,
     this.shadowColor,
@@ -31,7 +29,7 @@ class MoonPhaseWidget extends StatelessWidget {
         painter: MoonPhasePainter(
           moonPhase: moonPhase,
           moonColor: moonColor ?? const Color(0xFFF5F5DC),
-          shadowColor: shadowColor ?? const Color(0xFF2C2C2C),
+          shadowColor: shadowColor ?? const Color(0xFF1A1A1A),
           backgroundColor: Colors.transparent,
           showGlow: showGlow,
         ),

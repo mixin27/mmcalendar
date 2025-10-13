@@ -236,7 +236,9 @@ class WidgetLocalDataSource {
       final moonPhaseEmoji = _getMoonPhaseEmoji(myanmarDateTime.moonPhase);
 
       // Get holidays
-      final holidays = myanmarDateTime.allHolidays;
+      final holidays = myanmarDateTime.allHolidays
+          .map((h) => TranslationService.translateTo(h, targetLanguage))
+          .toList();
 
       // Get astrology info
       String? sabbathInfo;
@@ -244,15 +246,24 @@ class WidgetLocalDataSource {
       String? pyathadaInfo;
 
       if (myanmarDateTime.isSabbath || myanmarDateTime.isSabbathEve) {
-        sabbathInfo = myanmarDateTime.sabbath;
+        sabbathInfo = TranslationService.translateTo(
+          myanmarDateTime.sabbath,
+          targetLanguage,
+        );
       }
 
       if (myanmarDateTime.isYatyaza) {
-        yatyazaInfo = myanmarDateTime.yatyaza;
+        yatyazaInfo = TranslationService.translateTo(
+          myanmarDateTime.yatyaza,
+          targetLanguage,
+        );
       }
 
       if (myanmarDateTime.hasPyathada) {
-        pyathadaInfo = myanmarDateTime.pyathada;
+        pyathadaInfo = TranslationService.translateTo(
+          myanmarDateTime.pyathada,
+          targetLanguage,
+        );
       }
 
       // Restore original language
@@ -496,7 +507,6 @@ class WidgetLocalDataSource {
         color: Colors.transparent,
         child: MoonPhaseWidget(
           moonPhase: moonPhase,
-          fortnightDay: fortnightDay,
           size: 80,
           moonColor: const Color(0xFFF5F5DC),
           shadowColor: const Color(0xFF2C2C2C),

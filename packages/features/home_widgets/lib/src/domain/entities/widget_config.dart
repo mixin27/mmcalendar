@@ -2,7 +2,15 @@ import 'package:equatable/equatable.dart';
 
 enum WidgetSize { small, medium, large }
 
-enum WidgetTheme { light, dark, traditional, auto }
+enum WidgetTheme {
+  light,
+  dark,
+  traditional,
+  auto,
+  gradientBlue,
+  gradientPurple,
+  gradientTeal,
+}
 
 class WidgetConfig extends Equatable {
   final WidgetSize size;
