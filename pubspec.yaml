@@ -17,6 +17,7 @@ workspace:
   - packages/features/settings
   - packages/features/notes
   - packages/features/events
+  - packages/features/home_widgets
   - apps/myanmar_calendar
 
 # Workspace-level dependencies (shared across all packages)

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Myanmar Calendar</string>
+
+    <string name="widget_name">Myanmar Calendar</string>
+    <string name="widget_description">Myanmar Calendar with dates, moon phases, holidays, and astrological information</string>
+
+    <string name="widget_description_small">Myanmar Calendar - Compact</string>
+    <string name="widget_description_medium">Myanmar Calendar - Standard</string>
+    <string name="widget_description_large">Myanmar Calendar - Detailed</string>
+</resources>

@@ -1,7 +1,8 @@
-name: settings
-description: "Settings feature for app configuration"
+name: home_widgets
+description: "Home screen widgets feature for Myanmar Calendar"
 version: 0.0.1
 publish_to: none
+
 resolution: workspace
 
 environment:
@@ -17,31 +18,25 @@ dependencies:
   data:
     path: ../../data
 
-  home_widgets:
-    path: ../home_widgets
-
-  # Myanmar Calendar Package
+  # Myanmar calendar
   flutter_mmcalendar: ^3.2.0
+
+  # State management
+  bloc: ^9.0.1
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.7
 
   # Utilities
   intl: ^0.20.2
-  equatable: ^2.0.7
-  flutter_colorpicker: ^1.1.0
 
-  # Navigation
-  go_router: ^16.2.4
+  # Widget packages
+  home_widget: ^0.8.0
+  shared_preferences: ^2.5.3
+  workmanager: ^0.9.0+3
 
-  # Functional Programming
-  dartz: ^0.10.1
-
-  # State Management
-  bloc: ^9.0.1
-  flutter_bloc: ^9.1.1
-
-  # Dependency Injection
+  # Dependency injection
   get_it: ^8.2.0
   injectable: ^2.5.2
-  drift: ^2.28.2
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class PrioritySelector extends StatelessWidget {
@@ -16,17 +15,11 @@ class PrioritySelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Priority',
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
+        Text('Priority', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         SegmentedButton<int>(
           segments: const [
-            ButtonSegment(
-              value: 0,
-              label: Text('None'),
-            ),
+            ButtonSegment(value: 0, label: Text('None')),
             ButtonSegment(
               value: 1,
               label: Text('Low'),

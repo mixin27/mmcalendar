@@ -5,6 +5,7 @@ import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
 
@@ -22,13 +23,6 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: RoutePaths.splash,
       builder: (context, state) => const SplashPage(),
-    ),
-    GoRoute(
-      path: RoutePaths.privacyPolicy,
-      builder: (context, state) => PrivacyPolicyPage(
-        title: "Privacy policy",
-        message: "App privacy & policy contents will be here.",
-      ),
     ),
 
     // Main App Shell with Bottom Navigation
@@ -158,6 +152,23 @@ final GoRouter router = GoRouter(
             GoRoute(
               path: RoutePaths.settings,
               builder: (context, state) => const SettingsPage(),
+              routes: [
+                GoRoute(
+                  path: RoutePaths.widgets,
+                  builder: (context, state) => BlocProvider(
+                    create: (context) =>
+                        getIt<WidgetBloc>()..add(const LoadWidgetConfig()),
+                    child: const WidgetSettingsPage(),
+                  ),
+                ),
+                GoRoute(
+                  path: RoutePaths.privacyPolicy,
+                  builder: (context, state) => const PrivacyPolicyPage(
+                    title: "Privacy policy",
+                    message: "App privacy & policy contents will be here.",
+                  ),
+                ),
+              ],
             ),
           ],
         ),

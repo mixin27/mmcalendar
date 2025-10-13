@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Shadow -->
+    <item
+        android:left="0dp"
+        android:top="0dp"
+        android:right="3dp"
+        android:bottom="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#40000000" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+
+    <!-- Main background -->
+    <item
+        android:left="0dp"
+        android:top="0dp"
+        android:right="0dp"
+        android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="#8B4513"
+                android:centerColor="#A0522D"
+                android:endColor="#CD853F" />
+            <corners android:radius="20dp" />
+            <stroke
+                android:width="2dp"
+                android:color="#FFD700" />
+        </shape>
+    </item>
+
+    <!-- Golden accent overlay (top) -->
+    <item
+        android:left="8dp"
+        android:top="8dp"
+        android:right="8dp"
+        android:bottom="8dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="90"
+                android:startColor="#20FFD700"
+                android:endColor="#00FFD700" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</layer-list>

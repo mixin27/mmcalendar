@@ -30,6 +30,8 @@ dependencies:
     path: ../../packages/features/converter
   events:
     path: ../../packages/features/events
+  home_widgets:
+    path: ../../packages/features/home_widgets
 
   # Myanmar calendar
   flutter_mmcalendar: ^3.2.0
@@ -50,6 +52,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   equatable: ^2.0.7
   url_launcher: ^6.3.2
+  home_widget: ^0.8.0
+  shared_preferences: ^2.5.3
+  workmanager: ^0.9.0+3
 
   # Firebase
   firebase_core: ^4.1.1
