@@ -254,6 +254,12 @@ abstract class AppLocalizations {
   /// **'Nakhat'**
   String get nakhat;
 
+  /// Mahabote label
+  ///
+  /// In en, this message translates to:
+  /// **'Mahabote'**
+  String get mahabote;
+
   /// Year name label
   ///
   /// In en, this message translates to:

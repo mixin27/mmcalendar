@@ -128,8 +128,8 @@ class _DayViewPageState extends State<DayViewPage>
                     const SizedBox(height: 16),
 
                     // Holidays Card
-                    // todo(mixin27): add other anniversary days
-                    if (completeDate.hasHolidays)
+                    if (completeDate.hasHolidays ||
+                        completeDate.hasAnniversaryDays)
                       _buildHolidaysCard(completeDate),
                     if (completeDate.hasHolidays) const SizedBox(height: 16),
 
@@ -277,7 +277,9 @@ class _DayViewPageState extends State<DayViewPage>
                 Expanded(
                   child: _buildInfoChip(
                     Icons.calendar_month,
-                    translateNumbers('Year ${completeDate.myanmarYear}'),
+                    translateNumbers(
+                      '${AppLocalizations.of(context)?.year ?? "Year"} ${completeDate.myanmarYear}',
+                    ),
                     context.colorScheme.tertiary,
                   ),
                 ),
@@ -285,7 +287,9 @@ class _DayViewPageState extends State<DayViewPage>
                 Expanded(
                   child: _buildInfoChip(
                     Icons.today,
-                    translateNumbers('Day ${completeDate.myanmarDay}'),
+                    translateNumbers(
+                      '${AppLocalizations.of(context)?.day ?? "Day"} ${completeDate.myanmarDay}',
+                    ),
                     context.colorScheme.secondary,
                   ),
                 ),
@@ -353,7 +357,7 @@ class _DayViewPageState extends State<DayViewPage>
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Moon Phase',
+                  AppLocalizations.of(context)?.moon_phase ?? 'Moon Phase',
                   style: context.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -422,7 +426,7 @@ class _DayViewPageState extends State<DayViewPage>
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Holidays',
+                  AppLocalizations.of(context)?.holidays ?? 'Holidays',
                   style: context.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -432,6 +436,35 @@ class _DayViewPageState extends State<DayViewPage>
             const SizedBox(height: 16),
 
             ...completeDate.allHolidays.map((holiday) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 6),
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: context.colorScheme.error,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        holiday,
+                        style: context.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+
+            ...completeDate.allAnniversaryDays.map((holiday) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
@@ -494,10 +527,13 @@ class _DayViewPageState extends State<DayViewPage>
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  'Astrological Information',
-                  style: context.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)?.astrological_information ??
+                        'Astrological Information',
+                    style: context.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -519,7 +555,7 @@ class _DayViewPageState extends State<DayViewPage>
               const Divider(),
               const SizedBox(height: 16),
               Text(
-                'Special Days',
+                AppLocalizations.of(context)?.special_days ?? 'Special Days',
                 style: context.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -530,7 +566,7 @@ class _DayViewPageState extends State<DayViewPage>
                 runSpacing: 8,
                 children: completeDate.astrologicalDays.map((day) {
                   return Chip(
-                    label: Text(day),
+                    label: Text(TranslationService.translate(day)),
                     labelStyle: context.textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -603,7 +639,7 @@ class _DayViewPageState extends State<DayViewPage>
       items.add(
         _AstroItemData(
           'Sabbath',
-          translateSentence(completeDate.sabbath),
+          TranslationService.translate(completeDate.sabbath),
           Icons.brightness_2,
           Colors.orange,
         ),
@@ -632,7 +668,7 @@ class _DayViewPageState extends State<DayViewPage>
     if (completeDate.nagahle.isNotEmpty) {
       items.add(
         _AstroItemData(
-          'Nagahle',
+          AppLocalizations.of(context)?.nagahle ?? 'Nagahle',
           translateSentence(completeDate.nagahle),
           Icons.explore,
           Colors.green,
@@ -642,7 +678,7 @@ class _DayViewPageState extends State<DayViewPage>
     if (completeDate.mahabote.isNotEmpty) {
       items.add(
         _AstroItemData(
-          'Mahabote',
+          AppLocalizations.of(context)?.mahabote ?? 'Mahabote',
           translateSentence(completeDate.mahabote),
           Icons.star,
           Colors.purple,
@@ -652,7 +688,7 @@ class _DayViewPageState extends State<DayViewPage>
     if (completeDate.nakhat.isNotEmpty) {
       items.add(
         _AstroItemData(
-          'Nakhat',
+          AppLocalizations.of(context)?.nakhat ?? 'Nakhat',
           translateSentence(completeDate.nakhat),
           Icons.castle,
           Colors.indigo,
@@ -662,7 +698,7 @@ class _DayViewPageState extends State<DayViewPage>
     if (completeDate.yearName.isNotEmpty) {
       items.add(
         _AstroItemData(
-          'Year Name',
+          AppLocalizations.of(context)?.year_name ?? 'Year Name',
           translateSentence(completeDate.yearName),
           Icons.calendar_today,
           Colors.teal,

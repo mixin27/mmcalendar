@@ -1152,7 +1152,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     HapticFeedback.lightImpact();
     final text =
         '''
-📅 ${widget.date.format('EEEE, MMMM d, yyyy')}
+📅 ${_currentDate.format('EEEE, MMMM d, yyyy')}
 
 🗓️ Myanmar Calendar:
 ${_completeDate.formatMyanmar()}
@@ -1160,7 +1160,7 @@ ${_completeDate.formatMyanmar()}
 🌙 Moon Phase: ${TranslationService.getMoonPhaseName(_completeDate.moonPhase)}
 📆 Fortnight Day: ${_completeDate.fortnightDay}
 
-${_completeDate.hasHolidays ? '\n🎉 Holidays:\n${_completeDate.allHolidays.join('\n')}\n' : ''}
+${_completeDate.hasHolidays ? '\n🎉 Holidays:\n${[..._completeDate.allHolidays, ..._completeDate.allAnniversaryDays].join('\n')}\n' : ''}
 ✨ Astrological Info:
 ${_completeDate.sabbath.isNotEmpty ? '• Sabbath: ${_completeDate.sabbath}\n' : ''}${_completeDate.yatyaza.isNotEmpty ? '• Yatyaza: ${_completeDate.yatyaza}\n' : ''}${_completeDate.pyathada.isNotEmpty ? '• Pyathada: ${_completeDate.pyathada}\n' : ''}
 Shared from Myanmar Calendar App

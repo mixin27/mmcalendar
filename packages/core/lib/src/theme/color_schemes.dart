@@ -252,4 +252,62 @@ class AppColorSchemes {
     onInverseSurface: Color(0xFF1B5E20),
     inversePrimary: Color(0xFF388E3C),
   );
+
+  static ColorScheme fromCustomColor(ColorScheme scheme) {
+    return ColorScheme.fromSeed(
+      brightness: scheme.brightness,
+      seedColor: scheme.primary,
+      primary: scheme.primary,
+      onPrimary: scheme.onPrimary,
+      secondary: scheme.secondary,
+      onSecondary: scheme.onSecondary,
+      tertiary: scheme.tertiary,
+      onTertiary: scheme.onTertiary,
+      error: scheme.error,
+      onError: scheme.onError,
+      surface: scheme.surface,
+      onSurface: scheme.onSurface,
+    );
+  }
+
+  static ColorScheme fromMap(Map<String, dynamic> map) {
+    final b = map['brightness'];
+    final brightness = b != null
+        ? b == "dark"
+              ? Brightness.dark
+              : Brightness.light
+        : Brightness.light;
+    return ColorScheme(
+      brightness: brightness,
+      primary: Color(map['primary'] as int),
+      onPrimary: Color(map['onPrimary'] as int),
+      secondary: Color(map['secondary'] as int),
+      onSecondary: Color(map['onSecondary'] as int),
+      tertiary: Color(map['tertiary'] as int),
+      onTertiary: Color(map['onTertiary'] as int),
+      error: Color(map['error'] as int),
+      onError: Color(map['onError'] as int),
+      surface: Color(map['surface'] as int),
+      onSurface: Color(map['onSurface'] as int),
+    );
+  }
+}
+
+extension ColorSchemaX on ColorScheme {
+  Map<String, dynamic> toMap() {
+    final colors = {
+      'brightness': brightness.name,
+      'primary': primary.toARGB32(),
+      'onPrimary': onPrimary.toARGB32(),
+      'secondary': secondary.toARGB32(),
+      'onSecondary': onSecondary.toARGB32(),
+      'tertiary': tertiary.toARGB32(),
+      'onTertiary': onTertiary.toARGB32(),
+      'error': error.toARGB32(),
+      'onError': onError.toARGB32(),
+      'surface': surface.toARGB32(),
+      'onSurface': onSurface.toARGB32(),
+    };
+    return colors;
+  }
 }

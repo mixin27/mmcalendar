@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:localizations/localizations.dart';
 
 import '../../domain/entities/moon_phase_result.dart';
 import '../bloc/converter_bloc.dart';
@@ -233,15 +234,30 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
       crossAxisSpacing: 12,
       childAspectRatio: 2.2,
       children: [
-        _buildMoonPhaseOption(0, 'Waxing', Icons.brightness_2, Colors.amber),
+        _buildMoonPhaseOption(
+          0,
+          TranslationService.translate('Waxing'),
+          Icons.brightness_2,
+          Colors.amber,
+        ),
         _buildMoonPhaseOption(
           1,
-          'Full Moon',
+          TranslationService.translate('Full Moon'),
           Icons.brightness_1,
           Colors.orange,
         ),
-        _buildMoonPhaseOption(2, 'Waning', Icons.brightness_3, Colors.blue),
-        _buildMoonPhaseOption(3, 'New Moon', Icons.brightness_4, Colors.indigo),
+        _buildMoonPhaseOption(
+          2,
+          TranslationService.translate('Waning'),
+          Icons.brightness_3,
+          Colors.blue,
+        ),
+        _buildMoonPhaseOption(
+          3,
+          TranslationService.translate('New Moon'),
+          Icons.brightness_4,
+          Colors.indigo,
+        ),
       ],
     );
   }
@@ -480,13 +496,17 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                 ),
 
                 // Holidays
-                if (completeDate.hasHolidays) ...[
+                if (completeDate.hasHolidays ||
+                    completeDate.hasAnniversaryDays) ...[
                   const SizedBox(height: 20),
                   const Divider(),
                   const SizedBox(height: 16),
                   _buildAdditionalInfo(
-                    'Holidays',
-                    completeDate.allHolidays,
+                    "${AppLocalizations.of(context)?.holidays ?? 'Holidays'} & ${AppLocalizations.of(context)?.special_days ?? 'Special Days'}",
+                    [
+                      ...completeDate.allHolidays,
+                      ...completeDate.allAnniversaryDays,
+                    ],
                     Icons.celebration,
                     theme.colorScheme.error,
                   ),

@@ -87,6 +87,9 @@ class AppLocalizationsMy extends AppLocalizations {
   String get nakhat => 'နက္ခတ်';
 
   @override
+  String get mahabote => 'မဟာဘုတ်';
+
+  @override
   String get year_name => 'နှစ်အမည်';
 
   @override

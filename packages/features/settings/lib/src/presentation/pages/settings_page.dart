@@ -456,6 +456,7 @@ class _SettingsContent extends StatelessWidget {
   }
 
   String _getThemePresetName(String presetId) {
+    if (presetId == "custom") return presetId.capitalize;
     return ThemePresets.getPreset(presetId).name;
   }
 
@@ -533,19 +534,39 @@ class _SettingsContent extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: ThemePresets.getAllPresets().map((preset) {
-              return _RadioOption<String>(
-                title: preset.name,
-                subtitle: '',
-                icon: Icons.palette,
-                value: preset.id,
-                groupValue: settings.themePreset,
-                onChanged: (value) {
-                  context.read<SettingsBloc>().add(ChangeThemePreset(value!));
+            children: [
+              ...ThemePresets.getAllPresets().map((preset) {
+                return _RadioOption<String>(
+                  title: preset.name,
+                  subtitle: '',
+                  icon: Icons.palette,
+                  value: preset.id,
+                  groupValue: settings.themePreset,
+                  onChanged: (value) {
+                    context.read<SettingsBloc>().add(ChangeThemePreset(value!));
+                    Navigator.pop(dialogContext);
+                  },
+                );
+              }),
+
+              // Divider
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
+              ),
+
+              // Custom colors option
+              CustomColorsOption(
+                isSelected: settings.themePreset == 'custom',
+                customColors: settings.customColors,
+                onTap: () {
                   Navigator.pop(dialogContext);
+                  _showCustomColorsEditor(context, settings);
                 },
-              );
-            }).toList(),
+              ),
+            ],
           ),
         ),
       ),
@@ -1008,4 +1029,18 @@ class _ResetButton extends StatelessWidget {
       ),
     );
   }
+}
+
+// Custom Colors Editor Dialog
+void _showCustomColorsEditor(BuildContext context, AppSettingsEntity settings) {
+  showDialog(
+    context: context,
+    builder: (dialogContext) => CustomColorsEditorDialog(
+      initialColors: settings.customColors ?? AppColorSchemes.modernLight,
+      onSave: (colorSchema) {
+        context.read<SettingsBloc>().add(UpdateCustomColors(colorSchema));
+        Navigator.pop(dialogContext);
+      },
+    ),
+  );
 }

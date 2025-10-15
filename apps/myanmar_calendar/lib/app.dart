@@ -49,6 +49,7 @@ class _AppContent extends StatelessWidget {
         if (prev is SettingsLoaded && curr is SettingsLoaded) {
           return prev.settings.themeMode != curr.settings.themeMode ||
               prev.settings.customColors != curr.settings.customColors ||
+              prev.settings.themePreset != curr.settings.themePreset ||
               prev.settings.appLanguage != curr.settings.appLanguage;
         }
         return true;

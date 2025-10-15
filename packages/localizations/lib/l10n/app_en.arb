@@ -115,6 +115,10 @@
   "@nakhat": {
     "description": "Nakhat label"
   },
+  "mahabote": "Mahabote",
+  "@mahabote": {
+    "description": "Mahabote label"
+  },
   "year_name": "Year Name",
   "@year_name": {
     "description": "Year name label"

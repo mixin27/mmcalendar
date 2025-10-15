@@ -82,6 +82,10 @@ class CalendarAppBar extends StatelessWidget {
             // ),
             const SizedBox(width: 8),
             IconButton.filledTonal(
+              style: IconButton.styleFrom(
+                backgroundColor: context.colorScheme.secondaryContainer,
+                foregroundColor: context.colorScheme.onTertiaryContainer,
+              ),
               icon: const Icon(Icons.settings_outlined, size: 22),
               onPressed: () => GoRouter.of(context).go(RoutePaths.settings),
               tooltip: AppLocalizations.of(context)?.settings ?? 'Settings',

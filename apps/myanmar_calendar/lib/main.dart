@@ -16,6 +16,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  TranslationService.addTranslation("test", Language.myanmar, "Test");
 
   LicenseRegistry.addLicense(() async* {
     final String license = await rootBundle.loadString(

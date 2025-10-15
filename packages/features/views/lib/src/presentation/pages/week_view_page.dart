@@ -181,6 +181,11 @@ class _WeekViewPageState extends State<WeekViewPage>
     bool isToday,
     int index,
   ) {
+    final combinedHolidays = [
+      ...dayInfo.allHolidays,
+      ...dayInfo.allAnniversaryDays,
+    ];
+
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 300 + (index * 50)),
       tween: Tween(begin: 0.0, end: 1.0),
@@ -299,7 +304,9 @@ class _WeekViewPageState extends State<WeekViewPage>
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                dayInfo.isFullMoon ? 'Full Moon' : 'New Moon',
+                                dayInfo.isFullMoon
+                                    ? TranslationService.translate("Full Moon")
+                                    : TranslationService.translate('New Moon'),
                                 style: context.textTheme.bodySmall?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -309,7 +316,7 @@ class _WeekViewPageState extends State<WeekViewPage>
                         ],
 
                         // Holidays
-                        if (dayInfo.hasHolidays) ...[
+                        if (combinedHolidays.isNotEmpty) ...[
                           const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -332,7 +339,7 @@ class _WeekViewPageState extends State<WeekViewPage>
                                 const SizedBox(width: 6),
                                 Flexible(
                                   child: Text(
-                                    dayInfo.allHolidays.first,
+                                    combinedHolidays.first,
                                     style: context.textTheme.bodySmall
                                         ?.copyWith(
                                           color: context
@@ -346,7 +353,7 @@ class _WeekViewPageState extends State<WeekViewPage>
                                 ),
                                 if (dayInfo.allHolidays.length > 1)
                                   Text(
-                                    ' +${dayInfo.allHolidays.length - 1}',
+                                    ' +${combinedHolidays.length - 1}',
                                     style: context.textTheme.bodySmall
                                         ?.copyWith(
                                           color: context

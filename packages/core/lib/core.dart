@@ -41,6 +41,10 @@ export 'src/utils/share.dart';
 export 'src/widgets/moon_phase.dart';
 export 'src/widgets/markdown_render.dart';
 export 'src/widgets/expandable_section.dart';
+export 'src/widgets/color_picker_tile.dart';
+export 'src/widgets/custom_colors_editor_dialog.dart';
+export 'src/widgets/color_chip.dart';
+export 'src/widgets/custom_colors_option.dart';
 
 // Dependency Injection
 export 'src/di/injection.dart' hide getIt;

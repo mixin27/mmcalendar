@@ -88,3 +88,5 @@ coverage/
 !/dev/ci/**/Gemfile.lock
 
 .env
+
+/misc/

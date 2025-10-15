@@ -87,6 +87,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nakhat => 'Nakhat';
 
   @override
+  String get mahabote => 'Mahabote';
+
+  @override
   String get year_name => 'Year Name';
 
   @override

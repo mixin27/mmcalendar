@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:data/data.dart';
@@ -20,6 +23,10 @@ class SettingsRepositoryImpl extends BaseRepository
   Future<Either<Failure, AppSettingsEntity>> getSettings() async {
     try {
       final settings = await localDataSource.getAllSettings();
+
+      final customColors = await localDataSource.getSetting(
+        StorageKeys.customColors,
+      );
 
       // Parse theme mode
       final themeModeStr = settings[StorageKeys.themeMode] ?? 'system';
@@ -63,9 +70,18 @@ class SettingsRepositoryImpl extends BaseRepository
 
       // Get theme colors
       final preset = ThemePresets.getPreset(themePreset);
-      final themeColors = themeMode == ThemeMode.dark
+      ColorScheme themeColors = themeMode == ThemeMode.dark
           ? preset.darkColors
           : preset.lightColors;
+
+      if (themePreset == "custom" && customColors != null) {
+        try {
+          final json = (jsonDecode(customColors) as Map<String, dynamic>);
+          themeColors = AppColorSchemes.fromMap(json);
+        } catch (e) {
+          log(e.toString());
+        }
+      }
 
       return Right(
         AppSettingsEntity(
@@ -121,9 +137,10 @@ class SettingsRepositoryImpl extends BaseRepository
   @override
   Future<Either<Failure, void>> updateCustomColors(ColorScheme colors) async {
     try {
-      // Store custom colors as JSON or individual values
-      // For now, we'll use presets only
-      await localDataSource.setSetting(StorageKeys.customColors, 'custom');
+      final scheme = AppColorSchemes.fromCustomColor(colors);
+      final json = jsonEncode(scheme.toMap());
+      await localDataSource.setSetting(StorageKeys.customColors, json);
+      await localDataSource.setSetting(StorageKeys.themePreset, 'custom');
 
       return const Right(null);
     } on CacheException catch (e) {

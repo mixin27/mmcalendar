@@ -37,6 +37,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<UpdateCalendarConfiguration>(_onUpdateCalendarConfiguration);
     on<ToggleDisplayPreference>(_onToggleDisplayPreference);
     on<ResetAllSettings>(_onResetAllSettings);
+    on<UpdateCustomColors>(_onUpdateCustomColors);
   }
 
   Future<void> _onLoadSettings(
@@ -112,6 +113,29 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         emit(SettingsLoaded(updatedSettings));
       },
     );
+  }
+
+  Future<void> _onUpdateCustomColors(
+    UpdateCustomColors event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state is SettingsLoaded) {
+      final currentState = state as SettingsLoaded;
+
+      // Save custom colors
+      final result = await updateTheme.updateCustomColors(event.colorScheme);
+
+      result.fold(
+        (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
+        (_) {
+          final updatedSettings = currentState.settings.copyWith(
+            themePreset: 'custom',
+            customColors: AppColorSchemes.fromCustomColor(event.colorScheme),
+          );
+          emit(SettingsLoaded(updatedSettings));
+        },
+      );
+    }
   }
 
   Future<void> _onChangeAppLanguage(

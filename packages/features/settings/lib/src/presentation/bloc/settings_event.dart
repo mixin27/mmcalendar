@@ -71,3 +71,13 @@ final class ToggleDisplayPreference extends SettingsEvent {
 final class ResetAllSettings extends SettingsEvent {
   const ResetAllSettings();
 }
+
+// Settings Bloc Event for custom colors
+final class UpdateCustomColors extends SettingsEvent {
+  final ColorScheme colorScheme;
+
+  const UpdateCustomColors(this.colorScheme);
+
+  @override
+  List<Object?> get props => [colorScheme];
+}

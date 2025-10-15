@@ -115,6 +115,10 @@
   "@nakhat": {
     "description": "Nakhat label"
   },
+  "mahabote": "မဟာဘုတ်",
+  "@mahabote": {
+    "description": "Mahabote label"
+  },
   "year_name": "နှစ်အမည်",
   "@year_name": {
     "description": "Year name label"

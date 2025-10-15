@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:localizations/localizations.dart';
 
 import '../../domain/entities/conversion_result.dart';
 import '../bloc/converter_bloc.dart';
@@ -528,16 +529,21 @@ class _DateConverterCardState extends State<DateConverterCard>
                 ),
 
                 if (completeDate.hasHolidays ||
+                    completeDate.hasAnniversaryDays ||
                     completeDate.hasAstrologicalDays) ...[
                   const SizedBox(height: 16),
                   const Divider(),
                   const SizedBox(height: 16),
                 ],
 
-                if (completeDate.hasHolidays) ...[
+                if (completeDate.hasHolidays ||
+                    completeDate.hasAnniversaryDays) ...[
                   _buildAdditionalInfo(
-                    'Holidays',
-                    completeDate.allHolidays,
+                    "${AppLocalizations.of(context)?.holidays ?? 'Holidays'} & ${AppLocalizations.of(context)?.special_days ?? 'Special Days'}",
+                    [
+                      ...completeDate.allHolidays,
+                      ...completeDate.allAnniversaryDays,
+                    ],
                     Icons.celebration,
                     theme.colorScheme.error,
                   ),
@@ -545,13 +551,14 @@ class _DateConverterCardState extends State<DateConverterCard>
                     const SizedBox(height: 16),
                 ],
 
-                if (completeDate.hasAstrologicalDays)
+                if (completeDate.hasAstrologicalDays) ...[
                   _buildAdditionalInfo(
                     'Astrological Days',
                     completeDate.astrologicalDays,
                     Icons.star,
                     theme.colorScheme.tertiary,
                   ),
+                ],
               ],
             ),
           ),
