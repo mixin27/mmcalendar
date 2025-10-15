@@ -16,7 +16,6 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  TranslationService.addTranslation("test", Language.myanmar, "Test");
 
   LicenseRegistry.addLicense(() async* {
     final String license = await rootBundle.loadString(
@@ -34,6 +33,7 @@ void main() async {
   // Initialize dependency injection
   await initializeDependencies();
 
+  debugPrint('🔧 Initializing WorkManager...');
   // Initialize WorkManager for background widget updates
   await Workmanager().initialize(callbackDispatcher);
 
@@ -95,13 +95,15 @@ Future<void> _initializeWidgetUpdates() async {
     // Import the repository from DI
     final widgetRepository = getIt<WidgetRepository>();
 
-    // Schedule daily updates at 12:01 AM
-    await widgetRepository.scheduleWidgetUpdates();
-
-    // Update widget immediately on app start
+    // Update widget IMMEDIATELY on app start
+    debugPrint('🔄 Performing immediate widget update...');
     await widgetRepository.refreshWidget();
+    debugPrint('✅ Immediate widget update completed');
 
-    debugPrint('✅ Widget updates scheduled successfully');
+    // Schedule daily background updates at 12:01 AM
+    debugPrint('⏰ Scheduling daily background updates...');
+    await widgetRepository.scheduleWidgetUpdates();
+    debugPrint('✅ Background updates scheduled');
   } catch (e) {
     debugPrint('⚠️ Failed to initialize widget updates: $e');
   }

@@ -5,9 +5,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <!-- For Android 12+ (API 31+) exact alarms -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"
-        tools:ignore="ExactAlarmPolicy" />
+        tools:ignore="ExactAlarmPolicy" /> -->
 
     <application
         android:label="Myanmar Calendar"

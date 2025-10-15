@@ -423,7 +423,7 @@ class WidgetLocalDataSource {
           requiresDeviceIdle: false,
           requiresStorageNotLow: false,
         ),
-        existingWorkPolicy: ExistingWorkPolicy.replace,
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
       );
 
       debugPrint('✅ Widget updates scheduled successfully');
@@ -473,6 +473,36 @@ class WidgetLocalDataSource {
   /// Mark updates as scheduled
   Future<void> markUpdatesScheduled(bool scheduled) async {
     await sharedPreferences.setBool('widget_updates_scheduled', scheduled);
+  }
+
+  Future<void> updateWidgetNow({
+    String? languageCode,
+    WidgetConfig? config,
+  }) async {
+    try {
+      debugPrint('🔄 Updating widget now (foreground)...');
+
+      // Get today's date
+      final today = DateTime.now();
+
+      // Generate widget data with language if specified
+      final widgetData = languageCode != null
+          ? await generateWidgetDataWithLanguage(today, languageCode)
+          : await generateWidgetData(today);
+
+      // Update widget with or without custom config
+      if (config != null) {
+        await updateWidgetWithConfig(widgetData, config);
+      } else {
+        await updateHomeWidget(widgetData);
+      }
+
+      debugPrint('✅ Widget updated successfully (foreground)');
+    } catch (e, stackTrace) {
+      debugPrint('❌ Failed to update widget now: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
   // Helper methods
