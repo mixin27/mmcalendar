@@ -5,6 +5,9 @@ class StorageKeys {
   static const String customColors = 'custom_colors';
   static const String appLanguage = 'app_language';
   static const String calendarLanguage = 'calendar_language';
+  static const String enableAnalytics = 'enable_analytics';
+  static const String enableCrashlytics = 'enable_crashlytics';
+  static const String hasShownConsentDialog = 'has_shown_consent_dialog';
 
   // Calendar Configuration
   static const String sasanaYearType = 'sasana_year_type';

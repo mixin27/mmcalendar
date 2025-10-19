@@ -1,7 +1,9 @@
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
+import 'package:settings/settings.dart';
 
 /// Splash screen shown during app initialization
 ///
@@ -69,7 +71,22 @@ class _SplashPageState extends State<SplashPage>
 
       // Navigate to home
       if (mounted) {
-        context.go(RoutePaths.home);
+        // Check if consent dialog needs to be shown
+        final settingsState = context.read<SettingsBloc>().state;
+
+        if (settingsState is SettingsLoaded) {
+          final hasShownConsent = settingsState.settings.hasShownConsentDialog;
+
+          // Navigate based on consent status
+          if (hasShownConsent) {
+            context.go(RoutePaths.home);
+          } else {
+            context.go(RoutePaths.consent);
+          }
+        } else {
+          // Fallback if settings not loaded yet
+          context.go(RoutePaths.home);
+        }
       }
     } catch (e) {
       // Handle initialization errors

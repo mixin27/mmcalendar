@@ -1,6 +1,7 @@
 import 'package:calendar/calendar.dart';
 import 'package:converter/converter.dart';
 import 'package:events/events.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:data/data.dart';
@@ -15,6 +16,19 @@ Future<void> initializeDependencies() async {
   // Initialize database
   final database = AppDatabase();
   getIt.registerSingleton<AppDatabase>(database);
+
+  // Firebase Services (moved to separate setup function)
+  await setupFirebaseServicesDependencies(getIt);
+
+  final analyticsService = getIt<AnalyticsService>();
+  final crashlyticsService = getIt<CrashlyticsService>();
+  debugPrint('✅ Firebase services registered:');
+  debugPrint(
+    '  Analytics enabled: ${analyticsService.config.enableCollection}',
+  );
+  debugPrint(
+    '  Crashlytics enabled: ${crashlyticsService.config.enableCollection}',
+  );
 
   // Initialize feature dependencies
   await initCalendarDependencies();

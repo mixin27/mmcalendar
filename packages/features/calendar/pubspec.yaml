@@ -23,6 +23,8 @@ dependencies:
     path: ../settings
   events:
     path: ../events
+  firebase_analytics_app:
+    path: ../firebase_analytics_app
 
   # Myanmar Calendar Package
   flutter_mmcalendar: ^3.2.0

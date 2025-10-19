@@ -16,6 +16,8 @@ dependencies:
     path: ../../core
   data:
     path: ../../data
+  firebase_analytics_app:
+    path: ../firebase_analytics_app
 
   # Utilities
   intl: ^0.20.2

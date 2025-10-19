@@ -1,6 +1,6 @@
 import 'package:data/data.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,14 +24,14 @@ void main() async {
     yield LicenseEntryWithLineBreaks(<String>['google_fonts'], license);
   });
 
-  // Firebase init
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // Configure system UI
-  await _configureSystemUI();
+  // Initialize Firebase with consent settings
+  await _initializeFirebaseWithConsent();
 
   // Initialize dependency injection
   await initializeDependencies();
+
+  // Configure system UI
+  await _configureSystemUI();
 
   debugPrint('🔧 Initializing WorkManager...');
   // Initialize WorkManager for background widget updates
@@ -40,15 +40,93 @@ void main() async {
   // Load saved settings and configure Myanmar Calendar
   await _initializeMyanmarCalendar();
 
-  // Schedule widget updates on app start
-  await _initializeWidgetUpdates();
-
   // Set up Bloc observer
   Bloc.observer = AppBlocObserver();
 
-  registerErrorHandlers();
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return ErrorBoundary.errorWidget(details);
+  };
+
+  // Schedule widget updates on app start
+  await _initializeWidgetUpdates();
 
   runApp(const MyanmarCalendarApp());
+}
+
+Future<void> _initializeFirebaseWithConsent() async {
+  try {
+    debugPrint('🔧 Initializing Firebase...');
+
+    // Initialize Firebase Core first
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // Load user consent settings from database
+    final database = AppDatabase();
+    final settingsDao = database.settingsDao;
+
+    final analyticsConsent =
+        await settingsDao.getSetting('enable_analytics') ?? 'true';
+    final crashlyticsConsent =
+        await settingsDao.getSetting('enable_crashlytics') ?? 'true';
+
+    final enableAnalytics = analyticsConsent.toLowerCase() == 'true';
+    final enableCrashlytics = crashlyticsConsent.toLowerCase() == 'true';
+
+    // Create configs with user consent
+    final analyticsConfig = AnalyticsConfig(
+      enableCollection: enableAnalytics,
+      enableDebugLogging: !kReleaseMode,
+      eventPrefix: 'app_',
+    );
+
+    final crashlyticsConfig = CrashlyticsConfig(
+      enableCollection: enableCrashlytics,
+      enableDebugLogging: !kReleaseMode,
+    );
+
+    // Initialize Firebase Services with configs
+    await FirebaseService.initialize(
+      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+      analyticsConfig: analyticsConfig,
+      crashlyticsConfig: crashlyticsConfig,
+      enableDebugLogging: !kReleaseMode,
+    );
+
+    // Set up error handlers for Firebase Crashlytics
+    _setupCrashlyticsHandlers();
+
+    debugPrint('✅ Firebase initialized');
+    debugPrint('  Analytics: ${enableAnalytics ? 'enabled' : 'disabled'}');
+    debugPrint('  Crashlytics: ${enableCrashlytics ? 'enabled' : 'disabled'}');
+  } catch (e, stack) {
+    debugPrint('❌ Error initializing Firebase: $e\n$stack');
+    rethrow;
+  }
+}
+
+/// Setup error handlers to report to Crashlytics
+void _setupCrashlyticsHandlers() {
+  final crashlytics = FirebaseService.crashlytics;
+
+  // Handle Flutter framework errors
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (kReleaseMode) {
+      crashlytics.recordFlutterFatalError(details);
+    } else {
+      FlutterError.presentError(details);
+    }
+  };
+
+  // Handle PlatformDispatcher errors
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    if (kReleaseMode) {
+      crashlytics.recordError(error, stack, fatal: true);
+    }
+    debugPrint('Platform error: $error\n$stack');
+    return true;
+  };
 }
 
 // Initialize Myanmar Calendar with saved settings
@@ -94,14 +172,20 @@ Future<void> _initializeWidgetUpdates() async {
   try {
     // Import the repository from DI
     final widgetRepository = getIt<WidgetRepository>();
+    final analyticsService = AnalyticsService(
+      firebaseAnalytics: FirebaseService.analytics,
+    );
 
     // Update widget IMMEDIATELY on app start
-    debugPrint('🔄 Performing immediate widget update...');
     await widgetRepository.refreshWidget();
-    debugPrint('✅ Immediate widget update completed');
+
+    // Log widget update to analytics
+    await analyticsService.logWidgetInteraction(
+      widgetName: 'home_screen_widget',
+      actionType: 'updated_on_app_start',
+    );
 
     // Schedule daily background updates at 12:01 AM
-    debugPrint('⏰ Scheduling daily background updates...');
     await widgetRepository.scheduleWidgetUpdates();
     debugPrint('✅ Background updates scheduled');
   } catch (e) {
@@ -130,34 +214,6 @@ Future<void> _configureSystemUI() async {
 
   // Enable edge-to-edge mode
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-}
-
-void registerErrorHandlers() {
-  // * Show some error UI if any uncaught exception happens
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    debugPrint(details.toString());
-
-    if (kReleaseMode) {
-      // Pass all uncaught "fatal" errors from the framework to Crashlytics
-      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-    }
-  };
-
-  // * Handle errors from the underlying platform/OS
-  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-    debugPrint(error.toString());
-
-    // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
-    if (kReleaseMode) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    }
-    return true;
-  };
-
-  ErrorWidget.builder = (FlutterErrorDetails details) {
-    return ErrorBoundary.errorWidget(details);
-  };
 }
 
 // Error handling widget

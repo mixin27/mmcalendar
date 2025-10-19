@@ -1,7 +1,9 @@
 import 'package:core/core.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:localizations/l10n/app_localizations.dart';
 
+import '../../di/converter_injection.dart';
 import '../widgets/date_arithmetic_card.dart';
 import '../widgets/date_calculator_card.dart';
 import '../widgets/date_converter_card.dart';
@@ -16,11 +18,24 @@ class ConverterPage extends StatefulWidget {
 
 class _ConverterPageState extends State<ConverterPage>
     with SingleTickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    // Log screen view when page loads
+    _analyticsService.logScreenView(
+      screenName: 'converter',
+      screenClass: 'ConverterPage',
+    );
+
+    _analyticsService.logScreenView(
+      screenName: 'date_converter',
+      screenClass: 'DateConverterCard',
+    );
+
     _tabController = TabController(length: 4, vsync: this);
   }
 

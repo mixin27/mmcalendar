@@ -9,10 +9,10 @@ import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
 
+import '../presentation/pages/consent_page.dart';
 import '../presentation/pages/privacy_policy_page.dart';
 import '../presentation/pages/splash_page.dart';
 import '../presentation/shell/app_shell.dart';
-import 'analytics_navigator_observer.dart';
 import 'di_setup.dart';
 
 final GoRouter router = GoRouter(
@@ -23,6 +23,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: RoutePaths.splash,
       builder: (context, state) => const SplashPage(),
+    ),
+    GoRoute(
+      path: RoutePaths.consent,
+      builder: (context, state) => const ConsentPage(),
     ),
 
     // Main App Shell with Bottom Navigation
@@ -196,5 +200,4 @@ final GoRouter router = GoRouter(
       ),
     ),
   ),
-  observers: [AnalyticsNavigatorObserver()],
 );

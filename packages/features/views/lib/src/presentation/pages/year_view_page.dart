@@ -2,11 +2,13 @@ import 'dart:developer';
 
 import 'package:calendar/calendar.dart';
 import 'package:core/core.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../di/views_injection.dart';
 import '../../domain/entities/year_data.dart';
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
@@ -21,12 +23,19 @@ class YearViewPage extends StatefulWidget {
 
 class _YearViewPageState extends State<YearViewPage>
     with SingleTickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    // Log screen view when page loads
+    _analyticsService.logScreenView(
+      screenName: 'year_view',
+      screenClass: 'YearViewPage',
+    );
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,

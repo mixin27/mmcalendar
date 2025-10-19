@@ -1,10 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:core/core.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings.dart';
+import '../../domain/usecases/mark_as_consent_dialog_shown.dart';
 import '../../domain/usecases/reset_settings.dart';
 import '../../domain/usecases/update_calendar_config.dart';
 import '../../domain/usecases/update_display_preferences.dart';
@@ -20,6 +22,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final UpdateCalendarConfig updateCalendarConfig;
   final UpdateDisplayPreferences updateDisplayPreferences;
   final ResetSettings resetSettings;
+  final MarkAsConsentDialogShown markAsConsentDialogShown;
+  final AnalyticsService analyticsService;
+  final CrashlyticsService crashlyticsService;
 
   SettingsBloc({
     required this.getSettings,
@@ -28,6 +33,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required this.updateCalendarConfig,
     required this.updateDisplayPreferences,
     required this.resetSettings,
+    required this.markAsConsentDialogShown,
+    required this.analyticsService,
+    required this.crashlyticsService,
   }) : super(SettingsInitial()) {
     on<LoadSettings>(_onLoadSettings);
     on<ChangeThemeMode>(_onChangeThemeMode);
@@ -38,6 +46,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<ToggleDisplayPreference>(_onToggleDisplayPreference);
     on<ResetAllSettings>(_onResetAllSettings);
     on<UpdateCustomColors>(_onUpdateCustomColors);
+    on<UpdateAnalyticsConsent>(_onUpdateAnalyticsConsent);
+    on<UpdateCrashlyticsConsent>(_onUpdateCrashlyticsConsent);
+    on<MarkConsentDialogShown>(_onMarkConsentDialogShown);
   }
 
   Future<void> _onLoadSettings(
@@ -72,6 +83,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        // Log to Analytics
+        analyticsService.logThemeChange(
+          themeMode: event.themeMode.toString(),
+          themePreset: currentState.settings.themePreset,
+        );
+
         final preset = ThemePresets.getPreset(
           currentState.settings.themePreset,
         );
@@ -100,6 +117,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        // Log to Analytics
+        analyticsService.logSettingsChange(
+          settingName: 'theme_preset',
+          oldValue: currentState.settings.themePreset,
+          newValue: event.presetId,
+        );
+
         // Get new theme colors
         final preset = ThemePresets.getPreset(event.presetId);
         final newColors = currentState.settings.themeMode == ThemeMode.dark
@@ -115,29 +139,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     );
   }
 
-  Future<void> _onUpdateCustomColors(
-    UpdateCustomColors event,
-    Emitter<SettingsState> emit,
-  ) async {
-    if (state is SettingsLoaded) {
-      final currentState = state as SettingsLoaded;
-
-      // Save custom colors
-      final result = await updateTheme.updateCustomColors(event.colorScheme);
-
-      result.fold(
-        (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
-        (_) {
-          final updatedSettings = currentState.settings.copyWith(
-            themePreset: 'custom',
-            customColors: AppColorSchemes.fromCustomColor(event.colorScheme),
-          );
-          emit(SettingsLoaded(updatedSettings));
-        },
-      );
-    }
-  }
-
   Future<void> _onChangeAppLanguage(
     ChangeAppLanguage event,
     Emitter<SettingsState> emit,
@@ -150,6 +151,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        // Log to Analytics
+        analyticsService.logLanguageChange(
+          languageCode: event.languageCode,
+          languageName: event.languageCode == 'en' ? 'English' : 'Myanmar',
+        );
+
         final updatedSettings = currentState.settings.copyWith(
           appLanguage: event.languageCode,
         );
@@ -170,6 +177,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        // Log to Analytics
+        analyticsService.logLanguageChange(
+          languageCode: event.language.code,
+          languageName: event.language.name,
+        );
+
         MyanmarCalendar.setLanguage(event.language);
 
         // Fire calendar language changed event
@@ -220,6 +233,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        // Log to Analytics
+        analyticsService.logFeatureToggle(
+          featureName: event.key,
+          enabled: event.value,
+        );
+
         // Update the specific preference
         final updatedSettings = _updatePreference(
           currentState.settings,
@@ -242,12 +261,135 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
+        // Log to Analytics
+        analyticsService.logButtonClick(
+          buttonName: 'reset_settings',
+          buttonLocation: 'settings_page',
+        );
+
         _applyCalendarConfiguration(null);
 
         // Reload settings after reset
         add(const LoadSettings());
       },
     );
+  }
+
+  Future<void> _onUpdateCustomColors(
+    UpdateCustomColors event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state is SettingsLoaded) {
+      final currentState = state as SettingsLoaded;
+
+      // Save custom colors
+      final result = await updateTheme.updateCustomColors(event.colorScheme);
+
+      result.fold(
+        (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
+        (_) {
+          // Log to Analytics
+          analyticsService.logSettingsChange(
+            settingName: 'custom_colors',
+            oldValue: 'changed',
+            newValue: 'updated',
+          );
+
+          final updatedSettings = currentState.settings.copyWith(
+            themePreset: 'custom',
+            customColors: AppColorSchemes.fromCustomColor(event.colorScheme),
+          );
+          emit(SettingsLoaded(updatedSettings));
+        },
+      );
+    }
+  }
+
+  Future<void> _onUpdateAnalyticsConsent(
+    UpdateAnalyticsConsent event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state is! SettingsLoaded) return;
+
+    final currentState = state as SettingsLoaded;
+
+    // Update the AnalyticsService config
+    await analyticsService.updateConfig(
+      analyticsService.config.copyWith(enableCollection: event.enableAnalytics),
+    );
+
+    // Also update repository for persistence
+    final result = await updateDisplayPreferences(
+      StorageKeys.enableAnalytics,
+      event.enableAnalytics,
+    );
+
+    result.fold(
+      (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
+      (_) {
+        // Log the consent change
+        analyticsService.logSettingsChange(
+          settingName: 'analytics_consent',
+          oldValue: currentState.settings.enableAnalytics,
+          newValue: event.enableAnalytics,
+        );
+
+        final updatedSettings = currentState.settings.copyWith(
+          enableAnalytics: event.enableAnalytics,
+        );
+        emit(SettingsLoaded(updatedSettings));
+      },
+    );
+  }
+
+  Future<void> _onUpdateCrashlyticsConsent(
+    UpdateCrashlyticsConsent event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state is! SettingsLoaded) return;
+
+    final currentState = state as SettingsLoaded;
+
+    // Update the CrashlyticsService config
+    await crashlyticsService.updateConfig(
+      crashlyticsService.config.copyWith(
+        enableCollection: event.enableCrashlytics,
+      ),
+    );
+
+    // Also update repository for persistence
+    final result = await updateDisplayPreferences(
+      StorageKeys.enableCrashlytics,
+      event.enableCrashlytics,
+    );
+
+    result.fold(
+      (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
+      (_) {
+        final updatedSettings = currentState.settings.copyWith(
+          enableCrashlytics: event.enableCrashlytics,
+        );
+        emit(SettingsLoaded(updatedSettings));
+      },
+    );
+  }
+
+  Future<void> _onMarkConsentDialogShown(
+    MarkConsentDialogShown event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state is! SettingsLoaded) return;
+
+    final currentState = state as SettingsLoaded;
+
+    // Mark in database
+    await markAsConsentDialogShown();
+
+    final updatedSettings = currentState.settings.copyWith(
+      hasShownConsentDialog: true,
+    );
+
+    emit(SettingsLoaded(updatedSettings));
   }
 
   AppSettingsEntity _updatePreference(

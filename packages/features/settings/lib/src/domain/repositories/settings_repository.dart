@@ -15,4 +15,9 @@ abstract class SettingsRepository {
   Future<Either<Failure, void>> updateCalendarConfig(CalendarConfig config);
   Future<Either<Failure, void>> updateDisplayPreference(String key, bool value);
   Future<Either<Failure, void>> resetSettings();
+  Future<Either<Failure, void>> updateAnalyticsConsent(bool enableAnalytics);
+  Future<Either<Failure, void>> updateCrashlyticsConsent(
+    bool enableCrashlytics,
+  );
+  Future<Either<Failure, void>> markConsentDialogShown();
 }
