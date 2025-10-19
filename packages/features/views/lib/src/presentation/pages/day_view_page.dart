@@ -1,4 +1,5 @@
 import 'package:core/core.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
 import 'package:localizations/localizations.dart';
 import 'package:views/src/utils/utils.dart';
 
+import '../../di/views_injection.dart';
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
 import '../bloc/views_state.dart';
@@ -22,6 +24,7 @@ class DayViewPage extends StatefulWidget {
 
 class _DayViewPageState extends State<DayViewPage>
     with TickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -29,6 +32,12 @@ class _DayViewPageState extends State<DayViewPage>
   @override
   void initState() {
     super.initState();
+    // Log screen view when page loads
+    _analyticsService.logScreenView(
+      screenName: 'day_view',
+      screenClass: 'DayViewPage',
+    );
+
     _initializeAnimations();
   }
 

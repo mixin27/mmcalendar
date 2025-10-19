@@ -1,8 +1,10 @@
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
+import '../../di/converter_injection.dart';
 import '../../domain/entities/date_arithmetic_result.dart';
 import '../bloc/converter_bloc.dart';
 import '../bloc/converter_event.dart';
@@ -17,6 +19,8 @@ class DateArithmeticCard extends StatefulWidget {
 
 class _DateArithmeticCardState extends State<DateArithmeticCard>
     with SingleTickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+
   DateTime _startDate = DateTime.now();
   String _operation = 'add';
   String _unit = 'days';
@@ -30,6 +34,11 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
   @override
   void initState() {
     super.initState();
+    _analyticsService.logScreenView(
+      screenName: 'date_arithmetic',
+      screenClass: 'DateArithmeticCard',
+    );
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -49,6 +58,11 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
   }
 
   void _calculate() {
+    _analyticsService.logButtonClick(
+      buttonName: 'calculate',
+      buttonLocation: 'date_arithmetic_card',
+    );
+
     final value = int.tryParse(_valueController.text);
     if (value == null || value <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(

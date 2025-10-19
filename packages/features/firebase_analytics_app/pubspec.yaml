@@ -1,0 +1,33 @@
+name: firebase_analytics_app
+description: "Firebase Analytics and Crashlytics integration for Myanmar Calendar"
+version: 0.0.1
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^4.1.1
+  firebase_analytics: ^12.0.2
+  firebase_crashlytics: ^5.0.2
+  firebase_remote_config: ^6.0.2
+
+  logger: ^2.6.2
+  equatable: ^2.0.7
+
+  # Dependency Injection
+  get_it: ^8.2.0
+  injectable: ^2.5.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.8.0
+  injectable_generator: ^2.9.0

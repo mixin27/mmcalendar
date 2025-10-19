@@ -5,6 +5,7 @@ import 'package:core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:data/data.dart';
 import 'package:drift/drift.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
@@ -56,7 +57,7 @@ class SettingsRepositoryImpl extends BaseRepository
         settings[StorageKeys.showHolidays] ?? 'true',
       );
       final showAstrology = _parseBool(
-        settings[StorageKeys.showAstrology] ?? 'false',
+        settings[StorageKeys.showAstrology] ?? 'true',
       );
       final showWesternDates = _parseBool(
         settings[StorageKeys.showWesternDates] ?? 'true',
@@ -83,6 +84,19 @@ class SettingsRepositoryImpl extends BaseRepository
         }
       }
 
+      // Parse analytics consent
+      final enableAnalytics = _parseBool(
+        settings[StorageKeys.enableAnalytics] ?? 'true',
+      );
+      final enableCrashlytics = _parseBool(
+        settings[StorageKeys.enableCrashlytics] ?? 'true',
+      );
+
+      // Check if consent dialog has been shown
+      final hasShownConsentDialog = _parseBool(
+        settings[StorageKeys.hasShownConsentDialog] ?? 'false',
+      );
+
       return Right(
         AppSettingsEntity(
           themeMode: themeMode,
@@ -96,6 +110,9 @@ class SettingsRepositoryImpl extends BaseRepository
           showWesternDates: showWesternDates,
           showMyanmarDates: showMyanmarDates,
           firstDayOfWeek: firstDayOfWeek,
+          enableAnalytics: enableAnalytics,
+          enableCrashlytics: enableCrashlytics,
+          hasShownConsentDialog: hasShownConsentDialog,
         ),
       );
     } on CacheException catch (e) {
@@ -236,6 +253,67 @@ class SettingsRepositoryImpl extends BaseRepository
           defaultLanguage: const Value('en'),
           updatedAt: Value(DateTime.now()),
         ),
+      );
+      return const Right(null);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message, e.code));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateAnalyticsConsent(
+    bool enableAnalytics,
+  ) async {
+    try {
+      await localDataSource.setSetting(
+        StorageKeys.enableAnalytics,
+        enableAnalytics.toString(),
+      );
+
+      // Update Firebase Analytics collection
+      await FirebaseService.analytics.setAnalyticsCollectionEnabled(
+        enableAnalytics,
+      );
+
+      return const Right(null);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message, e.code));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateCrashlyticsConsent(
+    bool enableCrashlytics,
+  ) async {
+    try {
+      await localDataSource.setSetting(
+        StorageKeys.enableCrashlytics,
+        enableCrashlytics.toString(),
+      );
+
+      // Update Firebase Crashlytics collection
+      await FirebaseService.crashlytics.setCrashlyticsCollectionEnabled(
+        enableCrashlytics,
+      );
+
+      return const Right(null);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message, e.code));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> markConsentDialogShown() async {
+    try {
+      await localDataSource.setSetting(
+        StorageKeys.hasShownConsentDialog,
+        'true',
       );
       return const Right(null);
     } on CacheException catch (e) {

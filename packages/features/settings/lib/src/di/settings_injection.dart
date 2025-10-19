@@ -1,10 +1,12 @@
 import 'package:data/data.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:get_it/get_it.dart';
 
 import '../data/datasources/settings_local_datasource.dart';
 import '../data/repositories/settings_repository_impl.dart';
 import '../domain/repositories/settings_repository.dart';
 import '../domain/usecases/get_settings.dart';
+import '../domain/usecases/mark_as_consent_dialog_shown.dart';
 import '../domain/usecases/reset_settings.dart';
 import '../domain/usecases/update_calendar_config.dart';
 import '../domain/usecases/update_display_preferences.dart';
@@ -42,6 +44,9 @@ Future<void> initSettingsDependencies() async {
     () => UpdateDisplayPreferences(getIt<SettingsRepository>()),
   );
   getIt.registerLazySingleton(() => ResetSettings(getIt<SettingsRepository>()));
+  getIt.registerLazySingleton(
+    () => MarkAsConsentDialogShown(getIt<SettingsRepository>()),
+  );
 
   // BLoC
   getIt.registerFactory(
@@ -52,6 +57,9 @@ Future<void> initSettingsDependencies() async {
       updateCalendarConfig: getIt<UpdateCalendarConfig>(),
       updateDisplayPreferences: getIt<UpdateDisplayPreferences>(),
       resetSettings: getIt<ResetSettings>(),
+      markAsConsentDialogShown: getIt<MarkAsConsentDialogShown>(),
+      analyticsService: getIt<AnalyticsService>(),
+      crashlyticsService: getIt<CrashlyticsService>(),
     ),
   );
 }

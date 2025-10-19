@@ -1,9 +1,12 @@
 import 'package:events/events.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:core/core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:localizations/localizations.dart';
+
+import '../../di/calendar_injection.dart';
 
 class DayDetailsPage extends StatefulWidget {
   final DateTime date;
@@ -17,6 +20,8 @@ class DayDetailsPage extends StatefulWidget {
 
 class _DayDetailsPageState extends State<DayDetailsPage>
     with SingleTickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -26,6 +31,19 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   @override
   void initState() {
     super.initState();
+    // Log screen view when page loads
+    _analyticsService.logScreenView(
+      screenName: 'day_details',
+      screenClass: 'DayDetailsPage',
+    );
+
+    // Log date viewing
+    _analyticsService.logDateSelection(
+      selectedDate: widget.date.toString(),
+      calendarType: 'myanmar',
+      dateFormat: 'detailed_view',
+    );
+
     _currentDate = widget.date;
     _completeDate = MyanmarCalendar.getCompleteDate(widget.date);
     _initializeAnimations();
@@ -74,10 +92,31 @@ class _DayDetailsPageState extends State<DayDetailsPage>
       onHorizontalDragEnd: (details) {
         if (details.primaryVelocity! > 0) {
           // Swipe right - previous day
-          _navigateToDay(_currentDate.subtract(const Duration(days: 1)));
+          final previousDay = _currentDate.subtract(const Duration(days: 1));
+
+          _analyticsService.logWidgetInteraction(
+            widgetName: 'day_details_page',
+            actionType: 'swipe_previous',
+            metadata: {
+              'from_date': _currentDate.toString(),
+              'to_date': previousDay.toString(),
+            },
+          );
+          _navigateToDay(previousDay);
         } else if (details.primaryVelocity! < 0) {
           // Swipe left - next day
-          _navigateToDay(_currentDate.add(const Duration(days: 1)));
+          final nextDay = _currentDate.add(const Duration(days: 1));
+
+          _analyticsService.logWidgetInteraction(
+            widgetName: 'day_details_page',
+            actionType: 'swipe_next',
+            metadata: {
+              'from_date': _currentDate.toString(),
+              'to_date': nextDay.toString(),
+            },
+          );
+
+          _navigateToDay(nextDay);
         }
       },
       child: Scaffold(
@@ -93,6 +132,11 @@ class _DayDetailsPageState extends State<DayDetailsPage>
             FloatingActionButton.small(
               heroTag: 'reminder',
               onPressed: () {
+                _analyticsService.logButtonClick(
+                  buttonName: 'add_reminder',
+                  buttonLocation: 'day_details_fab',
+                );
+
                 // todo(mixin27): Add reminder
                 _showComingSoonSnackBar(context, 'Reminder feature');
               },
@@ -105,6 +149,11 @@ class _DayDetailsPageState extends State<DayDetailsPage>
             FloatingActionButton(
               heroTag: 'event',
               onPressed: () {
+                _analyticsService.logButtonClick(
+                  buttonName: 'add_event',
+                  buttonLocation: 'day_details_fab',
+                );
+
                 // todo(mixin27): Navigate to event creation
                 _showComingSoonSnackBar(context, 'Event feature');
               },
@@ -223,6 +272,11 @@ class _DayDetailsPageState extends State<DayDetailsPage>
         IconButton(
           icon: const Icon(Icons.chevron_left),
           onPressed: () {
+            _analyticsService.logButtonClick(
+              buttonName: 'previous_day',
+              buttonLocation: 'day_details_appbar',
+            );
+
             HapticFeedback.lightImpact();
             final previousDay = _currentDate.subtract(const Duration(days: 1));
             _navigateToDay(previousDay);
@@ -231,12 +285,23 @@ class _DayDetailsPageState extends State<DayDetailsPage>
         ),
         IconButton(
           icon: const Icon(Icons.calendar_month),
-          onPressed: () => _showDatePicker(context),
+          onPressed: () {
+            _analyticsService.logButtonClick(
+              buttonName: 'jump_to_date',
+              buttonLocation: 'day_details_appbar',
+            );
+            _showDatePicker(context);
+          },
           tooltip: 'Jump to Date',
         ),
         IconButton(
           icon: const Icon(Icons.chevron_right),
           onPressed: () {
+            _analyticsService.logButtonClick(
+              buttonName: 'next_day',
+              buttonLocation: 'day_details_appbar',
+            );
+
             HapticFeedback.lightImpact();
             final nextDay = _currentDate.add(const Duration(days: 1));
             _navigateToDay(nextDay);
@@ -1144,14 +1209,21 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     );
 
     if (selectedDate != null) {
+      _analyticsService.logDateSelection(
+        selectedDate: selectedDate.western.toDateTime().toString(),
+        calendarType: 'myanmar',
+        dateFormat: 'from_date_picker',
+      );
+
       _navigateToDay(selectedDate.western.toDateTime());
     }
   }
 
   void _shareDate() async {
-    HapticFeedback.lightImpact();
-    final text =
-        '''
+    try {
+      HapticFeedback.lightImpact();
+      final text =
+          '''
 📅 ${_currentDate.format('EEEE, MMMM d, yyyy')}
 
 🗓️ Myanmar Calendar:
@@ -1165,28 +1237,46 @@ ${_completeDate.hasHolidays ? '\n🎉 Holidays:\n${[..._completeDate.allHolidays
 ${_completeDate.sabbath.isNotEmpty ? '• Sabbath: ${_completeDate.sabbath}\n' : ''}${_completeDate.yatyaza.isNotEmpty ? '• Yatyaza: ${_completeDate.yatyaza}\n' : ''}${_completeDate.pyathada.isNotEmpty ? '• Pyathada: ${_completeDate.pyathada}\n' : ''}
 Shared from Myanmar Calendar App
 ''';
+      await share(
+        title: "Share Day",
+        subject: "Please check myanmar calendar",
+        content: text,
+      );
 
-    await share(
-      title: "Share Day",
-      subject: "Please check myanmar calendar",
-      content: text,
-    );
+      // Log share with rich metadata
+      await _analyticsService.logShare(
+        contentType: 'date_details',
+        platform: 'device_share',
+        metadata: {
+          'date': _currentDate.toString(),
+          'year': _currentDate.year.toString(),
+          'month': _currentDate.month.toString(),
+          'day': _currentDate.day.toString(),
+          'has_holidays': _completeDate.hasHolidays ? "true" : "false",
+          'holiday_count':
+              (_completeDate.allHolidays.length +
+                      _completeDate.allAnniversaryDays.length)
+                  .toString(),
+          'moon_phase': _completeDate.moonPhase.toString(),
+          'has_sabbath': _completeDate.sabbath.isNotEmpty ? "true" : "false",
+          'has_yatyaza': _completeDate.yatyaza.isNotEmpty ? "true" : "false",
+          'has_pyathada': _completeDate.pyathada.isNotEmpty ? "true" : "false",
+        },
+      );
+    } catch (e, stack) {
+      // Log share error
+      await _analyticsService.logException(
+        exceptionName: 'ShareError',
+        description: 'Failed to share: $e',
+        stackTrace: stack.toString(),
+      );
 
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: const Text('Share functionality coming soon!'),
-    //     action: SnackBarAction(
-    //       label: 'Copy',
-    //       onPressed: () {
-    //         // Copy to clipboard as fallback
-    //         Clipboard.setData(ClipboardData(text: text));
-    //         ScaffoldMessenger.of(context).showSnackBar(
-    //           const SnackBar(content: Text("Copied share text to clipboard.")),
-    //         );
-    //       },
-    //     ),
-    //   ),
-    // );
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to share')));
+      }
+    }
   }
 
   void _showComingSoonSnackBar(BuildContext context, String message) {

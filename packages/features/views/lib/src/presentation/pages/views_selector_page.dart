@@ -1,14 +1,32 @@
 import 'package:core/core.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:localizations/l10n/app_localizations.dart';
 
+import '../../di/views_injection.dart';
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
 
-class ViewsSelectorPage extends StatelessWidget {
+class ViewsSelectorPage extends StatefulWidget {
   const ViewsSelectorPage({super.key});
+
+  @override
+  State<ViewsSelectorPage> createState() => _ViewsSelectorPageState();
+}
+
+class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  @override
+  void initState() {
+    super.initState();
+    // Log screen view when page loads
+    _analyticsService.logScreenView(
+      screenName: 'view_selector',
+      screenClass: 'ViewsSelectorPage',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

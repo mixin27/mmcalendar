@@ -1,7 +1,9 @@
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
+import '../../di/converter_injection.dart';
 import '../../domain/entities/date_calculation_result.dart';
 import '../bloc/converter_bloc.dart';
 import '../bloc/converter_event.dart';
@@ -16,6 +18,7 @@ class DateCalculatorCard extends StatefulWidget {
 
 class _DateCalculatorCardState extends State<DateCalculatorCard>
     with SingleTickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 30));
 
@@ -23,6 +26,10 @@ class _DateCalculatorCardState extends State<DateCalculatorCard>
   late Animation<double> _fadeAnimation;
 
   void _calculate() {
+    _analyticsService.logButtonClick(
+      buttonName: 'calculate',
+      buttonLocation: 'date_calculator_card',
+    );
     context.read<ConverterBloc>().add(
       CalculateDateDifferenceEvent(_startDate, _endDate),
     );
@@ -49,6 +56,11 @@ class _DateCalculatorCardState extends State<DateCalculatorCard>
   @override
   void initState() {
     super.initState();
+    _analyticsService.logScreenView(
+      screenName: 'date_calculator',
+      screenClass: 'DateCalculatorCard',
+    );
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,

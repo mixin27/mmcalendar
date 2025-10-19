@@ -1,4 +1,5 @@
 import 'package:events/events.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:settings/settings.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../di/calendar_injection.dart';
 import '../bloc/calendar_bloc.dart';
 import '../bloc/calendar_event.dart';
 import '../bloc/calendar_state.dart';
@@ -26,6 +28,8 @@ class CalendarHomePage extends StatefulWidget {
 
 class _CalendarHomePageState extends State<CalendarHomePage>
     with TickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+
   late AnimationController _fadeController;
   // late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -34,6 +38,12 @@ class _CalendarHomePageState extends State<CalendarHomePage>
   @override
   void initState() {
     super.initState();
+    // Log screen view when page loads
+    _analyticsService.logScreenView(
+      screenName: 'home',
+      screenClass: 'CalendarHomePage',
+    );
+
     _initializeAnimations();
   }
 
@@ -105,6 +115,10 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                 child: BlocConsumer<CalendarBloc, CalendarState>(
                   listener: (context, state) {
                     if (state is CalendarError) {
+                      _analyticsService.logException(
+                        exceptionName: 'CalendarLoadError',
+                        description: state.message,
+                      );
                       _showErrorSnackBar(context, state.message);
                     }
                     // Replay animation on month change
@@ -186,15 +200,45 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             key: ValueKey(state.calendarMonth.month),
             currentMonth: state.calendarMonth.month,
             onPreviousMonth: () {
+              _analyticsService.logWidgetInteraction(
+                widgetName: 'calendar_header',
+                actionType: 'previous_month',
+                metadata: {
+                  'from_month': state.calendarMonth.month.toString(),
+                  'to_month': (DateTime(
+                    state.calendarMonth.month.year,
+                    state.calendarMonth.month.month - 1,
+                  )).toString(),
+                },
+              );
               context.read<CalendarBloc>().add(const NavigateToPreviousMonth());
             },
             onNextMonth: () {
+              _analyticsService.logWidgetInteraction(
+                widgetName: 'calendar_header',
+                actionType: 'next_month',
+                metadata: {
+                  'from_month': state.calendarMonth.month.toString(),
+                  'to_month': (DateTime(
+                    state.calendarMonth.month.year,
+                    state.calendarMonth.month.month + 1,
+                  )).toString(),
+                },
+              );
               context.read<CalendarBloc>().add(const NavigateToNextMonth());
             },
             onTodayTap: () {
+              _analyticsService.logButtonClick(
+                buttonName: 'today',
+                buttonLocation: 'calendar_header',
+              );
               context.read<CalendarBloc>().add(const NavigateToToday());
             },
             onMonthYearTap: () {
+              _analyticsService.logButtonClick(
+                buttonName: 'month_year_picker',
+                buttonLocation: 'calendar_header',
+              );
               _showMonthYearPicker(context, state.calendarMonth.month);
             },
           ),
@@ -229,6 +273,12 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             showMyanmarDates: showMyanmarDates,
             eventsByDate: state.eventsByDate,
             onDateTap: (date) {
+              _analyticsService.logDateSelection(
+                selectedDate: date.toString(),
+                calendarType: 'myanmar',
+                dateFormat: '${date.year}/${date.month}/${date.day}',
+              );
+
               context.read<CalendarBloc>().add(SelectDateEvent(date));
               final dateKey = DateTime(date.year, date.month, date.day);
               _navigateToDayDetails(
@@ -374,6 +424,16 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     DateTime date,
     List<Event> events,
   ) {
+    _analyticsService.logButtonClick(
+      buttonName: 'view_day_details',
+      buttonLocation: 'calendar_grid',
+      additionalData: {
+        'date': date.toString(),
+        'has_events': events.isNotEmpty ? "true" : "false",
+        'event_count': events.length.toString(),
+      },
+    );
+
     // Add subtle haptic feedback
     HapticFeedback.lightImpact();
 
@@ -392,7 +452,14 @@ class _CalendarHomePageState extends State<CalendarHomePage>
       ),
       builder: (dialogContext) => _MonthYearPickerBottomSheet(
         currentMonth: currentMonth,
+        analyticsService: _analyticsService,
         onMonthSelected: (month) {
+          _analyticsService.logSettingsChange(
+            settingName: 'calendar_month',
+            oldValue: currentMonth.month,
+            newValue: month.month,
+          );
+
           context.read<CalendarBloc>().add(LoadCalendarMonth(month));
           Navigator.of(dialogContext).pop();
         },
@@ -425,10 +492,12 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
 class _MonthYearPickerBottomSheet extends StatefulWidget {
   final DateTime currentMonth;
+  final AnalyticsService analyticsService;
   final Function(DateTime) onMonthSelected;
 
   const _MonthYearPickerBottomSheet({
     required this.currentMonth,
+    required this.analyticsService,
     required this.onMonthSelected,
   });
 
@@ -447,6 +516,11 @@ class _MonthYearPickerBottomSheetState
     super.initState();
     selectedYear = widget.currentMonth.year;
     selectedMonth = widget.currentMonth.month;
+
+    widget.analyticsService.logWidgetInteraction(
+      widgetName: 'month_year_picker',
+      actionType: 'opened',
+    );
   }
 
   @override
@@ -494,7 +568,17 @@ class _MonthYearPickerBottomSheetState
               children: [
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
-                  onPressed: () => setState(() => selectedYear--),
+                  onPressed: () {
+                    widget.analyticsService.logWidgetInteraction(
+                      widgetName: 'year_selector',
+                      actionType: 'previous_year',
+                      metadata: {
+                        'from_year': selectedYear.toString(),
+                        'to_year': (selectedYear - 1).toString(),
+                      },
+                    );
+                    setState(() => selectedYear--);
+                  },
                 ),
                 const SizedBox(width: 16),
                 Text(
@@ -506,7 +590,17 @@ class _MonthYearPickerBottomSheetState
                 const SizedBox(width: 16),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
-                  onPressed: () => setState(() => selectedYear++),
+                  onPressed: () {
+                    widget.analyticsService.logWidgetInteraction(
+                      widgetName: 'year_selector',
+                      actionType: 'next_year',
+                      metadata: {
+                        'from_year': selectedYear.toString(),
+                        'to_year': (selectedYear + 1).toString(),
+                      },
+                    );
+                    setState(() => selectedYear++);
+                  },
                 ),
               ],
             ),
@@ -530,8 +624,17 @@ class _MonthYearPickerBottomSheetState
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () =>
-                      widget.onMonthSelected(DateTime(selectedYear, month, 1)),
+                  onTap: () {
+                    widget.analyticsService.logWidgetInteraction(
+                      widgetName: 'month_picker',
+                      actionType: 'month_selected',
+                      metadata: {
+                        'selected_month': month.toString(),
+                        'selected_year': selectedYear.toString(),
+                      },
+                    );
+                    widget.onMonthSelected(DateTime(selectedYear, month, 1));
+                  },
                   borderRadius: BorderRadius.circular(12),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),

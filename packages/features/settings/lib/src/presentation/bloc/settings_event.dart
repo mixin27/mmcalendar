@@ -81,3 +81,35 @@ final class UpdateCustomColors extends SettingsEvent {
   @override
   List<Object?> get props => [colorScheme];
 }
+
+final class UpdateAnalyticsConsent extends SettingsEvent {
+  final bool enableAnalytics;
+
+  const UpdateAnalyticsConsent(this.enableAnalytics);
+
+  @override
+  List<Object?> get props => [enableAnalytics];
+}
+
+final class UpdateCrashlyticsConsent extends SettingsEvent {
+  final bool enableCrashlytics;
+
+  const UpdateCrashlyticsConsent(this.enableCrashlytics);
+
+  @override
+  List<Object?> get props => [enableCrashlytics];
+}
+
+final class MarkConsentDialogShown extends SettingsEvent {
+  const MarkConsentDialogShown();
+
+  @override
+  List<Object?> get props => [];
+}
+
+final class ShowConsentDialogIfNeeded extends SettingsEvent {
+  const ShowConsentDialogIfNeeded();
+
+  @override
+  List<Object?> get props => [];
+}

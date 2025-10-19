@@ -1,4 +1,5 @@
 import 'package:core/core.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,8 +14,24 @@ import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 import '../bloc/settings_state.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+
+  @override
+  void initState() {
+    super.initState();
+    _analyticsService.logScreenView(
+      screenName: 'settings',
+      screenClass: 'SettingsPage',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -391,6 +408,57 @@ class _SettingsContent extends StatelessWidget {
                         }
                       }
                     },
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Privacy & data section
+              _SettingsSection(
+                title: 'Privacy & Data',
+                icon: Icons.privacy_tip_outlined,
+                iconColor: Colors.blue,
+                children: [
+                  _AnimatedSwitchTile(
+                    title: 'Analytics',
+                    subtitle: 'Help improve the app by sharing usage analytics',
+                    icon: Icons.analytics_outlined,
+                    iconColor: Colors.blue,
+                    value: settings.enableAnalytics,
+                    onChanged: (value) {
+                      context.read<SettingsBloc>().add(
+                        UpdateAnalyticsConsent(value),
+                      );
+                    },
+                  ),
+                  _AnimatedSwitchTile(
+                    title: 'Crash Reports',
+                    subtitle: 'Send crash reports to help fix issues',
+                    icon: Icons.bug_report_outlined,
+                    iconColor: Colors.orange,
+                    value: settings.enableCrashlytics,
+                    onChanged: (value) {
+                      context.read<SettingsBloc>().add(
+                        UpdateCrashlyticsConsent(value),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'This data is used only for app improvement and is never shared with third parties.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -18,6 +18,8 @@ dependencies:
     path: ../../data
   localizations:
     path: ../../localizations
+  firebase_analytics_app:
+    path: ../firebase_analytics_app
 
   home_widgets:
     path: ../home_widgets

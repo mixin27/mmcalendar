@@ -1,9 +1,11 @@
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:localizations/localizations.dart';
 
+import '../../di/converter_injection.dart';
 import '../../domain/entities/conversion_result.dart';
 import '../bloc/converter_bloc.dart';
 import '../bloc/converter_event.dart';
@@ -18,6 +20,8 @@ class DateConverterCard extends StatefulWidget {
 
 class _DateConverterCardState extends State<DateConverterCard>
     with SingleTickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+
   // Conversion direction: true = Western to Myanmar, false = Myanmar to Western
   bool _isWesternToMyanmar = true;
 
@@ -35,6 +39,11 @@ class _DateConverterCardState extends State<DateConverterCard>
   @override
   void initState() {
     super.initState();
+    _analyticsService.logScreenView(
+      screenName: 'date_converter',
+      screenClass: 'DateConverterCard',
+    );
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -56,6 +65,11 @@ class _DateConverterCardState extends State<DateConverterCard>
   }
 
   void _convert() {
+    _analyticsService.logButtonClick(
+      buttonName: 'convert',
+      buttonLocation: 'date_converter_card',
+    );
+
     if (_isWesternToMyanmar) {
       context.read<ConverterBloc>().add(
         ConvertWesternToMyanmarEvent(_selectedWesternDate),

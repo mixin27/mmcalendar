@@ -41,7 +41,34 @@ class MyanmarCalendarApp extends StatelessWidget {
   }
 }
 
-class _AppContent extends StatelessWidget {
+class _AppContent extends StatefulWidget {
+  @override
+  State<_AppContent> createState() => _AppContentState();
+}
+
+class _AppContentState extends State<_AppContent> {
+  @override
+  void initState() {
+    super.initState();
+    // Check if we need to show consent dialog after first frame
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _checkAndShowConsentDialog();
+    // });
+  }
+
+  // void _checkAndShowConsentDialog() {
+  //   final settingsBloc = context.read<SettingsBloc>();
+
+  //   if (settingsBloc.state is SettingsLoaded) {
+  //     final state = settingsBloc.state as SettingsLoaded;
+
+  //     // Only show if user hasn't seen it before
+  //     if (!state.settings.hasShownConsentDialog) {
+  //       showConsentDialog(context, settingsBloc);
+  //     }
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsBloc, SettingsState>(

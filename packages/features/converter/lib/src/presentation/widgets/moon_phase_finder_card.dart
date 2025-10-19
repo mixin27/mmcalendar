@@ -1,9 +1,11 @@
 import 'package:core/core.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:localizations/localizations.dart';
 
+import '../../di/converter_injection.dart';
 import '../../domain/entities/moon_phase_result.dart';
 import '../bloc/converter_bloc.dart';
 import '../bloc/converter_event.dart';
@@ -18,10 +20,15 @@ class MoonPhaseFinderCard extends StatefulWidget {
 
 class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
     with SingleTickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
   DateTime _startDate = DateTime.now();
   int _selectedMoonPhase = 1; // Default to Full Moon
 
   void _findNext() {
+    _analyticsService.logButtonClick(
+      buttonName: 'find_next_occurrence',
+      buttonLocation: 'moon_phase_finder_card',
+    );
     context.read<ConverterBloc>().add(
       FindNextMoonPhaseEvent(_startDate, _selectedMoonPhase),
     );
@@ -33,6 +40,11 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
   @override
   void initState() {
     super.initState();
+    _analyticsService.logScreenView(
+      screenName: 'moon_phase_finder',
+      screenClass: 'MoonPhaseFinderCard',
+    );
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,

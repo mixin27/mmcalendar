@@ -1,4 +1,5 @@
 import 'package:core/core.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
     hide MoonPhaseIndicator, CompactMoonPhaseIndicator;
 import 'package:go_router/go_router.dart';
 
+import '../../di/views_injection.dart';
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
 import '../bloc/views_state.dart';
@@ -19,12 +21,19 @@ class WeekViewPage extends StatefulWidget {
 
 class _WeekViewPageState extends State<WeekViewPage>
     with SingleTickerProviderStateMixin {
+  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    // Log screen view when page loads
+    _analyticsService.logScreenView(
+      screenName: 'week_view',
+      screenClass: 'WeekViewPage',
+    );
+
     _animationController = AnimationController(
       duration: AppConstants.mediumAnimationDuration,
       vsync: this,

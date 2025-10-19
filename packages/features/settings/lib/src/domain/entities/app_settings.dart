@@ -14,6 +14,9 @@ class AppSettingsEntity extends Equatable {
   final bool showWesternDates;
   final bool showMyanmarDates;
   final int firstDayOfWeek;
+  final bool enableAnalytics;
+  final bool enableCrashlytics;
+  final bool hasShownConsentDialog;
 
   const AppSettingsEntity({
     required this.themeMode,
@@ -27,6 +30,9 @@ class AppSettingsEntity extends Equatable {
     required this.showWesternDates,
     required this.showMyanmarDates,
     required this.firstDayOfWeek,
+    this.enableAnalytics = true,
+    this.enableCrashlytics = true,
+    this.hasShownConsentDialog = false,
   });
 
   AppSettingsEntity copyWith({
@@ -41,6 +47,9 @@ class AppSettingsEntity extends Equatable {
     bool? showWesternDates,
     bool? showMyanmarDates,
     int? firstDayOfWeek,
+    bool? enableAnalytics,
+    bool? enableCrashlytics,
+    bool? hasShownConsentDialog,
   }) {
     return AppSettingsEntity(
       themeMode: themeMode ?? this.themeMode,
@@ -54,6 +63,10 @@ class AppSettingsEntity extends Equatable {
       showWesternDates: showWesternDates ?? this.showWesternDates,
       showMyanmarDates: showMyanmarDates ?? this.showMyanmarDates,
       firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
+      enableAnalytics: enableAnalytics ?? this.enableAnalytics,
+      enableCrashlytics: enableCrashlytics ?? this.enableCrashlytics,
+      hasShownConsentDialog:
+          hasShownConsentDialog ?? this.hasShownConsentDialog,
     );
   }
 
@@ -71,5 +84,8 @@ class AppSettingsEntity extends Equatable {
     showWesternDates,
     showMyanmarDates,
     firstDayOfWeek,
+    enableAnalytics,
+    enableCrashlytics,
+    hasShownConsentDialog,
   ];
 }
