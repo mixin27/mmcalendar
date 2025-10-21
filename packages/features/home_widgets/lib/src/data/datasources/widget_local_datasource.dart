@@ -142,7 +142,7 @@ class WidgetLocalDataSource {
       );
 
       // Format dates
-      final myanmarDate = myanmarDateTime.formatMyanmar('&y &M &P &ff &dd');
+      final myanmarDate = myanmarDateTime.formatMyanmar('&y &M &P &f');
       final westernDate = myanmarDateTime.formatWestern('%d %M %yyyy');
 
       debugPrint('📅 Myanmar Date: $myanmarDate');
@@ -225,7 +225,7 @@ class WidgetLocalDataSource {
       );
 
       // Format dates with correct language
-      final myanmarDate = myanmarDateTime.formatMyanmar('&y &M &P &ff');
+      final myanmarDate = myanmarDateTime.formatMyanmar('&y &M &P &f');
       final westernDate = myanmarDateTime.formatWestern('%d %M %yyyy');
 
       // Get moon phase
