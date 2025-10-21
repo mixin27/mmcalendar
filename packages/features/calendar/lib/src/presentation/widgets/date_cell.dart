@@ -10,6 +10,8 @@ class DateCell extends StatefulWidget {
   final bool isInCurrentMonth;
   final VoidCallback onTap;
   final bool showHolidays;
+  final bool showAnniversaryDays;
+  final bool showSabbaths;
   final bool showAstrology;
   final bool showWesternDates;
   final bool showMyanmarDates;
@@ -24,6 +26,8 @@ class DateCell extends StatefulWidget {
     required this.isInCurrentMonth,
     required this.onTap,
     this.showHolidays = true,
+    this.showAnniversaryDays = true,
+    this.showSabbaths = true,
     this.showAstrology = true,
     this.showWesternDates = true,
     this.showMyanmarDates = true,
@@ -196,57 +200,69 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
                 ),
               ),
 
-            if (widget.isInCurrentMonth && widget.showHolidays) ...[
-              // Holiday
-              if (widget.dateInfo.hasHolidays)
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: widget.isSelected || widget.isToday
-                          ? textColor.withValues(alpha: 0.8)
-                          : colorScheme.error,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-
-              // Astro indicator
-              if (widget.showAstrology && widget.dateInfo.hasAstrologicalDays)
-                Positioned(
-                  top: 4,
-                  left: 4,
-                  child: Center(
-                    child: Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurple.withValues(alpha: 0.8),
-                        shape: BoxShape.circle,
+            if (widget.isInCurrentMonth) ...[
+              Positioned(
+                top: 3,
+                left: 3,
+                child: Wrap(
+                  spacing: 2,
+                  children: [
+                    // Holiday
+                    if (widget.showHolidays && widget.dateInfo.hasHolidays)
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: widget.isSelected || widget.isToday
+                              ? textColor.withValues(alpha: 0.8)
+                              : Colors.red.shade700,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                  ),
-                ),
 
-              // Sabbath indicator
-              if (widget.dateInfo.isSabbath && widget.showAstrology)
-                Positioned(
-                  bottom: 4,
-                  left: 4,
-                  child: Center(
-                    child: Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.8),
-                        shape: BoxShape.circle,
+                    // Anniversary days
+                    if (widget.showAnniversaryDays &&
+                        widget.dateInfo.hasAnniversaryDays)
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: widget.isSelected || widget.isToday
+                              ? textColor.withValues(alpha: 0.8)
+                              : Colors.teal.shade700,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                  ),
+
+                    // Astro indicator
+                    if (widget.showAstrology &&
+                        widget.dateInfo.hasAstrologicalDays)
+                      Center(
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: Colors.deepPurple.shade700,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+
+                    // Sabbath indicator
+                    if (widget.showSabbaths && widget.dateInfo.isSabbath)
+                      Center(
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade700,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
+              ),
             ],
           ],
         ),
@@ -265,9 +281,12 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       return Column(
         children: [
           Text(
-            MyanmarCalendar.formatMyanmar(
-              widget.dateInfo.myanmar,
-              pattern: '&f',
+            // MyanmarCalendar.formatMyanmar(
+            //   widget.dateInfo.myanmar,
+            //   pattern: '&f',
+            // ),
+            FormatService().translateNumbers(
+              widget.dateInfo.fortnightDay.toString(),
             ),
             style: context.textTheme.titleMedium?.copyWith(
               color: textColor.withValues(alpha: opacity),
@@ -319,9 +338,12 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
         if (!(widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon)) ...[
           const SizedBox(width: 2),
           Text(
-            MyanmarCalendar.formatMyanmar(
-              widget.dateInfo.myanmar,
-              pattern: '&f',
+            // MyanmarCalendar.formatMyanmar(
+            //   widget.dateInfo.myanmar,
+            //   pattern: '&f',
+            // ),
+            FormatService().translateNumbers(
+              widget.dateInfo.fortnightDay.toString(),
             ),
             style: !showWestern
                 ? context.textTheme.titleMedium?.copyWith(

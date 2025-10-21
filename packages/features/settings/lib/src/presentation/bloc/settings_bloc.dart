@@ -400,6 +400,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     switch (key) {
       case StorageKeys.showHolidays:
         return settings.copyWith(showHolidays: value);
+      case StorageKeys.showAnniversaryDays:
+        return settings.copyWith(showAnniversaryDays: value);
+      case StorageKeys.showSabbaths:
+        return settings.copyWith(showSabbaths: value);
       case StorageKeys.showAstrology:
         return settings.copyWith(showAstrology: value);
       case StorageKeys.showWesternDates:

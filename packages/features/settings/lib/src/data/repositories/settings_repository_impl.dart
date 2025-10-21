@@ -56,6 +56,12 @@ class SettingsRepositoryImpl extends BaseRepository
       final showHolidays = _parseBool(
         settings[StorageKeys.showHolidays] ?? 'true',
       );
+      final showAnniversaryDays = _parseBool(
+        settings[StorageKeys.showAnniversaryDays] ?? 'true',
+      );
+      final showSabbaths = _parseBool(
+        settings[StorageKeys.showSabbaths] ?? 'true',
+      );
       final showAstrology = _parseBool(
         settings[StorageKeys.showAstrology] ?? 'true',
       );
@@ -106,6 +112,8 @@ class SettingsRepositoryImpl extends BaseRepository
           calendarLanguage: calendarLanguage,
           calendarConfig: calendarConfig,
           showHolidays: showHolidays,
+          showAnniversaryDays: showAnniversaryDays,
+          showSabbaths: showSabbaths,
           showAstrology: showAstrology,
           showWesternDates: showWesternDates,
           showMyanmarDates: showMyanmarDates,

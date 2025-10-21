@@ -19,6 +19,8 @@ class StorageKeys {
   static const String firstDayOfWeek = 'first_day_of_week';
   static const String showWeekNumbers = 'show_week_numbers';
   static const String showHolidays = 'show_holidays';
+  static const String showAnniversaryDays = 'show_anniversary_days';
+  static const String showSabbaths = 'show_sabbaths';
   static const String showAstrology = 'show_astrology';
   static const String showMyanmarDates = 'show_myanmar_dates';
   static const String showWesternDates = 'show_western_dates';

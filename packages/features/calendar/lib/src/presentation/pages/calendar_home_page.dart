@@ -89,6 +89,12 @@ class _CalendarHomePageState extends State<CalendarHomePage>
           final showHolidays = settingsState is SettingsLoaded
               ? settingsState.settings.showHolidays
               : true;
+          final showAnniversaryDays = settingsState is SettingsLoaded
+              ? settingsState.settings.showAnniversaryDays
+              : true;
+          final showSabbaths = settingsState is SettingsLoaded
+              ? settingsState.settings.showSabbaths
+              : true;
           final showAstrology = settingsState is SettingsLoaded
               ? settingsState.settings.showAstrology
               : false;
@@ -149,6 +155,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                         child: _buildCalendarContent(
                           state,
                           showHolidays: showHolidays,
+                          showAnniversaryDays: showAnniversaryDays,
+                          showSabbaths: showSabbaths,
                           showAstrology: showAstrology,
                           showWesternDates: showWesternDates,
                           showMyanmarDates: showMyanmarDates,
@@ -174,6 +182,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
   Widget _buildCalendarContent(
     CalendarLoaded state, {
     bool showHolidays = true,
+    bool showAnniversaryDays = true,
+    bool showSabbaths = true,
     bool showAstrology = true,
     bool showWesternDates = true,
     bool showMyanmarDates = true,
@@ -268,6 +278,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             selectedDate: state.selectedDate?.date,
             today: state.today,
             showHolidays: showHolidays,
+            showAnniversaryDays: showAnniversaryDays,
+            showSabbaths: showSabbaths,
             showAstrology: showAstrology,
             showWesternDates: showWesternDates,
             showMyanmarDates: showMyanmarDates,
