@@ -24,7 +24,7 @@ dependencies:
     path: ../firebase_analytics_app
 
   # Myanmar Calendar Package
-  flutter_mmcalendar: ^3.2.0
+  flutter_mmcalendar: ^3.2.1
 
   # State Management
   bloc: ^9.0.1
