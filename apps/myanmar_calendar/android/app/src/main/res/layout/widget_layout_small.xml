@@ -32,6 +32,31 @@
         android:maxLines="2"
         android:ellipsize="end" />
 
+
+
+    <TextView
+        android:id="@+id/last_updated_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/moon_phase_image"
+        android:layout_marginTop="27dp"
+        android:text="Last updated"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="8sp" />
+
+
+    <TextView
+        android:id="@+id/last_updated"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/last_updated_label"
+        android:layout_marginTop="2dp"
+        android:text="Last updated"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="8sp" />
+
     <!-- Hidden views -->
     <TextView android:id="@+id/western_date" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
     <TextView android:id="@+id/moon_phase" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />

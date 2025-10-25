@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:home_widgets/src/domain/entities/widget_data.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -21,6 +22,7 @@ class WidgetLocalDataSource {
   static const String _moonPhaseKey = 'moon_phase';
   static const String _moonPhaseEmojiKey = 'moon_phase_emoji';
   static const String _holidaysKey = 'holidays';
+  static const String _astrologicalDaysKey = 'astrological_days';
   static const String _sabbathInfoKey = 'sabbath_info';
   static const String _yatyazaInfoKey = 'yatyaza_info';
   static const String _pyathadaInfoKey = 'pyathada_info';
@@ -83,10 +85,15 @@ class WidgetLocalDataSource {
           _pyathadaInfoKey,
           data.pyathadaInfo ?? '',
         );
+        await HomeWidget.saveWidgetData<String>(
+          _astrologicalDaysKey,
+          data.astrologicalDays.join(', '),
+        );
       } else {
         await HomeWidget.saveWidgetData<String>(_sabbathInfoKey, '');
         await HomeWidget.saveWidgetData<String>(_yatyazaInfoKey, '');
         await HomeWidget.saveWidgetData<String>(_pyathadaInfoKey, '');
+        await HomeWidget.saveWidgetData<String>(_astrologicalDaysKey, '');
       }
 
       // Save widget configuration preferences
@@ -100,10 +107,10 @@ class WidgetLocalDataSource {
         config.language,
       );
 
-      await HomeWidget.saveWidgetData<String>(
-        _lastUpdatedKey,
-        data.lastUpdated.toIso8601String(),
-      );
+      final dateStr = DateFormat(
+        "yyyy-MM-dd hh:mm aaa",
+      ).format(data.lastUpdated);
+      await HomeWidget.saveWidgetData<String>(_lastUpdatedKey, dateStr);
 
       if (moonImagePath != null && moonImagePath.isNotEmpty) {
         await HomeWidget.saveWidgetData<String>(
@@ -156,8 +163,11 @@ class WidgetLocalDataSource {
       final moonPhaseEmoji = _getMoonPhaseEmoji(myanmarDateTime.moonPhase);
 
       // Get holidays
-      final holidays = myanmarDateTime.allHolidays;
-      debugPrint('🎉 Holidays: ${holidays.join(", ")}');
+      final allHolidays = [
+        ...myanmarDateTime.allHolidays,
+        ...myanmarDateTime.allAnniversaryDays,
+      ];
+      final holidays = allHolidays;
 
       // Get astrology info
       String? sabbathInfo;
@@ -184,6 +194,7 @@ class WidgetLocalDataSource {
         moonPhaseEmoji: moonPhaseEmoji,
         fortnightDay: myanmarDateTime.fortnightDay,
         holidays: holidays,
+        astrologicalDays: myanmarDateTime.astrologicalDays,
         sabbathInfo: sabbathInfo,
         yatyazaInfo: yatyazaInfo,
         pyathadaInfo: pyathadaInfo,
@@ -236,8 +247,16 @@ class WidgetLocalDataSource {
       final moonPhaseEmoji = _getMoonPhaseEmoji(myanmarDateTime.moonPhase);
 
       // Get holidays
-      final holidays = myanmarDateTime.allHolidays
+      final allHolidays = [
+        ...myanmarDateTime.allHolidays,
+        ...myanmarDateTime.allAnniversaryDays,
+      ];
+      final holidays = allHolidays
           .map((h) => TranslationService.translateTo(h, targetLanguage))
+          .toList();
+
+      final astrologicalDays = myanmarDateTime.astrologicalDays
+          .map((a) => TranslationService.translateTo(a, targetLanguage))
           .toList();
 
       // Get astrology info
@@ -279,6 +298,7 @@ class WidgetLocalDataSource {
         moonPhaseEmoji: moonPhaseEmoji,
         fortnightDay: myanmarDateTime.fortnightDay,
         holidays: holidays,
+        astrologicalDays: astrologicalDays,
         sabbathInfo: sabbathInfo,
         yatyazaInfo: yatyazaInfo,
         pyathadaInfo: pyathadaInfo,
@@ -423,7 +443,7 @@ class WidgetLocalDataSource {
           requiresDeviceIdle: false,
           requiresStorageNotLow: false,
         ),
-        existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
+        existingWorkPolicy: ExistingWorkPolicy.replace,
       );
 
       debugPrint('✅ Widget updates scheduled successfully');
@@ -473,36 +493,6 @@ class WidgetLocalDataSource {
   /// Mark updates as scheduled
   Future<void> markUpdatesScheduled(bool scheduled) async {
     await sharedPreferences.setBool('widget_updates_scheduled', scheduled);
-  }
-
-  Future<void> updateWidgetNow({
-    String? languageCode,
-    WidgetConfig? config,
-  }) async {
-    try {
-      debugPrint('🔄 Updating widget now (foreground)...');
-
-      // Get today's date
-      final today = DateTime.now();
-
-      // Generate widget data with language if specified
-      final widgetData = languageCode != null
-          ? await generateWidgetDataWithLanguage(today, languageCode)
-          : await generateWidgetData(today);
-
-      // Update widget with or without custom config
-      if (config != null) {
-        await updateWidgetWithConfig(widgetData, config);
-      } else {
-        await updateHomeWidget(widgetData);
-      }
-
-      debugPrint('✅ Widget updated successfully (foreground)');
-    } catch (e, stackTrace) {
-      debugPrint('❌ Failed to update widget now: $e');
-      debugPrint('Stack trace: $stackTrace');
-      rethrow;
-    }
   }
 
   // Helper methods

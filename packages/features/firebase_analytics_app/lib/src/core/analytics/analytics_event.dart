@@ -270,3 +270,93 @@ class WidgetInteractionEvent extends AnalyticsEvent {
   @override
   List<Object?> get props => [widgetName, actionType, metadata];
 }
+
+/// Background task metrics event
+class BackgroundMetricsEvent extends AnalyticsEvent {
+  final int successCount;
+  final String lastUpdate;
+  final int lastDurationMs;
+  final String healthStatus;
+
+  const BackgroundMetricsEvent({
+    required this.successCount,
+    required this.lastUpdate,
+    required this.lastDurationMs,
+    required this.healthStatus,
+  }) : super(name: 'background_metrics', parameters: const {});
+
+  @override
+  Map<String, Object> get parameters => {
+    'success_count': successCount,
+    'last_update': lastUpdate,
+    'last_duration_ms': lastDurationMs,
+    'health_status': healthStatus,
+  };
+
+  @override
+  List<Object?> get props => [
+    successCount,
+    lastUpdate,
+    lastDurationMs,
+    healthStatus,
+  ];
+}
+
+/// Background error metrics event
+class BackgroundErrorMetricsEvent extends AnalyticsEvent {
+  final int errorCount;
+  final String lastError;
+  final String lastErrorTime;
+
+  const BackgroundErrorMetricsEvent({
+    required this.errorCount,
+    required this.lastError,
+    required this.lastErrorTime,
+  }) : super(name: 'background_errors', parameters: const {});
+
+  @override
+  Map<String, Object> get parameters => {
+    'error_count': errorCount,
+    'last_error': lastError,
+    'last_error_time': lastErrorTime,
+  };
+
+  @override
+  List<Object?> get props => [errorCount, lastError, lastErrorTime];
+}
+
+/// App started event with background health
+class AppStartedEvent extends AnalyticsEvent {
+  final String backgroundHealth;
+  final int backgroundSuccessCount;
+  final int backgroundErrorCount;
+  final String? lastUpdate;
+
+  const AppStartedEvent({
+    required this.backgroundHealth,
+    required this.backgroundSuccessCount,
+    required this.backgroundErrorCount,
+    this.lastUpdate,
+  }) : super(name: 'app_started', parameters: const {});
+
+  @override
+  Map<String, Object> get parameters {
+    final params = <String, Object>{
+      'background_health': backgroundHealth,
+      'background_success_count': backgroundSuccessCount,
+      'background_error_count': backgroundErrorCount,
+    };
+    if (lastUpdate != null) {
+      params['last_background_update'] = lastUpdate!;
+    }
+    return params;
+  }
+
+  @override
+  List<Object?> get props => [
+    backgroundHealth,
+    backgroundSuccessCount,
+    backgroundErrorCount,
+    lastUpdate,
+  ];
+}

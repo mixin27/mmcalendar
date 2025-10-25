@@ -430,6 +430,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   void _applyCalendarConfiguration(CalendarConfig? config) {
     if (config == null) {
       MyanmarCalendar.configure();
+      MyanmarCalendar.clearCache();
+      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
     } else {
       MyanmarCalendar.configure(
         language: Language.fromCode(config.defaultLanguage),
@@ -438,6 +440,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         calendarType: config.calendarType,
         gregorianStart: config.gregorianStart,
       );
+      MyanmarCalendar.clearCache();
+      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
     }
   }
 }

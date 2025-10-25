@@ -111,6 +111,9 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
         calendarType: config.calendarType,
         gregorianStart: config.gregorianStart,
       );
+
+      MyanmarCalendar.clearCache();
+      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
     } catch (e) {
       throw CacheException('Failed to update calendar config: ${e.toString()}');
     }

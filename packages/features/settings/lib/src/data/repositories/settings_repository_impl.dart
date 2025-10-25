@@ -8,6 +8,7 @@ import 'package:drift/drift.dart';
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../../domain/repositories/settings_repository.dart';
@@ -197,6 +198,10 @@ class SettingsRepositoryImpl extends BaseRepository
         StorageKeys.calendarLanguage,
         language.code,
       );
+
+      // Store in SharedPreferences to access from background isolates
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(StorageKeys.calendarLanguage, language.code);
 
       return const Right(null);
     } on CacheException catch (e) {

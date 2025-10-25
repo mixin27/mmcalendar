@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'app.dart';
@@ -39,6 +40,9 @@ void main() async {
 
   // Load saved settings and configure Myanmar Calendar
   await _initializeMyanmarCalendar();
+
+  // SYNC BACKGROUND LOGS TO FIREBASE
+  await _syncBackgroundLogs();
 
   // Set up Bloc observer
   Bloc.observer = AppBlocObserver();
@@ -151,6 +155,9 @@ Future<void> _initializeMyanmarCalendar() async {
       gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
     );
 
+    MyanmarCalendar.clearCache();
+    MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+
     debugPrint('✅ Myanmar Calendar initialized with saved settings');
   } catch (e) {
     // If loading fails, use defaults
@@ -161,10 +168,64 @@ Future<void> _initializeMyanmarCalendar() async {
       calendarType: 0,
       gregorianStart: 2361222,
     );
+    MyanmarCalendar.clearCache();
+    MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
     debugPrint('⚠️ Myanmar Calendar initialized with defaults: $e');
   }
 
   MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+}
+
+// Sync background logs to Firebase
+Future<void> _syncBackgroundLogs() async {
+  try {
+    debugPrint('📊 Syncing background logs to Firebase...');
+
+    final prefs = await SharedPreferences.getInstance();
+    final analyticsService = AnalyticsService(
+      firebaseAnalytics: FirebaseService.analytics,
+    );
+    final crashlyticsService = CrashlyticsService(
+      crashlytics: FirebaseService.crashlytics,
+    );
+
+    final logSyncService = BackgroundLogSyncService(
+      analyticsService: analyticsService,
+      crashlyticsService: crashlyticsService,
+      prefs: prefs,
+    );
+
+    // Sync logs from background tasks
+    await logSyncService.syncLogsToFirebase();
+
+    // Log statistics
+    final stats = logSyncService.getBackgroundStats();
+    debugPrint('📊 Background task statistics:');
+    debugPrint('  Success: ${stats['success_count']}');
+    debugPrint('  Errors: ${stats['error_count']}');
+    debugPrint('  Last update: ${stats['last_update'] ?? 'never'}');
+    debugPrint('  Health: ${logSyncService.getHealthStatusMessage()}');
+
+    // Log health status to analytics
+    await analyticsService.logAppStarted(
+      backgroundHealth: logSyncService.isBackgroundHealthy()
+          ? 'healthy'
+          : 'unhealthy',
+      backgroundSuccessCount: stats['success_count'] as int,
+      backgroundErrorCount: stats['error_count'] as int,
+      lastUpdate: stats['last_update'] as String?,
+    );
+  } catch (e, stackTrace) {
+    debugPrint('⚠️ Failed to sync background logs: $e');
+    final crashlyticsService = CrashlyticsService(
+      crashlytics: FirebaseService.crashlytics,
+    );
+    await crashlyticsService.recordException(
+      exception: e,
+      stackTrace: stackTrace,
+      reason: 'Failed to sync background logs on app start',
+    );
+  }
 }
 
 // Initialize widget updates
@@ -179,14 +240,15 @@ Future<void> _initializeWidgetUpdates() async {
     // Update widget IMMEDIATELY on app start
     await widgetRepository.refreshWidget();
 
+    // Schedule daily background updates at 12:01 AM
+    await widgetRepository.scheduleWidgetUpdates();
+
     // Log widget update to analytics
     await analyticsService.logWidgetInteraction(
       widgetName: 'home_screen_widget',
       actionType: 'updated_on_app_start',
     );
 
-    // Schedule daily background updates at 12:01 AM
-    await widgetRepository.scheduleWidgetUpdates();
     debugPrint('✅ Background updates scheduled');
   } catch (e) {
     debugPrint('⚠️ Failed to initialize widget updates: $e');

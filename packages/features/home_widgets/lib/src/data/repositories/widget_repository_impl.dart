@@ -49,8 +49,11 @@ class WidgetRepositoryImpl implements WidgetRepository {
   @override
   Future<void> refreshWidget() async {
     final config = await getWidgetConfig();
-    // Update widget immediately in foreground
-    return await localDataSource.updateWidgetNow(config: config);
+    final widgetData = await localDataSource.generateWidgetDataWithLanguage(
+      DateTime.now(),
+      config.language,
+    );
+    await localDataSource.updateWidgetWithConfig(widgetData, config);
   }
 
   @override

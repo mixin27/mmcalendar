@@ -208,6 +208,55 @@ class AnalyticsService {
     );
   }
 
+  /// Log background task metrics
+  Future<void> logBackgroundMetrics({
+    required int successCount,
+    required String lastUpdate,
+    required int lastDurationMs,
+    required String healthStatus,
+  }) async {
+    await logEvent(
+      BackgroundMetricsEvent(
+        successCount: successCount,
+        lastUpdate: lastUpdate,
+        lastDurationMs: lastDurationMs,
+        healthStatus: healthStatus,
+      ),
+    );
+  }
+
+  /// Log background error metrics
+  Future<void> logBackgroundErrors({
+    required int errorCount,
+    required String lastError,
+    required String lastErrorTime,
+  }) async {
+    await logEvent(
+      BackgroundErrorMetricsEvent(
+        errorCount: errorCount,
+        lastError: lastError,
+        lastErrorTime: lastErrorTime,
+      ),
+    );
+  }
+
+  /// Log app started with background health
+  Future<void> logAppStarted({
+    required String backgroundHealth,
+    required int backgroundSuccessCount,
+    required int backgroundErrorCount,
+    String? lastUpdate,
+  }) async {
+    await logEvent(
+      AppStartedEvent(
+        backgroundHealth: backgroundHealth,
+        backgroundSuccessCount: backgroundSuccessCount,
+        backgroundErrorCount: backgroundErrorCount,
+        lastUpdate: lastUpdate,
+      ),
+    );
+  }
+
   /// Set user ID
   Future<void> setUserId(String userId) async {
     if (!_config.enableCollection) {
