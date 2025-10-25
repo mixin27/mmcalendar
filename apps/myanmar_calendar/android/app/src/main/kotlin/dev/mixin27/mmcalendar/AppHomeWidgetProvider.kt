@@ -1,7 +1,9 @@
 package dev.mixin27.mmcalendar
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -10,12 +12,14 @@ import android.view.View
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
 import androidx.core.graphics.toColorInt
-import java.io.File
 
 class AppHomeWidgetProvider : HomeWidgetProvider() {
 
     companion object {
         private const val TAG = "AppHomeWidgetProvider"
+
+        // Action for widget clicks
+        private const val ACTION_WIDGET_CLICK = "dev.mixin27.mmcalendar.WIDGET_CLICK"
     }
 
     override fun onUpdate(
@@ -58,6 +62,7 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
             val sabbathInfo = widgetData.getString("sabbath_info", null)
             val yatyazaInfo = widgetData.getString("yatyaza_info", null)
             val pyathadaInfo = widgetData.getString("pyathada_info", null)
+            val astrologicalDays = widgetData.getString("astrological_days", null)
             val lastUpdated = widgetData.getString("last_updated", null)
 
             Log.d(TAG, "Data - Myanmar: $myanmarDate, Western: $westernDate")
@@ -80,9 +85,13 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
                 sabbathInfo,
                 yatyazaInfo,
                 pyathadaInfo,
+                astrologicalDays,
                 lastUpdated,
                 layoutId
             )
+
+            // Set up click handling to open app
+            setupClickHandlers(context, views, appWidgetId)
 
             // Update the widget
             appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -90,6 +99,109 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
 
         } catch (e: Exception) {
             Log.e(TAG, "Error updating widget $appWidgetId", e)
+        }
+    }
+
+    /**
+     * Set up click handlers for the widget
+     * Clicking anywhere on the widget will open the app
+     */
+    private fun setupClickHandlers(
+        context: Context,
+        views: RemoteViews,
+        appWidgetId: Int
+    ) {
+        try {
+            // Create intent to launch the main activity
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+
+            if (launchIntent != null) {
+                // Add flags to ensure proper app launch behavior
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+
+                // Add extra data to track that app was opened from widget
+                launchIntent.putExtra("opened_from_widget", true)
+                launchIntent.putExtra("widget_id", appWidgetId)
+                launchIntent.putExtra("timestamp", System.currentTimeMillis())
+
+                // Create pending intent with proper flags for Android 12+
+                val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                } else {
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                }
+
+                val pendingIntent = PendingIntent.getActivity(
+                    context,
+                    appWidgetId, // Use widget ID as request code to make it unique
+                    launchIntent,
+                    flags
+                )
+
+                // Set click listener on the entire widget root
+                views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+
+                Log.d(TAG, "Click handler set up for widget $appWidgetId")
+            } else {
+                Log.e(TAG, "Could not get launch intent for package: ${context.packageName}")
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error setting up click handlers", e)
+        }
+    }
+
+    /**
+     * Alternative method: Set up specific click handlers for different widget elements
+     * Use this if you want different actions for different parts of the widget
+     */
+    private fun setupDetailedClickHandlers(
+        context: Context,
+        views: RemoteViews,
+        appWidgetId: Int,
+        layoutId: Int
+    ) {
+        try {
+            // Main click - opens app to today's date
+            val mainIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+            if (mainIntent != null) {
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                mainIntent.putExtra("opened_from_widget", true)
+                mainIntent.putExtra("action", "view_today")
+
+                val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                } else {
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                }
+
+                val mainPendingIntent = PendingIntent.getActivity(
+                    context,
+                    appWidgetId,
+                    mainIntent,
+                    flags
+                )
+
+                // Set on root
+                views.setOnClickPendingIntent(R.id.widget_root, mainPendingIntent)
+
+                // Set on Myanmar date if you want it to be clickable specifically
+                views.setOnClickPendingIntent(R.id.myanmar_date, mainPendingIntent)
+            }
+
+            // You can add more specific click handlers here
+            // For example, clicking moon phase could open to astrology page
+            // if (layoutId != R.layout.widget_layout_small) {
+            //     val astrologyIntent = Intent(context, MainActivity::class.java)
+            //     astrologyIntent.putExtra("open_page", "astrology")
+            //     // ... setup pending intent and attach to moon_phase_image
+            // }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error setting up detailed click handlers", e)
         }
     }
 
@@ -109,29 +221,6 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
                 views.setViewVisibility(R.id.moon_phase_image, View.VISIBLE)
                 Log.d(TAG, "✅ Moon phase image loaded from: $imagePath")
             }
-
-//            if (imagePath != null && imagePath.isNotEmpty()) {
-//                val imageFile = File(imagePath)
-//
-//                if (imageFile.exists()) {
-//                    val bitmap = BitmapFactory.decodeFile(imagePath)
-//                    if (bitmap != null) {
-//                        views.setImageViewBitmap(R.id.moon_phase_image, bitmap)
-//                        views.setViewVisibility(R.id.moon_phase_image, View.VISIBLE)
-//                        Log.d(TAG, "✅ Moon phase image loaded from: $imagePath")
-//                        return
-//                    } else {
-//                        Log.w(TAG, "⚠️ Failed to decode bitmap from: $imagePath")
-//                    }
-//                } else {
-//                    Log.w(TAG, "⚠️ Image file doesn't exist: $imagePath")
-//                }
-//            } else {
-//                Log.d(TAG, "ℹ️ No moon phase image path found")
-//            }
-
-            // Fallback: Hide image view if no image available
-//            views.setViewVisibility(R.id.moon_phase_image, View.GONE)
 
         } catch (e: Exception) {
             Log.e(TAG, "❌ Error loading moon phase image", e)
@@ -173,9 +262,18 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
         sabbathInfo: String?,
         yatyazaInfo: String?,
         pyathadaInfo: String?,
+        astrologicalDays: String?,
         lastUpdated: String?,
         layoutId: Int
     ) {
+        if (!lastUpdated.isNullOrEmpty()) {
+            views.setTextViewText(R.id.last_updated, lastUpdated)
+            views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
+            views.setViewVisibility(R.id.last_updated, View.VISIBLE)
+        } else {
+            views.setViewVisibility(R.id.last_updated_label, View.GONE)
+            views.setViewVisibility(R.id.last_updated, View.GONE)
+        }
 
         // Update Myanmar Date (respect config)
         if (config.showMyanmarDate && !myanmarDate.isNullOrEmpty()) {
@@ -205,11 +303,7 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
         // Holidays (not in small layout)
         if (layoutId != R.layout.widget_layout_small) {
             if (config.showHolidays && !holidays.isNullOrEmpty() && holidays != "null") {
-                val holidayText = if (layoutId == R.layout.widget_layout_large) {
-                    "🎉 $holidays"
-                } else {
-                    "🎉 Holiday"
-                }
+                val holidayText = "🎉 $holidays"
                 views.setTextViewText(R.id.holidays, holidayText)
                 views.setViewVisibility(R.id.holidays, View.VISIBLE)
             } else {
@@ -220,7 +314,7 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
         // Astrology Info (only large layout)
         if (layoutId == R.layout.widget_layout_large) {
             if (config.showAstrology) {
-                val astrologyText = buildAstrologyText(sabbathInfo, yatyazaInfo, pyathadaInfo)
+                val astrologyText = buildAstrologyText(sabbathInfo, yatyazaInfo, pyathadaInfo, astrologicalDays)
                 if (astrologyText.isNotEmpty()) {
                     views.setTextViewText(R.id.astrology_info, astrologyText)
                     views.setViewVisibility(R.id.astrology_info, View.VISIBLE)
@@ -244,7 +338,8 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
         val hasAstrology = (
                 !prefs.getString("sabbath_info", "").isNullOrEmpty() ||
                         !prefs.getString("yatyaza_info", "").isNullOrEmpty() ||
-                        !prefs.getString("pyathada_info", "").isNullOrEmpty()
+                        !prefs.getString("pyathada_info", "").isNullOrEmpty() ||
+                        !prefs.getString("astrological_days", "").isNullOrEmpty()
                 )
 
         return WidgetConfig(
@@ -316,8 +411,10 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
             else -> "#E0E0E0".toColorInt()
         }
 
+        views.setTextColor(R.id.last_updated_label, textColor)
+        views.setTextColor(R.id.last_updated, textColor)
         views.setTextColor(R.id.myanmar_date, textColor)
-        views.setTextColor(R.id.moon_day, textColor)
+        views.setTextColor(R.id.moon_day, secondaryTextColor)
 
         if (layoutId != R.layout.widget_layout_small) {
             views.setTextColor(R.id.western_date, secondaryTextColor)
@@ -332,7 +429,8 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
     private fun buildAstrologyText(
         sabbath: String?,
         yatyaza: String?,
-        pyathada: String?
+        pyathada: String?,
+        astrologicalDays: String?
     ): String {
         val items = mutableListOf<String>()
 
@@ -344,6 +442,11 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
         }
         if (!pyathada.isNullOrEmpty() && pyathada != "null" && pyathada != "") {
             items.add(pyathada)
+        }
+
+        if (!astrologicalDays.isNullOrEmpty() && astrologicalDays != "null" && astrologicalDays != "") {
+            val astroDays = astrologicalDays.split(',')
+            items.addAll(astroDays)
         }
 
         return items.joinToString(" • ")

@@ -1,6 +1,7 @@
 library;
 
 export 'src/core/firebase_service.dart';
+export 'src/core/background_log_sync_service.dart';
 export 'src/core/analytics/analytics_service.dart';
 export 'src/core/analytics/analytics_event.dart';
 export 'src/core/analytics/analytics_config.dart';

@@ -12,6 +12,7 @@ class WidgetData extends Equatable {
   final String? sabbathInfo;
   final String? yatyazaInfo;
   final String? pyathadaInfo;
+  final List<String> astrologicalDays;
   final DateTime lastUpdated;
 
   const WidgetData({
@@ -22,6 +23,7 @@ class WidgetData extends Equatable {
     required this.moonPhaseEmoji,
     required this.fortnightDay,
     required this.holidays,
+    required this.astrologicalDays,
     this.sabbathInfo,
     this.yatyazaInfo,
     this.pyathadaInfo,
@@ -37,6 +39,7 @@ class WidgetData extends Equatable {
     moonPhaseEmoji,
     fortnightDay,
     holidays,
+    astrologicalDays,
     sabbathInfo,
     yatyazaInfo,
     pyathadaInfo,
@@ -53,6 +56,7 @@ class WidgetData extends Equatable {
       'moonPhaseEmoji': moonPhaseEmoji,
       'fortnightDay': fortnightDay,
       'holidays': holidays,
+      'astrologicalDays': astrologicalDays,
       'sabbathInfo': sabbathInfo,
       'yatyazaInfo': yatyazaInfo,
       'pyathadaInfo': pyathadaInfo,
@@ -70,6 +74,8 @@ class WidgetData extends Equatable {
       moonPhaseEmoji: json['moonPhaseEmoji'] as String,
       fortnightDay: json['fortnightDay'] as int,
       holidays: (json['holidays'] as List<dynamic>).cast<String>(),
+      astrologicalDays: (json['astrologicalDays'] as List<dynamic>)
+          .cast<String>(),
       sabbathInfo: json['sabbathInfo'] as String?,
       yatyazaInfo: json['yatyazaInfo'] as String?,
       pyathadaInfo: json['pyathadaInfo'] as String?,

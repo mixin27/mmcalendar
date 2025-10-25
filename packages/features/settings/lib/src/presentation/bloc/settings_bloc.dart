@@ -400,6 +400,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     switch (key) {
       case StorageKeys.showHolidays:
         return settings.copyWith(showHolidays: value);
+      case StorageKeys.showAnniversaryDays:
+        return settings.copyWith(showAnniversaryDays: value);
+      case StorageKeys.showSabbaths:
+        return settings.copyWith(showSabbaths: value);
       case StorageKeys.showAstrology:
         return settings.copyWith(showAstrology: value);
       case StorageKeys.showWesternDates:
@@ -426,6 +430,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   void _applyCalendarConfiguration(CalendarConfig? config) {
     if (config == null) {
       MyanmarCalendar.configure();
+      MyanmarCalendar.clearCache();
+      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
     } else {
       MyanmarCalendar.configure(
         language: Language.fromCode(config.defaultLanguage),
@@ -434,6 +440,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         calendarType: config.calendarType,
         gregorianStart: config.gregorianStart,
       );
+      MyanmarCalendar.clearCache();
+      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
     }
   }
 }

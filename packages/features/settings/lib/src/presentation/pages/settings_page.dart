@@ -268,7 +268,7 @@ class _SettingsContent extends StatelessWidget {
                   _AnimatedSwitchTile(
                     title: 'Show Holidays',
                     subtitle: 'Display holiday indicators',
-                    icon: Icons.celebration,
+                    icon: Icons.public_off,
                     iconColor: Colors.red.shade700,
                     value: settings.showHolidays,
                     onChanged: (value) {
@@ -281,9 +281,38 @@ class _SettingsContent extends StatelessWidget {
                     },
                   ),
                   _AnimatedSwitchTile(
+                    title: 'Show Anniversary Days',
+                    subtitle: 'Display anniversary days indicators',
+                    icon: Icons.celebration,
+                    iconColor: Colors.teal.shade700,
+                    value: settings.showAnniversaryDays,
+                    onChanged: (value) {
+                      context.read<SettingsBloc>().add(
+                        ToggleDisplayPreference(
+                          StorageKeys.showAnniversaryDays,
+                          value,
+                        ),
+                      );
+                    },
+                  ),
+                  _AnimatedSwitchTile(
+                    title: 'Show Sabbath',
+                    subtitle: 'Display sabbath indicators',
+                    icon: Icons.temple_buddhist,
+                    iconColor: Colors.amber.shade700,
+                    value: settings.showSabbaths,
+                    onChanged: (value) {
+                      context.read<SettingsBloc>().add(
+                        ToggleDisplayPreference(
+                          StorageKeys.showSabbaths,
+                          value,
+                        ),
+                      );
+                    },
+                  ),
+                  _AnimatedSwitchTile(
                     title: 'Show Astrology',
-                    subtitle:
-                        'Display astrological indicators including Sabbath',
+                    subtitle: 'Display astrological indicators',
                     icon: Icons.star,
                     iconColor: Colors.deepPurple.shade700,
                     value: settings.showAstrology,

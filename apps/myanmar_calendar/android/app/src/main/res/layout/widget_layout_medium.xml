@@ -34,6 +34,29 @@
             android:fontFamily="sans-serif-medium"
             android:layout_marginTop="4dp"
             android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/last_updated_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last updated"
+            android:textColor="#FFFFFF"
+            android:textSize="8sp"
+            android:layout_marginTop="4dp"
+            android:textAlignment="center"
+             />
+
+
+        <TextView
+            android:id="@+id/last_updated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last updated"
+            android:textColor="#FFFFFF"
+            android:textSize="8sp"
+            android:layout_marginTop="2dp"
+            android:textAlignment="center"
+            />
     </LinearLayout>
 
     <!-- Right: Dates (60%) -->

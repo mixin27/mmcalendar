@@ -1,8 +1,10 @@
 import 'package:core/core.dart';
+import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
+import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
 
 /// Splash screen shown during app initialization
@@ -263,4 +265,55 @@ class _SplashPageState extends State<SplashPage>
       ),
     );
   }
+}
+
+class AppWithWidgetHandler extends StatefulWidget {
+  final Widget child;
+
+  const AppWithWidgetHandler({super.key, required this.child});
+
+  @override
+  State<AppWithWidgetHandler> createState() => _AppWithWidgetHandlerState();
+}
+
+class _AppWithWidgetHandlerState extends State<AppWithWidgetHandler>
+    with WidgetsBindingObserver {
+  late WidgetClickHandler _widgetClickHandler;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // Initialize handler
+    _widgetClickHandler = WidgetClickHandler(
+      analyticsService: AnalyticsService(
+        firebaseAnalytics: FirebaseService.analytics,
+      ),
+    );
+
+    // Check on app start
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _widgetClickHandler.checkWidgetLaunch(context);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // Check when app comes to foreground
+    if (state == AppLifecycleState.resumed) {
+      _widgetClickHandler.checkWidgetLaunch(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

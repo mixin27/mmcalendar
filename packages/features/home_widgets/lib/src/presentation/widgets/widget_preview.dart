@@ -178,7 +178,7 @@ class WidgetPreview extends StatelessWidget {
                   Text(
                     data!.westernDate,
                     style: TextStyle(
-                      color: _getSecondaryTextColor(context),
+                      color: const Color(0xFFFFD700),
                       fontSize: 11,
                     ),
                     maxLines: 1,
@@ -311,7 +311,7 @@ class WidgetPreview extends StatelessWidget {
                           data!.myanmarDate,
                           style: TextStyle(
                             color: _getTextColor(context),
-                            fontSize: 15,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             height: 1.4,
                           ),
@@ -324,8 +324,8 @@ class WidgetPreview extends StatelessWidget {
                         Text(
                           data!.westernDate,
                           style: TextStyle(
-                            color: _getSecondaryTextColor(context),
-                            fontSize: 13,
+                            color: const Color(0xFFFFD700),
+                            fontSize: 11,
                           ),
                         ),
 
@@ -356,7 +356,7 @@ class WidgetPreview extends StatelessWidget {
                             '🎉 ${data!.holidays.join(", ")}',
                             style: TextStyle(
                               color: Colors.red[700],
-                              fontSize: 11,
+                              fontSize: 8,
                               fontWeight: FontWeight.w500,
                             ),
                             maxLines: 2,
@@ -373,8 +373,8 @@ class WidgetPreview extends StatelessWidget {
                         Text(
                           _getAstrologyText(),
                           style: TextStyle(
-                            color: _getSecondaryTextColor(context),
-                            fontSize: 10,
+                            color: const Color(0xFFFFD700),
+                            fontSize: 8,
                             height: 1.4,
                           ),
                           maxLines: 3,
@@ -524,15 +524,19 @@ class WidgetPreview extends StatelessWidget {
   bool _hasAstrologyInfo() {
     return data?.sabbathInfo != null ||
         data?.yatyazaInfo != null ||
-        data?.pyathadaInfo != null;
+        data?.pyathadaInfo != null ||
+        data?.astrologicalDays.isNotEmpty == true;
   }
 
   String _getAstrologyText() {
     final items = <String>[];
-    if (data?.sabbathInfo != null) items.add('☸️ ${data!.sabbathInfo}');
-    if (data?.yatyazaInfo != null) items.add('⚠️ ${data!.yatyazaInfo}');
-    if (data?.pyathadaInfo != null) items.add('✨ ${data!.pyathadaInfo}');
-    return items.join('\n');
+    if (data?.sabbathInfo != null) items.add('${data!.sabbathInfo}');
+    if (data?.yatyazaInfo != null) items.add('${data!.yatyazaInfo}');
+    if (data?.pyathadaInfo != null) items.add('${data!.pyathadaInfo}');
+    if (data?.astrologicalDays.isNotEmpty == true) {
+      items.addAll(data!.astrologicalDays);
+    }
+    return items.join(' • ');
   }
 
   int _parseMoonPhase(String moonPhaseEmoji) {

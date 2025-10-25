@@ -10,6 +10,8 @@ class AppSettingsEntity extends Equatable {
   final Language calendarLanguage;
   final CalendarConfig calendarConfig;
   final bool showHolidays;
+  final bool showAnniversaryDays;
+  final bool showSabbaths;
   final bool showAstrology;
   final bool showWesternDates;
   final bool showMyanmarDates;
@@ -26,6 +28,8 @@ class AppSettingsEntity extends Equatable {
     required this.calendarLanguage,
     required this.calendarConfig,
     required this.showHolidays,
+    required this.showAnniversaryDays,
+    required this.showSabbaths,
     required this.showAstrology,
     required this.showWesternDates,
     required this.showMyanmarDates,
@@ -43,6 +47,8 @@ class AppSettingsEntity extends Equatable {
     Language? calendarLanguage,
     CalendarConfig? calendarConfig,
     bool? showHolidays,
+    bool? showAnniversaryDays,
+    bool? showSabbaths,
     bool? showAstrology,
     bool? showWesternDates,
     bool? showMyanmarDates,
@@ -59,6 +65,8 @@ class AppSettingsEntity extends Equatable {
       calendarLanguage: calendarLanguage ?? this.calendarLanguage,
       calendarConfig: calendarConfig ?? this.calendarConfig,
       showHolidays: showHolidays ?? this.showHolidays,
+      showAnniversaryDays: showAnniversaryDays ?? this.showAnniversaryDays,
+      showSabbaths: showSabbaths ?? this.showSabbaths,
       showAstrology: showAstrology ?? this.showAstrology,
       showWesternDates: showWesternDates ?? this.showWesternDates,
       showMyanmarDates: showMyanmarDates ?? this.showMyanmarDates,
@@ -80,6 +88,8 @@ class AppSettingsEntity extends Equatable {
     calendarLanguage,
     calendarConfig,
     showHolidays,
+    showAnniversaryDays,
+    showSabbaths,
     showAstrology,
     showWesternDates,
     showMyanmarDates,
