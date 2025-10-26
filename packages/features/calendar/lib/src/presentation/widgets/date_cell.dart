@@ -143,61 +143,33 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
                       ),
                     ),
 
-                  // Myanmar fortnight day and moon phase
-                  if (widget.isInCurrentMonth && widget.showMyanmarDates) ...[
-                    const SizedBox(height: 2),
-                    // Myanmar date info - simplified
+                  if (widget.isInCurrentMonth && widget.showMyanmarDates)
                     _buildMyanmarDateInfo(
                       textColor,
                       opacity,
                       widget.showWesternDates,
                     ),
-                  ],
                 ],
               ),
             ),
 
-            // Event indicators
-            if (widget.events.isNotEmpty && widget.showEvents)
+            // Myanmar fortnight day and moon phase
+            if (widget.isInCurrentMonth && widget.showMyanmarDates) ...[
               Positioned(
+                right: 2,
                 bottom: 2,
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (
-                      int i = 0;
-                      i < (widget.events.length > 3 ? 3 : widget.events.length);
-                      i++
-                    )
-                      Container(
-                        width: 6,
-                        height: 6,
-                        margin: const EdgeInsets.symmetric(horizontal: 1),
-                        decoration: BoxDecoration(
-                          color:
-                              // widget.events[i].colorCode != null
-                              //     ? Color(widget.events[i].colorCode!)
-                              //     :
-                              Theme.of(context).colorScheme.secondary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    if (widget.events.length > 3)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 2),
-                        child: Text(
-                          '+${widget.events.length - 3}',
-                          style: TextStyle(
-                            fontSize: 8,
-                            color: Theme.of(context).colorScheme.secondary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                child: _buildMoonPhase(textColor, opacity),
+              ),
+            ],
+
+            // Event indicators
+            if (widget.events.isNotEmpty &&
+                widget.showEvents &&
+                widget.isInCurrentMonth)
+              Positioned(
+                left: 2,
+                bottom: 2,
+                child: EventCalendarIndicator(events: widget.events, size: 6),
               ),
 
             if (widget.isInCurrentMonth) ...[
@@ -270,13 +242,33 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildMoonPhase(Color textColor, double opacity) {
+    final moonPhaseIcon = _getMoonPhaseIcon(widget.dateInfo.moonPhase);
+
+    if (widget.dateInfo.isNewMoon || widget.dateInfo.isFullMoon) {
+      return CustomPaint(
+        size: Size(10, 10),
+        painter: MoonPhasePainter(
+          moonPhase: widget.dateInfo.moonPhase,
+          fortnightDay: widget.dateInfo.fortnightDay,
+        ),
+      );
+    } else {
+      return Text(
+        moonPhaseIcon,
+        style: TextStyle(
+          fontSize: 8,
+          color: textColor.withValues(alpha: opacity * 0.7),
+        ),
+      );
+    }
+  }
+
   Widget _buildMyanmarDateInfo(
     Color textColor,
     double opacity,
     bool showWestern,
   ) {
-    final moonPhaseIcon = _getMoonPhaseIcon(widget.dateInfo.moonPhase);
-
     if (!showWestern) {
       return Column(
         children: [
@@ -291,26 +283,9 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
             style: context.textTheme.titleMedium?.copyWith(
               color: textColor.withValues(alpha: opacity),
               fontWeight: widget.isToday ? FontWeight.bold : FontWeight.w600,
-              fontSize: 16,
+              fontSize: 18,
             ),
           ),
-          const SizedBox(width: 2),
-          if (!(widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon))
-            Text(
-              moonPhaseIcon,
-              style: TextStyle(
-                fontSize: 11,
-                color: textColor.withValues(alpha: opacity * 0.7),
-              ),
-            ),
-          if (widget.dateInfo.isNewMoon || widget.dateInfo.isFullMoon)
-            CustomPaint(
-              size: Size(10, 10),
-              painter: MoonPhasePainter(
-                moonPhase: widget.dateInfo.moonPhase,
-                fortnightDay: widget.dateInfo.fortnightDay,
-              ),
-            ),
         ],
       );
     }
@@ -319,47 +294,21 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (!(widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon))
-          Text(
-            moonPhaseIcon,
-            style: TextStyle(
-              fontSize: 11,
-              color: textColor.withValues(alpha: opacity * 0.7),
-            ),
+        const SizedBox(width: 2),
+        Text(
+          // MyanmarCalendar.formatMyanmar(
+          //   widget.dateInfo.myanmar,
+          //   pattern: '&f',
+          // ),
+          FormatService().translateNumbers(
+            widget.dateInfo.fortnightDay.toString(),
           ),
-        if (widget.dateInfo.isNewMoon || widget.dateInfo.isFullMoon)
-          CustomPaint(
-            size: Size(10, 10),
-            painter: MoonPhasePainter(
-              moonPhase: widget.dateInfo.moonPhase,
-              fortnightDay: widget.dateInfo.fortnightDay,
-            ),
+          style: context.textTheme.labelSmall?.copyWith(
+            fontSize: 12,
+            color: textColor.withValues(alpha: opacity * 0.6),
+            fontWeight: FontWeight.w500,
           ),
-        if (!(widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon)) ...[
-          const SizedBox(width: 2),
-          Text(
-            // MyanmarCalendar.formatMyanmar(
-            //   widget.dateInfo.myanmar,
-            //   pattern: '&f',
-            // ),
-            FormatService().translateNumbers(
-              widget.dateInfo.fortnightDay.toString(),
-            ),
-            style: !showWestern
-                ? context.textTheme.titleMedium?.copyWith(
-                    color: textColor.withValues(alpha: opacity),
-                    fontWeight: widget.isToday
-                        ? FontWeight.bold
-                        : FontWeight.w600,
-                    fontSize: 18,
-                  )
-                : context.textTheme.labelSmall?.copyWith(
-                    fontSize: 10,
-                    color: textColor.withValues(alpha: opacity * 0.6),
-                    fontWeight: FontWeight.w500,
-                  ),
-          ),
-        ],
+        ),
       ],
     );
   }

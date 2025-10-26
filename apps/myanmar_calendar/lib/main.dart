@@ -9,6 +9,7 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 import 'app.dart';
 import 'config/bloc_observer.dart';
@@ -27,6 +28,9 @@ void main() async {
 
   // Initialize Firebase with consent settings
   await _initializeFirebaseWithConsent();
+
+  // Initialize timezone database for notifications
+  tz.initializeTimeZones();
 
   // Initialize dependency injection
   await initializeDependencies();

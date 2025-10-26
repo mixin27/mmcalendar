@@ -1,11 +1,16 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../domain/entities/event.dart';
-import '../bloc/events_bloc.dart';
-import '../bloc/events_event.dart';
-import '../bloc/events_state.dart';
+import '../bloc/user_events_bloc.dart';
+import '../bloc/user_events_event.dart';
+import '../bloc/user_events_state.dart';
+import '../widgets/priority_badge.dart';
+import '../widgets/recurrence_badge.dart';
 
 class EventDetailPage extends StatefulWidget {
   final int eventId;
@@ -17,10 +22,18 @@ class EventDetailPage extends StatefulWidget {
 }
 
 class _EventDetailPageState extends State<EventDetailPage> {
+  Event? _currentEvent;
+
   @override
   void initState() {
     super.initState();
-    context.read<EventsBloc>().add(LoadEventById(widget.eventId));
+    // Start watching the specific event
+    _loadEvent();
+  }
+
+  void _loadEvent() {
+    // Trigger load to ensure we have the event
+    context.read<UserEventsBloc>().add(const LoadAllEvents());
   }
 
   @override
@@ -29,34 +42,36 @@ class _EventDetailPageState extends State<EventDetailPage> {
       appBar: AppBar(
         title: const Text('Event Details'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              context.push('/events/${widget.eventId}');
-            },
-            tooltip: 'Edit',
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _confirmDelete,
-            tooltip: 'Delete',
-          ),
+          if (_currentEvent != null) ...[
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                context.push('/events/${widget.eventId}').then((_) {
+                  // Reload after edit
+                  _loadEvent();
+                });
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => _confirmDelete(context),
+            ),
+          ],
         ],
       ),
-      body: BlocConsumer<EventsBloc, EventsState>(
+      body: BlocConsumer<UserEventsBloc, UserEventsState>(
         listener: (context, state) {
-          if (state is EventDeleted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Event deleted successfully')),
-            );
-            context.pop();
-          } else if (state is EventsError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
+          if (state is EventsLoaded) {
+            try {
+              final event = state.events.firstWhere(
+                (e) => e.id == widget.eventId,
+              );
+              setState(() {
+                _currentEvent = event;
+              });
+            } catch (e) {
+              log('Event not found');
+            }
           }
         },
         builder: (context, state) {
@@ -65,321 +80,444 @@ class _EventDetailPageState extends State<EventDetailPage> {
           }
 
           if (state is EventsError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error loading event',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(state.message),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<EventsBloc>().add(
-                        LoadEventById(widget.eventId),
-                      );
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
+            return _buildErrorState(state.failure.message);
           }
 
-          if (state is EventDetailLoaded) {
-            return _buildEventDetail(context, state.event);
+          if (state is EventsLoaded) {
+            // Find the event
+            try {
+              return _buildEventDetail(_currentEvent!);
+            } catch (e) {
+              // Event not found
+              return _buildEventNotFound();
+            }
           }
 
-          return const SizedBox.shrink();
+          return const Center(child: CircularProgressIndicator());
         },
       ),
     );
   }
 
-  Widget _buildEventDetail(BuildContext context, Event event) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final categoryColor = event.colorCode != null
-        ? Color(event.colorCode!)
-        : colorScheme.primary;
-
+  Widget _buildEventDetail(Event event) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          event.title,
-                          style: textTheme.headlineSmall?.copyWith(
-                            decoration: event.isCompleted
-                                ? TextDecoration.lineThrough
-                                : null,
-                          ),
-                        ),
-                      ),
-                      if (event.priority > 0)
-                        Icon(
-                          Icons.flag,
-                          color: _getPriorityColor(event.priority),
-                          size: 28,
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Chip(
-                    avatar: Icon(
-                      _getCategoryIcon(event.category),
-                      color: categoryColor,
-                      size: 18,
-                    ),
-                    label: Text(event.category),
-                    backgroundColor: categoryColor.withValues(alpha: 0.1),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _buildTitleSection(context, event),
+          const SizedBox(height: 24),
+          _buildDateTimeSection(context, event),
           const SizedBox(height: 16),
-
-          // Date & Time Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Date & Time', style: textTheme.titleMedium),
-                  const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.calendar_today),
-                    title: const Text('Date'),
-                    subtitle: Text(
-                      '${event.eventDate.year}-${event.eventDate.month.toString().padLeft(2, '0')}-${event.eventDate.day.toString().padLeft(2, '0')}',
-                    ),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  if (!event.isAllDay && event.eventTime != null)
-                    ListTile(
-                      leading: const Icon(Icons.access_time),
-                      title: const Text('Time'),
-                      subtitle: Text(
-                        TimeOfDay.fromDateTime(
-                          event.eventTime!,
-                        ).format(context),
-                      ),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  if (event.isAllDay)
-                    ListTile(
-                      leading: const Icon(Icons.all_inclusive),
-                      title: const Text('All Day Event'),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                ],
-              ),
-            ),
-          ),
+          _buildCategoryPrioritySection(context, event),
           const SizedBox(height: 16),
-
-          // Description Card
           if (event.description != null && event.description!.isNotEmpty)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Description', style: textTheme.titleMedium),
-                    const Divider(),
-                    Text(event.description!),
-                  ],
-                ),
-              ),
-            ),
-
-          // Location Card
+            _buildDescriptionSection(context, event),
           if (event.location != null && event.location!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Location', style: textTheme.titleMedium),
-                    const Divider(),
-                    ListTile(
-                      leading: const Icon(Icons.location_on),
-                      title: Text(event.location!),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildLocationSection(context, event),
           ],
-
-          // Tags Card
-          if (event.tags != null && event.tags!.isNotEmpty) ...[
+          if (event.isRecurring) ...[
             const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Tags', style: textTheme.titleMedium),
-                    const Divider(),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: event.tags!
-                          .map((tag) => Chip(label: Text(tag)))
-                          .toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildRecurrenceSection(context, event),
           ],
+          if (event.hasNotifications) ...[
+            const SizedBox(height: 16),
+            _buildNotificationsSection(context, event),
+          ],
+          if (event.tags.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildTagsSection(context, event),
+          ],
+          const SizedBox(height: 32),
+          _buildCompleteButton(context, event),
+        ],
+      ),
+    );
+  }
 
-          // Status Card
-          const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Status', style: textTheme.titleMedium),
-                  const Divider(),
-                  ListTile(
-                    leading: Icon(
-                      event.isCompleted
-                          ? Icons.check_circle
-                          : Icons.radio_button_unchecked,
-                      color: event.isCompleted ? Colors.green : null,
-                    ),
-                    title: Text(event.isCompleted ? 'Completed' : 'Pending'),
-                    subtitle: event.completedAt != null
-                        ? Text(
-                            'Completed on ${_formatDateTime(event.completedAt!)}',
-                          )
-                        : null,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Metadata Card
-          const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Metadata', style: textTheme.titleMedium),
-                  const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.create),
-                    title: const Text('Created'),
-                    subtitle: Text(_formatDateTime(event.createdAt)),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.update),
-                    title: const Text('Last Updated'),
-                    subtitle: Text(_formatDateTime(event.updatedAt)),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ),
+  Widget _buildEventNotFound() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.event_busy,
+            size: 64,
+            color: Theme.of(context).colorScheme.error,
           ),
           const SizedBox(height: 16),
-
-          // Action Button
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () {
-                context.read<EventsBloc>().add(
-                  ToggleEventComplete(widget.eventId),
-                );
-              },
-              icon: Icon(
-                event.isCompleted
-                    ? Icons.radio_button_unchecked
-                    : Icons.check_circle,
-              ),
-              label: Text(
-                event.isCompleted ? 'Mark as Pending' : 'Mark as Completed',
-              ),
-            ),
+          Text(
+            'Event Not Found',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'This event may have been deleted',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: () => context.pop(),
+            child: const Text('Go Back'),
           ),
         ],
       ),
     );
   }
 
-  Color _getPriorityColor(int priority) {
-    switch (priority) {
-      case 3:
-        return Colors.red;
-      case 2:
-        return Colors.orange;
-      case 1:
-        return Colors.blue;
-      default:
-        return Colors.grey;
-    }
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Error Loading Event',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(message, textAlign: TextAlign.center),
+          ),
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: () => _loadEvent(),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
   }
 
-  IconData _getCategoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'personal':
+  Widget _buildTitleSection(BuildContext context, Event event) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 6,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Color(event.effectiveColor),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                event.title,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  decoration: event.isCompleted
+                      ? TextDecoration.lineThrough
+                      : null,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateTimeSection(BuildContext context, Event event) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  event.isAllDay ? Icons.event : Icons.access_time,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        DateFormat(
+                          'EEEE, MMMM d, yyyy',
+                        ).format(event.eventDate),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      if (!event.isAllDay && event.eventTime != null)
+                        Text(
+                          TimeOfDay.fromDateTime(
+                            event.eventTime!,
+                          ).format(context),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryPrioritySection(BuildContext context, Event event) {
+    return Row(
+      children: [
+        Expanded(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Category'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        _getCategoryIcon(event.category.iconName),
+                        color: Color(event.category.colorCode),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          event.category.name,
+                          style: TextStyle(
+                            color: Color(event.category.colorCode),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Priority'),
+                  const SizedBox(height: 8),
+                  PriorityBadge(priority: event.priority),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescriptionSection(BuildContext context, Event event) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.description,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Description',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(event.description!),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLocationSection(BuildContext context, Event event) {
+    return Card(
+      child: ListTile(
+        leading: Icon(
+          Icons.location_on,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        title: const Text('Location'),
+        subtitle: Text(event.location!),
+      ),
+    );
+  }
+
+  Widget _buildRecurrenceSection(BuildContext context, Event event) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.repeat,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text('Repeat', style: Theme.of(context).textTheme.titleSmall),
+              ],
+            ),
+            const SizedBox(height: 12),
+            RecurrenceBadge(recurrenceRule: event.recurrenceRule!),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationsSection(BuildContext context, Event event) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.notifications,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Notifications',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...event.notifications.map((notification) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.alarm, size: 16),
+                    const SizedBox(width: 8),
+                    Text(notification.displayName),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTagsSection(BuildContext context, Event event) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.label,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text('Tags', style: Theme.of(context).textTheme.titleSmall),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: event.tags.map((tag) {
+                return Chip(
+                  label: Text(tag),
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.secondaryContainer,
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompleteButton(BuildContext context, Event event) {
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton.icon(
+        onPressed: () {
+          if (event.id != null) {
+            context.read<UserEventsBloc>().add(
+              ToggleEventComplete(event.id!, !event.isCompleted),
+            );
+          }
+        },
+        icon: Icon(event.isCompleted ? Icons.restart_alt : Icons.check),
+        label: Text(event.isCompleted ? 'Reopen Event' : 'Mark as Complete'),
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          backgroundColor: event.isCompleted
+              ? Theme.of(context).colorScheme.secondary
+              : Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String iconName) {
+    switch (iconName) {
+      case 'person':
         return Icons.person;
       case 'work':
         return Icons.work;
-      case 'religious':
+      case 'auto_awesome':
         return Icons.auto_awesome;
-      case 'family':
+      case 'family_restroom':
         return Icons.family_restroom;
-      case 'health':
+      case 'favorite':
         return Icons.favorite;
       default:
-        return Icons.category;
+        return Icons.event;
     }
   }
 
-  String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} '
-        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-  }
-
-  void _confirmDelete() {
+  void _confirmDelete(BuildContext context) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -394,8 +532,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
           ),
           FilledButton(
             onPressed: () {
-              context.read<EventsBloc>().add(DeleteEvent(widget.eventId));
+              context.read<UserEventsBloc>().add(
+                DeleteEventEvent(widget.eventId),
+              );
               Navigator.pop(dialogContext);
+              context.pop();
             },
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,

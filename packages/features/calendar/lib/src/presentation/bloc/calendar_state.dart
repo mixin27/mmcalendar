@@ -74,6 +74,7 @@ final class CalendarLoaded extends CalendarState {
   List<Object?> get props => [
     calendarMonth,
     selectedDate,
+    todayCompleteDate,
     isAstrologyExpanded,
     today,
     eventsByDate,

@@ -35,11 +35,11 @@ class AppShell extends StatelessWidget {
             selectedIcon: Icon(Icons.sync_alt),
             label: AppLocalizations.of(context)?.converter ?? 'Converter',
           ),
-          // NavigationDestination(
-          //   icon: Icon(Icons.event_outlined),
-          //   selectedIcon: Icon(Icons.event),
-          //   label: 'Events', // ← New tab
-          // ),
+          NavigationDestination(
+            icon: Icon(Icons.event_outlined),
+            selectedIcon: Icon(Icons.event),
+            label: AppLocalizations.of(context)?.events ?? 'Events',
+          ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings),

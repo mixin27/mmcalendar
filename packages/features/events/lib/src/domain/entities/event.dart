@@ -1,48 +1,108 @@
 import 'package:equatable/equatable.dart';
 
+import 'event_category.dart';
+import 'notification_setting.dart';
+import 'recurrence_rule.dart';
+
+/// Core event entity representing a calendar event
 class Event extends Equatable {
-  final int id;
+  final int? id;
   final String title;
   final String? description;
   final DateTime eventDate;
   final DateTime? eventTime;
   final bool isAllDay;
-  final String category;
-  final int? categoryId;
+  final EventCategory category;
   final int? colorCode;
-  final RecurrenceRule? recurrence;
-  final bool hasNotification;
-  final List<int>? notificationMinutes;
+  final RecurrenceRule? recurrenceRule;
+  final List<NotificationSetting> notifications;
   final String? location;
-  final bool isCompleted;
-  final DateTime? completedAt;
-  final int priority;
-  final List<String>? tags;
+  final EventStatus status;
+  final EventPriority priority;
+  final List<String> tags;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final DateTime? completedAt;
 
   const Event({
-    required this.id,
+    this.id,
     required this.title,
     this.description,
     required this.eventDate,
     this.eventTime,
-    required this.isAllDay,
+    this.isAllDay = true,
     required this.category,
-    this.categoryId,
     this.colorCode,
-    this.recurrence,
-    required this.hasNotification,
-    this.notificationMinutes,
+    this.recurrenceRule,
+    this.notifications = const [],
     this.location,
-    required this.isCompleted,
-    this.completedAt,
-    required this.priority,
-    this.tags,
+    this.status = EventStatus.pending,
+    this.priority = EventPriority.normal,
+    this.tags = const [],
     required this.createdAt,
     required this.updatedAt,
+    this.completedAt,
   });
 
+  /// Get event color (from custom or category)
+  int get effectiveColor => colorCode ?? category.colorCode;
+
+  /// Check if event is completed
+  bool get isCompleted => status == EventStatus.completed;
+
+  /// Check if event is recurring
+  bool get isRecurring => recurrenceRule != null;
+
+  /// Check if event has notifications
+  bool get hasNotifications => notifications.isNotEmpty;
+
+  /// Get event date time (combines date and time)
+  DateTime get eventDateTime {
+    if (eventTime != null && !isAllDay) {
+      return DateTime(
+        eventDate.year,
+        eventDate.month,
+        eventDate.day,
+        eventTime!.hour,
+        eventTime!.minute,
+        eventTime!.second,
+      );
+    }
+    return eventDate;
+  }
+
+  /// Check if event is on a specific date
+  bool isOnDate(DateTime date) {
+    return eventDate.year == date.year &&
+        eventDate.month == date.month &&
+        eventDate.day == date.day;
+  }
+
+  /// Check if event is in date range
+  bool isInRange(DateTime start, DateTime end) {
+    return !eventDate.isBefore(start) && !eventDate.isAfter(end);
+  }
+
+  /// Check if event is overdue (for non-completed events)
+  bool get isOverdue {
+    if (isCompleted) return false;
+    return eventDateTime.isBefore(DateTime.now());
+  }
+
+  /// Check if event is today
+  bool get isToday {
+    final now = DateTime.now();
+    return isOnDate(now);
+  }
+
+  /// Check if event is upcoming (within next 7 days)
+  bool get isUpcoming {
+    final now = DateTime.now();
+    final sevenDaysLater = now.add(const Duration(days: 7));
+    return eventDateTime.isAfter(now) && eventDateTime.isBefore(sevenDaysLater);
+  }
+
+  /// Copy with method for immutability
   Event copyWith({
     int? id,
     String? title,
@@ -50,19 +110,17 @@ class Event extends Equatable {
     DateTime? eventDate,
     DateTime? eventTime,
     bool? isAllDay,
-    String? category,
-    int? categoryId,
+    EventCategory? category,
     int? colorCode,
-    RecurrenceRule? recurrence,
-    bool? hasNotification,
-    List<int>? notificationMinutes,
+    RecurrenceRule? recurrenceRule,
+    List<NotificationSetting>? notifications,
     String? location,
-    bool? isCompleted,
-    DateTime? completedAt,
-    int? priority,
+    EventStatus? status,
+    EventPriority? priority,
     List<String>? tags,
     DateTime? createdAt,
     DateTime? updatedAt,
+    DateTime? completedAt,
   }) {
     return Event(
       id: id ?? this.id,
@@ -72,18 +130,16 @@ class Event extends Equatable {
       eventTime: eventTime ?? this.eventTime,
       isAllDay: isAllDay ?? this.isAllDay,
       category: category ?? this.category,
-      categoryId: categoryId ?? this.categoryId,
       colorCode: colorCode ?? this.colorCode,
-      recurrence: recurrence ?? this.recurrence,
-      hasNotification: hasNotification ?? this.hasNotification,
-      notificationMinutes: notificationMinutes ?? this.notificationMinutes,
+      recurrenceRule: recurrenceRule ?? this.recurrenceRule,
+      notifications: notifications ?? this.notifications,
       location: location ?? this.location,
-      isCompleted: isCompleted ?? this.isCompleted,
-      completedAt: completedAt ?? this.completedAt,
+      status: status ?? this.status,
       priority: priority ?? this.priority,
       tags: tags ?? this.tags,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      completedAt: completedAt ?? this.completedAt,
     );
   }
 
@@ -96,67 +152,64 @@ class Event extends Equatable {
     eventTime,
     isAllDay,
     category,
-    categoryId,
     colorCode,
-    recurrence,
-    hasNotification,
-    notificationMinutes,
+    recurrenceRule,
+    notifications,
     location,
-    isCompleted,
-    completedAt,
+    status,
     priority,
     tags,
     createdAt,
     updatedAt,
+    completedAt,
   ];
 }
 
-class RecurrenceRule extends Equatable {
-  final String type;
-  final int interval;
-  final List<int>? daysOfWeek;
-  final DateTime? endDate;
-  final int? count;
+/// Event status enum
+enum EventStatus {
+  pending,
+  completed,
+  cancelled;
 
-  const RecurrenceRule({
-    required this.type,
-    required this.interval,
-    this.daysOfWeek,
-    this.endDate,
-    this.count,
-  });
-
-  @override
-  List<Object?> get props => [type, interval, daysOfWeek, endDate, count];
+  String get displayName {
+    switch (this) {
+      case EventStatus.pending:
+        return 'Pending';
+      case EventStatus.completed:
+        return 'Completed';
+      case EventStatus.cancelled:
+        return 'Cancelled';
+    }
+  }
 }
 
-class EventCategory extends Equatable {
-  final int id;
-  final String name;
-  final String iconName;
-  final int colorCode;
-  final bool isDefault;
-  final int sortOrder;
-  final DateTime createdAt;
+/// Event priority enum
+enum EventPriority {
+  low(0),
+  normal(1),
+  high(2),
+  urgent(3);
 
-  const EventCategory({
-    required this.id,
-    required this.name,
-    required this.iconName,
-    required this.colorCode,
-    required this.isDefault,
-    required this.sortOrder,
-    required this.createdAt,
-  });
+  final int value;
+  const EventPriority(this.value);
 
-  @override
-  List<Object?> get props => [
-    id,
-    name,
-    iconName,
-    colorCode,
-    isDefault,
-    sortOrder,
-    createdAt,
-  ];
+  String get displayName {
+    switch (this) {
+      case EventPriority.low:
+        return 'Low';
+      case EventPriority.normal:
+        return 'Normal';
+      case EventPriority.high:
+        return 'High';
+      case EventPriority.urgent:
+        return 'Urgent';
+    }
+  }
+
+  static EventPriority fromValue(int value) {
+    return EventPriority.values.firstWhere(
+      (p) => p.value == value,
+      orElse: () => EventPriority.normal,
+    );
+  }
 }

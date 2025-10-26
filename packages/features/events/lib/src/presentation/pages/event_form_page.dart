@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:intl/intl.dart';
 import '../../domain/entities/event.dart';
-import '../bloc/events_bloc.dart';
-import '../bloc/events_event.dart';
-import '../bloc/events_state.dart';
-import '../widgets/category_selector_field.dart';
-import '../widgets/priority_selector.dart';
+import '../../domain/entities/notification_setting.dart';
+import '../../domain/entities/recurrence_rule.dart';
+import '../bloc/event_categories_bloc.dart';
+import '../bloc/event_categories_event.dart';
+import '../bloc/event_categories_state.dart';
+import '../bloc/event_form_bloc.dart';
+import '../bloc/event_form_event.dart';
+import '../bloc/event_form_state.dart';
+import '../widgets/category_chip.dart';
 
 class EventFormPage extends StatefulWidget {
-  final int? eventId; // null for create, value for edit
+  final int? eventId;
+  final DateTime? initialDate;
 
-  const EventFormPage({super.key, this.eventId});
+  const EventFormPage({super.key, this.eventId, this.initialDate});
 
   @override
   State<EventFormPage> createState() => _EventFormPageState();
@@ -23,29 +29,23 @@ class _EventFormPageState extends State<EventFormPage> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
-
-  DateTime _selectedDate = DateTime.now();
-  TimeOfDay? _selectedTime;
-  bool _isAllDay = true;
-  String _selectedCategory = 'Personal';
-  int? _selectedCategoryId;
-  int _priority = 0;
-  List<String> _tags = [];
-
-  bool _isLoading = false;
-  // ignore: unused_field
-  Event? _existingEvent;
+  final _tagController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
     if (widget.eventId != null) {
-      // Load existing event for editing
-      context.read<EventsBloc>().add(LoadEventById(widget.eventId!));
+      // Load event for editing
+      // This would come from a GetEventById use case
     } else {
-      // Load categories for new event
-      context.read<EventsBloc>().add(const LoadCategories());
+      context.read<EventFormBloc>().add(
+        InitializeNewEvent(initialDate: widget.initialDate),
+      );
     }
+
+    // Load categories
+    context.read<EventCategoriesBloc>().add(const LoadEventCategories());
   }
 
   @override
@@ -53,108 +53,8 @@ class _EventFormPageState extends State<EventFormPage> {
     _titleController.dispose();
     _descriptionController.dispose();
     _locationController.dispose();
+    _tagController.dispose();
     super.dispose();
-  }
-
-  void _populateFormWithEvent(Event event) {
-    setState(() {
-      _existingEvent = event;
-      _titleController.text = event.title;
-      _descriptionController.text = event.description ?? '';
-      _locationController.text = event.location ?? '';
-      _selectedDate = event.eventDate;
-      if (event.eventTime != null) {
-        _selectedTime = TimeOfDay.fromDateTime(event.eventTime!);
-      }
-      _isAllDay = event.isAllDay;
-      _selectedCategory = event.category;
-      _selectedCategoryId = event.categoryId;
-      _priority = event.priority;
-      _tags = event.tags ?? [];
-    });
-  }
-
-  Future<void> _selectDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-
-    if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
-
-  Future<void> _selectTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
-    );
-
-    if (picked != null) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
-  }
-
-  void _saveEvent() {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    final title = _titleController.text.trim();
-    final description = _descriptionController.text.trim();
-    final location = _locationController.text.trim();
-
-    DateTime? eventTime;
-    if (!_isAllDay && _selectedTime != null) {
-      eventTime = DateTime(
-        _selectedDate.year,
-        _selectedDate.month,
-        _selectedDate.day,
-        _selectedTime!.hour,
-        _selectedTime!.minute,
-      );
-    }
-
-    if (widget.eventId == null) {
-      // Create new event
-      context.read<EventsBloc>().add(
-        CreateEvent(
-          title: title,
-          description: description.isEmpty ? null : description,
-          eventDate: _selectedDate,
-          eventTime: eventTime,
-          isAllDay: _isAllDay,
-          category: _selectedCategory,
-          categoryId: _selectedCategoryId,
-          location: location.isEmpty ? null : location,
-          priority: _priority,
-          tags: _tags.isEmpty ? null : _tags,
-        ),
-      );
-    } else {
-      // Update existing event
-      context.read<EventsBloc>().add(
-        UpdateEvent(
-          eventId: widget.eventId!,
-          title: title,
-          description: description.isEmpty ? null : description,
-          eventDate: _selectedDate,
-          eventTime: eventTime,
-          isAllDay: _isAllDay,
-          category: _selectedCategory,
-          categoryId: _selectedCategoryId,
-          location: location.isEmpty ? null : location,
-          priority: _priority,
-        ),
-      );
-    }
   }
 
   @override
@@ -163,246 +63,636 @@ class _EventFormPageState extends State<EventFormPage> {
       appBar: AppBar(
         title: Text(widget.eventId == null ? 'New Event' : 'Edit Event'),
         actions: [
-          if (widget.eventId != null)
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: _confirmDelete,
-              tooltip: 'Delete',
-            ),
-          TextButton(
-            onPressed: _isLoading ? null : _saveEvent,
-            child: const Text('SAVE'),
+          BlocBuilder<EventFormBloc, EventFormState>(
+            builder: (context, state) {
+              if (state is! EventFormEditing) return const SizedBox.shrink();
+
+              return IconButton(
+                icon: const Icon(Icons.check),
+                onPressed: state.isValid
+                    ? () {
+                        context.read<EventFormBloc>().add(
+                          const SubmitEventForm(),
+                        );
+                      }
+                    : null,
+              );
+            },
           ),
         ],
       ),
-      body: BlocConsumer<EventsBloc, EventsState>(
+      body: BlocConsumer<EventFormBloc, EventFormState>(
         listener: (context, state) {
-          if (state is EventDetailLoaded) {
-            _populateFormWithEvent(state.event);
-          } else if (state is EventCreated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Event created successfully')),
-            );
-            context.pop();
-          } else if (state is EventUpdated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Event updated successfully')),
-            );
-            context.pop();
-          } else if (state is EventDeleted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Event deleted successfully')),
-            );
-            context.pop();
-          } else if (state is EventsError) {
+          if (state is EventFormSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message),
-                backgroundColor: Theme.of(context).colorScheme.error,
+                content: Text(
+                  state.isNew ? 'Event created!' : 'Event updated!',
+                ),
+              ),
+            );
+            context.pop();
+          } else if (state is EventFormError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.failure.message),
+                backgroundColor: Colors.red,
               ),
             );
           }
-
-          setState(() {
-            _isLoading = state is EventsLoading;
-          });
         },
         builder: (context, state) {
-          if (_isLoading && widget.eventId != null) {
+          if (state is EventFormSubmitting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title field
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Event Title *',
-                      hintText: 'Enter event title',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.title),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter event title';
-                      }
-                      if (value.trim().length > 200) {
-                        return 'Title too long (max 200 characters)';
-                      }
-                      return null;
-                    },
-                    maxLength: 200,
-                  ),
-                  const SizedBox(height: 16),
+          if (state is! EventFormEditing) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                  // Date field
-                  InkWell(
-                    onTap: _selectDate,
-                    child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Date *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_today),
-                      ),
-                      child: Text(
-                        '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // All day toggle
-                  SwitchListTile(
-                    title: const Text('All Day Event'),
-                    subtitle: const Text('Event lasts the entire day'),
-                    value: _isAllDay,
-                    onChanged: (value) {
-                      setState(() {
-                        _isAllDay = value;
-                        if (value) {
-                          _selectedTime = null;
-                        }
-                      });
-                    },
-                  ),
-
-                  // Time field (only if not all day)
-                  if (!_isAllDay) ...[
-                    const SizedBox(height: 16),
-                    InkWell(
-                      onTap: _selectTime,
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Time',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.access_time),
-                        ),
-                        child: Text(
-                          _selectedTime != null
-                              ? _selectedTime!.format(context)
-                              : 'Select time',
-                        ),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-
-                  // Category selector
-                  CategorySelectorField(
-                    selectedCategory: _selectedCategory,
-                    selectedCategoryId: _selectedCategoryId,
-                    categories: state is EventDetailLoaded
-                        ? state.categories
-                        : state is CategoriesLoaded
-                        ? state.categories
-                        : [],
-                    onCategoryChanged: (category, categoryId) {
-                      setState(() {
-                        _selectedCategory = category;
-                        _selectedCategoryId = categoryId;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Priority selector
-                  PrioritySelector(
-                    priority: _priority,
-                    onPriorityChanged: (priority) {
-                      setState(() {
-                        _priority = priority;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Location field
-                  TextFormField(
-                    controller: _locationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Location',
-                      hintText: 'Enter location',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.location_on),
-                    ),
-                    maxLines: 1,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Description field
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      hintText: 'Enter event description',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.description),
-                      alignLabelWithHint: true,
-                    ),
-                    maxLines: 4,
-                    maxLength: 1000,
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Save button (mobile)
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: _isLoading ? null : _saveEvent,
-                      icon: _isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.save),
-                      label: Text(
-                        widget.eventId == null
-                            ? 'Create Event'
-                            : 'Update Event',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
+          return _buildForm(state);
         },
       ),
     );
   }
 
-  void _confirmDelete() {
+  Widget _buildForm(EventFormEditing state) {
+    // Update controllers if needed
+    if (_titleController.text != state.title) {
+      _titleController.text = state.title;
+    }
+    if (_descriptionController.text != state.description) {
+      _descriptionController.text = state.description;
+    }
+    if (_locationController.text != state.location) {
+      _locationController.text = state.location;
+    }
+
+    return Form(
+      key: _formKey,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Title field
+          TextFormField(
+            controller: _titleController,
+            decoration: InputDecoration(
+              labelText: 'Event Title *',
+              hintText: 'Enter event title',
+              prefixIcon: const Icon(Icons.title),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              errorText: state.errorMessage,
+            ),
+            textInputAction: TextInputAction.next,
+            onChanged: (value) {
+              context.read<EventFormBloc>().add(UpdateEventTitle(value));
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // Description field
+          TextFormField(
+            controller: _descriptionController,
+            decoration: InputDecoration(
+              labelText: 'Description',
+              hintText: 'Add more details (optional)',
+              prefixIcon: const Icon(Icons.description),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            maxLines: 3,
+            textInputAction: TextInputAction.newline,
+            onChanged: (value) {
+              context.read<EventFormBloc>().add(UpdateEventDescription(value));
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // Date and time section
+          Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: Colors.grey.shade300),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Date & Time',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Date picker
+                  ListTile(
+                    leading: const Icon(Icons.event),
+                    title: const Text('Date'),
+                    subtitle: Text(
+                      DateFormat('EEEE, MMM d, yyyy').format(state.eventDate),
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _selectDate(context, state.eventDate),
+                  ),
+
+                  // All day toggle
+                  SwitchListTile(
+                    secondary: const Icon(Icons.all_inclusive),
+                    title: const Text('All day'),
+                    value: state.isAllDay,
+                    onChanged: (value) {
+                      context.read<EventFormBloc>().add(const ToggleAllDay());
+                    },
+                  ),
+
+                  // Time picker (if not all day)
+                  if (!state.isAllDay)
+                    ListTile(
+                      leading: const Icon(Icons.access_time),
+                      title: const Text('Time'),
+                      subtitle: Text(
+                        state.eventTime != null
+                            ? TimeOfDay.fromDateTime(
+                                state.eventTime!,
+                              ).format(context)
+                            : 'Select time',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _selectTime(context, state.eventTime),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Category selection
+          _buildCategorySection(state),
+          const SizedBox(height: 16),
+
+          // Priority selection
+          _buildPrioritySection(state),
+          const SizedBox(height: 16),
+
+          // Location field
+          TextFormField(
+            controller: _locationController,
+            decoration: InputDecoration(
+              labelText: 'Location',
+              hintText: 'Add location (optional)',
+              prefixIcon: const Icon(Icons.location_on),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            textInputAction: TextInputAction.next,
+            onChanged: (value) {
+              context.read<EventFormBloc>().add(UpdateEventLocation(value));
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // Recurrence section
+          _buildRecurrenceSection(state),
+          const SizedBox(height: 16),
+
+          // Notifications section
+          _buildNotificationsSection(state),
+          const SizedBox(height: 16),
+
+          // Tags section
+          _buildTagsSection(state),
+          const SizedBox(height: 16),
+
+          // Color picker
+          _buildColorSection(state),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategorySection(EventFormEditing state) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.category, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Category',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            BlocBuilder<EventCategoriesBloc, EventCategoriesState>(
+              builder: (context, categoriesState) {
+                if (categoriesState is EventCategoriesLoaded) {
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: categoriesState.categories.map((category) {
+                      return CategoryChip(
+                        category: category,
+                        selected: category.id == state.category.id,
+                        onTap: () {
+                          context.read<EventFormBloc>().add(
+                            UpdateEventCategory(category),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  );
+                }
+                return const CircularProgressIndicator();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrioritySection(EventFormEditing state) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.flag, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Priority',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: EventPriority.values.map((priority) {
+                final isSelected = priority == state.priority;
+                return FilterChip(
+                  label: Text(priority.displayName),
+                  selected: isSelected,
+                  onSelected: (_) {
+                    context.read<EventFormBloc>().add(
+                      UpdateEventPriority(priority),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecurrenceSection(EventFormEditing state) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.repeat, size: 20),
+                const SizedBox(width: 8),
+                Text('Repeat', style: Theme.of(context).textTheme.titleMedium),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                state.recurrenceRule?.type.displayName ?? 'Does not repeat',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _showRecurrencePicker(context, state.recurrenceRule),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationsSection(EventFormEditing state) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.notifications, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Notifications',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add'),
+                  onPressed: () => _showNotificationPicker(context),
+                ),
+              ],
+            ),
+            if (state.notifications.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text('No notifications'),
+              )
+            else
+              ...state.notifications.asMap().entries.map((entry) {
+                final index = entry.key;
+                final notification = entry.value;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.alarm),
+                  title: Text(notification.displayName),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      context.read<EventFormBloc>().add(
+                        RemoveNotification(index),
+                      );
+                    },
+                  ),
+                );
+              }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTagsSection(EventFormEditing state) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.label, size: 20),
+                const SizedBox(width: 8),
+                Text('Tags', style: Theme.of(context).textTheme.titleMedium),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _tagController,
+                    decoration: const InputDecoration(
+                      hintText: 'Add tag',
+                      border: OutlineInputBorder(),
+                    ),
+                    onSubmitted: (value) {
+                      if (value.isNotEmpty) {
+                        context.read<EventFormBloc>().add(AddTag(value));
+                        _tagController.clear();
+                      }
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    if (_tagController.text.isNotEmpty) {
+                      context.read<EventFormBloc>().add(
+                        AddTag(_tagController.text),
+                      );
+                      _tagController.clear();
+                    }
+                  },
+                ),
+              ],
+            ),
+            if (state.tags.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: state.tags.map((tag) {
+                  return Chip(
+                    label: Text(tag),
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                    onDeleted: () {
+                      context.read<EventFormBloc>().add(RemoveTag(tag));
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorSection(EventFormEditing state) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: state.colorCode != null
+                ? Color(state.colorCode!)
+                : Color(state.category.colorCode),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+        ),
+        title: const Text('Custom Color'),
+        subtitle: const Text('Override category color'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _showColorPicker(context, state.colorCode),
+      ),
+    );
+  }
+
+  Future<void> _selectDate(BuildContext context, DateTime currentDate) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: currentDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null && context.mounted) {
+      context.read<EventFormBloc>().add(UpdateEventDate(picked));
+    }
+  }
+
+  Future<void> _selectTime(BuildContext context, DateTime? currentTime) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: currentTime != null
+          ? TimeOfDay.fromDateTime(currentTime)
+          : TimeOfDay.now(),
+    );
+
+    if (picked != null && context.mounted) {
+      final now = DateTime.now();
+      final dateTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        picked.hour,
+        picked.minute,
+      );
+      context.read<EventFormBloc>().add(UpdateEventTime(dateTime));
+    }
+  }
+
+  void _showRecurrencePicker(BuildContext context, RecurrenceRule? current) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: RecurrenceType.values.map((type) {
+            return ListTile(
+              title: Text(type.displayName),
+              trailing: current?.type == type ? const Icon(Icons.check) : null,
+              onTap: () {
+                final rule = type == RecurrenceType.none
+                    ? null
+                    : RecurrenceRule(type: type);
+                this.context.read<EventFormBloc>().add(
+                  UpdateRecurrenceRule(rule),
+                );
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  void _showNotificationPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: NotificationSetting.defaultSettings.map((setting) {
+            return ListTile(
+              leading: const Icon(Icons.alarm),
+              title: Text(setting.displayName),
+              onTap: () {
+                this.context.read<EventFormBloc>().add(
+                  AddNotification(setting),
+                );
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  void _showColorPicker(BuildContext context, int? currentColor) {
+    Color pickerColor = currentColor != null
+        ? Color(currentColor)
+        : Colors.blue;
+
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Event'),
-        content: const Text(
-          'Are you sure you want to delete this event? This action cannot be undone.',
+      builder: (context) => AlertDialog(
+        title: const Text('Pick a color'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: pickerColor,
+            onColorChanged: (color) {
+              pickerColor = color;
+            },
+          ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
+            child: const Text('Clear'),
             onPressed: () {
-              context.read<EventsBloc>().add(DeleteEvent(widget.eventId!));
-              Navigator.pop(dialogContext);
+              this.context.read<EventFormBloc>().add(
+                const UpdateEventColor(null),
+              );
+              Navigator.of(context).pop();
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('Delete'),
+          ),
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: const Text('Select'),
+            onPressed: () {
+              this.context.read<EventFormBloc>().add(
+                UpdateEventColor(pickerColor.toARGB32()),
+              );
+              Navigator.of(context).pop();
+            },
           ),
         ],
       ),

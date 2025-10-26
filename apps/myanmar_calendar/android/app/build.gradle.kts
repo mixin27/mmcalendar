@@ -23,6 +23,8 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // Flag to enable support for the new language APIs
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -37,6 +39,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
 
     signingConfigs {
@@ -56,8 +59,11 @@ android {
 }
 
 dependencies {
-    // For AppWidgets support
-    // implementation("androidx.glance:glance-appwidget:1.2.0-beta01")
+    // flutter_local_notifications dependency requires desugaring for Android versions below 26
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // If enabling desugaring may result in a Flutter apps crashing on Android 12L and above occur error
+    // implementation("androidx.window:window:1.0.0")
+    // implementation("androidx.window:window-java:1.0.0")
 }
 
 flutter {

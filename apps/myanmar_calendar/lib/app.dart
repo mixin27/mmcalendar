@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:converter/converter.dart';
-import 'package:events/events.dart';
 import 'package:calendar/calendar.dart';
+import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core.dart';
@@ -20,20 +20,31 @@ class MyanmarCalendarApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // Calendar feature
         BlocProvider(
           create: (context) =>
               getIt<CalendarBloc>()..add(LoadCalendarMonth(DateTime.now())),
         ),
+
+        // Settings feature
         BlocProvider(
           create: (context) => getIt<SettingsBloc>()..add(const LoadSettings()),
         ),
+
+        // Views feature
         BlocProvider(create: (context) => getIt<ViewsBloc>()),
+
+        // Converter feature
         BlocProvider(create: (context) => getIt<ConverterBloc>()),
+
+        // Events feature
         BlocProvider(
-          create: (context) => getIt<EventsBloc>()
-            ..add(InitializeDefaultCategories())
-            ..add(LoadAllEvents())
-            ..add(LoadCategories()),
+          create: (context) =>
+              getIt<UserEventsBloc>()..add(const LoadAllEvents()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<EventCategoriesBloc>()..add(const LoadEventCategories()),
         ),
       ],
       child: _AppContent(),
@@ -50,24 +61,14 @@ class _AppContentState extends State<_AppContent> {
   @override
   void initState() {
     super.initState();
-    // Check if we need to show consent dialog after first frame
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   _checkAndShowConsentDialog();
-    // });
+    // Request notification permissions
+    _requestNotificationPermissions();
   }
 
-  // void _checkAndShowConsentDialog() {
-  //   final settingsBloc = context.read<SettingsBloc>();
-
-  //   if (settingsBloc.state is SettingsLoaded) {
-  //     final state = settingsBloc.state as SettingsLoaded;
-
-  //     // Only show if user hasn't seen it before
-  //     if (!state.settings.hasShownConsentDialog) {
-  //       showConsentDialog(context, settingsBloc);
-  //     }
-  //   }
-  // }
+  Future<void> _requestNotificationPermissions() async {
+    final notificationService = getIt<NotificationService>();
+    await notificationService.requestPermissions();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 name: mmcalendar
 description: "Myanmar Calendar Application"
 publish_to: 'none'
-version: 2.0.1+203
+version: 2.1.0+204
 resolution: workspace
 
 environment:
@@ -53,6 +53,7 @@ dependencies:
 
   # Utilites
   intl: ^0.20.2
+  timezone: ^0.10.1
   cupertino_icons: ^1.0.8
   equatable: ^2.0.7
   url_launcher: ^6.3.2

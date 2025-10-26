@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
-import '../bloc/events_bloc.dart';
-import '../bloc/events_event.dart';
-import '../bloc/events_state.dart';
-import '../widgets/category_filter_chips.dart';
-import '../widgets/date_range_selector.dart';
-import '../widgets/event_date_group.dart';
+import '../../domain/entities/event.dart';
+import '../bloc/user_events_bloc.dart';
+import '../bloc/user_events_event.dart';
+import '../bloc/user_events_state.dart';
+import '../widgets/event_list_tile.dart';
 
 class EventsListPage extends StatefulWidget {
   const EventsListPage({super.key});
@@ -20,8 +20,15 @@ class _EventsListPageState extends State<EventsListPage> {
   @override
   void initState() {
     super.initState();
-    // Load all events on page init
-    context.read<EventsBloc>().add(const LoadAllEvents());
+    // Load ALL events on page load
+    context.read<UserEventsBloc>().add(const LoadAllEvents());
+    // context.read<UserEventsBloc>().add(StartWatchingEvents());
+  }
+
+  @override
+  void dispose() {
+    // context.read<UserEventsBloc>().add(StopWatchingEvents());
+    super.dispose();
   }
 
   @override
@@ -31,271 +38,332 @@ class _EventsListPageState extends State<EventsListPage> {
         title: const Text('Events'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () => _showFilterDialog(context),
-            tooltip: 'Filter',
+            icon: const Icon(Icons.search),
+            onPressed: () => _showSearch(context),
           ),
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => _showSearchPage(context),
-            tooltip: 'Search',
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) => _handleMenuAction(context, value),
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'categories',
-                child: ListTile(
-                  leading: Icon(Icons.category),
-                  title: Text('Manage Categories'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'refresh',
-                child: ListTile(
-                  leading: Icon(Icons.refresh),
-                  title: Text('Refresh'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Date range selector
-          const DateRangeSelector(),
-
-          // Category filter chips
-          const CategoryFilterChips(),
-
-          const Divider(height: 1),
-
-          // Events list
-          Expanded(
-            child: BlocBuilder<EventsBloc, EventsState>(
-              builder: (context, state) {
-                if (state is EventsLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (state is EventsError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Error',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          state.message,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            context.read<EventsBloc>().add(
-                              const RefreshEvents(),
-                            );
-                          },
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (state is EventsEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.event_busy,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No Events',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          state.message,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 24),
-                        FilledButton.icon(
-                          onPressed: () => _navigateToCreateEvent(context),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Create Event'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (state is EventsLoaded) {
-                  final groupedEvents = state.groupedByDate;
-                  final sortedDates = groupedEvents.keys.toList()
-                    ..sort((a, b) => a.compareTo(b));
-
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      context.read<EventsBloc>().add(const RefreshEvents());
-                    },
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: sortedDates.length,
-                      itemBuilder: (context, index) {
-                        final date = sortedDates[index];
-                        final events = groupedEvents[date]!;
-
-                        return EventDateGroup(
-                          date: date,
-                          events: events,
-                          onEventTap: (event) =>
-                              _navigateToEventDetail(context, event.id),
-                          onEventToggle: (eventId) {
-                            context.read<EventsBloc>().add(
-                              ToggleEventComplete(eventId),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }
-
-                return const SizedBox.shrink();
-              },
-            ),
+            icon: const Icon(Icons.filter_list),
+            onPressed: () => _showFilterOptions(context),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToCreateEvent(context),
+        onPressed: () {
+          context.push('/events/create');
+        },
         icon: const Icon(Icons.add),
         label: const Text('New Event'),
+      ),
+      body: BlocConsumer<UserEventsBloc, UserEventsState>(
+        listener: (context, state) {
+          if (state is EventsOperationSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          } else if (state is EventsError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.failure.message),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is EventsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is EventsError) {
+            return _buildErrorState(state.failure.message);
+          }
+
+          if (state is EventsLoaded) {
+            return _buildEventsList(state.events);
+          }
+
+          if (state is EventsOperationInProgress) {
+            return Stack(
+              children: [
+                _buildEventsList(state.currentEvents),
+                Container(
+                  color: Colors.black26,
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+              ],
+            );
+          }
+
+          if (state is EventsOperationSuccess) {
+            return _buildEventsList(state.events);
+          }
+
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
 
-  void _showFilterDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Filter Events'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.all_inclusive),
-              title: const Text('All Events'),
-              onTap: () {
-                context.read<EventsBloc>().add(const LoadAllEvents());
-                Navigator.pop(dialogContext);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.today),
-              title: const Text('Today'),
-              onTap: () {
-                context.read<EventsBloc>().add(
-                  LoadEventsByDate(DateTime.now()),
+  Widget _buildEventsList(List<Event> events) {
+    if (events.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    // Group events by date
+    final groupedEvents = <DateTime, List<Event>>{};
+    for (final event in events) {
+      final dateKey = DateTime(
+        event.eventDate.year,
+        event.eventDate.month,
+        event.eventDate.day,
+      );
+      groupedEvents[dateKey] = [...(groupedEvents[dateKey] ?? []), event];
+    }
+
+    final sortedDates = groupedEvents.keys.toList()..sort();
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<UserEventsBloc>().add(const RefreshEvents());
+        await Future.delayed(const Duration(seconds: 1));
+      },
+      child: ListView.builder(
+        itemCount: sortedDates.length,
+        itemBuilder: (context, index) {
+          final date = sortedDates[index];
+          final dateEvents = groupedEvents[date]!;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      DateFormat('EEEE, MMM d, yyyy').format(date),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${dateEvents.length} event${dateEvents.length > 1 ? 's' : ''}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+
+              ...dateEvents.map((event) {
+                return EventListTile(
+                  event: event,
+                  onTap: () {
+                    context.push('/events/${event.id}/detail');
+                  },
+                  onCheckboxChanged: (checked) {
+                    if (event.id != null) {
+                      context.read<UserEventsBloc>().add(
+                        ToggleEventComplete(event.id!, checked ?? false),
+                      );
+                    }
+                  },
                 );
-                Navigator.pop(dialogContext);
-              },
+              }),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.event_available,
+            size: 80,
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+          ),
+          const SizedBox(height: 16),
+          Text('No events yet', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          Text(
+            'Tap the + button to create your first event',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            ListTile(
-              leading: const Icon(Icons.date_range),
-              title: const Text('This Week'),
-              onTap: () {
-                final now = DateTime.now();
-                final startOfWeek = now.subtract(
-                  Duration(days: now.weekday - 1),
-                );
-                final endOfWeek = startOfWeek.add(const Duration(days: 6));
-                context.read<EventsBloc>().add(
-                  LoadEventsByDateRange(
-                    startDate: startOfWeek,
-                    endDate: endOfWeek,
-                  ),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.calendar_month),
-              title: const Text('This Month'),
-              onTap: () {
-                final now = DateTime.now();
-                final startOfMonth = DateTime(now.year, now.month, 1);
-                final endOfMonth = DateTime(now.year, now.month + 1, 0);
-                context.read<EventsBloc>().add(
-                  LoadEventsByDateRange(
-                    startDate: startOfMonth,
-                    endDate: endOfMonth,
-                  ),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
           ),
         ],
       ),
     );
   }
 
-  void _showSearchPage(BuildContext context) {
-    // todo(mixin27): Implement search page
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Search feature coming soon')));
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Oops! Something went wrong',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: () {
+              context.read<UserEventsBloc>().add(const LoadAllEvents());
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Try Again'),
+          ),
+        ],
+      ),
+    );
   }
 
-  void _handleMenuAction(BuildContext context, String action) {
-    switch (action) {
-      case 'categories':
-        context.push('/events/categories');
-        break;
-      case 'refresh':
-        context.read<EventsBloc>().add(const RefreshEvents());
-        break;
+  void _showSearch(BuildContext context) {
+    showSearch(
+      context: context,
+      delegate: _EventSearchDelegate(context.read<UserEventsBloc>()),
+    );
+  }
+
+  void _showFilterOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (dialogContext) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.event),
+              title: const Text('All Events'),
+              onTap: () {
+                Navigator.pop(dialogContext);
+                context.read<UserEventsBloc>().add(const LoadAllEvents());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.upcoming),
+              title: const Text('Upcoming (7 days)'),
+              onTap: () {
+                Navigator.pop(dialogContext);
+                context.read<UserEventsBloc>().add(const LoadUpcomingEvents());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.date_range),
+              title: const Text('This Month'),
+              onTap: () {
+                Navigator.pop(dialogContext);
+                final now = DateTime.now();
+                final startOfMonth = DateTime(now.year, now.month, 1);
+                final endOfMonth = DateTime(now.year, now.month + 1, 0);
+                context.read<UserEventsBloc>().add(
+                  LoadEventsByDateRange(startOfMonth, endOfMonth),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EventSearchDelegate extends SearchDelegate<Event?> {
+  final UserEventsBloc eventsBloc;
+
+  _EventSearchDelegate(this.eventsBloc);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () => close(context, null),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    if (query.isEmpty) {
+      return const Center(child: Text('Enter search query'));
     }
+
+    eventsBloc.add(SearchEventsEvent(query));
+
+    return BlocBuilder<UserEventsBloc, UserEventsState>(
+      bloc: eventsBloc,
+      builder: (context, state) {
+        if (state is EventsLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is EventsLoaded) {
+          if (state.events.isEmpty) {
+            return const Center(child: Text('No results found'));
+          }
+
+          return ListView.builder(
+            itemCount: state.events.length,
+            itemBuilder: (context, index) {
+              final event = state.events[index];
+              return EventListTile(
+                event: event,
+                onTap: () => close(context, event),
+              );
+            },
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
+    );
   }
 
-  void _navigateToCreateEvent(BuildContext context) {
-    context.push('/events/create');
-  }
-
-  void _navigateToEventDetail(BuildContext context, int eventId) {
-    context.push('/events/$eventId');
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return const Center(
+      child: Text('Search for events by title or description'),
+    );
   }
 }

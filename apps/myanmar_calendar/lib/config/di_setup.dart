@@ -35,7 +35,7 @@ Future<void> initializeDependencies() async {
   await initSettingsDependencies();
   await initViewsDependencies();
   await initConverterDependencies();
-  await initEventsFeature();
+  await initEventsDependencies();
   await initHomeWidgetsDependencies();
 
   debugPrint('✅ All dependencies initialized');

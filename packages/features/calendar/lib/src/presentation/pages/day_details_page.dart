@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:core/core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:localizations/localizations.dart';
 
 import '../../di/calendar_injection.dart';
@@ -129,21 +131,21 @@ class _DayDetailsPageState extends State<DayDetailsPage>
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             // Add Reminder (Future feature)
-            FloatingActionButton.small(
-              heroTag: 'reminder',
-              onPressed: () {
-                _analyticsService.logButtonClick(
-                  buttonName: 'add_reminder',
-                  buttonLocation: 'day_details_fab',
-                );
+            // FloatingActionButton.small(
+            //   heroTag: 'reminder',
+            //   onPressed: () {
+            //     _analyticsService.logButtonClick(
+            //       buttonName: 'add_reminder',
+            //       buttonLocation: 'day_details_fab',
+            //     );
 
-                // todo(mixin27): Add reminder
-                _showComingSoonSnackBar(context, 'Reminder feature');
-              },
-              tooltip: 'Add Reminder',
-              child: const Icon(Icons.notifications_outlined),
-            ),
-            const SizedBox(height: 12),
+            //     // todo(mixin27): Add reminder
+            //     _showComingSoonSnackBar(context, 'Reminder feature');
+            //   },
+            //   tooltip: 'Add Reminder',
+            //   child: const Icon(Icons.notifications_outlined),
+            // ),
+            // const SizedBox(height: 12),
 
             // Add Event
             FloatingActionButton(
@@ -154,8 +156,10 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                   buttonLocation: 'day_details_fab',
                 );
 
-                // todo(mixin27): Navigate to event creation
-                _showComingSoonSnackBar(context, 'Event feature');
+                // Navigate to event creation with pre-filled date
+                GoRouter.of(
+                  context,
+                ).push('/events/create', extra: _currentDate);
               },
               tooltip: 'Add Event',
               child: const Icon(Icons.add),
@@ -870,85 +874,226 @@ class _DayDetailsPageState extends State<DayDetailsPage>
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: widget.events.isEmpty
+            ? _buildNoEventsPlaceholder()
+            : _buildEventsList(),
+      ),
+    );
+  }
+
+  Widget _buildEventsList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.event,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Events',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: () {
-                    // todo(mixin27): Add event
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Event feature coming soon!'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Add'),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                  ),
-                ),
-              ],
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.event,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
             ),
-            const SizedBox(height: 16),
-            Center(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.event_available,
-                    size: 48,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'No events scheduled',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Events feature coming in the next update',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
+            const SizedBox(width: 12),
+            Text(
+              'Events',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const Spacer(),
+            TextButton.icon(
+              onPressed: () {
+                // Navigate to event creation with pre-filled date
+                GoRouter.of(
+                  context,
+                ).push('/events/create', extra: _currentDate);
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
               ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 16),
+        ...widget.events.map((event) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              onTap: () {
+                GoRouter.of(context).push('/events/${event.id}/detail');
+              },
+              leading: Container(
+                width: 4,
+                height: double.infinity,
+                color: Color(event.effectiveColor),
+              ),
+              title: Text(
+                event.title,
+                style: TextStyle(
+                  decoration: event.isCompleted
+                      ? TextDecoration.lineThrough
+                      : null,
+                  color: event.isCompleted ? Colors.grey : null,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        event.isAllDay ? Icons.event : Icons.access_time,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _formatEventTime(event),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        _getCategoryIcon(event),
+                        size: 14,
+                        color: Color(event.category.colorCode),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        event.category.name,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(event.category.colorCode),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  if (event.location != null && event.location!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 14,
+                          color: Colors.grey[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            event.location!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildNoEventsPlaceholder() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.event,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Events',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const Spacer(),
+            TextButton.icon(
+              onPressed: () {
+                // Navigate to event creation with pre-filled date
+                GoRouter.of(
+                  context,
+                ).push('/events/create', extra: _currentDate);
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: Column(
+            children: [
+              Icon(
+                Icons.event_available,
+                size: 48,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'No events scheduled',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Events feature coming in the next update',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -1279,12 +1424,38 @@ Shared from Myanmar Calendar App
     }
   }
 
-  void _showComingSoonSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$message coming soon!'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  // void _showComingSoonSnackBar(BuildContext context, String message) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text('$message coming soon!'),
+  //       behavior: SnackBarBehavior.floating,
+  //     ),
+  //   );
+  // }
+
+  String _formatEventTime(Event event) {
+    if (event.isAllDay) {
+      return DateFormat('MMM dd, yyyy').format(event.eventDate);
+    } else {
+      return DateFormat('MMM dd, yyyy • hh:mm a').format(event.eventDateTime);
+    }
+  }
+
+  IconData _getCategoryIcon(Event event) {
+    // Map icon name to IconData
+    switch (event.category.iconName) {
+      case 'person':
+        return Icons.person;
+      case 'work':
+        return Icons.work;
+      case 'auto_awesome':
+        return Icons.auto_awesome;
+      case 'family_restroom':
+        return Icons.family_restroom;
+      case 'favorite':
+        return Icons.favorite;
+      default:
+        return Icons.event;
+    }
   }
 }
