@@ -13,6 +13,7 @@ import '../../domain/entities/app_settings.dart';
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 import '../bloc/settings_state.dart';
+import '../widgets/leading_dot.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -330,6 +331,7 @@ class _SettingsContent extends StatelessWidget {
                     subtitle: 'Display Western calendar dates',
                     icon: Icons.event,
                     value: settings.showWesternDates,
+                    useIcon: true,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
                         ToggleDisplayPreference(
@@ -344,6 +346,7 @@ class _SettingsContent extends StatelessWidget {
                     subtitle: 'Display Myanmar calendar dates',
                     icon: Icons.calendar_month,
                     value: settings.showMyanmarDates,
+                    useIcon: true,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
                         ToggleDisplayPreference(
@@ -455,6 +458,7 @@ class _SettingsContent extends StatelessWidget {
                     icon: Icons.analytics_outlined,
                     iconColor: Colors.blue,
                     value: settings.enableAnalytics,
+                    useIcon: true,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
                         UpdateAnalyticsConsent(value),
@@ -467,6 +471,7 @@ class _SettingsContent extends StatelessWidget {
                     icon: Icons.bug_report_outlined,
                     iconColor: Colors.orange,
                     value: settings.enableCrashlytics,
+                    useIcon: true,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
                         UpdateCrashlyticsConsent(value),
@@ -998,6 +1003,7 @@ class _AnimatedSwitchTile extends StatelessWidget {
   final IconData icon;
   final bool value;
   final Color? iconColor;
+  final bool useIcon;
   final ValueChanged<bool> onChanged;
 
   const _AnimatedSwitchTile({
@@ -1007,12 +1013,13 @@ class _AnimatedSwitchTile extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.iconColor,
+    this.useIcon = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return SwitchListTile(
-      secondary: Icon(icon, color: iconColor),
+      secondary: LeadingDot(color: iconColor, icon: useIcon ? icon : null),
       title: Text(title),
       subtitle: Text(subtitle),
       value: value,

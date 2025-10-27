@@ -176,3 +176,13 @@ final class SubmitEventForm extends EventFormEvent {
 final class ResetEventForm extends EventFormEvent {
   const ResetEventForm();
 }
+
+/// Load event by ID for editing
+final class LoadEventForEdit extends EventFormEvent {
+  final int eventId;
+
+  const LoadEventForEdit(this.eventId);
+
+  @override
+  List<Object?> get props => [eventId];
+}

@@ -36,8 +36,7 @@ class _EventFormPageState extends State<EventFormPage> {
     super.initState();
 
     if (widget.eventId != null) {
-      // Load event for editing
-      // This would come from a GetEventById use case
+      context.read<EventFormBloc>().add(LoadEventForEdit(widget.eventId!));
     } else {
       context.read<EventFormBloc>().add(
         InitializeNewEvent(initialDate: widget.initialDate),

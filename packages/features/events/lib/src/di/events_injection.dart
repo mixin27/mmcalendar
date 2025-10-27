@@ -7,6 +7,7 @@ import '../domain/repositories/events_repository.dart';
 import '../domain/usecases/create_event_category.dart';
 import '../domain/usecases/create_user_event.dart';
 import '../domain/usecases/delete_user_event.dart';
+import '../domain/usecases/get_event_by_id.dart';
 import '../domain/usecases/get_event_categories.dart';
 import '../domain/usecases/get_events_by_date.dart';
 import '../domain/usecases/get_events_by_date_range.dart';
@@ -98,6 +99,8 @@ Future<void> initEventsDependencies() async {
     () => CreateEventCategory(getIt<EventsRepository>()),
   );
 
+  getIt.registerLazySingleton(() => GetEventById(getIt<EventsRepository>()));
+
   // ============================================================================
   // BLOCS
   // ============================================================================
@@ -120,6 +123,7 @@ Future<void> initEventsDependencies() async {
     () => EventFormBloc(
       createEvent: getIt<CreateUserEvent>(),
       updateEvent: getIt<UpdateUserEvent>(),
+      getEventById: getIt<GetEventById>(),
     ),
   );
 

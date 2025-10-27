@@ -5,7 +5,6 @@ import 'package:core/core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:localizations/localizations.dart';
 
 import '../../di/calendar_injection.dart';
@@ -865,7 +864,13 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Widget _buildEventsSection() {
-    // Placeholder for future events feature
+    // Filter events for this specific date
+    final dateEvents = widget.events.where((event) {
+      return event.eventDate.year == _currentDate.year &&
+          event.eventDate.month == _currentDate.month &&
+          event.eventDate.day == _currentDate.day;
+    }).toList();
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -874,226 +879,225 @@ class _DayDetailsPageState extends State<DayDetailsPage>
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: widget.events.isEmpty
-            ? _buildNoEventsPlaceholder()
-            : _buildEventsList(),
-      ),
-    );
-  }
-
-  Widget _buildEventsList() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.event,
-                color: Theme.of(context).colorScheme.primary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'Events',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const Spacer(),
-            TextButton.icon(
-              onPressed: () {
-                // Navigate to event creation with pre-filled date
-                GoRouter.of(
-                  context,
-                ).push('/events/create', extra: _currentDate);
-              },
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add'),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        ...widget.events.map((event) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              onTap: () {
-                GoRouter.of(context).push('/events/${event.id}/detail');
-              },
-              leading: Container(
-                width: 4,
-                height: double.infinity,
-                color: Color(event.effectiveColor),
-              ),
-              title: Text(
-                event.title,
-                style: TextStyle(
-                  decoration: event.isCompleted
-                      ? TextDecoration.lineThrough
-                      : null,
-                  color: event.isCompleted ? Colors.grey : null,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(
-                        event.isAllDay ? Icons.event : Icons.access_time,
-                        size: 14,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatEventTime(event),
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ],
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(
-                        _getCategoryIcon(event),
-                        size: 14,
-                        color: Color(event.category.colorCode),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        event.category.name,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(event.category.colorCode),
-                        ),
-                      ),
-                    ],
+                  child: Icon(
+                    Icons.event,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
                   ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Events',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () {
+                    _analyticsService.logButtonClick(
+                      buttonName: 'add_event_from_day',
+                      buttonLocation: 'day_details_events_section',
+                    );
+                    GoRouter.of(
+                      context,
+                    ).push('/events/create', extra: _currentDate);
+                  },
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
 
-                  if (event.location != null && event.location!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          size: 14,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            event.location!,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+            if (dateEvents.isEmpty)
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.event_available,
+                      size: 48,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No events scheduled',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
-                ],
-              ),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildNoEventsPlaceholder() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.event,
-                color: Theme.of(context).colorScheme.primary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'Events',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const Spacer(),
-            TextButton.icon(
-              onPressed: () {
-                // Navigate to event creation with pre-filled date
-                GoRouter.of(
-                  context,
-                ).push('/events/create', extra: _currentDate);
-              },
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add'),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
                 ),
-              ),
-            ),
+              )
+            else
+              ...dateEvents.map((event) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Color(event.effectiveColor).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Color(event.effectiveColor).withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      _analyticsService.logButtonClick(
+                        buttonName: 'view_event_detail',
+                        buttonLocation: 'day_details_events_section',
+                        additionalData: {'event_id': event.id.toString()},
+                      );
+                      if (event.id != null) {
+                        GoRouter.of(context).push('/events/${event.id}/detail');
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 4,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: Color(event.effectiveColor),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  event.title,
+                                  style: Theme.of(context).textTheme.bodyLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        decoration: event.isCompleted
+                                            ? TextDecoration.lineThrough
+                                            : null,
+                                      ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      event.isAllDay
+                                          ? Icons.event
+                                          : Icons.access_time,
+                                      size: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        event.isAllDay
+                                            ? 'All day'
+                                            : TimeOfDay.fromDateTime(
+                                                event.eventTime!,
+                                              ).format(context),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ),
+                                    if (event.hasNotifications)
+                                      Icon(
+                                        Icons.notifications_active,
+                                        size: 14,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
+                                    if (event.isRecurring) ...[
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        Icons.repeat,
+                                        size: 14,
+                                        color: Colors.purple,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                if (event.location != null &&
+                                    event.location!.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.location_on,
+                                        size: 14,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          event.location!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                              ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
           ],
         ),
-        const SizedBox(height: 16),
-        Center(
-          child: Column(
-            children: [
-              Icon(
-                Icons.event_available,
-                size: 48,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'No events scheduled',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Events feature coming in the next update',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -1432,30 +1436,4 @@ Shared from Myanmar Calendar App
   //     ),
   //   );
   // }
-
-  String _formatEventTime(Event event) {
-    if (event.isAllDay) {
-      return DateFormat('MMM dd, yyyy').format(event.eventDate);
-    } else {
-      return DateFormat('MMM dd, yyyy • hh:mm a').format(event.eventDateTime);
-    }
-  }
-
-  IconData _getCategoryIcon(Event event) {
-    // Map icon name to IconData
-    switch (event.category.iconName) {
-      case 'person':
-        return Icons.person;
-      case 'work':
-        return Icons.work;
-      case 'auto_awesome':
-        return Icons.auto_awesome;
-      case 'family_restroom':
-        return Icons.family_restroom;
-      case 'favorite':
-        return Icons.favorite;
-      default:
-        return Icons.event;
-    }
-  }
 }

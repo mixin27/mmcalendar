@@ -12,7 +12,7 @@ class EventCalendarIndicator extends StatelessWidget {
     super.key,
     required this.events,
     this.showCount = true,
-    this.size = 20,
+    this.size = 6,
   });
 
   @override
@@ -25,6 +25,7 @@ class EventCalendarIndicator extends StatelessWidget {
           e.priority == EventPriority.urgent,
     );
 
+    // Simple dot indicator
     return Container(
       width: size,
       height: size,
@@ -33,18 +34,6 @@ class EventCalendarIndicator extends StatelessWidget {
             ? Colors.red.withValues(alpha: 0.8)
             : Colors.blue.withValues(alpha: 0.8),
         shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: showCount && events.length > 1
-            ? Text(
-                events.length.toString(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: size * 0.6,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            : Icon(Icons.event, color: Colors.white, size: size * 0.7),
       ),
     );
   }

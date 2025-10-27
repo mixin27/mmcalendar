@@ -19,6 +19,7 @@ export 'src/domain/usecases/toggle_event_completion.dart';
 export 'src/domain/usecases/watch_user_events.dart';
 export 'src/domain/usecases/get_event_categories.dart';
 export 'src/domain/usecases/create_event_category.dart';
+export 'src/domain/usecases/get_event_by_id.dart';
 
 // Presentation
 export 'src/presentation/bloc/user_events_bloc.dart';

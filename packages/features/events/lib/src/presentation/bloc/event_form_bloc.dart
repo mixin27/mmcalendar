@@ -6,6 +6,7 @@ import '../../domain/entities/event.dart';
 import '../../domain/entities/event_category.dart';
 import '../../domain/entities/notification_setting.dart';
 import '../../domain/usecases/create_user_event.dart';
+import '../../domain/usecases/get_event_by_id.dart';
 import '../../domain/usecases/update_user_event.dart';
 import '../../services/event_notification_manager.dart';
 import 'event_form_event.dart';
@@ -16,11 +17,16 @@ final getIt = GetIt.instance;
 class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   final CreateUserEvent createEvent;
   final UpdateUserEvent updateEvent;
+  final GetEventById getEventById;
 
-  EventFormBloc({required this.createEvent, required this.updateEvent})
-    : super(EventFormInitial()) {
+  EventFormBloc({
+    required this.createEvent,
+    required this.updateEvent,
+    required this.getEventById,
+  }) : super(EventFormInitial()) {
     on<InitializeNewEvent>(_onInitializeNewEvent);
     on<InitializeEditEvent>(_onInitializeEditEvent);
+    on<LoadEventForEdit>(_onLoadEventForEdit);
     on<UpdateEventTitle>(_onUpdateEventTitle);
     on<UpdateEventDescription>(_onUpdateEventDescription);
     on<UpdateEventDate>(_onUpdateEventDate);
@@ -83,6 +89,27 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
         tags: List.from(e.tags),
         isValid: true,
       ),
+    );
+  }
+
+  // Load event by ID for editing
+  Future<void> _onLoadEventForEdit(
+    LoadEventForEdit event,
+    Emitter<EventFormState> emit,
+  ) async {
+    emit(const EventFormSubmitting()); // Use as loading state
+
+    final result = await getEventById(GetEventByIdParams(event.eventId));
+
+    result.fold(
+      (failure) {
+        emit(EventFormError(failure));
+        emit(EventFormInitial());
+      },
+      (loadedEvent) {
+        // Initialize form with loaded event
+        add(InitializeEditEvent(loadedEvent));
+      },
     );
   }
 
