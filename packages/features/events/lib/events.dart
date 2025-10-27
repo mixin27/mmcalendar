@@ -43,6 +43,7 @@ export 'src/presentation/widgets/event_list_tile.dart';
 export 'src/presentation/widgets/category_chip.dart';
 export 'src/presentation/widgets/priority_badge.dart';
 export 'src/presentation/widgets/recurrence_badge.dart';
+export 'src/presentation/widgets/animated_event_card.dart';
 
 // Services
 export 'src/services/notification_service.dart';

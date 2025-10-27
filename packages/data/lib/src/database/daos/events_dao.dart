@@ -12,8 +12,21 @@ class EventsDao extends DatabaseAccessor<AppDatabase> with _$EventsDaoMixin {
   // ========== USER EVENTS ==========
 
   Future<List<UserEvent>> getAllEvents() {
+    return (select(
+      userEvents,
+    )..orderBy([(e) => OrderingTerm.asc(e.eventDate)])).get();
+  }
+
+  Future<List<UserEvent>> getAllIncompleteEvents() {
     return (select(userEvents)
           ..where((e) => e.isCompleted.equals(false))
+          ..orderBy([(e) => OrderingTerm.asc(e.eventDate)]))
+        .get();
+  }
+
+  Future<List<UserEvent>> getAllCompletedEvents() {
+    return (select(userEvents)
+          ..where((e) => e.isCompleted.equals(true))
           ..orderBy([(e) => OrderingTerm.asc(e.eventDate)]))
         .get();
   }

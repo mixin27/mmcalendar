@@ -74,9 +74,13 @@ class EventsRepositoryImpl extends data.BaseRepository
   }
 
   @override
-  Future<Either<Failure, List<Event>>> getAllEvents() async {
+  Future<Either<Failure, List<Event>>> getAllEvents({
+    bool includeCompleted = false,
+  }) async {
     try {
-      final results = await localDataSource.getAllEvents();
+      final results = await localDataSource.getAllEvents(
+        includeCompleted: includeCompleted,
+      );
       final events = results.map((e) => e.toEntity()).toList();
       return Right(events);
     } on AppException catch (e) {

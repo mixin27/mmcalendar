@@ -230,23 +230,27 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     emit(const CalendarLoading());
 
     final result = await navigateMonth.today();
+    if (result.isLeft()) {
+      final failure = result.fold((f) => f, (_) => null)!;
+      emit(CalendarError(_mapFailureToMessage(failure)));
+      return;
+    }
 
-    result.fold(
-      (failure) => emit(CalendarError(_mapFailureToMessage(failure))),
-      (calendarMonth) {
-        emit(
-          CalendarLoaded(
-            calendarMonth: calendarMonth,
-            selectedDate: null, // Clear selection when changing month
-            isAstrologyExpanded: currentAstrologyExpanded, // Preserve state
-            today: currentState.today,
-          ),
-        );
+    final calendarMonth = result.fold((_) => null, (m) => m)!;
+    final eventsByDate = await _loadEventsForMonth(calendarMonth);
 
-        // Fire event to event bus
-        AppEventBus.fire(MonthChangedEvent(calendarMonth.month));
-      },
+    emit(
+      CalendarLoaded(
+        calendarMonth: calendarMonth,
+        selectedDate: null, // Clear selection when changing month
+        isAstrologyExpanded: currentAstrologyExpanded, // Preserve state
+        today: currentState.today,
+        eventsByDate: eventsByDate,
+      ),
     );
+
+    // Fire event to event bus
+    AppEventBus.fire(MonthChangedEvent(calendarMonth.month));
   }
 
   Future<void> _onSelectDate(

@@ -13,7 +13,7 @@ abstract class EventsLocalDataSource {
   Future<EventModel> updateEvent(EventModel event);
   Future<void> deleteEvent(int eventId);
   Future<EventModel?> getEventById(int eventId);
-  Future<List<EventModel>> getAllEvents();
+  Future<List<EventModel>> getAllEvents({bool includeCompleted = false});
   Future<List<EventModel>> getEventsByDate(DateTime date);
   Future<List<EventModel>> getEventsByDateRange(
     DateTime startDate,
@@ -136,9 +136,11 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   }
 
   @override
-  Future<List<EventModel>> getAllEvents() async {
+  Future<List<EventModel>> getAllEvents({bool includeCompleted = false}) async {
     try {
-      final events = await _dao.getAllEvents();
+      final events = includeCompleted
+          ? await _dao.getAllEvents()
+          : await _dao.getAllIncompleteEvents();
       return Future.wait(
         events.map((e) async {
           final category = await _getCategoryForEvent(e);

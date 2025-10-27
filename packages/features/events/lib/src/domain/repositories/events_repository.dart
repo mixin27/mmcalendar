@@ -23,7 +23,9 @@ abstract class EventsRepository {
   Future<Either<Failure, Event>> getEventById(int eventId);
 
   /// Get all events
-  Future<Either<Failure, List<Event>>> getAllEvents();
+  Future<Either<Failure, List<Event>>> getAllEvents({
+    bool includeCompleted = false,
+  });
 
   /// Get events by date
   Future<Either<Failure, List<Event>>> getEventsByDate(DateTime date);

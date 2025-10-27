@@ -58,7 +58,9 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     emit(const EventsLoading());
 
     // Get ALL events (not just upcoming)
-    final result = await eventsRepository.getAllEvents();
+    final result = await eventsRepository.getAllEvents(
+      includeCompleted: event.includeCompleted,
+    );
 
     result.fold((failure) => emit(EventsError(failure)), (events) {
       // Sort by date

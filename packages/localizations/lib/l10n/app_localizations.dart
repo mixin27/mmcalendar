@@ -314,6 +314,12 @@ abstract class AppLocalizations {
   /// **'Special Days'**
   String get special_days;
 
+  /// Anniversary Days label
+  ///
+  /// In en, this message translates to:
+  /// **'Anniversary Days'**
+  String get anniversary_days;
+
   /// Buddhist Era label
   ///
   /// In en, this message translates to:

@@ -32,6 +32,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   @override
   void initState() {
     super.initState();
+
     // Log screen view when page loads
     _analyticsService.logScreenView(
       screenName: 'day_details',
@@ -636,7 +637,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   Widget _buildHolidaysCard() {
     return ExpandableSection(
       title:
-          '${AppLocalizations.of(context)?.holidays ?? "Holidays"} & ${AppLocalizations.of(context)?.special_days ?? "Special Days"}',
+          '${AppLocalizations.of(context)?.holidays ?? "Holidays"} & ${AppLocalizations.of(context)?.anniversary_days ?? "Anniversary Days"}',
       icon: Icons.celebration,
       iconColor: Theme.of(context).colorScheme.error,
       initiallyExpanded: true,
@@ -1159,7 +1160,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
               children: [
                 _buildStatItem(
                   Icons.event,
-                  '0',
+                  widget.events.length.toString(),
                   'Events',
                   Theme.of(context).colorScheme.primary,
                 ),

@@ -9,7 +9,12 @@ sealed class UserEventsEvent extends Equatable {
 
 /// Load all events
 final class LoadAllEvents extends UserEventsEvent {
-  const LoadAllEvents();
+  final bool includeCompleted;
+
+  const LoadAllEvents({this.includeCompleted = false});
+
+  @override
+  List<Object?> get props => [includeCompleted];
 }
 
 /// Load events by date
@@ -55,7 +60,12 @@ final class SearchEventsEvent extends UserEventsEvent {
 
 /// Refresh events
 final class RefreshEvents extends UserEventsEvent {
-  const RefreshEvents();
+  final bool includeCompleted;
+
+  const RefreshEvents({this.includeCompleted = false});
+
+  @override
+  List<Object?> get props => [includeCompleted];
 }
 
 /// Toggle event completion
