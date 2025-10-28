@@ -2,6 +2,8 @@ import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
+import 'moon_phase_indicator.dart';
+
 class DateCell extends StatefulWidget {
   final CompleteDate dateInfo;
   final bool isSelected;
@@ -264,7 +266,6 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       );
     }
 
-    final moonIcon = _getMoonPhaseIcon(widget.dateInfo.moonPhase);
     final fortnightDay = FormatService().translateNumbers(
       widget.dateInfo.fortnightDay.toString(),
     );
@@ -273,14 +274,12 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          moonIcon,
-          style: TextStyle(
-            fontSize: 8,
-            color: textColor.withValues(alpha: opacity * 0.7),
-            height: 1,
-          ),
+        MoonPhaseIconIndicator(
+          moonPhase: widget.dateInfo.moonPhase,
+          style: MoonIconStyle.emoji,
+          size: 8,
         ),
+        // CustomMoonIcon(moonPhase: widget.dateInfo.moonPhase, size: 8),
         const SizedBox(width: 2),
         Text(
           fortnightDay,
@@ -432,21 +431,6 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
 
     // Use event's custom color or category color
     return Color(event.effectiveColor);
-  }
-
-  String _getMoonPhaseIcon(int moonPhase) {
-    switch (moonPhase) {
-      case 0:
-        return '☽'; // Waxing
-      case 1:
-        return '●'; // Full Moon
-      case 2:
-        return '☾'; // Waning
-      case 3:
-        return '○'; // New Moon
-      default:
-        return '';
-    }
   }
 }
 

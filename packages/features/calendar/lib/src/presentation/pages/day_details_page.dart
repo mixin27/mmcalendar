@@ -1457,11 +1457,13 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Future<void> _showDatePicker(BuildContext context) async {
+    final isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     final selectedDate = await showMyanmarDatePicker(
       context: context,
       initialDate: _currentDate,
       theme: MyanmarCalendarTheme.fromColor(
         Theme.of(context).colorScheme.primary,
+        isDark: isDark,
       ),
     );
 
