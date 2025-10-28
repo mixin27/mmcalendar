@@ -98,16 +98,16 @@ class _AnimatedEventCardState extends State<AnimatedEventCard>
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white,
-                        Color(
-                          widget.event.effectiveColor,
-                        ).withValues(alpha: 0.03),
-                      ],
-                    ),
+                    // gradient: LinearGradient(
+                    //   begin: Alignment.topLeft,
+                    //   end: Alignment.bottomRight,
+                    //   colors: [
+                    //     Theme.of(context).colorScheme.surface,
+                    //     Color(
+                    //       widget.event.effectiveColor,
+                    //     ).withValues(alpha: 0.03),
+                    //   ],
+                    // ),
                   ),
                   child: Row(
                     children: [
@@ -409,7 +409,11 @@ class _AnimatedCheckboxState extends State<_AnimatedCheckbox>
             borderRadius: BorderRadius.circular(6),
           ),
           child: widget.value
-              ? const Icon(Icons.check, size: 16, color: Colors.white)
+              ? Icon(
+                  Icons.check,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.surface,
+                )
               : null,
         ),
       ),

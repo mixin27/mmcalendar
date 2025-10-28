@@ -1,3 +1,5 @@
+import 'package:events/src/presentation/pages/pending_notification_list_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -151,59 +153,85 @@ class _EventsListPageState extends State<EventsListPage>
       expandedHeight: 140,
       pinned: true,
       elevation: 0,
-      flexibleSpace: FlexibleSpaceBar(
-        title: const Text(
-          'Events',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                colorScheme.primaryContainer,
-                colorScheme.primaryContainer.withValues(alpha: 0.7),
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          // Calculate collapse ratio
+          final expandedHeight = 160.0;
+          final collapsedHeight =
+              kToolbarHeight + MediaQuery.of(context).padding.top;
+          final currentHeight = constraints.maxHeight;
+
+          // Value from 0 (collapsed) to 1 (expanded)
+          final opacity =
+              ((currentHeight - collapsedHeight) /
+                      (expandedHeight - collapsedHeight))
+                  .clamp(0.0, 1.0);
+
+          return FlexibleSpaceBar(
+            titlePadding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: 16 + (opacity * 8), // Adjust position based on expansion
+            ),
+            title: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Events',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+
+                // Show stats only when expanded
+                if (events.isNotEmpty && opacity > 0.3)
+                  Opacity(
+                    opacity: opacity,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildStatChip(
+                              icon: Icons.event,
+                              label: '${events.length} Total',
+                              color: colorScheme.primary,
+                            ),
+                            const SizedBox(width: 6),
+                            _buildStatChip(
+                              icon: Icons.upcoming,
+                              label:
+                                  '${events.where((e) => !e.isCompleted).length} Active',
+                              color: Colors.blue,
+                            ),
+                            const SizedBox(width: 6),
+                            _buildStatChip(
+                              icon: Icons.check_circle,
+                              label:
+                                  '${events.where((e) => e.isCompleted).length} Done',
+                              color: Colors.green,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  if (events.isNotEmpty)
-                    Row(
-                      children: [
-                        _buildStatChip(
-                          icon: Icons.event,
-                          label: '${events.length} Total',
-                          color: colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildStatChip(
-                          icon: Icons.upcoming,
-                          label:
-                              '${events.where((e) => !e.isCompleted).length} Active',
-                          color: Colors.blue,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildStatChip(
-                          icon: Icons.check_circle,
-                          label:
-                              '${events.where((e) => e.isCompleted).length} Done',
-                          color: Colors.green,
-                        ),
-                      ],
-                    ),
-                ],
+            background: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    colorScheme.primaryContainer,
+                    colorScheme.primaryContainer.withValues(alpha: 0.7),
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
       actions: [
         IconButton(
@@ -211,6 +239,17 @@ class _EventsListPageState extends State<EventsListPage>
           onPressed: () => _showSearch(context),
           tooltip: 'Search events',
         ),
+        if (kDebugMode)
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PendingNotificationListPage(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.bug_report),
+          ),
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert),
           onSelected: (value) {
@@ -658,7 +697,9 @@ class _EventDateSectionState extends State<_EventDateSection>
           Icon(
             isToday ? Icons.today : Icons.calendar_today,
             size: 16,
-            color: isToday ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            color: isToday
+                ? colorScheme.onPrimaryContainer
+                : colorScheme.onSurfaceVariant,
           ),
           const SizedBox(width: 8),
           Text(
@@ -669,7 +710,7 @@ class _EventDateSectionState extends State<_EventDateSection>
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w600,
               color: isToday
-                  ? colorScheme.primary
+                  ? colorScheme.onPrimaryContainer
                   : colorScheme.onSurfaceVariant,
             ),
           ),
@@ -678,7 +719,7 @@ class _EventDateSectionState extends State<_EventDateSection>
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: isToday
-                  ? colorScheme.primary
+                  ? colorScheme.onPrimaryContainer
                   : colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -687,7 +728,9 @@ class _EventDateSectionState extends State<_EventDateSection>
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: isToday ? Colors.white : colorScheme.onSurfaceVariant,
+                color: isToday
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : colorScheme.onSurfaceVariant,
               ),
             ),
           ),

@@ -52,8 +52,7 @@ final GoRouter router = GoRouter(
                   builder: (context, state) {
                     final data = state.extra as Map<String, dynamic>;
                     final date = data["date"] as DateTime;
-                    final events = data["events"] as List<Event>;
-                    return DayDetailsPage(date: date, events: events);
+                    return DayDetailsPage(date: date);
                   },
                 ),
               ],
