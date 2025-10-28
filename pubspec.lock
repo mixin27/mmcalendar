@@ -459,6 +459,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.1"
+  flutter_svg:
+    dependency: transitive
+    description:
+      name: flutter_svg
+      sha256: b9c2ad5872518a27507ab432d1fb97e8813b05f0fc693f9d40fad06d073e0678
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -709,6 +717,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+  path_parsing:
+    dependency: transitive
+    description:
+      name: path_parsing
+      sha256: "883402936929eac138ee0a45da5b0f2c80f89913e6dc3bf77eb65b84b409c6ca"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   path_provider:
     dependency: transitive
     description:
@@ -1114,6 +1130,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.1"
+  vector_graphics:
+    dependency: transitive
+    description:
+      name: vector_graphics
+      sha256: a4f059dc26fc8295b5921376600a194c4ec7d55e72f2fe4c7d2831e103d461e6
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.19"
+  vector_graphics_codec:
+    dependency: transitive
+    description:
+      name: vector_graphics_codec
+      sha256: "99fd9fbd34d9f9a32efd7b6a6aae14125d8237b10403b422a6a6dfeac2806146"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.13"
+  vector_graphics_compiler:
+    dependency: transitive
+    description:
+      name: vector_graphics_compiler
+      sha256: d354a7ec6931e6047785f4db12a1f61ec3d43b207fc0790f863818543f8ff0dc
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.19"
   vector_math:
     dependency: transitive
     description:
@@ -1182,34 +1222,34 @@ packages:
     dependency: transitive
     description:
       name: workmanager
-      sha256: "065673b2a465865183093806925419d311a9a5e0995aa74ccf8920fd695e2d10"
+      sha256: dffcbbfd99af17271ca52d8a3767ba8a1000b357f2774db8ed5d58879cb9783a
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.0+3"
+    version: "0.8.0"
   workmanager_android:
     dependency: transitive
     description:
       name: workmanager_android
-      sha256: "9ae744db4ef891f5fcd2fb8671fccc712f4f96489a487a1411e0c8675e5e8cb7"
+      sha256: a6447816c41aa0ad8f6fa29b62d09a528891cf0737296397e1caae2523ced7dc
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.0+2"
+    version: "0.8.0"
   workmanager_apple:
     dependency: transitive
     description:
       name: workmanager_apple
-      sha256: "1cc12ae3cbf5535e72f7ba4fde0c12dd11b757caf493a28e22d684052701f2ca"
+      sha256: "9c99003682a8423bdc122ff4bae891e24574d1e676ea302d2ef0493266228461"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.1+2"
+    version: "0.8.0"
   workmanager_platform_interface:
     dependency: transitive
     description:
       name: workmanager_platform_interface
-      sha256: f40422f10b970c67abb84230b44da22b075147637532ac501729256fcea10a47
+      sha256: b1f0a868f1117511a23b0eb4220f08134152433b51a83eed479b1d68bbe23789
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.1+1"
+    version: "0.8.0"
   xdg_directories:
     dependency: transitive
     description:

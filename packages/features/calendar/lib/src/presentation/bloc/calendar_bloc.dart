@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:core/core.dart';
@@ -128,6 +129,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         // If events fail to load, continue with empty events
       },
       (events) {
+        log('[CalendarBloc]: retrivedEvents: ${events.length}');
         for (final event in events) {
           final dateKey = DateTime(
             event.eventDate.year,

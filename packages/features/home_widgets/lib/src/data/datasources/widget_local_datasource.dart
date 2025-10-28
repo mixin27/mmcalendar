@@ -443,7 +443,7 @@ class WidgetLocalDataSource {
           requiresDeviceIdle: false,
           requiresStorageNotLow: false,
         ),
-        existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
+        existingWorkPolicy: ExistingWorkPolicy.replace,
       );
 
       debugPrint('✅ Widget updates scheduled successfully');

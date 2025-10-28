@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
@@ -303,6 +305,9 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
   }
 
   Widget _buildEventIndicator(Color textColor, double opacity) {
+    log(
+      'Events: ${widget.events.length} for ${widget.dateInfo.formatWestern()}',
+    );
     final eventCount = widget.events.length;
     final hasHighPriority = widget.events.any(
       (e) =>
