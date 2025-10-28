@@ -60,6 +60,7 @@ dependencies:
   home_widget: ^0.8.0
   shared_preferences: ^2.5.3
   workmanager: ^0.8.0
+  flutter_svg: ^2.2.1
 
   # Firebase
   firebase_core: ^4.1.1
@@ -77,3 +78,4 @@ flutter:
   assets:
     - assets/fonts/google_fonts/
     - assets/images/
+    - assets/logo.svg
