@@ -130,8 +130,11 @@ class _EventsListPageState extends State<EventsListPage>
       floatingActionButton: ScaleTransition(
         scale: _fabScaleAnimation,
         child: FloatingActionButton.extended(
-          onPressed: () {
-            context.push('/events/create');
+          onPressed: () async {
+            await context.push('/events/create');
+            if (context.mounted) {
+              context.read<UserEventsBloc>().add(const LoadAllEvents());
+            }
           },
           icon: const Icon(Icons.add),
           label: const Text('New Event'),
