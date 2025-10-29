@@ -3,6 +3,7 @@ import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
@@ -159,26 +160,12 @@ class _SplashPageState extends State<SplashPage>
                   opacity: _fadeAnimation,
                   child: ScaleTransition(
                     scale: _scaleAnimation,
-                    child: Container(
+                    child: SizedBox(
                       width: 120,
                       height: 120,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.3,
-                            ),
-                            blurRadius: 20,
-                            spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.calendar_month,
-                        size: 60,
-                        color: theme.colorScheme.onPrimary,
+                      child: SvgPicture.asset(
+                        'assets/logo.svg',
+                        semanticsLabel: "Myanmar Calendar Logo",
                       ),
                     ),
                   ),

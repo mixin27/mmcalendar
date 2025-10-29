@@ -510,89 +510,66 @@ class _DayViewPageState extends State<DayViewPage>
   Widget _buildAstrologyCard(CompleteDate completeDate) {
     final astroItems = _getAstroItems(completeDate);
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: context.colorScheme.outlineVariant, width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: context.colorScheme.tertiaryContainer,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.stars_rounded,
-                    color: context.colorScheme.tertiary,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context)?.astrological_information ??
-                        'Astrological Information',
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
+    return ExpandableSection(
+      title:
+          AppLocalizations.of(context)?.astrological_information ??
+          'Astrological Information',
+      icon: Icons.stars_rounded,
+      iconColor: context.colorScheme.tertiary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ...astroItems.map(
+            (item) =>
+                _buildAstroItem(item.label, item.value, item.icon, item.color),
+          ),
 
-            ...astroItems.map(
-              (item) => _buildAstroItem(
-                item.label,
-                item.value,
-                item.icon,
-                item.color,
+          // Special Days
+          if (completeDate.astrologicalDays.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context)?.special_days ?? 'Special Days',
+              style: context.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
             ),
-
-            // Special Days
-            if (completeDate.astrologicalDays.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)?.special_days ?? 'Special Days',
-                style: context.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: completeDate.astrologicalDays.map((day) {
-                  return Chip(
-                    label: Text(TranslationService.translate(day)),
-                    labelStyle: context.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                    backgroundColor: context.colorScheme.secondaryContainer,
-                    side: BorderSide.none,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: completeDate.astrologicalDays.map((day) {
+                return Chip(
+                  label: Text(TranslationService.translate(day)),
+                  labelStyle: context.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                  backgroundColor: context.colorScheme.secondaryContainer,
+                  side: BorderSide.none,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                );
+              }).toList(),
+            ),
           ],
-        ),
+        ],
       ),
     );
+
+    // return Card(
+    //   elevation: 0,
+    //   shape: RoundedRectangleBorder(
+    //     borderRadius: BorderRadius.circular(16),
+    //     side: BorderSide(color: context.colorScheme.outlineVariant, width: 1),
+    //   ),
+    //   child: Padding(
+    //     padding: const EdgeInsets.all(20),
+    //     child:
+    //   ),
+    // );
   }
 
   Widget _buildAstroItem(

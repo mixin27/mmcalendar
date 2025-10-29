@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:core/core.dart';
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import '../../domain/entities/app_settings.dart';
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 import '../bloc/settings_state.dart';
+import '../widgets/leading_dot.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -330,6 +333,7 @@ class _SettingsContent extends StatelessWidget {
                     subtitle: 'Display Western calendar dates',
                     icon: Icons.event,
                     value: settings.showWesternDates,
+                    useIcon: true,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
                         ToggleDisplayPreference(
@@ -344,6 +348,7 @@ class _SettingsContent extends StatelessWidget {
                     subtitle: 'Display Myanmar calendar dates',
                     icon: Icons.calendar_month,
                     value: settings.showMyanmarDates,
+                    useIcon: true,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
                         ToggleDisplayPreference(
@@ -389,57 +394,60 @@ class _SettingsContent extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 16),
-
+              // todo(mixin27): remove conditional when home_widgets configured
+              // in ios
               // Home Screen Widget Section
-              _SettingsSection(
-                title:
-                    AppLocalizations.of(context)?.home_screen_widget ??
-                    'Home Screen Widget',
-                icon: Icons.settings,
-                iconColor: colorScheme.error,
-                children: [
-                  _SettingsTile(
-                    title: 'Widget Settings',
-                    subtitle: 'Configure home screen widget appearance',
-                    leading: const Icon(Icons.widgets_outlined),
-                    onTap: () {
-                      GoRouter.of(
-                        context,
-                      ).push('${RoutePaths.settings}/${RoutePaths.widgets}');
-                    },
-                  ),
-                  _SettingsTile(
-                    title: 'Update Widget Now',
-                    subtitle: 'Manually refresh the widget data',
-                    leading: const Icon(Icons.refresh),
-                    onTap: () async {
-                      try {
-                        final widgetRepo = getIt<WidgetRepository>();
-                        await widgetRepo.refreshWidget();
+              if (Platform.isAndroid) ...[
+                const SizedBox(height: 16),
+                _SettingsSection(
+                  title:
+                      AppLocalizations.of(context)?.home_screen_widget ??
+                      'Home Screen Widget',
+                  icon: Icons.settings,
+                  iconColor: colorScheme.error,
+                  children: [
+                    _SettingsTile(
+                      title: 'Widget Settings',
+                      subtitle: 'Configure home screen widget appearance',
+                      leading: const Icon(Icons.widgets_outlined),
+                      onTap: () {
+                        GoRouter.of(
+                          context,
+                        ).push('${RoutePaths.settings}/${RoutePaths.widgets}');
+                      },
+                    ),
+                    _SettingsTile(
+                      title: 'Update Widget Now',
+                      subtitle: 'Manually refresh the widget data',
+                      leading: const Icon(Icons.refresh),
+                      onTap: () async {
+                        try {
+                          final widgetRepo = getIt<WidgetRepository>();
+                          await widgetRepo.refreshWidget();
 
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Widget updated successfully!'),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Widget updated successfully!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to update widget: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to update widget: $e'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    },
-                  ),
-                ],
-              ),
+                      },
+                    ),
+                  ],
+                ),
+              ],
 
               const SizedBox(height: 16),
 
@@ -455,6 +463,7 @@ class _SettingsContent extends StatelessWidget {
                     icon: Icons.analytics_outlined,
                     iconColor: Colors.blue,
                     value: settings.enableAnalytics,
+                    useIcon: true,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
                         UpdateAnalyticsConsent(value),
@@ -467,6 +476,7 @@ class _SettingsContent extends StatelessWidget {
                     icon: Icons.bug_report_outlined,
                     iconColor: Colors.orange,
                     value: settings.enableCrashlytics,
+                    useIcon: true,
                     onChanged: (value) {
                       context.read<SettingsBloc>().add(
                         UpdateCrashlyticsConsent(value),
@@ -998,6 +1008,7 @@ class _AnimatedSwitchTile extends StatelessWidget {
   final IconData icon;
   final bool value;
   final Color? iconColor;
+  final bool useIcon;
   final ValueChanged<bool> onChanged;
 
   const _AnimatedSwitchTile({
@@ -1007,12 +1018,13 @@ class _AnimatedSwitchTile extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.iconColor,
+    this.useIcon = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return SwitchListTile(
-      secondary: Icon(icon, color: iconColor),
+      secondary: LeadingDot(color: iconColor, icon: useIcon ? icon : null),
       title: Text(title),
       subtitle: Text(subtitle),
       value: value,

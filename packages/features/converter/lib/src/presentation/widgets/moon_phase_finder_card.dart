@@ -514,7 +514,7 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                   const Divider(),
                   const SizedBox(height: 16),
                   _buildAdditionalInfo(
-                    "${AppLocalizations.of(context)?.holidays ?? 'Holidays'} & ${AppLocalizations.of(context)?.special_days ?? 'Special Days'}",
+                    "${AppLocalizations.of(context)?.holidays ?? 'Holidays'} & ${AppLocalizations.of(context)?.anniversary_days ?? 'Anniversary Days'}",
                     [
                       ...completeDate.allHolidays,
                       ...completeDate.allAnniversaryDays,

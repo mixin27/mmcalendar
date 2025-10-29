@@ -35,7 +35,9 @@ final GoRouter router = GoRouter(
         return AppShell(navigationShell: navigationShell);
       },
       branches: [
-        // Home (Calendar)
+        // =====================================================================
+        // HOME (CALENDAR) BRANCH
+        // =====================================================================
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -50,9 +52,7 @@ final GoRouter router = GoRouter(
                   builder: (context, state) {
                     final data = state.extra as Map<String, dynamic>;
                     final date = data["date"] as DateTime;
-                    final events = data["events"] as List<Event>;
-                    // context.read<ViewsBloc>().add(LoadDayView(date));
-                    return DayDetailsPage(date: date, events: events);
+                    return DayDetailsPage(date: date);
                   },
                 ),
               ],
@@ -60,7 +60,9 @@ final GoRouter router = GoRouter(
           ],
         ),
 
-        // Views
+        // =====================================================================
+        // VIEWS BRANCH
+        // =====================================================================
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -84,69 +86,95 @@ final GoRouter router = GoRouter(
           ],
         ),
 
-        // Converter
+        // =====================================================================
+        // CONVERTER BRANCH
+        // =====================================================================
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: RoutePaths.converter,
-              builder: (context, state) => BlocProvider(
-                create: (context) => getIt<ConverterBloc>(),
-                child: const ConverterPage(),
-              ),
+              builder: (context, state) => const ConverterPage(),
             ),
           ],
         ),
 
-        // Events shell
-        // StatefulShellBranch(
-        //   routes: [
-        //     GoRoute(
-        //       path: '/events',
-        //       builder: (context, state) => BlocProvider(
-        //         create: (context) => getIt<EventsBloc>(),
-        //         child: const EventsListPage(),
-        //       ),
-        //       routes: [
-        //         GoRoute(
-        //           path: 'create',
-        //           builder: (context, state) => BlocProvider.value(
-        //             value: context.read<EventsBloc>(),
-        //             child: const EventFormPage(),
-        //           ),
-        //         ),
-        //         GoRoute(
-        //           path: 'categories',
-        //           builder: (context, state) => BlocProvider.value(
-        //             value: context.read<EventsBloc>(),
-        //             child: const CategoriesPage(),
-        //           ),
-        //         ),
-        //         GoRoute(
-        //           path: ':id',
-        //           builder: (context, state) {
-        //             final id = int.parse(state.pathParameters['id']!);
-        //             return BlocProvider.value(
-        //               value: context.read<EventsBloc>(),
-        //               child: EventFormPage(eventId: id),
-        //             );
-        //           },
-        //         ),
-        //         GoRoute(
-        //           path: ':id/detail',
-        //           builder: (context, state) {
-        //             final id = int.parse(state.pathParameters['id']!);
-        //             return BlocProvider.value(
-        //               value: context.read<EventsBloc>(),
-        //               child: EventDetailPage(eventId: id),
-        //             );
-        //           },
-        //         ),
-        //       ],
-        //     ),
-        //   ],
-        // ),
+        // =====================================================================
+        // EVENTS BRANCH
+        // =====================================================================
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RoutePaths.events,
+              builder: (context, state) => const EventsListPage(),
+              routes: [
+                // Create new event
+                GoRoute(
+                  path: 'create',
+                  builder: (context, state) {
+                    final initialDate = state.extra as DateTime?;
+                    return MultiBlocProvider(
+                      providers: [
+                        BlocProvider(
+                          create: (context) => getIt<EventFormBloc>(),
+                        ),
+                        BlocProvider(
+                          create: (context) =>
+                              getIt<EventCategoriesBloc>()
+                                ..add(const LoadEventCategories()),
+                        ),
+                      ],
+                      child: EventFormPage(initialDate: initialDate),
+                    );
+                  },
+                ),
+                // Edit event
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) {
+                    final id = int.parse(state.pathParameters['id']!);
+                    return MultiBlocProvider(
+                      providers: [
+                        BlocProvider(
+                          create: (context) => getIt<EventFormBloc>(),
+                        ),
+                        BlocProvider(
+                          create: (context) =>
+                              getIt<EventCategoriesBloc>()
+                                ..add(const LoadEventCategories()),
+                        ),
+                      ],
+                      child: EventFormPage(eventId: id),
+                    );
+                  },
+                ),
 
-        // Settings
+                // Event detail
+                GoRoute(
+                  path: ':id/detail',
+                  builder: (context, state) {
+                    final id = int.parse(state.pathParameters['id']!);
+                    return EventDetailPage(eventId: id);
+                  },
+                ),
+
+                // Categories management
+                GoRoute(
+                  path: 'categories',
+                  builder: (context, state) => BlocProvider(
+                    create: (context) =>
+                        getIt<EventCategoriesBloc>()
+                          ..add(const LoadEventCategories()),
+                    child: const CategoriesPage(),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+
+        // =====================================================================
+        // SETTINGS BRANCH
+        // =====================================================================
         StatefulShellBranch(
           routes: [
             GoRoute(

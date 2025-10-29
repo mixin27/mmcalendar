@@ -3,16 +3,17 @@ import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:core/core.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:go_router/go_router.dart';
 import 'package:localizations/localizations.dart';
 
 import '../../di/calendar_injection.dart';
 
 class DayDetailsPage extends StatefulWidget {
   final DateTime date;
-  final List<Event> events;
 
-  const DayDetailsPage({super.key, required this.date, this.events = const []});
+  const DayDetailsPage({super.key, required this.date});
 
   @override
   State<DayDetailsPage> createState() => _DayDetailsPageState();
@@ -31,6 +32,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   @override
   void initState() {
     super.initState();
+
     // Log screen view when page loads
     _analyticsService.logScreenView(
       screenName: 'day_details',
@@ -47,6 +49,9 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     _currentDate = widget.date;
     _completeDate = MyanmarCalendar.getCompleteDate(widget.date);
     _initializeAnimations();
+
+    // Load events for the current date
+    _loadEventsForCurrentDate();
   }
 
   void _initializeAnimations() {
@@ -69,6 +74,11 @@ class _DayDetailsPageState extends State<DayDetailsPage>
         );
 
     _animationController.forward();
+  }
+
+  void _loadEventsForCurrentDate() {
+    // Load all events - we'll filter by date in the UI
+    context.read<UserEventsBloc>().add(const LoadAllEvents());
   }
 
   void _navigateToDay(DateTime newDate) {
@@ -129,33 +139,40 @@ class _DayDetailsPageState extends State<DayDetailsPage>
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             // Add Reminder (Future feature)
-            FloatingActionButton.small(
-              heroTag: 'reminder',
-              onPressed: () {
-                _analyticsService.logButtonClick(
-                  buttonName: 'add_reminder',
-                  buttonLocation: 'day_details_fab',
-                );
+            // FloatingActionButton.small(
+            //   heroTag: 'reminder',
+            //   onPressed: () {
+            //     _analyticsService.logButtonClick(
+            //       buttonName: 'add_reminder',
+            //       buttonLocation: 'day_details_fab',
+            //     );
 
-                // todo(mixin27): Add reminder
-                _showComingSoonSnackBar(context, 'Reminder feature');
-              },
-              tooltip: 'Add Reminder',
-              child: const Icon(Icons.notifications_outlined),
-            ),
-            const SizedBox(height: 12),
+            //     // todo(mixin27): Add reminder
+            //     _showComingSoonSnackBar(context, 'Reminder feature');
+            //   },
+            //   tooltip: 'Add Reminder',
+            //   child: const Icon(Icons.notifications_outlined),
+            // ),
+            // const SizedBox(height: 12),
 
             // Add Event
             FloatingActionButton(
               heroTag: 'event',
-              onPressed: () {
+              onPressed: () async {
                 _analyticsService.logButtonClick(
                   buttonName: 'add_event',
                   buttonLocation: 'day_details_fab',
                 );
 
-                // todo(mixin27): Navigate to event creation
-                _showComingSoonSnackBar(context, 'Event feature');
+                // Navigate to event creation with pre-filled date
+                await GoRouter.of(
+                  context,
+                ).push('/events/create', extra: _currentDate);
+
+                // Reload events when coming back
+                if (mounted) {
+                  _loadEventsForCurrentDate();
+                }
               },
               tooltip: 'Add Event',
               child: const Icon(Icons.add),
@@ -633,7 +650,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   Widget _buildHolidaysCard() {
     return ExpandableSection(
       title:
-          '${AppLocalizations.of(context)?.holidays ?? "Holidays"} & ${AppLocalizations.of(context)?.special_days ?? "Special Days"}',
+          '${AppLocalizations.of(context)?.holidays ?? "Holidays"} & ${AppLocalizations.of(context)?.anniversary_days ?? "Anniversary Days"}',
       icon: Icons.celebration,
       iconColor: Theme.of(context).colorScheme.error,
       initiallyExpanded: true,
@@ -861,90 +878,314 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Widget _buildEventsSection() {
-    // Placeholder for future events feature
+    return BlocBuilder<UserEventsBloc, UserEventsState>(
+      builder: (context, state) {
+        // Loading state
+        if (state is EventsLoading) {
+          return _buildEventsLoadingCard();
+        }
+
+        // Error state
+        if (state is EventsError) {
+          return _buildEventsErrorCard(state.failure.message);
+        }
+
+        // Get events for current date
+        List<Event> dateEvents = [];
+        if (state is EventsLoaded || state is EventsOperationSuccess) {
+          final allEvents = state is EventsLoaded
+              ? state.events
+              : (state as EventsOperationSuccess).events;
+
+          dateEvents = allEvents.where((event) {
+            return event.eventDate.year == _currentDate.year &&
+                event.eventDate.month == _currentDate.month &&
+                event.eventDate.day == _currentDate.day;
+          }).toList();
+
+          // Sort by time
+          dateEvents.sort((a, b) {
+            if (a.isAllDay && !b.isAllDay) return -1;
+            if (!a.isAllDay && b.isAllDay) return 1;
+            if (a.isAllDay && b.isAllDay) return 0;
+            return a.eventTime!.compareTo(b.eventTime!);
+          });
+        }
+
+        return _buildEventsCard(dateEvents);
+      },
+    );
+  }
+
+  Widget _buildEventsCard(List<Event> events) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+        ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.event,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Events',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: () {
-                    // todo(mixin27): Add event
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Event feature coming soon!'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Add'),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: Column(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withValues(alpha: 0.2),
+              Theme.of(context).colorScheme.surface,
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with action button
+              Row(
                 children: [
-                  Icon(
-                    Icons.event_available,
-                    size: 48,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'No events scheduled',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.8),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.event_note,
+                      color: Colors.white,
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Events feature coming in the next update',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Events',
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        if (events.isNotEmpty)
+                          Text(
+                            '${events.length} ${events.length == 1 ? 'event' : 'events'} scheduled',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: () async {
+                      _analyticsService.logButtonClick(
+                        buttonName: 'add_event_from_day',
+                        buttonLocation: 'day_details_events_section',
+                      );
+
+                      await GoRouter.of(
                         context,
-                      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                      ).push('/events/create', extra: _currentDate);
+
+                      if (mounted) {
+                        _loadEventsForCurrentDate();
+                      }
+                    },
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Add'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                     ),
                   ),
                 ],
               ),
+
+              const SizedBox(height: 20),
+
+              // Events list or empty state
+              if (events.isEmpty)
+                _buildEventsEmptyState()
+              else
+                ...events.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final event = entry.value;
+                  return _AnimatedEventItem(
+                    event: event,
+                    delay: Duration(milliseconds: index * 100),
+                    onTap: () async {
+                      _analyticsService.logButtonClick(
+                        buttonName: 'view_event_detail',
+                        buttonLocation: 'day_details_events_section',
+                        additionalData: {'event_id': event.id.toString()},
+                      );
+
+                      if (event.id != null && !event.isCompleted) {
+                        await GoRouter.of(
+                          context,
+                        ).push('/events/${event.id}/detail');
+
+                        if (mounted) {
+                          _loadEventsForCurrentDate();
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Event marked as completed")),
+                        );
+                      }
+                    },
+                    onCheckboxChanged: (checked) {
+                      if (event.id != null) {
+                        context.read<UserEventsBloc>().add(
+                          ToggleEventComplete(event.id!, checked ?? false),
+                        );
+                      }
+                    },
+                  );
+                }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventsEmptyState() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withValues(alpha: 0.3),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.event_available,
+              size: 48,
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No events scheduled',
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tap the Add button to create an event',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventsLoadingCard() {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Center(
+          child: Column(
+            children: [
+              CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Loading events...',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventsErrorCard(String message) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Error loading events',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: _loadEventsForCurrentDate,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
             ),
           ],
         ),
@@ -1008,11 +1249,27 @@ class _DayDetailsPageState extends State<DayDetailsPage>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem(
-                  Icons.event,
-                  '0',
-                  'Events',
-                  Theme.of(context).colorScheme.primary,
+                BlocBuilder<UserEventsBloc, UserEventsState>(
+                  builder: (context, state) {
+                    int count = 0;
+                    if (state is EventsLoaded ||
+                        state is EventsOperationSuccess) {
+                      final items = state is EventsLoaded
+                          ? state.events
+                          : (state as EventsOperationSuccess).events;
+                      count = items.where((event) {
+                        return event.eventDate.year == _currentDate.year &&
+                            event.eventDate.month == _currentDate.month &&
+                            event.eventDate.day == _currentDate.day;
+                      }).length;
+                    }
+                    return _buildStatItem(
+                      Icons.event,
+                      count.toString(),
+                      'Events',
+                      Theme.of(context).colorScheme.primary,
+                    );
+                  },
                 ),
                 Container(
                   width: 1,
@@ -1200,11 +1457,13 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Future<void> _showDatePicker(BuildContext context) async {
+    final isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     final selectedDate = await showMyanmarDatePicker(
       context: context,
       initialDate: _currentDate,
       theme: MyanmarCalendarTheme.fromColor(
         Theme.of(context).colorScheme.primary,
+        isDark: isDark,
       ),
     );
 
@@ -1279,11 +1538,441 @@ Shared from Myanmar Calendar App
     }
   }
 
-  void _showComingSoonSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$message coming soon!'),
-        behavior: SnackBarBehavior.floating,
+  // void _showComingSoonSnackBar(BuildContext context, String message) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text('$message coming soon!'),
+  //       behavior: SnackBarBehavior.floating,
+  //     ),
+  //   );
+  // }
+}
+
+class _AnimatedEventItem extends StatefulWidget {
+  final Event event;
+  final Duration delay;
+  final VoidCallback onTap;
+  final Function(bool?) onCheckboxChanged;
+
+  const _AnimatedEventItem({
+    required this.event,
+    this.delay = Duration.zero,
+    required this.onTap,
+    required this.onCheckboxChanged,
+  });
+
+  @override
+  State<_AnimatedEventItem> createState() => _AnimatedEventItemState();
+}
+
+class _AnimatedEventItemState extends State<_AnimatedEventItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.9,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(-0.1, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    Future.delayed(widget.delay, () {
+      if (mounted) {
+        _controller.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: GestureDetector(
+            onTapDown: (_) => setState(() => _isPressed = true),
+            onTapUp: (_) {
+              setState(() => _isPressed = false);
+              widget.onTap();
+            },
+            onTapCancel: () => setState(() => _isPressed = false),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              margin: const EdgeInsets.only(bottom: 12),
+              transform: Matrix4.identity()
+                ..scaleByDouble(
+                  _isPressed ? 0.98 : 1.0,
+                  _isPressed ? 0.98 : 1.0,
+                  _isPressed ? 0.98 : 1.0,
+                  1.0,
+                ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(widget.event.effectiveColor).withValues(alpha: 0.15),
+                    Color(widget.event.effectiveColor).withValues(alpha: 0.05),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Color(
+                    widget.event.effectiveColor,
+                  ).withValues(alpha: 0.4),
+                  width: 1.5,
+                ),
+                boxShadow: _isPressed
+                    ? []
+                    : [
+                        BoxShadow(
+                          color: Color(
+                            widget.event.effectiveColor,
+                          ).withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Row(
+                  children: [
+                    // Color indicator bar
+                    Container(
+                      width: 6,
+                      height: 90,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(widget.event.effectiveColor),
+                            Color(
+                              widget.event.effectiveColor,
+                            ).withValues(alpha: 0.7),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Checkbox
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: _CustomCheckbox(
+                        value: widget.event.isCompleted,
+                        color: Color(widget.event.effectiveColor),
+                        onChanged: widget.onCheckboxChanged,
+                      ),
+                    ),
+
+                    // Content
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Title and Priority
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    widget.event.title,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          decoration: widget.event.isCompleted
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                          color: widget.event.isCompleted
+                                              ? Colors.grey
+                                              : null,
+                                        ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (widget.event.priority ==
+                                        EventPriority.high ||
+                                    widget.event.priority ==
+                                        EventPriority.urgent)
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 8),
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          widget.event.priority ==
+                                              EventPriority.urgent
+                                          ? Colors.red.withValues(alpha: 0.2)
+                                          : Colors.orange.withValues(
+                                              alpha: 0.2,
+                                            ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.priority_high,
+                                      size: 14,
+                                      color:
+                                          widget.event.priority ==
+                                              EventPriority.urgent
+                                          ? Colors.red
+                                          : Colors.orange,
+                                    ),
+                                  ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            // Event details
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              children: [
+                                // Time
+                                _buildDetailChip(
+                                  icon: widget.event.isAllDay
+                                      ? Icons.event
+                                      : Icons.access_time,
+                                  label: widget.event.isAllDay
+                                      ? 'All day'
+                                      : TimeOfDay.fromDateTime(
+                                          widget.event.eventTime!,
+                                        ).format(context),
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+
+                                // Category
+                                _buildDetailChip(
+                                  icon: _getCategoryIcon(
+                                    widget.event.category.iconName,
+                                  ),
+                                  label: widget.event.category.name,
+                                  color: Color(widget.event.category.colorCode),
+                                ),
+
+                                // Location
+                                if (widget.event.location != null &&
+                                    widget.event.location!.isNotEmpty)
+                                  _buildDetailChip(
+                                    icon: Icons.location_on,
+                                    label: widget.event.location!,
+                                    color: Colors.red,
+                                  ),
+
+                                // Recurring
+                                if (widget.event.isRecurring)
+                                  _buildDetailChip(
+                                    icon: Icons.repeat,
+                                    label: 'Repeats',
+                                    color: Colors.purple,
+                                  ),
+
+                                // Notifications
+                                if (widget.event.hasNotifications)
+                                  _buildDetailChip(
+                                    icon: Icons.notifications_active,
+                                    label:
+                                        '${widget.event.notifications.length}',
+                                    color: Colors.amber.shade700,
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Arrow
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Icon(
+                        Icons.chevron_right,
+                        color: Color(widget.event.effectiveColor),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailChip({
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String iconName) {
+    switch (iconName) {
+      case 'person':
+        return Icons.person;
+      case 'work':
+        return Icons.work;
+      case 'auto_awesome':
+        return Icons.auto_awesome;
+      case 'family_restroom':
+        return Icons.family_restroom;
+      case 'favorite':
+        return Icons.favorite;
+      default:
+        return Icons.event;
+    }
+  }
+}
+
+class _CustomCheckbox extends StatefulWidget {
+  final bool value;
+  final Color color;
+  final ValueChanged<bool?>? onChanged;
+
+  const _CustomCheckbox({
+    required this.value,
+    required this.color,
+    this.onChanged,
+  });
+
+  @override
+  State<_CustomCheckbox> createState() => _CustomCheckboxState();
+}
+
+class _CustomCheckboxState extends State<_CustomCheckbox>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+
+    if (widget.value) {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(_CustomCheckbox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value) {
+      if (widget.value) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        widget.onChanged?.call(!widget.value);
+      },
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: widget.value ? widget.color : Colors.transparent,
+            border: Border.all(
+              color: widget.value ? widget.color : Colors.grey.shade400,
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: widget.value
+                ? [
+                    BoxShadow(
+                      color: widget.color.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: widget.value
+              ? const Icon(Icons.check, size: 16, color: Colors.white)
+              : null,
+        ),
       ),
     );
   }

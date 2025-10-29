@@ -553,7 +553,7 @@ class _DateConverterCardState extends State<DateConverterCard>
                 if (completeDate.hasHolidays ||
                     completeDate.hasAnniversaryDays) ...[
                   _buildAdditionalInfo(
-                    "${AppLocalizations.of(context)?.holidays ?? 'Holidays'} & ${AppLocalizations.of(context)?.special_days ?? 'Special Days'}",
+                    "${AppLocalizations.of(context)?.holidays ?? 'Holidays'} & ${AppLocalizations.of(context)?.anniversary_days ?? 'Anniversary Days'}",
                     [
                       ...completeDate.allHolidays,
                       ...completeDate.allAnniversaryDays,

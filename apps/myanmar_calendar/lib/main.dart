@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:data/data.dart';
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 import 'app.dart';
 import 'config/bloc_observer.dart';
@@ -28,6 +31,9 @@ void main() async {
   // Initialize Firebase with consent settings
   await _initializeFirebaseWithConsent();
 
+  // Initialize timezone database for notifications
+  tz.initializeTimeZones();
+
   // Initialize dependency injection
   await initializeDependencies();
 
@@ -41,8 +47,12 @@ void main() async {
   // Load saved settings and configure Myanmar Calendar
   await _initializeMyanmarCalendar();
 
+  // todo(mixin27): remove conditional when home_widgets configured
+  // in ios
   // SYNC BACKGROUND LOGS TO FIREBASE
-  await _syncBackgroundLogs();
+  if (Platform.isAndroid) {
+    await _syncBackgroundLogs();
+  }
 
   // Set up Bloc observer
   Bloc.observer = AppBlocObserver();
@@ -51,8 +61,12 @@ void main() async {
     return ErrorBoundary.errorWidget(details);
   };
 
+  // todo(mixin27): remove conditional when home_widgets configured
+  // in ios
   // Schedule widget updates on app start
-  await _initializeWidgetUpdates();
+  if (Platform.isAndroid) {
+    await _initializeWidgetUpdates();
+  }
 
   runApp(const MyanmarCalendarApp());
 }

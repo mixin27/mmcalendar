@@ -16,3 +16,5 @@ abstract class NoParamsUseCase<T> {
 abstract class StreamUseCase<T, Params> {
   Stream<Either<Failure, T>> call(Params params);
 }
+
+final class NoParams {}

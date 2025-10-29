@@ -1,4 +1,3 @@
-import 'package:events/events.dart';
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -134,13 +133,6 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                     // }
                   },
                   builder: (context, state) {
-                    // if (state is CalendarInitial) {
-                    //   context.read<CalendarBloc>().add(
-                    //     LoadCalendarMonth(DateTime.now()),
-                    //   );
-                    //   return _buildLoadingSkeleton();
-                    // }
-
                     if (state is CalendarLoading) {
                       return _buildLoadingSkeleton();
                     }
@@ -292,55 +284,14 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               );
 
               context.read<CalendarBloc>().add(SelectDateEvent(date));
-              final dateKey = DateTime(date.year, date.month, date.day);
-              _navigateToDayDetails(
-                context,
-                date,
-                state.eventsByDate[dateKey] ?? [],
-              );
+              _navigateToDayDetails(context, date);
             },
           ),
         ),
-
-        // const SizedBox(height: 8),
-
-        // // Astrology Card with smooth expansion
-        // _buildAstrologyCard(state),
         const SizedBox(height: 16),
       ],
     );
   }
-
-  // Widget _buildAstrologyCard(CalendarLoaded state) {
-  //   // Determine which date to show
-  //   CompleteDate? dateToShow;
-
-  //   if (state.selectedDate != null) {
-  //     dateToShow = state.selectedDate!.completeDate;
-  //   } else if (state.todayCompleteDate != null) {
-  //     dateToShow = state.todayCompleteDate;
-  //   } else if (state.calendarMonth.dates.isNotEmpty) {
-  //     dateToShow = state.calendarMonth.dates.first;
-  //   }
-
-  //   if (dateToShow == null) {
-  //     return const SizedBox.shrink();
-  //   }
-
-  //   return AnimatedSwitcher(
-  //     duration: const Duration(milliseconds: 300),
-  //     child: AstrologyExpandableCard(
-  //       key: ValueKey(
-  //         '${dateToShow.western.year}-${dateToShow.western.month}-${dateToShow.western.day}',
-  //       ),
-  //       dateInfo: dateToShow,
-  //       isExpanded: state.isAstrologyExpanded,
-  //       onToggle: () {
-  //         context.read<CalendarBloc>().add(const ToggleAstrologyCard());
-  //       },
-  //     ),
-  //   );
-  // }
 
   Widget _buildLoadingSkeleton() {
     return Padding(
@@ -431,28 +382,19 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
   }
 
-  void _navigateToDayDetails(
-    BuildContext context,
-    DateTime date,
-    List<Event> events,
-  ) {
+  void _navigateToDayDetails(BuildContext context, DateTime date) {
     _analyticsService.logButtonClick(
       buttonName: 'view_day_details',
       buttonLocation: 'calendar_grid',
-      additionalData: {
-        'date': date.toString(),
-        'has_events': events.isNotEmpty ? "true" : "false",
-        'event_count': events.length.toString(),
-      },
+      additionalData: {'date': date.toString()},
     );
 
     // Add subtle haptic feedback
     HapticFeedback.lightImpact();
 
-    GoRouter.of(context).go(
-      "/home/${RoutePaths.dayDetails}",
-      extra: {"date": date, "events": events},
-    );
+    GoRouter.of(
+      context,
+    ).go("/home/${RoutePaths.dayDetails}", extra: {"date": date});
   }
 
   void _showMonthYearPicker(BuildContext context, DateTime currentMonth) {

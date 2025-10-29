@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../domain/entities/event.dart';
-import '../bloc/events_bloc.dart';
-import '../bloc/events_event.dart';
-import '../bloc/events_state.dart';
+import '../bloc/user_events_bloc.dart';
+import '../bloc/user_events_event.dart';
+import '../bloc/user_events_state.dart';
 
 class EventDetailPage extends StatefulWidget {
   final int eventId;
@@ -16,47 +17,59 @@ class EventDetailPage extends StatefulWidget {
   State<EventDetailPage> createState() => _EventDetailPageState();
 }
 
-class _EventDetailPageState extends State<EventDetailPage> {
+class _EventDetailPageState extends State<EventDetailPage>
+    with TickerProviderStateMixin {
+  Event? _currentEvent;
+  late AnimationController _fabController;
+  late Animation<double> _fabScaleAnimation;
+
   @override
   void initState() {
     super.initState();
-    context.read<EventsBloc>().add(LoadEventById(widget.eventId));
+    _loadEvent();
+
+    _fabController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _fabScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fabController, curve: Curves.easeOutBack),
+    );
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _fabController.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _fabController.dispose();
+    super.dispose();
+  }
+
+  void _loadEvent() {
+    context.read<UserEventsBloc>().add(const LoadAllEvents());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Event Details'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              context.push('/events/${widget.eventId}');
-            },
-            tooltip: 'Edit',
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _confirmDelete,
-            tooltip: 'Delete',
-          ),
-        ],
-      ),
-      body: BlocConsumer<EventsBloc, EventsState>(
+      body: BlocConsumer<UserEventsBloc, UserEventsState>(
         listener: (context, state) {
-          if (state is EventDeleted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Event deleted successfully')),
-            );
-            context.pop();
-          } else if (state is EventsError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
+          if (state is EventsLoaded) {
+            try {
+              final event = state.events.firstWhere(
+                (e) => e.id == widget.eventId,
+              );
+              setState(() {
+                _currentEvent = event;
+              });
+            } catch (e) {
+              // Event not found
+            }
           }
         },
         builder: (context, state) {
@@ -65,325 +78,561 @@ class _EventDetailPageState extends State<EventDetailPage> {
           }
 
           if (state is EventsError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error loading event',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(state.message),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<EventsBloc>().add(
-                        LoadEventById(widget.eventId),
-                      );
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
+            return _buildErrorState(state.failure.message);
           }
 
-          if (state is EventDetailLoaded) {
-            return _buildEventDetail(context, state.event);
+          if (_currentEvent != null) {
+            return _buildEventDetail(_currentEvent!);
           }
 
-          return const SizedBox.shrink();
+          return _buildEventNotFound();
         },
       ),
+      floatingActionButton: _currentEvent != null
+          ? ScaleTransition(
+              scale: _fabScaleAnimation,
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  if (_currentEvent!.id != null) {
+                    context.read<UserEventsBloc>().add(
+                      ToggleEventComplete(
+                        _currentEvent!.id!,
+                        !_currentEvent!.isCompleted,
+                      ),
+                    );
+                  }
+                },
+                icon: Icon(
+                  _currentEvent!.isCompleted ? Icons.restart_alt : Icons.check,
+                ),
+                label: Text(
+                  _currentEvent!.isCompleted ? 'Reopen Event' : 'Mark Complete',
+                ),
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                backgroundColor: _currentEvent!.isCompleted
+                    ? Theme.of(context).colorScheme.secondary
+                    : Color(_currentEvent!.effectiveColor),
+              ),
+            )
+          : null,
     );
   }
 
-  Widget _buildEventDetail(BuildContext context, Event event) {
+  Widget _buildEventDetail(Event event) {
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final categoryColor = event.colorCode != null
-        ? Color(event.colorCode!)
-        : colorScheme.primary;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+    return CustomScrollView(
+      slivers: [
+        // Hero App Bar
+        SliverAppBar(
+          expandedHeight: 200,
+          pinned: true,
+          elevation: 0,
+          flexibleSpace: FlexibleSpaceBar(
+            background: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(event.effectiveColor),
+                    Color(event.effectiveColor).withValues(alpha: 0.7),
+                  ],
+                ),
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          event.title,
-                          style: textTheme.headlineSmall?.copyWith(
-                            decoration: event.isCompleted
-                                ? TextDecoration.lineThrough
-                                : null,
+                      if (event.isCompleted)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'Completed',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                      const SizedBox(height: 12),
+                      Text(
+                        event.title,
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              decoration: event.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
                       ),
-                      if (event.priority > 0)
-                        Icon(
-                          Icons.flag,
-                          color: _getPriorityColor(event.priority),
-                          size: 28,
-                        ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Chip(
-                    avatar: Icon(
-                      _getCategoryIcon(event.category),
-                      color: categoryColor,
-                      size: 18,
-                    ),
-                    label: Text(event.category),
-                    backgroundColor: categoryColor.withValues(alpha: 0.1),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 16),
-
-          // Date & Time Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Date & Time', style: textTheme.titleMedium),
-                  const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.calendar_today),
-                    title: const Text('Date'),
-                    subtitle: Text(
-                      '${event.eventDate.year}-${event.eventDate.month.toString().padLeft(2, '0')}-${event.eventDate.day.toString().padLeft(2, '0')}',
-                    ),
-                    contentPadding: EdgeInsets.zero,
+          actions: [
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) {
+                switch (value) {
+                  case 'edit':
+                    context.push('/events/${widget.eventId}');
+                    break;
+                  case 'delete':
+                    _confirmDelete(context);
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 20),
+                      SizedBox(width: 12),
+                      Text('Edit'),
+                    ],
                   ),
-                  if (!event.isAllDay && event.eventTime != null)
-                    ListTile(
-                      leading: const Icon(Icons.access_time),
-                      title: const Text('Time'),
-                      subtitle: Text(
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 20, color: Colors.red),
+                      SizedBox(width: 12),
+                      Text('Delete', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+
+        // Content
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildInfoSection(
+                context,
+                icon: Icons.calendar_today,
+                title: 'Date & Time',
+                color: colorScheme.primary,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      DateFormat('EEEE, MMMM d, yyyy').format(event.eventDate),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (!event.isAllDay && event.eventTime != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
                         TimeOfDay.fromDateTime(
                           event.eventTime!,
                         ).format(context),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  if (event.isAllDay)
-                    ListTile(
-                      leading: const Icon(Icons.all_inclusive),
-                      title: const Text('All Day Event'),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Description Card
-          if (event.description != null && event.description!.isNotEmpty)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Description', style: textTheme.titleMedium),
-                    const Divider(),
-                    Text(event.description!),
+                    ] else ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'All day event',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-            ),
 
-          // Location Card
-          if (event.location != null && event.location!.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Location', style: textTheme.titleMedium),
-                    const Divider(),
-                    ListTile(
-                      leading: const Icon(Icons.location_on),
-                      title: Text(event.location!),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+              const SizedBox(height: 12),
 
-          // Tags Card
-          if (event.tags != null && event.tags!.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Tags', style: textTheme.titleMedium),
-                    const Divider(),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: event.tags!
-                          .map((tag) => Chip(label: Text(tag)))
-                          .toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-
-          // Status Card
-          const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  Text('Status', style: textTheme.titleMedium),
-                  const Divider(),
-                  ListTile(
-                    leading: Icon(
-                      event.isCompleted
-                          ? Icons.check_circle
-                          : Icons.radio_button_unchecked,
-                      color: event.isCompleted ? Colors.green : null,
+                  Expanded(
+                    child: _buildInfoCard(
+                      context,
+                      icon: _getCategoryIcon(event.category.iconName),
+                      title: 'Category',
+                      subtitle: event.category.name,
+                      color: Color(event.category.colorCode),
                     ),
-                    title: Text(event.isCompleted ? 'Completed' : 'Pending'),
-                    subtitle: event.completedAt != null
-                        ? Text(
-                            'Completed on ${_formatDateTime(event.completedAt!)}',
-                          )
-                        : null,
-                    contentPadding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildInfoCard(
+                      context,
+                      icon: Icons.flag,
+                      title: 'Priority',
+                      subtitle: event.priority.displayName,
+                      color: _getPriorityColor(event.priority),
+                    ),
                   ),
                 ],
               ),
-            ),
-          ),
 
-          // Metadata Card
-          const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Metadata', style: textTheme.titleMedium),
-                  const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.create),
-                    title: const Text('Created'),
-                    subtitle: Text(_formatDateTime(event.createdAt)),
-                    contentPadding: EdgeInsets.zero,
+              if (event.description != null &&
+                  event.description!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _buildInfoSection(
+                  context,
+                  icon: Icons.description,
+                  title: 'Description',
+                  color: colorScheme.secondary,
+                  child: Text(
+                    event.description!,
+                    style: const TextStyle(fontSize: 15, height: 1.5),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.update),
-                    title: const Text('Last Updated'),
-                    subtitle: Text(_formatDateTime(event.updatedAt)),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
+                ),
+              ],
 
-          // Action Button
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () {
-                context.read<EventsBloc>().add(
-                  ToggleEventComplete(widget.eventId),
-                );
-              },
-              icon: Icon(
-                event.isCompleted
-                    ? Icons.radio_button_unchecked
-                    : Icons.check_circle,
-              ),
-              label: Text(
-                event.isCompleted ? 'Mark as Pending' : 'Mark as Completed',
-              ),
-            ),
+              if (event.location != null && event.location!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _buildInfoSection(
+                  context,
+                  icon: Icons.location_on,
+                  title: 'Location',
+                  color: Colors.red,
+                  child: Text(
+                    event.location!,
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
+              ],
+
+              if (event.isRecurring) ...[
+                const SizedBox(height: 12),
+                _buildInfoSection(
+                  context,
+                  icon: Icons.repeat,
+                  title: 'Recurrence',
+                  color: Colors.purple,
+                  child: Text(
+                    event.recurrenceRule!.type.displayName,
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
+              ],
+
+              if (event.hasNotifications) ...[
+                const SizedBox(height: 12),
+                _buildInfoSection(
+                  context,
+                  icon: Icons.notifications_active,
+                  title: 'Notifications',
+                  color: Colors.amber.shade700,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: event.notifications.map((notification) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.shade50,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.alarm,
+                                size: 16,
+                                color: Colors.amber.shade700,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              notification.displayName,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+
+              if (event.tags.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _buildInfoSection(
+                  context,
+                  icon: Icons.label,
+                  title: 'Tags',
+                  color: Colors.teal,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: event.tags.map((tag) {
+                      return Chip(
+                        label: Text(tag),
+                        backgroundColor: colorScheme.secondaryContainer,
+                        labelStyle: TextStyle(
+                          color: colorScheme.onSecondaryContainer,
+                          fontSize: 13,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 80), // Space for FAB
+            ]),
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoSection(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required Color color,
+    required Widget child,
+  }) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: color, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            child,
+          ],
+        ),
       ),
     );
   }
 
-  Color _getPriorityColor(int priority) {
-    switch (priority) {
-      case 3:
-        return Colors.red;
-      case 2:
-        return Colors.orange;
-      case 1:
-        return Colors.blue;
+  Widget _buildInfoCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+  }) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventNotFound() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.event_busy,
+                size: 64,
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Event Not Found',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'This event may have been deleted',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Go Back'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Error Loading Event',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () => _loadEvent(),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String iconName) {
+    switch (iconName) {
+      case 'person':
+        return Icons.person;
+      case 'work':
+        return Icons.work;
+      case 'auto_awesome':
+        return Icons.auto_awesome;
+      case 'family_restroom':
+        return Icons.family_restroom;
+      case 'favorite':
+        return Icons.favorite;
       default:
+        return Icons.event;
+    }
+  }
+
+  Color _getPriorityColor(EventPriority priority) {
+    switch (priority) {
+      case EventPriority.urgent:
+        return Colors.red;
+      case EventPriority.high:
+        return Colors.orange;
+      case EventPriority.normal:
+        return Colors.blue;
+      case EventPriority.low:
         return Colors.grey;
     }
   }
 
-  IconData _getCategoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'personal':
-        return Icons.person;
-      case 'work':
-        return Icons.work;
-      case 'religious':
-        return Icons.auto_awesome;
-      case 'family':
-        return Icons.family_restroom;
-      case 'health':
-        return Icons.favorite;
-      default:
-        return Icons.category;
-    }
-  }
-
-  String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} '
-        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-  }
-
-  void _confirmDelete() {
+  void _confirmDelete(BuildContext context) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Event'),
+        icon: const Icon(Icons.warning, color: Colors.orange, size: 48),
+        title: const Text('Delete Event?'),
         content: const Text(
           'Are you sure you want to delete this event? This action cannot be undone.',
         ),
@@ -394,8 +643,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
           ),
           FilledButton(
             onPressed: () {
-              context.read<EventsBloc>().add(DeleteEvent(widget.eventId));
+              context.read<UserEventsBloc>().add(
+                DeleteEventEvent(widget.eventId),
+              );
               Navigator.pop(dialogContext);
+              context.pop();
             },
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,

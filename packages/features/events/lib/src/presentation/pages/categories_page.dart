@@ -1,82 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/events_bloc.dart';
-import '../bloc/events_event.dart';
-import '../bloc/events_state.dart';
+import '../../domain/entities/event_category.dart';
+import '../bloc/event_categories_bloc.dart';
+import '../bloc/event_categories_event.dart';
+import '../bloc/event_categories_state.dart';
 
-class CategoriesPage extends StatefulWidget {
+class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
-
-  @override
-  State<CategoriesPage> createState() => _CategoriesPageState();
-}
-
-class _CategoriesPageState extends State<CategoriesPage> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<EventsBloc>().add(const LoadCategories());
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Categories'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showCreateCategoryDialog,
-            tooltip: 'Add Category',
-          ),
-        ],
+      appBar: AppBar(title: const Text('Event Categories')),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showCreateCategoryDialog(context),
+        icon: const Icon(Icons.add),
+        label: const Text('New Category'),
       ),
-      body: BlocConsumer<EventsBloc, EventsState>(
-        listener: (context, state) {
-          if (state is CategoryCreated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Category created successfully')),
-            );
-          } else if (state is CategoryDeleted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Category deleted successfully')),
-            );
-          } else if (state is EventsError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
-          }
-        },
+      body: BlocBuilder<EventCategoriesBloc, EventCategoriesState>(
         builder: (context, state) {
-          if (state is EventsLoading) {
+          if (state is EventCategoriesLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state is EventsError) {
+          if (state is EventCategoriesError) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
-                  Text(
-                    'Error loading categories',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(state.message),
+                  Text(state.failure.message),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      context.read<EventsBloc>().add(const LoadCategories());
+                      context.read<EventCategoriesBloc>().add(
+                        const LoadEventCategories(),
+                      );
                     },
                     child: const Text('Retry'),
                   ),
@@ -85,9 +46,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
             );
           }
 
-          if (state is CategoriesLoaded) {
+          if (state is EventCategoriesLoaded) {
             if (state.categories.isEmpty) {
-              return const Center(child: Text('No categories found'));
+              return const Center(
+                child: Text('No categories yet. Create one to get started.'),
+              );
             }
 
             return ListView.builder(
@@ -96,29 +59,73 @@ class _CategoriesPageState extends State<CategoriesPage> {
               itemBuilder: (context, index) {
                 final category = state.categories[index];
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
+                  margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Color(
-                        category.colorCode,
-                      ).withValues(alpha: 0.2),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Color(category.colorCode),
+                        shape: BoxShape.circle,
+                      ),
                       child: Icon(
                         _getIconData(category.iconName),
-                        color: Color(category.colorCode),
+                        color: Colors.white,
+                        size: 20,
                       ),
                     ),
-                    title: Text(category.name),
+                    title: Text(
+                      category.name,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     subtitle: Text(
                       category.isDefault
-                          ? 'Default Category'
-                          : 'Custom Category',
+                          ? 'Default category'
+                          : 'Custom category',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     trailing: category.isDefault
                         ? null
-                        : IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () =>
-                                _confirmDeleteCategory(category.id),
+                        : PopupMenuButton(
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit, size: 20),
+                                    SizedBox(width: 8),
+                                    Text('Edit'),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.delete,
+                                      size: 20,
+                                      color: Colors.red,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Delete',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                _showEditCategoryDialog(context, category);
+                              } else if (value == 'delete') {
+                                _confirmDeleteCategory(context, category);
+                              }
+                            },
                           ),
                   ),
                 );
@@ -149,10 +156,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
     }
   }
 
-  void _showCreateCategoryDialog() {
+  void _showCreateCategoryDialog(BuildContext context) {
     final nameController = TextEditingController();
     String selectedIcon = 'category';
-    int selectedColor = 0xFF2196F3;
+    Color selectedColor = Colors.blue;
 
     showDialog(
       context: context,
@@ -175,70 +182,45 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
-                  children:
-                      [
-                            'person',
-                            'work',
-                            'auto_awesome',
-                            'family_restroom',
-                            'favorite',
-                            'category',
-                          ]
-                          .map(
-                            (icon) => IconButton(
-                              icon: Icon(
-                                _getIconData(icon),
-                                color: selectedIcon == icon
-                                    ? Color(selectedColor)
-                                    : null,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  selectedIcon = icon;
-                                });
-                              },
-                            ),
-                          )
-                          .toList(),
+                  children: _getAvailableIcons().map((icon) {
+                    return IconButton(
+                      icon: Icon(icon.value),
+                      color: selectedIcon == icon.key
+                          ? selectedColor
+                          : Colors.grey,
+                      onPressed: () {
+                        setState(() {
+                          selectedIcon = icon.key;
+                        });
+                      },
+                    );
+                  }).toList(),
                 ),
                 const SizedBox(height: 16),
                 const Text('Select Color:'),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
-                  children:
-                      [
-                            0xFF2196F3, // Blue
-                            0xFF4CAF50, // Green
-                            0xFFFF9800, // Orange
-                            0xFFE91E63, // Pink
-                            0xFFF44336, // Red
-                            0xFF9C27B0, // Purple
-                          ]
-                          .map(
-                            (color) => InkWell(
-                              onTap: () {
-                                setState(() {
-                                  selectedColor = color;
-                                });
-                              },
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Color(color),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: selectedColor == color
-                                        ? Colors.black
-                                        : Colors.transparent,
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
+                  children: _getAvailableColors().map((color) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedColor = color;
+                        });
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                          border: selectedColor == color
+                              ? Border.all(color: Colors.black, width: 2)
+                              : null,
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -250,13 +232,15 @@ class _CategoriesPageState extends State<CategoriesPage> {
             ),
             FilledButton(
               onPressed: () {
-                if (nameController.text.trim().isNotEmpty) {
-                  context.read<EventsBloc>().add(
-                    CreateCategory(
-                      name: nameController.text.trim(),
-                      iconName: selectedIcon,
-                      colorCode: selectedColor,
-                    ),
+                if (nameController.text.isNotEmpty) {
+                  final category = EventCategory(
+                    name: nameController.text,
+                    iconName: selectedIcon,
+                    colorCode: selectedColor.toARGB32(),
+                    createdAt: DateTime.now(),
+                  );
+                  context.read<EventCategoriesBloc>().add(
+                    CreateCategory(category),
                   );
                   Navigator.pop(dialogContext);
                 }
@@ -269,32 +253,68 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  void _confirmDeleteCategory(int categoryId) {
+  void _showEditCategoryDialog(BuildContext context, EventCategory category) {
+    // Similar to create dialog but with pre-filled values
+    _showCreateCategoryDialog(context);
+  }
+
+  void _confirmDeleteCategory(BuildContext context, EventCategory category) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Delete Category'),
-        content: const Text(
-          'Are you sure you want to delete this category? '
-          'Events with this category will not be deleted.',
-        ),
+        content: Text('Are you sure you want to delete "${category.name}"?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
+            onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () {
-              context.read<EventsBloc>().add(DeleteCategory(categoryId));
-              Navigator.pop(dialogContext);
+              // Add delete functionality
+              Navigator.pop(context);
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Delete'),
           ),
         ],
       ),
     );
+  }
+
+  List<MapEntry<String, IconData>> _getAvailableIcons() {
+    return const [
+      MapEntry('person', Icons.person),
+      MapEntry('work', Icons.work),
+      MapEntry('auto_awesome', Icons.auto_awesome),
+      MapEntry('family_restroom', Icons.family_restroom),
+      MapEntry('favorite', Icons.favorite),
+      MapEntry('school', Icons.school),
+      MapEntry('sports', Icons.sports),
+      MapEntry('restaurant', Icons.restaurant),
+      MapEntry('flight', Icons.flight),
+      MapEntry('shopping_cart', Icons.shopping_cart),
+    ];
+  }
+
+  List<Color> _getAvailableColors() {
+    return [
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.yellow,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+    ];
   }
 }

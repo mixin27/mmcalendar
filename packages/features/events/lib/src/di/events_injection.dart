@@ -4,81 +4,146 @@ import 'package:get_it/get_it.dart';
 import '../data/datasources/events_local_datasource.dart';
 import '../data/repositories/events_repository_impl.dart';
 import '../domain/repositories/events_repository.dart';
-import '../domain/usecases/create_category.dart';
-import '../domain/usecases/create_event.dart';
-import '../domain/usecases/delete_category.dart';
-import '../domain/usecases/delete_event.dart';
-import '../domain/usecases/get_all_categories.dart';
-import '../domain/usecases/get_all_events.dart';
+import '../domain/usecases/create_event_category.dart';
+import '../domain/usecases/create_user_event.dart';
+import '../domain/usecases/delete_user_event.dart';
 import '../domain/usecases/get_event_by_id.dart';
-import '../domain/usecases/get_events_by_category.dart';
+import '../domain/usecases/get_event_categories.dart';
 import '../domain/usecases/get_events_by_date.dart';
 import '../domain/usecases/get_events_by_date_range.dart';
-import '../domain/usecases/initialize_default_categories.dart';
-import '../domain/usecases/toggle_event_complete.dart';
-import '../domain/usecases/update_event.dart';
-import '../domain/usecases/watch_all_events.dart';
-import '../domain/usecases/watch_event_by_id.dart';
-import '../presentation/bloc/events_bloc.dart';
+import '../domain/usecases/get_upcoming_events.dart';
+import '../domain/usecases/search_user_events.dart';
+import '../domain/usecases/toggle_event_completion.dart';
+import '../domain/usecases/update_user_event.dart';
+import '../domain/usecases/watch_user_events.dart';
+import '../presentation/bloc/event_categories_bloc.dart';
+import '../presentation/bloc/event_form_bloc.dart';
+import '../presentation/bloc/user_events_bloc.dart';
+import '../services/event_notification_manager.dart';
+import '../services/notification_service.dart';
 
 final getIt = GetIt.instance;
 
-Future<void> initEventsFeature() async {
-  // Data Source
+Future<void> initEventsDependencies() async {
+  // ============================================================================
+  // SERVICES
+  // ============================================================================
+
+  getIt.registerLazySingleton<NotificationService>(
+    () => NotificationServiceImpl(),
+  );
+
+  getIt.registerLazySingleton<EventNotificationManager>(
+    () => EventNotificationManager(
+      notificationService: getIt<NotificationService>(),
+    ),
+  );
+
+  // ============================================================================
+  // DATA SOURCES
+  // ============================================================================
+
   getIt.registerLazySingleton<EventsLocalDataSource>(
-    () => EventsLocalDataSourceImpl(getIt<AppDatabase>().eventsDao),
+    () => EventsLocalDataSourceImpl(getIt<AppDatabase>()),
   );
 
-  // Repository
+  // ============================================================================
+  // REPOSITORIES
+  // ============================================================================
+
   getIt.registerLazySingleton<EventsRepository>(
-    () => EventsRepositoryImpl(localDataSource: getIt<EventsLocalDataSource>()),
+    () => EventsRepositoryImpl(getIt<EventsLocalDataSource>()),
   );
 
-  // Use Cases
-  getIt.registerLazySingleton(() => GetAllEvents(getIt<EventsRepository>()));
+  // ============================================================================
+  // USE CASES
+  // ============================================================================
+
+  // Event operations
+  getIt.registerLazySingleton(() => CreateUserEvent(getIt<EventsRepository>()));
+
+  getIt.registerLazySingleton(() => UpdateUserEvent(getIt<EventsRepository>()));
+
+  getIt.registerLazySingleton(() => DeleteUserEvent(getIt<EventsRepository>()));
+
   getIt.registerLazySingleton(() => GetEventsByDate(getIt<EventsRepository>()));
+
   getIt.registerLazySingleton(
     () => GetEventsByDateRange(getIt<EventsRepository>()),
   );
+
   getIt.registerLazySingleton(
-    () => GetEventsByCategory(getIt<EventsRepository>()),
-  );
-  getIt.registerLazySingleton(() => GetEventById(getIt<EventsRepository>()));
-  getIt.registerLazySingleton(() => CreateEvent(getIt<EventsRepository>()));
-  getIt.registerLazySingleton(() => UpdateEvent(getIt<EventsRepository>()));
-  getIt.registerLazySingleton(() => DeleteEvent(getIt<EventsRepository>()));
-  getIt.registerLazySingleton(
-    () => ToggleEventComplete(getIt<EventsRepository>()),
-  );
-  getIt.registerLazySingleton(
-    () => GetAllCategories(getIt<EventsRepository>()),
-  );
-  getIt.registerLazySingleton(() => CreateCategory(getIt<EventsRepository>()));
-  getIt.registerLazySingleton(() => DeleteCategory(getIt<EventsRepository>()));
-  getIt.registerLazySingleton(() => WatchAllEvents(getIt<EventsRepository>()));
-  getIt.registerLazySingleton(() => WatchEventById(getIt<EventsRepository>()));
-  getIt.registerLazySingleton(
-    () => InitializeDefaultCategories(getIt<EventsRepository>()),
+    () => GetUpcomingEvents(getIt<EventsRepository>()),
   );
 
-  // BLoC
-  getIt.registerFactory<EventsBloc>(
-    () => EventsBloc(
-      getAllEvents: getIt(),
-      getEventsByDate: getIt(),
-      getEventsByDateRange: getIt(),
-      getEventsByCategory: getIt(),
-      getEventById: getIt(),
-      createEvent: getIt(),
-      updateEvent: getIt(),
-      deleteEvent: getIt(),
-      toggleEventComplete: getIt(),
-      getAllCategories: getIt(),
-      createCategory: getIt(),
-      deleteCategory: getIt(),
-      watchAllEvents: getIt(),
-      watchEventById: getIt(),
-      initializeDefaultCategories: getIt(),
+  getIt.registerLazySingleton(
+    () => SearchUserEvents(getIt<EventsRepository>()),
+  );
+
+  getIt.registerLazySingleton(
+    () => ToggleEventCompletion(getIt<EventsRepository>()),
+  );
+
+  getIt.registerLazySingleton(() => WatchUserEvents(getIt<EventsRepository>()));
+
+  getIt.registerLazySingleton(
+    () => WatchEventsByDateRange(getIt<EventsRepository>()),
+  );
+
+  // Category operations
+  getIt.registerLazySingleton(
+    () => GetEventCategories(getIt<EventsRepository>()),
+  );
+
+  getIt.registerLazySingleton(
+    () => CreateEventCategory(getIt<EventsRepository>()),
+  );
+
+  getIt.registerLazySingleton(() => GetEventById(getIt<EventsRepository>()));
+
+  // ============================================================================
+  // BLOCS
+  // ============================================================================
+
+  getIt.registerFactory(
+    () => UserEventsBloc(
+      getEventsByDate: getIt<GetEventsByDate>(),
+      getEventsByDateRange: getIt<GetEventsByDateRange>(),
+      getUpcomingEvents: getIt<GetUpcomingEvents>(),
+      searchEvents: getIt<SearchUserEvents>(),
+      toggleEventCompletion: getIt<ToggleEventCompletion>(),
+      deleteEvent: getIt<DeleteUserEvent>(),
+      watchEvents: getIt<WatchUserEvents>(),
+      watchEventsByDateRange: getIt<WatchEventsByDateRange>(),
+      eventsRepository: getIt<EventsRepository>(),
     ),
   );
+
+  getIt.registerFactory(
+    () => EventFormBloc(
+      createEvent: getIt<CreateUserEvent>(),
+      updateEvent: getIt<UpdateUserEvent>(),
+      getEventById: getIt<GetEventById>(),
+    ),
+  );
+
+  getIt.registerFactory(
+    () => EventCategoriesBloc(
+      getEventCategories: getIt<GetEventCategories>(),
+      createEventCategory: getIt<CreateEventCategory>(),
+    ),
+  );
+
+  // ============================================================================
+  // INITIALIZE DEFAULT DATA
+  // ============================================================================
+
+  // Initialize default categories
+  await getIt<EventsRepository>().initializeDefaultCategories();
+
+  // Initialize notification service
+  await getIt<NotificationService>().initialize();
+
+  // Start notification manager
+  getIt<EventNotificationManager>().startMonitoring();
 }

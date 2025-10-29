@@ -117,6 +117,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get special_days => 'Special Days';
 
   @override
+  String get anniversary_days => 'Anniversary Days';
+
+  @override
   String get buddhist_era => 'Buddhist Era (BE)';
 
   @override

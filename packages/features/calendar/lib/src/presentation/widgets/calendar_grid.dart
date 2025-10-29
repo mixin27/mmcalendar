@@ -59,7 +59,7 @@ class CalendarGrid extends StatelessWidget {
             showAstrology: showAstrology,
             showWesternDates: showWesternDates,
             showMyanmarDates: showMyanmarDates,
-            showEvents: false,
+            showEvents: true,
             onTap: () => onDateTap(date),
             events: events,
           ),

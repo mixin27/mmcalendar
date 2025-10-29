@@ -117,6 +117,9 @@ class AppLocalizationsMy extends AppLocalizations {
   String get special_days => 'အထူးနေ့များ';
 
   @override
+  String get anniversary_days => 'နှစ်ပတ်လည်နေ့များ';
+
+  @override
   String get buddhist_era => 'ဗုဒ္ဓခေတ် (BE)';
 
   @override
