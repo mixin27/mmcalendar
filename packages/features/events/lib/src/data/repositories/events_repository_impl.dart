@@ -81,8 +81,52 @@ class EventsRepositoryImpl extends data.BaseRepository
       final results = await localDataSource.getAllEvents(
         includeCompleted: includeCompleted,
       );
-      final events = results.map((e) => e.toEntity()).toList();
-      return Right(events);
+
+      // For "all events", show next 365 days of recurring events
+      final now = DateTime.now();
+      final oneYearLater = now.add(const Duration(days: 365));
+
+      final expandedEvents = <Event>[];
+
+      for (final eventModel in results) {
+        final event = eventModel.toEntity();
+
+        if (event.isRecurring && event.recurrenceRule != null) {
+          final occurrences = event.recurrenceRule!.generateOccurrences(
+            event.eventDate,
+            now,
+            oneYearLater,
+          );
+
+          for (final occurrenceDate in occurrences) {
+            if (_isSameDay(occurrenceDate, event.eventDate)) {
+              expandedEvents.add(event);
+            } else {
+              expandedEvents.add(
+                event.copyWith(
+                  eventDate: occurrenceDate,
+                  eventTime: event.eventTime != null
+                      ? DateTime(
+                          occurrenceDate.year,
+                          occurrenceDate.month,
+                          occurrenceDate.day,
+                          event.eventTime!.hour,
+                          event.eventTime!.minute,
+                          event.eventTime!.second,
+                        )
+                      : null,
+                ),
+              );
+            }
+          }
+        } else {
+          expandedEvents.add(event);
+        }
+      }
+
+      expandedEvents.sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
+
+      return Right(expandedEvents);
     } on AppException catch (e) {
       return Left(handleException(e));
     } catch (e) {
@@ -109,12 +153,61 @@ class EventsRepositoryImpl extends data.BaseRepository
     DateTime endDate,
   ) async {
     try {
-      final results = await localDataSource.getEventsByDateRange(
-        startDate,
-        endDate,
+      // Get all base events from database (both one-time and recurring)
+      final results = await localDataSource.getAllEvents(
+        includeCompleted: false,
       );
-      final events = results.map((e) => e.toEntity()).toList();
-      return Right(events);
+
+      final expandedEvents = <Event>[];
+
+      for (final eventModel in results) {
+        final event = eventModel.toEntity();
+
+        if (event.isRecurring && event.recurrenceRule != null) {
+          // Generate occurrences for recurring events within the date range
+          final occurrences = event.recurrenceRule!.generateOccurrences(
+            event.eventDate, // Original event date
+            startDate,
+            endDate,
+          );
+
+          // Create event instances for each occurrence
+          for (final occurrenceDate in occurrences) {
+            // Skip if the occurrence is the original event date (already in list)
+            if (_isSameDay(occurrenceDate, event.eventDate)) {
+              expandedEvents.add(event);
+            } else {
+              // Create a new instance with the occurrence date
+              expandedEvents.add(
+                event.copyWith(
+                  eventDate: occurrenceDate,
+                  eventTime: event.eventTime != null
+                      ? DateTime(
+                          occurrenceDate.year,
+                          occurrenceDate.month,
+                          occurrenceDate.day,
+                          event.eventTime!.hour,
+                          event.eventTime!.minute,
+                          event.eventTime!.second,
+                        )
+                      : null,
+                ),
+              );
+            }
+          }
+        } else {
+          // Non-recurring event - only add if it's in range
+          if (!event.eventDate.isBefore(startDate) &&
+              !event.eventDate.isAfter(endDate)) {
+            expandedEvents.add(event);
+          }
+        }
+      }
+
+      // Sort by date
+      expandedEvents.sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
+
+      return Right(expandedEvents);
     } on AppException catch (e) {
       return Left(handleException(e));
     } catch (e) {
@@ -393,5 +486,11 @@ class EventsRepositoryImpl extends data.BaseRepository
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 }

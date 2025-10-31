@@ -34,6 +34,7 @@ class GetEventsByDateRange
       for (final event in events) {
         if (event.isRecurring && event.recurrenceRule != null) {
           final occurrences = event.recurrenceRule!.generateOccurrences(
+            event.eventDate,
             params.startDate,
             params.endDate,
           );

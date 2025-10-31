@@ -74,6 +74,7 @@ class EventModel extends Event {
               dbEvent.recurrenceDays,
               dbEvent.recurrenceEndDate,
               dbEvent.recurrenceCount,
+              dbEvent.eventDate,
             )
           : null,
       notifications: _parseNotifications(dbEvent.notificationTimes),
@@ -126,6 +127,7 @@ class EventModel extends Event {
     String? daysJson,
     DateTime? endDate,
     int? count,
+    DateTime originalEventDate, // Pass the original event date
   ) {
     if (typeStr == null) return null;
 
@@ -136,10 +138,23 @@ class EventModel extends Event {
 
     if (type == RecurrenceType.none) return null;
 
+    // Extract month and day from original event date for yearly/monthly recurrence
+    int? dayOfMonth;
+    int? monthOfYear;
+
+    if (type == RecurrenceType.yearly) {
+      monthOfYear = originalEventDate.month;
+      dayOfMonth = originalEventDate.day;
+    } else if (type == RecurrenceType.monthly) {
+      dayOfMonth = originalEventDate.day;
+    }
+
     return RecurrenceRule(
       type: type,
       interval: interval ?? 1,
       daysOfWeek: _parseDaysOfWeek(daysJson),
+      dayOfMonth: dayOfMonth,
+      monthOfYear: monthOfYear,
       endDate: endDate,
       occurrenceCount: count,
     );
