@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 
 import '../entities/event.dart';
 import '../entities/event_category.dart';
+import '../entities/recurrence_rule.dart';
 
 /// Abstract repository for events operations
 abstract class EventsRepository {
@@ -97,4 +98,42 @@ abstract class EventsRepository {
 
   /// Initialize default categories
   Future<Either<Failure, void>> initializeDefaultCategories();
+
+  // ============================================================================
+  // RECURRING INSTANCE OPERATIONS
+  // ============================================================================
+
+  /// Complete a single recurring instance (creates exception)
+  Future<Either<Failure, void>> completeRecurringInstance(
+    int masterEventId,
+    DateTime occurrenceDate,
+  );
+
+  /// Delete a single recurring instance (creates exception)
+  Future<Either<Failure, void>> deleteRecurringInstance(
+    int masterEventId,
+    DateTime occurrenceDate,
+  );
+
+  /// Modify a single recurring instance (creates exception with modified data)
+  Future<Either<Failure, void>> modifyRecurringInstance({
+    required int masterEventId,
+    required DateTime occurrenceDate,
+    String? modifiedTitle,
+    String? modifiedDescription,
+    DateTime? modifiedDate,
+    DateTime? modifiedTime,
+    String? modifiedLocation,
+  });
+
+  /// Get all exceptions for a recurring event
+  Future<Either<Failure, List<RecurringEventException>>> getExceptionsForEvent(
+    int masterEventId,
+  );
+
+  /// Restore a deleted or completed instance (removes exception)
+  Future<Either<Failure, void>> restoreRecurringInstance(
+    int masterEventId,
+    DateTime occurrenceDate,
+  );
 }

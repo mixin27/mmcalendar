@@ -43,8 +43,6 @@ class CalendarGrid extends StatelessWidget {
       childAspectRatio: 0.75,
       children: gridDates.map((dateInfo) {
         final date = dateInfo.western.toDateTime();
-        final dateKey = DateTime(date.year, date.month, date.day);
-        final events = eventsByDate[dateKey] ?? [];
 
         return Hero(
           tag: 'date_${date.toIso8601String()}',
@@ -61,7 +59,6 @@ class CalendarGrid extends StatelessWidget {
             showMyanmarDates: showMyanmarDates,
             showEvents: true,
             onTap: () => onDateTap(date),
-            events: events,
           ),
         );
       }).toList(),

@@ -3,6 +3,7 @@ import 'package:data/data.dart' as db;
 
 import '../../domain/entities/event.dart';
 import '../../domain/entities/event_category.dart';
+import '../../utils/event_creation_diagnostic.dart';
 import '../models/event_category_model.dart';
 import '../models/event_model.dart';
 
@@ -58,13 +59,14 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<EventModel> createEvent(EventModel event) async {
     try {
+      EventCreationDiagnostic.logDatasourceCreateStart(event.title);
+
       // Get category if needed
       EventCategory? category = event.category;
       if (category.id == null && category.name.isNotEmpty) {
         final categories = await _dao.getAllCategories();
         final matching = categories.where((c) => c.name == event.category.name);
         if (matching.isNotEmpty) {
-          // convert DB entity to domain model before assigning
           category = EventCategoryModel.fromDatabaseEntity(matching.first);
         } else {
           category = EventCategory.personal;
@@ -73,6 +75,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
 
       final companion = event.toDatabaseCompanion();
       final id = await _dao.createEvent(companion);
+
       final created = await _dao.getEventById(id);
 
       if (created == null) {
@@ -129,6 +132,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
       if (event == null) return null;
 
       final category = await _getCategoryForEvent(event);
+
       return EventModel.fromDatabaseEntity(event, category);
     } catch (e) {
       throw CacheException('Failed to get event: ${e.toString()}');
@@ -156,6 +160,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   Future<List<EventModel>> getEventsByDate(DateTime date) async {
     try {
       final events = await _dao.getEventsByDate(date);
+
       return Future.wait(
         events.map((e) async {
           final category = await _getCategoryForEvent(e);
@@ -173,7 +178,10 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
     DateTime endDate,
   ) async {
     try {
-      final events = await _dao.getEventsByDateRange(startDate, endDate);
+      // For simplicity, return ALL master events
+      // Repository will filter virtual instances
+      final events = await _dao.getAllEvents();
+
       return Future.wait(
         events.map((e) async {
           final category = await _getCategoryForEvent(e);
@@ -295,14 +303,11 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
     DateTime endDate,
   ) {
     try {
+      // Return all master events
+      // Repository will handle virtual instance generation
       return _dao.watchAllEvents().asyncMap((events) async {
-        final filtered = events.where((e) {
-          return !e.eventDate.isBefore(startDate) &&
-              !e.eventDate.isAfter(endDate);
-        }).toList();
-
         return Future.wait(
-          filtered.map((e) async {
+          events.map((e) async {
             final category = await _getCategoryForEvent(e);
             return EventModel.fromDatabaseEntity(e, category);
           }),

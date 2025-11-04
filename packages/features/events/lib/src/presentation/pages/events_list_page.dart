@@ -2,10 +2,12 @@ import 'package:events/src/presentation/pages/pending_notification_list_page.dar
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/entities/event.dart';
+import '../../services/smart_notification_scheduler.dart';
 import '../bloc/user_events_bloc.dart';
 import '../bloc/user_events_event.dart';
 import '../bloc/user_events_state.dart';
@@ -242,7 +244,7 @@ class _EventsListPageState extends State<EventsListPage>
           onPressed: () => _showSearch(context),
           tooltip: 'Search events',
         ),
-        if (kDebugMode)
+        if (kDebugMode) ...[
           IconButton(
             onPressed: () {
               Navigator.of(context).push(
@@ -251,8 +253,17 @@ class _EventsListPageState extends State<EventsListPage>
                 ),
               );
             },
-            icon: const Icon(Icons.bug_report),
+            icon: const Icon(Icons.notifications),
           ),
+          IconButton(
+            onPressed: () async {
+              final scheduler = GetIt.I<SmartNotificationScheduler>();
+              await scheduler.printDiagnostics();
+            },
+            icon: const Icon(Icons.report),
+          ),
+        ],
+
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert),
           onSelected: (value) {
@@ -443,11 +454,32 @@ class _EventsListPageState extends State<EventsListPage>
       padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          final date = sortedDates[index];
-          final dateEvents = groupedEvents[date]!;
-
-          return _EventDateSection(date: date, events: dateEvents);
-        }, childCount: sortedDates.length),
+          if (index < sortedDates.length) {
+            final date = sortedDates[index];
+            final dateEvents = groupedEvents[date]!;
+            return _EventDateSection(date: date, events: dateEvents);
+          } else {
+            // Show "Load More" button
+            final state = context.read<UserEventsBloc>().state;
+            if (state is EventsLoaded &&
+                state.hasMore &&
+                state.endDate != null) {
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    context.read<UserEventsBloc>().add(
+                      LoadMoreEvents(state.endDate!),
+                    );
+                  },
+                  icon: const Icon(Icons.expand_more),
+                  label: const Text('Load More Events'),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }
+        }, childCount: sortedDates.length + 1),
       ),
     );
   }

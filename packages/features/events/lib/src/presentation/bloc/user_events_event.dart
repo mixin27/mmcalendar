@@ -109,3 +109,71 @@ final class StartWatchingEventsByDateRange extends UserEventsEvent {
 final class StopWatchingEvents extends UserEventsEvent {
   const StopWatchingEvents();
 }
+
+/// Complete a recurring instance
+final class CompleteRecurringInstanceEvent extends UserEventsEvent {
+  final int masterEventId;
+  final DateTime occurrenceDate;
+
+  const CompleteRecurringInstanceEvent({
+    required this.masterEventId,
+    required this.occurrenceDate,
+  });
+
+  @override
+  List<Object?> get props => [masterEventId, occurrenceDate];
+}
+
+/// Delete a recurring instance
+final class DeleteRecurringInstanceEvent extends UserEventsEvent {
+  final int masterEventId;
+  final DateTime occurrenceDate;
+
+  const DeleteRecurringInstanceEvent({
+    required this.masterEventId,
+    required this.occurrenceDate,
+  });
+
+  @override
+  List<Object?> get props => [masterEventId, occurrenceDate];
+}
+
+/// Modify a recurring instance
+final class ModifyRecurringInstanceEvent extends UserEventsEvent {
+  final int masterEventId;
+  final DateTime occurrenceDate;
+  final String? modifiedTitle;
+  final String? modifiedDescription;
+  final DateTime? modifiedDate;
+  final DateTime? modifiedTime;
+  final String? modifiedLocation;
+
+  const ModifyRecurringInstanceEvent({
+    required this.masterEventId,
+    required this.occurrenceDate,
+    this.modifiedTitle,
+    this.modifiedDescription,
+    this.modifiedDate,
+    this.modifiedTime,
+    this.modifiedLocation,
+  });
+
+  @override
+  List<Object?> get props => [
+    masterEventId,
+    occurrenceDate,
+    modifiedTitle,
+    modifiedDescription,
+    modifiedDate,
+    modifiedTime,
+    modifiedLocation,
+  ];
+}
+
+final class LoadMoreEvents extends UserEventsEvent {
+  final DateTime currentEndDate;
+  const LoadMoreEvents(this.currentEndDate);
+
+  @override
+  List<Object?> get props => [currentEndDate];
+}

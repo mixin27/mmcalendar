@@ -1,0 +1,8 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          databases:
+            # Required: A name for the database and its path
+            app_database: lib/src/database/app_database.dart

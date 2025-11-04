@@ -8,7 +8,8 @@ import '../../domain/entities/notification_setting.dart';
 import '../../domain/usecases/create_user_event.dart';
 import '../../domain/usecases/get_event_by_id.dart';
 import '../../domain/usecases/update_user_event.dart';
-import '../../services/event_notification_manager.dart';
+import '../../services/smart_notification_scheduler.dart';
+import '../../utils/event_creation_diagnostic.dart';
 import 'event_form_event.dart';
 import 'event_form_state.dart';
 
@@ -18,11 +19,13 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   final CreateUserEvent createEvent;
   final UpdateUserEvent updateEvent;
   final GetEventById getEventById;
+  final SmartNotificationScheduler smartScheduler;
 
   EventFormBloc({
     required this.createEvent,
     required this.updateEvent,
     required this.getEventById,
+    required this.smartScheduler,
   }) : super(EventFormInitial()) {
     on<InitializeNewEvent>(_onInitializeNewEvent);
     on<InitializeEditEvent>(_onInitializeEditEvent);
@@ -261,42 +264,49 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
     emit(const EventFormSubmitting());
 
     final eventToSubmit = currentState.toEvent();
+    EventCreationDiagnostic.logBlocCreateStart(eventToSubmit.title);
 
     if (currentState.eventId == null) {
       // Create new event
       final result = await createEvent(CreateUserEventParams(eventToSubmit));
-      await result.fold(
-        (failure) async {
-          emit(EventFormError(failure));
-          emit(currentState);
-        },
-        (createdEvent) async {
-          // Schedule notifications
-          if (createdEvent.hasNotifications) {
-            final notificationManager = getIt<EventNotificationManager>();
-            await notificationManager.scheduleEventNotifications(createdEvent);
-          }
-          emit(EventFormSuccess(createdEvent, isNew: true));
-        },
-      );
+      if (result.isLeft()) {
+        final failure = result.fold((f) => f, (_) => null)!;
+        emit(EventFormError(failure));
+        emit(currentState);
+        return;
+      }
+
+      final createdEvent = result.fold(
+        (_) => null,
+        (createdEvent) => createdEvent,
+      )!;
+
+      // Schedule notifications immediately
+      if (createdEvent.hasNotifications) {
+        await smartScheduler.scheduleEventNotification(createdEvent);
+      }
+      emit(EventFormSuccess(createdEvent, isNew: true));
     } else {
       // Update existing event
       final result = await updateEvent(UpdateUserEventParams(eventToSubmit));
-      await result.fold(
-        (failure) async {
-          emit(EventFormError(failure));
-          emit(currentState);
-        },
-        (updatedEvent) async {
-          // Reschedule notifications
-          final notificationManager = getIt<EventNotificationManager>();
-          await notificationManager.cancelEventNotifications(updatedEvent.id!);
-          if (updatedEvent.hasNotifications) {
-            await notificationManager.scheduleEventNotifications(updatedEvent);
-          }
-          emit(EventFormSuccess(updatedEvent, isNew: false));
-        },
-      );
+      if (result.isLeft()) {
+        final failure = result.fold((f) => f, (_) => null)!;
+        emit(EventFormError(failure));
+        emit(currentState);
+        return;
+      }
+
+      final updatedEvent = result.fold(
+        (_) => null,
+        (updatedEvent) => updatedEvent,
+      )!;
+
+      // Reschedule notifications
+      await smartScheduler.cancelEventNotifications(updatedEvent.id!);
+      if (updatedEvent.hasNotifications) {
+        await smartScheduler.scheduleEventNotification(updatedEvent);
+      }
+      emit(EventFormSuccess(updatedEvent, isNew: false));
     }
   }
 

@@ -17,7 +17,7 @@ class UserEvents extends Table {
   IntColumn get categoryId => integer().nullable()(); // FK to EventCategories
   IntColumn get colorCode => integer().nullable()();
 
-  // Recurrence
+  // Recurrence (Master Event)
   TextColumn get recurrenceType =>
       text().nullable()(); // none, daily, weekly, monthly, yearly
   IntColumn get recurrenceInterval =>
@@ -26,6 +26,10 @@ class UserEvents extends Table {
       text().nullable()(); // JSON: [1,3,5] for Mon,Wed,Fri
   DateTimeColumn get recurrenceEndDate => dateTime().nullable()();
   IntColumn get recurrenceCount => integer().nullable()();
+
+  // Master event identifier
+  BoolColumn get isRecurringMaster =>
+      boolean().withDefault(const Constant(false))();
 
   // Notifications
   BoolColumn get hasNotification =>
@@ -57,5 +61,33 @@ class EventCategories extends Table {
   IntColumn get colorCode => integer()();
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
   IntColumn get sortOrder => integer()();
+  DateTimeColumn get createdAt => dateTime()();
+}
+
+// Exception Instances (Modified or Deleted Occurrences)
+class RecurringEventExceptions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  // Reference to master event
+  IntColumn get masterEventId => integer()();
+
+  // The specific occurrence date this exception applies to
+  DateTimeColumn get occurrenceDate => dateTime()();
+
+  // Exception type
+  TextColumn get exceptionType =>
+      text()(); // 'modified', 'deleted', 'completed'
+
+  // Modified values (if type = 'modified')
+  TextColumn get modifiedTitle => text().nullable()();
+  TextColumn get modifiedDescription => text().nullable()();
+  DateTimeColumn get modifiedDate => dateTime().nullable()();
+  DateTimeColumn get modifiedTime => dateTime().nullable()();
+  TextColumn get modifiedLocation => text().nullable()();
+
+  // Completion info (if type = 'completed')
+  BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get completedAt => dateTime().nullable()();
+
   DateTimeColumn get createdAt => dateTime()();
 }
