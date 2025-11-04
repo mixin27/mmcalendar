@@ -261,3 +261,35 @@ enum RecurrenceType {
     }
   }
 }
+
+enum ExceptionType { modified, deleted, completed }
+
+class RecurringEventException {
+  final int id;
+  final int masterEventId;
+  final DateTime occurrenceDate;
+  final ExceptionType exceptionType;
+  final String? modifiedTitle;
+  final String? modifiedDescription;
+  final DateTime? modifiedDate;
+  final DateTime? modifiedTime;
+  final String? modifiedLocation;
+  final bool isCompleted;
+  final DateTime? completedAt;
+  final DateTime createdAt;
+
+  const RecurringEventException({
+    required this.id,
+    required this.masterEventId,
+    required this.occurrenceDate,
+    required this.exceptionType,
+    this.modifiedTitle,
+    this.modifiedDescription,
+    this.modifiedDate,
+    this.modifiedTime,
+    this.modifiedLocation,
+    this.isCompleted = false,
+    this.completedAt,
+    required this.createdAt,
+  });
+}

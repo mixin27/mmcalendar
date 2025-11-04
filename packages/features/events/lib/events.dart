@@ -48,6 +48,7 @@ export 'src/presentation/widgets/animated_event_card.dart';
 // Services
 export 'src/services/notification_service.dart';
 export 'src/services/event_notification_manager.dart';
+export 'src/services/smart_notification_scheduler.dart';
 
 // DI
 export 'src/di/events_injection.dart' hide getIt;

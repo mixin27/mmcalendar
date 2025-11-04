@@ -6,7 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
+import 'app_database.steps.dart';
 import 'daos/events_dao.dart';
+import 'daos/recurring_exceptions_dao.dart';
 import 'tables/calendar_settings_table.dart';
 import 'tables/app_settings_table.dart';
 import 'tables/custom_holidays_table.dart';
@@ -24,22 +26,29 @@ part 'app_database.g.dart';
     CustomHolidays,
     UserEvents,
     EventCategories,
+    RecurringEventExceptions,
   ],
-  daos: [CalendarDao, SettingsDao, HolidaysDao, EventsDao],
+  daos: [
+    CalendarDao,
+    SettingsDao,
+    HolidaysDao,
+    EventsDao,
+    RecurringExceptionsDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   // Singleton pattern
   static AppDatabase? _instance;
 
-  AppDatabase._internal() : super(_openConnection());
+  AppDatabase._internal([QueryExecutor? e]) : super(e ?? _openConnection());
 
-  factory AppDatabase() {
-    _instance ??= AppDatabase._internal();
+  factory AppDatabase([QueryExecutor? e]) {
+    _instance ??= AppDatabase._internal(e);
     return _instance!;
   }
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -50,13 +59,12 @@ class AppDatabase extends _$AppDatabase {
         // Create default calendar settings
         await calendarDao.createDefaultSettings();
       },
-      onUpgrade: (Migrator m, int from, int to) async {
-        // Handle database migrations here
-        // if (from < 2) {
-        //   await m.createTable(userEvents);
-        //   await m.createTable(eventCategories);
-        // }
-      },
+      onUpgrade: stepByStep(
+        from1To2: (m, schema) async {
+          await m.create(recurringEventExceptions);
+          await m.addColumn(userEvents, userEvents.isRecurringMaster);
+        },
+      ),
       beforeOpen: (details) async {
         // Enable foreign keys
         await customStatement('PRAGMA foreign_keys = ON');

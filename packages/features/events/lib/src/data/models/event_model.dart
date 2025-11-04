@@ -105,6 +105,7 @@ class EventModel extends Event {
       recurrenceDays: Value(_serializeDaysOfWeek(recurrenceRule?.daysOfWeek)),
       recurrenceEndDate: Value(recurrenceRule?.endDate),
       recurrenceCount: Value(recurrenceRule?.occurrenceCount),
+      isRecurringMaster: Value(recurrenceRule != null),
       hasNotification: Value(notifications.isNotEmpty),
       notificationTimes: Value(_serializeNotifications(notifications)),
       location: Value(location),

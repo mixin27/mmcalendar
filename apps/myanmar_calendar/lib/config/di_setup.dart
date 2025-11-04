@@ -38,6 +38,10 @@ Future<void> initializeDependencies() async {
   await initEventsDependencies();
   await initHomeWidgetsDependencies();
 
+  // Initialize notification scheduler
+  final scheduler = getIt<SmartNotificationScheduler>();
+  await scheduler.initialize();
+
   debugPrint('✅ All dependencies initialized');
 }
 

@@ -11,6 +11,7 @@ import '../../domain/usecases/get_upcoming_events.dart';
 import '../../domain/usecases/search_user_events.dart';
 import '../../domain/usecases/toggle_event_completion.dart';
 import '../../domain/usecases/watch_user_events.dart';
+import '../../services/smart_notification_scheduler.dart';
 import 'user_events_event.dart';
 import 'user_events_state.dart';
 
@@ -24,6 +25,7 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
   final WatchUserEvents watchEvents;
   final WatchEventsByDateRange watchEventsByDateRange;
   final EventsRepository eventsRepository;
+  final SmartNotificationScheduler smartScheduler;
 
   StreamSubscription? _eventsSubscription;
 
@@ -37,8 +39,10 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     required this.watchEvents,
     required this.watchEventsByDateRange,
     required this.eventsRepository,
+    required this.smartScheduler,
   }) : super(UserEventsInitial()) {
     on<LoadAllEvents>(_onLoadAllEvents);
+    on<LoadMoreEvents>(_onLoadMoreEvents);
     on<LoadEventsByDate>(_onLoadEventsByDate);
     on<LoadEventsByDateRange>(_onLoadEventsByDateRange);
     on<LoadUpcomingEvents>(_onLoadUpcomingEvents);
@@ -46,6 +50,12 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     on<RefreshEvents>(_onRefreshEvents);
     on<ToggleEventComplete>(_onToggleEventComplete);
     on<DeleteEventEvent>(_onDeleteEvent);
+
+    // Recurring instance events
+    on<CompleteRecurringInstanceEvent>(_onCompleteRecurringInstance);
+    on<DeleteRecurringInstanceEvent>(_onDeleteRecurringInstance);
+    on<ModifyRecurringInstanceEvent>(_onModifyRecurringInstance);
+
     on<StartWatchingEvents>(_onStartWatchingEvents);
     on<StartWatchingEventsByDateRange>(_onStartWatchingEventsByDateRange);
     on<StopWatchingEvents>(_onStopWatchingEvents);
@@ -57,15 +67,54 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
   ) async {
     emit(const EventsLoading());
 
-    // Get ALL events (not just upcoming)
-    final result = await eventsRepository.getAllEvents(
-      includeCompleted: event.includeCompleted,
+    final now = DateTime.now();
+    final futureLimit = now.add(
+      const Duration(days: 90),
+    ); // Show 3 months ahead
+
+    final result = await eventsRepository.getEventsByDateRange(
+      now,
+      futureLimit,
     );
 
     result.fold((failure) => emit(EventsError(failure)), (events) {
       // Sort by date
       events.sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
-      emit(EventsLoaded(events));
+      emit(
+        EventsLoaded(events, hasMore: events.isNotEmpty, endDate: futureLimit),
+      );
+    });
+  }
+
+  Future<void> _onLoadMoreEvents(
+    LoadMoreEvents event,
+    Emitter<UserEventsState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! EventsLoaded) return;
+
+    // Load next 30 days
+    final startDate = event.currentEndDate;
+    final endDate = startDate.add(const Duration(days: 30));
+
+    final result = await eventsRepository.getEventsByDateRange(
+      startDate,
+      endDate,
+    );
+
+    result.fold((failure) => emit(EventsError(failure)), (newEvents) {
+      // Append new events to existing ones
+      final allEvents = [...currentState.events, ...newEvents];
+      allEvents.sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
+
+      emit(
+        EventsLoaded(
+          allEvents,
+          isWatching: currentState.isWatching,
+          hasMore: newEvents.isNotEmpty,
+          endDate: endDate,
+        ),
+      );
     });
   }
 
@@ -187,20 +236,22 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
 
     final result = await deleteEvent(DeleteUserEventParams(event.eventId));
 
-    result.fold(
-      (failure) {
-        emit(EventsError(failure));
-        emit(currentState);
-      },
-      (_) {
-        final updatedEvents = currentState.events
-            .where((e) => e.id != event.eventId)
-            .toList();
+    if (result.isLeft()) {
+      final failure = result.fold((f) => f, (_) => null)!;
+      emit(EventsError(failure));
+      emit(currentState);
+      return;
+    }
 
-        emit(EventsOperationSuccess(updatedEvents, 'Event deleted'));
-        emit(EventsLoaded(updatedEvents, isWatching: currentState.isWatching));
-      },
-    );
+    // Cancel notifications for deleted event
+    await smartScheduler.cancelEventNotifications(event.eventId);
+
+    final updatedEvents = currentState.events
+        .where((e) => e.id != event.eventId)
+        .toList();
+
+    emit(EventsOperationSuccess(updatedEvents, 'Event deleted'));
+    emit(EventsLoaded(updatedEvents, isWatching: currentState.isWatching));
   }
 
   Future<void> _onStartWatchingEvents(
@@ -251,6 +302,116 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
       final currentState = state as EventsLoaded;
       emit(EventsLoaded(currentState.events, isWatching: false));
     }
+  }
+
+  Future<void> _onCompleteRecurringInstance(
+    CompleteRecurringInstanceEvent event,
+    Emitter<UserEventsState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! EventsLoaded) return;
+
+    emit(
+      EventsOperationInProgress(currentState.events, 'Completing instance...'),
+    );
+
+    final result = await eventsRepository.completeRecurringInstance(
+      event.masterEventId,
+      event.occurrenceDate,
+    );
+
+    if (result.isLeft()) {
+      final failure = result.fold((f) => f, (_) => null)!;
+      emit(EventsError(failure));
+      emit(currentState);
+      return;
+    }
+
+    // Update notifications after completing instance
+    await smartScheduler.onRecurringInstanceCompleted(
+      masterEventId: event.masterEventId,
+      occurrenceDate: event.occurrenceDate,
+    );
+
+    // Reload events to show updated state
+    add(const RefreshEvents());
+
+    emit(EventsOperationSuccess(currentState.events, 'Instance completed'));
+  }
+
+  Future<void> _onDeleteRecurringInstance(
+    DeleteRecurringInstanceEvent event,
+    Emitter<UserEventsState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! EventsLoaded) return;
+
+    emit(
+      EventsOperationInProgress(currentState.events, 'Deleting instance...'),
+    );
+
+    final result = await eventsRepository.deleteRecurringInstance(
+      event.masterEventId,
+      event.occurrenceDate,
+    );
+
+    if (result.isLeft()) {
+      final failure = result.fold((f) => f, (_) => null)!;
+      emit(EventsError(failure));
+      emit(currentState);
+      return;
+    }
+
+    // Update notifications after deleting instance
+    await smartScheduler.onRecurringInstanceDeleted(
+      masterEventId: event.masterEventId,
+      occurrenceDate: event.occurrenceDate,
+    );
+
+    // Reload events to show updated state
+    add(const RefreshEvents());
+
+    emit(EventsOperationSuccess(currentState.events, 'Instance deleted'));
+  }
+
+  Future<void> _onModifyRecurringInstance(
+    ModifyRecurringInstanceEvent event,
+    Emitter<UserEventsState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! EventsLoaded) return;
+
+    emit(
+      EventsOperationInProgress(currentState.events, 'Modifying instance...'),
+    );
+
+    final result = await eventsRepository.modifyRecurringInstance(
+      masterEventId: event.masterEventId,
+      occurrenceDate: event.occurrenceDate,
+      modifiedTitle: event.modifiedTitle,
+      modifiedDescription: event.modifiedDescription,
+      modifiedDate: event.modifiedDate,
+      modifiedTime: event.modifiedTime,
+      modifiedLocation: event.modifiedLocation,
+    );
+
+    if (result.isLeft()) {
+      final failure = result.fold((f) => f, (_) => null)!;
+      emit(EventsError(failure));
+      emit(currentState);
+      return;
+    }
+
+    // Update notifications after modifying instance
+    await smartScheduler.onRecurringInstanceModified(
+      masterEventId: event.masterEventId,
+      occurrenceDate: event.occurrenceDate,
+    );
+
+    // Reload events to show updated state
+    add(const RefreshEvents());
+
+    emit(EventsOperationSuccess(currentState.events, 'Instance modified'));
   }
 
   @override

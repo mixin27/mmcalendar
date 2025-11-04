@@ -213,3 +213,163 @@ enum EventPriority {
     );
   }
 }
+
+/// Represents a single occurrence of a recurring event (virtual, not stored)
+class EventInstance {
+  final Event masterEvent;
+  final DateTime occurrenceDate;
+  final DateTime? occurrenceTime;
+  final RecurringEventException? exception;
+
+  const EventInstance({
+    required this.masterEvent,
+    required this.occurrenceDate,
+    this.occurrenceTime,
+    this.exception,
+  });
+
+  /// Get the effective title (considering exceptions)
+  String get effectiveTitle {
+    if (exception?.exceptionType == ExceptionType.modified &&
+        exception?.modifiedTitle != null) {
+      return exception!.modifiedTitle!;
+    }
+    return masterEvent.title;
+  }
+
+  /// Get the effective description
+  String? get effectiveDescription {
+    if (exception?.exceptionType == ExceptionType.modified &&
+        exception?.modifiedDescription != null) {
+      return exception!.modifiedDescription!;
+    }
+    return masterEvent.description;
+  }
+
+  /// Get the effective date
+  DateTime get effectiveDate {
+    if (exception?.exceptionType == ExceptionType.modified &&
+        exception?.modifiedDate != null) {
+      return exception!.modifiedDate!;
+    }
+    return occurrenceDate;
+  }
+
+  /// Get the effective time
+  DateTime? get effectiveTime {
+    if (exception?.exceptionType == ExceptionType.modified &&
+        exception?.modifiedTime != null) {
+      return exception!.modifiedTime!;
+    }
+    return occurrenceTime;
+  }
+
+  /// Get the effective location
+  String? get effectiveLocation {
+    if (exception?.exceptionType == ExceptionType.modified &&
+        exception?.modifiedLocation != null) {
+      return exception!.modifiedLocation!;
+    }
+    return masterEvent.location;
+  }
+
+  /// Check if this instance is deleted
+  bool get isDeleted => exception?.exceptionType == ExceptionType.deleted;
+
+  /// Check if this instance is completed
+  bool get isCompleted {
+    if (exception?.exceptionType == ExceptionType.completed) {
+      return true;
+    }
+    if (exception?.isCompleted == true) {
+      return true;
+    }
+    return false;
+  }
+
+  /// Check if this instance is modified
+  bool get isModified => exception?.exceptionType == ExceptionType.modified;
+
+  /// Get completed timestamp
+  DateTime? get completedAt => exception?.completedAt;
+
+  /// Convert to Event object for UI display
+  /// This creates a "flattened" event that looks like a regular event
+  Event toEvent() {
+    return Event(
+      // Use master event's ID with a special marker for virtual instances
+      // This helps identify it's a virtual instance in the UI
+      id: masterEvent.id,
+
+      // Use effective values (considers exceptions)
+      title: effectiveTitle,
+      description: effectiveDescription,
+      eventDate: effectiveDate,
+      eventTime: effectiveTime,
+      location: effectiveLocation,
+
+      // Keep master event properties
+      isAllDay: masterEvent.isAllDay,
+      category: masterEvent.category,
+      colorCode: masterEvent.colorCode,
+      priority: masterEvent.priority,
+      tags: masterEvent.tags,
+      notifications: masterEvent.notifications,
+
+      // Status depends on exception
+      status: isCompleted ? EventStatus.completed : EventStatus.pending,
+      completedAt: completedAt,
+
+      // Keep recurrence rule reference (so UI knows it's recurring)
+      recurrenceRule: masterEvent.recurrenceRule,
+
+      // Timestamps
+      createdAt: masterEvent.createdAt,
+      updatedAt: exception?.createdAt ?? masterEvent.updatedAt,
+    );
+  }
+
+  /// Create a copy with updated exception
+  EventInstance copyWith({
+    Event? masterEvent,
+    DateTime? occurrenceDate,
+    DateTime? occurrenceTime,
+    RecurringEventException? exception,
+  }) {
+    return EventInstance(
+      masterEvent: masterEvent ?? this.masterEvent,
+      occurrenceDate: occurrenceDate ?? this.occurrenceDate,
+      occurrenceTime: occurrenceTime ?? this.occurrenceTime,
+      exception: exception ?? this.exception,
+    );
+  }
+
+  /// Check if this instance should be displayed
+  /// (not deleted, and within valid date range)
+  bool isValid() {
+    return !isDeleted;
+  }
+
+  @override
+  String toString() {
+    return 'EventInstance('
+        'masterEventId: ${masterEvent.id}, '
+        'date: ${effectiveDate.toString()}, '
+        'title: $effectiveTitle, '
+        'isCompleted: $isCompleted, '
+        'isModified: $isModified, '
+        'isDeleted: $isDeleted'
+        ')';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is EventInstance &&
+        other.masterEvent.id == masterEvent.id &&
+        other.occurrenceDate == occurrenceDate;
+  }
+
+  @override
+  int get hashCode => Object.hash(masterEvent.id, occurrenceDate);
+}

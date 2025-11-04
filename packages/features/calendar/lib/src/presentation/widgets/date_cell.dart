@@ -1,7 +1,6 @@
-import 'dart:developer';
-
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
 import 'moon_phase_indicator.dart';
@@ -18,7 +17,6 @@ class DateCell extends StatefulWidget {
   final bool showAstrology;
   final bool showWesternDates;
   final bool showMyanmarDates;
-  final List<Event> events;
   final bool showEvents;
 
   const DateCell({
@@ -34,7 +32,6 @@ class DateCell extends StatefulWidget {
     this.showAstrology = true,
     this.showWesternDates = true,
     this.showMyanmarDates = true,
-    this.events = const [],
     this.showEvents = true,
   });
 
@@ -297,23 +294,47 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
   }
 
   Widget _buildBottomSection(Color textColor, double opacity) {
-    if (!widget.showEvents || widget.events.isEmpty) {
+    if (!widget.showEvents) {
       return const SizedBox(height: 8);
     }
 
-    return SizedBox(height: 8, child: _buildEventIndicator(textColor, opacity));
+    return BlocBuilder<UserEventsBloc, UserEventsState>(
+      builder: (context, state) {
+        final events = state is EventsLoaded ? state.events : <Event>[];
+
+        final todayEvents = events
+            .where(
+              (e) =>
+                  _isToday(e.eventDate, widget.dateInfo.western.toDateTime()),
+            )
+            .toList();
+        if (todayEvents.isEmpty) {
+          return const SizedBox(height: 8);
+        }
+
+        return SizedBox(
+          height: 8,
+          child: _buildEventIndicator(textColor, opacity, todayEvents),
+        );
+      },
+    );
   }
 
-  Widget _buildEventIndicator(Color textColor, double opacity) {
-    log(
-      'Events: ${widget.events.length} for ${widget.dateInfo.formatWestern()}',
-    );
-    final eventCount = widget.events.length;
-    final hasHighPriority = widget.events.any(
+  Widget _buildEventIndicator(
+    Color textColor,
+    double opacity,
+    List<Event> todayEvents,
+  ) {
+    final eventCount = todayEvents.length;
+    final hasHighPriority = todayEvents.any(
       (e) =>
           e.priority == EventPriority.high ||
           e.priority == EventPriority.urgent,
     );
+
+    if (todayEvents.isEmpty) {
+      return const SizedBox(height: 8);
+    }
 
     // Show different styles based on event count
     if (eventCount == 1) {
@@ -322,7 +343,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
         height: 3,
         margin: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
-          color: _getEventColor(widget.events.first).withValues(alpha: opacity),
+          color: _getEventColor(todayEvents.first).withValues(alpha: opacity),
           borderRadius: BorderRadius.circular(1.5),
         ),
       );
@@ -336,7 +357,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
               margin: const EdgeInsets.only(left: 4, right: 1),
               decoration: BoxDecoration(
                 color: _getEventColor(
-                  widget.events[0],
+                  todayEvents[0],
                 ).withValues(alpha: opacity),
                 borderRadius: BorderRadius.circular(1.5),
               ),
@@ -348,7 +369,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
               margin: const EdgeInsets.only(left: 1, right: 4),
               decoration: BoxDecoration(
                 color: _getEventColor(
-                  widget.events[1],
+                  todayEvents[1],
                 ).withValues(alpha: opacity),
                 borderRadius: BorderRadius.circular(1.5),
               ),
@@ -368,7 +389,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
               margin: const EdgeInsets.symmetric(horizontal: 1),
               decoration: BoxDecoration(
                 color: _getEventColor(
-                  widget.events[i],
+                  todayEvents[i],
                 ).withValues(alpha: opacity),
                 shape: BoxShape.circle,
               ),
@@ -436,6 +457,12 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
 
     // Use event's custom color or category color
     return Color(event.effectiveColor);
+  }
+
+  bool _isToday(DateTime date, DateTime other) {
+    return date.year == other.year &&
+        date.month == other.month &&
+        date.day == other.day;
   }
 }
 

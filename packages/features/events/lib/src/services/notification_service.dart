@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -51,7 +52,6 @@ class NotificationServiceImpl implements NotificationService {
   Future<bool> requestPermissions() async {
     if (!_isInitialized) await initialize();
 
-    // Android 13+ permission
     final androidPlugin = _notificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
@@ -62,7 +62,6 @@ class NotificationServiceImpl implements NotificationService {
       return granted ?? false;
     }
 
-    // iOS permissions
     final iosPlugin = _notificationsPlugin
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
@@ -88,14 +87,20 @@ class NotificationServiceImpl implements NotificationService {
     if (!_isInitialized) await initialize();
     if (event.id == null) return;
 
+    // Generate unique ID using occurrence date
+    // This ensures each occurrence of a recurring event has a unique notification
     final notificationId = _generateNotificationId(
       event.id!,
+      event.eventDate, // Uses the specific occurrence date
       setting.minutesBefore,
     );
+
     final notificationTime = setting.getNotificationTime(event.eventDateTime);
 
     // Don't schedule past notifications
-    if (notificationTime.isBefore(DateTime.now())) return;
+    if (notificationTime.isBefore(DateTime.now())) {
+      return;
+    }
 
     const androidDetails = AndroidNotificationDetails(
       'events_channel',
@@ -124,7 +129,7 @@ class NotificationServiceImpl implements NotificationService {
       _convertToTZDateTime(notificationTime),
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      payload: 'event_${event.id}',
+      payload: 'event_${event.id}_${event.eventDate.millisecondsSinceEpoch}',
     );
   }
 
@@ -150,9 +155,26 @@ class NotificationServiceImpl implements NotificationService {
   // HELPER METHODS
   // ============================================================================
 
-  int _generateNotificationId(int eventId, int minutesBefore) {
-    // Generate unique ID combining event ID and minutes before
-    return (eventId * 10000) + minutesBefore;
+  /// ✅ UPDATED: Generate unique notification ID for recurring events
+  /// Format: eventId * 10000000 + daysSinceEpoch * 10000 + minutesBefore
+  ///
+  /// This ensures:
+  /// - Each event has unique IDs
+  /// - Each occurrence date has unique IDs
+  /// - Each notification time has unique IDs
+  int _generateNotificationId(
+    int eventId,
+    DateTime occurrenceDate,
+    int minutesBefore,
+  ) {
+    // Calculate days since epoch for this occurrence
+    final epoch = DateTime(1970, 1, 1);
+    final daysSinceEpoch = occurrenceDate.difference(epoch).inDays;
+
+    // Generate unique ID
+    // Example: eventId=1, date=2024-01-15, minutes=15
+    // Result: 1 * 10000000 + 19737 * 10000 + 15 = 10197370015
+    return (eventId * 10000000) + (daysSinceEpoch * 10000) + minutesBefore;
   }
 
   String _buildNotificationBody(Event event, NotificationSetting setting) {
@@ -183,13 +205,22 @@ class NotificationServiceImpl implements NotificationService {
   }
 
   void _onNotificationTapped(NotificationResponse response) {
-    // Handle notification tap
     final payload = response.payload;
     if (payload != null && payload.startsWith('event_')) {
-      final eventId = int.tryParse(payload.substring(6));
-      if (eventId != null) {
-        // Navigate to event details
-        // This will be handled by the presentation layer
+      // Parse: event_123_1704067200000
+      final parts = payload.split('_');
+      if (parts.length >= 3) {
+        final eventId = int.tryParse(parts[1]);
+        final timestamp = int.tryParse(parts[2]);
+
+        if (eventId != null && timestamp != null) {
+          final occurrenceDate = DateTime.fromMillisecondsSinceEpoch(timestamp);
+          debugPrint(
+            "[NotificationService]: _onNotificationTapped() => ${occurrenceDate.toIso8601String()}",
+          );
+          // todo(mixin27): Navigate to event details
+          // You can use a global navigator key or event bus here
+        }
       }
     }
   }

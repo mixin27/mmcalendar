@@ -430,7 +430,6 @@ class WidgetLocalDataSource {
       debugPrint('⏱️ Initial delay: ${initialDelay.inMinutes} minutes');
 
       // Schedule periodic task
-      // NOTE: WorkManager 0.9.0+ handles initialization automatically
       await Workmanager().registerPeriodicTask(
         _updateTaskName,
         _updateTaskName,

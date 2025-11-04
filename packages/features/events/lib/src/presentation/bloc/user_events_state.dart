@@ -23,16 +23,30 @@ final class EventsLoading extends UserEventsState {
 final class EventsLoaded extends UserEventsState {
   final List<Event> events;
   final bool isWatching;
+  final bool hasMore;
+  final DateTime? endDate;
 
-  const EventsLoaded(this.events, {this.isWatching = false});
+  const EventsLoaded(
+    this.events, {
+    this.isWatching = false,
+    this.hasMore = false,
+    this.endDate,
+  });
 
   @override
-  List<Object?> get props => [events, isWatching];
+  List<Object?> get props => [events, isWatching, hasMore, endDate];
 
-  EventsLoaded copyWith({List<Event>? events, bool? isWatching}) {
+  EventsLoaded copyWith({
+    List<Event>? events,
+    bool? isWatching,
+    bool? hasMore,
+    DateTime? endDate,
+  }) {
     return EventsLoaded(
       events ?? this.events,
       isWatching: isWatching ?? this.isWatching,
+      hasMore: hasMore ?? this.hasMore,
+      endDate: endDate ?? this.endDate,
     );
   }
 }
