@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Weekday Header Style -->
+    <style name="WeekdayHeader">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:alpha">0.7</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="CalendarWeekRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <!-- Calendar Day Cell Style -->
+    <style name="CalendarDayCell">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="MyanmarWeekdayHeader">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">9sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:alpha">0.7</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:padding">2dp</item>
+    </style>
+
+    <style name="MyanmarCalendarRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="MyanmarDayCell">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:padding">1dp</item>
+    </style>
+
+    <style name="MyanmarDayText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">9sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:lineSpacingMultiplier">0.8</item>
+        <item name="android:padding">2dp</item>
+    </style>
+
+    <style name="MoonIndicator">
+        <item name="android:layout_width">6dp</item>
+        <item name="android:layout_height">6dp</item>
+        <item name="android:layout_gravity">top|end</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:src">@drawable/ic_moon_full</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <style name="HolidayIndicator">
+        <item name="android:layout_width">4dp</item>
+        <item name="android:layout_height">4dp</item>
+        <item name="android:layout_gravity">bottom|end</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:background">@drawable/holiday_indicator</item>
+        <item name="android:visibility">gone</item>
+    </style>
+</resources>

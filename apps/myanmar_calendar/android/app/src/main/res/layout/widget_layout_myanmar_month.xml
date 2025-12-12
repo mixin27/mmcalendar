@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    MYANMAR MONTH CALENDAR WIDGET (4x4)
+    Displays Myanmar calendar month with:
+    - Myanmar dates (waxing/waning + fortnight day)
+    - Moon phase indicators
+    - Holiday markers
+    - Today highlight
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:background="@drawable/widget_bg_calendar">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:id="@+id/myanmar_month_year"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="နတ်တော်"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/western_month_year"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="December 2024"
+            android:textSize="10sp"
+            android:textColor="#FFFFFF"
+            android:alpha="0.7"
+            android:gravity="center"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <!-- Weekday Headers -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="2dp">
+
+        <TextView android:id="@+id/weekday_1" style="@style/MyanmarWeekdayHeader" android:text="နွေ" />
+        <TextView android:id="@+id/weekday_2" style="@style/MyanmarWeekdayHeader" android:text="လာ" />
+        <TextView android:id="@+id/weekday_3" style="@style/MyanmarWeekdayHeader" android:text="ဂါ" />
+        <TextView android:id="@+id/weekday_4" style="@style/MyanmarWeekdayHeader" android:text="ဟူး" />
+        <TextView android:id="@+id/weekday_5" style="@style/MyanmarWeekdayHeader" android:text="ကြာ" />
+        <TextView android:id="@+id/weekday_6" style="@style/MyanmarWeekdayHeader" android:text="သော" />
+        <TextView android:id="@+id/weekday_7" style="@style/MyanmarWeekdayHeader" android:text="နေ" />
+    </LinearLayout>
+
+    <!-- Calendar Grid -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- Row 1 -->
+        <LinearLayout style="@style/MyanmarCalendarRow">
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_1" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_1" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_1" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_2" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_2" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_2" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_3" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_3" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_3" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_4" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_4" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_4" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_5" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_5" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_5" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_6" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_6" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_6" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_7" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_7" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_7" style="@style/HolidayIndicator" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- Rows 2-6: Repeat same pattern with IDs mm_day_8 through mm_day_42 -->
+        <!-- I'll provide a complete file separately -->
+
+        <LinearLayout style="@style/MyanmarCalendarRow">
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_8" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_8" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_8" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_9" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_9" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_9" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_10" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_10" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_10" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_11" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_11" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_11" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_12" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_12" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_12" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_13" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_13" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_13" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_14" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_14" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_14" style="@style/HolidayIndicator" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout style="@style/MyanmarCalendarRow">
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_15" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_15" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_15" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_16" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_16" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_16" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_17" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_17" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_17" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_18" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_18" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_18" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_19" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_19" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_19" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_20" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_20" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_20" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_21" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_21" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_21" style="@style/HolidayIndicator" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout style="@style/MyanmarCalendarRow">
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_22" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_22" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_22" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_23" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_23" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_23" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_24" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_24" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_24" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_25" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_25" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_25" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_26" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_26" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_26" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_27" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_27" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_27" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_28" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_28" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_28" style="@style/HolidayIndicator" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout style="@style/MyanmarCalendarRow">
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_29" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_29" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_29" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_30" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_30" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_30" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_31" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_31" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_31" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_32" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_32" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_32" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_33" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_33" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_33" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_34" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_34" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_34" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_35" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_35" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_35" style="@style/HolidayIndicator" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout style="@style/MyanmarCalendarRow">
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_36" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_36" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_36" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_37" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_37" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_37" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_38" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_38" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_38" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_39" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_39" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_39" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_40" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_40" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_40" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_41" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_41" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_41" style="@style/HolidayIndicator" />
+            </FrameLayout>
+            <FrameLayout style="@style/MyanmarDayCell">
+                <TextView android:id="@+id/mm_day_42" style="@style/MyanmarDayText" />
+                <ImageView android:id="@+id/moon_42" style="@style/MoonIndicator" />
+                <TextView android:id="@+id/holiday_42" style="@style/HolidayIndicator" />
+            </FrameLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Today Info -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:background="@drawable/today_dot" />
+
+        <TextView
+            android:id="@+id/today_myanmar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:text="နတ်တော် လဆုတ် ၈ ရက်"
+            android:textSize="9sp"
+            android:textColor="#FFFFFF"
+            android:alpha="0.9"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+</LinearLayout>

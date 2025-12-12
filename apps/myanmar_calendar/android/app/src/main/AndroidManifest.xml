@@ -8,13 +8,24 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" tools:ignore="ExactAlarmPolicy" />
 
-    <application android:label="Myanmar Calendar" android:name="${applicationName}" android:icon="@mipmap/ic_launcher">
-        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:taskAffinity="" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">
+    <application android:label="Myanmar Calendar"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <activity android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
-            <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme" />
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -27,15 +38,86 @@
         <!-- <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-7567997114394639~3076287765"/> -->
 
         <!-- HomeWidgets es.antonborri.home_widget -->
-        <receiver android:name=".AppHomeWidgetProvider" android:exported="true" android:label="@string/widget_name">
+        <receiver android:name=".AppHomeWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-            <meta-data android:name="android.appwidget.provider" android:resource="@xml/home_widget_info" />
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/home_widget_info" />
+        </receiver>
+
+        <!-- COMPACT DATE WIDGET -->
+        <receiver
+            android:name=".CompactDateWidgetProvider"
+            android:exported="true"
+            android:label="@string/compact_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/compact_widget_info" />
+        </receiver>
+
+        <!-- FULL CALENDAR WIDGET -->
+        <receiver
+            android:name=".FullCalendarWidgetProvider"
+            android:exported="true"
+            android:label="@string/full_calendar_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/full_calendar_widget_info" />
+        </receiver>
+
+        <!-- MOON PHASE WIDGET -->
+        <receiver
+            android:name=".MoonPhaseWidgetProvider"
+            android:exported="true"
+            android:label="@string/moon_phase_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/moon_phase_widget_info" />
+        </receiver>
+
+        <!-- MONTHLY CALENDAR WIDGET -->
+        <receiver
+            android:name=".MonthlyCalendarWidgetProvider"
+            android:exported="true"
+            android:label="@string/monthly_calendar_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/monthly_calendar_widget_info" />
+        </receiver>
+
+        <!-- MYANMAR MONTH WIDGET -->
+        <receiver
+            android:name=".MyanmarMonthWidgetProvider"
+            android:exported="true"
+            android:label="@string/myanmar_month_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/myanmar_month_widget_info" />
         </receiver>
 
         <!-- BOOT RECEIVER FOR WIDGET UPDATES -->
-        <receiver android:name=".WidgetBootReceiver" android:enabled="true" android:exported="true">
+        <receiver android:name=".WidgetBootReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
@@ -43,8 +125,11 @@
         </receiver>
 
         <!-- flutter_local_notifications -->
-        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
-        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>

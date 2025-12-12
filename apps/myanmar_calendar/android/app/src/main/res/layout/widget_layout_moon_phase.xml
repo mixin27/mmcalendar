@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    MOON PHASE WIDGET (2x2)
+    Purpose: Beautiful moon phase display with minimal text
+    Features: Large moon visual, Phase name, Fortnight day, Next phase countdown
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@drawable/widget_bg_moon">
+
+    <!-- Moon Phase Container (Center) -->
+    <LinearLayout
+        android:id="@+id/moon_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Moon Phase Image with Glow -->
+        <FrameLayout
+            android:layout_width="100dp"
+            android:layout_height="100dp">
+
+            <!-- Outer Glow -->
+            <ImageView
+                android:id="@+id/moon_outer_glow"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/moon_glow_large"
+                android:alpha="0.2"
+                android:scaleType="fitCenter" />
+
+            <!-- Moon Image -->
+            <ImageView
+                android:id="@+id/moon_phase_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:contentDescription="Moon Phase" />
+        </FrameLayout>
+
+        <!-- Moon Phase Name -->
+        <TextView
+            android:id="@+id/moon_phase_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Full Moon"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-medium"
+            android:textAlignment="center" />
+
+        <!-- Fortnight Day -->
+        <TextView
+            android:id="@+id/fortnight_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="၁၅ ရက်"
+            android:textSize="13sp"
+            android:textColor="#FFFFFF"
+            android:alpha="0.8"
+            android:textAlignment="center" />
+    </LinearLayout>
+
+    <!-- Myanmar Date (Top) -->
+    <TextView
+        android:id="@+id/myanmar_date_compact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="နတ်တော် လဆုတ် ၈"
+        android:textSize="11sp"
+        android:textColor="#FFFFFF"
+        android:alpha="0.8"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <!-- Next Phase Info (Bottom) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/next_phase_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next:"
+            android:textSize="9sp"
+            android:textColor="#FFFFFF"
+            android:alpha="0.6" />
+
+        <TextView
+            android:id="@+id/next_phase"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="New Moon in 7d"
+            android:textSize="9sp"
+            android:textColor="#FFD700"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+</RelativeLayout>
