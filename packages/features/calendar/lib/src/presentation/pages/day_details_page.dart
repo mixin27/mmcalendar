@@ -397,7 +397,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    _completeDate.formatMyanmar(),
+                    '${_completeDate.formatMyanmar()} ${TranslationService.translate('Yat')}',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,

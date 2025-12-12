@@ -197,7 +197,7 @@ go_router: ^16.2.4
 drift: ^2.28.2
 get_it: ^8.2.0
 injectable: ^2.5.2
-flutter_mmcalendar: ^3.2.1  # Myanmar calendar engine
+flutter_mmcalendar: ^3.2.2  # Myanmar calendar engine
 ```
 
 ### UI Dependencies

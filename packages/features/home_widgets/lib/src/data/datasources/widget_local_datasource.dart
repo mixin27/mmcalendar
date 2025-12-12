@@ -149,7 +149,9 @@ class WidgetLocalDataSource {
       );
 
       // Format dates
-      final myanmarDate = myanmarDateTime.formatMyanmar('&y &M &P &f');
+      final yat = TranslationService.translate('Yat');
+      final myanmarDate =
+          '${myanmarDateTime.formatMyanmar('&y &M &P &f')} $yat';
       final westernDate = myanmarDateTime.formatWestern('%d %M %yyyy');
 
       debugPrint('📅 Myanmar Date: $myanmarDate');
@@ -236,7 +238,9 @@ class WidgetLocalDataSource {
       );
 
       // Format dates with correct language
-      final myanmarDate = myanmarDateTime.formatMyanmar('&y &M &P &f');
+      final yat = TranslationService.translate('Yat');
+      final myanmarDate =
+          '${myanmarDateTime.formatMyanmar('&y &M &P &f')} $yat';
       final westernDate = myanmarDateTime.formatWestern('%d %M %yyyy');
 
       // Get moon phase

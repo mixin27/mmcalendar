@@ -64,12 +64,20 @@ class CalendarHeader extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            myanmarDate.formatMyanmar('&M &y'),
-                            style: context.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                          if (MyanmarCalendar.currentLanguage == Language.shan)
+                            Text(
+                              'ပီ ${myanmarDate.shanDate.year} ${myanmarDate.shanDate.monthName}',
+                              style: context.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          else
+                            Text(
+                              myanmarDate.formatMyanmar('&M &y'),
+                              style: context.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
                           const SizedBox(width: 4),
                           Icon(
                             Icons.arrow_drop_down,
