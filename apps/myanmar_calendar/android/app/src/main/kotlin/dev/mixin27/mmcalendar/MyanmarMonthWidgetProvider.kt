@@ -186,11 +186,11 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
         val theme = widgetData.getString("widget_theme", "gradientBlue") ?: "gradientBlue"
 
         // Update header
-        views.setTextViewText(R.id.myanmar_month_year, monthData.myanmarMonthName)
+        views.setTextViewText(R.id.myanmar_month_year, "${monthData.myanmarMonthName} ${monthData.myanmarYear}")
         views.setTextViewText(R.id.western_month_year, "${monthData.westernMonthName} ${monthData.westernYear}")
 
         // Display Myanmar weekday headers
-        displayWeekdayHeaders(views)
+        displayWeekdayHeaders(views, widgetData)
 
         // Display each day in the grid
         for (i in monthData.days.indices) {
@@ -205,7 +205,7 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
             views.setViewVisibility(cellId, View.VISIBLE)
 
             // Format Myanmar date text
-            val dayText = formatMyanmarDay(dayData)
+            val dayText = formatMyanmarDay(dayData, widgetData)
             views.setTextViewText(cellId, dayText)
 
             // Style based on state
@@ -253,7 +253,7 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
         // Update today info at bottom
         val todayData = monthData.days.find { it.isToday }
         if (todayData != null) {
-            val todayText = "${convertToMyanmarNumber(todayData.myanmarYear)} ${todayData.myanmarMonthName} ${formatMoonPhase(todayData.moonPhase)} ${convertToMyanmarNumber(todayData.fortnightDay)} ရက်"
+            val todayText = "${convertToMyanmarNumber(todayData.myanmarYear)} ${todayData.myanmarMonthName} ${formatMoonPhase(todayData.moonPhase, widgetData)} ${convertToMyanmarNumber(todayData.fortnightDay)} ရက်"
             views.setTextViewText(R.id.today_myanmar, todayText)
             views.setViewVisibility(R.id.today_myanmar, View.VISIBLE)
         }
@@ -262,15 +262,31 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
     /**
      * Display Myanmar weekday headers
      */
-    private fun displayWeekdayHeaders(views: RemoteViews) {
-        val weekdays = arrayOf("နွေ", "လာ", "ဂါ", "ဟူး", "ကြာ", "သော", "နေ")
+    private fun displayWeekdayHeaders(views: RemoteViews, widgetData: SharedPreferences) {
+        val items = mutableListOf<String>()
+        val weekdayNames = widgetData.getString("weekday_names", "")
+        if (!weekdayNames.isNullOrEmpty() && weekdayNames != "null") {
+            items.addAll(weekdayNames.split(",").map { it.trim() })
+        }
+
+        val language = widgetData.getString("widget_language", "my") ?: "my";
+
+        var weekdays = arrayOf("နွေ", "လာ", "ဂါ", "ဟူး", "ကြာ", "သော", "နေ")
+        if (language == "en") {
+            weekdays = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+        }
+
         val headerIds = intArrayOf(
             R.id.weekday_1, R.id.weekday_2, R.id.weekday_3, R.id.weekday_4,
             R.id.weekday_5, R.id.weekday_6, R.id.weekday_7
         )
 
         for (i in weekdays.indices) {
-            views.setTextViewText(headerIds[i], weekdays[i])
+            // if (items.isEmpty()) {
+                views.setTextViewText(headerIds[i], weekdays[i])
+            // } else {
+                // views.setTextViewText(headerIds[i], items[i])
+            // }
         }
     }
 
@@ -279,23 +295,39 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
      * Shows: moon phase + fortnight day
      * Example: "လဆန်း ၅" or "လဆုတ် ၁၅"
      */
-    private fun formatMyanmarDay(dayData: MyanmarDayData): String {
-        val moonPhase = formatMoonPhase(dayData.moonPhase)
-        val day = convertToMyanmarNumber(dayData.fortnightDay)
+    private fun formatMyanmarDay(dayData: MyanmarDayData, widgetData: SharedPreferences): String {
+        val language = widgetData.getString("widget_language", "my") ?: "my";
+
+        val moonPhase = formatMoonPhase(dayData.moonPhase, widgetData)
+        var day = convertToMyanmarNumber(dayData.fortnightDay)
+        if (language == "en") {
+            day = dayData.fortnightDay.toString()
+        }
+
         return "$moonPhase\n$day"
     }
 
     /**
      * Format moon phase name in Myanmar
      */
-    private fun formatMoonPhase(moonPhase: Int): String {
-        return when (moonPhase) {
-            0 -> "လဆန်း" // Waxing
-            1 -> "လပြည့်" // Full Moon
-            2 -> "လဆုတ်" // Waning
-            3 -> "လကွယ်" // New Moon
-            else -> ""
+    private fun formatMoonPhase(moonPhase: Int, widgetData: SharedPreferences): String {
+        val items = mutableListOf<String>()
+        val moonPhaseNames = widgetData.getString("moon_phase_names", "")
+        if (!moonPhaseNames.isNullOrEmpty() && moonPhaseNames != "null") {
+            items.addAll(moonPhaseNames.split(",").map { it.trim() })
         }
+
+        if (items.isEmpty()) {
+            return when (moonPhase) {
+                0 -> "လဆန်း" // Waxing
+                1 -> "လပြည့်" // Full Moon
+                2 -> "လဆုတ်" // Waning
+                3 -> "လကွယ်" // New Moon
+                else -> ""
+            }
+        }
+
+        return items[moonPhase]
     }
 
     /**

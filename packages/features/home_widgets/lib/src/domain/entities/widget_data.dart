@@ -14,6 +14,8 @@ class WidgetData extends Equatable {
   final String? pyathadaInfo;
   final List<String> astrologicalDays;
   final DateTime lastUpdated;
+  final List<String> weekdayNames;
+  final List<String> moonPhaseNames;
 
   const WidgetData({
     required this.myanmarDate,
@@ -28,6 +30,8 @@ class WidgetData extends Equatable {
     this.yatyazaInfo,
     this.pyathadaInfo,
     required this.lastUpdated,
+    required this.weekdayNames,
+    required this.moonPhaseNames,
   });
 
   @override
@@ -80,6 +84,8 @@ class WidgetData extends Equatable {
       yatyazaInfo: json['yatyazaInfo'] as String?,
       pyathadaInfo: json['pyathadaInfo'] as String?,
       lastUpdated: DateTime.parse(json['lastUpdated'] as String),
+      weekdayNames: (json['weekdayNames'] as List<dynamic>).cast<String>(),
+      moonPhaseNames: (json['moonPhaseNames'] as List<dynamic>).cast<String>(),
     );
   }
 }

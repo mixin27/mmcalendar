@@ -345,41 +345,40 @@ class WidgetSettingsPage extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Widget Language',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            RadioGroup(
-              groupValue: state.config.language,
-              onChanged: (String? value) {
-                if (value != null) {
-                  final newConfig = state.config.copyWith(language: value);
-                  context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-                }
-              },
-              child: RadioListTile<String>(
+        child: RadioGroup<String>(
+          groupValue: state.config.language,
+          onChanged: (String? value) {
+            if (value != null) {
+              final newConfig = state.config.copyWith(language: value);
+              context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
+            }
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Widget Language',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+
+              RadioListTile<String>(title: const Text('English'), value: 'en'),
+              RadioListTile<String>(
                 title: const Text('Myanmar (ဗမာ)'),
                 value: 'my',
               ),
-            ),
-            RadioGroup(
-              groupValue: state.config.language,
-              onChanged: (String? value) {
-                if (value != null) {
-                  final newConfig = state.config.copyWith(language: value);
-                  context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-                }
-              },
-              child: RadioListTile<String>(
-                title: const Text('English'),
-                value: 'en',
+              RadioListTile<String>(
+                title: const Text('Myanmar (Zawgyi)'),
+                value: 'zawgyi',
               ),
-            ),
-          ],
+              RadioListTile<String>(title: const Text('Mon'), value: 'mon'),
+              RadioListTile<String>(
+                title: const Text('Shan (Tai)'),
+                value: 'shan',
+              ),
+              RadioListTile<String>(title: const Text('Karen'), value: 'karen'),
+            ],
+          ),
         ),
       ),
     );

@@ -96,6 +96,15 @@ class WidgetUpdateService {
       data.astrologicalDays.join(', '),
     );
 
+    await HomeWidget.saveWidgetData<String>(
+      'weekday_names',
+      data.weekdayNames.join(', '),
+    );
+    await HomeWidget.saveWidgetData<String>(
+      'moon_phase_names',
+      data.moonPhaseNames.join(', '),
+    );
+
     // Timestamp
     await HomeWidget.saveWidgetData<String>(
       'last_updated',

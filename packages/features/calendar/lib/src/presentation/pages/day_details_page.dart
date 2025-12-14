@@ -345,6 +345,11 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Widget _buildHeroDateCard([bool showShanCalendar = true]) {
+    final year =
+        (MyanmarCalendar.currentLanguage == Language.shan || showShanCalendar)
+        ? MyanmarDateTime.fromMyanmarDate(_completeDate.myanmar).shanDate.year
+        : _completeDate.myanmarYear;
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -369,6 +374,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
           ),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Myanmar Date Section
             Container(
@@ -408,7 +414,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                   if (MyanmarCalendar.currentLanguage == Language.shan &&
                       showShanCalendar)
                     Text(
-                      'ပီ ${MyanmarDateTime.fromMyanmarDate(_completeDate.myanmar).shanDate.year} ${MyanmarDateTime.fromMyanmarDate(_completeDate.myanmar).shanDate.monthName}',
+                      '${MyanmarDateTime.fromMyanmarDate(_completeDate.myanmar).shanDate.year} ${_completeDate.formatMyanmar(pattern: "&M")}',
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
@@ -439,7 +445,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                   child: _buildQuickInfo(
                     Icons.calendar_month,
                     AppLocalizations.of(context)?.year ?? 'Year',
-                    translateNumbers(_completeDate.myanmarYear.toString()),
+                    translateNumbers(year.toString()),
                     Theme.of(context).colorScheme.tertiary,
                   ),
                 ),
@@ -560,17 +566,17 @@ class _DayDetailsPageState extends State<DayDetailsPage>
             Icons.calendar_today,
             Colors.deepOrange,
           ),
-          if (MyanmarCalendar.currentLanguage == Language.shan) ...[
-            const SizedBox(height: 12),
-            _buildInfoRow(
-              "Shan (Tai) Year",
-              MyanmarDateTime.fromMyanmarDate(
-                _completeDate.myanmar,
-              ).shanDate.year.toString(),
-              Icons.calendar_today,
-              Colors.deepOrange,
-            ),
-          ],
+          // if (MyanmarCalendar.currentLanguage == Language.shan) ...[
+          //   const SizedBox(height: 12),
+          //   _buildInfoRow(
+          //     "Shan (Tai) Year",
+          //     MyanmarDateTime.fromMyanmarDate(
+          //       _completeDate.myanmar,
+          //     ).shanDate.year.toString(),
+          //     Icons.calendar_today,
+          //     Colors.deepOrange,
+          //   ),
+          // ],
         ],
       ),
     );

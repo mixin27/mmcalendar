@@ -5,14 +5,19 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
 
+import '../../domain/entities/widget_config.dart';
+
 class MyanmarMonthWidgetService {
   /// Update Myanmar month widget with calendar grid data
-  static Future<void> updateMyanmarMonthWidget(DateTime date) async {
+  static Future<void> updateMyanmarMonthWidget(
+    DateTime date,
+    WidgetConfig config,
+  ) async {
     try {
       debugPrint('📅 Generating Myanmar month data for: $date');
 
       // Generate Myanmar month data
-      final monthData = await _generateMyanmarMonthData(date);
+      final monthData = await _generateMyanmarMonthData(date, config.language);
 
       // Convert to JSON
       final jsonData = _convertToJson(monthData);
@@ -39,8 +44,17 @@ class MyanmarMonthWidgetService {
   /// Generate Myanmar month calendar data
   static Future<MyanmarMonthData> _generateMyanmarMonthData(
     DateTime date,
+    String languageCode,
   ) async {
     try {
+      // Temporarily set language
+      final currentLanguage = MyanmarCalendar.currentLanguage;
+      final targetLanguage = Language.fromCode(languageCode);
+
+      if (currentLanguage != targetLanguage) {
+        MyanmarCalendar.setLanguage(targetLanguage);
+      }
+
       // Get Myanmar date for the given date
       final myanmarDate = MyanmarCalendar.fromWestern(
         date.year,
@@ -82,6 +96,7 @@ class MyanmarMonthWidgetService {
           myanmarYear,
           myanmarMonth,
           firstWeekday,
+          languageCode,
         );
         gridDays.addAll(prevMonthDays);
       }
@@ -93,14 +108,18 @@ class MyanmarMonthWidgetService {
         final isToday = _isToday(westernDate);
         final myanmarDateTime = MyanmarDateTime.fromMyanmarDate(mmDate);
 
+        final year = targetLanguage == Language.shan
+            ? myanmarDateTime.shanDate.year
+            : mmDate.year;
+
         gridDays.add(
           MyanmarDayData(
             westernYear: westernDate.year,
             westernMonth: westernDate.month,
             westernDay: westernDate.day,
-            myanmarYear: mmDate.year,
+            myanmarYear: year,
             myanmarMonth: mmDate.month,
-            myanmarMonthName: _getMyanmarMonthName(mmDate.month),
+            myanmarMonthName: mmDate.format(pattern: '&M'),
             moonPhase: mmDate.moonPhase,
             fortnightDay: mmDate.fortnightDay,
             hasHoliday: myanmarDateTime.allHolidays.isNotEmpty,
@@ -117,6 +136,7 @@ class MyanmarMonthWidgetService {
           myanmarYear,
           myanmarMonth,
           remainingCells,
+          languageCode,
         );
         gridDays.addAll(nextMonthDays);
       }
@@ -124,7 +144,7 @@ class MyanmarMonthWidgetService {
       debugPrint('📅 Total grid cells: ${gridDays.length}');
 
       // Get month names
-      final myanmarMonthName = _getMyanmarMonthName(myanmarMonth);
+      final myanmarMonthName = myanmarDate.formatMyanmar("&M");
       final westernMonthName = DateFormat('MMMM').format(firstWesternDate);
 
       return MyanmarMonthData(
@@ -148,8 +168,17 @@ class MyanmarMonthWidgetService {
     int currentYear,
     int currentMonth,
     int count,
+    String languageCode,
   ) {
     try {
+      // Temporarily set language
+      final currentLanguage = MyanmarCalendar.currentLanguage;
+      final targetLanguage = Language.fromCode(languageCode);
+
+      if (currentLanguage != targetLanguage) {
+        MyanmarCalendar.setLanguage(targetLanguage);
+      }
+
       // Calculate previous Myanmar month
       int prevYear = currentYear;
       int prevMonth = currentMonth - 1;
@@ -179,14 +208,18 @@ class MyanmarMonthWidgetService {
         final westernDate = prevWesternDates[i];
         final myanmarDateTime = MyanmarDateTime.fromMyanmarDate(mmDate);
 
+        final year = targetLanguage == Language.shan
+            ? myanmarDateTime.shanDate.year
+            : mmDate.year;
+
         days.add(
           MyanmarDayData(
             westernYear: westernDate.year,
             westernMonth: westernDate.month,
             westernDay: westernDate.day,
-            myanmarYear: mmDate.year,
+            myanmarYear: year,
             myanmarMonth: mmDate.month,
-            myanmarMonthName: _getMyanmarMonthName(mmDate.month),
+            myanmarMonthName: mmDate.format(pattern: '&M'),
             moonPhase: mmDate.moonPhase,
             fortnightDay: mmDate.fortnightDay,
             hasHoliday: myanmarDateTime.allHolidays.isNotEmpty,
@@ -208,8 +241,17 @@ class MyanmarMonthWidgetService {
     int currentYear,
     int currentMonth,
     int count,
+    String languageCode,
   ) {
     try {
+      // Temporarily set language
+      final currentLanguage = MyanmarCalendar.currentLanguage;
+      final targetLanguage = Language.fromCode(languageCode);
+
+      if (currentLanguage != targetLanguage) {
+        MyanmarCalendar.setLanguage(targetLanguage);
+      }
+
       // Calculate next Myanmar month
       int nextYear = currentYear;
       int nextMonth = currentMonth + 1;
@@ -238,14 +280,18 @@ class MyanmarMonthWidgetService {
         final westernDate = nextWesternDates[i];
         final myanmarDateTime = MyanmarDateTime.fromMyanmarDate(mmDate);
 
+        final year = targetLanguage == Language.shan
+            ? myanmarDateTime.shanDate.year
+            : mmDate.year;
+
         days.add(
           MyanmarDayData(
             westernYear: westernDate.year,
             westernMonth: westernDate.month,
             westernDay: westernDate.day,
-            myanmarYear: mmDate.year,
+            myanmarYear: year,
             myanmarMonth: mmDate.month,
-            myanmarMonthName: _getMyanmarMonthName(mmDate.month),
+            myanmarMonthName: mmDate.format(pattern: '&M'),
             moonPhase: mmDate.moonPhase,
             fortnightDay: mmDate.fortnightDay,
             hasHoliday: myanmarDateTime.allHolidays.isNotEmpty,
@@ -268,32 +314,6 @@ class MyanmarMonthWidgetService {
     return date.year == now.year &&
         date.month == now.month &&
         date.day == now.day;
-  }
-
-  /// Get Myanmar month name
-  static String _getMyanmarMonthName(int month) {
-    const monthNames = [
-      '', // 0 is not used
-      'တန်ခူး', // 1
-      'ကဆုန်', // 2
-      'နယုန်', // 3
-      'ဝါဆို', // 4
-      'ဝါခေါင်', // 5
-      'တော်သလင်း', // 6
-      'သီတင်းကျွတ်', // 7
-      'တန်ဆောင်မုန်း', // 8
-      'နတ်တော်', // 9
-      'ပြာသို', // 10
-      'တပို့တွဲ', // 11
-      'တပေါင်း', // 12
-      'တန်ခူး', // 13 (First Waso)
-      'ဒုဝါဆို', // 14 (Second Waso)
-    ];
-
-    if (month >= 0 && month < monthNames.length) {
-      return monthNames[month];
-    }
-    return '';
   }
 
   /// Convert month data to JSON

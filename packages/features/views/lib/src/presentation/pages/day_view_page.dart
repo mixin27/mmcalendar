@@ -244,6 +244,11 @@ class _DayViewPageState extends State<DayViewPage>
     DateTime date,
     bool showShanCalendar,
   ) {
+    final year =
+        (MyanmarCalendar.currentLanguage == Language.shan || showShanCalendar)
+        ? MyanmarDateTime.fromMyanmarDate(completeDate.myanmar).shanDate.year
+        : completeDate.myanmarYear;
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -264,6 +269,7 @@ class _DayViewPageState extends State<DayViewPage>
           ),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Myanmar Date
             Container(
@@ -285,7 +291,7 @@ class _DayViewPageState extends State<DayViewPage>
                   if (MyanmarCalendar.currentLanguage == Language.shan &&
                       showShanCalendar)
                     Text(
-                      'ပီ ${MyanmarDateTime.fromMyanmarDate(completeDate.myanmar).shanDate.year} ${MyanmarDateTime.fromMyanmarDate(completeDate.myanmar).shanDate.monthName}',
+                      '${MyanmarDateTime.fromMyanmarDate(completeDate.myanmar).shanDate.year} ${completeDate.formatMyanmar(pattern: "&M")} ${TranslationService.translate('Yat')}',
                       style: context.textTheme.headlineSmall?.copyWith(
                         color: context.colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -294,7 +300,7 @@ class _DayViewPageState extends State<DayViewPage>
                     )
                   else
                     Text(
-                      completeDate.formatMyanmar(),
+                      "${completeDate.formatMyanmar()} ${TranslationService.translate('Yat')}",
                       style: context.textTheme.headlineSmall?.copyWith(
                         color: context.colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -314,7 +320,7 @@ class _DayViewPageState extends State<DayViewPage>
                   child: _buildInfoChip(
                     Icons.calendar_month,
                     translateNumbers(
-                      '${AppLocalizations.of(context)?.year ?? "Year"} ${completeDate.myanmarYear}',
+                      '${AppLocalizations.of(context)?.year ?? "Year"} $year',
                     ),
                     context.colorScheme.tertiary,
                   ),

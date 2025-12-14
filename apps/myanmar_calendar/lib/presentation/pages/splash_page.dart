@@ -198,7 +198,7 @@ class _SplashPageState extends State<SplashPage>
                   opacity: _fadeAnimation,
                   child: Text(
                     isShowShanCalendar
-                        ? "ပီ ${today.shanDate.year} ${today.shanDate.monthName}"
+                        ? "${today.shanDate.year} ${today.formatMyanmar("&M")}"
                         : today.formatMyanmar(),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.7),

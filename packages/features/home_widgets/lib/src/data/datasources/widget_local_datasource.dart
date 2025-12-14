@@ -15,18 +15,6 @@ class WidgetLocalDataSource {
   static const String _configKey = 'widget_config';
   static const String _updateTaskName = 'widget_update_task';
 
-  // Widget data keys - MUST match Android code
-  // static const String _myanmarDateKey = 'myanmar_date';
-  // static const String _westernDateKey = 'western_date';
-  // static const String _moonPhaseKey = 'moon_phase';
-  // static const String _moonPhaseEmojiKey = 'moon_phase_emoji';
-  // static const String _holidaysKey = 'holidays';
-  // static const String _astrologicalDaysKey = 'astrological_days';
-  // static const String _sabbathInfoKey = 'sabbath_info';
-  // static const String _yatyazaInfoKey = 'yatyaza_info';
-  // static const String _pyathadaInfoKey = 'pyathada_info';
-  // static const String _lastUpdatedKey = 'last_updated';
-
   final SharedPreferences sharedPreferences;
 
   WidgetLocalDataSource(this.sharedPreferences);
@@ -38,173 +26,10 @@ class WidgetLocalDataSource {
   ) async {
     await WidgetUpdateService.updateAllWidgets(data, config);
 
-    await MyanmarMonthWidgetService.updateMyanmarMonthWidget(DateTime.now());
-
-    // try {
-    //   final moonImagePath = await _renderMoonPhaseImage(
-    //     data.moonPhaseValue,
-    //     data.fortnightDay,
-    //   );
-    //   debugPrint('🎨 Moon image path: $moonImagePath');
-
-    //   // Save basic data
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _myanmarDateKey,
-    //     config.showMyanmarDate ? data.myanmarDate : '',
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _westernDateKey,
-    //     config.showWesternDate ? data.westernDate : '',
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(_moonPhaseKey, data.moonPhase);
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _moonPhaseEmojiKey,
-    //     data.moonPhaseEmoji,
-    //   );
-
-    //   // Conditional data based on config
-    //   if (config.showHolidays && data.holidays.isNotEmpty) {
-    //     await HomeWidget.saveWidgetData<String>(
-    //       _holidaysKey,
-    //       data.holidays.join(', '),
-    //     );
-    //   } else {
-    //     await HomeWidget.saveWidgetData<String>(_holidaysKey, '');
-    //   }
-
-    //   if (config.showAstrology) {
-    //     await HomeWidget.saveWidgetData<String>(
-    //       _sabbathInfoKey,
-    //       data.sabbathInfo ?? '',
-    //     );
-    //     await HomeWidget.saveWidgetData<String>(
-    //       _yatyazaInfoKey,
-    //       data.yatyazaInfo ?? '',
-    //     );
-    //     await HomeWidget.saveWidgetData<String>(
-    //       _pyathadaInfoKey,
-    //       data.pyathadaInfo ?? '',
-    //     );
-    //     await HomeWidget.saveWidgetData<String>(
-    //       _astrologicalDaysKey,
-    //       data.astrologicalDays.join(', '),
-    //     );
-    //   } else {
-    //     await HomeWidget.saveWidgetData<String>(_sabbathInfoKey, '');
-    //     await HomeWidget.saveWidgetData<String>(_yatyazaInfoKey, '');
-    //     await HomeWidget.saveWidgetData<String>(_pyathadaInfoKey, '');
-    //     await HomeWidget.saveWidgetData<String>(_astrologicalDaysKey, '');
-    //   }
-
-    //   // Save widget configuration preferences
-    //   await HomeWidget.saveWidgetData<String>('widget_size', config.size.name);
-    //   await HomeWidget.saveWidgetData<String>(
-    //     'widget_theme',
-    //     config.theme.name,
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(
-    //     'widget_language',
-    //     config.language,
-    //   );
-
-    //   final dateStr = DateFormat(
-    //     "yyyy-MM-dd hh:mm aaa",
-    //   ).format(data.lastUpdated);
-    //   await HomeWidget.saveWidgetData<String>(_lastUpdatedKey, dateStr);
-
-    //   if (moonImagePath != null && moonImagePath.isNotEmpty) {
-    //     await HomeWidget.saveWidgetData<String>(
-    //       'moon_phase_image_path',
-    //       moonImagePath,
-    //     );
-    //     debugPrint('✅ Moon phase image path saved: $moonImagePath');
-    //   } else {
-    //     debugPrint('⚠️ No moon phase image path to save');
-    //   }
-
-    //   // Trigger widget update
-    //   await HomeWidget.updateWidget(
-    //     androidName: 'AppHomeWidgetProvider',
-    //     iOSName: 'HomeWidget',
-    //   );
-
-    //   debugPrint('✅ Widget updated with config');
-    // } catch (e, stackTrace) {
-    //   debugPrint('❌ Failed to update widget with config: $e');
-    //   debugPrint('Stack trace: $stackTrace');
-    //   rethrow;
-    // }
-  }
-
-  /// Generate widget data from Myanmar Calendar
-  Future<WidgetData> generateWidgetData(DateTime date) async {
-    try {
-      // Get Myanmar calendar date info
-      final myanmarDateTime = MyanmarCalendar.fromWestern(
-        date.year,
-        date.month,
-        date.day,
-      );
-
-      // Format dates
-      final yat = TranslationService.translate('Yat');
-      final myanmarDate =
-          '${myanmarDateTime.formatMyanmar('&y &M &P &f')} $yat';
-      final westernDate = myanmarDateTime.formatWestern('%d %M %yyyy');
-
-      // Get moon phase
-      final moonPhase = _getMoonPhaseName(
-        myanmarDateTime.moonPhase,
-        Language.myanmar,
-      );
-      final moonPhaseEmoji = _getMoonPhaseEmoji(myanmarDateTime.moonPhase);
-
-      // Get holidays
-      final allHolidays = [
-        ...myanmarDateTime.allHolidays,
-        ...myanmarDateTime.allAnniversaryDays,
-      ];
-      final holidays = allHolidays;
-
-      // Get astrology info
-      String? sabbathInfo;
-      String? yatyazaInfo;
-      String? pyathadaInfo;
-
-      if (myanmarDateTime.isSabbath || myanmarDateTime.isSabbathEve) {
-        sabbathInfo = myanmarDateTime.sabbath;
-      }
-
-      if (myanmarDateTime.isYatyaza) {
-        yatyazaInfo = myanmarDateTime.yatyaza;
-      }
-
-      if (myanmarDateTime.hasPyathada) {
-        pyathadaInfo = myanmarDateTime.pyathada;
-      }
-
-      final widgetData = WidgetData(
-        myanmarDate: myanmarDate,
-        westernDate: westernDate,
-        moonPhase: moonPhase,
-        moonPhaseValue: myanmarDateTime.moonPhase,
-        moonPhaseEmoji: moonPhaseEmoji,
-        fortnightDay: myanmarDateTime.fortnightDay,
-        holidays: holidays,
-        astrologicalDays: myanmarDateTime.astrologicalDays,
-        sabbathInfo: sabbathInfo,
-        yatyazaInfo: yatyazaInfo,
-        pyathadaInfo: pyathadaInfo,
-        lastUpdated: DateTime.now(),
-      );
-
-      debugPrint('✅ Widget data generated successfully');
-      return widgetData;
-    } catch (e, stackTrace) {
-      debugPrint('❌ Error generating widget data: $e');
-      debugPrint('Stack trace: $stackTrace');
-      rethrow;
-    }
+    await MyanmarMonthWidgetService.updateMyanmarMonthWidget(
+      DateTime.now(),
+      config,
+    );
   }
 
   /// Generate widget data with specific language
@@ -285,6 +110,9 @@ class WidgetLocalDataSource {
         MyanmarCalendar.setLanguage(currentLanguage);
       }
 
+      final weekdayNames = _getWeekdayNames(targetLanguage);
+      final moonPhaseNames = _getMoonPhaseNames(targetLanguage);
+
       return WidgetData(
         myanmarDate: myanmarDate,
         westernDate: westernDate,
@@ -298,91 +126,14 @@ class WidgetLocalDataSource {
         yatyazaInfo: yatyazaInfo,
         pyathadaInfo: pyathadaInfo,
         lastUpdated: DateTime.now(),
+        weekdayNames: weekdayNames,
+        moonPhaseNames: moonPhaseNames,
       );
     } catch (e, stackTrace) {
       debugPrint('❌ Error generating widget data with language: $e');
       debugPrint('Stack trace: $stackTrace');
       rethrow;
     }
-  }
-
-  /// Update the home widget with new data
-  Future<void> updateHomeWidget(WidgetData data) async {
-    // await WidgetUpdateService.updateAllWidgets(data, config);
-    // try {
-    //   debugPrint('🔄 Updating home widget...');
-
-    //   final moonImagePath = await _renderMoonPhaseImage(
-    //     data.moonPhaseValue,
-    //     data.fortnightDay,
-    //   );
-    //   debugPrint('🎨 Moon image path: $moonImagePath');
-
-    //   // Save data to HomeWidget plugin storage
-    //   // NOTE: Keys are automatically prefixed with 'flutter.' by the plugin
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _myanmarDateKey,
-    //     data.myanmarDate,
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _westernDateKey,
-    //     data.westernDate,
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(_moonPhaseKey, data.moonPhase);
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _moonPhaseEmojiKey,
-    //     data.moonPhaseEmoji,
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _holidaysKey,
-    //     data.holidays.join(', '),
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _sabbathInfoKey,
-    //     data.sabbathInfo ?? '',
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _yatyazaInfoKey,
-    //     data.yatyazaInfo ?? '',
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _pyathadaInfoKey,
-    //     data.pyathadaInfo ?? '',
-    //   );
-    //   await HomeWidget.saveWidgetData<String>(
-    //     _lastUpdatedKey,
-    //     data.lastUpdated.toIso8601String(),
-    //   );
-
-    //   if (moonImagePath != null && moonImagePath.isNotEmpty) {
-    //     await HomeWidget.saveWidgetData<String>(
-    //       'moon_phase_image_path',
-    //       moonImagePath,
-    //     );
-    //     debugPrint('✅ Moon phase image path saved: $moonImagePath');
-    //   } else {
-    //     debugPrint('⚠️ No moon phase image path to save');
-    //   }
-
-    //   debugPrint('✅ Widget data saved to SharedPreferences');
-
-    //   // Trigger widget update
-    //   final result = await HomeWidget.updateWidget(
-    //     androidName:
-    //         'AppHomeWidgetProvider', // Must match your Kotlin class name
-    //     iOSName: 'HomeWidget',
-    //   );
-
-    //   if (result == true) {
-    //     debugPrint('✅ Widget updated successfully');
-    //   } else {
-    //     debugPrint('⚠️ Widget update returned: $result');
-    //   }
-    // } catch (e, stackTrace) {
-    //   debugPrint('❌ Failed to update widget: $e');
-    //   debugPrint('Stack trace: $stackTrace');
-    //   throw Exception('Failed to update widget: $e');
-    // }
   }
 
   /// Get widget configuration
@@ -508,5 +259,28 @@ class WidgetLocalDataSource {
       default:
         return '🌙';
     }
+  }
+
+  List<String> _getWeekdayNames(Language language) {
+    List<String> items = List.empty(growable: true);
+    for (var i = 0; i < 7; i++) {
+      final myanmarWeekdayIndex = (1 + i) % 7;
+      final weekdayName = TranslationService.getShortWeekdayName(
+        myanmarWeekdayIndex,
+        language,
+      );
+      items.add(weekdayName);
+    }
+
+    return items;
+  }
+
+  List<String> _getMoonPhaseNames(Language language) {
+    List<String> items = List.empty(growable: true);
+    for (var i = 0; i < 4; i++) {
+      final name = _getMoonPhaseName(i, language);
+      items.add(name);
+    }
+    return items;
   }
 }
