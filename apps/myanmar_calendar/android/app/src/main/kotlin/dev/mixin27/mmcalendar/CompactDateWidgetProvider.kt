@@ -92,7 +92,8 @@ class CompactDateWidgetProvider : HomeWidgetProvider() {
             val parts = westernDate.split(" ")
             if (parts.size >= 2) {
                 val day = parts[0]
-                val month = parts[1].take(3).uppercase() // "DEC"
+                val month = parts[1]
+                // val month = parts[1].take(3).uppercase() // "DEC"
                 Pair(day, month)
             } else {
                 Pair("--", "---")
@@ -112,22 +113,16 @@ class CompactDateWidgetProvider : HomeWidgetProvider() {
     }
 
     private fun applyTheme(views: RemoteViews, theme: String) {
-        val backgroundColor = when (theme) {
-            "dark" -> "#2C2C2C"
-            "traditional" -> "#B71C1C"
-            "gradientBlue" -> "#1976D2"
-            "gradientPurple" -> "#6A1B9A"
-            "gradientTeal" -> "#00796B"
-            else -> "#FFFFFF" // light
-        }
 
         val textColor = when (theme) {
             "light" -> "#1A1A1A"
+            "auto" -> "#1A1A1A"
             else -> "#FFFFFF"
         }
 
         val secondaryTextColor = when (theme) {
             "light" -> "#666666"
+            "auto" -> "#666666"
             else -> "#B0B0B0"
         }
 

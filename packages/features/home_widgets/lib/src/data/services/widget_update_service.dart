@@ -21,19 +21,30 @@ class WidgetUpdateService {
       debugPrint('📱 Updating all widgets...');
 
       // 1. Render moon phase image (needed by multiple widgets)
-      final moonImagePath = await _renderMoonPhaseImage(
+      final fullMoonImagePath = await _renderMoonPhaseImage(
         data.moonPhaseValue,
         data.fortnightDay,
       );
 
+      final moonImagePath = await _renderMoonPhaseImage(
+        data.moonPhaseValue,
+        data.fortnightDay,
+        size: 90,
+      );
+
       // 2. Save common data (all widgets use this)
-      await _saveCommonData(data, config, moonImagePath);
+      await _saveCommonData(
+        data,
+        config,
+        moonImagePath: moonImagePath,
+        fullMoonImagePath: fullMoonImagePath,
+      );
 
       // 3. Update each widget provider
       await _updateCompactWidget();
       await _updateFullCalendarWidget();
       await _updateMoonPhaseWidget();
-      await _updateMonthlyCalendarWidget();
+      // await _updateMonthlyCalendarWidget();
 
       debugPrint('✅ All widgets updated successfully');
     } catch (e, stackTrace) {
@@ -46,9 +57,10 @@ class WidgetUpdateService {
   /// Save data that's common to all widgets
   static Future<void> _saveCommonData(
     WidgetData data,
-    WidgetConfig config,
+    WidgetConfig config, {
+    String? fullMoonImagePath,
     String? moonImagePath,
-  ) async {
+  }) async {
     // Basic date data
     await HomeWidget.saveWidgetData<String>('myanmar_date', data.myanmarDate);
     await HomeWidget.saveWidgetData<String>('western_date', data.westernDate);
@@ -94,6 +106,12 @@ class WidgetUpdateService {
     if (moonImagePath != null && moonImagePath.isNotEmpty) {
       await HomeWidget.saveWidgetData<String>(
         'moon_phase_image_path',
+        moonImagePath,
+      );
+    }
+    if (fullMoonImagePath != null && fullMoonImagePath.isNotEmpty) {
+      await HomeWidget.saveWidgetData<String>(
+        'full_moon_phase_image_path',
         moonImagePath,
       );
     }
@@ -147,6 +165,7 @@ class WidgetUpdateService {
   }
 
   /// Update monthly calendar widget
+  // ignore: unused_element
   static Future<void> _updateMonthlyCalendarWidget() async {
     try {
       await HomeWidget.updateWidget(
@@ -162,19 +181,20 @@ class WidgetUpdateService {
   /// Render moon phase image
   static Future<String?> _renderMoonPhaseImage(
     int moonPhase,
-    int fortnightDay,
-  ) async {
+    int fortnightDay, {
+    double size = 120,
+  }) async {
     try {
       final moonWidget = Container(
-        width: 120,
-        height: 120,
+        width: size,
+        height: size,
         color: Colors.transparent,
         child: MoonPhaseWidget(
           moonPhase: moonPhase,
           size: 120,
           moonColor: const Color(0xFFF5F5DC),
           shadowColor: const Color(0xFF2C2C2C),
-          showGlow: true,
+          showGlow: false,
         ),
       );
 

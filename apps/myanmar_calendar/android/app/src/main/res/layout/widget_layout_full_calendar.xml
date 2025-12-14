@@ -207,10 +207,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="၁၅ ရက်"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textColor="#FFFFFF"
                 android:alpha="0.7"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:visibility="gone"/>
         </LinearLayout>
     </LinearLayout>
 

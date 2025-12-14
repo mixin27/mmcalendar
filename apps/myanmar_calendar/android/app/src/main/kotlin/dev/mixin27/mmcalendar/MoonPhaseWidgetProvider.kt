@@ -73,7 +73,7 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
             views.setTextViewText(R.id.moon_phase_name, moonPhase)
 
             // Update fortnight day
-            val fortnightText = formatFortnightDay(fortnightDay)
+            val fortnightText = formatFortnightDay(fortnightDay, widgetData)
             views.setTextViewText(R.id.fortnight_day, fortnightText)
 
             // Calculate and display next phase
@@ -118,11 +118,12 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
      * Format fortnight day with Myanmar number
      * Example: "8" -> "၈ ရက်"
      */
-    private fun formatFortnightDay(fortnightDay: String): String {
+    private fun formatFortnightDay(fortnightDay: String, widgetData: SharedPreferences): String {
+        val language = widgetData.getString("widget_language", "my") ?: "my"
         return try {
             val day = fortnightDay.toIntOrNull() ?: return fortnightDay
             val myanmarDay = convertToMyanmarNumber(day)
-            "$myanmarDay ရက်"
+            if (language == "my") "$myanmarDay ရက်" else myanmarDay
         } catch (e: Exception) {
             Log.e(TAG, "Error formatting fortnight day", e)
             fortnightDay

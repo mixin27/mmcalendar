@@ -182,8 +182,11 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
         monthData: MyanmarMonthData,
         widgetData: SharedPreferences
     ) {
+        // Determine if light theme
+        val theme = widgetData.getString("widget_theme", "gradientBlue") ?: "gradientBlue"
+
         // Update header
-        views.setTextViewText(R.id.myanmar_month_year, "${monthData.myanmarMonthName}")
+        views.setTextViewText(R.id.myanmar_month_year, monthData.myanmarMonthName)
         views.setTextViewText(R.id.western_month_year, "${monthData.westernMonthName} ${monthData.westernYear}")
 
         // Display Myanmar weekday headers
@@ -213,17 +216,27 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
             } else if (!dayData.isCurrentMonth) {
                 // Previous/Next month - dimmed
                 views.setInt(cellId, "setBackgroundResource", 0)
-                views.setTextColor(cellId, "#666666".toColorInt())
+                if (theme == "light") {
+                    views.setTextColor(cellId, "#BDBDBD".toColorInt()) // Light grey for light theme
+                } else {
+                    views.setTextColor(cellId, "#666666".toColorInt()) // Dark grey for dark theme
+                }
             } else {
                 // Current month - normal
                 views.setInt(cellId, "setBackgroundResource", 0)
-                views.setTextColor(cellId, "#FFFFFF".toColorInt())
+                if (theme == "light") {
+                    views.setTextColor(cellId, "#1A1A1A".toColorInt()) // Dark text for light theme
+                } else {
+                    views.setTextColor(cellId, "#FFFFFF".toColorInt()) // Light text for dark theme
+                }
             }
 
             // Moon phase indicator (full moon or new moon)
             if (dayData.moonPhase == 1 || dayData.moonPhase == 3) {
                 views.setViewVisibility(moonId, View.VISIBLE)
-                val moonColor = if (dayData.moonPhase == 1) "#FFD700" else "#E0E0E0"
+                val moonColor = if (dayData.moonPhase == 1) "#FFD700" else {
+                    if (theme == "light") "#757575" else "#E0E0E0"
+                }
                 views.setInt(moonId, "setColorFilter", moonColor.toColorInt())
             } else {
                 views.setViewVisibility(moonId, View.GONE)

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart' hide WidgetState;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_widgets/src/presentation/widgets/previews/compact_preview_widget.dart';
+import 'package:home_widgets/src/presentation/widgets/previews/full_calendar_preview_widget.dart';
+import 'package:home_widgets/src/presentation/widgets/previews/moon_phase_preview_widget.dart';
+import 'package:home_widgets/src/presentation/widgets/previews/myanmar_month_preview_widget.dart';
 
 import '../../domain/entities/widget_config.dart';
 import '../bloc/widget_bloc.dart';
 import '../bloc/widget_event.dart';
 import '../bloc/widget_state.dart';
 import '../widgets/widget_add_instructions.dart';
-import '../widgets/widget_preview.dart';
 
 class WidgetSettingsPage extends StatelessWidget {
   const WidgetSettingsPage({super.key});
@@ -69,24 +72,69 @@ class WidgetSettingsPage extends StatelessWidget {
         if (!state.isActive) WidgetAddInstructions(),
 
         // Widget Preview
-        Card(
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Widget Preview',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                WidgetPreview(config: state.config, data: state.currentData),
-              ],
-            ),
+        Text('Widget Preview', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            spacing: 8,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Compact', style: Theme.of(context).textTheme.titleMedium),
+              SizedBox(
+                width: double.infinity,
+                height: 90,
+                child: CompactPreviewWidget(),
+              ),
+
+              Text(
+                'Full calendar',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              SizedBox(
+                width: double.infinity,
+                height: 250,
+                child: FullCalendarPreviewWidget(),
+              ),
+              Text(
+                'Myanmar Month',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              SizedBox(
+                width: double.infinity,
+                height: 400,
+                child: MyanmarMonthPreviewWidget(),
+              ),
+              Text(
+                'Moon Phase',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              SizedBox(
+                width: 220,
+                height: 260,
+                child: MoonPhasePreviewWidget(),
+              ),
+            ],
           ),
         ),
 
+        // Card(
+        //   elevation: 4,
+        //   child: Padding(
+        //     padding: const EdgeInsets.all(16),
+        //     child: Column(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children: [
+        //         Text(
+        //           'Widget Preview',
+        //           style: Theme.of(context).textTheme.titleLarge,
+        //         ),
+        //         const SizedBox(height: 16),
+        //         WidgetPreview(config: state.config, data: state.currentData),
+        //       ],
+        //     ),
+        //   ),
+        // ),
         const SizedBox(height: 24),
 
         // Widget Status
@@ -95,8 +143,7 @@ class WidgetSettingsPage extends StatelessWidget {
         const SizedBox(height: 24),
 
         // Widget Size
-        _buildSizeSection(context, state),
-
+        // _buildSizeSection(context, state),
         const SizedBox(height: 24),
 
         // Widget Theme
@@ -105,8 +152,7 @@ class WidgetSettingsPage extends StatelessWidget {
         const SizedBox(height: 24),
 
         // Display Options
-        _buildDisplayOptionsSection(context, state),
-
+        // _buildDisplayOptionsSection(context, state),
         const SizedBox(height: 24),
 
         // Language
@@ -164,46 +210,46 @@ class WidgetSettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSizeSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Widget Size', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            SegmentedButton<WidgetSize>(
-              segments: const [
-                ButtonSegment(
-                  value: WidgetSize.small,
-                  label: Text('Small'),
-                  icon: Icon(Icons.crop_square),
-                ),
-                ButtonSegment(
-                  value: WidgetSize.medium,
-                  label: Text('Medium'),
-                  icon: Icon(Icons.crop_16_9),
-                ),
-                ButtonSegment(
-                  value: WidgetSize.large,
-                  label: Text('Large'),
-                  icon: Icon(Icons.crop_landscape),
-                ),
-              ],
-              selected: {state.config.size},
-              onSelectionChanged: (Set<WidgetSize> newSelection) {
-                final newConfig = state.config.copyWith(
-                  size: newSelection.first,
-                );
-                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildSizeSection(BuildContext context, WidgetLoaded state) {
+  //   return Card(
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(16),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text('Widget Size', style: Theme.of(context).textTheme.titleMedium),
+  //           const SizedBox(height: 12),
+  //           SegmentedButton<WidgetSize>(
+  //             segments: const [
+  //               ButtonSegment(
+  //                 value: WidgetSize.small,
+  //                 label: Text('Small'),
+  //                 icon: Icon(Icons.crop_square),
+  //               ),
+  //               ButtonSegment(
+  //                 value: WidgetSize.medium,
+  //                 label: Text('Medium'),
+  //                 icon: Icon(Icons.crop_16_9),
+  //               ),
+  //               ButtonSegment(
+  //                 value: WidgetSize.large,
+  //                 label: Text('Large'),
+  //                 icon: Icon(Icons.crop_landscape),
+  //               ),
+  //             ],
+  //             selected: {state.config.size},
+  //             onSelectionChanged: (Set<WidgetSize> newSelection) {
+  //               final newConfig = state.config.copyWith(
+  //                 size: newSelection.first,
+  //               );
+  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildThemeSection(BuildContext context, WidgetLoaded state) {
     return Card(
@@ -241,59 +287,59 @@ class WidgetSettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDisplayOptionsSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Display Options',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: const Text('Show Myanmar Date'),
-              subtitle: const Text('Display date in Myanmar calendar'),
-              value: state.config.showMyanmarDate,
-              onChanged: (bool value) {
-                final newConfig = state.config.copyWith(showMyanmarDate: value);
-                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-              },
-            ),
-            SwitchListTile(
-              title: const Text('Show Western Date'),
-              subtitle: const Text('Display date in Western calendar'),
-              value: state.config.showWesternDate,
-              onChanged: (bool value) {
-                final newConfig = state.config.copyWith(showWesternDate: value);
-                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-              },
-            ),
-            SwitchListTile(
-              title: const Text('Show Holidays'),
-              subtitle: const Text('Display public and religious holidays'),
-              value: state.config.showHolidays,
-              onChanged: (bool value) {
-                final newConfig = state.config.copyWith(showHolidays: value);
-                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-              },
-            ),
-            SwitchListTile(
-              title: const Text('Show Astrology'),
-              subtitle: const Text('Display sabbath, yatyaza, and other info'),
-              value: state.config.showAstrology,
-              onChanged: (bool value) {
-                final newConfig = state.config.copyWith(showAstrology: value);
-                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildDisplayOptionsSection(BuildContext context, WidgetLoaded state) {
+  //   return Card(
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(16),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             'Display Options',
+  //             style: Theme.of(context).textTheme.titleMedium,
+  //           ),
+  //           const SizedBox(height: 8),
+  //           SwitchListTile(
+  //             title: const Text('Show Myanmar Date'),
+  //             subtitle: const Text('Display date in Myanmar calendar'),
+  //             value: state.config.showMyanmarDate,
+  //             onChanged: (bool value) {
+  //               final newConfig = state.config.copyWith(showMyanmarDate: value);
+  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
+  //             },
+  //           ),
+  //           SwitchListTile(
+  //             title: const Text('Show Western Date'),
+  //             subtitle: const Text('Display date in Western calendar'),
+  //             value: state.config.showWesternDate,
+  //             onChanged: (bool value) {
+  //               final newConfig = state.config.copyWith(showWesternDate: value);
+  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
+  //             },
+  //           ),
+  //           SwitchListTile(
+  //             title: const Text('Show Holidays'),
+  //             subtitle: const Text('Display public and religious holidays'),
+  //             value: state.config.showHolidays,
+  //             onChanged: (bool value) {
+  //               final newConfig = state.config.copyWith(showHolidays: value);
+  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
+  //             },
+  //           ),
+  //           SwitchListTile(
+  //             title: const Text('Show Astrology'),
+  //             subtitle: const Text('Display sabbath, yatyaza, and other info'),
+  //             value: state.config.showAstrology,
+  //             onChanged: (bool value) {
+  //               final newConfig = state.config.copyWith(showAstrology: value);
+  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildLanguageSection(BuildContext context, WidgetLoaded state) {
     return Card(
@@ -468,7 +514,7 @@ class WidgetSettingsPage extends StatelessWidget {
       case WidgetTheme.traditional:
         return 'Traditional Myanmar';
       case WidgetTheme.auto:
-        return 'Auto (System)';
+        return 'Auto (Default)';
       case WidgetTheme.gradientBlue:
         return 'Gradient Blue';
       case WidgetTheme.gradientPurple:
@@ -487,7 +533,7 @@ class WidgetSettingsPage extends StatelessWidget {
       case WidgetTheme.traditional:
         return 'Myanmar traditional red and gold colors';
       case WidgetTheme.auto:
-        return 'Follow system dark mode setting';
+        return 'Follow built-in widget setting';
       case WidgetTheme.gradientBlue:
         return 'Gradient blue colors';
       case WidgetTheme.gradientPurple:

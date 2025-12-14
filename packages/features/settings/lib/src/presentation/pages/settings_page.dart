@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:core/core.dart';
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -210,6 +211,15 @@ class _SettingsContent extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
+              if (kDebugMode)
+                _SettingsTile(
+                  title: 'Generate Widget Preview',
+                  subtitle: "Generate widget previews for android",
+                  leading: const Icon(Icons.widgets_outlined),
+                  onTap: () =>
+                      GoRouter.of(context).push('/widget-preview/generate'),
+                ),
+
               // Appearance Section
               _SettingsSection(
                 title: AppLocalizations.of(context)?.appearance ?? 'Appearance',

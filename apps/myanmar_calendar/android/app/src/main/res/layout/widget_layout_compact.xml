@@ -40,8 +40,8 @@
     <!-- Today Indicator (Optional) -->
     <TextView
         android:id="@+id/today_indicator"
-        android:layout_width="4dp"
-        android:layout_height="4dp"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:background="@drawable/today_dot"
@@ -54,6 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="8dp"
+        android:paddingTop="8dp"
         android:text="၁၃၈၆ နတ်တော် လဆုတ် ၈ ရက်"
         android:textSize="16sp"
         android:textColor="#1A1A1A"
