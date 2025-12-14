@@ -6,8 +6,13 @@ import 'package:localizations/localizations.dart';
 
 class CalendarAppBar extends StatelessWidget {
   final Language language;
+  final bool showShanCalendar;
 
-  const CalendarAppBar({super.key, this.language = Language.myanmar});
+  const CalendarAppBar({
+    super.key,
+    this.language = Language.myanmar,
+    this.showShanCalendar = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +67,7 @@ class CalendarAppBar extends StatelessWidget {
                   const SizedBox(height: 4),
 
                   Text(
-                    _getTodayMyanmarString(),
+                    _getTodayMyanmarString(showShanCalendar),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer.withValues(
                         alpha: 0.8,
@@ -101,14 +106,14 @@ class CalendarAppBar extends StatelessWidget {
     return now.format('EEEE, MMMM d');
   }
 
-  String _getTodayMyanmarString() {
-    final now = DateTime.now();
-    final myanmarDate = MyanmarCalendar.fromWestern(
-      now.year,
-      now.month,
-      now.day,
-    );
-    return myanmarDate.formatMyanmar(null, language);
+  String _getTodayMyanmarString([bool showShanCalendar = true]) {
+    final myanmarDateTime = MyanmarCalendar.today();
+
+    if (showShanCalendar && MyanmarCalendar.currentLanguage == Language.shan) {
+      return 'ပီ ${myanmarDateTime.shanDate.year} ${myanmarDateTime.shanDate.monthName}';
+    } else {
+      return myanmarDateTime.formatMyanmar(null, language);
+    }
 
     // final s = TranslationService.translate('Sasana Year');
     // final sv = TranslationService.translate(myanmarDate.sasanaYear.toString());

@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:localizations/localizations.dart';
+import 'package:settings/settings.dart';
 
 import '../../di/calendar_injection.dart';
 
@@ -196,7 +197,15 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                           children: [
                             // Hero Date Card with both calendars
                             // better ux with Hero, but overflow error occure while transition making
-                            _buildHeroDateCard(),
+                            BlocBuilder<SettingsBloc, SettingsState>(
+                              builder: (context, settingsState) {
+                                final showShanCalendar =
+                                    settingsState is SettingsLoaded
+                                    ? settingsState.settings.showShanCalendar
+                                    : true;
+                                return _buildHeroDateCard(showShanCalendar);
+                              },
+                            ),
                             const SizedBox(height: 16),
 
                             // Buddhist Calendar Info
@@ -335,7 +344,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     );
   }
 
-  Widget _buildHeroDateCard() {
+  Widget _buildHeroDateCard([bool showShanCalendar = true]) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -396,14 +405,27 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    '${_completeDate.formatMyanmar()} ${TranslationService.translate('Yat')}',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
+                  if (MyanmarCalendar.currentLanguage == Language.shan &&
+                      showShanCalendar)
+                    Text(
+                      'ပီ ${MyanmarDateTime.fromMyanmarDate(_completeDate.myanmar).shanDate.year} ${MyanmarDateTime.fromMyanmarDate(_completeDate.myanmar).shanDate.monthName}',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                      textAlign: TextAlign.center,
+                    )
+                  else
+                    Text(
+                      '${_completeDate.formatMyanmar()} ${TranslationService.translate('Yat')}',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
                 ],
               ),
             ),
@@ -538,6 +560,17 @@ class _DayDetailsPageState extends State<DayDetailsPage>
             Icons.calendar_today,
             Colors.deepOrange,
           ),
+          if (MyanmarCalendar.currentLanguage == Language.shan) ...[
+            const SizedBox(height: 12),
+            _buildInfoRow(
+              "Shan (Tai) Year",
+              MyanmarDateTime.fromMyanmarDate(
+                _completeDate.myanmar,
+              ).shanDate.year.toString(),
+              Icons.calendar_today,
+              Colors.deepOrange,
+            ),
+          ],
         ],
       ),
     );

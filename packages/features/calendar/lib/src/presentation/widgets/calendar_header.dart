@@ -10,6 +10,7 @@ class CalendarHeader extends StatelessWidget {
   final VoidCallback onTodayTap;
   final VoidCallback onMonthYearTap;
   final Language language;
+  final bool showShanCalendar;
 
   const CalendarHeader({
     super.key,
@@ -19,6 +20,7 @@ class CalendarHeader extends StatelessWidget {
     required this.onTodayTap,
     required this.onMonthYearTap,
     this.language = Language.english,
+    this.showShanCalendar = true,
   });
 
   @override
@@ -64,7 +66,9 @@ class CalendarHeader extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (MyanmarCalendar.currentLanguage == Language.shan)
+                          if (MyanmarCalendar.currentLanguage ==
+                                  Language.shan &&
+                              showShanCalendar)
                             Text(
                               'ပီ ${myanmarDate.shanDate.year} ${myanmarDate.shanDate.monthName}',
                               style: context.textTheme.titleMedium?.copyWith(

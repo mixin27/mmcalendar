@@ -368,6 +368,22 @@ class _SettingsContent extends StatelessWidget {
                       );
                     },
                   ),
+                  _AnimatedSwitchTile(
+                    title: 'Show Shan Calendar',
+                    subtitle:
+                        'Display Shan calendar dates instead of Myanmar dates in Shan language',
+                    icon: Icons.calendar_month,
+                    value: settings.showShanCalendar,
+                    useIcon: true,
+                    onChanged: (value) {
+                      context.read<SettingsBloc>().add(
+                        ToggleDisplayPreference(
+                          StorageKeys.showShanCalendar,
+                          value,
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
 

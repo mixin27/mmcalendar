@@ -104,6 +104,10 @@ class SettingsRepositoryImpl extends BaseRepository
         settings[StorageKeys.hasShownConsentDialog] ?? 'false',
       );
 
+      final showShanCalendar = _parseBool(
+        settings[StorageKeys.showShanCalendar] ?? 'true',
+      );
+
       return Right(
         AppSettingsEntity(
           themeMode: themeMode,
@@ -122,6 +126,7 @@ class SettingsRepositoryImpl extends BaseRepository
           enableAnalytics: enableAnalytics,
           enableCrashlytics: enableCrashlytics,
           hasShownConsentDialog: hasShownConsentDialog,
+          showShanCalendar: showShanCalendar,
         ),
       );
     } on CacheException catch (e) {

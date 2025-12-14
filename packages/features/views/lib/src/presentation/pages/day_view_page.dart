@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
     hide MoonPhaseIndicator;
 import 'package:localizations/localizations.dart';
+import 'package:settings/settings.dart';
 import 'package:views/src/utils/utils.dart';
 
 import '../../di/views_injection.dart';
@@ -129,7 +130,18 @@ class _DayViewPageState extends State<DayViewPage>
                 child: Column(
                   children: [
                     // Hero Date Card
-                    _buildHeroDateCard(completeDate, date),
+                    BlocBuilder<SettingsBloc, SettingsState>(
+                      builder: (context, settingsState) {
+                        final showShanCalendar = settingsState is SettingsLoaded
+                            ? settingsState.settings.showShanCalendar
+                            : true;
+                        return _buildHeroDateCard(
+                          completeDate,
+                          date,
+                          showShanCalendar,
+                        );
+                      },
+                    ),
                     const SizedBox(height: 16),
 
                     // Moon Phase Section
@@ -227,7 +239,11 @@ class _DayViewPageState extends State<DayViewPage>
     );
   }
 
-  Widget _buildHeroDateCard(CompleteDate completeDate, DateTime date) {
+  Widget _buildHeroDateCard(
+    CompleteDate completeDate,
+    DateTime date,
+    bool showShanCalendar,
+  ) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -266,14 +282,25 @@ class _DayViewPageState extends State<DayViewPage>
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    completeDate.formatMyanmar(),
-                    style: context.textTheme.headlineSmall?.copyWith(
-                      color: context.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
+                  if (MyanmarCalendar.currentLanguage == Language.shan &&
+                      showShanCalendar)
+                    Text(
+                      'ပီ ${MyanmarDateTime.fromMyanmarDate(completeDate.myanmar).shanDate.year} ${MyanmarDateTime.fromMyanmarDate(completeDate.myanmar).shanDate.monthName}',
+                      style: context.textTheme.headlineSmall?.copyWith(
+                        color: context.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    )
+                  else
+                    Text(
+                      completeDate.formatMyanmar(),
+                      style: context.textTheme.headlineSmall?.copyWith(
+                        color: context.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
                 ],
               ),
             ),

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
     hide MoonPhaseIndicator, CompactMoonPhaseIndicator;
 import 'package:go_router/go_router.dart';
+import 'package:settings/settings.dart';
 
 import '../../di/views_injection.dart';
 import '../bloc/views_bloc.dart';
@@ -105,7 +106,20 @@ class _WeekViewPageState extends State<WeekViewPage>
                 final date = dayInfo.western.toDateTime();
                 final isToday = date.isToday;
 
-                return _buildDayCard(dayInfo, date, isToday, index);
+                return BlocBuilder<SettingsBloc, SettingsState>(
+                  builder: (context, settingsState) {
+                    final showShanCalendar = settingsState is SettingsLoaded
+                        ? settingsState.settings.showShanCalendar
+                        : true;
+                    return _buildDayCard(
+                      dayInfo,
+                      date,
+                      isToday,
+                      index,
+                      showShanCalendar,
+                    );
+                  },
+                );
               }, childCount: state.weekData.days.length),
             ),
           ),
@@ -189,6 +203,7 @@ class _WeekViewPageState extends State<WeekViewPage>
     DateTime date,
     bool isToday,
     int index,
+    bool showShanCalendar,
   ) {
     final combinedHolidays = [
       ...dayInfo.allHolidays,
@@ -294,12 +309,21 @@ class _WeekViewPageState extends State<WeekViewPage>
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          dayInfo.formatMyanmar(),
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            color: context.colorScheme.primary,
+                        if (MyanmarCalendar.currentLanguage == Language.shan &&
+                            showShanCalendar)
+                          Text(
+                            'ပီ ${MyanmarDateTime.fromMyanmarDate(dayInfo.myanmar).shanDate.year} ${MyanmarDateTime.fromMyanmarDate(dayInfo.myanmar).shanDate.monthName}',
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: context.colorScheme.primary,
+                            ),
+                          )
+                        else
+                          Text(
+                            dayInfo.formatMyanmar(),
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: context.colorScheme.primary,
+                            ),
                           ),
-                        ),
 
                         // Moon Phase
                         if (dayInfo.isFullMoon || dayInfo.isNewMoon) ...[

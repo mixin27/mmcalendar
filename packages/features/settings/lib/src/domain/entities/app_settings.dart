@@ -19,6 +19,7 @@ class AppSettingsEntity extends Equatable {
   final bool enableAnalytics;
   final bool enableCrashlytics;
   final bool hasShownConsentDialog;
+  final bool showShanCalendar;
 
   const AppSettingsEntity({
     required this.themeMode,
@@ -37,6 +38,7 @@ class AppSettingsEntity extends Equatable {
     this.enableAnalytics = true,
     this.enableCrashlytics = true,
     this.hasShownConsentDialog = false,
+    this.showShanCalendar = true,
   });
 
   AppSettingsEntity copyWith({
@@ -56,6 +58,7 @@ class AppSettingsEntity extends Equatable {
     bool? enableAnalytics,
     bool? enableCrashlytics,
     bool? hasShownConsentDialog,
+    bool? showShanCalendar,
   }) {
     return AppSettingsEntity(
       themeMode: themeMode ?? this.themeMode,
@@ -75,6 +78,7 @@ class AppSettingsEntity extends Equatable {
       enableCrashlytics: enableCrashlytics ?? this.enableCrashlytics,
       hasShownConsentDialog:
           hasShownConsentDialog ?? this.hasShownConsentDialog,
+      showShanCalendar: showShanCalendar ?? this.showShanCalendar,
     );
   }
 
@@ -97,5 +101,6 @@ class AppSettingsEntity extends Equatable {
     enableAnalytics,
     enableCrashlytics,
     hasShownConsentDialog,
+    showShanCalendar,
   ];
 }
