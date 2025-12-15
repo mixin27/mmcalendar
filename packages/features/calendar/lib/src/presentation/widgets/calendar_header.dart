@@ -10,6 +10,7 @@ class CalendarHeader extends StatelessWidget {
   final VoidCallback onTodayTap;
   final VoidCallback onMonthYearTap;
   final Language language;
+  final bool showShanCalendar;
 
   const CalendarHeader({
     super.key,
@@ -19,6 +20,7 @@ class CalendarHeader extends StatelessWidget {
     required this.onTodayTap,
     required this.onMonthYearTap,
     this.language = Language.english,
+    this.showShanCalendar = true,
   });
 
   @override
@@ -64,12 +66,22 @@ class CalendarHeader extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            myanmarDate.formatMyanmar('&M &y'),
-                            style: context.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                          if (MyanmarCalendar.currentLanguage ==
+                                  Language.shan &&
+                              showShanCalendar)
+                            Text(
+                              '${myanmarDate.shanDate.year} ${myanmarDate.formatMyanmar("&M")}',
+                              style: context.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          else
+                            Text(
+                              myanmarDate.formatMyanmar('&M &y'),
+                              style: context.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
                           const SizedBox(width: 4),
                           Icon(
                             Icons.arrow_drop_down,

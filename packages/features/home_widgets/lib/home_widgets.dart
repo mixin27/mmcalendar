@@ -24,6 +24,10 @@ export 'src/presentation/bloc/widget_state.dart';
 export 'src/presentation/pages/widget_settings_page.dart';
 export 'src/presentation/widgets/widget_preview.dart';
 export 'src/presentation/widgets/widget_add_instructions.dart';
+export 'src/presentation/pages/widget_preview_screen.dart';
+
+// Utils
+export 'src/utils/widget_preview_generator.dart';
 
 // DI
 export 'src/di/home_widgets_injection.dart' hide getIt;

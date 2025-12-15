@@ -266,14 +266,16 @@ class AppHomeWidgetProvider : HomeWidgetProvider() {
         lastUpdated: String?,
         layoutId: Int
     ) {
-        if (!lastUpdated.isNullOrEmpty()) {
-            views.setTextViewText(R.id.last_updated, lastUpdated)
-            views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
-            views.setViewVisibility(R.id.last_updated, View.VISIBLE)
-        } else {
-            views.setViewVisibility(R.id.last_updated_label, View.GONE)
-            views.setViewVisibility(R.id.last_updated, View.GONE)
-        }
+//        if (!lastUpdated.isNullOrEmpty()) {
+//            views.setTextViewText(R.id.last_updated, lastUpdated)
+//            views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
+//            views.setViewVisibility(R.id.last_updated, View.VISIBLE)
+//        } else {
+//            views.setViewVisibility(R.id.last_updated_label, View.GONE)
+//            views.setViewVisibility(R.id.last_updated, View.GONE)
+//        }
+        views.setViewVisibility(R.id.last_updated_label, View.GONE)
+        views.setViewVisibility(R.id.last_updated, View.GONE)
 
         // Update Myanmar Date (respect config)
         if (config.showMyanmarDate && !myanmarDate.isNullOrEmpty()) {

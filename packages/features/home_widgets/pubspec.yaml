@@ -24,7 +24,7 @@ dependencies:
   firebase_crashlytics: ^5.0.2
 
   # Myanmar calendar
-  flutter_mmcalendar: ^3.2.1
+  flutter_mmcalendar: ^3.2.2
 
   # State management
   bloc: ^9.0.1
@@ -33,6 +33,9 @@ dependencies:
 
   # Utilities
   intl: ^0.20.2
+  path: ^1.9.1
+  path_provider: ^2.1.5
+  go_router: ^16.2.4
 
   # Widget packages
   home_widget: ^0.8.0

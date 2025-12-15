@@ -104,6 +104,10 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               ? settingsState.settings.showMyanmarDates
               : true;
 
+          final showShanCalendar = settingsState is SettingsLoaded
+              ? settingsState.settings.showShanCalendar
+              : true;
+
           final calendarLanguage = settingsState is SettingsLoaded
               ? settingsState.settings.calendarLanguage
               : Language.myanmar;
@@ -112,7 +116,10 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             slivers: [
               // Compact App Bar
               SliverToBoxAdapter(
-                child: CalendarAppBar(language: calendarLanguage),
+                child: CalendarAppBar(
+                  language: calendarLanguage,
+                  showShanCalendar: showShanCalendar,
+                ),
               ),
 
               // Main Calendar Content
@@ -152,6 +159,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                           showAstrology: showAstrology,
                           showWesternDates: showWesternDates,
                           showMyanmarDates: showMyanmarDates,
+                          showShanCalendar: showShanCalendar,
                         ),
                         // child: SlideTransition(
                         //   position: _slideAnimation,
@@ -179,6 +187,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     bool showAstrology = true,
     bool showWesternDates = true,
     bool showMyanmarDates = true,
+    bool showShanCalendar = true,
   }) {
     return Column(
       children: [
@@ -201,6 +210,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
           child: CalendarHeader(
             key: ValueKey(state.calendarMonth.month),
             currentMonth: state.calendarMonth.month,
+            showShanCalendar: showShanCalendar,
             onPreviousMonth: () {
               _analyticsService.logWidgetInteraction(
                 widgetName: 'calendar_header',

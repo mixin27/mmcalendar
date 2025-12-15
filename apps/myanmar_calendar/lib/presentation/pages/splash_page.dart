@@ -136,6 +136,12 @@ class _SplashPageState extends State<SplashPage>
     final theme = Theme.of(context);
     final today = MyanmarCalendar.today();
 
+    final settingsState = context.read<SettingsBloc>().state;
+    final isShowShanCalendar =
+        (settingsState is SettingsLoaded &&
+        settingsState.settings.showShanCalendar &&
+        MyanmarCalendar.currentLanguage == Language.shan);
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -191,7 +197,9 @@ class _SplashPageState extends State<SplashPage>
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Text(
-                    today.formatMyanmar(),
+                    isShowShanCalendar
+                        ? "${today.shanDate.year} ${today.formatMyanmar("&M")}"
+                        : today.formatMyanmar(),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),

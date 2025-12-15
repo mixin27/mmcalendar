@@ -24,6 +24,7 @@ class StorageKeys {
   static const String showAstrology = 'show_astrology';
   static const String showMyanmarDates = 'show_myanmar_dates';
   static const String showWesternDates = 'show_western_dates';
+  static const String showShanCalendar = 'show_shan_calendar';
 
   // UI Preferences
   static const String calendarView = 'calendar_view'; // month, year, week, day

@@ -8,4 +8,18 @@
     <string name="widget_description_small">Myanmar Calendar - Compact</string>
     <string name="widget_description_medium">Myanmar Calendar - Standard</string>
     <string name="widget_description_large">Myanmar Calendar - Detailed</string>
+
+    <!-- Widget Descriptions -->
+    <string name="compact_widget_description">Compact Myanmar date display</string>
+    <string name="full_calendar_widget_description">Complete calendar with moon phase</string>
+    <string name="moon_phase_widget_description">Beautiful moon phase display</string>
+    <string name="monthly_calendar_widget_description">Monthly calendar grid view</string>
+    <string name="myanmar_month_widget_description">Myanmar calendar month grid</string>
+
+    <!-- Widget Names -->
+    <string name="compact_widget_name">Myanmar Date (Compact)</string>
+    <string name="full_calendar_widget_name">Myanmar Calendar (Full)</string>
+    <string name="moon_phase_widget_name">Moon Phase</string>
+    <string name="monthly_calendar_widget_name">Monthly Calendar</string>
+    <string name="myanmar_month_widget_name">Myanmar Calendar Month</string>
 </resources>

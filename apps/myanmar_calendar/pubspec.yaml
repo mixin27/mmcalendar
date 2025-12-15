@@ -1,7 +1,7 @@
 name: mmcalendar
 description: "Myanmar Calendar Application"
 publish_to: 'none'
-version: 2.1.1+205
+version: 2.1.2+206
 resolution: workspace
 
 environment:
@@ -38,7 +38,7 @@ dependencies:
     path: ../../packages/features/firebase_analytics_app
 
   # Myanmar calendar
-  flutter_mmcalendar: ^3.2.1
+  flutter_mmcalendar: ^3.2.2
 
   # State management
   bloc: ^9.0.1

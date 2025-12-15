@@ -24,7 +24,7 @@ class _EventsListPageState extends State<EventsListPage>
     with TickerProviderStateMixin {
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScaleAnimation;
-  bool _showCompletedEvents = false;
+  // bool _showCompletedEvents = false;
 
   @override
   void initState() {
@@ -271,17 +271,17 @@ class _EventsListPageState extends State<EventsListPage>
               case 'filter':
                 _showFilterOptions(context);
                 break;
-              case 'toggle_completed':
-                setState(() {
-                  _showCompletedEvents = !_showCompletedEvents;
-                });
-                context.read<UserEventsBloc>().add(
-                  LoadAllEvents(includeCompleted: _showCompletedEvents),
-                );
-                break;
+              // case 'toggle_completed':
+              //   setState(() {
+              //     _showCompletedEvents = !_showCompletedEvents;
+              //   });
+              //   context.read<UserEventsBloc>().add(
+              //     LoadAllEvents(includeCompleted: _showCompletedEvents),
+              //   );
+              //   break;
               case 'refresh':
                 context.read<UserEventsBloc>().add(
-                  RefreshEvents(includeCompleted: _showCompletedEvents),
+                  RefreshEvents(includeCompleted: false),
                 );
                 break;
             }
@@ -297,23 +297,23 @@ class _EventsListPageState extends State<EventsListPage>
                 ],
               ),
             ),
-            PopupMenuItem(
-              value: 'toggle_completed',
-              child: Row(
-                children: [
-                  Icon(
-                    _showCompletedEvents
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    _showCompletedEvents ? 'Hide Completed' : 'Show Completed',
-                  ),
-                ],
-              ),
-            ),
+            // PopupMenuItem(
+            //   value: 'toggle_completed',
+            //   child: Row(
+            //     children: [
+            //       Icon(
+            //         _showCompletedEvents
+            //             ? Icons.visibility_off
+            //             : Icons.visibility,
+            //         size: 20,
+            //       ),
+            //       const SizedBox(width: 12),
+            //       Text(
+            //         _showCompletedEvents ? 'Hide Completed' : 'Show Completed',
+            //       ),
+            //     ],
+            //   ),
+            // ),
             const PopupMenuItem(
               value: 'refresh',
               child: Row(
@@ -427,11 +427,11 @@ class _EventsListPageState extends State<EventsListPage>
     );
   }
 
-  Widget _buildEventsList(List<Event> allEvents) {
+  Widget _buildEventsList(List<Event> events) {
     // Filter events based on visibility settings
-    final events = _showCompletedEvents
-        ? allEvents
-        : allEvents.where((e) => !e.isCompleted).toList();
+    // final events = _showCompletedEvents
+    //     ? allEvents
+    //     : allEvents.where((e) => !e.isCompleted).toList();
 
     if (events.isEmpty) {
       return SliverFillRemaining(child: _buildEmptyState());

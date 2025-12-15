@@ -410,6 +410,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return settings.copyWith(showWesternDates: value);
       case StorageKeys.showMyanmarDates:
         return settings.copyWith(showMyanmarDates: value);
+      case StorageKeys.showShanCalendar:
+        return settings.copyWith(showShanCalendar: value);
       default:
         return settings;
     }
