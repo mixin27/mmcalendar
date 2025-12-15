@@ -113,6 +113,12 @@ class WidgetLocalDataSource {
       final weekdayNames = _getWeekdayNames(targetLanguage);
       final moonPhaseNames = _getMoonPhaseNames(targetLanguage);
 
+      final nextMoonPhase = _findNextMoonPhase(myanmarDateTime, targetLanguage);
+      final fortnightDayText = myanmarDateTime.formatMyanmar(
+        "&ff",
+        targetLanguage,
+      );
+
       return WidgetData(
         myanmarDate: myanmarDate,
         westernDate: westernDate,
@@ -120,6 +126,7 @@ class WidgetLocalDataSource {
         moonPhaseValue: myanmarDateTime.moonPhase,
         moonPhaseEmoji: moonPhaseEmoji,
         fortnightDay: myanmarDateTime.fortnightDay,
+        fortnightDayText: fortnightDayText,
         holidays: holidays,
         astrologicalDays: astrologicalDays,
         sabbathInfo: sabbathInfo,
@@ -128,6 +135,7 @@ class WidgetLocalDataSource {
         lastUpdated: DateTime.now(),
         weekdayNames: weekdayNames,
         moonPhaseNames: moonPhaseNames,
+        nextMoonPhase: nextMoonPhase,
       );
     } catch (e, stackTrace) {
       debugPrint('❌ Error generating widget data with language: $e');
@@ -282,5 +290,23 @@ class WidgetLocalDataSource {
       items.add(name);
     }
     return items;
+  }
+
+  String _findNextMoonPhase(MyanmarDateTime date, Language language) {
+    final nextFullMoonPhaseDate = MyanmarCalendar.findNextMoonPhase(date, 1);
+
+    final nextNewMoonPhaseDate = MyanmarCalendar.findNextMoonPhase(date, 3);
+
+    // Calculate days from start
+    var daysFromStart = 0;
+    var moonPhaseName = TranslationService.translateTo("Full Moon", language);
+    if (date.moonPhase == 0) {
+      daysFromStart = MyanmarCalendar.daysBetween(date, nextFullMoonPhaseDate);
+    } else if (date.moonPhase == 2) {
+      daysFromStart = MyanmarCalendar.daysBetween(date, nextNewMoonPhaseDate);
+      moonPhaseName = TranslationService.translateTo('New Moon', language);
+    }
+
+    return "$moonPhaseName in ${daysFromStart}d";
   }
 }

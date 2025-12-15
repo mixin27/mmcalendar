@@ -8,6 +8,7 @@ class WidgetData extends Equatable {
   final int moonPhaseValue;
   final String moonPhaseEmoji;
   final int fortnightDay;
+  final String fortnightDayText;
   final List<String> holidays;
   final String? sabbathInfo;
   final String? yatyazaInfo;
@@ -16,6 +17,7 @@ class WidgetData extends Equatable {
   final DateTime lastUpdated;
   final List<String> weekdayNames;
   final List<String> moonPhaseNames;
+  final String nextMoonPhase;
 
   const WidgetData({
     required this.myanmarDate,
@@ -24,6 +26,7 @@ class WidgetData extends Equatable {
     required this.moonPhaseValue,
     required this.moonPhaseEmoji,
     required this.fortnightDay,
+    required this.fortnightDayText,
     required this.holidays,
     required this.astrologicalDays,
     this.sabbathInfo,
@@ -32,6 +35,7 @@ class WidgetData extends Equatable {
     required this.lastUpdated,
     required this.weekdayNames,
     required this.moonPhaseNames,
+    required this.nextMoonPhase,
   });
 
   @override
@@ -42,12 +46,14 @@ class WidgetData extends Equatable {
     moonPhaseValue,
     moonPhaseEmoji,
     fortnightDay,
+    fortnightDayText,
     holidays,
     astrologicalDays,
     sabbathInfo,
     yatyazaInfo,
     pyathadaInfo,
     lastUpdated,
+    nextMoonPhase,
   ];
 
   /// Convert to JSON for widget storage
@@ -59,12 +65,14 @@ class WidgetData extends Equatable {
       'moonPhaseValue': moonPhaseValue,
       'moonPhaseEmoji': moonPhaseEmoji,
       'fortnightDay': fortnightDay,
+      'fortnightDayText': fortnightDayText,
       'holidays': holidays,
       'astrologicalDays': astrologicalDays,
       'sabbathInfo': sabbathInfo,
       'yatyazaInfo': yatyazaInfo,
       'pyathadaInfo': pyathadaInfo,
       'lastUpdated': lastUpdated.toIso8601String(),
+      'nextMoonPhase': nextMoonPhase,
     };
   }
 
@@ -77,6 +85,7 @@ class WidgetData extends Equatable {
       moonPhaseValue: json['moonPhaseValue'] as int,
       moonPhaseEmoji: json['moonPhaseEmoji'] as String,
       fortnightDay: json['fortnightDay'] as int,
+      fortnightDayText: json['fortnightDayText'] as String,
       holidays: (json['holidays'] as List<dynamic>).cast<String>(),
       astrologicalDays: (json['astrologicalDays'] as List<dynamic>)
           .cast<String>(),
@@ -86,6 +95,7 @@ class WidgetData extends Equatable {
       lastUpdated: DateTime.parse(json['lastUpdated'] as String),
       weekdayNames: (json['weekdayNames'] as List<dynamic>).cast<String>(),
       moonPhaseNames: (json['moonPhaseNames'] as List<dynamic>).cast<String>(),
+      nextMoonPhase: json['nextMoonPhase'] as String,
     );
   }
 }

@@ -57,6 +57,8 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
             val myanmarDate = widgetData.getString("myanmar_date", "") ?: ""
             val moonPhase = widgetData.getString("moon_phase", "") ?: ""
             val fortnightDay = widgetData.getString("fortnight_day", "") ?: ""
+            val fortnightDayText = widgetData.getString("fortnight_day_text", "") ?: ""
+            val nextMoonPhase = widgetData.getString("next_moon_phase", "") ?: ""
             val moonPhaseValue = widgetData.getInt("moon_phase_value", 0)
             val theme = widgetData.getString("widget_theme", "dark") ?: "dark"
 
@@ -73,12 +75,12 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
             views.setTextViewText(R.id.moon_phase_name, moonPhase)
 
             // Update fortnight day
-            val fortnightText = formatFortnightDay(fortnightDay, widgetData)
-            views.setTextViewText(R.id.fortnight_day, fortnightText)
+            // val fortnightText = formatFortnightDay(fortnightDay, widgetData)
+            views.setTextViewText(R.id.fortnight_day, fortnightDayText)
 
             // Calculate and display next phase
-            val nextPhaseInfo = calculateNextPhase(moonPhaseValue, fortnightDay.toIntOrNull() ?: 1)
-            views.setTextViewText(R.id.next_phase, nextPhaseInfo)
+            // val nextPhaseInfo = calculateNextPhase(moonPhaseValue, fortnightDay.toIntOrNull() ?: 1)
+            views.setTextViewText(R.id.next_phase, nextMoonPhase)
 
             // Apply theme
             applyTheme(views, theme)
@@ -111,59 +113,6 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
         } catch (e: Exception) {
             Log.e(TAG, "Error extracting compact Myanmar date", e)
             fullDate
-        }
-    }
-
-    /**
-     * Format fortnight day with Myanmar number
-     * Example: "8" -> "၈ ရက်"
-     */
-    private fun formatFortnightDay(fortnightDay: String, widgetData: SharedPreferences): String {
-        val language = widgetData.getString("widget_language", "my") ?: "my"
-        return try {
-            val day = fortnightDay.toIntOrNull() ?: return fortnightDay
-            val myanmarDay = convertToMyanmarNumber(day)
-            if (language == "my") "$myanmarDay ရက်" else myanmarDay
-        } catch (e: Exception) {
-            Log.e(TAG, "Error formatting fortnight day", e)
-            fortnightDay
-        }
-    }
-
-    /**
-     * Convert number to Myanmar numerals
-     */
-    private fun convertToMyanmarNumber(number: Int): String {
-        val myanmarDigits = arrayOf("၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉")
-        return number.toString().map { myanmarDigits[it.toString().toInt()] }.joinToString("")
-    }
-
-    /**
-     * Calculate next moon phase
-     * 0 = Waxing, 1 = Full Moon, 2 = Waning, 3 = New Moon
-     */
-    private fun calculateNextPhase(currentPhase: Int, fortnightDay: Int): String {
-        return try {
-            when (currentPhase) {
-                0 -> { // Waxing
-                    val daysToFull = 15 - fortnightDay
-                    "Full Moon in ${daysToFull}d"
-                }
-                1 -> { // Full Moon
-                    "New Moon in 15d"
-                }
-                2 -> { // Waning
-                    val daysToNew = 15 - fortnightDay
-                    "New Moon in ${daysToNew}d"
-                }
-                3 -> { // New Moon
-                    "Full Moon in 15d"
-                }
-                else -> ""
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error calculating next phase", e)
-            ""
         }
     }
 
@@ -225,7 +174,7 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
             views.setTextColor(R.id.myanmar_date_compact, "#FFFFFF".toColorInt())
             views.setTextColor(R.id.moon_phase_name, "#FFFFFF".toColorInt())
             views.setTextColor(R.id.fortnight_day, "#FFFFFF".toColorInt())
-            views.setTextColor(R.id.next_phase_label, "#999999".toColorInt())
+            views.setTextColor(R.id.next_phase_label, "#FFD700".toColorInt())
             views.setTextColor(R.id.next_phase, "#FFD700".toColorInt())
         }
     }

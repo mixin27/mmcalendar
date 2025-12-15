@@ -68,6 +68,7 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
             val westernDate = widgetData.getString("western_date", "") ?: ""
             val moonPhase = widgetData.getString("moon_phase", "") ?: ""
             val fortnightDay = widgetData.getString("fortnight_day", "") ?: ""
+            val fortnightDayText = widgetData.getString("fortnight_day_text", "") ?: ""
             val holidays = widgetData.getString("holidays", "") ?: ""
             val astroInfo = buildAstrologyText(widgetData)
             val lastUpdated = widgetData.getString("last_updated", "") ?: ""
@@ -90,7 +91,7 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
             views.setTextViewText(R.id.moon_phase_name, moonPhase)
 
             // Update fortnight day
-            views.setTextViewText(R.id.fortnight_day, fortnightDay)
+            views.setTextViewText(R.id.fortnight_day, fortnightDayText)
 
             // Holidays
             if (showHolidays && holidays.isNotEmpty() && holidays != "null") {
@@ -235,7 +236,7 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
     private fun applyTheme(views: RemoteViews, theme: String) {
         val bgDrawable = when (theme) {
             "dark" -> R.drawable.widget_background_dark
-            "light" -> R.drawable.widget_background_light
+            // "light" -> R.drawable.widget_background_light
             "traditional" -> R.drawable.widget_background_traditional
             "gradientPurple" -> R.drawable.widget_background_gradient_purple
             "gradientTeal" -> R.drawable.widget_background_gradient_teal
@@ -246,6 +247,7 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
 
         // Text colors are already white in XML for gradient themes
         // For light theme, you'd need to update text colors
+        /*
         if (theme == "light") {
             views.setTextColor(R.id.western_day, "#1A1A1A".toColorInt())
             views.setTextColor(R.id.western_month, "#666666".toColorInt())
@@ -254,6 +256,7 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
             views.setTextColor(R.id.moon_phase_name, "#FF6F00".toColorInt())
             views.setTextColor(R.id.fortnight_day, "#666666".toColorInt())
         }
+        */
     }
 
     private fun setupClickHandler(

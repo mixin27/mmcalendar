@@ -22,6 +22,7 @@
 
         <!-- Calendar Icon -->
         <ImageView
+            android:id="@+id/widget_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_calendar"

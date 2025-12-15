@@ -17,6 +17,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:orientation="vertical"
         android:gravity="center">
 
@@ -48,7 +50,7 @@
             android:id="@+id/moon_phase_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:text="Full Moon"
             android:textSize="16sp"
             android:textColor="#FFFFFF"

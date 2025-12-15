@@ -73,6 +73,10 @@ class WidgetUpdateService {
       'fortnight_day',
       data.fortnightDay.toString(),
     );
+    await HomeWidget.saveWidgetData<String>(
+      'fortnight_day_text',
+      data.fortnightDayText,
+    );
 
     // Optional data
     await HomeWidget.saveWidgetData<String>(
@@ -124,6 +128,11 @@ class WidgetUpdateService {
         moonImagePath,
       );
     }
+
+    await HomeWidget.saveWidgetData<String>(
+      'next_moon_phase',
+      data.nextMoonPhase,
+    );
 
     // Configuration
     await HomeWidget.saveWidgetData<bool>('show_holidays', true);

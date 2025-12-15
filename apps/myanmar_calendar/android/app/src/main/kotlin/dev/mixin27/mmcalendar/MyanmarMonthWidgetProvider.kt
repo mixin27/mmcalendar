@@ -186,7 +186,7 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
         val theme = widgetData.getString("widget_theme", "gradientBlue") ?: "gradientBlue"
 
         // Update header
-        views.setTextViewText(R.id.myanmar_month_year, "${monthData.myanmarMonthName} ${monthData.myanmarYear}")
+        views.setTextViewText(R.id.myanmar_month_year, monthData.myanmarMonthName)
         views.setTextViewText(R.id.western_month_year, "${monthData.westernMonthName} ${monthData.westernYear}")
 
         // Display Myanmar weekday headers
@@ -253,7 +253,7 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
         // Update today info at bottom
         val todayData = monthData.days.find { it.isToday }
         if (todayData != null) {
-            val todayText = "${convertToMyanmarNumber(todayData.myanmarYear)} ${todayData.myanmarMonthName} ${formatMoonPhase(todayData.moonPhase, widgetData)} ${convertToMyanmarNumber(todayData.fortnightDay)} ရက်"
+            val todayText = "${convertToMyanmarNumber(todayData.myanmarYear, widgetData)} ${todayData.myanmarMonthName} ${formatMoonPhase(todayData.moonPhase, widgetData)} ${convertToMyanmarNumber(todayData.fortnightDay, widgetData)} ရက်"
             views.setTextViewText(R.id.today_myanmar, todayText)
             views.setViewVisibility(R.id.today_myanmar, View.VISIBLE)
         }
@@ -296,14 +296,8 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
      * Example: "လဆန်း ၅" or "လဆုတ် ၁၅"
      */
     private fun formatMyanmarDay(dayData: MyanmarDayData, widgetData: SharedPreferences): String {
-        val language = widgetData.getString("widget_language", "my") ?: "my";
-
         val moonPhase = formatMoonPhase(dayData.moonPhase, widgetData)
-        var day = convertToMyanmarNumber(dayData.fortnightDay)
-        if (language == "en") {
-            day = dayData.fortnightDay.toString()
-        }
-
+        val day = convertToMyanmarNumber(dayData.fortnightDay, widgetData)
         return "$moonPhase\n$day"
     }
 
@@ -333,7 +327,12 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
     /**
      * Convert number to Myanmar numerals
      */
-    private fun convertToMyanmarNumber(number: Int): String {
+    private fun convertToMyanmarNumber(number: Int, widgetData: SharedPreferences): String {
+        val language = widgetData.getString("widget_language", "my") ?: "my"
+        if (language == "en") {
+            return number.toString()
+        }
+
         val myanmarDigits = arrayOf("၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉")
         return number.toString().map {
             myanmarDigits[it.toString().toInt()]
@@ -361,6 +360,7 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
             "light" -> R.drawable.widget_background_light
             "dark" -> R.drawable.widget_background_dark
             "traditional" -> R.drawable.widget_background_traditional
+            "gradientBlue" -> R.drawable.widget_background_gradient_blue
             "gradientPurple" -> R.drawable.widget_background_gradient_purple
             "gradientTeal" -> R.drawable.widget_background_gradient_teal
             else -> R.drawable.widget_bg_calendar
@@ -372,6 +372,11 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
         if (theme == "light") {
             views.setTextColor(R.id.myanmar_month_year, "#1A1A1A".toColorInt())
             views.setTextColor(R.id.western_month_year, "#666666".toColorInt())
+            views.setTextColor(R.id.today_myanmar, "#1A1A1A".toColorInt())
+        } else {
+            views.setTextColor(R.id.myanmar_month_year, "#FFFFFF".toColorInt())
+            views.setTextColor(R.id.western_month_year, "#FFFFFF".toColorInt())
+            views.setTextColor(R.id.today_myanmar, "#FFFFFF".toColorInt())
         }
     }
 
