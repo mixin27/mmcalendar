@@ -27,17 +27,20 @@ class WeekdayHeader extends StatelessWidget {
               myanmarWeekdayIndex == 0 || myanmarWeekdayIndex == 1;
 
           return Expanded(
-            child: Text(
-              weekdayName,
-              textAlign: TextAlign.center,
-              style: context.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: isWeekend
-                    ? context.colorScheme.primary
-                    : context.colorScheme.onSurfaceVariant.withValues(
-                        alpha: 0.7,
-                      ),
-                letterSpacing: 0.5,
+            child: Semantics(
+              label: TranslationService.getWeekdayName(myanmarWeekdayIndex),
+              child: Text(
+                weekdayName,
+                textAlign: TextAlign.center,
+                style: context.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: isWeekend
+                      ? context.colorScheme.primary
+                      : context.colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.7,
+                        ),
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
           );

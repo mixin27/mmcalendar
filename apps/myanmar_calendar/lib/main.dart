@@ -170,7 +170,7 @@ Future<void> _initializeMyanmarCalendar() async {
     );
 
     MyanmarCalendar.clearCache();
-    MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
 
     debugPrint('✅ Myanmar Calendar initialized with saved settings');
   } catch (e) {
@@ -183,11 +183,11 @@ Future<void> _initializeMyanmarCalendar() async {
       gregorianStart: 2361222,
     );
     MyanmarCalendar.clearCache();
-    MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
     debugPrint('⚠️ Myanmar Calendar initialized with defaults: $e');
   }
 
-  MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+  MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
 }
 
 // Sync background logs to Firebase
