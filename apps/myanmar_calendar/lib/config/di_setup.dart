@@ -9,6 +9,8 @@ import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
 
+import 'web_mocks.dart';
+
 final getIt = GetIt.instance;
 
 /// Initialize all app dependencies
@@ -18,17 +20,23 @@ Future<void> initializeDependencies() async {
   getIt.registerSingleton<AppDatabase>(database);
 
   // Firebase Services (moved to separate setup function)
-  await setupFirebaseServicesDependencies(getIt);
+  if (!kIsWeb) {
+    await setupFirebaseServicesDependencies(getIt);
 
-  final analyticsService = getIt<AnalyticsService>();
-  final crashlyticsService = getIt<CrashlyticsService>();
-  debugPrint('✅ Firebase services registered:');
-  debugPrint(
-    '  Analytics enabled: ${analyticsService.config.enableCollection}',
-  );
-  debugPrint(
-    '  Crashlytics enabled: ${crashlyticsService.config.enableCollection}',
-  );
+    final analyticsService = getIt<AnalyticsService>();
+    final crashlyticsService = getIt<CrashlyticsService>();
+    debugPrint('✅ Firebase services registered:');
+    debugPrint(
+      '  Analytics enabled: ${analyticsService.config.enableCollection}',
+    );
+    debugPrint(
+      '  Crashlytics enabled: ${crashlyticsService.config.enableCollection}',
+    );
+  } else {
+    debugPrint('⚠️ Registering mock Firebase services on Web');
+    getIt.registerSingleton<AnalyticsService>(MockAnalyticsService());
+    getIt.registerSingleton<CrashlyticsService>(MockCrashlyticsService());
+  }
 
   // Initialize feature dependencies
   await initCalendarDependencies();

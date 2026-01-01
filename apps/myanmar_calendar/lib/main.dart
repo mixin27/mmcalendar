@@ -40,9 +40,11 @@ void main() async {
   // Configure system UI
   await _configureSystemUI();
 
-  debugPrint('🔧 Initializing WorkManager...');
-  // Initialize WorkManager for background widget updates
-  await Workmanager().initialize(callbackDispatcher);
+  if (!kIsWeb) {
+    debugPrint('🔧 Initializing WorkManager...');
+    // Initialize WorkManager for background widget updates
+    await Workmanager().initialize(callbackDispatcher);
+  }
 
   // Load saved settings and configure Myanmar Calendar
   await _initializeMyanmarCalendar();
@@ -50,7 +52,7 @@ void main() async {
   // todo(mixin27): remove conditional when home_widgets configured
   // in ios
   // SYNC BACKGROUND LOGS TO FIREBASE
-  if (Platform.isAndroid) {
+  if (!kIsWeb && Platform.isAndroid) {
     await _syncBackgroundLogs();
   }
 
@@ -64,7 +66,7 @@ void main() async {
   // todo(mixin27): remove conditional when home_widgets configured
   // in ios
   // Schedule widget updates on app start
-  if (Platform.isAndroid) {
+  if (!kIsWeb && Platform.isAndroid) {
     await _initializeWidgetUpdates();
   }
 
@@ -75,10 +77,13 @@ Future<void> _initializeFirebaseWithConsent() async {
   try {
     debugPrint('🔧 Initializing Firebase...');
 
-    // Initialize Firebase Core first
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    // Skip Firebase Core initialization on web for now as it's not configured
+    if (!kIsWeb) {
+      // Initialize Firebase Core first
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
 
     // Load user consent settings from database
     final database = AppDatabase();
@@ -104,16 +109,20 @@ Future<void> _initializeFirebaseWithConsent() async {
       enableDebugLogging: !kReleaseMode,
     );
 
-    // Initialize Firebase Services with configs
-    await FirebaseService.initialize(
-      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
-      analyticsConfig: analyticsConfig,
-      crashlyticsConfig: crashlyticsConfig,
-      enableDebugLogging: !kReleaseMode,
-    );
+    if (kIsWeb) {
+      debugPrint('⚠️ Firebase Service initialization skipped on Web');
+    } else {
+      // Initialize Firebase Services with configs
+      await FirebaseService.initialize(
+        firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+        analyticsConfig: analyticsConfig,
+        crashlyticsConfig: crashlyticsConfig,
+        enableDebugLogging: !kReleaseMode,
+      );
 
-    // Set up error handlers for Firebase Crashlytics
-    _setupCrashlyticsHandlers();
+      // Set up error handlers for Firebase Crashlytics
+      _setupCrashlyticsHandlers();
+    }
 
     debugPrint('✅ Firebase initialized');
     debugPrint('  Analytics: ${enableAnalytics ? 'enabled' : 'disabled'}');

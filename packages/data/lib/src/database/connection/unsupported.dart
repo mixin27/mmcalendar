@@ -12,3 +12,11 @@ Never _unsupported() {
 Future<void> validateDatabaseSchema(GeneratedDatabase database) async {
   _unsupported();
 }
+
+Future<void> resetDatabase(String name) async {
+  _unsupported();
+}
+
+QueryExecutor openConnectionForTesting(String name) {
+  _unsupported();
+}

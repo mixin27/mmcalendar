@@ -1,10 +1,6 @@
-import 'dart:io';
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import 'connection/connection.dart' as impl;
 
 import 'app_database.steps.dart';
@@ -97,12 +93,7 @@ class AppDatabase extends _$AppDatabase {
       await _instance!.close();
     }
 
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'myanmar_calendar.sqlite'));
-
-    if (await file.exists()) {
-      await file.delete();
-    }
+    await impl.resetDatabase('myanmar_calendar');
 
     _instance = null;
   }
@@ -129,10 +120,6 @@ QueryExecutor _openConnection() {
 
 // Alternative connection for testing
 // ignore: unused_element
-LazyDatabase _openConnectionForTesting() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'myanmar_calendar_test.db'));
-    return NativeDatabase(file);
-  });
+QueryExecutor _openConnectionForTesting() {
+  return impl.openConnectionForTesting('myanmar_calendar_test');
 }
