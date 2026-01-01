@@ -1,7 +1,7 @@
 import 'package:core/core.dart';
 import 'package:data/data.dart';
 import 'package:drift/drift.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
 
 // Local data source for calendar operations
 abstract class CalendarLocalDataSource {

@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:core/core.dart';
 import 'package:data/data.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
 
 import '../../domain/entities/calendar_month.dart';
 import '../../domain/repositories/calendar_repository.dart';

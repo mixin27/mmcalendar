@@ -455,10 +455,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_mmcalendar
-      sha256: "540b8fbe47040e7ef0cd8f4c617c3fef86a4084f7d2e7754f0082d2144c2636d"
+      sha256: "90fcef087f2e278d274e04f345ece1e7f749515533027016ee3acdf9afb301f8"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.2"
+    version: "3.2.3"
   flutter_svg:
     dependency: transitive
     description:
@@ -1275,5 +1275,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.9.2 <4.0.0"
+  dart: ">=3.10.4 <4.0.0"
   flutter: ">=3.35.0"
