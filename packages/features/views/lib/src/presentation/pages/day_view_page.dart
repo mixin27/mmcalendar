@@ -291,7 +291,7 @@ class _DayViewPageState extends State<DayViewPage>
                   if (MyanmarCalendar.currentLanguage == Language.shan &&
                       showShanCalendar)
                     Text(
-                      '${MyanmarDateTime.fromMyanmarDate(completeDate.myanmar).shanDate.year} ${completeDate.formatMyanmar(pattern: "&M")} ${TranslationService.translate('Yat')}',
+                      '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${completeDate.formatMyanmar(pattern: "&M &P &ff")} ${TranslationService.translate('Yat')}',
                       style: context.textTheme.headlineSmall?.copyWith(
                         color: context.colorScheme.primary,
                         fontWeight: FontWeight.bold,

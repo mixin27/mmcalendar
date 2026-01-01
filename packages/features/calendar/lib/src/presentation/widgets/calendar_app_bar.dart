@@ -37,7 +37,11 @@ class CalendarAppBar extends StatelessWidget {
             // App title and date
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    (ResponsiveUtils.isTablet(context) ||
+                        ResponsiveUtils.isDesktop(context))
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.start,
                 children: [
                   // Text(
                   //   _getGreeting(),
@@ -113,7 +117,7 @@ class CalendarAppBar extends StatelessWidget {
     final myanmarDateTime = MyanmarCalendar.today();
 
     if (showShanCalendar && MyanmarCalendar.currentLanguage == Language.shan) {
-      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M")}';
+      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")} ${TranslationService.translate('Yat')}';
     } else {
       return "${myanmarDateTime.formatMyanmar(null, language)} ${TranslationService.translate('Yat')}";
     }

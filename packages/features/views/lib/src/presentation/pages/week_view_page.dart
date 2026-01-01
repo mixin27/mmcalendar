@@ -210,6 +210,11 @@ class _WeekViewPageState extends State<WeekViewPage>
       ...dayInfo.allAnniversaryDays,
     ];
 
+    final year =
+        (MyanmarCalendar.currentLanguage == Language.shan || showShanCalendar)
+        ? MyanmarDateTime.fromMyanmarDate(dayInfo.myanmar).shanDate.year
+        : dayInfo.myanmarYear;
+
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 300 + (index * 50)),
       tween: Tween(begin: 0.0, end: 1.0),
@@ -312,7 +317,7 @@ class _WeekViewPageState extends State<WeekViewPage>
                         if (MyanmarCalendar.currentLanguage == Language.shan &&
                             showShanCalendar)
                           Text(
-                            '${MyanmarDateTime.fromMyanmarDate(dayInfo.myanmar).shanDate.year} ${dayInfo.formatMyanmar(pattern: "&M &P &ff")} ${TranslationService.translate('Yat')}',
+                            '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${dayInfo.formatMyanmar(pattern: "&M &P &ff")} ${TranslationService.translate('Yat')}',
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: context.colorScheme.primary,
                             ),

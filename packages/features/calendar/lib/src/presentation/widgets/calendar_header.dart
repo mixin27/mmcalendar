@@ -70,7 +70,7 @@ class CalendarHeader extends StatelessWidget {
                                   Language.shan &&
                               showShanCalendar)
                             Text(
-                              '${myanmarDate.shanDate.year} ${myanmarDate.formatMyanmar("&M")}',
+                              '${myanmarDate.formatMyanmar("&M")} ${FormatService().translateNumbers(myanmarDate.shanDate.year.toString(), language: Language.shan)}',
                               style: context.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),

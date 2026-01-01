@@ -396,7 +396,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                   if (MyanmarCalendar.currentLanguage == Language.shan &&
                       showShanCalendar)
                     Text(
-                      '${MyanmarDateTime.fromMyanmarDate(_completeDate.myanmar).shanDate.year} ${_completeDate.formatMyanmar(pattern: "&M")}',
+                      '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${_completeDate.formatMyanmar(pattern: "&M &P &ff")} ${TranslationService.translate('Yat')}',
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
