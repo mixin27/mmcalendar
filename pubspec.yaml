@@ -3,6 +3,8 @@ name: myanmar_calendar_workspace
 description: Myanmar Calendar Application Workspace
 version: 1.0.0
 publish_to: none
+homepage: https://github.com/mixin27/mmcalendar
+issue_tracker: https://github.com/mixin27/mmcalendar/issues
 
 environment:
   sdk: ^3.9.0

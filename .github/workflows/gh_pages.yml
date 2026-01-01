@@ -21,6 +21,14 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Code Generation
+        run: |
+          # Run build_runner for all packages in the workspace that have build_runner as a dependency
+          git ls-files '**/pubspec.yaml' | xargs grep -l "build_runner" | xargs -I {} dirname {} | while read dir; do
+            echo "Building in $dir..."
+            (cd "$dir" && dart run build_runner build --delete-conflicting-outputs)
+          done
+
       - name: Build Web
         run: |
           cd apps/myanmar_calendar
