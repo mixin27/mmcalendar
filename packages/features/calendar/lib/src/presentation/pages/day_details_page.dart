@@ -131,31 +131,9 @@ class _DayDetailsPageState extends State<DayDetailsPage>
         }
       },
       child: Scaffold(
-        // bottomNavigationBar: SizedBox(
-        //   height: 100,
-        //   width: double.infinity,
-        //   child: _buildBottomDateNavigation(),
-        // ),
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            // Add Reminder (Future feature)
-            // FloatingActionButton.small(
-            //   heroTag: 'reminder',
-            //   onPressed: () {
-            //     _analyticsService.logButtonClick(
-            //       buttonName: 'add_reminder',
-            //       buttonLocation: 'day_details_fab',
-            //     );
-
-            //     // todo(mixin27): Add reminder
-            //     _showComingSoonSnackBar(context, 'Reminder feature');
-            //   },
-            //   tooltip: 'Add Reminder',
-            //   child: const Icon(Icons.notifications_outlined),
-            // ),
-            // const SizedBox(height: 12),
-
             // Add Event
             FloatingActionButton(
               heroTag: 'event',
@@ -231,6 +209,10 @@ class _DayDetailsPageState extends State<DayDetailsPage>
 
                             // Astrological Information
                             _buildAstrologyCard(),
+                            const SizedBox(height: 16),
+
+                            // AI Prompt Generation
+                            _buildAIPromptSection(),
                             const SizedBox(height: 16),
 
                             _buildQuickStatsCard(),
@@ -606,20 +588,28 @@ class _DayDetailsPageState extends State<DayDetailsPage>
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              AppLocalizations.of(context)?.moon_phase ?? 'Moon Phase',
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+            Semantics(
+              label: AppLocalizations.of(context)?.moon_phase ?? 'Moon Phase',
+              child: Text(
+                AppLocalizations.of(context)?.moon_phase ?? 'Moon Phase',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
             ),
             const SizedBox(height: 8),
-            Text(
-              TranslationService.getMoonPhaseName(_completeDate.moonPhase),
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
+            Semantics(
+              label: TranslationService.getMoonPhaseName(
+                _completeDate.moonPhase,
               ),
-              textAlign: TextAlign.center,
+              child: Text(
+                TranslationService.getMoonPhaseName(_completeDate.moonPhase),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -660,20 +650,26 @@ class _DayDetailsPageState extends State<DayDetailsPage>
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              AppLocalizations.of(context)?.weekday ?? 'Weekday',
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+            Semantics(
+              label: AppLocalizations.of(context)?.weekday ?? 'Weekday',
+              child: Text(
+                AppLocalizations.of(context)?.weekday ?? 'Weekday',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
             ),
             const SizedBox(height: 8),
-            Text(
-              weekdayName,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-                fontWeight: FontWeight.bold,
+            Semantics(
+              label: weekdayName,
+              child: Text(
+                weekdayName,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Text(
@@ -894,19 +890,25 @@ class _DayDetailsPageState extends State<DayDetailsPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
+                Semantics(
+                  label: label,
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                Semantics(
+                  label: value,
+                  child: Text(
+                    value,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -1146,7 +1148,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap the Add button to create an event',
+            'Tap + to create an event',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1577,14 +1579,149 @@ Shared from Myanmar Calendar App
     }
   }
 
-  // void _showComingSoonSnackBar(BuildContext context, String message) {
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(
-  //       content: Text('$message coming soon!'),
-  //       behavior: SnackBarBehavior.floating,
-  //     ),
-  //   );
-  // }
+  Widget _buildAIPromptSection() {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withValues(alpha: 0.2),
+              Theme.of(context).colorScheme.surface,
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.auto_awesome,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AI Horoscope Prompt',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Generate a prompt for AI analysis',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _showAIPromptDialog,
+                icon: const Icon(Icons.psychology_outlined),
+                label: const Text('Generate AI Prompt'),
+                style: FilledButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAIPromptDialog() {
+    _analyticsService.logButtonClick(
+      buttonName: 'generate_ai_prompt',
+      buttonLocation: 'day_details_page',
+    );
+
+    final prompt = MyanmarCalendar.generateAIPrompt(
+      _completeDate,
+      language: MyanmarCalendar.currentLanguage,
+      type: AIPromptType.horoscope,
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              Icons.auto_awesome,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 12),
+            const Text('AI Prompt'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Copy this prompt into your favorite AI (ChatGPT, Gemini, etc.) for a detailed astrological analysis.',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                ),
+                child: Text(
+                  prompt,
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: prompt));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Prompt copied to clipboard')),
+              );
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.copy),
+            label: const Text('Copy Prompt'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _AnimatedEventItem extends StatefulWidget {

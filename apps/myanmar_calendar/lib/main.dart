@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
@@ -20,6 +21,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
 
   LicenseRegistry.addLicense(() async* {
     final String license = await rootBundle.loadString(
@@ -40,9 +42,11 @@ void main() async {
   // Configure system UI
   await _configureSystemUI();
 
-  debugPrint('🔧 Initializing WorkManager...');
-  // Initialize WorkManager for background widget updates
-  await Workmanager().initialize(callbackDispatcher);
+  if (!kIsWeb) {
+    debugPrint('🔧 Initializing WorkManager...');
+    // Initialize WorkManager for background widget updates
+    await Workmanager().initialize(callbackDispatcher);
+  }
 
   // Load saved settings and configure Myanmar Calendar
   await _initializeMyanmarCalendar();
@@ -50,7 +54,7 @@ void main() async {
   // todo(mixin27): remove conditional when home_widgets configured
   // in ios
   // SYNC BACKGROUND LOGS TO FIREBASE
-  if (Platform.isAndroid) {
+  if (!kIsWeb && Platform.isAndroid) {
     await _syncBackgroundLogs();
   }
 
@@ -64,7 +68,7 @@ void main() async {
   // todo(mixin27): remove conditional when home_widgets configured
   // in ios
   // Schedule widget updates on app start
-  if (Platform.isAndroid) {
+  if (!kIsWeb && Platform.isAndroid) {
     await _initializeWidgetUpdates();
   }
 
@@ -75,10 +79,13 @@ Future<void> _initializeFirebaseWithConsent() async {
   try {
     debugPrint('🔧 Initializing Firebase...');
 
-    // Initialize Firebase Core first
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    // Skip Firebase Core initialization on web for now as it's not configured
+    if (!kIsWeb) {
+      // Initialize Firebase Core first
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
 
     // Load user consent settings from database
     final database = AppDatabase();
@@ -104,16 +111,20 @@ Future<void> _initializeFirebaseWithConsent() async {
       enableDebugLogging: !kReleaseMode,
     );
 
-    // Initialize Firebase Services with configs
-    await FirebaseService.initialize(
-      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
-      analyticsConfig: analyticsConfig,
-      crashlyticsConfig: crashlyticsConfig,
-      enableDebugLogging: !kReleaseMode,
-    );
+    if (kIsWeb) {
+      debugPrint('⚠️ Firebase Service initialization skipped on Web');
+    } else {
+      // Initialize Firebase Services with configs
+      await FirebaseService.initialize(
+        firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+        analyticsConfig: analyticsConfig,
+        crashlyticsConfig: crashlyticsConfig,
+        enableDebugLogging: !kReleaseMode,
+      );
 
-    // Set up error handlers for Firebase Crashlytics
-    _setupCrashlyticsHandlers();
+      // Set up error handlers for Firebase Crashlytics
+      _setupCrashlyticsHandlers();
+    }
 
     debugPrint('✅ Firebase initialized');
     debugPrint('  Analytics: ${enableAnalytics ? 'enabled' : 'disabled'}');
@@ -170,7 +181,7 @@ Future<void> _initializeMyanmarCalendar() async {
     );
 
     MyanmarCalendar.clearCache();
-    MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
 
     debugPrint('✅ Myanmar Calendar initialized with saved settings');
   } catch (e) {
@@ -183,11 +194,11 @@ Future<void> _initializeMyanmarCalendar() async {
       gregorianStart: 2361222,
     );
     MyanmarCalendar.clearCache();
-    MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
     debugPrint('⚠️ Myanmar Calendar initialized with defaults: $e');
   }
 
-  MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+  MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
 }
 
 // Sync background logs to Firebase

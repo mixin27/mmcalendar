@@ -512,7 +512,7 @@ class _EventsListPageState extends State<EventsListPage>
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap the + button to create your first event',
+            'Tap + to create your first event',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),

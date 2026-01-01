@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:core/core.dart';
 import 'package:data/data.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
 
 import '../../domain/entities/calendar_month.dart';
 import '../../domain/repositories/calendar_repository.dart';
@@ -40,6 +40,10 @@ class CalendarRepositoryImpl extends BaseRepository
       return Right(calendarMonth.toEntity());
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
+    } on InvalidConfigurationException catch (e) {
+      return Left(CacheFailure(e.message));
+    } on MyanmarCalendarException catch (e) {
+      return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
@@ -52,6 +56,8 @@ class CalendarRepositoryImpl extends BaseRepository
       return Right(completeDate);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
+    } on MyanmarCalendarException catch (e) {
+      return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
@@ -64,6 +70,8 @@ class CalendarRepositoryImpl extends BaseRepository
       return Right(config);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
+    } on MyanmarCalendarException catch (e) {
+      return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
@@ -78,6 +86,10 @@ class CalendarRepositoryImpl extends BaseRepository
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
+    } on InvalidConfigurationException catch (e) {
+      return Left(CacheFailure(e.message));
+    } on MyanmarCalendarException catch (e) {
+      return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
@@ -90,6 +102,8 @@ class CalendarRepositoryImpl extends BaseRepository
       return Right(isExpanded);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
+    } on MyanmarCalendarException catch (e) {
+      return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
@@ -104,6 +118,8 @@ class CalendarRepositoryImpl extends BaseRepository
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
+    } on MyanmarCalendarException catch (e) {
+      return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }

@@ -423,7 +423,7 @@ class _SettingsContent extends StatelessWidget {
               // todo(mixin27): remove conditional when home_widgets configured
               // in ios
               // Home Screen Widget Section
-              if (Platform.isAndroid) ...[
+              if (!kIsWeb && Platform.isAndroid) ...[
                 const SizedBox(height: 16),
                 _SettingsSection(
                   title:

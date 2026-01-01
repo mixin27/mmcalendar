@@ -39,14 +39,6 @@ class ConverterRepositoryImpl extends BaseRepository
     int day,
   ) {
     try {
-      // Validate Myanmar date first
-      final validation = MyanmarCalendar.validateMyanmar(year, month, day);
-      if (!validation.isValid) {
-        return Left(
-          UnknownFailure('Invalid Myanmar date: ${validation.error}'),
-        );
-      }
-
       final myanmarDateTime = MyanmarCalendar.fromMyanmar(year, month, day);
       final completeDate = myanmarDateTime.completeDate;
 
@@ -60,6 +52,16 @@ class ConverterRepositoryImpl extends BaseRepository
           formattedWestern: formattedWestern,
         ),
       );
+    } on InvalidMyanmarDateException catch (e) {
+      final suggestion = e.details?['suggestion'];
+      final message = suggestion != null
+          ? '${e.message}. Suggestion: $suggestion'
+          : e.message;
+      return Left(DataFailure(message));
+    } on DateConversionException catch (e) {
+      return Left(DataFailure(e.message));
+    } on MyanmarCalendarException catch (e) {
+      return Left(DataFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure('Failed to convert Myanmar to Western: $e'));
     }
@@ -102,6 +104,8 @@ class ConverterRepositoryImpl extends BaseRepository
           formattedDifference: formattedDifference,
         ),
       );
+    } on MyanmarCalendarException catch (e) {
+      return Left(DataFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure('Failed to calculate date difference: $e'));
     }
@@ -156,6 +160,8 @@ class ConverterRepositoryImpl extends BaseRepository
           unit: unit,
         ),
       );
+    } on MyanmarCalendarException catch (e) {
+      return Left(DataFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure('Failed to perform date arithmetic: $e'));
     }
@@ -196,6 +202,8 @@ class ConverterRepositoryImpl extends BaseRepository
           daysFromStart: daysFromStart,
         ),
       );
+    } on MyanmarCalendarException catch (e) {
+      return Left(DataFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure('Failed to find next moon phase: $e'));
     }

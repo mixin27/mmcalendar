@@ -1,10 +1,7 @@
-import 'dart:io';
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'connection/connection.dart' as impl;
 
 import 'app_database.steps.dart';
 import 'daos/events_dao.dart';
@@ -74,6 +71,11 @@ class AppDatabase extends _$AppDatabase {
           // Database was just created
           debugPrint('Database created successfully');
         }
+
+        // This follows the recommendation to validate that the database schema
+        // matches what drift expects (https://drift.simonbinder.eu/docs/advanced-features/migrations/#verifying-a-database-schema-at-runtime).
+        // It allows catching bugs in the migration logic early.
+        await impl.validateDatabaseSchema(this);
       },
     );
   }
@@ -91,12 +93,7 @@ class AppDatabase extends _$AppDatabase {
       await _instance!.close();
     }
 
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'myanmar_calendar.db'));
-
-    if (await file.exists()) {
-      await file.delete();
-    }
+    await impl.resetDatabase('myanmar_calendar');
 
     _instance = null;
   }
@@ -109,16 +106,20 @@ QueryExecutor _openConnection() {
     web: DriftWebOptions(
       sqlite3Wasm: Uri.parse('sqlite3.wasm'),
       driftWorker: Uri.parse('drift_worker.js'),
+      onResult: (result) {
+        if (result.missingFeatures.isNotEmpty) {
+          debugPrint(
+            'Using ${result.chosenImplementation} due to unsupported '
+            'browser features: ${result.missingFeatures}',
+          );
+        }
+      },
     ),
   );
 }
 
 // Alternative connection for testing
 // ignore: unused_element
-LazyDatabase _openConnectionForTesting() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'myanmar_calendar_test.db'));
-    return NativeDatabase(file);
-  });
+QueryExecutor _openConnectionForTesting() {
+  return impl.openConnectionForTesting('myanmar_calendar_test');
 }

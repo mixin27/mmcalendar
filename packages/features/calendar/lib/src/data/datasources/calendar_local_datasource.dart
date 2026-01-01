@@ -1,7 +1,7 @@
 import 'package:core/core.dart';
 import 'package:data/data.dart';
 import 'package:drift/drift.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
 
 // Local data source for calendar operations
 abstract class CalendarLocalDataSource {
@@ -25,13 +25,13 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
       final firstDay = DateTime(month.year, month.month, 1);
       final lastDay = DateTime(month.year, month.month + 1, 0);
 
-      final dates = <CompleteDate>[];
-
-      for (int day = firstDay.day; day <= lastDay.day; day++) {
-        final date = DateTime(month.year, month.month, day);
-        final completeDate = MyanmarCalendar.getCompleteDate(date);
-        dates.add(completeDate);
-      }
+      final dates = await BatchOptimizer.processBatch<DateTime, CompleteDate>(
+        List.generate(
+          lastDay.day - firstDay.day + 1,
+          (i) => DateTime(month.year, month.month, firstDay.day + i),
+        ),
+        (date) => MyanmarCalendar.getCompleteDate(date),
+      );
 
       return dates;
     } catch (e) {
@@ -48,12 +48,11 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
         firstDayOfWeek: 1, // Sunday in Myanmar weekday system
       );
 
-      final completeDates = <CompleteDate>[];
-
-      for (final date in gridDates) {
-        final completeDate = MyanmarCalendar.getCompleteDate(date);
-        completeDates.add(completeDate);
-      }
+      final completeDates =
+          await BatchOptimizer.processBatch<DateTime, CompleteDate>(
+            gridDates,
+            (date) => MyanmarCalendar.getCompleteDate(date),
+          );
 
       return completeDates;
     } catch (e) {
@@ -113,7 +112,7 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
       );
 
       MyanmarCalendar.clearCache();
-      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
+      MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
     } catch (e) {
       throw CacheException('Failed to update calendar config: ${e.toString()}');
     }

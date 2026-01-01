@@ -110,58 +110,66 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
         onTapCancel: widget.isInCurrentMonth
             ? () => _scaleController.reverse()
             : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          margin: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: backgroundColor?.withValues(alpha: opacity),
-            borderRadius: BorderRadius.circular(12),
-            border: borderColor != null
-                ? Border.all(
-                    color: borderColor.withValues(alpha: opacity),
-                    width: widget.isToday ? 2 : 1,
-                  )
-                : Border.all(
-                    color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                    width: 0.5,
-                  ),
-            boxShadow: widget.isSelected
-                ? [
-                    BoxShadow(
-                      color: colorScheme.primary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
+        child: Semantics(
+          label: CalendarAccessibility.generateDateLabel(
+            widget.dateInfo,
+            language: MyanmarCalendar.currentLanguage,
+            isSelected: widget.isSelected,
+            isToday: widget.isToday,
           ),
-          child: Stack(
-            children: [
-              // Main content area
-              Padding(
-                padding: const EdgeInsets.all(4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Top section: Indicators
-                    if (widget.isInCurrentMonth)
-                      _buildTopIndicators(textColor, opacity),
-
-                    // Middle section: Date numbers
-                    Expanded(
-                      child: Center(
-                        child: _buildDateNumbers(textColor, opacity),
-                      ),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            margin: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: backgroundColor?.withValues(alpha: opacity),
+              borderRadius: BorderRadius.circular(12),
+              border: borderColor != null
+                  ? Border.all(
+                      color: borderColor.withValues(alpha: opacity),
+                      width: widget.isToday ? 2 : 1,
+                    )
+                  : Border.all(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                      width: 0.5,
                     ),
+              boxShadow: widget.isSelected
+                  ? [
+                      BoxShadow(
+                        color: colorScheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Stack(
+              children: [
+                // Main content area
+                Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Top section: Indicators
+                      if (widget.isInCurrentMonth)
+                        _buildTopIndicators(textColor, opacity),
 
-                    // Bottom section: Events
-                    if (widget.isInCurrentMonth)
-                      _buildBottomSection(textColor, opacity),
-                  ],
+                      // Middle section: Date numbers
+                      Expanded(
+                        child: Center(
+                          child: _buildDateNumbers(textColor, opacity),
+                        ),
+                      ),
+
+                      // Bottom section: Events
+                      if (widget.isInCurrentMonth)
+                        _buildBottomSection(textColor, opacity),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

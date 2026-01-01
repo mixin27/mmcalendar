@@ -260,42 +260,75 @@ class _CalendarHomePageState extends State<CalendarHomePage>
         const WeekdayHeader(),
 
         // Calendar Grid with page transition
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 350),
-          switchInCurve: Curves.easeOut,
-          switchOutCurve: Curves.easeIn,
-          transitionBuilder: (child, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.95, end: 1.0).animate(animation),
-                child: child,
+        Focus(
+          autofocus: true,
+          onKeyEvent: (node, event) {
+            final selectedDate = state.selectedDate?.date ?? state.today;
+            return CalendarKeyboardHandler.handleKeyEvent(
+              node,
+              event,
+              onArrowUp: () => _moveSelection(
+                context,
+                selectedDate.subtract(const Duration(days: 7)),
               ),
+              onArrowDown: () => _moveSelection(
+                context,
+                selectedDate.add(const Duration(days: 7)),
+              ),
+              onArrowLeft: () => _moveSelection(
+                context,
+                selectedDate.subtract(const Duration(days: 1)),
+              ),
+              onArrowRight: () => _moveSelection(
+                context,
+                selectedDate.add(const Duration(days: 1)),
+              ),
+              onEnter: () => _navigateToDayDetails(context, selectedDate),
+              onSpace: () => _navigateToDayDetails(context, selectedDate),
+              onHome: () =>
+                  context.read<CalendarBloc>().add(const NavigateToToday()),
             );
           },
-          child: CalendarGrid(
-            key: ValueKey(state.calendarMonth.month),
-            gridDates: state.calendarMonth.gridDates,
-            currentMonth: state.calendarMonth.month,
-            selectedDate: state.selectedDate?.date,
-            today: state.today,
-            showHolidays: showHolidays,
-            showAnniversaryDays: showAnniversaryDays,
-            showSabbaths: showSabbaths,
-            showAstrology: showAstrology,
-            showWesternDates: showWesternDates,
-            showMyanmarDates: showMyanmarDates,
-            eventsByDate: state.eventsByDate,
-            onDateTap: (date) {
-              _analyticsService.logDateSelection(
-                selectedDate: date.toString(),
-                calendarType: 'myanmar',
-                dateFormat: '${date.year}/${date.month}/${date.day}',
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: Tween<double>(
+                    begin: 0.95,
+                    end: 1.0,
+                  ).animate(animation),
+                  child: child,
+                ),
               );
-
-              context.read<CalendarBloc>().add(SelectDateEvent(date));
-              _navigateToDayDetails(context, date);
             },
+            child: CalendarGrid(
+              key: ValueKey(state.calendarMonth.month),
+              gridDates: state.calendarMonth.gridDates,
+              currentMonth: state.calendarMonth.month,
+              selectedDate: state.selectedDate?.date,
+              today: state.today,
+              showHolidays: showHolidays,
+              showAnniversaryDays: showAnniversaryDays,
+              showSabbaths: showSabbaths,
+              showAstrology: showAstrology,
+              showWesternDates: showWesternDates,
+              showMyanmarDates: showMyanmarDates,
+              eventsByDate: state.eventsByDate,
+              onDateTap: (date) {
+                _analyticsService.logDateSelection(
+                  selectedDate: date.toString(),
+                  calendarType: 'myanmar',
+                  dateFormat: '${date.year}/${date.month}/${date.day}',
+                );
+
+                context.read<CalendarBloc>().add(SelectDateEvent(date));
+                _navigateToDayDetails(context, date);
+              },
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -405,6 +438,11 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     GoRouter.of(
       context,
     ).go("/home/${RoutePaths.dayDetails}", extra: {"date": date});
+  }
+
+  void _moveSelection(BuildContext context, DateTime date) {
+    context.read<CalendarBloc>().add(SelectDateEvent(date));
+    HapticFeedback.selectionClick();
   }
 
   void _showMonthYearPicker(BuildContext context, DateTime currentMonth) {

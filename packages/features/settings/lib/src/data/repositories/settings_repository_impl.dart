@@ -7,7 +7,7 @@ import 'package:data/data.dart';
 import 'package:drift/drift.dart';
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/app_settings.dart';

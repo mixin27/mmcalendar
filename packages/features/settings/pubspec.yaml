@@ -25,7 +25,7 @@ dependencies:
     path: ../home_widgets
 
   # Myanmar Calendar Package
-  flutter_mmcalendar: ^3.2.2
+  flutter_mmcalendar: ^3.2.3
 
   # Utilities
   intl: ^0.20.2
