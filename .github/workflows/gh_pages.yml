@@ -38,7 +38,10 @@ jobs:
       - name: Build Web
         run: |
           cd apps/myanmar_calendar
-          flutter build web --release --base-href /mmcalendar/
+          flutter build web --release --base-href "/"
+
+      - name: Add CNAME
+        run: echo "myanmarcalendar.kyawzayartun.com" > apps/myanmar_calendar/build/web/CNAME
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
