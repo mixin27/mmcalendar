@@ -9,6 +9,7 @@ import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
 
+import '../telegram/telegram_service.dart';
 import 'web_mocks.dart';
 
 final getIt = GetIt.instance;
@@ -33,6 +34,10 @@ Future<void> initializeDependencies() async {
       '  Crashlytics enabled: ${crashlyticsService.config.enableCollection}',
     );
   } else {
+    final telegramService = TelegramService();
+    telegramService.initialize();
+    getIt.registerSingleton<TelegramService>(telegramService);
+
     debugPrint('⚠️ Registering mock Firebase services on Web');
     getIt.registerSingleton<AnalyticsService>(MockAnalyticsService());
     getIt.registerSingleton<CrashlyticsService>(MockCrashlyticsService());

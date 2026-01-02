@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:localizations/localizations.dart';
+import 'package:mmcalendar/config/di_setup.dart';
+
+import '../../telegram/telegram_service.dart';
 
 class AppShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -9,7 +12,12 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final telegramService = getIt<TelegramService>();
+    final userName = telegramService.getUserName();
+    // final firstName = telegramService.getUserFirstName();
+
     return Scaffold(
+      appBar: userName != null ? AppBar(title: Text('TG: $userName')) : null,
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
