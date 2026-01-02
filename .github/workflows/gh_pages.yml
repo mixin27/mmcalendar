@@ -49,3 +49,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./apps/myanmar_calendar/build/web
           publish_branch: gh-pages
+          cname: myanmarcalendar.kyawzayartun.com

@@ -1,0 +1,13 @@
+:443 {
+    root * /srv
+    file_server
+    try_files {path} /index.html
+    encode gzip
+
+    # Use internal self-signed certificate
+    tls internal
+}
+
+:80 {
+    redir https://{host}{uri} permanent
+}

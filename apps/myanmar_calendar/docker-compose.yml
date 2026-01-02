@@ -1,0 +1,17 @@
+services:
+  web:
+    image: nginx:alpine
+    volumes:
+      - ./build/web:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    command: http web:80 --domain=${NGROK_DOMAIN}
+    ports:
+      - "4040:4040" # Ngrok web interface
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    depends_on:
+      - web
+    restart: unless-stopped
