@@ -35,33 +35,51 @@ class CalendarGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      crossAxisCount: 7,
-      childAspectRatio: 0.75,
-      children: gridDates.map((dateInfo) {
-        final date = dateInfo.western.toDateTime();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate dynamic aspect ratio based on available width
+        // Mobile (<600): 0.75 (taller)
+        // Tablet/Desktop: wider cells, but maintain reasonable height
+        double aspectRatio = 0.75;
+        if (constraints.maxWidth > 800) {
+          // For very wide screens (desktop split view), make cells more square or wider
+          // Assuming 7 columns.
+          // e.g. Width 1000 / 7 = 142px per cell.
+          // Height approx 120px -> ratio ~ 1.2
+          aspectRatio = 1.1;
+        } else if (constraints.maxWidth > 600) {
+          aspectRatio = 0.9;
+        }
 
-        return Hero(
-          tag: 'date_${date.toIso8601String()}',
-          child: DateCell(
-            dateInfo: dateInfo,
-            isSelected: _isSelected(date),
-            isToday: _isToday(date),
-            isInCurrentMonth: _isInCurrentMonth(date),
-            showHolidays: showHolidays,
-            showAnniversaryDays: showAnniversaryDays,
-            showSabbaths: showSabbaths,
-            showAstrology: showAstrology,
-            showWesternDates: showWesternDates,
-            showMyanmarDates: showMyanmarDates,
-            showEvents: true,
-            onTap: () => onDateTap(date),
-          ),
+        return GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          crossAxisCount: 7,
+          childAspectRatio: aspectRatio,
+          children: gridDates.map((dateInfo) {
+            final date = dateInfo.western.toDateTime();
+
+            return Hero(
+              tag: 'date_${date.toIso8601String()}',
+              child: DateCell(
+                dateInfo: dateInfo,
+                isSelected: _isSelected(date),
+                isToday: _isToday(date),
+                isInCurrentMonth: _isInCurrentMonth(date),
+                showHolidays: showHolidays,
+                showAnniversaryDays: showAnniversaryDays,
+                showSabbaths: showSabbaths,
+                showAstrology: showAstrology,
+                showWesternDates: showWesternDates,
+                showMyanmarDates: showMyanmarDates,
+                showEvents: true,
+                onTap: () => onDateTap(date),
+              ),
+            );
+          }).toList(),
         );
-      }).toList(),
+      },
     );
   }
 

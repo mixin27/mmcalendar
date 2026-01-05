@@ -187,85 +187,6 @@ myanmar_calendar_app/
 
 ---
 
-## 📦 Dependencies
-
-### Core Dependencies
-
-```yaml
-flutter_bloc: ^9.1.1
-go_router: ^16.2.4
-drift: ^2.28.2
-get_it: ^8.2.0
-injectable: ^2.5.2
-flutter_mmcalendar: ^3.2.2  # Myanmar calendar engine
-```
-
-### UI Dependencies
-
-```yaml
-google_fonts: ^6.3.2
-intl: ^0.20.0
-```
-
-See [pubspec.yaml](https://github.com/mixin27/mmcalendar/blob/main/apps/myanmar_calendar/pubspec.yaml) for complete list.
-
----
-
-## 🗺️ Roadmap
-
-### ✅ Phase 1 (Current - v2.0.0)
-
-- [x] Calendar views (Month, Year, Week, Day)
-- [x] Myanmar calendar integration
-- [x] Astrological information
-- [x] Date converter
-- [x] Theme customization
-- [x] Multi-language support
-- [x] Settings management
-- [x] Home screen widgets
-
-### 🔄 Phase 2 (v2.1.0 - Coming Soon)
-
-- [ ] Events and reminders
-- [ ] Recurring events
-- [ ] Event categories
-- [ ] Local notifications
-- [ ] Notes feature
-
-### 📅 Phase 3 (v2.2.0 - Future)
-
-- [ ] Cloud backup & sync
-- [ ] Multiple device sync
-- [ ] Data export/import
-- [ ] Calendar sharing
-
-### 🎯 Phase 4 (v3.0.0 - Future)
-
-- [ ] Search functionality
-- [ ] Analytics & insights
-- [ ] Weather integration
-- [ ] Web version
-
----
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-flutter test
-
-# Run tests with coverage
-flutter test --coverage
-
-# Run integration tests
-flutter test integration_test
-
-# Generate coverage report
-genhtml coverage/lcov.info -o coverage/html
-```
-
----
-
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
@@ -295,15 +216,7 @@ flutter run
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/mixin27/mmcalendar/blob/main/LICENSE) file for details.
-
----
-
-## 👥 Authors
-
-- **Kyaw Zayar Tun** - *Initial work* - [@mixin27](https://github.com/mixin27)
-
-See also the list of [contributors](https://github.com/mixin27/mmcalendar/contributors) who participated in this project.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -320,7 +233,7 @@ See also the list of [contributors](https://github.com/mixin27/mmcalendar/contri
 
 - 📧 Email: [kyawzayartun.contact@gmail.com](kyawzayartun.contact@gmail.com)
 - 🐛 Issues: [GitHub Issues](https://github.com/mixin27/mmcalendar/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/mixin27/mmcalendar/discussions)
+<!-- - 💬 Discussions: [GitHub Discussions](https://github.com/mixin27/mmcalendar/discussions) -->
 <!-- - 📱 Facebook: [Your Facebook Page](https://facebook.com/yourpage) -->
 
 ---

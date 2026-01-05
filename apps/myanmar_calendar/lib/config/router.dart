@@ -55,8 +55,22 @@ final GoRouter router = GoRouter(
                 GoRoute(
                   path: RoutePaths.dayDetails,
                   builder: (context, state) {
-                    final data = state.extra as Map<String, dynamic>;
-                    final date = data["date"] as DateTime;
+                    // Try to get date from extra first (for programmatic navigation)
+                    DateTime? date;
+                    if (state.extra != null) {
+                      final data = state.extra as Map<String, dynamic>;
+                      date = data["date"] as DateTime;
+                    } else {
+                      // Fall back to query parameters for web deep links
+                      final dateStr = state.uri.queryParameters['date'];
+                      if (dateStr != null) {
+                        date = DateTime.tryParse(dateStr);
+                      }
+                    }
+
+                    // If no date provided, default to today
+                    date ??= DateTime.now();
+
                     return DayDetailsPage(date: date);
                   },
                 ),

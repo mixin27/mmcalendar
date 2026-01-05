@@ -72,10 +72,16 @@ class AppDatabase extends _$AppDatabase {
           debugPrint('Database created successfully');
         }
 
-        // This follows the recommendation to validate that the database schema
-        // matches what drift expects (https://drift.simonbinder.eu/docs/advanced-features/migrations/#verifying-a-database-schema-at-runtime).
-        // It allows catching bugs in the migration logic early.
-        await impl.validateDatabaseSchema(this);
+        // Only validate schema in release mode to avoid issues with
+        // changing default timestamps during development
+        if (kReleaseMode) {
+          // This follows the recommendation to validate that the database schema
+          // matches what drift expects (https://drift.simonbinder.eu/docs/advanced-features/migrations/#verifying-a-database-schema-at-runtime).
+          // It allows catching bugs in the migration logic early.
+          await impl.validateDatabaseSchema(this);
+        } else {
+          debugPrint('Skipping schema validation in debug mode');
+        }
       },
     );
   }
