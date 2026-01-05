@@ -662,9 +662,11 @@ class _CalendarHomePageState extends State<CalendarHomePage>
       context.read<CalendarBloc>().add(SelectDateEvent(date));
     } else {
       // On small screens, navigate to full-page details
-      GoRouter.of(
-        context,
-      ).go("/home/${RoutePaths.dayDetails}", extra: {"date": date});
+      final dateStr = date.toIso8601String();
+      GoRouter.of(context).go(
+        "/home/${RoutePaths.dayDetails}?date=$dateStr",
+        extra: {"date": date},
+      );
     }
   }
 
