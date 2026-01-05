@@ -133,12 +133,25 @@ class ScaffoldWithNavigationRail extends StatelessWidget {
             leading: Column(
               children: [
                 const SizedBox(height: 8),
-                Image.asset('assets/images/logo.png', width: 48, height: 48),
-                const SizedBox(height: 8),
-                Text(
-                  'Myanmar Calendar',
-                  style: Theme.of(context).textTheme.bodyLarge,
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(10),
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/logo.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
+                if (extended) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Myanmar Calendar',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ],
                 // FloatingActionButton(
                 //   elevation: 0,
                 //   onPressed: () {}, // Can be used for a primary action
