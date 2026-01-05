@@ -1,0 +1,59 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - 'screenshots/**'
+      - '.gitignore'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Code Generation
+        run: |
+          # Run build_runner for all packages in the workspace that have build_runner as a dependency
+          git ls-files '**/pubspec.yaml' | xargs grep -l "build_runner" | xargs -I {} dirname {} | while read dir; do
+            echo "Building in $dir..."
+            (cd "$dir" && dart run build_runner build --delete-conflicting-outputs)
+          done
+
+      - name: Copy firebase_options file
+        run: cp apps/myanmar_calendar/lib/firebase_options.dart.example apps/myanmar_calendar/lib/firebase_options.dart
+
+      # - name: Create _redirects file
+      #   run: echo "/*    /index.html   200" > apps/myanmar_calendar/web/_redirects
+
+      - name: Build Web
+        run: |
+          cd apps/myanmar_calendar
+          flutter build web --release --base-href "/"
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v2.1
+        with:
+          publish-dir: './apps/myanmar_calendar/build/web'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
