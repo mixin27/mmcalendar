@@ -9,7 +9,6 @@ import 'package:core/core.dart';
 import 'package:localizations/localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
-import 'package:telegram_web/telegram_web.dart';
 
 import 'config/di_setup.dart';
 import 'config/router.dart';
@@ -96,25 +95,14 @@ class _AppContentState extends State<_AppContent> {
             : null;
 
         // Sync with Telegram theme if available
-        final telegramBgColor = getIt<TelegramService>()
-            .getThemeBackgroundColor();
-        final telegramColor = Color(
-          int.parse(telegramBgColor.replaceFirst('#', '0xff')),
-        );
+        // final telegramBgColor = getIt<TelegramService>()
+        //     .getThemeBackgroundColor();
+        // final telegramColor = Color(
+        //   int.parse(telegramBgColor.replaceFirst('#', '0xff')),
+        // );
 
-        final lightTheme = AppTheme.lightTheme(customColors: themeColors)
-            .copyWith(
-              scaffoldBackgroundColor: telegramBgColor != '#ffffff'
-                  ? telegramColor
-                  : null,
-            );
-
-        final darkTheme = AppTheme.darkTheme(customColors: themeColors)
-            .copyWith(
-              scaffoldBackgroundColor: telegramBgColor != '#ffffff'
-                  ? telegramColor
-                  : null,
-            );
+        final lightTheme = AppTheme.lightTheme(customColors: themeColors);
+        final darkTheme = AppTheme.darkTheme(customColors: themeColors);
 
         final locale = settingsState is SettingsLoaded
             ? Locale(settingsState.settings.appLanguage)

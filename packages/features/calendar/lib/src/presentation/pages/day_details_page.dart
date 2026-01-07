@@ -8,6 +8,7 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:localizations/localizations.dart';
 import 'package:settings/settings.dart';
+import 'package:telegram_web/telegram_web.dart';
 
 import '../../di/calendar_injection.dart';
 
@@ -325,7 +326,21 @@ class _DayDetailsPageState extends State<DayDetailsPage>
 
             return IconButton(
               icon: const Icon(Icons.share_outlined),
-              onPressed: () => _shareDate(showShanCalendar),
+              onPressed: () {
+                final telegramService = getIt<TelegramService>();
+                final detailedShareText = _formatDetailedShareText(
+                  context,
+                  _completeDate,
+                  showShanCalendar,
+                );
+                if (telegramService.isTelegram) {
+                  telegramService.hapticImpact('medium');
+                  telegramService.sendData(detailedShareText);
+                  telegramService.showAlert('Shared Today Data');
+                } else {
+                  _shareDate(detailedShareText);
+                }
+              },
               tooltip: 'Share',
             );
           },
@@ -1527,14 +1542,9 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     }
   }
 
-  void _shareDate([bool showShanCalendar = true]) async {
+  void _shareDate(String text) async {
     try {
       HapticFeedback.lightImpact();
-      final text = _formatDetailedShareText(
-        context,
-        _completeDate,
-        showShanCalendar,
-      );
       await share(
         title: "Share Day",
         subject: "Please check myanmar calendar",
