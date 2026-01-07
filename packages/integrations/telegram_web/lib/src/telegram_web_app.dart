@@ -7,17 +7,17 @@ import 'dart:js_interop';
 extension type TelegramWebApp(JSObject _) implements JSObject {
   external WebAppInitData get initDataUnsafe;
   external ThemeParams get themeParams;
-  external String get version;
-  external String get platform;
-  external String get colorScheme;
-  external bool get isExpanded;
-  external double get viewportHeight;
-  external double get viewportStableHeight;
-  external MainButton get mainButton;
-  external BackButton get backButton;
-  external HapticFeedback get hapticFeedback;
-  external CloudStorage get cloudStorage;
-  external BiometricManager get biometricManager;
+  external String? get version;
+  external String? get platform;
+  external String? get colorScheme;
+  external bool? get isExpanded;
+  external double? get viewportHeight;
+  external double? get viewportStableHeight;
+  external MainButton? get mainButton;
+  external BackButton? get backButton;
+  external HapticFeedback? get hapticFeedback;
+  external CloudStorage? get cloudStorage;
+  external BiometricManager? get biometricManager;
 
   external void ready();
   external void expand();
@@ -193,4 +193,4 @@ extension type MainButtonParams._(JSObject _) implements JSObject {
 
 // Access the global Telegram.WebApp object
 @JS('Telegram.WebApp')
-external TelegramWebApp get telegramWebApp;
+external TelegramWebApp? get telegramWebApp;
