@@ -325,7 +325,14 @@ class _DayDetailsPageState extends State<DayDetailsPage>
 
             return IconButton(
               icon: const Icon(Icons.share_outlined),
-              onPressed: () => _shareDate(showShanCalendar),
+              onPressed: () {
+                final detailedShareText = _formatDetailedShareText(
+                  context,
+                  _completeDate,
+                  showShanCalendar,
+                );
+                _shareDate(detailedShareText);
+              },
               tooltip: 'Share',
             );
           },
@@ -1527,14 +1534,9 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     }
   }
 
-  void _shareDate([bool showShanCalendar = true]) async {
+  void _shareDate(String text) async {
     try {
       HapticFeedback.lightImpact();
-      final text = _formatDetailedShareText(
-        context,
-        _completeDate,
-        showShanCalendar,
-      );
       await share(
         title: "Share Day",
         subject: "Please check myanmar calendar",

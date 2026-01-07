@@ -4,9 +4,6 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:localizations/localizations.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:telegram_web/telegram_web.dart';
-
-import '../../di/calendar_injection.dart';
 
 class CalendarAppBar extends StatelessWidget {
   final Language language;
@@ -105,27 +102,19 @@ class CalendarAppBar extends StatelessWidget {
               ),
               icon: const Icon(Icons.share_outlined, size: 22),
               onPressed: () {
-                final telegramService = getIt<TelegramService>();
                 final today = DateTime.now();
                 final completeDate = MyanmarCalendar.getCompleteDate(today);
 
-                final String detailedShareText = _formatDetailedShareText(
+                final detailedShareText = _formatDetailedShareText(
                   context,
                   completeDate,
                 );
-
-                if (telegramService.isTelegram) {
-                  telegramService.hapticImpact('medium');
-                  telegramService.sendData(detailedShareText);
-                  telegramService.showAlert('Shared Today Data');
-                } else {
-                  SharePlus.instance.share(
-                    ShareParams(
-                      text: detailedShareText,
-                      subject: AppLocalizations.of(context)?.today ?? 'Today',
-                    ),
-                  );
-                }
+                SharePlus.instance.share(
+                  ShareParams(
+                    text: detailedShareText,
+                    subject: AppLocalizations.of(context)?.today ?? 'Today',
+                  ),
+                );
               },
               tooltip: l10n?.today ?? 'Share Today',
             ),
