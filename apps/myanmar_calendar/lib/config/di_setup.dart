@@ -20,6 +20,11 @@ Future<void> initializeDependencies() async {
   final database = AppDatabase();
   getIt.registerSingleton<AppDatabase>(database);
 
+  // Initialize Telegram Service (always registered, uses stub on non-web)
+  final telegramService = TelegramServiceImpl();
+  telegramService.initialize();
+  getIt.registerSingleton<TelegramService>(telegramService);
+
   // Firebase Services (moved to separate setup function)
   if (!kIsWeb) {
     await setupFirebaseServicesDependencies(getIt);
@@ -34,10 +39,6 @@ Future<void> initializeDependencies() async {
       '  Crashlytics enabled: ${crashlyticsService.config.enableCollection}',
     );
   } else {
-    final telegramService = TelegramService();
-    telegramService.initialize();
-    getIt.registerSingleton<TelegramService>(telegramService);
-
     debugPrint('⚠️ Registering mock Firebase services on Web');
     getIt.registerSingleton<AnalyticsService>(MockAnalyticsService());
     getIt.registerSingleton<CrashlyticsService>(MockCrashlyticsService());
