@@ -23,6 +23,7 @@ workspace:
   - packages/features/home_widgets
   - packages/features/firebase_analytics_app
   - apps/myanmar_calendar
+  - packages/integrations/telegram_web
 
 # Workspace-level dependencies (shared across all packages)
 dependencies:

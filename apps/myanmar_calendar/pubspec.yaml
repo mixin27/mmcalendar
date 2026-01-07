@@ -38,6 +38,8 @@ dependencies:
     path: ../../packages/features/home_widgets
   firebase_analytics_app:
     path: ../../packages/features/firebase_analytics_app
+  telegram_web:
+    path: ../../packages/integrations/telegram_web
 
   # Myanmar calendar
   flutter_mmcalendar: ^3.2.3

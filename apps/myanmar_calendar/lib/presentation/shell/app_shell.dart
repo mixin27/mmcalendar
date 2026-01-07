@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:localizations/localizations.dart';
-import 'package:mmcalendar/config/di_setup.dart';
+import 'package:telegram_web/telegram_web.dart';
 
-import '../../telegram/telegram_service.dart';
+import '../../config/di_setup.dart';
 
 class AppShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -12,6 +12,7 @@ class AppShell extends StatelessWidget {
     : super(key: key ?? const ValueKey('ScaffoldWithNestedNavigation'));
 
   void _goBranch(int index) {
+    getIt<TelegramService>().hapticSelectionChanged();
     navigationShell.goBranch(
       index,
       initialLocation: index == navigationShell.currentIndex,

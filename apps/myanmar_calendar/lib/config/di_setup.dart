@@ -8,8 +8,8 @@ import 'package:data/data.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
+import 'package:telegram_web/telegram_web.dart';
 
-import '../telegram/telegram_service.dart';
 import 'web_mocks.dart';
 
 final getIt = GetIt.instance;
@@ -19,6 +19,11 @@ Future<void> initializeDependencies() async {
   // Initialize database
   final database = AppDatabase();
   getIt.registerSingleton<AppDatabase>(database);
+
+  // Initialize Telegram Service (always registered, uses stub on non-web)
+  final telegramService = TelegramServiceImpl();
+  telegramService.initialize();
+  getIt.registerSingleton<TelegramService>(telegramService);
 
   // Firebase Services (moved to separate setup function)
   if (!kIsWeb) {
@@ -34,10 +39,6 @@ Future<void> initializeDependencies() async {
       '  Crashlytics enabled: ${crashlyticsService.config.enableCollection}',
     );
   } else {
-    final telegramService = TelegramService();
-    telegramService.initialize();
-    getIt.registerSingleton<TelegramService>(telegramService);
-
     debugPrint('⚠️ Registering mock Firebase services on Web');
     getIt.registerSingleton<AnalyticsService>(MockAnalyticsService());
     getIt.registerSingleton<CrashlyticsService>(MockCrashlyticsService());
