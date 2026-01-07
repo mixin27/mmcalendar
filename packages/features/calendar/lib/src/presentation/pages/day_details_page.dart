@@ -317,10 +317,18 @@ class _DayDetailsPageState extends State<DayDetailsPage>
           tooltip: 'Next Day',
         ),
         // Share button
-        IconButton(
-          icon: const Icon(Icons.share_outlined),
-          onPressed: _shareDate,
-          tooltip: 'Share',
+        BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, settingsState) {
+            final showShanCalendar = settingsState is SettingsLoaded
+                ? settingsState.settings.showShanCalendar
+                : true;
+
+            return IconButton(
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => _shareDate(showShanCalendar),
+              tooltip: 'Share',
+            );
+          },
         ),
       ],
     );
@@ -1519,24 +1527,14 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     }
   }
 
-  void _shareDate() async {
+  void _shareDate([bool showShanCalendar = true]) async {
     try {
       HapticFeedback.lightImpact();
-      final text =
-          '''
-📅 ${_currentDate.format('EEEE, MMMM d, yyyy')}
-
-🗓️ Myanmar Calendar:
-${_completeDate.formatMyanmar()}
-
-🌙 Moon Phase: ${TranslationService.getMoonPhaseName(_completeDate.moonPhase)}
-📆 Fortnight Day: ${_completeDate.fortnightDay}
-
-${_completeDate.hasHolidays ? '\n🎉 Holidays:\n${[..._completeDate.allHolidays, ..._completeDate.allAnniversaryDays].join('\n')}\n' : ''}
-✨ Astrological Info:
-${_completeDate.sabbath.isNotEmpty ? '• Sabbath: ${_completeDate.sabbath}\n' : ''}${_completeDate.yatyaza.isNotEmpty ? '• Yatyaza: ${_completeDate.yatyaza}\n' : ''}${_completeDate.pyathada.isNotEmpty ? '• Pyathada: ${_completeDate.pyathada}\n' : ''}
-Shared from Myanmar Calendar App
-''';
+      final text = _formatDetailedShareText(
+        context,
+        _completeDate,
+        showShanCalendar,
+      );
       await share(
         title: "Share Day",
         subject: "Please check myanmar calendar",
@@ -1576,6 +1574,104 @@ Shared from Myanmar Calendar App
           context,
         ).showSnackBar(const SnackBar(content: Text('Failed to share')));
       }
+    }
+  }
+
+  String _formatDetailedShareText(
+    BuildContext context,
+    CompleteDate completeDate, [
+    bool showShanCalendar = true,
+  ]) {
+    final buffer = StringBuffer();
+    final l10n = AppLocalizations.of(context);
+
+    // Date Header
+    buffer.writeln('📅 ${_getTodayString()}');
+    buffer.writeln('🇲🇲 ${_getTodayMyanmarString(showShanCalendar)}');
+    buffer.writeln('');
+
+    // Holidays
+    if (completeDate.hasHolidays || completeDate.hasAnniversaryDays) {
+      buffer.writeln('🎊 ${l10n?.holidays ?? "Holidays"}:');
+      for (final h in completeDate.allHolidays) {
+        buffer.writeln('• $h');
+      }
+      for (final h in completeDate.allAnniversaryDays) {
+        buffer.writeln('• $h');
+      }
+      buffer.writeln('');
+    }
+
+    // Buddhist info
+    buffer.writeln(
+      '☸️ ${l10n?.sasana_year ?? "Sasana Year"}: ${translateNumbers(completeDate.sasanaYear.toString())}',
+    );
+    buffer.writeln(
+      '☀️ ${l10n?.buddhist_era ?? "Buddhist Era"}: ${translateNumbers((DateTime.now().year + 543).toString())}',
+    );
+    buffer.writeln('');
+
+    // Moon Phase & Weekday
+    buffer.writeln(
+      '🌙 ${l10n?.moon_phase ?? "Moon Phase"}: ${TranslationService.getMoonPhaseName(completeDate.moonPhase)}',
+    );
+    buffer.writeln(
+      '🗓️ ${l10n?.weekday ?? "Weekday"}: ${TranslationService.getWeekdayName(completeDate.weekday)}',
+    );
+    buffer.writeln('');
+
+    // Astrology
+    buffer.writeln(
+      '✨ ${l10n?.astrological_information ?? "Astrological Info"}:',
+    );
+    if (completeDate.sabbath.isNotEmpty) {
+      buffer.writeln(
+        '• Sabbath: ${TranslationService.translate(completeDate.sabbath)}',
+      );
+    }
+    if (completeDate.yatyaza.isNotEmpty) {
+      buffer.writeln(
+        '• Yatyaza: ${TranslationService.translate(completeDate.yatyaza)}',
+      );
+    }
+    if (completeDate.pyathada.isNotEmpty) {
+      buffer.writeln(
+        '• Pyathada: ${TranslationService.translate(completeDate.pyathada)}',
+      );
+    }
+    if (completeDate.nagahle.isNotEmpty) {
+      buffer.writeln(
+        '• ${l10n?.nagahle ?? "Nagahle"}: ${TranslationService.translate(completeDate.nagahle)}',
+      );
+    }
+    if (completeDate.mahabote.isNotEmpty) {
+      buffer.writeln(
+        '• Mahabote: ${TranslationService.translate(completeDate.mahabote)}',
+      );
+    }
+
+    if (completeDate.astrologicalDays.isNotEmpty) {
+      buffer.writeln('🌟 ${l10n?.special_days ?? "Special Days"}:');
+      for (final day in completeDate.astrologicalDays) {
+        buffer.writeln('• ${TranslationService.translate(day)}');
+      }
+    }
+
+    return buffer.toString().trim();
+  }
+
+  String _getTodayString() {
+    final now = DateTime.now();
+    return now.format('EEEE, MMMM d');
+  }
+
+  String _getTodayMyanmarString([bool showShanCalendar = true]) {
+    final myanmarDateTime = MyanmarCalendar.today();
+
+    if (showShanCalendar && MyanmarCalendar.currentLanguage == Language.shan) {
+      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")} ${TranslationService.translate('Yat')}';
+    } else {
+      return "${myanmarDateTime.formatMyanmar()} ${TranslationService.translate('Yat')}";
     }
   }
 

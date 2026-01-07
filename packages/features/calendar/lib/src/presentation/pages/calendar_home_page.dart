@@ -1,12 +1,12 @@
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:settings/settings.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:telegram_web/telegram_web.dart';
 
 import '../../di/calendar_injection.dart';
 import '../bloc/calendar_bloc.dart';
@@ -653,7 +653,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
 
     // Add subtle haptic feedback
-    HapticFeedback.lightImpact();
+    getIt<TelegramService>().hapticImpact('light');
 
     // Check if we're in large screen mode
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -672,7 +672,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   void _moveSelection(BuildContext context, DateTime date) {
     context.read<CalendarBloc>().add(SelectDateEvent(date));
-    HapticFeedback.selectionClick();
+    getIt<TelegramService>().hapticSelectionChanged();
   }
 
   void _showMonthYearPicker(BuildContext context, DateTime currentMonth) {

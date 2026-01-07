@@ -8,8 +8,8 @@ import 'package:data/data.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
+import 'package:telegram_web/telegram_web.dart';
 
-import '../telegram/telegram_service.dart';
 import 'web_mocks.dart';
 
 final getIt = GetIt.instance;

@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:localizations/localizations.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:telegram_web/telegram_web.dart';
+
+import '../../di/calendar_injection.dart';
 
 class CalendarAppBar extends StatelessWidget {
   final Language language;
@@ -17,6 +21,7 @@ class CalendarAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 44, 16, 16),
@@ -95,7 +100,39 @@ class CalendarAppBar extends StatelessWidget {
             const SizedBox(width: 8),
             IconButton.filledTonal(
               style: IconButton.styleFrom(
-                backgroundColor: context.colorScheme.secondaryContainer,
+                backgroundColor: context.colorScheme.tertiaryContainer,
+                foregroundColor: context.colorScheme.onTertiaryContainer,
+              ),
+              icon: const Icon(Icons.share_outlined, size: 22),
+              onPressed: () {
+                final telegramService = getIt<TelegramService>();
+                final today = DateTime.now();
+                final completeDate = MyanmarCalendar.getCompleteDate(today);
+
+                final String detailedShareText = _formatDetailedShareText(
+                  context,
+                  completeDate,
+                );
+
+                if (telegramService.isTelegram) {
+                  telegramService.hapticImpact('medium');
+                  telegramService.sendData(detailedShareText);
+                  telegramService.showAlert('Shared Today Data');
+                } else {
+                  SharePlus.instance.share(
+                    ShareParams(
+                      text: detailedShareText,
+                      subject: AppLocalizations.of(context)?.today ?? 'Today',
+                    ),
+                  );
+                }
+              },
+              tooltip: l10n?.today ?? 'Share Today',
+            ),
+            const SizedBox(width: 8),
+            IconButton.filledTonal(
+              style: IconButton.styleFrom(
+                backgroundColor: context.colorScheme.tertiaryContainer,
                 foregroundColor: context.colorScheme.onTertiaryContainer,
               ),
               icon: const Icon(Icons.settings_outlined, size: 22),
@@ -133,6 +170,88 @@ class CalendarAppBar extends StatelessWidget {
   // void _showSearch(BuildContext context) {
   //   showSearch(context: context, delegate: _CalendarSearchDelegate());
   // }
+
+  String _formatDetailedShareText(
+    BuildContext context,
+    CompleteDate completeDate,
+  ) {
+    final buffer = StringBuffer();
+    final l10n = AppLocalizations.of(context);
+
+    // Date Header
+    buffer.writeln('📅 ${_getTodayString()}');
+    buffer.writeln('🇲🇲 ${_getTodayMyanmarString(showShanCalendar)}');
+    buffer.writeln('');
+
+    // Holidays
+    if (completeDate.hasHolidays || completeDate.hasAnniversaryDays) {
+      buffer.writeln('🎊 ${l10n?.holidays ?? "Holidays"}:');
+      for (final h in completeDate.allHolidays) {
+        buffer.writeln('• $h');
+      }
+      for (final h in completeDate.allAnniversaryDays) {
+        buffer.writeln('• $h');
+      }
+      buffer.writeln('');
+    }
+
+    // Buddhist info
+    buffer.writeln(
+      '☸️ ${l10n?.sasana_year ?? "Sasana Year"}: ${translateNumbers(completeDate.sasanaYear.toString())}',
+    );
+    buffer.writeln(
+      '☀️ ${l10n?.buddhist_era ?? "Buddhist Era"}: ${translateNumbers((DateTime.now().year + 543).toString())}',
+    );
+    buffer.writeln('');
+
+    // Moon Phase & Weekday
+    buffer.writeln(
+      '🌙 ${l10n?.moon_phase ?? "Moon Phase"}: ${TranslationService.getMoonPhaseName(completeDate.moonPhase)}',
+    );
+    buffer.writeln(
+      '🗓️ ${l10n?.weekday ?? "Weekday"}: ${TranslationService.getWeekdayName(completeDate.weekday)}',
+    );
+    buffer.writeln('');
+
+    // Astrology
+    buffer.writeln(
+      '✨ ${l10n?.astrological_information ?? "Astrological Info"}:',
+    );
+    if (completeDate.sabbath.isNotEmpty) {
+      buffer.writeln(
+        '• Sabbath: ${TranslationService.translate(completeDate.sabbath)}',
+      );
+    }
+    if (completeDate.yatyaza.isNotEmpty) {
+      buffer.writeln(
+        '• Yatyaza: ${TranslationService.translate(completeDate.yatyaza)}',
+      );
+    }
+    if (completeDate.pyathada.isNotEmpty) {
+      buffer.writeln(
+        '• Pyathada: ${TranslationService.translate(completeDate.pyathada)}',
+      );
+    }
+    if (completeDate.nagahle.isNotEmpty) {
+      buffer.writeln(
+        '• ${l10n?.nagahle ?? "Nagahle"}: ${TranslationService.translate(completeDate.nagahle)}',
+      );
+    }
+    if (completeDate.mahabote.isNotEmpty) {
+      buffer.writeln(
+        '• Mahabote: ${TranslationService.translate(completeDate.mahabote)}',
+      );
+    }
+
+    if (completeDate.astrologicalDays.isNotEmpty) {
+      buffer.writeln('🌟 ${l10n?.special_days ?? "Special Days"}:');
+      for (final day in completeDate.astrologicalDays) {
+        buffer.writeln('• ${TranslationService.translate(day)}');
+      }
+    }
+
+    return buffer.toString().trim();
+  }
 
   // Helper methods
   // String _getGreeting() {

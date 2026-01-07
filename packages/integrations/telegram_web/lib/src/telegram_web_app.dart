@@ -15,6 +15,9 @@ extension type TelegramWebApp(JSObject _) implements JSObject {
   external double get viewportStableHeight;
   external MainButton get mainButton;
   external BackButton get backButton;
+  external HapticFeedback get hapticFeedback;
+  external CloudStorage get cloudStorage;
+  external BiometricManager get biometricManager;
 
   external void ready();
   external void expand();
@@ -23,6 +26,61 @@ extension type TelegramWebApp(JSObject _) implements JSObject {
   external void showConfirm(String message, JSFunction callback);
   external void showPopup(PopupParams params, JSFunction? callback);
   external void sendData(String data);
+}
+
+// Haptic Feedback
+@JS()
+extension type HapticFeedback(JSObject _) implements JSObject {
+  external void impactOccurred(
+    String style,
+  ); // light, medium, heavy, rigid, soft
+  external void notificationOccurred(String type); // error, success, warning
+  external void selectionChanged();
+}
+
+// Cloud Storage
+@JS()
+extension type CloudStorage(JSObject _) implements JSObject {
+  external void setItem(String key, String value, JSFunction? callback);
+  external void getItem(String key, JSFunction callback);
+  external void getItems(JSArray<JSString> keys, JSFunction callback);
+  external void removeItem(String key, JSFunction? callback);
+  external void removeItems(JSArray<JSString> keys, JSFunction? callback);
+  external void getKeys(JSFunction callback);
+}
+
+// Biometric Manager
+@JS()
+extension type BiometricManager(JSObject _) implements JSObject {
+  external bool get isInited;
+  external bool get isBiometricAvailable;
+  external String get biometricType;
+  external bool get isAccessRequested;
+  external bool get isAccessGranted;
+  external String get deviceToken;
+
+  external void init(JSFunction? callback);
+  external void requestAccess(
+    BiometricRequestParams params,
+    JSFunction? callback,
+  );
+  external void authenticate(
+    BiometricAuthenticateParams params,
+    JSFunction callback,
+  );
+  external void openSettings();
+}
+
+@JS()
+@anonymous
+extension type BiometricRequestParams._(JSObject _) implements JSObject {
+  external factory BiometricRequestParams({String? reason});
+}
+
+@JS()
+@anonymous
+extension type BiometricAuthenticateParams._(JSObject _) implements JSObject {
+  external factory BiometricAuthenticateParams({String? reason});
 }
 
 // WebApp Init Data
