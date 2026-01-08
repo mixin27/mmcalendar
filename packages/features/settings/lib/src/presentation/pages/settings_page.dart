@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_update_manager/app_update_manager.dart' as um;
 import 'package:core/core.dart';
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/foundation.dart';
@@ -545,6 +546,27 @@ class _SettingsContent extends StatelessWidget {
                     leading: const Icon(Icons.tag),
                     title: const Text('App Version'),
                     subtitle: Text(AppConstants.appVersion),
+                    trailing: (Platform.isAndroid || Platform.isIOS)
+                        ? IconButton(
+                            onPressed: () async {
+                              final updateFound =
+                                  await um.AppUpdateManager.checkAndShowUpdate(
+                                    context: context,
+                                  );
+
+                              if (!updateFound && context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Your app is up to date!'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.update),
+                            tooltip: 'Check for Updates',
+                          )
+                        : null,
                   ),
                   _SettingsTile(
                     title: 'Open Source Licenses',

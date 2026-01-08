@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_update_manager/app_update_manager.dart' as um;
 import 'package:data/data.dart';
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -29,6 +30,23 @@ void main() async {
     );
     yield LicenseEntryWithLineBreaks(<String>['google_fonts'], license);
   });
+
+  // Initialize
+  await um.AppUpdateManager.initialize(
+    config: um.UpdateConfig(
+      playStoreId: 'dev.mixin27.mmcalendar',
+      // appStoreId: 'YOUR_APP_STORE_ID', // Add this when available
+      enableAnalytics: true,
+      onAnalyticsEvent: (event, data) {
+        FirebaseService.analytics.logEvent(
+          name: 'app_update_${event.name}',
+          parameters: data?.cast<String, Object>(),
+        );
+      },
+      enableBackgroundCheck: !kIsWeb,
+      enableCaching: false,
+    ),
+  );
 
   // Initialize Firebase with consent settings
   await _initializeFirebaseWithConsent();
