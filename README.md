@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Myanmar Calendar Logo](assets/logo.png)
+![Myanmar Calendar Logo](screenshots/myanmar-calendar-featured-graphic.png)
 
 **A comprehensive Myanmar Calendar application with astrological information, date conversion, and beautiful UI**
 
