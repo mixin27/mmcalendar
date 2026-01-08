@@ -78,8 +78,8 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   void _loadEventsForCurrentDate() {
-    // Load all events - we'll filter by date in the UI
-    context.read<UserEventsBloc>().add(const LoadAllEvents());
+    // Load events for the current date specifically
+    context.read<UserEventsBloc>().add(LoadEventsByDate(_currentDate));
   }
 
   void _navigateToDay(DateTime newDate) {

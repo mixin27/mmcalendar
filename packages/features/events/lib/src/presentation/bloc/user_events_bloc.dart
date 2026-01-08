@@ -67,22 +67,18 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
   ) async {
     emit(const EventsLoading());
 
-    final now = DateTime.now();
-    final futureLimit = now.add(
-      const Duration(days: 90),
-    ); // Show 3 months ahead
+    final startDate = DateTime(2000);
+    final endDate = DateTime(2100);
 
     final result = await eventsRepository.getEventsByDateRange(
-      now,
-      futureLimit,
+      startDate,
+      endDate,
     );
 
     result.fold((failure) => emit(EventsError(failure)), (events) {
-      // Sort by date
+      // Sort by date and then time
       events.sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
-      emit(
-        EventsLoaded(events, hasMore: events.isNotEmpty, endDate: futureLimit),
-      );
+      emit(EventsLoaded(events, hasMore: false, endDate: endDate));
     });
   }
 
