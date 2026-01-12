@@ -11,6 +11,7 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:localizations/l10n/app_localizations.dart';
+import 'package:promo/promo.dart';
 
 import '../../di/settings_injection.dart';
 import '../../domain/entities/app_settings.dart';
@@ -20,7 +21,9 @@ import '../bloc/settings_state.dart';
 import '../widgets/leading_dot.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({super.key, this.appVersion});
+
+  final String? appVersion;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -71,7 +74,10 @@ class _SettingsPageState extends State<SettingsPage> {
           }
 
           if (state is SettingsLoaded) {
-            return _SettingsContent(settings: state.settings);
+            return _SettingsContent(
+              settings: state.settings,
+              appVersion: widget.appVersion,
+            );
           }
 
           return const SizedBox.shrink();
@@ -174,8 +180,9 @@ class _ErrorView extends StatelessWidget {
 /// Settings Content
 class _SettingsContent extends StatelessWidget {
   final AppSettingsEntity settings;
+  final String? appVersion;
 
-  const _SettingsContent({required this.settings});
+  const _SettingsContent({required this.settings, this.appVersion});
 
   @override
   Widget build(BuildContext context) {
@@ -545,7 +552,7 @@ class _SettingsContent extends StatelessWidget {
                   ListTile(
                     leading: const Icon(Icons.tag),
                     title: const Text('App Version'),
-                    subtitle: Text(AppConstants.appVersion),
+                    subtitle: Text(appVersion ?? AppConstants.appVersion),
                     trailing: !(kIsWeb || kIsWasm)
                         ? IconButton(
                             onPressed: () async {
@@ -582,6 +589,39 @@ class _SettingsContent extends StatelessWidget {
                       context,
                     ).go("${RoutePaths.settings}/${RoutePaths.privacyPolicy}"),
                   ),
+
+                  // Debug: Clear promo data
+                  if (kDebugMode)
+                    _SettingsTile(
+                      leading: const Icon(Icons.refresh, color: Colors.orange),
+                      title: 'Clear Promo Data (Debug)',
+                      subtitle: 'Reset onboarding & announcements',
+                      onTap: () async {
+                        try {
+                          final promoRepo = getIt<PromoRepository>();
+                          await promoRepo.clearAllData();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  '✅ Promo data cleared! Restart app to see onboarding.',
+                                ),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('❌ Error: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
                 ],
               ),
 

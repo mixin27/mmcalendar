@@ -40,6 +40,8 @@ dependencies:
     path: ../../packages/features/firebase_analytics_app
   telegram_web:
     path: ../../packages/integrations/telegram_web
+  promo:
+    path: ../../packages/features/promo
 
   # Myanmar calendar
   flutter_mmcalendar: ^3.2.3
@@ -77,6 +79,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.8.0
   injectable_generator: ^2.9.0
+  build_version: ^2.1.3
 
 flutter:
   uses-material-design: true

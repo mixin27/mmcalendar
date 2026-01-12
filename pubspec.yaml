@@ -24,6 +24,7 @@ workspace:
   - packages/features/firebase_analytics_app
   - apps/myanmar_calendar
   - packages/integrations/telegram_web
+  - packages/features/promo
 
 # Workspace-level dependencies (shared across all packages)
 dependencies:
