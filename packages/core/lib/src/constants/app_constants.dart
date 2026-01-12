@@ -1,8 +1,8 @@
 class AppConstants {
   // App Information
   static const String appName = 'Myanmar Calendar';
-  static const String appVersion = '2.1.3';
-  static const String appBuildNumber = '207';
+  static const String appVersion = '2.1.4';
+  static const String appBuildNumber = '208';
 
   // Spacing and sizing
   static const double paddingXSmall = 4.0;

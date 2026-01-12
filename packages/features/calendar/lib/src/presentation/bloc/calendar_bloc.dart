@@ -94,7 +94,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
 
     final calendarMonth = result.fold((_) => null, (m) => m)!;
-    // final eventsByDate = await _loadEventsForMonth(calendarMonth);
 
     emit(
       CalendarLoaded(
@@ -108,38 +107,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     // Fire event to event bus
     AppEventBus.fire(MonthChangedEvent(event.month));
   }
-
-  // Future<Map<DateTime, List<Event>>> _loadEventsForMonth(
-  //   CalendarMonth month,
-  // ) async {
-  //   // Get events for the month
-  //   final startDate = month.gridDates.first.western.toDateTime();
-  //   final endDate = month.gridDates.last.western.toDateTime();
-
-  //   final eventsResult = await getEventsByDateRange(
-  //     GetEventsByDateRangeParams(startDate, endDate),
-  //   );
-
-  //   // Group events by date
-  //   final eventsByDate = <DateTime, List<Event>>{};
-  //   eventsResult.fold(
-  //     (failure) {
-  //       // If events fail to load, continue with empty events
-  //     },
-  //     (events) {
-  //       log('[CalendarBloc]: retrivedEvents: ${events.length}');
-  //       for (final event in events) {
-  //         final dateKey = DateTime(
-  //           event.eventDate.year,
-  //           event.eventDate.month,
-  //           event.eventDate.day,
-  //         );
-  //         eventsByDate[dateKey] = [...(eventsByDate[dateKey] ?? []), event];
-  //       }
-  //     },
-  //   );
-  //   return eventsByDate;
-  // }
 
   Future<void> _onNavigateToNextMonth(
     NavigateToNextMonth event,
@@ -162,7 +129,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
 
     final calendarMonth = result.fold((_) => null, (m) => m)!;
-    // final eventsByDate = await _loadEventsForMonth(calendarMonth);
 
     emit(
       CalendarLoaded(
@@ -201,7 +167,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
 
     final calendarMonth = result.fold((_) => null, (m) => m)!;
-    // final eventsByDate = await _loadEventsForMonth(calendarMonth);
 
     emit(
       CalendarLoaded(
@@ -237,7 +202,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
 
     final calendarMonth = result.fold((_) => null, (m) => m)!;
-    // final eventsByDate = await _loadEventsForMonth(calendarMonth);
 
     emit(
       CalendarLoaded(

@@ -28,6 +28,7 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
   final SmartNotificationScheduler smartScheduler;
 
   StreamSubscription? _eventsSubscription;
+  StreamSubscription<MonthChangedEvent>? _monthChangedSubscription;
 
   UserEventsBloc({
     required this.getEventsByDate,
@@ -59,16 +60,38 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     on<StartWatchingEvents>(_onStartWatchingEvents);
     on<StartWatchingEventsByDateRange>(_onStartWatchingEventsByDateRange);
     on<StopWatchingEvents>(_onStopWatchingEvents);
+
+    _subscribeToEvents();
   }
 
+  void _subscribeToEvents() {
+    _monthChangedSubscription = AppEventBus.on<MonthChangedEvent>().listen((
+      event,
+    ) {
+      final month = event.month;
+      // Load events for the month (include a few days buffer for grid)
+      final startOfMonth = DateTime(month.year, month.month, 1);
+      final endOfMonth = DateTime(month.year, month.month + 1, 0);
+
+      // Add a buffer for grid display (some days from prev/next month)
+      final startDate = startOfMonth.subtract(const Duration(days: 7));
+      final endDate = endOfMonth.add(const Duration(days: 7));
+
+      add(LoadEventsByDateRange(startDate, endDate));
+    });
+  }
+
+  // ...
   Future<void> _onLoadAllEvents(
     LoadAllEvents event,
     Emitter<UserEventsState> emit,
   ) async {
     emit(const EventsLoading());
 
-    final startDate = DateTime(2000);
-    final endDate = DateTime(2100);
+    final now = DateTime.now();
+    // Load past 30 days and future 90 days initially
+    final startDate = now.subtract(const Duration(days: 30));
+    final endDate = now.add(const Duration(days: 90));
 
     final result = await eventsRepository.getEventsByDateRange(
       startDate,
@@ -78,7 +101,7 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     result.fold((failure) => emit(EventsError(failure)), (events) {
       // Sort by date and then time
       events.sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
-      emit(EventsLoaded(events, hasMore: false, endDate: endDate));
+      emit(EventsLoaded(events, hasMore: true, endDate: endDate));
     });
   }
 
@@ -107,7 +130,7 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
         EventsLoaded(
           allEvents,
           isWatching: currentState.isWatching,
-          hasMore: newEvents.isNotEmpty,
+          hasMore: endDate.year < 2100,
           endDate: endDate,
         ),
       );
@@ -132,16 +155,22 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     LoadEventsByDateRange event,
     Emitter<UserEventsState> emit,
   ) async {
+    // log('UserEventsBloc: Loading events from ${event.startDate} to ${event.endDate}');
     emit(const EventsLoading());
 
     final result = await getEventsByDateRange(
       GetEventsByDateRangeParams(event.startDate, event.endDate),
     );
 
-    result.fold(
-      (failure) => emit(EventsError(failure)),
-      (events) => emit(EventsLoaded(events)),
-    );
+    result.fold((failure) => emit(EventsError(failure)), (events) {
+      // Deduplicate using Set (Event extends Equatable)
+      // This handles exact duplicates (same ID, same date/time)
+      final uniqueEvents = events.toSet().toList();
+      // Sort by date and time
+      uniqueEvents.sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
+
+      emit(EventsLoaded(uniqueEvents));
+    });
   }
 
   Future<void> _onLoadUpcomingEvents(
@@ -413,6 +442,7 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
   @override
   Future<void> close() {
     _eventsSubscription?.cancel();
+    _monthChangedSubscription?.cancel();
     return super.close();
   }
 }

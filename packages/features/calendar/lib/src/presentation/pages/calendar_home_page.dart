@@ -663,10 +663,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     } else {
       // On small screens, navigate to full-page details
       final dateStr = date.toIso8601String();
-      GoRouter.of(context).go(
-        "/home/${RoutePaths.dayDetails}?date=$dateStr",
-        extra: {"date": date},
-      );
+      GoRouter.of(context).go("/home/${RoutePaths.dayDetails}?date=$dateStr");
     }
   }
 
