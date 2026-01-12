@@ -546,7 +546,7 @@ class _SettingsContent extends StatelessWidget {
                     leading: const Icon(Icons.tag),
                     title: const Text('App Version'),
                     subtitle: Text(AppConstants.appVersion),
-                    trailing: (Platform.isAndroid || Platform.isIOS)
+                    trailing: !(kIsWeb || kIsWasm)
                         ? IconButton(
                             onPressed: () async {
                               final updateFound =
