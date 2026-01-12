@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:promo/promo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -23,6 +24,9 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
+
+  // Enable debug mode for promo carousel
+  PromoCarousel.debugMode = kDebugMode;
 
   LicenseRegistry.addLicense(() async* {
     final String license = await rootBundle.loadString(

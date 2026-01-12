@@ -20,6 +20,8 @@ dependencies:
     path: ../../localizations
   firebase_analytics_app:
     path: ../firebase_analytics_app
+  promo:
+    path: ../promo
 
   home_widgets:
     path: ../home_widgets

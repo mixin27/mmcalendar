@@ -6,7 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:data/data.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:views/views.dart';
 import 'package:telegram_web/telegram_web.dart';
 
@@ -19,6 +21,10 @@ Future<void> initializeDependencies() async {
   // Initialize database
   final database = AppDatabase();
   getIt.registerSingleton<AppDatabase>(database);
+
+  // Initialize SharedPreferences
+  final sharedPreferences = await SharedPreferences.getInstance();
+  getIt.registerSingleton<SharedPreferences>(sharedPreferences);
 
   // Initialize Telegram Service (always registered, uses stub on non-web)
   final telegramService = TelegramServiceImpl();
@@ -51,6 +57,7 @@ Future<void> initializeDependencies() async {
   await initConverterDependencies();
   await initEventsDependencies();
   await initHomeWidgetsDependencies();
+  await initializePromoDependencies();
 
   // Initialize notification scheduler
   final scheduler = getIt<SmartNotificationScheduler>();
