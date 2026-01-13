@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "Launch Myanmar Calendar App",
+            "request": "launch",
+            "type": "dart",
+            "program": "apps/myanmar_calendar/lib/main.dart",
+        }
+    ]
+}
