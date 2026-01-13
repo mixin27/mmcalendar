@@ -9,6 +9,7 @@ on:
       - 'LICENSE'
       - 'screenshots/**'
       - '.gitignore'
+      - '.vscode/**'
 
 jobs:
   build-and-deploy:
