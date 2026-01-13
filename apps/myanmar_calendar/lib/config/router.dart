@@ -196,23 +196,53 @@ final GoRouter router = GoRouter(
             GoRoute(
               path: RoutePaths.settings,
               builder: (context, state) {
-                final version = appVersion();
-                return SettingsPage(appVersion: version);
+                return const SettingsPage();
               },
               routes: [
+                GoRoute(
+                  path: RoutePaths.themeSettings,
+                  builder: (context, state) => const SettingsAppearancePage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.languageSettings,
+                  builder: (context, state) => const SettingsLanguagePage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.displayPreferences,
+                  builder: (context, state) =>
+                      const SettingsDisplayPreferencesPage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.calendarConfig,
+                  builder: (context, state) =>
+                      const SettingsCalendarConfigurationPage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.privacyAndData,
+                  builder: (context, state) => const SettingsPrivacyDataPage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.about,
+                  builder: (context, state) {
+                    final version = appVersion();
+                    return SettingsAboutPage(appVersion: version);
+                  },
+                  routes: [
+                    GoRoute(
+                      path: RoutePaths.privacyPolicy,
+                      builder: (context, state) => const PrivacyPolicyPage(
+                        title: "Privacy policy",
+                        message: "App privacy & policy contents will be here.",
+                      ),
+                    ),
+                  ],
+                ),
                 GoRoute(
                   path: RoutePaths.widgets,
                   builder: (context, state) => BlocProvider(
                     create: (context) =>
                         getIt<WidgetBloc>()..add(const LoadWidgetConfig()),
                     child: const WidgetSettingsPage(),
-                  ),
-                ),
-                GoRoute(
-                  path: RoutePaths.privacyPolicy,
-                  builder: (context, state) => const PrivacyPolicyPage(
-                    title: "Privacy policy",
-                    message: "App privacy & policy contents will be here.",
                   ),
                 ),
               ],

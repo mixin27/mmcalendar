@@ -24,6 +24,7 @@ class RoutePaths {
 
   // Settings Routes
   static const String widgets = 'widgets';
+  static const String privacyAndData = 'privacy-data';
   static const String privacyPolicy = 'privacy-policy';
   static const String languageSettings = 'language';
   static const String themeSettings = 'theme';

@@ -39,6 +39,9 @@ export 'src/utils/translate_numbers.dart';
 export 'src/utils/share.dart';
 export 'src/utils/responsive_utils.dart';
 
+// Widgets
+export 'src/widgets/section_header.dart';
+export 'src/widgets/settings_list_tile.dart';
 export 'src/widgets/moon_phase.dart';
 export 'src/widgets/markdown_render.dart';
 export 'src/widgets/expandable_section.dart';
