@@ -10,6 +10,7 @@ import 'package:localizations/l10n/app_localizations.dart';
 import 'package:settings/settings.dart';
 
 import '../../di/settings_injection.dart';
+import '../widgets/reset_button.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -190,6 +191,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   onTap: () =>
                       GoRouter.of(context).go('/settings/${RoutePaths.about}'),
                 ),
+
+                ResetButton(),
               ]),
             ),
           ),
