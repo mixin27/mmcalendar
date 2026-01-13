@@ -1,29 +1,23 @@
+<!--
+  Thanks for contributing!
+
+  Provide a description of your changes below and a general summary in the title
+
+  Please look at the following checklist to ensure that your PR can be accepted quickly:
+-->
+
 ## Description
-Brief description of what this PR does.
+
+<!--- Describe your changes in detail -->
 
 ## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
 
-## Related Issues
-Fixes #123
-Closes #456
+<!--- Put an `x` in all the boxes that apply: -->
 
-## Testing
-- [ ] Unit tests added/updated
-- [ ] Integration tests added/updated
-- [ ] Manual testing completed
-
-## Screenshots/Videos
-[If applicable]
-
-## Checklist
-- [ ] Code follows style guidelines
-- [ ] Self-review completed
-- [ ] Comments added for complex code
-- [ ] Documentation updated
-- [ ] No new warnings generated
-- [ ] Tests added and passing
-- [ ] Dependent changes merged
+- [ ] ✨ New feature (non-breaking change which adds functionality)
+- [ ] 🛠️ Bug fix (non-breaking change which fixes an issue)
+- [ ] ❌ Breaking change (fix or feature that would cause existing functionality to change)
+- [ ] 🧹 Code refactor
+- [ ] ✅ Build configuration change
+- [ ] 📝 Documentation
+- [ ] 🗑️ Chore

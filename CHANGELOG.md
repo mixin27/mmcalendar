@@ -1,3 +1,11 @@
+## [2.1.4+208]
+
+- Add promo carousel feature for introducing new features
+- Settings page and components restyled
+- Fixed event list view show all the recurring events between the default date range
+- Fixed event indicator rendering issue in date cell
+- Fixed platform error issue in settings page for web platform
+
 ## [2.1.3+207] - 2026-01-08
 
 ### ✨ Added
