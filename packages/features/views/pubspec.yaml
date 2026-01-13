@@ -5,7 +5,7 @@ publish_to: none
 resolution: workspace
 
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.10.0
   flutter: ">=1.17.0"
 
 dependencies:
@@ -26,7 +26,7 @@ dependencies:
     path: ../settings
 
   # Myanmar Calendar Package
-  flutter_mmcalendar: ^3.2.3
+  flutter_mmcalendar: ^3.2.5
 
   # State Management
   bloc: ^9.0.1

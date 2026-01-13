@@ -441,6 +441,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         sasanaYearType: config.sasanaYearType,
         calendarType: config.calendarType,
         gregorianStart: config.gregorianStart,
+        customHolidays: config.customHolidays,
       );
       MyanmarCalendar.clearCache();
       MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());

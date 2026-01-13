@@ -39,6 +39,7 @@ void callbackDispatcher() {
         sasanaYearType: 0,
         calendarType: 0,
         gregorianStart: 2361222,
+        customHolidays: [],
       );
 
       MyanmarCalendar.clearCache();

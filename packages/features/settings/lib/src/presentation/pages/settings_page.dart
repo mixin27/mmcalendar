@@ -959,9 +959,10 @@ class _SettingsContent extends StatelessWidget {
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
           ],
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'Hours',
-            hintText: '6.5',
+            hintText: (DateTime.now().timeZoneOffset.inMinutes.toDouble() / 60)
+                .toString(),
             helperText: 'e.g., 6.5 for Myanmar Time (UTC+6:30)',
             prefixIcon: Icon(Icons.schedule),
             border: OutlineInputBorder(),

@@ -7,7 +7,7 @@ homepage: https://github.com/mixin27/mmcalendar
 issue_tracker: https://github.com/mixin27/mmcalendar/issues
 
 environment:
-  sdk: ^3.9.0
+  sdk: ^3.10.0
 
 # Workspace configuration
 workspace:

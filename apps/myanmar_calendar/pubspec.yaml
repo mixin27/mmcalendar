@@ -5,7 +5,7 @@ version: 2.1.4+208
 resolution: workspace
 
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.10.0
 
 dependencies:
   flutter:
@@ -44,7 +44,7 @@ dependencies:
     path: ../../packages/features/promo
 
   # Myanmar calendar
-  flutter_mmcalendar: ^3.2.3
+  flutter_mmcalendar: ^3.2.5
 
   # State management
   bloc: ^9.0.1

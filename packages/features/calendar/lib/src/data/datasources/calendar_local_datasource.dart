@@ -109,6 +109,7 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
         sasanaYearType: config.sasanaYearType,
         calendarType: config.calendarType,
         gregorianStart: config.gregorianStart,
+        customHolidays: config.customHolidays,
       );
 
       MyanmarCalendar.clearCache();
