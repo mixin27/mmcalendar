@@ -13,7 +13,8 @@ import '../services/widget_update_service.dart';
 
 class WidgetLocalDataSource {
   static const String _configKey = 'widget_config';
-  static const String _updateTaskName = 'widget_update_task';
+  static const String _initialTaskName = 'widget_initial_task';
+  static const String _periodicTaskName = 'widget_periodic_task';
 
   final SharedPreferences sharedPreferences;
 
@@ -168,13 +169,15 @@ class WidgetLocalDataSource {
     debugPrint('✅ Widget config saved');
   }
 
-  /// Schedule periodic widget updates (daily at 12:01 AM)
+  /// Schedule periodic widget updates using a robust handoff pattern:
+  /// 1. Schedule a OneOffTask to reach the first 12:01 AM
+  /// 2. Once triggered, the background service will schedule the PeriodicTask
   Future<void> scheduleUpdates() async {
     try {
-      debugPrint('🔄 Scheduling widget updates...');
+      debugPrint('🔄 Scheduling initial widget update...');
 
       // Cancel any existing tasks
-      await Workmanager().cancelByUniqueName(_updateTaskName);
+      await cancelUpdates();
 
       // Calculate initial delay to reach 12:01 AM
       final now = DateTime.now();
@@ -184,11 +187,10 @@ class WidgetLocalDataSource {
       debugPrint('⏰ Initial update will run at: $tomorrow');
       debugPrint('⏱️ Initial delay: ${initialDelay.inMinutes} minutes');
 
-      // Schedule periodic task
-      await Workmanager().registerPeriodicTask(
-        _updateTaskName,
-        _updateTaskName,
-        frequency: const Duration(hours: 24),
+      // Schedule one-off task for the first execution
+      await Workmanager().registerOneOffTask(
+        _initialTaskName,
+        _initialTaskName,
         initialDelay: initialDelay,
         constraints: Constraints(
           networkType: NetworkType.notRequired,
@@ -197,21 +199,50 @@ class WidgetLocalDataSource {
           requiresDeviceIdle: false,
           requiresStorageNotLow: false,
         ),
-        existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
+        existingWorkPolicy: ExistingWorkPolicy.replace,
       );
 
-      debugPrint('✅ Widget updates scheduled successfully');
+      debugPrint('✅ Initial widget update scheduled successfully');
     } catch (e, stackTrace) {
-      debugPrint('❌ Failed to schedule updates: $e');
+      debugPrint('❌ Failed to schedule initial update: $e');
       debugPrint('Stack trace: $stackTrace');
       rethrow;
+    }
+  }
+
+  /// Schedule the 24h periodic task
+  /// This should be called from the background service after the initial task completes
+  Future<void> schedulePeriodicTask() async {
+    try {
+      debugPrint('🔄 Scheduling periodic 24h widget updates...');
+
+      await Workmanager().registerPeriodicTask(
+        _periodicTaskName,
+        _periodicTaskName,
+        frequency: const Duration(hours: 24),
+        // No initial delay here, as we want it to run every 24h from now
+        initialDelay: Duration.zero,
+        flexInterval: const Duration(minutes: 15),
+        constraints: Constraints(
+          networkType: NetworkType.notRequired,
+          requiresBatteryNotLow: false,
+          requiresCharging: false,
+          requiresDeviceIdle: false,
+          requiresStorageNotLow: false,
+        ),
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
+      );
+      debugPrint('✅ Periodic widget updates scheduled successfully');
+    } catch (e) {
+      debugPrint('❌ Failed to schedule periodic updates: $e');
     }
   }
 
   /// Cancel scheduled updates
   Future<void> cancelUpdates() async {
     try {
-      await Workmanager().cancelByUniqueName(_updateTaskName);
+      await Workmanager().cancelByUniqueName(_initialTaskName);
+      await Workmanager().cancelByUniqueName(_periodicTaskName);
       debugPrint('✅ Widget updates cancelled');
     } catch (e) {
       debugPrint('⚠️ Error cancelling updates: $e');

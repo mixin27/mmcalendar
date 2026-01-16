@@ -75,7 +75,7 @@ dependencies:
   # Firebase
   firebase_core: ^4.1.1
 
-  app_update_manager: ^1.0.0
+  app_update_manager: ^1.0.1
 
 dev_dependencies:
   flutter_test:

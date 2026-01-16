@@ -14,6 +14,12 @@ import '../datasources/widget_local_datasource.dart';
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     debugPrint('🔄 Background task started: $task');
+
+    // Define task names (must match WidgetLocalDataSource)
+    const initialTask = 'widget_initial_task';
+    // periodicTask is handled generally as the default case in executeTask if needed,
+    // but here we only need initialTask for the handoff logic.
+
     final startTime = DateTime.now();
 
     try {
@@ -59,6 +65,16 @@ void callbackDispatcher() {
 
       // Update widget
       await dataSource.updateWidgetWithConfig(widgetData, config);
+
+      // Robust Handoff Pattern:
+      // If this was the initial task triggered by the OneOffTask delay,
+      // now schedule the long-term 24h PeriodicTask.
+      if (task == initialTask) {
+        debugPrint(
+          '🎯 Initial update complete, handing off to periodic updates...',
+        );
+        await dataSource.schedulePeriodicTask();
+      }
 
       // Calculate execution time
       final duration = DateTime.now().difference(startTime);
