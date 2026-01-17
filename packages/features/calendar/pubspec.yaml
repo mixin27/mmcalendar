@@ -25,11 +25,13 @@ dependencies:
     path: ../events
   firebase_analytics_app:
     path: ../firebase_analytics_app
+  holidays:
+    path: ../holidays
   telegram_web:
     path: ../../integrations/telegram_web
 
   # Myanmar Calendar Package
-  flutter_mmcalendar: ^3.2.5
+  flutter_mmcalendar: ^3.2.7
 
   # Utilities
   intl: ^0.20.2

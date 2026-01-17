@@ -147,6 +147,48 @@ flutter build appbundle --release
 flutter build ios --release
 ```
 
+### Firebase Remote Config
+
+**Key:** - `holidays_config`
+
+**Value:** - JSON string
+
+Sample
+```json
+{
+    "customHolidays": [
+        {
+            "id": "my_anniversary",
+            "name": "My Anniversary",
+            "type": "otherAnniversary",
+            "rule": {
+                "type": "western",
+                "month": 12,
+                "day": 25
+            }
+        },
+        {
+            "id": "my_anniversary_2",
+            "name": "My Anniversary 2",
+            "type": "otherAnniversary",
+            "rule": {
+                "type": "myanmar",
+                "month": 4,
+                "day": 13
+            }
+        }
+    ],
+    "disabledHolidays": ["aprilFoolsDay", "halloween"],
+    "disabledHolidaysByYear": {
+        "2027": [
+            "valentinesDay"
+        ]
+    }
+}
+```
+
+Please see [Holiday IDs](https://github.com/mixin27/myanmar_calendar_dart/blob/main/lib/src/models/holiday_id.dart)
+
 ---
 
 ## 🏗️ Architecture

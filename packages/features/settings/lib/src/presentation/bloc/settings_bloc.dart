@@ -1,8 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:core/core.dart';
 import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:holidays/holidays.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings.dart';
@@ -441,7 +443,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         sasanaYearType: config.sasanaYearType,
         calendarType: config.calendarType,
         gregorianStart: config.gregorianStart,
-        customHolidays: config.customHolidays,
+        customHolidays: [
+          ...config.customHolidays,
+          ...GetIt.I<HolidayService>().getCustomHolidays(),
+        ],
+        disabledHolidays: GetIt.I<HolidayService>().getDisabledHolidays(),
+        disabledHolidaysByYear: GetIt.I<HolidayService>()
+            .getDisabledHolidaysByYear(),
       );
       MyanmarCalendar.clearCache();
       MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());

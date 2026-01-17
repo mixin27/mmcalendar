@@ -11,6 +11,7 @@ environment:
 
 # Workspace configuration
 workspace:
+  - packages/app_remote_config
   - packages/core
   - packages/data
   - packages/localizations
@@ -25,6 +26,7 @@ workspace:
   - apps/myanmar_calendar
   - packages/integrations/telegram_web
   - packages/features/promo
+  - packages/features/holidays
 
 # Workspace-level dependencies (shared across all packages)
 dependencies:

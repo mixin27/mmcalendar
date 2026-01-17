@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:calendar/calendar.dart';
 import 'package:converter/converter.dart';
 import 'package:events/events.dart';
@@ -11,6 +13,8 @@ import 'package:settings/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:views/views.dart';
 import 'package:telegram_web/telegram_web.dart';
+import 'package:app_remote_config/app_remote_config.dart';
+import 'package:holidays/holidays.dart';
 
 import 'web_mocks.dart';
 
@@ -30,6 +34,17 @@ Future<void> initializeDependencies() async {
   final telegramService = TelegramServiceImpl();
   telegramService.initialize();
   getIt.registerSingleton<TelegramService>(telegramService);
+
+  // Initialize Remote Config
+  final remoteConfigService = RemoteConfigService();
+  getIt.registerSingleton<RemoteConfigService>(remoteConfigService);
+  unawaited(remoteConfigService.initialize());
+
+  // Initialize Holiday Service
+  final holidayService = HolidayService(
+    remoteConfigService: remoteConfigService,
+  );
+  getIt.registerSingleton<HolidayService>(holidayService);
 
   // Firebase Services (moved to separate setup function)
   if (!kIsWeb) {
