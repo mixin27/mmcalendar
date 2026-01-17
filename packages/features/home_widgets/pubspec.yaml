@@ -27,7 +27,7 @@ dependencies:
   flutter_mmcalendar: ^3.2.7
 
   # State management
-  bloc: ^9.0.1
+  bloc: ^9.2.0
   flutter_bloc: ^9.1.1
   equatable: ^2.0.7
 
