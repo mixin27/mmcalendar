@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:core/core.dart';
 import 'package:data/data.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
+import 'package:holidays/holidays.dart';
 
 // Local data source for calendar operations
 abstract class CalendarLocalDataSource {
@@ -16,8 +19,9 @@ abstract class CalendarLocalDataSource {
 
 class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
   final AppDatabase database;
+  final HolidayService holidayService;
 
-  CalendarLocalDataSourceImpl(this.database);
+  CalendarLocalDataSourceImpl(this.database, this.holidayService);
 
   @override
   Future<List<CompleteDate>> getMonthDates(DateTime month) async {
@@ -103,13 +107,22 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
       );
 
       // Apply to Myanmar Calendar package
+      log('CustomHolidays: ${holidayService.getCustomHolidays().toString()}');
+      log(
+        'DisabledHolidays: ${holidayService.getDisabledHolidays().toString()}',
+      );
       MyanmarCalendar.configure(
         language: Language.fromCode(config.defaultLanguage),
         timezoneOffset: config.timezoneOffset,
         sasanaYearType: config.sasanaYearType,
         calendarType: config.calendarType,
         gregorianStart: config.gregorianStart,
-        customHolidays: config.customHolidays,
+        customHolidays: [
+          ...config.customHolidays,
+          ...holidayService.getCustomHolidays(),
+        ],
+        disabledHolidays: holidayService.getDisabledHolidays(),
+        disabledHolidaysByYear: holidayService.getDisabledHolidaysByYear(),
       );
 
       MyanmarCalendar.clearCache();

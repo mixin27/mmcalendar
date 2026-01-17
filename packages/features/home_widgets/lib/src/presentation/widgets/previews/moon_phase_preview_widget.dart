@@ -10,7 +10,7 @@ class MoonPhasePreviewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-    MyanmarCalendar.configure(language: Language.myanmar);
+    MyanmarCalendar.setLanguage(Language.myanmar);
     final myanmarDate = MyanmarCalendar.fromWestern(
       today.year,
       today.month,

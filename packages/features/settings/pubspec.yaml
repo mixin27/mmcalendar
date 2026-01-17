@@ -22,12 +22,14 @@ dependencies:
     path: ../firebase_analytics_app
   promo:
     path: ../promo
+  holidays:
+    path: ../holidays
 
   home_widgets:
     path: ../home_widgets
 
   # Myanmar Calendar Package
-  flutter_mmcalendar: ^3.2.5
+  flutter_mmcalendar: ^3.2.7
 
   # Utilities
   intl: ^0.20.2

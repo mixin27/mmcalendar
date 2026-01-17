@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:holidays/holidays.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:promo/promo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -186,6 +187,8 @@ Future<void> _initializeMyanmarCalendar() async {
     final database = getIt<AppDatabase>();
     final settingsDao = database.settingsDao;
 
+    final holidayService = getIt<HolidayService>();
+
     // Load calendar configuration from database
     final sasanaYearType = await settingsDao.getSetting('sasana_year_type');
     final calendarType = await settingsDao.getSetting('calendar_type');
@@ -200,6 +203,9 @@ Future<void> _initializeMyanmarCalendar() async {
       sasanaYearType: int.tryParse(sasanaYearType ?? '0') ?? 0,
       calendarType: int.tryParse(calendarType ?? '0') ?? 0,
       gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
+      customHolidays: holidayService.getCustomHolidays(),
+      disabledHolidays: holidayService.getDisabledHolidays(),
+      disabledHolidaysByYear: holidayService.getDisabledHolidaysByYear(),
     );
 
     MyanmarCalendar.clearCache();

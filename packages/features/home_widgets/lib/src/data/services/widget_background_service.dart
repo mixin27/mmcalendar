@@ -31,15 +31,14 @@ void callbackDispatcher() {
 
       // Configure Myanmar Calendar with defaults
       // Note: We can't access database in background isolate
+      // Wait: we might not have getIt here if it's a separate isolate.
+      // For background updates, we should probably just use defaults or try to init minimal DI.
       MyanmarCalendar.configure(
-        language: Language.fromCode(
-          languageCode,
-        ), // Use default or from inputData
+        language: Language.fromCode(languageCode),
         timezoneOffset: 6.5,
         sasanaYearType: 0,
         calendarType: 0,
         gregorianStart: 2361222,
-        customHolidays: [],
       );
 
       MyanmarCalendar.clearCache();

@@ -42,9 +42,13 @@ dependencies:
     path: ../../packages/integrations/telegram_web
   promo:
     path: ../../packages/features/promo
+  app_remote_config:
+    path: ../../packages/app_remote_config
+  holidays:
+    path: ../../packages/features/holidays
 
   # Myanmar calendar
-  flutter_mmcalendar: ^3.2.5
+  flutter_mmcalendar: ^3.2.7
 
   # State management
   bloc: ^9.0.1
