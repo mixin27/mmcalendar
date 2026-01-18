@@ -1,3 +1,8 @@
+## [2.1.5+209]
+
+- Fixed home widget background update issue
+- Custom holidays & disabled holidays via Remote Config
+
 ## [2.1.4+208]
 
 - Add promo carousel feature for introducing new features

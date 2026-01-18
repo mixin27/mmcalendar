@@ -13,7 +13,7 @@ import '../services/widget_update_service.dart';
 
 class WidgetLocalDataSource {
   static const String _configKey = 'widget_config';
-  static const String _initialTaskName = 'widget_initial_task';
+  // static const String _initialTaskName = 'widget_initial_task';
   static const String _periodicTaskName = 'widget_periodic_task';
 
   final SharedPreferences sharedPreferences;
@@ -139,7 +139,7 @@ class WidgetLocalDataSource {
         nextMoonPhase: nextMoonPhase,
       );
     } catch (e, stackTrace) {
-      debugPrint('❌ Error generating widget data with language: $e');
+      debugPrint('Error generating widget data with language: $e');
       debugPrint('Stack trace: $stackTrace');
       rethrow;
     }
@@ -149,7 +149,7 @@ class WidgetLocalDataSource {
   Future<WidgetConfig> getWidgetConfig() async {
     final configJson = sharedPreferences.getString(_configKey);
     if (configJson == null) {
-      debugPrint('ℹ️ No saved config found, using defaults');
+      debugPrint('No saved config found, using defaults');
       return const WidgetConfig.defaults();
     }
 
@@ -157,7 +157,7 @@ class WidgetLocalDataSource {
       final config = json.decode(configJson) as Map<String, dynamic>;
       return WidgetConfig.fromJson(config);
     } catch (e) {
-      debugPrint('⚠️ Error loading config, using defaults: $e');
+      debugPrint('Error loading config, using defaults: $e');
       return const WidgetConfig.defaults();
     }
   }
@@ -166,7 +166,7 @@ class WidgetLocalDataSource {
   Future<void> saveWidgetConfig(WidgetConfig config) async {
     final configJson = json.encode(config.toJson());
     await sharedPreferences.setString(_configKey, configJson);
-    debugPrint('✅ Widget config saved');
+    debugPrint('Widget config saved');
   }
 
   /// Schedule periodic widget updates using a robust handoff pattern:
@@ -174,7 +174,7 @@ class WidgetLocalDataSource {
   /// 2. Once triggered, the background service will schedule the PeriodicTask
   Future<void> scheduleUpdates() async {
     try {
-      debugPrint('🔄 Scheduling initial widget update...');
+      debugPrint('Scheduling initial widget update...');
 
       // Cancel any existing tasks
       await cancelUpdates();
@@ -184,27 +184,28 @@ class WidgetLocalDataSource {
       final tomorrow = DateTime(now.year, now.month, now.day + 1, 0, 1);
       final initialDelay = tomorrow.difference(now);
 
-      debugPrint('⏰ Initial update will run at: $tomorrow');
-      debugPrint('⏱️ Initial delay: ${initialDelay.inMinutes} minutes');
+      debugPrint('Initial update will run at: $tomorrow');
+      debugPrint('Initial delay: ${initialDelay.inMinutes} minutes');
+      await schedulePeriodicTask(initialDelay);
 
       // Schedule one-off task for the first execution
-      await Workmanager().registerOneOffTask(
-        _initialTaskName,
-        _initialTaskName,
-        initialDelay: initialDelay,
-        constraints: Constraints(
-          networkType: NetworkType.notRequired,
-          requiresBatteryNotLow: false,
-          requiresCharging: false,
-          requiresDeviceIdle: false,
-          requiresStorageNotLow: false,
-        ),
-        existingWorkPolicy: ExistingWorkPolicy.replace,
-      );
+      // await Workmanager().registerOneOffTask(
+      //   _initialTaskName,
+      //   _initialTaskName,
+      //   initialDelay: initialDelay,
+      //   constraints: Constraints(
+      //     networkType: NetworkType.notRequired,
+      //     requiresBatteryNotLow: false,
+      //     requiresCharging: false,
+      //     requiresDeviceIdle: false,
+      //     requiresStorageNotLow: false,
+      //   ),
+      //   existingWorkPolicy: ExistingWorkPolicy.replace,
+      // );
 
-      debugPrint('✅ Initial widget update scheduled successfully');
+      debugPrint('Initial widget update scheduled successfully');
     } catch (e, stackTrace) {
-      debugPrint('❌ Failed to schedule initial update: $e');
+      debugPrint('Failed to schedule initial update: $e');
       debugPrint('Stack trace: $stackTrace');
       rethrow;
     }
@@ -212,16 +213,15 @@ class WidgetLocalDataSource {
 
   /// Schedule the 24h periodic task
   /// This should be called from the background service after the initial task completes
-  Future<void> schedulePeriodicTask() async {
+  Future<void> schedulePeriodicTask([Duration? initialDelay]) async {
     try {
-      debugPrint('🔄 Scheduling periodic 24h widget updates...');
+      debugPrint('Scheduling periodic 24h widget updates...');
 
       await Workmanager().registerPeriodicTask(
         _periodicTaskName,
         _periodicTaskName,
         frequency: const Duration(hours: 24),
-        // No initial delay here, as we want it to run every 24h from now
-        initialDelay: Duration.zero,
+        initialDelay: initialDelay,
         flexInterval: const Duration(minutes: 15),
         constraints: Constraints(
           networkType: NetworkType.notRequired,
@@ -230,22 +230,22 @@ class WidgetLocalDataSource {
           requiresDeviceIdle: false,
           requiresStorageNotLow: false,
         ),
-        existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
+        existingWorkPolicy: ExistingWorkPolicy.update,
       );
-      debugPrint('✅ Periodic widget updates scheduled successfully');
+      debugPrint('Periodic widget updates scheduled successfully');
     } catch (e) {
-      debugPrint('❌ Failed to schedule periodic updates: $e');
+      debugPrint('Failed to schedule periodic updates: $e');
     }
   }
 
   /// Cancel scheduled updates
   Future<void> cancelUpdates() async {
     try {
-      await Workmanager().cancelByUniqueName(_initialTaskName);
+      // await Workmanager().cancelByUniqueName(_initialTaskName);
       await Workmanager().cancelByUniqueName(_periodicTaskName);
-      debugPrint('✅ Widget updates cancelled');
+      debugPrint('Widget updates cancelled');
     } catch (e) {
-      debugPrint('⚠️ Error cancelling updates: $e');
+      debugPrint('Error cancelling updates: $e');
     }
   }
 
@@ -255,10 +255,10 @@ class WidgetLocalDataSource {
       final widgetIds = await HomeWidget.getInstalledWidgets();
 
       final isActive = widgetIds.isNotEmpty;
-      debugPrint('📊 Widget active: $isActive (${widgetIds.length} instances)');
+      debugPrint('Widget active: $isActive (${widgetIds.length} instances)');
       return isActive;
     } catch (e) {
-      debugPrint('⚠️ Error checking widget status: $e');
+      debugPrint('Error checking widget status: $e');
       return false;
     }
   }
@@ -270,7 +270,7 @@ class WidgetLocalDataSource {
       // We'll store this info in SharedPreferences
       return sharedPreferences.getBool('widget_updates_scheduled') ?? false;
     } catch (e) {
-      debugPrint('⚠️ Error checking update schedule: $e');
+      debugPrint('Error checking update schedule: $e');
       return false;
     }
   }

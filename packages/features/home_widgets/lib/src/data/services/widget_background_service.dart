@@ -13,13 +13,7 @@ import '../datasources/widget_local_datasource.dart';
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    debugPrint('🔄 Background task started: $task');
-
-    // Define task names (must match WidgetLocalDataSource)
-    const initialTask = 'widget_initial_task';
-    // periodicTask is handled generally as the default case in executeTask if needed,
-    // but here we only need initialTask for the handoff logic.
-
+    debugPrint('Background task started: $task');
     final startTime = DateTime.now();
 
     try {
@@ -37,8 +31,6 @@ void callbackDispatcher() {
 
       // Configure Myanmar Calendar with defaults
       // Note: We can't access database in background isolate
-      // Wait: we might not have getIt here if it's a separate isolate.
-      // For background updates, we should probably just use defaults or try to init minimal DI.
       MyanmarCalendar.configure(
         language: Language.fromCode(languageCode),
         timezoneOffset: 6.5,
@@ -50,11 +42,11 @@ void callbackDispatcher() {
       MyanmarCalendar.clearCache();
       MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
 
-      debugPrint('✅ Myanmar Calendar configured in background');
+      debugPrint('Myanmar Calendar configured in background');
 
       // Get today's date
       final today = DateTime.now();
-      debugPrint('📅 Updating widget for date: $today');
+      debugPrint('Updating widget for date: $today');
 
       // Generate widget data
       final config = await dataSource.getWidgetConfig();
@@ -69,12 +61,12 @@ void callbackDispatcher() {
       // Robust Handoff Pattern:
       // If this was the initial task triggered by the OneOffTask delay,
       // now schedule the long-term 24h PeriodicTask.
-      if (task == initialTask) {
-        debugPrint(
-          '🎯 Initial update complete, handing off to periodic updates...',
-        );
-        await dataSource.schedulePeriodicTask();
-      }
+      // if (task == initialTask) {
+      //   debugPrint(
+      //     '🎯 Initial update complete, handing off to periodic updates...',
+      //   );
+      //   await dataSource.schedulePeriodicTask();
+      // }
 
       // Calculate execution time
       final duration = DateTime.now().difference(startTime);
@@ -82,14 +74,14 @@ void callbackDispatcher() {
       // Log success to SharedPreferences
       await _logBackgroundSuccess(prefs, task, duration);
 
-      debugPrint('✅ Background widget update completed');
+      debugPrint('Background widget update completed');
       return true;
     } catch (e, stackTrace) {
       // Log error to SharedPreferences (instead of Firebase Crashlytics)
       final duration = DateTime.now().difference(startTime);
       await _logBackgroundError(e, stackTrace, task, duration);
 
-      debugPrint('❌ Background task failed: $e');
+      debugPrint('Background task failed: $e');
       debugPrint('Stack trace: $stackTrace');
       return false;
     }
@@ -122,9 +114,9 @@ Future<void> _logBackgroundSuccess(
     }
     await prefs.setStringList('background_logs', logs);
 
-    debugPrint('📝 Background success logged to SharedPreferences');
+    debugPrint('Background success logged to SharedPreferences');
   } catch (e) {
-    debugPrint('⚠️ Failed to log background success: $e');
+    debugPrint('Failed to log background success: $e');
   }
 }
 
@@ -164,8 +156,8 @@ Future<void> _logBackgroundError(
     }
     await prefs.setStringList('background_error_logs', errorLogs);
 
-    debugPrint('📝 Background error logged to SharedPreferences');
+    debugPrint('Background error logged to SharedPreferences');
   } catch (e) {
-    debugPrint('⚠️ Failed to log background error: $e');
+    debugPrint('Failed to log background error: $e');
   }
 }

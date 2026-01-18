@@ -127,10 +127,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         ? state.settings
                         : null;
 
-                    final sasanaYearType =
-                        settings?.calendarConfig.sasanaYearType ?? 0;
-                    final calendarType =
-                        settings?.calendarConfig.calendarType ?? 0;
                     final timezoneOffset =
                         settings?.calendarConfig.timezoneOffset ?? 6.5;
 
@@ -140,8 +136,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             context,
                           )?.calendar_configuration ??
                           'Calendar Configuration',
-                      trailing:
-                          '$calendarType / $sasanaYearType / $timezoneOffset',
+                      trailing: 'tz: $timezoneOffset',
                       icon: Icons.edit_calendar,
                       onTap: () => GoRouter.of(
                         context,
