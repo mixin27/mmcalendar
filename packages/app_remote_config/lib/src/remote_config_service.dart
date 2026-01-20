@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 
@@ -23,7 +25,16 @@ class RemoteConfigService {
       );
       await fetchAndActivate();
     } catch (e) {
-      debugPrint('Failed to initialize Remote Config: $e');
+      // Known issue on macOS: Firebase Installations can't access keychain in debug/simulator
+      // This doesn't affect functionality, just prevents token persistence
+      if (!kIsWeb && Platform.isMacOS && e.toString().contains('SecItemAdd')) {
+        debugPrint(
+          '⚠️ Remote Config: macOS keychain access denied (known simulator limitation). '
+          'Remote Config will still work but tokens won\'t persist.',
+        );
+      } else {
+        debugPrint('Failed to initialize Remote Config: $e');
+      }
     }
   }
 
