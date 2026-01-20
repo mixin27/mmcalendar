@@ -102,13 +102,10 @@ Future<void> _initializeFirebaseWithConsent() async {
   try {
     debugPrint('🔧 Initializing Firebase...');
 
-    // Skip Firebase Core initialization on web for now as it's not configured
-    if (!kIsWeb) {
-      // Initialize Firebase Core first
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-    }
+    // Initialize Firebase Core for all platforms
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     // Load user consent settings from database
     final database = AppDatabase();

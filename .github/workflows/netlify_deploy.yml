@@ -35,8 +35,8 @@ jobs:
             (cd "$dir" && dart run build_runner build --delete-conflicting-outputs)
           done
 
-      - name: Copy firebase_options file
-        run: cp apps/myanmar_calendar/lib/firebase_options.dart.example apps/myanmar_calendar/lib/firebase_options.dart
+      - name: Create firebase_options.dart from secret
+        run: echo "${{ secrets.FIREBASE_OPTIONS_BASE64 }}" | base64 -d > apps/myanmar_calendar/lib/firebase_options.dart
 
       # - name: Create _redirects file
       #   run: echo "/*    /index.html   200" > apps/myanmar_calendar/web/_redirects
