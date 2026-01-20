@@ -49,6 +49,8 @@ export 'src/widgets/color_picker_tile.dart';
 export 'src/widgets/custom_colors_editor_dialog.dart';
 export 'src/widgets/color_chip.dart';
 export 'src/widgets/custom_colors_option.dart';
+export 'src/widgets/daily_moon_phase_painter.dart';
+export 'src/widgets/optimized_moon_phase.dart';
 
 // Dependency Injection
 export 'src/di/injection.dart' hide getIt;

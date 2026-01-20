@@ -137,6 +137,7 @@ class WidgetLocalDataSource {
         weekdayNames: weekdayNames,
         moonPhaseNames: moonPhaseNames,
         nextMoonPhase: nextMoonPhase,
+        completeDate: myanmarDateTime.completeDate,
       );
     } catch (e, stackTrace) {
       debugPrint('Error generating widget data with language: $e');

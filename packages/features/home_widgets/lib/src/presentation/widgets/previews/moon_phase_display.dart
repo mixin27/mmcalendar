@@ -5,11 +5,13 @@ import '../moon_phase_widget.dart';
 /// Moon Phase Display Widget
 class MoonPhaseDisplay extends StatelessWidget {
   final int moonPhase;
+  final int fortnightDay;
   final double size;
 
   const MoonPhaseDisplay({
     super.key,
     required this.moonPhase,
+    required this.fortnightDay,
     required this.size,
   });
 
@@ -40,6 +42,7 @@ class MoonPhaseDisplay extends StatelessWidget {
           color: Colors.transparent,
           child: MoonPhaseWidget(
             moonPhase: moonPhase,
+            fortnightDay: fortnightDay,
             size: size,
             moonColor: const Color(0xFFF5F5DC),
             shadowColor: const Color(0xFF2C2C2C),

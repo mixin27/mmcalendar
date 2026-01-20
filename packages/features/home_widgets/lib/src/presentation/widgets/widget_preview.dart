@@ -47,6 +47,7 @@ class WidgetPreview extends StatelessWidget {
           if (data != null)
             MoonPhaseWidget(
               moonPhase: _parseMoonPhase(data!.moonPhaseEmoji),
+              fortnightDay: data!.fortnightDay,
               size: 56,
               showGlow: true,
             )
@@ -107,6 +108,7 @@ class WidgetPreview extends StatelessWidget {
                 if (data != null)
                   MoonPhaseWidget(
                     moonPhase: _parseMoonPhase(data!.moonPhaseEmoji),
+                    fortnightDay: data!.fortnightDay,
                     size: 72,
                     showGlow: true,
                   )
@@ -268,6 +270,7 @@ class WidgetPreview extends StatelessWidget {
                       if (data != null)
                         MoonPhaseWidget(
                           moonPhase: _parseMoonPhase(data!.moonPhaseEmoji),
+                          fortnightDay: data!.fortnightDay,
                           size: 100,
                           showGlow: true,
                         )

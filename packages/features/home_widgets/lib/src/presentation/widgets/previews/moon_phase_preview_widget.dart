@@ -41,7 +41,11 @@ class MoonPhasePreviewWidget extends StatelessWidget {
           ),
           const Spacer(),
           // Moon Phase
-          MoonPhaseDisplay(moonPhase: myanmarDate.moonPhase, size: 70),
+          MoonPhaseDisplay(
+            moonPhase: myanmarDate.moonPhase,
+            fortnightDay: myanmarDate.fortnightDay,
+            size: 70,
+          ),
           const SizedBox(height: 12),
           // Moon Phase Name
           Text(

@@ -136,6 +136,7 @@ class FullCalendarPreviewWidget extends StatelessWidget {
                       // Moon Phase
                       MoonPhaseDisplay(
                         moonPhase: myanmarDate.moonPhase,
+                        fortnightDay: myanmarDate.fortnightDay,
                         size: 90,
                       ),
                       const SizedBox(height: 8),

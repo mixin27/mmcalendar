@@ -23,7 +23,6 @@ class WidgetBootReceiver : BroadcastReceiver() {
             FullCalendarWidgetProvider::class.java,
             MoonPhaseWidgetProvider::class.java,
             MonthlyCalendarWidgetProvider::class.java,
-            AppHomeWidgetProvider::class.java // Legacy provider
         )
     }
 

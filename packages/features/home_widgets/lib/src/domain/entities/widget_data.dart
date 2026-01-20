@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
 /// Represents data to be displayed in home widgets
 class WidgetData extends Equatable {
@@ -18,6 +19,7 @@ class WidgetData extends Equatable {
   final List<String> weekdayNames;
   final List<String> moonPhaseNames;
   final String nextMoonPhase;
+  final CompleteDate? completeDate;
 
   const WidgetData({
     required this.myanmarDate,
@@ -36,6 +38,7 @@ class WidgetData extends Equatable {
     required this.weekdayNames,
     required this.moonPhaseNames,
     required this.nextMoonPhase,
+    this.completeDate,
   });
 
   @override
@@ -54,6 +57,7 @@ class WidgetData extends Equatable {
     pyathadaInfo,
     lastUpdated,
     nextMoonPhase,
+    completeDate,
   ];
 
   /// Convert to JSON for widget storage

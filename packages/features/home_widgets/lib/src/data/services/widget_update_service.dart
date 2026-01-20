@@ -23,12 +23,12 @@ class WidgetUpdateService {
       // 1. Render moon phase image (needed by multiple widgets)
       final fullMoonImagePath = await _renderMoonPhaseImage(
         data.moonPhaseValue,
-        data.fortnightDay,
+        data.completeDate?.myanmarDay ?? 1,
       );
 
       final moonImagePath = await _renderMoonPhaseImage(
         data.moonPhaseValue,
-        data.fortnightDay,
+        data.completeDate?.myanmarDay ?? 1,
         size: 90,
       );
 
@@ -209,6 +209,7 @@ class WidgetUpdateService {
         color: Colors.transparent,
         child: MoonPhaseWidget(
           moonPhase: moonPhase,
+          fortnightDay: fortnightDay,
           size: 120,
           moonColor: const Color(0xFFF5F5DC),
           shadowColor: const Color(0xFF2C2C2C),

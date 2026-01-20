@@ -38,18 +38,6 @@
 
         <!-- <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-7567997114394639~3076287765"/> -->
 
-        <!-- HomeWidgets es.antonborri.home_widget -->
-        <receiver android:name=".AppHomeWidgetProvider"
-            android:exported="true"
-            android:label="@string/widget_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/home_widget_info" />
-        </receiver>
-
         <!-- COMPACT DATE WIDGET -->
         <receiver
             android:name=".CompactDateWidgetProvider"

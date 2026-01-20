@@ -2,6 +2,7 @@
 
 - Fixed home widget background update issue
 - Custom holidays & disabled holidays via Remote Config
+- Remove old legacy android home widget
 
 ## [2.1.4+208]
 
