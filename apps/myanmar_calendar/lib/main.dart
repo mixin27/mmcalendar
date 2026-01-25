@@ -203,6 +203,7 @@ Future<void> _initializeMyanmarCalendar() async {
       customHolidays: holidayService.getCustomHolidays(),
       disabledHolidays: holidayService.getDisabledHolidays(),
       disabledHolidaysByYear: holidayService.getDisabledHolidaysByYear(),
+      disabledHolidaysByDate: holidayService.getDisabledHolidaysByDate(),
     );
 
     MyanmarCalendar.clearCache();

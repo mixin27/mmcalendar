@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:app_remote_config/app_remote_config.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import '../models/remote_holiday_models.dart';
@@ -17,11 +18,13 @@ class HolidayService {
         customHolidays: [],
         disabledHolidays: [],
         disabledHolidaysByYear: {},
+        disabledHolidaysByDate: {},
       );
     }
 
     try {
       final jsonMap = json.decode(jsonString) as Map<String, dynamic>;
+      log('CustomHolidays: ${jsonMap.toString()}');
       return RemoteHolidayConfig.fromJson(jsonMap);
     } catch (e) {
       // Log error or handle gracefully
@@ -29,6 +32,7 @@ class HolidayService {
         customHolidays: [],
         disabledHolidays: [],
         disabledHolidaysByYear: {},
+        disabledHolidaysByDate: {},
       );
     }
   }
@@ -45,5 +49,9 @@ class HolidayService {
 
   Map<int, List<HolidayId>>? getDisabledHolidaysByYear() {
     return getHolidayConfig().disabledHolidaysByYear;
+  }
+
+  Map<String, List<HolidayId>>? getDisabledHolidaysByDate() {
+    return getHolidayConfig().disabledHolidaysByDate;
   }
 }

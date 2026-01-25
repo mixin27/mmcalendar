@@ -13,7 +13,7 @@
         {
             "id": "2026_02_16_holiday_gov",
             "name": "Chinese New Year's",
-            "type": "public",
+            "type": "otherAnniversary",
             "rule": {
                 "type": "western",
                 "month": 2,
@@ -42,5 +42,13 @@
         }
     ],
     "disabledHolidays": [],
-    "disabledHolidaysByYear": {}
+    "disabledHolidaysByYear": {},
+    "disabledHolidaysByDate": {
+        "2026-04-20": [
+            "holiday"
+        ],
+        "2026-04-21": [
+            "holiday"
+        ]
+    }
 }
