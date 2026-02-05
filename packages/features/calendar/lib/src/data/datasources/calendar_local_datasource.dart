@@ -123,6 +123,7 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
         ],
         disabledHolidays: holidayService.getDisabledHolidays(),
         disabledHolidaysByYear: holidayService.getDisabledHolidaysByYear(),
+        disabledHolidaysByDate: holidayService.getDisabledHolidaysByDate(),
       );
 
       MyanmarCalendar.clearCache();

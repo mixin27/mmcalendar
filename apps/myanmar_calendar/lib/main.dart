@@ -65,7 +65,7 @@ void main() async {
   // Configure system UI
   await _configureSystemUI();
 
-  if (!kIsWeb) {
+  if (!kIsWeb && Platform.isAndroid || Platform.isIOS) {
     debugPrint('🔧 Initializing WorkManager...');
     // Initialize WorkManager for background widget updates
     await Workmanager().initialize(callbackDispatcher);
@@ -203,6 +203,7 @@ Future<void> _initializeMyanmarCalendar() async {
       customHolidays: holidayService.getCustomHolidays(),
       disabledHolidays: holidayService.getDisabledHolidays(),
       disabledHolidaysByYear: holidayService.getDisabledHolidaysByYear(),
+      disabledHolidaysByDate: holidayService.getDisabledHolidaysByDate(),
     );
 
     MyanmarCalendar.clearCache();

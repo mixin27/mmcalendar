@@ -450,6 +450,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         disabledHolidays: GetIt.I<HolidayService>().getDisabledHolidays(),
         disabledHolidaysByYear: GetIt.I<HolidayService>()
             .getDisabledHolidaysByYear(),
+        disabledHolidaysByDate: GetIt.I<HolidayService>()
+            .getDisabledHolidaysByDate(),
       );
       MyanmarCalendar.clearCache();
       MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());

@@ -29,7 +29,7 @@ class NotificationServiceImpl implements NotificationService {
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
-    const iosSettings = DarwinInitializationSettings(
+    const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
@@ -37,7 +37,8 @@ class NotificationServiceImpl implements NotificationService {
 
     const initSettings = InitializationSettings(
       android: androidSettings,
-      iOS: iosSettings,
+      iOS: darwinSettings,
+      macOS: darwinSettings,
     );
 
     await _notificationsPlugin.initialize(
@@ -111,7 +112,7 @@ class NotificationServiceImpl implements NotificationService {
       icon: '@mipmap/ic_launcher',
     );
 
-    const iosDetails = DarwinNotificationDetails(
+    const darwinDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
@@ -119,7 +120,8 @@ class NotificationServiceImpl implements NotificationService {
 
     const details = NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
     );
 
     await _notificationsPlugin.zonedSchedule(

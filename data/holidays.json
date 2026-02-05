@@ -1,0 +1,54 @@
+{
+    "customHolidays": [
+        {
+            "id": "2026_02_13_holiday_gov",
+            "name": "Holiday",
+            "type": "public",
+            "rule": {
+                "type": "western",
+                "month": 2,
+                "day": 13
+            }
+        },
+        {
+            "id": "2026_02_16_holiday_gov",
+            "name": "Chinese New Year's",
+            "type": "otherAnniversary",
+            "rule": {
+                "type": "western",
+                "month": 2,
+                "day": 16
+            }
+        },
+        {
+            "id": "2026_04_11_holiday_gov",
+            "name": "Holiday",
+            "type": "public",
+            "rule": {
+                "type": "western",
+                "month": 4,
+                "day": 11
+            }
+        },
+        {
+            "id": "2026_04_12_holiday_gov",
+            "name": "Holiday",
+            "type": "public",
+            "rule": {
+                "type": "western",
+                "month": 4,
+                "day": 12
+            }
+        }
+    ],
+    "disabledHolidays": [],
+    "disabledHolidaysByYear": {},
+    "disabledHolidaysByDate": {
+        "2026-04-20": [
+            "holiday"
+        ],
+        "2026-04-21": [
+            "holiday"
+        ]
+    }
+}

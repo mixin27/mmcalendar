@@ -4,11 +4,13 @@ class RemoteHolidayConfig {
   final List<RemoteCustomHoliday> customHolidays;
   final List<HolidayId> disabledHolidays;
   final Map<int, List<HolidayId>>? disabledHolidaysByYear;
+  final Map<String, List<HolidayId>>? disabledHolidaysByDate;
 
   RemoteHolidayConfig({
     required this.customHolidays,
     required this.disabledHolidays,
     required this.disabledHolidaysByYear,
+    required this.disabledHolidaysByDate,
   });
 
   factory RemoteHolidayConfig.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,16 @@ class RemoteHolidayConfig {
           (json['disabledHolidaysByYear'] as Map<String, dynamic>?)?.map(
             (year, holidays) => MapEntry(
               int.parse(year),
+              (holidays as List<dynamic>)
+                  .map((e) => _parseHolidayId(e as String))
+                  .whereType<HolidayId>()
+                  .toList(),
+            ),
+          ),
+      disabledHolidaysByDate:
+          (json['disabledHolidaysByDate'] as Map<String, dynamic>?)?.map(
+            (date, holidays) => MapEntry(
+              date,
               (holidays as List<dynamic>)
                   .map((e) => _parseHolidayId(e as String))
                   .whereType<HolidayId>()

@@ -3,6 +3,7 @@
 - Fixed home widget background update issue
 - Custom holidays & disabled holidays via Remote Config
 - Remove old legacy android home widget
+- Fixed day of week miss-match in calculator date selector fields
 
 ## [2.1.4+208]
 

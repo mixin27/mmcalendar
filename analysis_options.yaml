@@ -56,3 +56,4 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "**/*.config.dart"
+    - "apps/myanmar_calendar/build/**"
