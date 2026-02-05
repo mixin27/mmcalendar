@@ -564,6 +564,10 @@ class _DateCalculatorCardState extends State<DateCalculatorCard>
   }
 
   String _getWeekdayName(int weekday) {
+    // Built-in date picker's firstDayOfWeek start from Sunday
+    // But our TranslationService.getWeekdayName start from Saturday
+    // So we need to adjust the weekday
+    weekday = (weekday + 1) % 7;
     return TranslationService.getWeekdayName(weekday);
   }
 }
