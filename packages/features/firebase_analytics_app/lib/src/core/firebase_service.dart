@@ -51,10 +51,12 @@ class FirebaseService {
     try {
       final crashlytics = FirebaseCrashlytics.instance;
 
-      // Use the config
-      await crashlytics.setCrashlyticsCollectionEnabled(
-        _crashlyticsConfig.enableCollection && kReleaseMode,
-      );
+      if (!kIsWeb) {
+        // Use the config
+        await crashlytics.setCrashlyticsCollectionEnabled(
+          _crashlyticsConfig.enableCollection && kReleaseMode,
+        );
+      }
 
       // Set user ID from config if provided
       if (_crashlyticsConfig.userId != null) {

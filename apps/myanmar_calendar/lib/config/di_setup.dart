@@ -16,8 +16,6 @@ import 'package:telegram_web/telegram_web.dart';
 import 'package:app_remote_config/app_remote_config.dart';
 import 'package:holidays/holidays.dart';
 
-import 'web_mocks.dart';
-
 final getIt = GetIt.instance;
 
 /// Initialize all app dependencies
@@ -47,23 +45,8 @@ Future<void> initializeDependencies() async {
   getIt.registerSingleton<HolidayService>(holidayService);
 
   // Firebase Services (moved to separate setup function)
-  if (!kIsWeb) {
-    await setupFirebaseServicesDependencies(getIt);
-
-    final analyticsService = getIt<AnalyticsService>();
-    final crashlyticsService = getIt<CrashlyticsService>();
-    debugPrint('✅ Firebase services registered:');
-    debugPrint(
-      '  Analytics enabled: ${analyticsService.config.enableCollection}',
-    );
-    debugPrint(
-      '  Crashlytics enabled: ${crashlyticsService.config.enableCollection}',
-    );
-  } else {
-    debugPrint('⚠️ Registering mock Firebase services on Web');
-    getIt.registerSingleton<AnalyticsService>(MockAnalyticsService());
-    getIt.registerSingleton<CrashlyticsService>(MockCrashlyticsService());
-  }
+  await setupFirebaseServicesDependencies(getIt);
+  debugPrint('✅ Firebase services registered:');
 
   // Initialize feature dependencies
   await initCalendarDependencies();

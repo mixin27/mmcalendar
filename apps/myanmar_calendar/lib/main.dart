@@ -65,7 +65,7 @@ void main() async {
   // Configure system UI
   await _configureSystemUI();
 
-  if (!kIsWeb && Platform.isAndroid || Platform.isIOS) {
+  if (!kIsWeb) {
     debugPrint('🔧 Initializing WorkManager...');
     // Initialize WorkManager for background widget updates
     await Workmanager().initialize(callbackDispatcher);
@@ -131,24 +131,18 @@ Future<void> _initializeFirebaseWithConsent() async {
       enableDebugLogging: !kReleaseMode,
     );
 
-    if (kIsWeb) {
-      debugPrint('⚠️ Firebase Service initialization skipped on Web');
-    } else {
-      // Initialize Firebase Services with configs
-      await FirebaseService.initialize(
-        firebaseOptions: DefaultFirebaseOptions.currentPlatform,
-        analyticsConfig: analyticsConfig,
-        crashlyticsConfig: crashlyticsConfig,
-        enableDebugLogging: !kReleaseMode,
-      );
+    // Initialize Firebase Services with configs
+    await FirebaseService.initialize(
+      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+      analyticsConfig: analyticsConfig,
+      crashlyticsConfig: crashlyticsConfig,
+      enableDebugLogging: !kReleaseMode,
+    );
 
-      // Set up error handlers for Firebase Crashlytics
-      _setupCrashlyticsHandlers();
-    }
+    // Set up error handlers for Firebase Crashlytics
+    _setupCrashlyticsHandlers();
 
     debugPrint('✅ Firebase initialized');
-    debugPrint('  Analytics: ${enableAnalytics ? 'enabled' : 'disabled'}');
-    debugPrint('  Crashlytics: ${enableCrashlytics ? 'enabled' : 'disabled'}');
   } catch (e, stack) {
     debugPrint('❌ Error initializing Firebase: $e\n$stack');
     rethrow;
