@@ -187,9 +187,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
         MyanmarCalendar.setLanguage(event.language);
 
-        // Fire calendar language changed event
-        AppEventBus.fire(CalendarLanguageChangedEvent(event.language));
-
         final updatedSettings = currentState.settings.copyWith(
           calendarLanguage: event.language,
         );
@@ -211,9 +208,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
         _applyCalendarConfiguration(event.config);
-
-        // Fire clanedar configuraton changed event
-        AppEventBus.fire(CalendarConfigurationChangedEvent(event.config));
 
         final updatedSettings = currentState.settings.copyWith(
           calendarConfig: event.config,

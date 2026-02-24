@@ -1,9 +1,6 @@
 import 'dart:io';
 
 import 'package:app_update_manager/app_update_manager.dart' as um;
-import 'package:data/data.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +9,8 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:holidays/holidays.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:integrations_database/integrations_database.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:promo/promo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
@@ -102,74 +101,20 @@ Future<void> _initializeFirebaseWithConsent() async {
   try {
     debugPrint('🔧 Initializing Firebase...');
 
-    // Initialize Firebase Core for all platforms
-    await Firebase.initializeApp(
+    final firebaseBootstrap = FirebaseConsentBootstrap();
+    await firebaseBootstrap.initialize(
       options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    // Load user consent settings from database
-    final database = AppDatabase();
-    final settingsDao = database.settingsDao;
-
-    final analyticsConsent =
-        await settingsDao.getSetting('enable_analytics') ?? 'true';
-    final crashlyticsConsent =
-        await settingsDao.getSetting('enable_crashlytics') ?? 'true';
-
-    final enableAnalytics = analyticsConsent.toLowerCase() == 'true';
-    final enableCrashlytics = crashlyticsConsent.toLowerCase() == 'true';
-
-    // Create configs with user consent
-    final analyticsConfig = AnalyticsConfig(
-      enableCollection: enableAnalytics,
+      database: DatabaseModule.createDatabase(),
       enableDebugLogging: !kReleaseMode,
-      eventPrefix: 'app_',
+      analyticsEventPrefix: 'app_',
     );
-
-    final crashlyticsConfig = CrashlyticsConfig(
-      enableCollection: enableCrashlytics,
-      enableDebugLogging: !kReleaseMode,
-    );
-
-    // Initialize Firebase Services with configs
-    await FirebaseService.initialize(
-      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
-      analyticsConfig: analyticsConfig,
-      crashlyticsConfig: crashlyticsConfig,
-      enableDebugLogging: !kReleaseMode,
-    );
-
-    // Set up error handlers for Firebase Crashlytics
-    _setupCrashlyticsHandlers();
+    firebaseBootstrap.registerCrashHandlers();
 
     debugPrint('✅ Firebase initialized');
   } catch (e, stack) {
     debugPrint('❌ Error initializing Firebase: $e\n$stack');
     rethrow;
   }
-}
-
-/// Setup error handlers to report to Crashlytics
-void _setupCrashlyticsHandlers() {
-  final crashlytics = FirebaseService.crashlytics;
-
-  // Handle Flutter framework errors
-  FlutterError.onError = (FlutterErrorDetails details) {
-    if (kReleaseMode) {
-      crashlytics.recordFlutterFatalError(details);
-    } else {
-      FlutterError.presentError(details);
-    }
-  };
-
-  // Handle PlatformDispatcher errors
-  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-    if (kReleaseMode) {
-      crashlytics.recordError(error, stack, fatal: true);
-    }
-    debugPrint('Platform error: $error\n$stack');
-    return true;
-  };
 }
 
 // Initialize Myanmar Calendar with saved settings

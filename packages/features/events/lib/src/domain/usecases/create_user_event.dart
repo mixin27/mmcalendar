@@ -20,16 +20,7 @@ class CreateUserEvent implements UseCase<Event, CreateUserEventParams> {
     }
 
     // Create event
-    final result = await repository.createEvent(params.event);
-
-    // Fire domain event on success
-    result.fold((failure) => null, (event) {
-      if (event.id != null) {
-        AppEventBus.fire(EventCreatedEvent(event.id!, event.title));
-      }
-    });
-
-    return result;
+    return repository.createEvent(params.event);
   }
 
   String? _validateEvent(Event event) {

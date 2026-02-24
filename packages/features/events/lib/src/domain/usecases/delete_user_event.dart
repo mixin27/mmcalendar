@@ -11,17 +11,8 @@ class DeleteUserEvent implements UseCase<void, DeleteUserEventParams> {
   DeleteUserEvent(this.repository);
 
   @override
-  Future<Either<Failure, void>> call(DeleteUserEventParams params) async {
-    final result = await repository.deleteEvent(params.eventId);
-
-    // Fire domain event on success
-    result.fold(
-      (failure) => null,
-      (_) => AppEventBus.fire(EventDeletedEvent(params.eventId)),
-    );
-
-    return result;
-  }
+  Future<Either<Failure, void>> call(DeleteUserEventParams params) =>
+      repository.deleteEvent(params.eventId);
 }
 
 class DeleteUserEventParams extends Equatable {

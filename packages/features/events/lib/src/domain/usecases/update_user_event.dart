@@ -25,16 +25,7 @@ class UpdateUserEvent implements UseCase<Event, UpdateUserEventParams> {
 
     // Update event with new timestamp
     final updatedEvent = params.event.copyWith(updatedAt: DateTime.now());
-    final result = await repository.updateEvent(updatedEvent);
-
-    // Fire domain event on success
-    result.fold((failure) => null, (event) {
-      if (event.id != null) {
-        AppEventBus.fire(EventUpdatedEvent(event.id!, event.title));
-      }
-    });
-
-    return result;
+    return repository.updateEvent(updatedEvent);
   }
 
   String? _validateEvent(Event event) {

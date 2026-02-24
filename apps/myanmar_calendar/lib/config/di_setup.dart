@@ -1,19 +1,16 @@
-import 'dart:async';
-
 import 'package:calendar/calendar.dart';
 import 'package:converter/converter.dart';
 import 'package:events/events.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:data/data.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:integrations_database/integrations_database.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:views/views.dart';
 import 'package:telegram_web/telegram_web.dart';
-import 'package:app_remote_config/app_remote_config.dart';
 import 'package:holidays/holidays.dart';
 
 final getIt = GetIt.instance;
@@ -21,7 +18,7 @@ final getIt = GetIt.instance;
 /// Initialize all app dependencies
 Future<void> initializeDependencies() async {
   // Initialize database
-  final database = AppDatabase();
+  final database = DatabaseModule.createDatabase();
   getIt.registerSingleton<AppDatabase>(database);
 
   // Initialize SharedPreferences
@@ -34,9 +31,8 @@ Future<void> initializeDependencies() async {
   getIt.registerSingleton<TelegramService>(telegramService);
 
   // Initialize Remote Config
-  final remoteConfigService = RemoteConfigService();
+  final remoteConfigService = await FirebaseRemoteConfigModule.initialize();
   getIt.registerSingleton<RemoteConfigService>(remoteConfigService);
-  unawaited(remoteConfigService.initialize());
 
   // Initialize Holiday Service
   final holidayService = HolidayService(
@@ -56,10 +52,6 @@ Future<void> initializeDependencies() async {
   await initEventsDependencies();
   await initHomeWidgetsDependencies();
   await initializePromoDependencies();
-
-  // Initialize notification scheduler
-  final scheduler = getIt<SmartNotificationScheduler>();
-  await scheduler.initialize();
 
   debugPrint('✅ All dependencies initialized');
 }

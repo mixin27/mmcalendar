@@ -11,6 +11,9 @@ environment:
 
 # Workspace configuration
 workspace:
+  - packages/shared/core
+  - packages/shared/ui_kit
+  - packages/shared/localizations
   - packages/app_remote_config
   - packages/core
   - packages/data
@@ -25,6 +28,8 @@ workspace:
   - packages/features/firebase_analytics_app
   - apps/myanmar_calendar
   - packages/integrations/telegram_web
+  - packages/integrations/database
+  - packages/integrations/firebase
   - packages/features/promo
   - packages/features/holidays
 

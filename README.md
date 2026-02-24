@@ -198,14 +198,16 @@ The app follows **Clean Architecture** principles with a modular, feature-based 
 ```
 myanmar_calendar_app/
 ├── packages/
-│   ├── core/              # Shared utilities, theme, DI
-│   ├── data/              # Database, DAOs
+│   ├── shared/            # Shared facades (core, ui_kit, localizations)
+│   ├── integrations/      # Platform/service adapters (firebase, database, telegram_web)
+│   ├── core/              # Existing core implementation (migration in progress)
+│   ├── data/              # Existing database implementation (migration in progress)
 │   └── features/
 │       ├── calendar/      # Calendar feature module
 │       ├── views/         # Year/Week/Day views
 │       ├── converter/     # Date conversion tools
 │       ├── settings/      # App settings
-│       └── events/        # Events (Phase 2)
+│       └── events/        # Events
 └── apps/
     └── myanmar_calendar/  # Main application
 ```
@@ -224,7 +226,7 @@ myanmar_calendar_app/
 - ✅ Clean Architecture (Domain, Data, Presentation)
 - ✅ BLoC Pattern for state management
 - ✅ Repository Pattern for data access
-- ✅ Event Bus for cross-feature communication
+- ✅ Explicit feature orchestration (no global event bus)
 - ✅ Modular, feature-based structure
 
 ---

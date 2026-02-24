@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:core/core.dart';
 import 'package:events/events.dart';
@@ -18,12 +16,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   final ToggleAstrology toggleAstrology;
   final GetEventsByDateRange getEventsByDateRange;
 
-  StreamSubscription<CalendarConfigurationChangedEvent>? _configSubscription;
-  StreamSubscription<CalendarLanguageChangedEvent>? _languageSubscription;
-  StreamSubscription<EventCreatedEvent>? _eventCreatedSubscription;
-  StreamSubscription<EventUpdatedEvent>? _eventUpdatedSubscription;
-  StreamSubscription<EventDeletedEvent>? _eventDeletedSubscription;
-
   CalendarBloc({
     required this.getCalendarMonth,
     required this.navigateMonth,
@@ -38,37 +30,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     on<SelectDateEvent>(_onSelectDate);
     on<ToggleAstrologyCard>(_onToggleAstrologyCard);
     on<RefreshCalendar>(_onRefreshCalendar);
-
-    // Subscribe to event bus
-    _subscribeToEvents();
-  }
-
-  void _subscribeToEvents() {
-    _configSubscription = AppEventBus.on<CalendarConfigurationChangedEvent>()
-        .listen((event) {
-          add(RefreshCalendar());
-        });
-
-    _languageSubscription = AppEventBus.on<CalendarLanguageChangedEvent>()
-        .listen((event) {
-          add(RefreshCalendar());
-        });
-
-    _eventCreatedSubscription = AppEventBus.on<EventCreatedEvent>().listen((
-      event,
-    ) {
-      add(RefreshCalendar());
-    });
-    _eventUpdatedSubscription = AppEventBus.on<EventUpdatedEvent>().listen((
-      event,
-    ) {
-      add(RefreshCalendar());
-    });
-    _eventDeletedSubscription = AppEventBus.on<EventDeletedEvent>().listen((
-      event,
-    ) {
-      add(RefreshCalendar());
-    });
   }
 
   Future<void> _onLoadCalendarMonth(
@@ -103,9 +64,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         eventsByDate: {},
       ),
     );
-
-    // Fire event to event bus
-    AppEventBus.fire(MonthChangedEvent(event.month));
   }
 
   Future<void> _onNavigateToNextMonth(
@@ -138,9 +96,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         eventsByDate: {},
       ),
     );
-
-    // Fire event to event bus
-    AppEventBus.fire(MonthChangedEvent(calendarMonth.month));
   }
 
   Future<void> _onNavigateToPreviousMonth(
@@ -176,9 +131,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         eventsByDate: {},
       ),
     );
-
-    // Fire event to event bus
-    AppEventBus.fire(MonthChangedEvent(calendarMonth.month));
   }
 
   Future<void> _onNavigateToToday(
@@ -212,9 +164,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         eventsByDate: {},
       ),
     );
-
-    // Fire event to event bus
-    AppEventBus.fire(MonthChangedEvent(calendarMonth.month));
   }
 
   Future<void> _onSelectDate(
@@ -231,9 +180,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       (failure) => emit(CalendarError(_mapFailureToMessage(failure))),
       (dateSelection) {
         emit(currentState.copyWith(selectedDate: dateSelection));
-
-        // Fire event to event bus
-        AppEventBus.fire(DateSelectedEvent(event.date));
       },
     );
   }
@@ -282,15 +228,5 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       default:
         return 'Unexpected error occurred';
     }
-  }
-
-  @override
-  Future<void> close() {
-    _configSubscription?.cancel();
-    _languageSubscription?.cancel();
-    _eventCreatedSubscription?.cancel();
-    _eventUpdatedSubscription?.cancel();
-    _eventDeletedSubscription?.cancel();
-    return super.close();
   }
 }

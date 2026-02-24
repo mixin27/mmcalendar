@@ -5,14 +5,6 @@ export 'src/constants/app_constants.dart';
 export 'src/constants/storage_keys.dart';
 export 'src/constants/route_paths.dart';
 
-// Events
-export 'src/events/app_event.dart';
-export 'src/events/event_bus.dart';
-export 'src/events/events/calendar_events.dart';
-export 'src/events/events/theme_events.dart';
-export 'src/events/events/settings_events.dart';
-export 'src/events/events/event_events.dart';
-
 // Theme
 export 'src/theme/app_theme.dart';
 export 'src/theme/color_schemes.dart';

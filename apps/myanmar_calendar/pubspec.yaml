@@ -18,10 +18,12 @@ dependencies:
   # Core packages
   core:
     path: ../../packages/core
-  data:
-    path: ../../packages/data
   localizations:
     path: ../../packages/localizations
+  integrations_database:
+    path: ../../packages/integrations/database
+  integrations_firebase:
+    path: ../../packages/integrations/firebase
 
   # Features
   calendar:
@@ -36,14 +38,10 @@ dependencies:
     path: ../../packages/features/events
   home_widgets:
     path: ../../packages/features/home_widgets
-  firebase_analytics_app:
-    path: ../../packages/features/firebase_analytics_app
   telegram_web:
     path: ../../packages/integrations/telegram_web
   promo:
     path: ../../packages/features/promo
-  app_remote_config:
-    path: ../../packages/app_remote_config
   holidays:
     path: ../../packages/features/holidays
 

@@ -1,4 +1,4 @@
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/foundation.dart';
 
 /// Mock Analytics Service for Web

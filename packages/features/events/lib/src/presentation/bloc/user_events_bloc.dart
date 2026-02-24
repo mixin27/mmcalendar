@@ -28,7 +28,6 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
   final SmartNotificationScheduler smartScheduler;
 
   StreamSubscription? _eventsSubscription;
-  StreamSubscription<MonthChangedEvent>? _monthChangedSubscription;
 
   UserEventsBloc({
     required this.getEventsByDate,
@@ -60,25 +59,6 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     on<StartWatchingEvents>(_onStartWatchingEvents);
     on<StartWatchingEventsByDateRange>(_onStartWatchingEventsByDateRange);
     on<StopWatchingEvents>(_onStopWatchingEvents);
-
-    _subscribeToEvents();
-  }
-
-  void _subscribeToEvents() {
-    _monthChangedSubscription = AppEventBus.on<MonthChangedEvent>().listen((
-      event,
-    ) {
-      final month = event.month;
-      // Load events for the month (include a few days buffer for grid)
-      final startOfMonth = DateTime(month.year, month.month, 1);
-      final endOfMonth = DateTime(month.year, month.month + 1, 0);
-
-      // Add a buffer for grid display (some days from prev/next month)
-      final startDate = startOfMonth.subtract(const Duration(days: 7));
-      final endDate = endOfMonth.add(const Duration(days: 7));
-
-      add(LoadEventsByDateRange(startDate, endDate));
-    });
   }
 
   // ...
@@ -442,7 +422,6 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
   @override
   Future<void> close() {
     _eventsSubscription?.cancel();
-    _monthChangedSubscription?.cancel();
     return super.close();
   }
 }
