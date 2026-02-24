@@ -1,6 +1,6 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
-import 'package:data/data.dart';
+import 'package:integrations_database/integrations_database.dart';
 
 import '../../domain/entities/day_data.dart';
 import '../../domain/entities/week_data.dart';

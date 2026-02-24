@@ -1,4 +1,4 @@
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

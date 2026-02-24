@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../../domain/repositories/events_repository.dart';
 import '../../domain/usecases/delete_user_event.dart';

@@ -1,4 +1,4 @@
-import 'package:data/data.dart';
+import 'database/app_database.dart';
 
 /// Composition helper for database lifecycle in the app layer.
 final class DatabaseModule {

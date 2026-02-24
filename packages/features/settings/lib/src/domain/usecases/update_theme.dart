@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../repositories/settings_repository.dart';
 

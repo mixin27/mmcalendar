@@ -34,10 +34,10 @@ dependencies:
   get_it: ^8.2.0
 
   # Internal packages
-  core:
-    path: ../../core
-  firebase_analytics_app:
-    path: ../firebase_analytics_app
+  shared_core:
+    path: ../../shared/core
+  integrations_firebase:
+    path: ../../integrations/firebase
 
 dev_dependencies:
   flutter_test:

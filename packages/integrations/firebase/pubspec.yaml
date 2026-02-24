@@ -12,10 +12,13 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^4.1.1
-  firebase_analytics_app:
-    path: ../../features/firebase_analytics_app
-  app_remote_config:
-    path: ../../app_remote_config
+  firebase_analytics: ^12.0.2
+  firebase_crashlytics: ^5.0.2
+  firebase_remote_config: ^6.0.2
+  logger: ^2.6.2
+  equatable: ^2.0.7
+  shared_preferences: ^2.5.3
+  get_it: ^8.2.0
   integrations_database:
     path: ../database
 

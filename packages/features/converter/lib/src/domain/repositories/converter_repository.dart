@@ -1,4 +1,4 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
 
 import '../entities/conversion_result.dart';

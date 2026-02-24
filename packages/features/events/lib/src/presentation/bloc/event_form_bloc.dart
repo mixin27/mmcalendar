@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../domain/entities/event.dart';

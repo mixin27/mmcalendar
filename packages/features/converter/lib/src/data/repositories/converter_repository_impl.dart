@@ -1,6 +1,6 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
-import 'package:data/data.dart';
+import 'package:integrations_database/integrations_database.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
 import '../../domain/entities/conversion_result.dart';

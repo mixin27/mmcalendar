@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:app_remote_config/app_remote_config.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import '../models/remote_holiday_models.dart';
 

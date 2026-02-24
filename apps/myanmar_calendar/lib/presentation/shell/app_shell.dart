@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:localizations/localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:telegram_web/telegram_web.dart';
 
 import '../../config/di_setup.dart';

@@ -1,5 +1,5 @@
-import 'package:core/core.dart';
-import 'package:data/data.dart';
+import 'package:shared_core/shared_core.dart';
+import 'package:integrations_database/integrations_database.dart';
 
 abstract class SettingsLocalDataSource {
   Future<Map<String, String>> getAllSettings();

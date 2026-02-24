@@ -2,11 +2,11 @@ import 'dart:developer';
 
 import 'package:converter/converter.dart';
 import 'package:calendar/calendar.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:localizations/localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';

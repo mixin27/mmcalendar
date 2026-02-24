@@ -12,12 +12,12 @@ dependencies:
   flutter:
     sdk: flutter
   # Core packages
-  core:
-    path: ../../core
-  data:
-    path: ../../data
-  firebase_analytics_app:
-    path: ../firebase_analytics_app
+  shared_core:
+    path: ../../shared/core
+  integrations_database:
+    path: ../../integrations/database
+  integrations_firebase:
+    path: ../../integrations/firebase
 
 dev_dependencies:
   flutter_test:

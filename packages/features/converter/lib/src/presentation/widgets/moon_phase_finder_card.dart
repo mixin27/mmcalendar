@@ -1,9 +1,9 @@
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:localizations/localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../di/converter_injection.dart';
 import '../../domain/entities/moon_phase_result.dart';

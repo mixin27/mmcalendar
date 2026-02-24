@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';

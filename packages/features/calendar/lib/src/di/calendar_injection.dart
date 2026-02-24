@@ -1,4 +1,4 @@
-import 'package:data/data.dart';
+import 'package:integrations_database/integrations_database.dart';
 import 'package:events/events.dart';
 import 'package:get_it/get_it.dart';
 import 'package:holidays/holidays.dart';

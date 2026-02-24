@@ -12,14 +12,14 @@ dependencies:
   flutter:
     sdk: flutter
   # Core packages
-  core:
-    path: ../../core
-  data:
-    path: ../../data
-  localizations:
-    path: ../../localizations
-  firebase_analytics_app:
-    path: ../firebase_analytics_app
+  shared_core:
+    path: ../../shared/core
+  integrations_database:
+    path: ../../integrations/database
+  shared_localizations:
+    path: ../../shared/localizations
+  integrations_firebase:
+    path: ../../integrations/firebase
   promo:
     path: ../promo
   holidays:

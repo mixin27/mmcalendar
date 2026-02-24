@@ -1,5 +1,5 @@
-import 'package:core/core.dart';
-import 'package:data/data.dart' as db;
+import 'package:shared_core/shared_core.dart';
+import 'package:integrations_database/integrations_database.dart' as db;
 import 'package:flutter/foundation.dart';
 
 import '../models/recurring_exception_model.dart';

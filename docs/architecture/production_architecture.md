@@ -34,9 +34,11 @@
     /notes
     /home_widgets
 
-  /core
-  /data
-  /app_remote_config
+  /core (compatibility shim)
+  /localizations (compatibility shim)
+  /data (compatibility shim)
+  /app_remote_config (compatibility shim)
+  /features/firebase_analytics_app (compatibility shim)
 ```
 
 ## Dependency Rules
@@ -66,11 +68,14 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 - Migrated app bootstrap/DI to integration packages for:
   - Firebase consent-aware initialization
   - Database lifecycle access
+- Moved drift implementation into `packages/integrations/database`.
+- Moved Firebase analytics/crashlytics/remote-config implementation into `packages/integrations/firebase`.
+- Converted legacy `data`, `firebase_analytics_app`, and `app_remote_config` to compatibility shims.
 
 ## Next Migration Steps
 
-1. Move remote config + holiday parsing contracts behind integration interfaces.
-2. Move drift implementation details from `data` into `integrations/database`.
-3. Move analytics/crashlytics call sites from feature packages to domain-safe interfaces.
-4. Adopt `shared_*` packages from feature/app imports and retire direct `core/localizations` usage.
-5. Add CI dependency-boundary checks per package layer.
+1. Move remote config + holiday parsing behind explicit integration interfaces.
+2. Introduce domain-safe analytics/crashlytics ports and keep SDK types out of feature code.
+3. Convert remaining direct `core/localizations` usage into `shared_*` only and retire legacy packages.
+4. Add workspace boundary checks to CI (allowed-imports/dependency-graph enforcement).
+5. Plan shim package deprecation/removal once downstream imports are fully migrated.

@@ -1,5 +1,5 @@
-import 'package:data/data.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:integrations_database/integrations_database.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:get_it/get_it.dart';
 
 import '../data/datasources/settings_local_datasource.dart';

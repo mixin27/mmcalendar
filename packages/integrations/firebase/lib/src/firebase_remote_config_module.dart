@@ -1,4 +1,4 @@
-import 'package:app_remote_config/app_remote_config.dart';
+import 'remote_config/remote_config_service.dart';
 
 /// Composition helper for Firebase Remote Config setup.
 final class FirebaseRemoteConfigModule {

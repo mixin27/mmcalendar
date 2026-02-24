@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:localizations/l10n/app_localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 
 import '../../di/settings_injection.dart';

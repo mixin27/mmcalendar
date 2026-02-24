@@ -1,8 +1,8 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
-import 'package:localizations/localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 
 class CalendarAppBar extends StatelessWidget {

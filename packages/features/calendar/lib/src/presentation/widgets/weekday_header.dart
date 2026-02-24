@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
 class WeekdayHeader extends StatelessWidget {

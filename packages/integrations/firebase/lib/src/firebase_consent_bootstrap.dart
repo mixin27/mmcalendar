@@ -2,7 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:integrations_database/integrations_database.dart';
 
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'firebase_analytics/core/analytics/analytics_config.dart';
+import 'firebase_analytics/core/crashlytics/crashlytics_config.dart';
+import 'firebase_analytics/core/firebase_service.dart';
 
 /// Consent values used to configure Firebase collection behavior.
 final class FirebaseConsentSettings {
@@ -22,9 +24,7 @@ final class FirebaseConsentBootstrap {
   static const String _analyticsConsentKey = 'enable_analytics';
   static const String _crashlyticsConsentKey = 'enable_crashlytics';
 
-  Future<FirebaseConsentSettings> loadConsent({
-    AppDatabase? database,
-  }) async {
+  Future<FirebaseConsentSettings> loadConsent({AppDatabase? database}) async {
     final appDatabase = database ?? DatabaseModule.createDatabase();
     final settingsDao = appDatabase.settingsDao;
 

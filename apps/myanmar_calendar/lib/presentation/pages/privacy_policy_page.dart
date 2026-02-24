@@ -1,4 +1,4 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
-import 'package:data/data.dart' as data;
+import 'package:integrations_database/integrations_database.dart' as data;
 
 import '../../domain/entities/event.dart';
 import '../../domain/entities/event_category.dart';

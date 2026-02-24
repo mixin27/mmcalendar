@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
-import 'package:data/data.dart';
+import 'package:integrations_database/integrations_database.dart';
 import 'package:drift/drift.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
 import 'package:shared_preferences/shared_preferences.dart';

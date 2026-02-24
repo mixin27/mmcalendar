@@ -16,10 +16,10 @@ dependencies:
     sdk: flutter
 
   # Core packages
-  core:
-    path: ../../packages/core
-  localizations:
-    path: ../../packages/localizations
+  shared_core:
+    path: ../../packages/shared/core
+  shared_localizations:
+    path: ../../packages/shared/localizations
   integrations_database:
     path: ../../packages/integrations/database
   integrations_firebase:

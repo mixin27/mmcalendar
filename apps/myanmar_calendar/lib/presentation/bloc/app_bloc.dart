@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:integrations_database/integrations_database.dart';

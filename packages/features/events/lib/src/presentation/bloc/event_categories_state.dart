@@ -1,4 +1,4 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/event_category.dart';
