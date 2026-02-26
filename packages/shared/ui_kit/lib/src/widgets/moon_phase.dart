@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:shared_core/src/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 
 const double _lunarCycleDays = 29.53;
 const double _fullMoonCycleDay = _lunarCycleDays / 2;

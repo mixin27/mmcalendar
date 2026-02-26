@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/settings_injection.dart';
 import '../widgets/reset_button.dart';

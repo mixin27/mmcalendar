@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
     hide MoonPhaseIndicator, CompactMoonPhaseIndicator;
 import 'package:go_router/go_router.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/views_injection.dart';
 import '../bloc/views_bloc.dart';

@@ -1,18 +1,25 @@
 library;
 
+// Extensions
+export 'src/extensions/context_extension.dart';
+export 'src/extensions/color_extension.dart';
+
 // Theme
-export 'package:shared_core/src/theme/app_theme.dart';
-export 'package:shared_core/src/theme/color_schemes.dart';
-export 'package:shared_core/src/theme/theme_presets.dart';
-export 'package:shared_core/src/theme/text_styles.dart';
+export 'src/theme/app_theme.dart';
+export 'src/theme/color_schemes.dart';
+export 'src/theme/theme_presets.dart';
+export 'src/theme/text_styles.dart';
+
+// Utils
+export 'src/utils/responsive_utils.dart';
 
 // Widgets
-export 'package:shared_core/src/widgets/section_header.dart';
-export 'package:shared_core/src/widgets/settings_list_tile.dart';
-export 'package:shared_core/src/widgets/moon_phase.dart';
-export 'package:shared_core/src/widgets/markdown_render.dart';
-export 'package:shared_core/src/widgets/expandable_section.dart';
-export 'package:shared_core/src/widgets/color_picker_tile.dart';
-export 'package:shared_core/src/widgets/custom_colors_editor_dialog.dart';
-export 'package:shared_core/src/widgets/color_chip.dart';
-export 'package:shared_core/src/widgets/custom_colors_option.dart';
+export 'src/widgets/section_header.dart';
+export 'src/widgets/settings_list_tile.dart';
+export 'src/widgets/moon_phase.dart';
+export 'src/widgets/markdown_render.dart';
+export 'src/widgets/expandable_section.dart';
+export 'src/widgets/color_picker_tile.dart';
+export 'src/widgets/custom_colors_editor_dialog.dart';
+export 'src/widgets/color_chip.dart';
+export 'src/widgets/custom_colors_option.dart';

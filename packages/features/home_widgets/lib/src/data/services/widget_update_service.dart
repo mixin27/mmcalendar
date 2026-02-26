@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:shared_core/shared_core.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/widget_config.dart';
 import '../../domain/entities/widget_data.dart';

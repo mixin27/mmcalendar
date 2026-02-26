@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:markdown_widget/markdown_widget.dart';
-
-import '../constants/app_constants.dart';
+import 'package:shared_core/shared_core.dart';
 
 class MarkdownRender extends StatelessWidget {
   final String data;

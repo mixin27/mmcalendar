@@ -21,15 +21,10 @@ dependencies:
   get_it: ^8.2.0
   injectable: ^2.5.2
 
-  # UI
-  google_fonts: ^6.3.2
-
   # Utilities
   intl: ^0.20.0
   flutter_mmcalendar: ^3.2.8
-  markdown_widget: ^2.3.2+8
   share_plus: ^12.0.0
-  flutter_colorpicker: ^1.1.0
 
 dev_dependencies:
   flutter_test:

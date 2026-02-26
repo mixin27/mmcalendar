@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:shared_core/shared_core.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 /// Renders Flutter widgets to images for Android widget display
 class WidgetRenderer {

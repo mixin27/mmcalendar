@@ -14,6 +14,8 @@ dependencies:
   # Core packages
   shared_core:
     path: ../../shared/core
+  shared_ui_kit:
+    path: ../../shared/ui_kit
   integrations_database:
     path: ../../integrations/database
   shared_localizations:

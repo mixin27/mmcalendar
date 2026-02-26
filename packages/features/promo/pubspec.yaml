@@ -33,6 +33,8 @@ dependencies:
   # Internal packages
   shared_core:
     path: ../../shared/core
+  shared_ui_kit:
+    path: ../../shared/ui_kit
 
 dev_dependencies:
   flutter_test:
