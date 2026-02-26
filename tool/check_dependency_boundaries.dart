@@ -47,6 +47,16 @@ final Map<String, Set<String>> _strictAllowedInternalDependencies =
       'app_remote_config': <String>{'integrations_firebase'},
     };
 
+/// Explicit feature-to-feature dependency allowlist.
+///
+/// Any feature dependency not listed here will fail boundary checks.
+final Map<String, Set<String>> _allowedFeatureDependencies =
+    <String, Set<String>>{
+      'calendar': <String>{'events', 'holidays', 'settings'},
+      'settings': <String>{'holidays', 'home_widgets', 'promo'},
+      'views': <String>{'calendar', 'settings'},
+    };
+
 /// Package-level dependency bans by layer.
 final Map<PackageLayer, Set<String>> _disallowedInternalDependenciesByLayer =
     <PackageLayer, Set<String>>{
@@ -142,6 +152,22 @@ void _validateInternalDependencies(
         );
       }
 
+      if (info.layer == PackageLayer.feature &&
+          dependency.layer == PackageLayer.feature &&
+          dependencyName != info.name) {
+        final Set<String> allowedFeatureDependencies =
+            _allowedFeatureDependencies[info.name] ?? const <String>{};
+
+        if (!allowedFeatureDependencies.contains(dependencyName)) {
+          errors.add(
+            '${info.name} (feature) cannot depend on $dependencyName '
+            '(feature). Allowed: '
+            '${allowedFeatureDependencies.toList()..sort()} '
+            '(${_relativeToRoot(info.pubspec.path)}).',
+          );
+        }
+      }
+
       if (_legacyPackageNames.contains(dependencyName) &&
           info.layer != PackageLayer.legacy &&
           info.layer != PackageLayer.shared) {
@@ -194,6 +220,23 @@ void _validateSourceImports(
             '${info.name} imports banned package "$importedPackage" '
             'in ${_relativeToRoot(entity.path)}.',
           );
+        }
+
+        final PackageInfo? importedPackageInfo = packages[importedPackage];
+        if (info.layer == PackageLayer.feature &&
+            importedPackageInfo != null &&
+            importedPackageInfo.layer == PackageLayer.feature &&
+            importedPackage != info.name) {
+          final Set<String> allowedFeatureDependencies =
+              _allowedFeatureDependencies[info.name] ?? const <String>{};
+
+          if (!allowedFeatureDependencies.contains(importedPackage)) {
+            errors.add(
+              '${info.name} imports feature package "$importedPackage" '
+              'outside allowlist in ${_relativeToRoot(entity.path)}. '
+              'Allowed: ${allowedFeatureDependencies.toList()..sort()}.',
+            );
+          }
         }
       }
     }

@@ -56,13 +56,14 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 ## Automated Guardrails
 
 - Run `dart run tool/check_dependency_boundaries.dart` to enforce package-layer boundaries.
+- Boundary script now enforces explicit feature-to-feature dependency allowlists.
 - Use `./scripts/analyze_all.sh` for boundary check + static analysis.
 - Use `./scripts/test_all.sh` for boundary check + test run.
 - CI enforcement: `.github/workflows/quality_gate.yml` runs these checks on pull requests and `main`.
 
 ## Integration Ports
 
-- `AnalyticsPort`, `CrashlyticsPort`, and `RemoteConfigPort` are defined in `packages/shared/core`.
+- `AnalyticsPort`, `CrashlyticsPort`, `RemoteConfigPort`, and `HolidayConfigPort` are defined in `packages/shared/core`.
 - Feature packages consume these ports instead of Firebase SDK-facing services.
 - `packages/integrations/firebase` provides the concrete implementations and DI wiring.
 
@@ -82,11 +83,11 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
   - Database lifecycle access
 - Moved drift implementation into `packages/integrations/database`.
 - Moved Firebase analytics/crashlytics/remote-config implementation into `packages/integrations/firebase`.
+- Moved holiday-config retrieval/JSON decoding behind `HolidayConfigPort` and Firebase integration adapter.
+- Added strict feature-to-feature dependency allowlists in boundary checks.
 - Converted legacy `data` and `app_remote_config` to compatibility shims.
 
 ## Next Migration Steps
 
-1. Move remote config + holiday parsing behind explicit integration interfaces.
-2. Convert remaining direct `core/localizations` usage into `shared_*` only and retire legacy packages.
-3. Extend boundary checks with stricter feature-to-feature dependency allowlists.
-4. Plan shim package deprecation/removal once downstream imports are fully migrated.
+1. Convert remaining direct `core/localizations` usage into `shared_*` only and retire legacy packages.
+2. Plan shim package deprecation/removal once downstream imports are fully migrated.

@@ -34,10 +34,13 @@ Future<void> initializeDependencies() async {
   // Initialize Remote Config
   final remoteConfigService = await FirebaseRemoteConfigModule.initialize();
   getIt.registerSingleton<RemoteConfigPort>(remoteConfigService);
+  getIt.registerSingleton<HolidayConfigPort>(
+    HolidayConfigService(remoteConfigPort: remoteConfigService),
+  );
 
   // Initialize Holiday Service
   final holidayService = HolidayService(
-    remoteConfigService: remoteConfigService,
+    holidayConfigPort: getIt<HolidayConfigPort>(),
   );
   getIt.registerSingleton<HolidayService>(holidayService);
 
