@@ -2,7 +2,6 @@ import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../di/calendar_injection.dart';
@@ -15,6 +14,7 @@ class DayDetailsContent extends StatelessWidget {
   final CompleteDate completeDate;
   final bool showShanCalendar;
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final EventActionsPort _eventActionsPort = getIt<EventActionsPort>();
   final EventMarkersPort _eventMarkersPort = getIt<EventMarkersPort>();
 
   DayDetailsContent({
@@ -1049,9 +1049,10 @@ class DayDetailsContent extends StatelessWidget {
                         buttonLocation: 'day_details_events_section',
                       );
 
-                      await GoRouter.of(
+                      await _eventActionsPort.openCreateEvent(
                         context,
-                      ).push('/events/create', extra: date);
+                        initialDate: date,
+                      );
                     },
                     icon: const Icon(Icons.add, size: 18),
                     label: const Text('Add'),
@@ -1085,9 +1086,10 @@ class DayDetailsContent extends StatelessWidget {
                       );
 
                       if (event.id != null && !event.isCompleted) {
-                        await GoRouter.of(
+                        await _eventActionsPort.openEventDetail(
                           context,
-                        ).push('/events/${event.id}/detail');
+                          eventId: event.id!,
+                        );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Event marked as completed")),

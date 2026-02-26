@@ -51,6 +51,7 @@ export 'src/ports/analytics_port.dart';
 export 'src/ports/calendar_display_config_port.dart';
 export 'src/ports/crashlytics_port.dart';
 export 'src/ports/display_preferences_port.dart';
+export 'src/ports/event_actions_port.dart';
 export 'src/ports/event_markers_port.dart';
 export 'src/ports/holiday_config_port.dart';
 export 'src/ports/holiday_overrides_port.dart';

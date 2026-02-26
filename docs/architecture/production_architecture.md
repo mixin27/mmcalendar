@@ -59,12 +59,12 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 
 ## Integration Ports
 
-- `AnalyticsPort`, `CrashlyticsPort`, `RemoteConfigPort`, `HolidayConfigPort`, `HolidayOverridesPort`, `DisplayPreferencesPort`, `CalendarDisplayConfigPort`, `EventMarkersPort`, and `MonthPreviewPort` are defined in `packages/shared/core`.
+- `AnalyticsPort`, `CrashlyticsPort`, `RemoteConfigPort`, `HolidayConfigPort`, `HolidayOverridesPort`, `DisplayPreferencesPort`, `CalendarDisplayConfigPort`, `EventActionsPort`, `EventMarkersPort`, and `MonthPreviewPort` are defined in `packages/shared/core`.
 - Feature packages consume these ports instead of Firebase SDK-facing services.
 - `packages/integrations/firebase` provides the concrete implementations and DI wiring.
 - `packages/features/holidays` provides holiday-override implementation wiring consumed through `HolidayOverridesPort`.
 - `packages/features/settings` provides database-backed display preference wiring consumed through `DisplayPreferencesPort` and `CalendarDisplayConfigPort`.
-- `packages/features/events` provides repository-backed marker/event wiring consumed through `EventMarkersPort`.
+- `packages/features/events` provides repository-backed marker/event wiring consumed through `EventMarkersPort` and navigation actions through `EventActionsPort`.
 - `packages/features/calendar` provides month-preview UI wiring consumed through `MonthPreviewPort`.
 
 ## What Was Changed In This Refactor Pass
@@ -87,6 +87,7 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 - Moved `calendar` and `settings` holiday override access behind `HolidayOverridesPort` (removed direct `holidays` feature dependency).
 - Moved `calendar` display and calendar-config reads behind `CalendarDisplayConfigPort` (removed direct `settings` feature dependency).
 - Moved `calendar` event markers/day-event reads behind `EventMarkersPort` (removed direct `events` feature dependency).
+- Moved `calendar` event navigation flows behind `EventActionsPort` (removed direct event-route coupling).
 - Moved `views` display preference reads behind `DisplayPreferencesPort` (removed direct `settings` feature dependency).
 - Moved `views` month-preview rendering behind `MonthPreviewPort` (removed direct `calendar` feature dependency).
 - Added strict feature-to-feature dependency allowlists in boundary checks.

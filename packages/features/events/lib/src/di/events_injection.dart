@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_core/shared_core.dart';
 
+import '../adapters/go_router_event_actions_port.dart';
 import '../adapters/repository_event_markers_port.dart';
 import '../data/datasources/events_local_datasource.dart';
 import '../data/datasources/recurring_exceptions_datasource.dart';
@@ -83,6 +84,12 @@ Future<void> initEventsDependencies() async {
   if (!getIt.isRegistered<EventMarkersPort>()) {
     getIt.registerLazySingleton<EventMarkersPort>(
       () => RepositoryEventMarkersPort(getIt<EventsRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<EventActionsPort>()) {
+    getIt.registerLazySingleton<EventActionsPort>(
+      () => GoRouterEventActionsPort(),
     );
   }
 
