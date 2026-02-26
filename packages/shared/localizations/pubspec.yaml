@@ -11,10 +11,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  localizations:
-    path: ../../localizations
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true

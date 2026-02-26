@@ -1,4 +1,4 @@
-import 'package:core/src/extensions/context_extension.dart';
+import 'package:shared_core/src/extensions/context_extension.dart';
 import 'package:flutter/material.dart';
 
 class MoonPhaseIndicator extends StatelessWidget {

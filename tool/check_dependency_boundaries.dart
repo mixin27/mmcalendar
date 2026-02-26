@@ -40,9 +40,9 @@ final Map<PackageLayer, Set<PackageLayer>> _allowedLayersByLayer =
 final Map<String, Set<String>> _strictAllowedInternalDependencies =
     <String, Set<String>>{
       // Facades with explicit migration targets.
-      'shared_core': <String>{'core'},
-      'shared_ui_kit': <String>{'core'},
-      'shared_localizations': <String>{'localizations'},
+      'shared_core': <String>{},
+      'shared_ui_kit': <String>{'shared_core'},
+      'shared_localizations': <String>{},
       'data': <String>{'integrations_database'},
       'app_remote_config': <String>{'integrations_firebase'},
     };

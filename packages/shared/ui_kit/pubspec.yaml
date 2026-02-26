@@ -11,8 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  core:
-    path: ../../core
+  shared_core:
+    path: ../core
 
 dev_dependencies:
   flutter_test:

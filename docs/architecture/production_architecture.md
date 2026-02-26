@@ -34,8 +34,6 @@
     /notes
     /home_widgets
 
-  /core (compatibility shim)
-  /localizations (compatibility shim)
   /data (compatibility shim)
   /app_remote_config (compatibility shim)
 ```
@@ -85,9 +83,9 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 - Moved Firebase analytics/crashlytics/remote-config implementation into `packages/integrations/firebase`.
 - Moved holiday-config retrieval/JSON decoding behind `HolidayConfigPort` and Firebase integration adapter.
 - Added strict feature-to-feature dependency allowlists in boundary checks.
+- Retired legacy `core` and `localizations` shim packages.
 - Converted legacy `data` and `app_remote_config` to compatibility shims.
 
 ## Next Migration Steps
 
-1. Convert remaining direct `core/localizations` usage into `shared_*` only and retire legacy packages.
-2. Plan shim package deprecation/removal once downstream imports are fully migrated.
+1. Plan remaining shim package deprecation/removal once downstream imports are fully migrated.
