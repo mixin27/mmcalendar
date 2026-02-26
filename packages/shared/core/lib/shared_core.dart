@@ -50,4 +50,5 @@ export 'src/di/injection.dart' hide getIt;
 export 'src/ports/analytics_port.dart';
 export 'src/ports/crashlytics_port.dart';
 export 'src/ports/holiday_config_port.dart';
+export 'src/ports/holiday_overrides_port.dart';
 export 'src/ports/remote_config_port.dart';

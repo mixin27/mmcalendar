@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:holidays/holidays.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:integrations_firebase/integrations_firebase.dart';
@@ -124,7 +123,7 @@ Future<void> _initializeMyanmarCalendar() async {
     final database = getIt<AppDatabase>();
     final settingsDao = database.settingsDao;
 
-    final holidayService = getIt<HolidayService>();
+    final holidayOverridesPort = getIt<HolidayOverridesPort>();
 
     // Load calendar configuration from database
     final sasanaYearType = await settingsDao.getSetting('sasana_year_type');
@@ -140,10 +139,10 @@ Future<void> _initializeMyanmarCalendar() async {
       sasanaYearType: int.tryParse(sasanaYearType ?? '0') ?? 0,
       calendarType: int.tryParse(calendarType ?? '0') ?? 0,
       gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
-      customHolidays: holidayService.getCustomHolidays(),
-      disabledHolidays: holidayService.getDisabledHolidays(),
-      disabledHolidaysByYear: holidayService.getDisabledHolidaysByYear(),
-      disabledHolidaysByDate: holidayService.getDisabledHolidaysByDate(),
+      customHolidays: holidayOverridesPort.getCustomHolidays(),
+      disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
+      disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
+      disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
     );
 
     MyanmarCalendar.clearCache();

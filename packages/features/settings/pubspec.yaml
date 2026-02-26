@@ -20,8 +20,6 @@ dependencies:
     path: ../../shared/localizations
   promo:
     path: ../promo
-  holidays:
-    path: ../holidays
 
   home_widgets:
     path: ../home_widgets

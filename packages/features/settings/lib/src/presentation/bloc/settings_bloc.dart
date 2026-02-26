@@ -1,9 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:shared_core/shared_core.dart';
-import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:holidays/holidays.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings.dart';
@@ -26,6 +24,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final MarkAsConsentDialogShown markAsConsentDialogShown;
   final AnalyticsPort analyticsService;
   final CrashlyticsPort crashlyticsService;
+  final HolidayOverridesPort holidayOverridesPort;
 
   SettingsBloc({
     required this.getSettings,
@@ -37,6 +36,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required this.markAsConsentDialogShown,
     required this.analyticsService,
     required this.crashlyticsService,
+    required this.holidayOverridesPort,
   }) : super(SettingsInitial()) {
     on<LoadSettings>(_onLoadSettings);
     on<ChangeThemeMode>(_onChangeThemeMode);
@@ -438,12 +438,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         gregorianStart: config.gregorianStart,
         customHolidays: [
           ...config.customHolidays,
-          ...GetIt.I<HolidayService>().getCustomHolidays(),
+          ...holidayOverridesPort.getCustomHolidays(),
         ],
-        disabledHolidays: GetIt.I<HolidayService>().getDisabledHolidays(),
-        disabledHolidaysByYear: GetIt.I<HolidayService>()
+        disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
+        disabledHolidaysByYear: holidayOverridesPort
             .getDisabledHolidaysByYear(),
-        disabledHolidaysByDate: GetIt.I<HolidayService>()
+        disabledHolidaysByDate: holidayOverridesPort
             .getDisabledHolidaysByDate(),
       );
       MyanmarCalendar.clearCache();

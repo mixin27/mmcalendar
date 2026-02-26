@@ -60,6 +60,7 @@ Future<void> initSettingsDependencies() async {
       markAsConsentDialogShown: getIt<MarkAsConsentDialogShown>(),
       analyticsService: getIt<AnalyticsPort>(),
       crashlyticsService: getIt<CrashlyticsPort>(),
+      holidayOverridesPort: getIt<HolidayOverridesPort>(),
     ),
   );
 }

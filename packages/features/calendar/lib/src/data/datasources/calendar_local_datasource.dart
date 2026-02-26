@@ -4,7 +4,6 @@ import 'package:shared_core/shared_core.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
-import 'package:holidays/holidays.dart';
 
 // Local data source for calendar operations
 abstract class CalendarLocalDataSource {
@@ -19,9 +18,9 @@ abstract class CalendarLocalDataSource {
 
 class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
   final AppDatabase database;
-  final HolidayService holidayService;
+  final HolidayOverridesPort holidayOverridesPort;
 
-  CalendarLocalDataSourceImpl(this.database, this.holidayService);
+  CalendarLocalDataSourceImpl(this.database, this.holidayOverridesPort);
 
   @override
   Future<List<CompleteDate>> getMonthDates(DateTime month) async {
@@ -107,9 +106,11 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
       );
 
       // Apply to Myanmar Calendar package
-      log('CustomHolidays: ${holidayService.getCustomHolidays().toString()}');
       log(
-        'DisabledHolidays: ${holidayService.getDisabledHolidays().toString()}',
+        'CustomHolidays: ${holidayOverridesPort.getCustomHolidays().toString()}',
+      );
+      log(
+        'DisabledHolidays: ${holidayOverridesPort.getDisabledHolidays().toString()}',
       );
       MyanmarCalendar.configure(
         language: Language.fromCode(config.defaultLanguage),
@@ -119,11 +120,13 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
         gregorianStart: config.gregorianStart,
         customHolidays: [
           ...config.customHolidays,
-          ...holidayService.getCustomHolidays(),
+          ...holidayOverridesPort.getCustomHolidays(),
         ],
-        disabledHolidays: holidayService.getDisabledHolidays(),
-        disabledHolidaysByYear: holidayService.getDisabledHolidaysByYear(),
-        disabledHolidaysByDate: holidayService.getDisabledHolidaysByDate(),
+        disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
+        disabledHolidaysByYear: holidayOverridesPort
+            .getDisabledHolidaysByYear(),
+        disabledHolidaysByDate: holidayOverridesPort
+            .getDisabledHolidaysByDate(),
       );
 
       MyanmarCalendar.clearCache();

@@ -2,7 +2,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import '../models/remote_holiday_models.dart';
 
-class HolidayService {
+class HolidayService implements HolidayOverridesPort {
   final HolidayConfigPort _holidayConfigPort;
 
   HolidayService({required HolidayConfigPort holidayConfigPort})
@@ -32,20 +32,24 @@ class HolidayService {
     }
   }
 
+  @override
   List<CustomHoliday> getCustomHolidays() {
     return getHolidayConfig().customHolidays
         .map((e) => e.toCustomHoliday())
         .toList();
   }
 
+  @override
   List<HolidayId> getDisabledHolidays() {
     return getHolidayConfig().disabledHolidays;
   }
 
+  @override
   Map<int, List<HolidayId>>? getDisabledHolidaysByYear() {
     return getHolidayConfig().disabledHolidaysByYear;
   }
 
+  @override
   Map<String, List<HolidayId>>? getDisabledHolidaysByDate() {
     return getHolidayConfig().disabledHolidaysByDate;
   }

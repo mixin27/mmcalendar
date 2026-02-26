@@ -23,8 +23,6 @@ dependencies:
     path: ../settings
   events:
     path: ../events
-  holidays:
-    path: ../holidays
   telegram_web:
     path: ../../integrations/telegram_web
 

@@ -43,6 +43,7 @@ Future<void> initializeDependencies() async {
     holidayConfigPort: getIt<HolidayConfigPort>(),
   );
   getIt.registerSingleton<HolidayService>(holidayService);
+  getIt.registerSingleton<HolidayOverridesPort>(holidayService);
 
   // Firebase Services (moved to separate setup function)
   await setupFirebaseServicesDependencies(getIt);

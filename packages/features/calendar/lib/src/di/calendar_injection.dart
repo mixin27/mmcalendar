@@ -1,7 +1,7 @@
 import 'package:integrations_database/integrations_database.dart';
 import 'package:events/events.dart';
 import 'package:get_it/get_it.dart';
-import 'package:holidays/holidays.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../data/datasources/calendar_local_datasource.dart';
 import '../data/repositories/calendar_repository_impl.dart';
@@ -21,7 +21,7 @@ Future<void> initCalendarDependencies() async {
   getIt.registerLazySingleton<CalendarLocalDataSource>(
     () => CalendarLocalDataSourceImpl(
       getIt<AppDatabase>(),
-      getIt<HolidayService>(),
+      getIt<HolidayOverridesPort>(),
     ),
   );
 
