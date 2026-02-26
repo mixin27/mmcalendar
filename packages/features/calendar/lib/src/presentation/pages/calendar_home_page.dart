@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
-import 'package:settings/settings.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:telegram_web/telegram_web.dart';
 
@@ -31,8 +30,11 @@ class CalendarHomePage extends StatefulWidget {
 class _CalendarHomePageState extends State<CalendarHomePage>
     with TickerProviderStateMixin {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final CalendarDisplayConfigPort _calendarDisplayConfigPort =
+      getIt<CalendarDisplayConfigPort>();
   DateTime? _lastSyncedEventsMonth;
   DateTime? _lastAppliedInitialDate;
+  CalendarDisplayConfig? _lastDisplayConfig;
 
   late AnimationController _fadeController;
   // late AnimationController _slideController;
@@ -119,157 +121,128 @@ class _CalendarHomePageState extends State<CalendarHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: MultiBlocListener(
-        listeners: [
-          BlocListener<SettingsBloc, SettingsState>(
-            listenWhen: (previous, current) {
-              if (current is! SettingsLoaded) {
-                return false;
-              }
+      body: StreamBuilder<CalendarDisplayConfig>(
+        stream: _calendarDisplayConfigPort.watchDisplayConfig(),
+        initialData: CalendarDisplayConfig.defaults(),
+        builder: (context, configSnapshot) {
+          final displayConfig =
+              configSnapshot.data ?? CalendarDisplayConfig.defaults();
+          _handleDisplayConfigUpdate(displayConfig);
 
-              if (previous is! SettingsLoaded) {
-                return true;
-              }
-
-              return previous.settings.calendarLanguage !=
-                      current.settings.calendarLanguage ||
-                  previous.settings.calendarConfig !=
-                      current.settings.calendarConfig;
-            },
-            listener: (context, state) {
-              if (state is! SettingsLoaded) {
-                return;
-              }
-
-              _lastSyncedEventsMonth = null;
-
-              if (context.read<CalendarBloc>().state is CalendarLoaded) {
-                context.read<CalendarBloc>().add(const RefreshCalendar());
-              }
-            },
-          ),
-        ],
-        child: BlocBuilder<SettingsBloc, SettingsState>(
-          builder: (context, settingsState) {
-            // Get display preferences from settings
-            final showHolidays = settingsState is SettingsLoaded
-                ? settingsState.settings.showHolidays
-                : true;
-            final showAnniversaryDays = settingsState is SettingsLoaded
-                ? settingsState.settings.showAnniversaryDays
-                : true;
-            final showSabbaths = settingsState is SettingsLoaded
-                ? settingsState.settings.showSabbaths
-                : true;
-            final showAstrology = settingsState is SettingsLoaded
-                ? settingsState.settings.showAstrology
-                : false;
-            final showWesternDates = settingsState is SettingsLoaded
-                ? settingsState.settings.showWesternDates
-                : true;
-            final showMyanmarDates = settingsState is SettingsLoaded
-                ? settingsState.settings.showMyanmarDates
-                : true;
-
-            final showShanCalendar = settingsState is SettingsLoaded
-                ? settingsState.settings.showShanCalendar
-                : true;
-
-            final calendarLanguage = settingsState is SettingsLoaded
-                ? settingsState.settings.calendarLanguage
-                : Language.myanmar;
-
-            return CustomScrollView(
-              slivers: [
-                // Compact App Bar
-                SliverToBoxAdapter(
-                  child: CalendarAppBar(
-                    language: calendarLanguage,
-                    showShanCalendar: showShanCalendar,
-                  ),
+          return CustomScrollView(
+            slivers: [
+              // Compact App Bar
+              SliverToBoxAdapter(
+                child: CalendarAppBar(
+                  language: displayConfig.calendarLanguage,
+                  showShanCalendar: displayConfig.showShanCalendar,
                 ),
+              ),
 
-                // Main Calendar Content
-                SliverToBoxAdapter(
-                  child: BlocConsumer<CalendarBloc, CalendarState>(
-                    listener: (context, state) {
-                      if (state is CalendarError) {
-                        _analyticsService.logException(
-                          exceptionName: 'CalendarLoadError',
-                          description: state.message,
-                        );
-                        _showErrorSnackBar(context, state.message);
-                      }
+              // Main Calendar Content
+              SliverToBoxAdapter(
+                child: BlocConsumer<CalendarBloc, CalendarState>(
+                  listener: (context, state) {
+                    if (state is CalendarError) {
+                      _analyticsService.logException(
+                        exceptionName: 'CalendarLoadError',
+                        description: state.message,
+                      );
+                      _showErrorSnackBar(context, state.message);
+                    }
 
-                      if (state is CalendarLoaded) {
-                        _syncEventsForVisibleMonth(
-                          context,
-                          state.calendarMonth.month,
-                        );
-                      }
+                    if (state is CalendarLoaded) {
+                      _syncEventsForVisibleMonth(
+                        context,
+                        state.calendarMonth.month,
+                      );
+                    }
 
-                      // Auto-select today's date on large screens for split view
-                      if (state is CalendarLoaded &&
-                          state.selectedDate == null) {
-                        final screenWidth = MediaQuery.sizeOf(context).width;
-                        if (screenWidth > 1000) {
-                          // Auto-select today's date to show split view
-                          final today = state.today;
-                          // Use a post-frame callback to avoid modifying state during build
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted) {
-                              context.read<CalendarBloc>().add(
-                                SelectDateEvent(today),
-                              );
-                            }
-                          });
-                        }
+                    // Auto-select today's date on large screens for split view
+                    if (state is CalendarLoaded && state.selectedDate == null) {
+                      final screenWidth = MediaQuery.sizeOf(context).width;
+                      if (screenWidth > 1000) {
+                        // Auto-select today's date to show split view
+                        final today = state.today;
+                        // Use a post-frame callback to avoid modifying state during build
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) {
+                            context.read<CalendarBloc>().add(
+                              SelectDateEvent(today),
+                            );
+                          }
+                        });
                       }
-                      // Replay animation on month change
-                      // if (state is CalendarLoaded) {
-                      //   _slideController.reset();
-                      //   _slideController.forward();
-                      // }
-                    },
-                    builder: (context, state) {
-                      if (state is CalendarLoading) {
-                        return _buildLoadingSkeleton();
-                      }
+                    }
+                    // Replay animation on month change
+                    // if (state is CalendarLoaded) {
+                    //   _slideController.reset();
+                    //   _slideController.forward();
+                    // }
+                  },
+                  builder: (context, state) {
+                    if (state is CalendarLoading) {
+                      return _buildLoadingSkeleton();
+                    }
 
-                      if (state is CalendarError) {
-                        return _buildErrorState(state.message);
-                      }
+                    if (state is CalendarError) {
+                      return _buildErrorState(state.message);
+                    }
 
-                      if (state is CalendarLoaded) {
-                        return FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: _buildCalendarContent(
-                            state,
-                            showHolidays: showHolidays,
-                            showAnniversaryDays: showAnniversaryDays,
-                            showSabbaths: showSabbaths,
-                            showAstrology: showAstrology,
-                            showWesternDates: showWesternDates,
-                            showMyanmarDates: showMyanmarDates,
-                            showShanCalendar: showShanCalendar,
-                          ),
-                          // child: SlideTransition(
-                          //   position: _slideAnimation,
-                          //   child: _buildCalendarContent(state),
-                          // ),
-                        );
-                      }
+                    if (state is CalendarLoaded) {
+                      return FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: _buildCalendarContent(
+                          state,
+                          showHolidays: displayConfig.showHolidays,
+                          showAnniversaryDays:
+                              displayConfig.showAnniversaryDays,
+                          showSabbaths: displayConfig.showSabbaths,
+                          showAstrology: displayConfig.showAstrology,
+                          showWesternDates: displayConfig.showWesternDates,
+                          showMyanmarDates: displayConfig.showMyanmarDates,
+                          showShanCalendar: displayConfig.showShanCalendar,
+                        ),
+                        // child: SlideTransition(
+                        //   position: _slideAnimation,
+                        //   child: _buildCalendarContent(state),
+                        // ),
+                      );
+                    }
 
-                      return const SizedBox.shrink();
-                    },
-                  ),
+                    return const SizedBox.shrink();
+                  },
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
+  }
+
+  void _handleDisplayConfigUpdate(CalendarDisplayConfig currentConfig) {
+    final previousConfig = _lastDisplayConfig;
+    if (previousConfig == null) {
+      _lastDisplayConfig = currentConfig;
+      return;
+    }
+
+    _lastDisplayConfig = currentConfig;
+    if (!currentConfig.requiresCalendarRefreshComparedTo(previousConfig)) {
+      return;
+    }
+
+    _lastSyncedEventsMonth = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      if (context.read<CalendarBloc>().state is CalendarLoaded) {
+        context.read<CalendarBloc>().add(const RefreshCalendar());
+      }
+    });
   }
 
   void _syncEventsForVisibleMonth(BuildContext context, DateTime month) {

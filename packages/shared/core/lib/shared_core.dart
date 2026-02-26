@@ -48,6 +48,7 @@ export 'src/widgets/optimized_moon_phase.dart';
 export 'src/di/injection.dart' hide getIt;
 
 export 'src/ports/analytics_port.dart';
+export 'src/ports/calendar_display_config_port.dart';
 export 'src/ports/crashlytics_port.dart';
 export 'src/ports/display_preferences_port.dart';
 export 'src/ports/holiday_config_port.dart';

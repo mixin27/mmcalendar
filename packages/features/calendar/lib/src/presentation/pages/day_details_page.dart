@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
-import 'package:settings/settings.dart';
 
 import '../../di/calendar_injection.dart';
 
@@ -22,6 +21,8 @@ class DayDetailsPage extends StatefulWidget {
 class _DayDetailsPageState extends State<DayDetailsPage>
     with SingleTickerProviderStateMixin {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final DisplayPreferencesPort _displayPreferencesPort =
+      getIt<DisplayPreferencesPort>();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -157,86 +158,86 @@ class _DayDetailsPageState extends State<DayDetailsPage>
             ),
           ],
         ),
-        body: CustomScrollView(
-          slivers: [
-            _buildAppBar(),
-            SliverToBoxAdapter(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Stack(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: StreamBuilder<bool>(
+          stream: _displayPreferencesPort.watchShowShanCalendar(),
+          initialData: true,
+          builder: (context, snapshot) {
+            final showShanCalendar = snapshot.data ?? true;
+
+            return CustomScrollView(
+              slivers: [
+                _buildAppBar(showShanCalendar),
+                SliverToBoxAdapter(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Stack(
                           children: [
-                            // Hero Date Card with both calendars
-                            // better ux with Hero, but overflow error occure while transition making
-                            BlocBuilder<SettingsBloc, SettingsState>(
-                              builder: (context, settingsState) {
-                                final showShanCalendar =
-                                    settingsState is SettingsLoaded
-                                    ? settingsState.settings.showShanCalendar
-                                    : true;
-                                return _buildHeroDateCard(showShanCalendar);
-                              },
-                            ),
-                            const SizedBox(height: 16),
-
-                            // Buddhist Calendar Info
-                            _buildBuddhistCalendarCard(),
-                            const SizedBox(height: 16),
-
-                            // Moon Phase & Weekday Info
-                            Row(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Expanded(child: _buildMoonPhaseCard()),
-                                const SizedBox(width: 12),
-                                Expanded(child: _buildWeekdayCard()),
+                                // Hero Date Card with both calendars
+                                // better ux with Hero, but overflow error occure while transition making
+                                _buildHeroDateCard(showShanCalendar),
+                                const SizedBox(height: 16),
+
+                                // Buddhist Calendar Info
+                                _buildBuddhistCalendarCard(),
+                                const SizedBox(height: 16),
+
+                                // Moon Phase & Weekday Info
+                                Row(
+                                  children: [
+                                    Expanded(child: _buildMoonPhaseCard()),
+                                    const SizedBox(width: 12),
+                                    Expanded(child: _buildWeekdayCard()),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Holidays Section
+                                if (_completeDate.hasHolidays ||
+                                    _completeDate.hasAnniversaryDays) ...[
+                                  _buildHolidaysCard(),
+                                  const SizedBox(height: 16),
+                                ],
+
+                                // Astrological Information
+                                _buildAstrologyCard(),
+                                const SizedBox(height: 16),
+
+                                // AI Prompt Generation
+                                _buildAIPromptSection(),
+                                const SizedBox(height: 16),
+
+                                _buildQuickStatsCard(),
+                                const SizedBox(height: 16),
+
+                                // Events Section (Placeholder for future)
+                                _buildEventsSection(),
+                                const SizedBox(height: 24),
                               ],
                             ),
-                            const SizedBox(height: 16),
 
-                            // Holidays Section
-                            if (_completeDate.hasHolidays ||
-                                _completeDate.hasAnniversaryDays) ...[
-                              _buildHolidaysCard(),
-                              const SizedBox(height: 16),
-                            ],
-
-                            // Astrological Information
-                            _buildAstrologyCard(),
-                            const SizedBox(height: 16),
-
-                            // AI Prompt Generation
-                            _buildAIPromptSection(),
-                            const SizedBox(height: 16),
-
-                            _buildQuickStatsCard(),
-                            const SizedBox(height: 16),
-
-                            // Events Section (Placeholder for future)
-                            _buildEventsSection(),
-                            const SizedBox(height: 24),
+                            _buildTodayIndicator(),
                           ],
                         ),
-
-                        _buildTodayIndicator(),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(bool showShanCalendar) {
     return SliverAppBar(
       expandedHeight: 140,
       floating: false,
@@ -316,25 +317,17 @@ class _DayDetailsPageState extends State<DayDetailsPage>
           tooltip: 'Next Day',
         ),
         // Share button
-        BlocBuilder<SettingsBloc, SettingsState>(
-          builder: (context, settingsState) {
-            final showShanCalendar = settingsState is SettingsLoaded
-                ? settingsState.settings.showShanCalendar
-                : true;
-
-            return IconButton(
-              icon: const Icon(Icons.share_outlined),
-              onPressed: () {
-                final detailedShareText = _formatDetailedShareText(
-                  context,
-                  _completeDate,
-                  showShanCalendar,
-                );
-                _shareDate(detailedShareText);
-              },
-              tooltip: 'Share',
+        IconButton(
+          icon: const Icon(Icons.share_outlined),
+          onPressed: () {
+            final detailedShareText = _formatDetailedShareText(
+              context,
+              _completeDate,
+              showShanCalendar,
             );
+            _shareDate(detailedShareText);
           },
+          tooltip: 'Share',
         ),
       ],
     );

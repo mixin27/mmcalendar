@@ -33,9 +33,23 @@ Future<void> initSettingsDependencies() async {
   );
 
   if (!getIt.isRegistered<DisplayPreferencesPort>()) {
-    getIt.registerLazySingleton<DisplayPreferencesPort>(
-      () => DatabaseDisplayPreferencesPort(getIt<AppDatabase>()),
-    );
+    final port = DatabaseDisplayPreferencesPort(getIt<AppDatabase>());
+    getIt.registerSingleton<DisplayPreferencesPort>(port);
+
+    if (!getIt.isRegistered<CalendarDisplayConfigPort>()) {
+      getIt.registerSingleton<CalendarDisplayConfigPort>(port);
+    }
+  } else if (!getIt.isRegistered<CalendarDisplayConfigPort>()) {
+    final existing = getIt<DisplayPreferencesPort>();
+    if (existing is CalendarDisplayConfigPort) {
+      getIt.registerSingleton<CalendarDisplayConfigPort>(
+        existing as CalendarDisplayConfigPort,
+      );
+    } else {
+      getIt.registerSingleton<CalendarDisplayConfigPort>(
+        DatabaseDisplayPreferencesPort(getIt<AppDatabase>()),
+      );
+    }
   }
 
   // Use cases

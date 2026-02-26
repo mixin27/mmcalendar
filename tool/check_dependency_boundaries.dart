@@ -50,7 +50,7 @@ final Map<String, Set<String>> _strictAllowedInternalDependencies =
 /// Any feature dependency not listed here will fail boundary checks.
 final Map<String, Set<String>> _allowedFeatureDependencies =
     <String, Set<String>>{
-      'calendar': <String>{'events', 'settings'},
+      'calendar': <String>{'events'},
       'settings': <String>{'home_widgets', 'promo'},
       'views': <String>{},
     };
