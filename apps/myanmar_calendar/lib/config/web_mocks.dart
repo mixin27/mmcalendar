@@ -1,4 +1,3 @@
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/foundation.dart';
 
@@ -123,16 +122,16 @@ class MockAnalyticsService implements AnalyticsPort {
 }
 
 /// Mock Crashlytics Service for Web
-class MockCrashlyticsService implements CrashlyticsService {
+class MockCrashlyticsService implements CrashlyticsPort {
   @override
-  CrashlyticsConfig get config =>
-      const CrashlyticsConfig(enableCollection: false);
+  CrashlyticsPortConfig get config =>
+      const CrashlyticsPortConfig(enableCollection: false);
 
   @override
   bool get isEnabled => false;
 
   @override
-  Future<void> initialize({CrashlyticsConfig? config}) async {}
+  Future<void> initialize({CrashlyticsPortConfig? config}) async {}
 
   @override
   Future<void> recordFlutterError(FlutterErrorDetails details) async {}
@@ -150,7 +149,7 @@ class MockCrashlyticsService implements CrashlyticsService {
     required String errorName,
     required String description,
     required StackTrace stackTrace,
-    Map<String, dynamic>? context,
+    Map<String, Object>? context,
   }) async {}
 
   @override
@@ -160,11 +159,8 @@ class MockCrashlyticsService implements CrashlyticsService {
   Future<void> setUserId(String userId) async {}
 
   @override
-  Future<void> setCustomKey(String key, value) async {}
+  Future<void> setCustomKey(String key, Object value) async {}
 
   @override
-  Future<void> updateConfig(CrashlyticsConfig newConfig) async {}
-
-  // Some versions of recordError might have different signatures,
-  // but we'll try to match the one from CrashlyticsService.
+  Future<void> updateConfig(CrashlyticsPortConfig newConfig) async {}
 }

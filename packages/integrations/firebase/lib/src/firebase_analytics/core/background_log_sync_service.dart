@@ -1,14 +1,12 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'analytics/analytics_service.dart';
-import 'crashlytics/crashlytics_service.dart';
 
 /// Service to sync background task logs to Firebase
 /// Call this when the main app starts
 class BackgroundLogSyncService {
-  final AnalyticsService analyticsService;
-  final CrashlyticsService crashlyticsService;
+  final AnalyticsPort analyticsService;
+  final CrashlyticsPort crashlyticsService;
   final SharedPreferences prefs;
 
   BackgroundLogSyncService({
@@ -76,7 +74,7 @@ class BackgroundLogSyncService {
     final lastDuration = prefs.getInt('last_background_duration_ms');
 
     if (successCount > 0) {
-      // Log background metrics (add this method to AnalyticsService)
+      // Log background metrics
       await analyticsService.logBackgroundMetrics(
         successCount: successCount,
         lastUpdate: lastUpdate ?? 'never',

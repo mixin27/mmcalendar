@@ -1,11 +1,12 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_core/shared_core.dart';
 
 import 'crashlytics_config.dart';
 
 /// Service for handling crash reporting and error logging
-class CrashlyticsService {
+class CrashlyticsService implements CrashlyticsPort {
   final FirebaseCrashlytics _crashlytics;
   late CrashlyticsConfig _config;
   final Logger _logger = Logger();
@@ -18,6 +19,7 @@ class CrashlyticsService {
   }
 
   /// Initialize crashlytics service
+  @override
   Future<void> initialize({CrashlyticsConfig? config}) async {
     try {
       if (config != null) {
@@ -49,6 +51,7 @@ class CrashlyticsService {
   }
 
   /// Record a flutter error
+  @override
   Future<void> recordFlutterError(FlutterErrorDetails details) async {
     if (!_config.enableCollection) {
       _logger.i('Crashlytics collection disabled, skipping error');
@@ -67,6 +70,7 @@ class CrashlyticsService {
   }
 
   /// Record an exception
+  @override
   Future<void> recordException({
     required Object exception,
     required StackTrace stackTrace,
@@ -99,11 +103,12 @@ class CrashlyticsService {
   }
 
   /// Record an error with context
+  @override
   Future<void> recordError({
     required String errorName,
     required String description,
     required StackTrace stackTrace,
-    Map<String, dynamic>? context,
+    Map<String, Object>? context,
   }) async {
     if (!_config.enableCollection) return;
 
@@ -129,6 +134,7 @@ class CrashlyticsService {
   }
 
   /// Record a message
+  @override
   Future<void> log(String message, {String? level}) async {
     if (!_config.enableCollection) return;
 
@@ -145,6 +151,7 @@ class CrashlyticsService {
   }
 
   /// Set user ID
+  @override
   Future<void> setUserId(String userId) async {
     if (!_config.enableCollection) return;
 
@@ -161,12 +168,13 @@ class CrashlyticsService {
   }
 
   /// Set custom key
-  Future<void> setCustomKey(String key, dynamic value) async {
+  @override
+  Future<void> setCustomKey(String key, Object value) async {
     if (!_config.enableCollection) return;
 
     try {
       _crashlytics.setCustomKey(key, value);
-      final keys = Map<String, dynamic>.from(_config.customKeys)..[key] = value;
+      final keys = Map<String, Object>.from(_config.customKeys)..[key] = value;
       _config = _config.copyWith(customKeys: keys);
 
       if (_config.enableDebugLogging) {
@@ -178,9 +186,11 @@ class CrashlyticsService {
   }
 
   /// Get current configuration
+  @override
   CrashlyticsConfig get config => _config;
 
   /// Update configuration
+  @override
   Future<void> updateConfig(CrashlyticsConfig newConfig) async {
     _logger.i(
       '📋 Crashlytics config updated: '
@@ -206,5 +216,6 @@ class CrashlyticsService {
   }
 
   /// Check if crashlytics is enabled
+  @override
   bool get isEnabled => _config.enableCollection && kReleaseMode;
 }

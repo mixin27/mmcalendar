@@ -12,6 +12,7 @@ import 'package:home_widgets/home_widgets.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:promo/promo.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -172,12 +173,8 @@ Future<void> _syncBackgroundLogs() async {
     debugPrint('📊 Syncing background logs to Firebase...');
 
     final prefs = await SharedPreferences.getInstance();
-    final analyticsService = AnalyticsService(
-      firebaseAnalytics: FirebaseService.analytics,
-    );
-    final crashlyticsService = CrashlyticsService(
-      crashlytics: FirebaseService.crashlytics,
-    );
+    final analyticsService = getIt<AnalyticsPort>();
+    final crashlyticsService = getIt<CrashlyticsPort>();
 
     final logSyncService = BackgroundLogSyncService(
       analyticsService: analyticsService,
@@ -207,9 +204,7 @@ Future<void> _syncBackgroundLogs() async {
     );
   } catch (e, stackTrace) {
     debugPrint('⚠️ Failed to sync background logs: $e');
-    final crashlyticsService = CrashlyticsService(
-      crashlytics: FirebaseService.crashlytics,
-    );
+    final crashlyticsService = getIt<CrashlyticsPort>();
     await crashlyticsService.recordException(
       exception: e,
       stackTrace: stackTrace,
@@ -223,9 +218,7 @@ Future<void> _initializeWidgetUpdates() async {
   try {
     // Import the repository from DI
     final widgetRepository = getIt<WidgetRepository>();
-    final analyticsService = AnalyticsService(
-      firebaseAnalytics: FirebaseService.analytics,
-    );
+    final analyticsService = getIt<AnalyticsPort>();
 
     // Update widget IMMEDIATELY on app start
     await widgetRepository.refreshWidget();

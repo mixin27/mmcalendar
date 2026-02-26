@@ -18,8 +18,6 @@ dependencies:
     path: ../../integrations/database
   shared_localizations:
     path: ../../shared/localizations
-  integrations_firebase:
-    path: ../../integrations/firebase
   promo:
     path: ../promo
   holidays:

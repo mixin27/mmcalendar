@@ -1,9 +1,9 @@
 import 'package:shared_core/shared_core.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
@@ -282,9 +282,7 @@ class _AppWithWidgetHandlerState extends State<AppWithWidgetHandler>
 
     // Initialize handler
     _widgetClickHandler = WidgetClickHandler(
-      analyticsService: AnalyticsService(
-        firebaseAnalytics: FirebaseService.analytics,
-      ),
+      analyticsService: GetIt.I<AnalyticsPort>(),
     );
 
     // Check on app start

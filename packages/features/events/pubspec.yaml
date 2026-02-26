@@ -16,8 +16,6 @@ dependencies:
     path: ../../shared/core
   integrations_database:
     path: ../../integrations/database
-  integrations_firebase:
-    path: ../../integrations/firebase
 
   # Utilities
   intl: ^0.20.2

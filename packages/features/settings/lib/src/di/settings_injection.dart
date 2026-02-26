@@ -1,5 +1,4 @@
 import 'package:integrations_database/integrations_database.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_core/shared_core.dart';
 
@@ -60,7 +59,7 @@ Future<void> initSettingsDependencies() async {
       resetSettings: getIt<ResetSettings>(),
       markAsConsentDialogShown: getIt<MarkAsConsentDialogShown>(),
       analyticsService: getIt<AnalyticsPort>(),
-      crashlyticsService: getIt<CrashlyticsService>(),
+      crashlyticsService: getIt<CrashlyticsPort>(),
     ),
   );
 }

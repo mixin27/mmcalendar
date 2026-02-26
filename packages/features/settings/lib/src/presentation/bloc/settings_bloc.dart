@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:shared_core/shared_core.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
@@ -26,7 +25,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final ResetSettings resetSettings;
   final MarkAsConsentDialogShown markAsConsentDialogShown;
   final AnalyticsPort analyticsService;
-  final CrashlyticsService crashlyticsService;
+  final CrashlyticsPort crashlyticsService;
 
   SettingsBloc({
     required this.getSettings,
@@ -346,7 +345,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     final currentState = state as SettingsLoaded;
 
-    // Update the CrashlyticsService config
+    // Update the CrashlyticsPort config
     await crashlyticsService.updateConfig(
       crashlyticsService.config.copyWith(
         enableCollection: event.enableCrashlytics,

@@ -32,11 +32,11 @@ Future<void> setupFirebaseServicesDependencies(GetIt getIt) async {
   getIt.registerSingleton<AnalyticsService>(analyticsService);
   getIt.registerSingleton<AnalyticsPort>(analyticsService);
 
-  // Register Crashlytics Service
-  getIt.registerSingleton<CrashlyticsService>(
-    CrashlyticsService(
-      crashlytics: getIt<FirebaseCrashlytics>(),
-      config: FirebaseService.crashlyticsConfig,
-    ),
+  // Register Crashlytics Service + SDK-agnostic port
+  final crashlyticsService = CrashlyticsService(
+    crashlytics: getIt<FirebaseCrashlytics>(),
+    config: FirebaseService.crashlyticsConfig,
   );
+  getIt.registerSingleton<CrashlyticsService>(crashlyticsService);
+  getIt.registerSingleton<CrashlyticsPort>(crashlyticsService);
 }
