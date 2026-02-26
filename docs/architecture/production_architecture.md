@@ -59,6 +59,7 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 - Run `dart run tool/check_dependency_boundaries.dart` to enforce package-layer boundaries.
 - Use `./scripts/analyze_all.sh` for boundary check + static analysis.
 - Use `./scripts/test_all.sh` for boundary check + test run.
+- CI enforcement: `.github/workflows/quality_gate.yml` runs these checks on pull requests and `main`.
 
 ## What Was Changed In This Refactor Pass
 
@@ -83,5 +84,5 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 1. Move remote config + holiday parsing behind explicit integration interfaces.
 2. Introduce domain-safe analytics/crashlytics ports and keep SDK types out of feature code.
 3. Convert remaining direct `core/localizations` usage into `shared_*` only and retire legacy packages.
-4. Add workspace boundary checks to CI (allowed-imports/dependency-graph enforcement).
+4. Extend boundary checks with stricter feature-to-feature dependency allowlists.
 5. Plan shim package deprecation/removal once downstream imports are fully migrated.
