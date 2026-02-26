@@ -204,7 +204,6 @@ myanmar_calendar_app/
 │   ├── localizations/     # Legacy compatibility package (temporary)
 │   ├── data/              # Legacy compatibility package (temporary)
 │   ├── app_remote_config/ # Legacy compatibility package (temporary)
-│   ├── features/firebase_analytics_app/ # Legacy compatibility package (temporary)
 │   └── features/
 │       ├── calendar/      # Calendar feature module
 │       ├── views/         # Year/Week/Day views

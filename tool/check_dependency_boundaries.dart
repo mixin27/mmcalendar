@@ -45,7 +45,13 @@ final Map<String, Set<String>> _strictAllowedInternalDependencies =
       'shared_localizations': <String>{'localizations'},
       'data': <String>{'integrations_database'},
       'app_remote_config': <String>{'integrations_firebase'},
-      'firebase_analytics_app': <String>{'integrations_firebase'},
+    };
+
+/// Package-level dependency bans by layer.
+final Map<PackageLayer, Set<String>> _disallowedInternalDependenciesByLayer =
+    <PackageLayer, Set<String>>{
+      // Feature code must consume Firebase only via shared domain ports.
+      PackageLayer.feature: <String>{'integrations_firebase'},
     };
 
 final Set<PackageLayer> _noLegacyImportLayers = <PackageLayer>{
@@ -53,6 +59,13 @@ final Set<PackageLayer> _noLegacyImportLayers = <PackageLayer>{
   PackageLayer.feature,
   PackageLayer.integration,
 };
+
+/// Source import bans by layer.
+final Map<PackageLayer, Set<String>> _disallowedSourceImportsByLayer =
+    <PackageLayer, Set<String>>{
+      // Keep feature code SDK-agnostic.
+      PackageLayer.feature: <String>{'integrations_firebase'},
+    };
 
 final RegExp _packageImportPattern = RegExp(
   r"(?:import|export)\s+'package:([a-zA-Z0-9_]+)\/",
@@ -111,11 +124,21 @@ void _validateInternalDependencies(
       final PackageInfo dependency = packages[dependencyName]!;
       final Set<PackageLayer> allowedLayers =
           _allowedLayersByLayer[info.layer] ?? <PackageLayer>{};
+      final Set<String> disallowedDependencies =
+          _disallowedInternalDependenciesByLayer[info.layer] ??
+          const <String>{};
 
       if (!allowedLayers.contains(dependency.layer)) {
         errors.add(
           '${info.name} (${info.layer.name}) cannot depend on $dependencyName '
           '(${dependency.layer.name}) (${_relativeToRoot(info.pubspec.path)}).',
+        );
+      }
+
+      if (disallowedDependencies.contains(dependencyName)) {
+        errors.add(
+          '${info.name} (${info.layer.name}) cannot depend on banned package '
+          '"$dependencyName" (${_relativeToRoot(info.pubspec.path)}).',
         );
       }
 
@@ -156,9 +179,19 @@ void _validateSourceImports(
       );
       for (final RegExpMatch match in matches) {
         final String importedPackage = match.group(1)!;
+        final Set<String> disallowedSourceImports =
+            _disallowedSourceImportsByLayer[info.layer] ?? const <String>{};
+
         if (_legacyPackageNames.contains(importedPackage)) {
           errors.add(
             '${info.name} imports legacy package "$importedPackage" '
+            'in ${_relativeToRoot(entity.path)}.',
+          );
+        }
+
+        if (disallowedSourceImports.contains(importedPackage)) {
+          errors.add(
+            '${info.name} imports banned package "$importedPackage" '
             'in ${_relativeToRoot(entity.path)}.',
           );
         }
@@ -174,9 +207,7 @@ Map<String, PackageInfo> _discoverWorkspacePackages(Directory root) {
   for (final String entry in workspaceEntries) {
     final File pubspec = File('${root.path}/$entry/pubspec.yaml');
     if (!pubspec.existsSync()) {
-      stderr.writeln(
-        'Skipping workspace entry without pubspec: $entry',
-      );
+      stderr.writeln('Skipping workspace entry without pubspec: $entry');
       continue;
     }
 

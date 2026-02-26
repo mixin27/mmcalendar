@@ -38,7 +38,6 @@
   /localizations (compatibility shim)
   /data (compatibility shim)
   /app_remote_config (compatibility shim)
-  /features/firebase_analytics_app (compatibility shim)
 ```
 
 ## Dependency Rules
@@ -83,7 +82,7 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
   - Database lifecycle access
 - Moved drift implementation into `packages/integrations/database`.
 - Moved Firebase analytics/crashlytics/remote-config implementation into `packages/integrations/firebase`.
-- Converted legacy `data`, `firebase_analytics_app`, and `app_remote_config` to compatibility shims.
+- Converted legacy `data` and `app_remote_config` to compatibility shims.
 
 ## Next Migration Steps
 

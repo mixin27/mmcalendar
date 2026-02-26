@@ -25,7 +25,6 @@ workspace:
   - packages/features/notes
   - packages/features/events
   - packages/features/home_widgets
-  - packages/features/firebase_analytics_app
   - apps/myanmar_calendar
   - packages/integrations/telegram_web
   - packages/integrations/database
