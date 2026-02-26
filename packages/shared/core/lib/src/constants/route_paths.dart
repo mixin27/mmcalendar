@@ -22,6 +22,12 @@ class RoutePaths {
   static const String eventDetail = ':id/detail';
   static const String eventCategories = 'categories';
 
+  // Events full paths
+  static String eventsCreate() => '$events/$createEvent';
+  static String eventsEdit(int eventId) => '$events/$eventId';
+  static String eventsDetail(int eventId) => '$events/$eventId/detail';
+  static String eventsCategoriesPath() => '$events/$eventCategories';
+
   // Settings Routes
   static const String widgets = 'widgets';
   static const String privacyAndData = 'privacy-data';

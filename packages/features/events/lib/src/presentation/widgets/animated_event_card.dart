@@ -1,3 +1,4 @@
+import 'package:shared_core/shared_core.dart' show RoutePaths;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -71,8 +72,8 @@ class _AnimatedEventCardState extends State<AnimatedEventCard>
           onTapUp: (_) => setState(() => _isPressed = false),
           onTapCancel: () => setState(() => _isPressed = false),
           onTap: () {
-            if (!widget.event.isCompleted) {
-              context.push('/events/${widget.event.id}/detail');
+            if (!widget.event.isCompleted && widget.event.id != null) {
+              context.push(RoutePaths.eventsDetail(widget.event.id!));
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Event marked as completed")),

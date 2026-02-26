@@ -8,10 +8,9 @@ class GoRouterEventActionsPort implements EventActionsPort {
     BuildContext context, {
     DateTime? initialDate,
   }) async {
-    await GoRouter.of(context).push(
-      '${RoutePaths.events}/${RoutePaths.createEvent}',
-      extra: initialDate,
-    );
+    await GoRouter.of(
+      context,
+    ).push(RoutePaths.eventsCreate(), extra: initialDate);
   }
 
   @override
@@ -19,6 +18,6 @@ class GoRouterEventActionsPort implements EventActionsPort {
     BuildContext context, {
     required int eventId,
   }) async {
-    await GoRouter.of(context).push('${RoutePaths.events}/$eventId/detail');
+    await GoRouter.of(context).push(RoutePaths.eventsDetail(eventId));
   }
 }

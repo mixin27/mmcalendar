@@ -1,3 +1,4 @@
+import 'package:shared_core/shared_core.dart' show RoutePaths;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -200,7 +201,7 @@ class _EventDetailPageState extends State<EventDetailPage>
               onSelected: (value) {
                 switch (value) {
                   case 'edit':
-                    context.push('/events/${widget.eventId}');
+                    context.push(RoutePaths.eventsEdit(widget.eventId));
                     break;
                   case 'delete':
                     _confirmDelete(context);

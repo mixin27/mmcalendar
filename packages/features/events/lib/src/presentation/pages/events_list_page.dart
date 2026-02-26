@@ -1,4 +1,5 @@
 import 'package:events/src/presentation/pages/pending_notification_list_page.dart';
+import 'package:shared_core/shared_core.dart' show RoutePaths;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -133,7 +134,7 @@ class _EventsListPageState extends State<EventsListPage>
         scale: _fabScaleAnimation,
         child: FloatingActionButton.extended(
           onPressed: () async {
-            await context.push('/events/create');
+            await context.push(RoutePaths.eventsCreate());
             if (context.mounted) {
               context.read<UserEventsBloc>().add(const LoadAllEvents());
             }
@@ -520,7 +521,7 @@ class _EventsListPageState extends State<EventsListPage>
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              context.push('/events/create');
+              context.push(RoutePaths.eventsCreate());
             },
             icon: const Icon(Icons.add),
             label: const Text('Create Event'),
