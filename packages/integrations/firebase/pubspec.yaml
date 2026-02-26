@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_core:
+    path: ../../shared/core
   firebase_core: ^4.1.1
   firebase_analytics: ^12.0.2
   firebase_crashlytics: ^5.0.2

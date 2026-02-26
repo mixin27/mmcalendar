@@ -1,4 +1,4 @@
-import 'package:integrations_firebase/integrations_firebase.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +20,7 @@ class DateConverterCard extends StatefulWidget {
 
 class _DateConverterCardState extends State<DateConverterCard>
     with SingleTickerProviderStateMixin {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   // Conversion direction: true = Western to Myanmar, false = Myanmar to Western
   bool _isWesternToMyanmar = true;

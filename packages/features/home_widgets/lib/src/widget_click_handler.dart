@@ -1,10 +1,10 @@
-import 'package:integrations_firebase/integrations_firebase.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Service to handle widget interactions and track analytics
 class WidgetClickHandler {
-  final AnalyticsService analyticsService;
+  final AnalyticsPort analyticsService;
 
   WidgetClickHandler({required this.analyticsService});
 

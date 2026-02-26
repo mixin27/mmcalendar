@@ -8,6 +8,7 @@ import 'package:integrations_database/integrations_database.dart';
 import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:views/views.dart';
 import 'package:telegram_web/telegram_web.dart';
@@ -32,7 +33,7 @@ Future<void> initializeDependencies() async {
 
   // Initialize Remote Config
   final remoteConfigService = await FirebaseRemoteConfigModule.initialize();
-  getIt.registerSingleton<RemoteConfigService>(remoteConfigService);
+  getIt.registerSingleton<RemoteConfigPort>(remoteConfigService);
 
   // Initialize Holiday Service
   final holidayService = HolidayService(

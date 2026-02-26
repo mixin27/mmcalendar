@@ -1,8 +1,7 @@
 import 'package:events/events.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_core/shared_core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:settings/settings.dart';
@@ -29,7 +28,7 @@ class CalendarHomePage extends StatefulWidget {
 
 class _CalendarHomePageState extends State<CalendarHomePage>
     with TickerProviderStateMixin {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   DateTime? _lastSyncedEventsMonth;
 
   late AnimationController _fadeController;
@@ -782,7 +781,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
 class _MonthYearPickerBottomSheet extends StatefulWidget {
   final DateTime currentMonth;
-  final AnalyticsService analyticsService;
+  final AnalyticsPort analyticsService;
   final Function(DateTime) onMonthSelected;
 
   const _MonthYearPickerBottomSheet({

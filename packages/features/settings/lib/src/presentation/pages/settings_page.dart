@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:shared_core/shared_core.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +19,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   @override
   void initState() {

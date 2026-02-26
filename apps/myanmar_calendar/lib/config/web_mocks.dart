@@ -1,16 +1,21 @@
 import 'package:integrations_firebase/integrations_firebase.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/foundation.dart';
 
 /// Mock Analytics Service for Web
-class MockAnalyticsService implements AnalyticsService {
+class MockAnalyticsService implements AnalyticsPort {
   @override
-  AnalyticsConfig get config => const AnalyticsConfig(enableCollection: false);
+  AnalyticsPortConfig get config =>
+      const AnalyticsPortConfig(enableCollection: false);
 
   @override
-  Future<void> initialize({AnalyticsConfig? config}) async {}
+  Future<void> initialize({AnalyticsPortConfig? config}) async {}
 
   @override
-  Future<void> logEvent(AnalyticsEvent event) async {}
+  Future<void> logCustomEvent({
+    required String name,
+    Map<String, Object> parameters = const <String, Object>{},
+  }) async {}
 
   @override
   Future<void> logScreenView({
@@ -111,7 +116,7 @@ class MockAnalyticsService implements AnalyticsService {
   }) async {}
 
   @override
-  Future<void> updateConfig(AnalyticsConfig newConfig) async {}
+  Future<void> updateConfig(AnalyticsPortConfig newConfig) async {}
 
   @override
   Future<void> reset() async {}

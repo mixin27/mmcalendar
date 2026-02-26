@@ -12,8 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_mmcalendar: ^3.2.8
-  integrations_firebase:
-    path: ../../integrations/firebase
+  shared_core:
+    path: ../../shared/core
 
 dev_dependencies:
   flutter_test:

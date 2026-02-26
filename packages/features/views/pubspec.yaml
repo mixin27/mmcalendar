@@ -20,8 +20,6 @@ dependencies:
     path: ../../shared/localizations
   calendar:
     path: ../calendar
-  integrations_firebase:
-    path: ../../integrations/firebase
   settings:
     path: ../settings
 

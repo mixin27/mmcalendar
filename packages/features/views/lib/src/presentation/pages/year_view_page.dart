@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:calendar/calendar.dart';
 import 'package:shared_core/shared_core.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,7 +22,7 @@ class YearViewPage extends StatefulWidget {
 
 class _YearViewPageState extends State<YearViewPage>
     with SingleTickerProviderStateMixin {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 

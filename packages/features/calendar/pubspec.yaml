@@ -23,8 +23,6 @@ dependencies:
     path: ../settings
   events:
     path: ../events
-  integrations_firebase:
-    path: ../../integrations/firebase
   holidays:
     path: ../holidays
   telegram_web:

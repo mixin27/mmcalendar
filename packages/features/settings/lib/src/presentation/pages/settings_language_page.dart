@@ -1,5 +1,4 @@
 import 'package:shared_core/shared_core.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
@@ -19,7 +18,7 @@ class SettingsLanguagePage extends StatefulWidget {
 }
 
 class _SettingsLanguagePageState extends State<SettingsLanguagePage> {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   @override
   void initState() {

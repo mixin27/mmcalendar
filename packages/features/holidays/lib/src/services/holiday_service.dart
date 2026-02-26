@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:integrations_firebase/integrations_firebase.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import '../models/remote_holiday_models.dart';
 
 class HolidayService {
-  final RemoteConfigService _remoteConfigService;
+  final RemoteConfigPort _remoteConfigService;
   static const String _holidayConfigKey = 'holiday_config';
 
-  HolidayService({required RemoteConfigService remoteConfigService})
+  HolidayService({required RemoteConfigPort remoteConfigService})
     : _remoteConfigService = remoteConfigService;
 
   RemoteHolidayConfig getHolidayConfig() {

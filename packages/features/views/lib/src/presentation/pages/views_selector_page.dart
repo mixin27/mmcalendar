@@ -1,5 +1,4 @@
 import 'package:shared_core/shared_core.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +16,7 @@ class ViewsSelectorPage extends StatefulWidget {
 }
 
 class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   @override
   void initState() {
     super.initState();

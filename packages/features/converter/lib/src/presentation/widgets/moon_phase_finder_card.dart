@@ -1,5 +1,4 @@
 import 'package:shared_core/shared_core.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
@@ -20,7 +19,7 @@ class MoonPhaseFinderCard extends StatefulWidget {
 
 class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
     with SingleTickerProviderStateMixin {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   DateTime _startDate = DateTime.now();
   int _selectedMoonPhase = 1; // Default to Full Moon
 

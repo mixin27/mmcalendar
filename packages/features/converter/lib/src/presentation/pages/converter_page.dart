@@ -1,5 +1,4 @@
 import 'package:shared_core/shared_core.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 
@@ -18,7 +17,7 @@ class ConverterPage extends StatefulWidget {
 
 class _ConverterPageState extends State<ConverterPage>
     with SingleTickerProviderStateMixin {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   late TabController _tabController;
 

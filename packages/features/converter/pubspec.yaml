@@ -18,8 +18,6 @@ dependencies:
     path: ../../integrations/database
   shared_localizations:
     path: ../../shared/localizations
-  integrations_firebase:
-    path: ../../integrations/firebase
 
   # Myanmar Calendar Package
   flutter_mmcalendar: ^3.2.8

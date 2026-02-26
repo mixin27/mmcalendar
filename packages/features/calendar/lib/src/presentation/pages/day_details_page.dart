@@ -1,7 +1,6 @@
 import 'package:events/events.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_core/shared_core.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
@@ -22,7 +21,7 @@ class DayDetailsPage extends StatefulWidget {
 
 class _DayDetailsPageState extends State<DayDetailsPage>
     with SingleTickerProviderStateMixin {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;

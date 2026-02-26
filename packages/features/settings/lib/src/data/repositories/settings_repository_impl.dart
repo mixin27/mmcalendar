@@ -5,7 +5,6 @@ import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:drift/drift.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -290,11 +289,6 @@ class SettingsRepositoryImpl extends BaseRepository
         enableAnalytics.toString(),
       );
 
-      // Update Firebase Analytics collection
-      await FirebaseService.analytics.setAnalyticsCollectionEnabled(
-        enableAnalytics,
-      );
-
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));
@@ -311,11 +305,6 @@ class SettingsRepositoryImpl extends BaseRepository
       await localDataSource.setSetting(
         StorageKeys.enableCrashlytics,
         enableCrashlytics.toString(),
-      );
-
-      // Update Firebase Crashlytics collection
-      await FirebaseService.crashlytics.setCrashlyticsCollectionEnabled(
-        enableCrashlytics,
       );
 
       return const Right(null);

@@ -17,11 +17,6 @@ dependencies:
     path: ../../shared/core
   integrations_database:
     path: ../../integrations/database
-  integrations_firebase:
-    path: ../../integrations/firebase
-
-  firebase_analytics: ^12.0.2
-  firebase_crashlytics: ^5.0.2
 
   # Myanmar calendar
   flutter_mmcalendar: ^3.2.8

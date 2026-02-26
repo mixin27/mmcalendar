@@ -1,5 +1,4 @@
 import 'package:shared_core/shared_core.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_localizations/shared_localizations.dart';
@@ -20,7 +19,7 @@ class SettingsDisplayPreferencesPage extends StatefulWidget {
 
 class _SettingsDisplayPreferencesPageState
     extends State<SettingsDisplayPreferencesPage> {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   @override
   void initState() {

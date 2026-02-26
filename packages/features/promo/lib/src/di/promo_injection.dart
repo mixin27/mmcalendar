@@ -1,4 +1,4 @@
-import 'package:integrations_firebase/integrations_firebase.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +18,7 @@ final getIt = GetIt.instance;
 Future<void> initializePromoDependencies() async {
   // External dependencies (should already be registered in main app)
   // - SharedPreferences
-  // - AnalyticsService
+  // - AnalyticsPort
 
   // Data sources
   getIt.registerLazySingleton<PromoLocalDataSource>(
@@ -61,8 +61,8 @@ Future<void> initializePromoDependencies() async {
       repository: getIt<PromoRepository>(),
       getOnboardingSlides: getIt<GetOnboardingSlides>(),
       getFeatureAnnouncements: getIt<GetFeatureAnnouncements>(),
-      analyticsService: getIt.isRegistered<AnalyticsService>()
-          ? getIt<AnalyticsService>()
+      analyticsService: getIt.isRegistered<AnalyticsPort>()
+          ? getIt<AnalyticsPort>()
           : null,
     ),
   );

@@ -61,6 +61,12 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 - Use `./scripts/test_all.sh` for boundary check + test run.
 - CI enforcement: `.github/workflows/quality_gate.yml` runs these checks on pull requests and `main`.
 
+## Integration Ports
+
+- `AnalyticsPort` and `RemoteConfigPort` are defined in `packages/shared/core`.
+- Feature packages consume these ports instead of Firebase SDK-facing services.
+- `packages/integrations/firebase` provides the concrete implementations and DI wiring.
+
 ## What Was Changed In This Refactor Pass
 
 - Removed active `AppEventBus` usage from BLoCs and use cases.
@@ -82,7 +88,7 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 ## Next Migration Steps
 
 1. Move remote config + holiday parsing behind explicit integration interfaces.
-2. Introduce domain-safe analytics/crashlytics ports and keep SDK types out of feature code.
+2. Introduce domain-safe crashlytics port and keep SDK types out of feature code.
 3. Convert remaining direct `core/localizations` usage into `shared_*` only and retire legacy packages.
 4. Extend boundary checks with stricter feature-to-feature dependency allowlists.
 5. Plan shim package deprecation/removal once downstream imports are fully migrated.

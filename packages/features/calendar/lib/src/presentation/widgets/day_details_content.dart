@@ -1,8 +1,7 @@
 import 'package:events/events.dart';
-import 'package:integrations_firebase/integrations_firebase.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_core/shared_core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
@@ -14,7 +13,7 @@ class DayDetailsContent extends StatelessWidget {
   final DateTime date;
   final CompleteDate completeDate;
   final bool showShanCalendar;
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   DayDetailsContent({
     super.key,

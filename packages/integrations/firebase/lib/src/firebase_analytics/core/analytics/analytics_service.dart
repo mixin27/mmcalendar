@@ -1,24 +1,25 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_core/shared_core.dart';
 
-import 'analytics_config.dart';
 import 'analytics_event.dart';
 
 /// Service for handling analytics events
-class AnalyticsService {
+class AnalyticsService implements AnalyticsPort {
   final FirebaseAnalytics _firebaseAnalytics;
-  late AnalyticsConfig _config;
+  late AnalyticsPortConfig _config;
   final Logger _logger = Logger();
 
   AnalyticsService({
     required FirebaseAnalytics firebaseAnalytics,
-    AnalyticsConfig? config,
+    AnalyticsPortConfig? config,
   }) : _firebaseAnalytics = firebaseAnalytics {
-    _config = config ?? const AnalyticsConfig();
+    _config = config ?? const AnalyticsPortConfig();
   }
 
   /// Initialize analytics service
-  Future<void> initialize({AnalyticsConfig? config}) async {
+  @override
+  Future<void> initialize({AnalyticsPortConfig? config}) async {
     try {
       if (config != null) {
         _config = config;
@@ -47,35 +48,48 @@ class AnalyticsService {
 
   /// Log an analytics event
   Future<void> logEvent(AnalyticsEvent event) async {
+    await _logEvent(event.name, event.parameters);
+  }
+
+  @override
+  Future<void> logCustomEvent({
+    required String name,
+    Map<String, Object> parameters = const <String, Object>{},
+  }) async {
+    await _logEvent(name, parameters);
+  }
+
+  Future<void> _logEvent(
+    String eventName,
+    Map<String, Object> parameters,
+  ) async {
     if (!_config.enableCollection) {
       if (_config.enableDebugLogging) {
-        _logger.i(
-          '📊 [DISABLED] Event: ${event.name} with params: '
-          '${event.parameters}',
-        );
+        _logger.i('📊 [DISABLED] Event: $eventName with params: $parameters');
       }
       return;
     }
 
     try {
-      final eventName = '${_config.eventPrefix}${event.name}';
+      final prefixedEventName = '${_config.eventPrefix}$eventName';
 
       if (_config.enableDebugLogging) {
         _logger.i(
-          '📊 Logging event: $eventName with params: ${event.parameters}',
+          '📊 Logging event: $prefixedEventName with params: $parameters',
         );
       }
 
       await _firebaseAnalytics.logEvent(
-        name: eventName,
-        parameters: event.parameters,
+        name: prefixedEventName,
+        parameters: parameters,
       );
     } catch (e) {
-      _logger.e('Error logging event ${event.name}: $e');
+      _logger.e('Error logging event $eventName: $e');
     }
   }
 
   /// Log screen view
+  @override
   Future<void> logScreenView({
     required String screenName,
     String? screenClass,
@@ -86,6 +100,7 @@ class AnalyticsService {
   }
 
   /// Log button click
+  @override
   Future<void> logButtonClick({
     required String buttonName,
     String? buttonLocation,
@@ -101,6 +116,7 @@ class AnalyticsService {
   }
 
   /// Log date selection
+  @override
   Future<void> logDateSelection({
     required String selectedDate,
     required String calendarType,
@@ -116,6 +132,7 @@ class AnalyticsService {
   }
 
   /// Log settings change
+  @override
   Future<void> logSettingsChange({
     required String settingName,
     required Object oldValue,
@@ -131,6 +148,7 @@ class AnalyticsService {
   }
 
   /// Log theme change
+  @override
   Future<void> logThemeChange({
     required String themeMode,
     String? themePreset,
@@ -141,6 +159,7 @@ class AnalyticsService {
   }
 
   /// Log language change
+  @override
   Future<void> logLanguageChange({
     required String languageCode,
     required String languageName,
@@ -154,6 +173,7 @@ class AnalyticsService {
   }
 
   /// Log feature toggle
+  @override
   Future<void> logFeatureToggle({
     required String featureName,
     required bool enabled,
@@ -164,6 +184,7 @@ class AnalyticsService {
   }
 
   /// Log share action
+  @override
   Future<void> logShare({
     required String contentType,
     required String platform,
@@ -179,6 +200,7 @@ class AnalyticsService {
   }
 
   /// Log exception/error
+  @override
   Future<void> logException({
     required String exceptionName,
     required String description,
@@ -194,6 +216,7 @@ class AnalyticsService {
   }
 
   /// Log widget interaction
+  @override
   Future<void> logWidgetInteraction({
     required String widgetName,
     required String actionType,
@@ -209,6 +232,7 @@ class AnalyticsService {
   }
 
   /// Log background task metrics
+  @override
   Future<void> logBackgroundMetrics({
     required int successCount,
     required String lastUpdate,
@@ -226,6 +250,7 @@ class AnalyticsService {
   }
 
   /// Log background error metrics
+  @override
   Future<void> logBackgroundErrors({
     required int errorCount,
     required String lastError,
@@ -241,6 +266,7 @@ class AnalyticsService {
   }
 
   /// Log app started with background health
+  @override
   Future<void> logAppStarted({
     required String backgroundHealth,
     required int backgroundSuccessCount,
@@ -258,6 +284,7 @@ class AnalyticsService {
   }
 
   /// Set user ID
+  @override
   Future<void> setUserId(String userId) async {
     if (!_config.enableCollection) {
       _logger.i('User ID not set (collection disabled)');
@@ -274,6 +301,7 @@ class AnalyticsService {
   }
 
   /// Set user property
+  @override
   Future<void> setUserProperty({
     required String name,
     required String value,
@@ -295,10 +323,12 @@ class AnalyticsService {
   }
 
   /// Get current configuration
-  AnalyticsConfig get config => _config;
+  @override
+  AnalyticsPortConfig get config => _config;
 
   /// Update configuration
-  Future<void> updateConfig(AnalyticsConfig newConfig) async {
+  @override
+  Future<void> updateConfig(AnalyticsPortConfig newConfig) async {
     _logger.i(
       '📋 Analytics config updated: '
       'enableCollection: ${_config.enableCollection} → '
@@ -328,9 +358,10 @@ class AnalyticsService {
   }
 
   /// Reset analytics
+  @override
   Future<void> reset() async {
     try {
-      _config = const AnalyticsConfig();
+      _config = const AnalyticsPortConfig();
       _logger.i('Analytics reset');
     } catch (e) {
       _logger.e('Error resetting analytics: $e');

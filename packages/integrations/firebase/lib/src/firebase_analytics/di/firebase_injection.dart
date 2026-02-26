@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../core/analytics/analytics_service.dart';
 import '../core/crashlytics/crashlytics_service.dart';
@@ -23,13 +24,13 @@ Future<void> setupFirebaseServicesDependencies(GetIt getIt) async {
 
   getIt.registerSingleton<FirebaseCrashlytics>(FirebaseCrashlytics.instance);
 
-  // Register Analytics Service
-  getIt.registerSingleton<AnalyticsService>(
-    AnalyticsService(
-      firebaseAnalytics: getIt<FirebaseAnalytics>(),
-      config: FirebaseService.analyticsConfig,
-    ),
+  // Register Analytics Service + SDK-agnostic port
+  final analyticsService = AnalyticsService(
+    firebaseAnalytics: getIt<FirebaseAnalytics>(),
+    config: FirebaseService.analyticsConfig,
   );
+  getIt.registerSingleton<AnalyticsService>(analyticsService);
+  getIt.registerSingleton<AnalyticsPort>(analyticsService);
 
   // Register Crashlytics Service
   getIt.registerSingleton<CrashlyticsService>(

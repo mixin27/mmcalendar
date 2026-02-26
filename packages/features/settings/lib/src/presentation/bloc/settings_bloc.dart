@@ -25,7 +25,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final UpdateDisplayPreferences updateDisplayPreferences;
   final ResetSettings resetSettings;
   final MarkAsConsentDialogShown markAsConsentDialogShown;
-  final AnalyticsService analyticsService;
+  final AnalyticsPort analyticsService;
   final CrashlyticsService crashlyticsService;
 
   SettingsBloc({
@@ -309,7 +309,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     final currentState = state as SettingsLoaded;
 
-    // Update the AnalyticsService config
+    // Update the AnalyticsPort config
     await analyticsService.updateConfig(
       analyticsService.config.copyWith(enableCollection: event.enableAnalytics),
     );

@@ -2,10 +2,9 @@ import 'dart:io';
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_core/shared_core.dart';
 
-enum RemoteFetchResult { activated, noChange, failed }
-
-class RemoteConfigService {
+class RemoteConfigService implements RemoteConfigPort {
   RemoteConfigService({FirebaseRemoteConfig? remoteConfig})
     : _remoteConfig = remoteConfig ?? FirebaseRemoteConfig.instance;
 
@@ -13,6 +12,7 @@ class RemoteConfigService {
 
   RemoteConfigFetchStatus get lastFetchStatus => _remoteConfig.lastFetchStatus;
 
+  @override
   Future<void> initialize() async {
     try {
       await _remoteConfig.setConfigSettings(
@@ -38,6 +38,7 @@ class RemoteConfigService {
     }
   }
 
+  @override
   Future<RemoteFetchResult> fetchAndActivate() async {
     try {
       final activated = await _remoteConfig.fetchAndActivate();
@@ -55,10 +56,19 @@ class RemoteConfigService {
     }
   }
 
+  @override
   String getString(String key) => _remoteConfig.getString(key);
+  @override
   bool getBool(String key) => _remoteConfig.getBool(key);
+  @override
   int getInt(String key) => _remoteConfig.getInt(key);
+  @override
   double getDouble(String key) => _remoteConfig.getDouble(key);
 
-  Map<String, RemoteConfigValue> getAll() => _remoteConfig.getAll();
+  @override
+  Map<String, Object> getAll() {
+    return _remoteConfig.getAll().map(
+      (key, value) => MapEntry<String, Object>(key, value.asString()),
+    );
+  }
 }
