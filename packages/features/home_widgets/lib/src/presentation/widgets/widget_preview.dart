@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../../domain/entities/widget_config.dart';
 import '../../domain/entities/widget_data.dart';
-import 'moon_phase_widget.dart';
 
 class WidgetPreview extends StatelessWidget {
   final WidgetConfig config;
@@ -45,11 +45,12 @@ class WidgetPreview extends StatelessWidget {
         children: [
           // Moon Phase
           if (data != null)
-            MoonPhaseWidget(
-              moonPhase: _parseMoonPhase(data!.moonPhaseEmoji),
+            MoonPhaseVisual(
+              moonPhase: data!.moonPhaseValue,
               fortnightDay: data!.fortnightDay,
               size: 56,
               showGlow: true,
+              widgetMode: true,
             )
           else
             Container(
@@ -106,11 +107,12 @@ class WidgetPreview extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (data != null)
-                  MoonPhaseWidget(
-                    moonPhase: _parseMoonPhase(data!.moonPhaseEmoji),
+                  MoonPhaseVisual(
+                    moonPhase: data!.moonPhaseValue,
                     fortnightDay: data!.fortnightDay,
                     size: 72,
                     showGlow: true,
+                    widgetMode: true,
                   )
                 else
                   Container(
@@ -268,11 +270,12 @@ class WidgetPreview extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (data != null)
-                        MoonPhaseWidget(
-                          moonPhase: _parseMoonPhase(data!.moonPhaseEmoji),
+                        MoonPhaseVisual(
+                          moonPhase: data!.moonPhaseValue,
                           fortnightDay: data!.fortnightDay,
                           size: 100,
                           showGlow: true,
+                          widgetMode: true,
                         )
                       else
                         Container(
@@ -540,13 +543,5 @@ class WidgetPreview extends StatelessWidget {
       items.addAll(data!.astrologicalDays);
     }
     return items.join(' • ');
-  }
-
-  int _parseMoonPhase(String moonPhaseEmoji) {
-    if (moonPhaseEmoji.contains('🌒')) return 0; // Waxing
-    if (moonPhaseEmoji.contains('🌕')) return 1; // Full
-    if (moonPhaseEmoji.contains('🌘')) return 2; // Waning
-    if (moonPhaseEmoji.contains('🌑')) return 3; // New
-    return 0;
   }
 }

@@ -1,14 +1,353 @@
-import 'package:shared_core/src/extensions/context_extension.dart';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:shared_core/src/extensions/context_extension.dart';
+
+const double _lunarCycleDays = 29.53;
+const double _fullMoonCycleDay = _lunarCycleDays / 2;
+
+@immutable
+class MoonPhaseCycleMetrics {
+  final double cycleDay;
+  final double phase;
+  final double illumination;
+  final bool isWaxing;
+
+  const MoonPhaseCycleMetrics._({
+    required this.cycleDay,
+    required this.phase,
+    required this.illumination,
+    required this.isWaxing,
+  });
+
+  factory MoonPhaseCycleMetrics.fromMyanmarData({
+    required int moonPhase,
+    required int fortnightDay,
+  }) {
+    final normalizedPhase = moonPhase.clamp(0, 3);
+    final normalizedFortnightDay = fortnightDay.clamp(0, 15).toDouble();
+
+    double cycleDay;
+    switch (normalizedPhase) {
+      case 0:
+        cycleDay = normalizedFortnightDay;
+        break;
+      case 1:
+        cycleDay = _fullMoonCycleDay;
+        break;
+      case 2:
+        cycleDay = _fullMoonCycleDay + normalizedFortnightDay;
+        break;
+      case 3:
+        cycleDay = 0;
+        break;
+      default:
+        cycleDay = normalizedFortnightDay;
+    }
+
+    final normalizedCycleDay = cycleDay % _lunarCycleDays;
+    final phase = normalizedCycleDay / _lunarCycleDays;
+    final illumination = ((1 - math.cos(phase * 2 * math.pi)) / 2).clamp(
+      0.0,
+      1.0,
+    );
+
+    return MoonPhaseCycleMetrics._(
+      cycleDay: normalizedCycleDay,
+      phase: phase,
+      illumination: illumination,
+      isWaxing: normalizedCycleDay < _fullMoonCycleDay,
+    );
+  }
+}
+
+class MoonPhasePainter extends CustomPainter {
+  final int moonPhase;
+  final int fortnightDay;
+  final Color moonColor;
+  final Color shadowColor;
+  final bool showGlow;
+  final bool showTexture;
+  final bool widgetMode;
+
+  MoonPhasePainter({
+    required this.moonPhase,
+    required this.fortnightDay,
+    this.moonColor = const Color(0xFFF5F5DC),
+    this.shadowColor = const Color(0xFF1A1A1A),
+    this.showGlow = false,
+    this.showTexture = true,
+    this.widgetMode = false,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final diameter = math.min(size.width, size.height);
+    if (diameter <= 0) return;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = diameter / 2;
+    final metrics = MoonPhaseCycleMetrics.fromMyanmarData(
+      moonPhase: moonPhase,
+      fortnightDay: fortnightDay,
+    );
+
+    if (showGlow && metrics.illumination > 0.03) {
+      _drawGlow(canvas, center, radius, metrics.illumination);
+    }
+
+    final darkPaint = Paint()
+      ..color = shadowColor
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+    canvas.drawCircle(center, radius, darkPaint);
+
+    if (metrics.illumination >= 0.99) {
+      _drawFullMoon(canvas, center, radius);
+      return;
+    }
+
+    if (metrics.illumination <= 0.01) {
+      _drawNewMoonRim(canvas, center, radius);
+      return;
+    }
+
+    _drawIlluminatedPhase(canvas, center, radius, metrics);
+    _drawRim(canvas, center, radius);
+  }
+
+  void _drawGlow(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double illumination,
+  ) {
+    final glowRadiusMultiplier = widgetMode ? 1.3 : 1.45;
+    final glowPaint = Paint()
+      ..shader =
+          RadialGradient(
+            colors: [
+              moonColor.withValues(alpha: 0.28 * illumination),
+              moonColor.withValues(alpha: 0.14 * illumination),
+              Colors.transparent,
+            ],
+            stops: const [0, 0.58, 1],
+          ).createShader(
+            Rect.fromCircle(
+              center: center,
+              radius: radius * glowRadiusMultiplier,
+            ),
+          );
+
+    canvas.drawCircle(center, radius * glowRadiusMultiplier, glowPaint);
+  }
+
+  void _drawFullMoon(Canvas canvas, Offset center, double radius) {
+    final litPaint = Paint()
+      ..color = moonColor
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+    canvas.drawCircle(center, radius, litPaint);
+
+    if (showTexture) {
+      _drawCraters(
+        canvas,
+        center,
+        radius,
+        craters: [
+          (
+            Offset(center.dx - radius * 0.30, center.dy - radius * 0.25),
+            radius * 0.16,
+          ),
+          (
+            Offset(center.dx + radius * 0.24, center.dy - radius * 0.32),
+            radius * 0.13,
+          ),
+          (
+            Offset(center.dx + radius * 0.32, center.dy + radius * 0.18),
+            radius * 0.14,
+          ),
+          (
+            Offset(center.dx - radius * 0.14, center.dy + radius * 0.34),
+            radius * 0.10,
+          ),
+        ],
+      );
+    }
+
+    _drawRim(canvas, center, radius, alpha: 0.42);
+  }
+
+  void _drawIlluminatedPhase(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    MoonPhaseCycleMetrics metrics,
+  ) {
+    final litPaint = Paint()
+      ..color = moonColor
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+    final maskPaint = Paint()
+      ..color = shadowColor
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+    final clipPath = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: radius));
+
+    // Draw a full bright moon, then subtract a shifted dark mask.
+    // This keeps the shape progression smooth and monotonic day-to-day.
+    canvas.save();
+    canvas.clipPath(clipPath);
+    canvas.drawCircle(center, radius, litPaint);
+
+    final maskShift =
+        (metrics.isWaxing ? -1.0 : 1.0) * (2 * radius * metrics.illumination);
+    final maskCenter = Offset(center.dx + maskShift, center.dy);
+    canvas.drawCircle(maskCenter, radius, maskPaint);
+    canvas.restore();
+
+    if (!showTexture || metrics.illumination < 0.12) {
+      return;
+    }
+
+    _drawCraters(
+      canvas,
+      center,
+      radius,
+      craters: metrics.isWaxing
+          ? [
+              (
+                Offset(center.dx + radius * 0.26, center.dy - radius * 0.30),
+                radius * 0.12,
+              ),
+              (
+                Offset(center.dx + radius * 0.30, center.dy + radius * 0.20),
+                radius * 0.13,
+              ),
+            ]
+          : [
+              (
+                Offset(center.dx - radius * 0.30, center.dy - radius * 0.25),
+                radius * 0.13,
+              ),
+              (
+                Offset(center.dx - radius * 0.20, center.dy + radius * 0.32),
+                radius * 0.10,
+              ),
+            ],
+    );
+  }
+
+  void _drawCraters(
+    Canvas canvas,
+    Offset center,
+    double radius, {
+    required List<(Offset, double)> craters,
+  }) {
+    final craterPaint = Paint()
+      ..color = shadowColor.withValues(alpha: widgetMode ? 0.14 : 0.18)
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    for (final crater in craters) {
+      canvas.drawCircle(crater.$1, crater.$2, craterPaint);
+      if (widgetMode) continue;
+
+      final highlightPaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.08)
+        ..style = PaintingStyle.fill
+        ..isAntiAlias = true;
+      canvas.drawCircle(
+        Offset(
+          crater.$1.dx - crater.$2 * 0.30,
+          crater.$1.dy - crater.$2 * 0.30,
+        ),
+        crater.$2 * 0.42,
+        highlightPaint,
+      );
+    }
+  }
+
+  void _drawRim(Canvas canvas, Offset center, double radius, {double? alpha}) {
+    final rimPaint = Paint()
+      ..color = Colors.white.withValues(alpha: alpha ?? 0.30)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = widgetMode ? 1.0 : 1.35
+      ..isAntiAlias = true;
+    canvas.drawCircle(center, radius - 0.8, rimPaint);
+  }
+
+  void _drawNewMoonRim(Canvas canvas, Offset center, double radius) {
+    final rimPaint = Paint()
+      ..color = moonColor.withValues(alpha: widgetMode ? 0.2 : 0.17)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = widgetMode ? 1.2 : 1.8
+      ..isAntiAlias = true;
+    canvas.drawCircle(center, radius - 1, rimPaint);
+  }
+
+  @override
+  bool shouldRepaint(MoonPhasePainter oldDelegate) {
+    return oldDelegate.moonPhase != moonPhase ||
+        oldDelegate.fortnightDay != fortnightDay ||
+        oldDelegate.moonColor != moonColor ||
+        oldDelegate.shadowColor != shadowColor ||
+        oldDelegate.showGlow != showGlow ||
+        oldDelegate.showTexture != showTexture ||
+        oldDelegate.widgetMode != widgetMode;
+  }
+}
+
+class MoonPhaseVisual extends StatelessWidget {
+  final int moonPhase;
+  final int fortnightDay;
+  final double size;
+  final Color moonColor;
+  final Color shadowColor;
+  final bool showGlow;
+  final bool showTexture;
+  final bool widgetMode;
+
+  const MoonPhaseVisual({
+    super.key,
+    required this.moonPhase,
+    required this.fortnightDay,
+    this.size = 80,
+    this.moonColor = const Color(0xFFF5F5DC),
+    this.shadowColor = const Color(0xFF1A1A1A),
+    this.showGlow = false,
+    this.showTexture = true,
+    this.widgetMode = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(
+        painter: MoonPhasePainter(
+          moonPhase: moonPhase,
+          fortnightDay: fortnightDay,
+          moonColor: moonColor,
+          shadowColor: shadowColor,
+          showGlow: showGlow,
+          showTexture: showTexture,
+          widgetMode: widgetMode,
+        ),
+      ),
+    );
+  }
+}
 
 class MoonPhaseIndicator extends StatelessWidget {
-  final int moonPhase; // 0=waxing, 1=full, 2=waning, 3=new
+  final int moonPhase;
   final int fortnightDay;
   final double size;
   final bool showLabel;
   final bool showDay;
-  final String Function(int mp)? getMoonPhaseName;
-  final String Function(int fd)? getFortnightDay;
+  final String Function(int moonPhase)? getMoonPhaseName;
+  final String Function(int fortnightDay)? getFortnightDay;
 
   const MoonPhaseIndicator({
     super.key,
@@ -23,10 +362,10 @@ class MoonPhaseIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final phaseColor = _getMoonColor();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Moon visual
         Container(
           width: size,
           height: size,
@@ -35,35 +374,34 @@ class MoonPhaseIndicator extends StatelessWidget {
             gradient: _getMoonGradient(),
             boxShadow: [
               BoxShadow(
-                color: _getMoonColor().withValues(alpha: 0.3),
-                blurRadius: 20,
-                spreadRadius: 5,
+                color: phaseColor.withValues(alpha: 0.28),
+                blurRadius: size * 0.18,
+                spreadRadius: size * 0.04,
               ),
             ],
           ),
-          child: CustomPaint(
-            painter: MoonPhasePainter(
+          child: Center(
+            child: MoonPhaseVisual(
               moonPhase: moonPhase,
               fortnightDay: fortnightDay,
+              size: size,
+              showGlow: true,
+              showTexture: true,
             ),
           ),
         ),
-
         if (showLabel || showDay) ...[
           const SizedBox(height: 12),
-
-          // Moon phase name
           if (showLabel)
             Text(
               getMoonPhaseName?.call(moonPhase) ?? _getMoonPhaseName(),
               style: context.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: _getMoonColor(),
+                color: phaseColor,
               ),
+              textAlign: TextAlign.center,
             ),
-
-          // Fortnight day
-          if (showDay && !(moonPhase == 1 || moonPhase == 3)) ...[
+          if (showDay && moonPhase != 1 && moonPhase != 3) ...[
             const SizedBox(height: 4),
             Text(
               getFortnightDay?.call(fortnightDay) ?? 'Day $fortnightDay',
@@ -79,27 +417,27 @@ class MoonPhaseIndicator extends StatelessWidget {
 
   LinearGradient _getMoonGradient() {
     switch (moonPhase) {
-      case 0: // Waxing
-        return LinearGradient(
-          colors: [const Color(0xFFFFF9C4), const Color(0xFFFFE082)],
+      case 0:
+        return const LinearGradient(
+          colors: [Color(0xFFFFF9C4), Color(0xFFFFE082)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
-      case 1: // Full Moon
-        return LinearGradient(
-          colors: [const Color(0xFFFFE082), const Color(0xFFFFD54F)],
+      case 1:
+        return const LinearGradient(
+          colors: [Color(0xFFFFE082), Color(0xFFFFD54F)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
-      case 2: // Waning
-        return LinearGradient(
-          colors: [const Color(0xFFE1BEE7), const Color(0xFFCE93D8)],
+      case 2:
+        return const LinearGradient(
+          colors: [Color(0xFFE1BEE7), Color(0xFFCE93D8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
-      case 3: // New Moon
-        return LinearGradient(
-          colors: [const Color(0xFF9FA8DA), const Color(0xFF7986CB)],
+      case 3:
+        return const LinearGradient(
+          colors: [Color(0xFF9FA8DA), Color(0xFF7986CB)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
@@ -153,25 +491,32 @@ class CompactMoonPhaseIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accentColor = _getAccentColor(moonPhase);
     return Container(
       width: size,
       height: size,
+      padding: EdgeInsets.all(size * 0.12),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: _getMoonColor().withValues(alpha: 0.2),
-        border: Border.all(color: _getMoonColor(), width: 2),
-      ),
-      child: Center(
-        child: Text(
-          _getMoonIcon(),
-          style: TextStyle(fontSize: size * 0.5, color: _getMoonColor()),
+        color: accentColor.withValues(alpha: 0.14),
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.50),
+          width: size < 18 ? 1 : 1.5,
         ),
+      ),
+      child: MoonPhaseVisual(
+        moonPhase: moonPhase,
+        fortnightDay: fortnightDay,
+        size: size * 0.76,
+        showGlow: false,
+        showTexture: size >= 16,
+        widgetMode: true,
       ),
     );
   }
 
-  Color _getMoonColor() {
-    switch (moonPhase) {
+  Color _getAccentColor(int phase) {
+    switch (phase) {
       case 0:
         return const Color(0xFFF57F17);
       case 1:
@@ -183,155 +528,5 @@ class CompactMoonPhaseIndicator extends StatelessWidget {
       default:
         return Colors.grey;
     }
-  }
-
-  String _getMoonIcon() {
-    switch (moonPhase) {
-      case 0:
-        return '☽';
-      case 1:
-        return '●';
-      case 2:
-        return '☾';
-      case 3:
-        return '○';
-      default:
-        return '';
-    }
-  }
-}
-
-class MoonPhasePainter extends CustomPainter {
-  final int moonPhase;
-  final int fortnightDay;
-
-  MoonPhasePainter({required this.moonPhase, required this.fortnightDay});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-
-    // Save canvas state
-    canvas.save();
-
-    // Clip to circle to prevent overflow
-    canvas.clipPath(
-      Path()..addOval(Rect.fromCircle(center: center, radius: radius)),
-    );
-
-    // Draw moon surface
-    final surfacePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.9)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(center, radius, surfacePaint);
-
-    // Draw shadow based on phase
-    final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.4)
-      ..style = PaintingStyle.fill;
-
-    if (moonPhase == 0) {
-      // Waxing - shadow on left
-      _drawWaxingShadow(canvas, center, radius, fortnightDay, shadowPaint);
-    } else if (moonPhase == 2) {
-      // Waning - shadow on right
-      _drawWaningShadow(canvas, center, radius, fortnightDay, shadowPaint);
-    } else if (moonPhase == 3) {
-      // New moon - completely dark
-      canvas.drawCircle(center, radius, shadowPaint);
-    }
-    // Full moon has no shadow (moonPhase == 1)
-
-    // Draw crater marks for realism
-    _drawCraters(canvas, center, radius);
-
-    // Restore canvas before drawing glow ring
-    canvas.restore();
-
-    // Draw glow ring (outside the clip)
-    final glowPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawCircle(center, radius, glowPaint);
-  }
-
-  void _drawWaxingShadow(
-    Canvas canvas,
-    Offset center,
-    double radius,
-    int day,
-    Paint shadowPaint,
-  ) {
-    // Calculate illumination percentage (0 = new moon, 15 = full moon)
-    final illumination = day / 15.0;
-
-    // Create shadow path using a more accurate crescent shape
-    final path = Path();
-
-    // Define the shadow arc on the left side
-    final shadowRadius = radius * (1 - illumination);
-
-    // Create an ellipse for the shadow
-    final rect = Rect.fromCenter(
-      center: Offset(center.dx - radius + shadowRadius, center.dy),
-      width: shadowRadius * 2,
-      height: radius * 2,
-    );
-
-    path.addOval(rect);
-    canvas.drawPath(path, shadowPaint);
-  }
-
-  void _drawWaningShadow(
-    Canvas canvas,
-    Offset center,
-    double radius,
-    int day,
-    Paint shadowPaint,
-  ) {
-    // Calculate shadow percentage (0 = full moon, 15 = new moon)
-    final shadowAmount = day / 15.0;
-
-    // Create shadow path using a more accurate crescent shape
-    final path = Path();
-
-    // Define the shadow arc on the right side
-    final shadowRadius = radius * shadowAmount;
-
-    // Create an ellipse for the shadow
-    final rect = Rect.fromCenter(
-      center: Offset(center.dx + radius - shadowRadius, center.dy),
-      width: shadowRadius * 2,
-      height: radius * 2,
-    );
-
-    path.addOval(rect);
-    canvas.drawPath(path, shadowPaint);
-  }
-
-  void _drawCraters(Canvas canvas, Offset center, double radius) {
-    final craterPaint = Paint()
-      ..color = Colors.grey.shade300.withValues(alpha: 0.5)
-      ..style = PaintingStyle.fill;
-
-    // Add a few crater marks for detail
-    final craters = [
-      Offset(center.dx + radius * 0.2, center.dy - radius * 0.3),
-      Offset(center.dx - radius * 0.3, center.dy + radius * 0.2),
-      Offset(center.dx + radius * 0.1, center.dy + radius * 0.4),
-    ];
-
-    for (var crater in craters) {
-      canvas.drawCircle(crater, radius * 0.1, craterPaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(MoonPhasePainter oldDelegate) {
-    return oldDelegate.moonPhase != moonPhase ||
-        oldDelegate.fortnightDay != fortnightDay;
   }
 }

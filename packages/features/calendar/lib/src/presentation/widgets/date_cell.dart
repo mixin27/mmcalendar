@@ -1,8 +1,7 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-
-import 'moon_phase_indicator.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
+    hide CompactMoonPhaseIndicator, MoonPhaseIndicator;
 
 class DateCell extends StatefulWidget {
   final CompleteDate dateInfo;
@@ -265,12 +264,10 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
 
   Widget _buildMyanmarDate(Color textColor, double opacity) {
     if (widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon) {
-      return CustomPaint(
-        size: const Size(12, 12),
-        painter: _MoonPhasePainter(
-          moonPhase: widget.dateInfo.moonPhase,
-          fortnightDay: widget.dateInfo.fortnightDay,
-        ),
+      return CompactMoonPhaseIndicator(
+        moonPhase: widget.dateInfo.moonPhase,
+        fortnightDay: widget.dateInfo.fortnightDay,
+        size: 12,
       );
     }
 
@@ -282,12 +279,11 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        MoonPhaseIconIndicator(
+        CompactMoonPhaseIndicator(
           moonPhase: widget.dateInfo.moonPhase,
-          style: MoonIconStyle.emoji,
           size: 8,
+          fortnightDay: widget.dateInfo.fortnightDay,
         ),
-        // CustomMoonIcon(moonPhase: widget.dateInfo.moonPhase, size: 8),
         const SizedBox(width: 2),
         Text(
           fortnightDay,
@@ -455,35 +451,4 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
     // Use event's custom color or category color
     return Color(event.effectiveColor);
   }
-}
-
-class _MoonPhasePainter extends CustomPainter {
-  final int moonPhase;
-  final int fortnightDay;
-
-  _MoonPhasePainter({required this.moonPhase, required this.fortnightDay});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Colors.grey.shade700;
-
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-
-    if (moonPhase == 1) {
-      // Full Moon - filled circle
-      canvas.drawCircle(center, radius, paint);
-    } else if (moonPhase == 3) {
-      // New Moon - empty circle with border
-      paint
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1;
-      canvas.drawCircle(center, radius, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

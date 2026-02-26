@@ -4,8 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:home_widget/home_widget.dart';
-
-import 'moon_phase_widget.dart';
+import 'package:shared_core/shared_core.dart';
 
 /// Renders Flutter widgets to images for Android widget display
 class WidgetRenderer {
@@ -19,13 +18,14 @@ class WidgetRenderer {
   }) async {
     try {
       // Create the widget
-      final widget = MoonPhaseWidget(
+      final widget = MoonPhaseVisual(
         moonPhase: moonPhase,
         fortnightDay: fortnightDay,
         size: size,
-        moonColor: moonColor,
-        shadowColor: shadowColor,
+        moonColor: moonColor ?? const Color(0xFFF5F5DC),
+        shadowColor: shadowColor ?? const Color(0xFF1A1A1A),
         showGlow: true,
+        widgetMode: true,
       );
 
       // Render to image

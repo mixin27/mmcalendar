@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../moon_phase_widget.dart';
+import 'package:shared_core/shared_core.dart';
 
 /// Moon Phase Display Widget
 class MoonPhaseDisplay extends StatelessWidget {
@@ -40,13 +39,14 @@ class MoonPhaseDisplay extends StatelessWidget {
           width: size,
           height: size,
           color: Colors.transparent,
-          child: MoonPhaseWidget(
+          child: MoonPhaseVisual(
             moonPhase: moonPhase,
             fortnightDay: fortnightDay,
             size: size,
             moonColor: const Color(0xFFF5F5DC),
             shadowColor: const Color(0xFF2C2C2C),
             showGlow: true,
+            widgetMode: true,
           ),
         ),
       ],

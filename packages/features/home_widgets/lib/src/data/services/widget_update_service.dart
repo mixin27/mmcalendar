@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../../domain/entities/widget_config.dart';
 import '../../domain/entities/widget_data.dart';
-import '../../presentation/widgets/moon_phase_widget.dart';
 
 class WidgetUpdateService {
   /// Update all widgets with new data
@@ -23,13 +23,15 @@ class WidgetUpdateService {
       // 1. Render moon phase image (needed by multiple widgets)
       final fullMoonImagePath = await _renderMoonPhaseImage(
         data.moonPhaseValue,
-        data.completeDate?.myanmarDay ?? 1,
+        data.fortnightDay,
+        storageKey: 'moon_phase_image_large',
       );
 
       final moonImagePath = await _renderMoonPhaseImage(
         data.moonPhaseValue,
-        data.completeDate?.myanmarDay ?? 1,
+        data.fortnightDay,
         size: 90,
+        storageKey: 'moon_phase_image_small',
       );
 
       // 2. Save common data (all widgets use this)
@@ -125,7 +127,7 @@ class WidgetUpdateService {
     if (fullMoonImagePath != null && fullMoonImagePath.isNotEmpty) {
       await HomeWidget.saveWidgetData<String>(
         'full_moon_phase_image_path',
-        moonImagePath,
+        fullMoonImagePath,
       );
     }
 
@@ -201,26 +203,28 @@ class WidgetUpdateService {
     int moonPhase,
     int fortnightDay, {
     double size = 120,
+    String storageKey = 'moon_phase_image',
   }) async {
     try {
       final moonWidget = Container(
         width: size,
         height: size,
         color: Colors.transparent,
-        child: MoonPhaseWidget(
+        child: MoonPhaseVisual(
           moonPhase: moonPhase,
           fortnightDay: fortnightDay,
-          size: 120,
+          size: size,
           moonColor: const Color(0xFFF5F5DC),
           shadowColor: const Color(0xFF2C2C2C),
           showGlow: false,
+          widgetMode: true,
         ),
       );
 
       final imagePath = await HomeWidget.renderFlutterWidget(
         moonWidget,
-        key: 'moon_phase_image',
-        logicalSize: const Size(120, 120),
+        key: storageKey,
+        logicalSize: Size(size, size),
         pixelRatio: 3.0,
       );
 

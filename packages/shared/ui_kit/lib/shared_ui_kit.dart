@@ -16,5 +16,3 @@ export 'package:shared_core/src/widgets/color_picker_tile.dart';
 export 'package:shared_core/src/widgets/custom_colors_editor_dialog.dart';
 export 'package:shared_core/src/widgets/color_chip.dart';
 export 'package:shared_core/src/widgets/custom_colors_option.dart';
-export 'package:shared_core/src/widgets/daily_moon_phase_painter.dart';
-export 'package:shared_core/src/widgets/optimized_moon_phase.dart';
