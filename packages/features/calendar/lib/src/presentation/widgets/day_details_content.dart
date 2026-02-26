@@ -1,19 +1,21 @@
-import 'package:events/events.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../di/calendar_injection.dart';
+
+typedef Event = CalendarEventItem;
+typedef EventPriority = CalendarEventPriority;
 
 class DayDetailsContent extends StatelessWidget {
   final DateTime date;
   final CompleteDate completeDate;
   final bool showShanCalendar;
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final EventMarkersPort _eventMarkersPort = getIt<EventMarkersPort>();
 
   DayDetailsContent({
     super.key,
@@ -24,48 +26,67 @@ class DayDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Hero Date Card with both calendars
-        _buildHeroDateCard(context, showShanCalendar),
-        const SizedBox(height: 16),
+    return StreamBuilder<List<Event>>(
+      stream: _eventMarkersPort.watchEventsForDate(date),
+      builder: (context, eventsSnapshot) {
+        final dateEvents = eventsSnapshot.data ?? const <Event>[];
+        final isEventsLoading =
+            eventsSnapshot.connectionState == ConnectionState.waiting &&
+            !eventsSnapshot.hasData;
+        final eventsErrorMessage = eventsSnapshot.hasError
+            ? eventsSnapshot.error.toString()
+            : null;
 
-        // Buddhist Calendar Info
-        _buildBuddhistCalendarCard(context),
-        const SizedBox(height: 16),
-
-        // Moon Phase & Weekday Info
-        Row(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(child: _buildMoonPhaseCard(context)),
-            const SizedBox(width: 12),
-            Expanded(child: _buildWeekdayCard(context)),
+            // Hero Date Card with both calendars
+            _buildHeroDateCard(context, showShanCalendar),
+            const SizedBox(height: 16),
+
+            // Buddhist Calendar Info
+            _buildBuddhistCalendarCard(context),
+            const SizedBox(height: 16),
+
+            // Moon Phase & Weekday Info
+            Row(
+              children: [
+                Expanded(child: _buildMoonPhaseCard(context)),
+                const SizedBox(width: 12),
+                Expanded(child: _buildWeekdayCard(context)),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Holidays Section
+            if (completeDate.hasHolidays ||
+                completeDate.hasAnniversaryDays) ...[
+              _buildHolidaysCard(context),
+              const SizedBox(height: 16),
+            ],
+
+            // Astrological Information
+            _buildAstrologyCard(context),
+            const SizedBox(height: 16),
+
+            // AI Prompt Generation
+            _buildAIPromptSection(context),
+            const SizedBox(height: 16),
+
+            _buildQuickStatsCard(context, eventCount: dateEvents.length),
+            const SizedBox(height: 16),
+
+            // Events Section
+            _buildEventsSection(
+              context,
+              dateEvents: dateEvents,
+              isLoading: isEventsLoading,
+              errorMessage: eventsErrorMessage,
+            ),
+            const SizedBox(height: 24),
           ],
-        ),
-        const SizedBox(height: 16),
-
-        // Holidays Section
-        if (completeDate.hasHolidays || completeDate.hasAnniversaryDays) ...[
-          _buildHolidaysCard(context),
-          const SizedBox(height: 16),
-        ],
-
-        // Astrological Information
-        _buildAstrologyCard(context),
-        const SizedBox(height: 16),
-
-        // AI Prompt Generation
-        _buildAIPromptSection(context),
-        const SizedBox(height: 16),
-
-        _buildQuickStatsCard(context),
-        const SizedBox(height: 16),
-
-        // Events Section
-        _buildEventsSection(context),
-        const SizedBox(height: 24),
-      ],
+        );
+      },
     );
   }
 
@@ -829,7 +850,7 @@ class DayDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickStatsCard(BuildContext context) {
+  Widget _buildQuickStatsCard(BuildContext context, {required int eventCount}) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -850,28 +871,12 @@ class DayDetailsContent extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                BlocBuilder<UserEventsBloc, UserEventsState>(
-                  builder: (context, state) {
-                    int count = 0;
-                    if (state is EventsLoaded ||
-                        state is EventsOperationSuccess) {
-                      final items = state is EventsLoaded
-                          ? state.events
-                          : (state as EventsOperationSuccess).events;
-                      count = items.where((event) {
-                        return event.eventDate.year == date.year &&
-                            event.eventDate.month == date.month &&
-                            event.eventDate.day == date.day;
-                      }).length;
-                    }
-                    return _buildStatItem(
-                      context,
-                      Icons.event,
-                      count.toString(),
-                      'Events',
-                      Theme.of(context).colorScheme.primary,
-                    );
-                  },
+                _buildStatItem(
+                  context,
+                  Icons.event,
+                  eventCount.toString(),
+                  'Events',
+                  Theme.of(context).colorScheme.primary,
                 ),
                 Container(
                   width: 1,
@@ -930,44 +935,29 @@ class DayDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _buildEventsSection(BuildContext context) {
-    return BlocBuilder<UserEventsBloc, UserEventsState>(
-      builder: (context, state) {
-        // Loading state
-        if (state is EventsLoading) {
-          return _buildEventsLoadingCard(context);
-        }
+  Widget _buildEventsSection(
+    BuildContext context, {
+    required List<Event> dateEvents,
+    required bool isLoading,
+    required String? errorMessage,
+  }) {
+    if (isLoading) {
+      return _buildEventsLoadingCard(context);
+    }
 
-        // Error state
-        if (state is EventsError) {
-          return _buildEventsErrorCard(context, state.failure.message);
-        }
+    if (errorMessage != null) {
+      return _buildEventsErrorCard(context, errorMessage);
+    }
 
-        // Get events for current date
-        List<Event> dateEvents = [];
-        if (state is EventsLoaded || state is EventsOperationSuccess) {
-          final allEvents = state is EventsLoaded
-              ? state.events
-              : (state as EventsOperationSuccess).events;
+    final sortedEvents = <Event>[...dateEvents]
+      ..sort((a, b) {
+        if (a.isAllDay && !b.isAllDay) return -1;
+        if (!a.isAllDay && b.isAllDay) return 1;
+        if (a.isAllDay && b.isAllDay) return 0;
+        return a.eventTime!.compareTo(b.eventTime!);
+      });
 
-          dateEvents = allEvents.where((event) {
-            return event.eventDate.year == date.year &&
-                event.eventDate.month == date.month &&
-                event.eventDate.day == date.day;
-          }).toList();
-
-          // Sort by time
-          dateEvents.sort((a, b) {
-            if (a.isAllDay && !b.isAllDay) return -1;
-            if (!a.isAllDay && b.isAllDay) return 1;
-            if (a.isAllDay && b.isAllDay) return 0;
-            return a.eventTime!.compareTo(b.eventTime!);
-          });
-        }
-
-        return _buildEventsCard(context, dateEvents);
-      },
-    );
+    return _buildEventsCard(context, sortedEvents);
   }
 
   Widget _buildEventsCard(BuildContext context, List<Event> events) {
@@ -1062,12 +1052,6 @@ class DayDetailsContent extends StatelessWidget {
                       await GoRouter.of(
                         context,
                       ).push('/events/create', extra: date);
-
-                      if (context.mounted) {
-                        context.read<UserEventsBloc>().add(
-                          const LoadAllEvents(),
-                        );
-                      }
                     },
                     icon: const Icon(Icons.add, size: 18),
                     label: const Text('Add'),
@@ -1104,22 +1088,18 @@ class DayDetailsContent extends StatelessWidget {
                         await GoRouter.of(
                           context,
                         ).push('/events/${event.id}/detail');
-
-                        if (context.mounted) {
-                          context.read<UserEventsBloc>().add(
-                            const LoadAllEvents(),
-                          );
-                        }
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Event marked as completed")),
                         );
                       }
                     },
-                    onCheckboxChanged: (checked) {
+                    onCheckboxChanged: (checked) async {
                       if (event.id != null) {
-                        context.read<UserEventsBloc>().add(
-                          ToggleEventComplete(event.id!, checked ?? false),
+                        await _toggleEventCompletion(
+                          context,
+                          eventId: event.id!,
+                          isCompleted: checked ?? false,
                         );
                       }
                     },
@@ -1238,18 +1218,30 @@ class DayDetailsContent extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () {
-                context.read<UserEventsBloc>().add(const LoadAllEvents());
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _toggleEventCompletion(
+    BuildContext context, {
+    required int eventId,
+    required bool isCompleted,
+  }) async {
+    try {
+      await _eventMarkersPort.toggleEventCompletion(
+        eventId: eventId,
+        isCompleted: isCompleted,
+      );
+    } catch (error) {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to update event: $error')));
+    }
   }
 }
 

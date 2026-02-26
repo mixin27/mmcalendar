@@ -51,13 +51,3 @@ final class ToggleAstrologyCard extends CalendarEvent {
 final class RefreshCalendar extends CalendarEvent {
   const RefreshCalendar();
 }
-
-/// Load calendar month with events
-final class LoadCalendarMonthWithEvents extends CalendarEvent {
-  final DateTime month;
-
-  const LoadCalendarMonthWithEvents(this.month);
-
-  @override
-  List<Object?> get props => [month];
-}

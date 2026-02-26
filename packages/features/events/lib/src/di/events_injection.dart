@@ -1,7 +1,9 @@
 import 'package:integrations_database/integrations_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_core/shared_core.dart';
 
+import '../adapters/repository_event_markers_port.dart';
 import '../data/datasources/events_local_datasource.dart';
 import '../data/datasources/recurring_exceptions_datasource.dart';
 import '../data/repositories/events_repository_impl.dart';
@@ -77,6 +79,12 @@ Future<void> initEventsDependencies() async {
       getIt<RecurringExceptionsDataSource>(),
     ),
   );
+
+  if (!getIt.isRegistered<EventMarkersPort>()) {
+    getIt.registerLazySingleton<EventMarkersPort>(
+      () => RepositoryEventMarkersPort(getIt<EventsRepository>()),
+    );
+  }
 
   // ============================================================================
   // USE CASES

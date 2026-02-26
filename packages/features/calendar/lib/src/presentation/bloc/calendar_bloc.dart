@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:shared_core/shared_core.dart';
-import 'package:events/events.dart';
 
 import '../../domain/usecases/get_calendar_month.dart';
 import '../../domain/usecases/navigate_month.dart';
@@ -14,14 +13,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   final NavigateMonth navigateMonth;
   final SelectDate selectDateUseCase;
   final ToggleAstrology toggleAstrology;
-  final GetEventsByDateRange getEventsByDateRange;
 
   CalendarBloc({
     required this.getCalendarMonth,
     required this.navigateMonth,
     required this.selectDateUseCase,
     required this.toggleAstrology,
-    required this.getEventsByDateRange,
   }) : super(const CalendarInitial()) {
     on<LoadCalendarMonth>(_onLoadCalendarMonth);
     on<NavigateToNextMonth>(_onNavigateToNextMonth);
@@ -61,7 +58,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         calendarMonth: calendarMonth,
         isAstrologyExpanded: isAstrologyExpanded,
         today: DateTime.now(),
-        eventsByDate: {},
       ),
     );
   }
@@ -93,7 +89,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         calendarMonth: calendarMonth,
         isAstrologyExpanded: currentAstrologyExpanded,
         today: DateTime.now(),
-        eventsByDate: {},
       ),
     );
   }
@@ -128,7 +123,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         calendarMonth: calendarMonth,
         isAstrologyExpanded: currentAstrologyExpanded,
         today: DateTime.now(),
-        eventsByDate: {},
       ),
     );
   }
@@ -161,7 +155,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         selectedDate: null, // Clear selection when changing month
         isAstrologyExpanded: currentAstrologyExpanded, // Preserve state
         today: currentState.today,
-        eventsByDate: {},
       ),
     );
   }

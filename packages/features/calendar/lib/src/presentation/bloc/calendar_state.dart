@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:events/events.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 
 import '../../domain/entities/calendar_month.dart';
@@ -28,14 +27,12 @@ final class CalendarLoaded extends CalendarState {
   final DateSelection? selectedDate;
   final bool isAstrologyExpanded;
   final DateTime today;
-  final Map<DateTime, List<Event>> eventsByDate;
 
   const CalendarLoaded({
     required this.calendarMonth,
     this.selectedDate,
     required this.isAstrologyExpanded,
     required this.today,
-    this.eventsByDate = const {},
   });
 
   /// Get today's complete date
@@ -59,14 +56,12 @@ final class CalendarLoaded extends CalendarState {
     bool? isAstrologyExpanded,
     DateTime? today,
     bool clearSelection = false,
-    Map<DateTime, List<Event>>? eventsByDate,
   }) {
     return CalendarLoaded(
       calendarMonth: calendarMonth ?? this.calendarMonth,
       selectedDate: clearSelection ? null : (selectedDate ?? this.selectedDate),
       isAstrologyExpanded: isAstrologyExpanded ?? this.isAstrologyExpanded,
       today: today ?? this.today,
-      eventsByDate: eventsByDate ?? this.eventsByDate,
     );
   }
 
@@ -77,7 +72,6 @@ final class CalendarLoaded extends CalendarState {
     todayCompleteDate,
     isAstrologyExpanded,
     today,
-    eventsByDate,
   ];
 }
 

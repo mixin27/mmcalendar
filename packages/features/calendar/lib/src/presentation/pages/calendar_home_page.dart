@@ -1,4 +1,3 @@
-import 'package:events/events.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,9 +31,11 @@ class _CalendarHomePageState extends State<CalendarHomePage>
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   final CalendarDisplayConfigPort _calendarDisplayConfigPort =
       getIt<CalendarDisplayConfigPort>();
-  DateTime? _lastSyncedEventsMonth;
+  final EventMarkersPort _eventMarkersPort = getIt<EventMarkersPort>();
   DateTime? _lastAppliedInitialDate;
   CalendarDisplayConfig? _lastDisplayConfig;
+  DateTime? _visibleEventsMonth;
+  Stream<Map<DateTime, List<CalendarEventItem>>>? _visibleEventsStream;
 
   late AnimationController _fadeController;
   // late AnimationController _slideController;
@@ -151,13 +152,6 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                       _showErrorSnackBar(context, state.message);
                     }
 
-                    if (state is CalendarLoaded) {
-                      _syncEventsForVisibleMonth(
-                        context,
-                        state.calendarMonth.month,
-                      );
-                    }
-
                     // Auto-select today's date on large screens for split view
                     if (state is CalendarLoaded && state.selectedDate == null) {
                       final screenWidth = MediaQuery.sizeOf(context).width;
@@ -233,7 +227,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
       return;
     }
 
-    _lastSyncedEventsMonth = null;
+    _visibleEventsMonth = null;
+    _visibleEventsStream = null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
@@ -245,24 +240,27 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     });
   }
 
-  void _syncEventsForVisibleMonth(BuildContext context, DateTime month) {
+  Stream<Map<DateTime, List<CalendarEventItem>>> _eventsStreamForMonth(
+    DateTime month,
+  ) {
     final currentMonthKey = DateTime(month.year, month.month);
-    if (_lastSyncedEventsMonth != null &&
-        _lastSyncedEventsMonth!.year == currentMonthKey.year &&
-        _lastSyncedEventsMonth!.month == currentMonthKey.month) {
-      return;
+    if (_visibleEventsMonth != null &&
+        _visibleEventsStream != null &&
+        _visibleEventsMonth!.year == currentMonthKey.year &&
+        _visibleEventsMonth!.month == currentMonthKey.month) {
+      return _visibleEventsStream!;
     }
 
-    _lastSyncedEventsMonth = currentMonthKey;
-
+    _visibleEventsMonth = currentMonthKey;
     final startOfMonth = DateTime(month.year, month.month, 1);
     final endOfMonth = DateTime(month.year, month.month + 1, 0);
     final startDate = startOfMonth.subtract(const Duration(days: 7));
     final endDate = endOfMonth.add(const Duration(days: 7));
-
-    context.read<UserEventsBloc>().add(
-      LoadEventsByDateRange(startDate, endDate),
+    _visibleEventsStream = _eventMarkersPort.watchEventMarkers(
+      startDate: startDate,
+      endDate: endDate,
     );
+    return _visibleEventsStream!;
   }
 
   Widget _buildCalendarContent(
@@ -275,34 +273,45 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     bool showMyanmarDates = true,
     bool showShanCalendar = true,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isLargeScreen = constraints.maxWidth > 1000;
+    return StreamBuilder<Map<DateTime, List<CalendarEventItem>>>(
+      stream: _eventsStreamForMonth(state.calendarMonth.month),
+      initialData: const <DateTime, List<CalendarEventItem>>{},
+      builder: (context, eventsSnapshot) {
+        final eventsByDate =
+            eventsSnapshot.data ?? const <DateTime, List<CalendarEventItem>>{};
 
-        if (isLargeScreen && state.selectedDate != null) {
-          // Master-Detail Layout for large screens
-          return _buildMasterDetailLayout(
-            state,
-            showHolidays: showHolidays,
-            showAnniversaryDays: showAnniversaryDays,
-            showSabbaths: showSabbaths,
-            showAstrology: showAstrology,
-            showWesternDates: showWesternDates,
-            showMyanmarDates: showMyanmarDates,
-            showShanCalendar: showShanCalendar,
-          );
-        }
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final isLargeScreen = constraints.maxWidth > 1000;
 
-        // Standard single-column layout for mobile/tablet
-        return _buildStandardLayout(
-          state,
-          showHolidays: showHolidays,
-          showAnniversaryDays: showAnniversaryDays,
-          showSabbaths: showSabbaths,
-          showAstrology: showAstrology,
-          showWesternDates: showWesternDates,
-          showMyanmarDates: showMyanmarDates,
-          showShanCalendar: showShanCalendar,
+            if (isLargeScreen && state.selectedDate != null) {
+              // Master-Detail Layout for large screens
+              return _buildMasterDetailLayout(
+                state,
+                eventsByDate: eventsByDate,
+                showHolidays: showHolidays,
+                showAnniversaryDays: showAnniversaryDays,
+                showSabbaths: showSabbaths,
+                showAstrology: showAstrology,
+                showWesternDates: showWesternDates,
+                showMyanmarDates: showMyanmarDates,
+                showShanCalendar: showShanCalendar,
+              );
+            }
+
+            // Standard single-column layout for mobile/tablet
+            return _buildStandardLayout(
+              state,
+              eventsByDate: eventsByDate,
+              showHolidays: showHolidays,
+              showAnniversaryDays: showAnniversaryDays,
+              showSabbaths: showSabbaths,
+              showAstrology: showAstrology,
+              showWesternDates: showWesternDates,
+              showMyanmarDates: showMyanmarDates,
+              showShanCalendar: showShanCalendar,
+            );
+          },
         );
       },
     );
@@ -310,6 +319,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   Widget _buildStandardLayout(
     CalendarLoaded state, {
+    Map<DateTime, List<CalendarEventItem>> eventsByDate =
+        const <DateTime, List<CalendarEventItem>>{},
     bool showHolidays = true,
     bool showAnniversaryDays = true,
     bool showSabbaths = true,
@@ -439,7 +450,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               showAstrology: showAstrology,
               showWesternDates: showWesternDates,
               showMyanmarDates: showMyanmarDates,
-              eventsByDate: state.eventsByDate,
+              eventsByDate: eventsByDate,
               onDateTap: (date) {
                 _analyticsService.logDateSelection(
                   selectedDate: date.toString(),
@@ -460,6 +471,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   Widget _buildMasterDetailLayout(
     CalendarLoaded state, {
+    Map<DateTime, List<CalendarEventItem>> eventsByDate =
+        const <DateTime, List<CalendarEventItem>>{},
     bool showHolidays = true,
     bool showAnniversaryDays = true,
     bool showSabbaths = true,
@@ -580,7 +593,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                   showAstrology: showAstrology,
                   showWesternDates: showWesternDates,
                   showMyanmarDates: showMyanmarDates,
-                  eventsByDate: state.eventsByDate,
+                  eventsByDate: eventsByDate,
                   onDateTap: (date) {
                     _analyticsService.logDateSelection(
                       selectedDate: date.toString(),

@@ -18,8 +18,6 @@ dependencies:
     path: ../../integrations/database
   shared_localizations:
     path: ../../shared/localizations
-  events:
-    path: ../events
   telegram_web:
     path: ../../integrations/telegram_web
 

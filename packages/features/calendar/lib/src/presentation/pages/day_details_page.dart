@@ -1,13 +1,14 @@
-import 'package:events/events.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../di/calendar_injection.dart';
+
+typedef Event = CalendarEventItem;
+typedef EventPriority = CalendarEventPriority;
 
 class DayDetailsPage extends StatefulWidget {
   final DateTime date;
@@ -23,6 +24,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   final DisplayPreferencesPort _displayPreferencesPort =
       getIt<DisplayPreferencesPort>();
+  final EventMarkersPort _eventMarkersPort = getIt<EventMarkersPort>();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -50,9 +52,6 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     _currentDate = widget.date;
     _completeDate = MyanmarCalendar.getCompleteDate(widget.date);
     _initializeAnimations();
-
-    // Load events for the current date
-    _loadEventsForCurrentDate();
   }
 
   void _initializeAnimations() {
@@ -75,11 +74,6 @@ class _DayDetailsPageState extends State<DayDetailsPage>
         );
 
     _animationController.forward();
-  }
-
-  void _loadEventsForCurrentDate() {
-    // Load events for the current date specifically
-    context.read<UserEventsBloc>().add(LoadEventsByDate(_currentDate));
   }
 
   void _navigateToDay(DateTime newDate) {
@@ -147,11 +141,6 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                 await GoRouter.of(
                   context,
                 ).push('/events/create', extra: _currentDate);
-
-                // Reload events when coming back
-                if (mounted) {
-                  _loadEventsForCurrentDate();
-                }
               },
               tooltip: 'Add Event',
               child: const Icon(Icons.add),
@@ -926,41 +915,34 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Widget _buildEventsSection() {
-    return BlocBuilder<UserEventsBloc, UserEventsState>(
-      builder: (context, state) {
-        // Loading state
-        if (state is EventsLoading) {
+    return StreamBuilder<List<Event>>(
+      stream: _eventMarkersPort.watchEventsForDate(_currentDate),
+      builder: (context, eventsSnapshot) {
+        final events = eventsSnapshot.data ?? const <Event>[];
+        final isLoading =
+            eventsSnapshot.connectionState == ConnectionState.waiting &&
+            !eventsSnapshot.hasData;
+        final errorMessage = eventsSnapshot.hasError
+            ? eventsSnapshot.error.toString()
+            : null;
+
+        if (isLoading) {
           return _buildEventsLoadingCard();
         }
 
-        // Error state
-        if (state is EventsError) {
-          return _buildEventsErrorCard(state.failure.message);
+        if (errorMessage != null) {
+          return _buildEventsErrorCard(errorMessage);
         }
 
-        // Get events for current date
-        List<Event> dateEvents = [];
-        if (state is EventsLoaded || state is EventsOperationSuccess) {
-          final allEvents = state is EventsLoaded
-              ? state.events
-              : (state as EventsOperationSuccess).events;
-
-          dateEvents = allEvents.where((event) {
-            return event.eventDate.year == _currentDate.year &&
-                event.eventDate.month == _currentDate.month &&
-                event.eventDate.day == _currentDate.day;
-          }).toList();
-
-          // Sort by time
-          dateEvents.sort((a, b) {
+        final sortedEvents = <Event>[...events]
+          ..sort((a, b) {
             if (a.isAllDay && !b.isAllDay) return -1;
             if (!a.isAllDay && b.isAllDay) return 1;
             if (a.isAllDay && b.isAllDay) return 0;
             return a.eventTime!.compareTo(b.eventTime!);
           });
-        }
 
-        return _buildEventsCard(dateEvents);
+        return _buildEventsCard(sortedEvents);
       },
     );
   }
@@ -1057,10 +1039,6 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                       await GoRouter.of(
                         context,
                       ).push('/events/create', extra: _currentDate);
-
-                      if (mounted) {
-                        _loadEventsForCurrentDate();
-                      }
                     },
                     icon: const Icon(Icons.add, size: 18),
                     label: const Text('Add'),
@@ -1097,20 +1075,17 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                         await GoRouter.of(
                           context,
                         ).push('/events/${event.id}/detail');
-
-                        if (mounted) {
-                          _loadEventsForCurrentDate();
-                        }
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Event marked as completed")),
                         );
                       }
                     },
-                    onCheckboxChanged: (checked) {
+                    onCheckboxChanged: (checked) async {
                       if (event.id != null) {
-                        context.read<UserEventsBloc>().add(
-                          ToggleEventComplete(event.id!, checked ?? false),
+                        await _toggleEventCompletion(
+                          event.id!,
+                          checked ?? false,
                         );
                       }
                     },
@@ -1231,7 +1206,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
-              onPressed: _loadEventsForCurrentDate,
+              onPressed: () => setState(() {}),
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
             ),
@@ -1239,6 +1214,22 @@ class _DayDetailsPageState extends State<DayDetailsPage>
         ),
       ),
     );
+  }
+
+  Future<void> _toggleEventCompletion(int eventId, bool isCompleted) async {
+    try {
+      await _eventMarkersPort.toggleEventCompletion(
+        eventId: eventId,
+        isCompleted: isCompleted,
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to update event: $error')));
+    }
   }
 
   Widget _buildInfoRow(String label, String value, IconData icon, Color color) {
@@ -1277,77 +1268,70 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Widget _buildQuickStatsCard() {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text(
-              'Quick Summary',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+    return StreamBuilder<List<Event>>(
+      stream: _eventMarkersPort.watchEventsForDate(_currentDate),
+      builder: (context, eventsSnapshot) {
+        final eventCount = eventsSnapshot.data?.length ?? 0;
+
+        return Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                BlocBuilder<UserEventsBloc, UserEventsState>(
-                  builder: (context, state) {
-                    int count = 0;
-                    if (state is EventsLoaded ||
-                        state is EventsOperationSuccess) {
-                      final items = state is EventsLoaded
-                          ? state.events
-                          : (state as EventsOperationSuccess).events;
-                      count = items.where((event) {
-                        return event.eventDate.year == _currentDate.year &&
-                            event.eventDate.month == _currentDate.month &&
-                            event.eventDate.day == _currentDate.day;
-                      }).length;
-                    }
-                    return _buildStatItem(
+                Text(
+                  'Quick Summary',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem(
                       Icons.event,
-                      count.toString(),
+                      eventCount.toString(),
                       'Events',
                       Theme.of(context).colorScheme.primary,
-                    );
-                  },
-                ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-                _buildStatItem(
-                  Icons.celebration,
-                  (_completeDate.allHolidays.length +
-                          _completeDate.allAnniversaryDays.length)
-                      .toString(),
-                  'Holidays',
-                  Theme.of(context).colorScheme.error,
-                ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-                _buildStatItem(
-                  Icons.stars,
-                  _completeDate.astrologicalDays.length.toString(),
-                  'Special',
-                  Theme.of(context).colorScheme.tertiary,
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    _buildStatItem(
+                      Icons.celebration,
+                      (_completeDate.allHolidays.length +
+                              _completeDate.allAnniversaryDays.length)
+                          .toString(),
+                      'Holidays',
+                      Theme.of(context).colorScheme.error,
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    _buildStatItem(
+                      Icons.stars,
+                      _completeDate.astrologicalDays.length.toString(),
+                      'Special',
+                      Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
