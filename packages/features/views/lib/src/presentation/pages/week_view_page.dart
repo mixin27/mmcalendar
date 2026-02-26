@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
     hide MoonPhaseIndicator, CompactMoonPhaseIndicator;
 import 'package:go_router/go_router.dart';
-import 'package:settings/settings.dart';
 
 import '../../di/views_injection.dart';
 import '../bloc/views_bloc.dart';
@@ -22,6 +21,8 @@ class WeekViewPage extends StatefulWidget {
 class _WeekViewPageState extends State<WeekViewPage>
     with SingleTickerProviderStateMixin {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final DisplayPreferencesPort _displayPreferencesPort =
+      getIt<DisplayPreferencesPort>();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -89,27 +90,28 @@ class _WeekViewPageState extends State<WeekViewPage>
   }
 
   Widget _buildWeekContent(WeekViewLoaded state) {
-    return CustomScrollView(
-      slivers: [
-        // App Bar
-        _buildAppBar(state),
+    return StreamBuilder<bool>(
+      stream: _displayPreferencesPort.watchShowShanCalendar(),
+      initialData: true,
+      builder: (context, snapshot) {
+        final showShanCalendar = snapshot.data ?? true;
 
-        // Week Days List
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverFadeTransition(
-            opacity: _fadeAnimation,
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final dayInfo = state.weekData.days[index];
-                final date = dayInfo.western.toDateTime();
-                final isToday = date.isToday;
+        return CustomScrollView(
+          slivers: [
+            // App Bar
+            _buildAppBar(state),
 
-                return BlocBuilder<SettingsBloc, SettingsState>(
-                  builder: (context, settingsState) {
-                    final showShanCalendar = settingsState is SettingsLoaded
-                        ? settingsState.settings.showShanCalendar
-                        : true;
+            // Week Days List
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverFadeTransition(
+                opacity: _fadeAnimation,
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final dayInfo = state.weekData.days[index];
+                    final date = dayInfo.western.toDateTime();
+                    final isToday = date.isToday;
+
                     return _buildDayCard(
                       dayInfo,
                       date,
@@ -117,13 +119,13 @@ class _WeekViewPageState extends State<WeekViewPage>
                       index,
                       showShanCalendar,
                     );
-                  },
-                );
-              }, childCount: state.weekData.days.length),
+                  }, childCount: state.weekData.days.length),
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 

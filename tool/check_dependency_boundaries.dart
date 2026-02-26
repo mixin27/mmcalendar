@@ -52,7 +52,7 @@ final Map<String, Set<String>> _allowedFeatureDependencies =
     <String, Set<String>>{
       'calendar': <String>{'events', 'settings'},
       'settings': <String>{'home_widgets', 'promo'},
-      'views': <String>{'calendar', 'settings'},
+      'views': <String>{},
     };
 
 /// Package-level dependency bans by layer.

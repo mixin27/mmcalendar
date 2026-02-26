@@ -91,6 +91,12 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
     return value ?? defaultValue;
   }
 
+  /// Watch a specific setting key for changes.
+  Stream<String?> watchSetting(String key) {
+    final query = select(appSettings)..where((tbl) => tbl.key.equals(key));
+    return query.watchSingleOrNull().map((setting) => setting?.value);
+  }
+
   /// Get int setting
   Future<int?> getIntSetting(String key) async {
     final value = await getSetting(key);
@@ -107,6 +113,13 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
   Future<bool?> getBoolSetting(String key) async {
     final value = await getSetting(key);
     return value != null ? value.toLowerCase() == 'true' : null;
+  }
+
+  /// Watch bool setting.
+  Stream<bool?> watchBoolSetting(String key) {
+    return watchSetting(
+      key,
+    ).map((value) => value != null ? value.toLowerCase() == 'true' : null);
   }
 
   /// Set int setting

@@ -20,7 +20,9 @@ import '../widgets/day_details_content.dart';
 // import '../widgets/astrology_expandable_card.dart';
 
 class CalendarHomePage extends StatefulWidget {
-  const CalendarHomePage({super.key});
+  const CalendarHomePage({super.key, this.initialDate});
+
+  final DateTime? initialDate;
 
   @override
   State<CalendarHomePage> createState() => _CalendarHomePageState();
@@ -30,6 +32,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     with TickerProviderStateMixin {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   DateTime? _lastSyncedEventsMonth;
+  DateTime? _lastAppliedInitialDate;
 
   late AnimationController _fadeController;
   // late AnimationController _slideController;
@@ -46,6 +49,13 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
 
     _initializeAnimations();
+    _applyInitialDateIfNeeded(widget.initialDate);
+  }
+
+  @override
+  void didUpdateWidget(covariant CalendarHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _applyInitialDateIfNeeded(widget.initialDate);
   }
 
   void _initializeAnimations() {
@@ -72,6 +82,31 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     // Start animations
     _fadeController.forward();
     // _slideController.forward();
+  }
+
+  void _applyInitialDateIfNeeded(DateTime? initialDate) {
+    if (initialDate == null) {
+      return;
+    }
+
+    final normalizedDate = DateTime(
+      initialDate.year,
+      initialDate.month,
+      initialDate.day,
+    );
+
+    if (_lastAppliedInitialDate == normalizedDate) {
+      return;
+    }
+    _lastAppliedInitialDate = normalizedDate;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      context.read<CalendarBloc>().add(LoadCalendarMonth(normalizedDate));
+    });
   }
 
   @override

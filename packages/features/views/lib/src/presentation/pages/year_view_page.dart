@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:calendar/calendar.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +22,7 @@ class YearViewPage extends StatefulWidget {
 class _YearViewPageState extends State<YearViewPage>
     with SingleTickerProviderStateMixin {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final MonthPreviewPort _monthPreviewPort = getIt<MonthPreviewPort>();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -204,7 +204,6 @@ class _YearViewPageState extends State<YearViewPage>
         child: InkWell(
           onTap: () {
             final date = DateTime(month.firstDay.year, month.monthNumber, 1);
-            context.read<CalendarBloc>().add(LoadCalendarMonth(date));
             _showMonthModal(context, date);
           },
           borderRadius: BorderRadius.circular(16),
@@ -454,7 +453,7 @@ class _YearViewPageState extends State<YearViewPage>
                 ),
                 // Month preview content
                 Expanded(
-                  child: MonthPreview(
+                  child: _monthPreviewPort.buildMonthPreview(
                     date: month,
                     onDateTap: (date) {
                       log("selected: ${date.toIso8601String()}");
@@ -462,8 +461,9 @@ class _YearViewPageState extends State<YearViewPage>
                       HapticFeedback.lightImpact();
 
                       Navigator.pop(context);
-                      context.read<CalendarBloc>().add(LoadCalendarMonth(date));
-                      context.go('/home');
+                      context.go(
+                        '${RoutePaths.home}?date=${Uri.encodeComponent(date.toIso8601String())}',
+                      );
                     },
                   ),
                 ),
@@ -486,10 +486,9 @@ class _YearViewPageState extends State<YearViewPage>
                             HapticFeedback.lightImpact();
 
                             Navigator.pop(context);
-                            // context.read<CalendarBloc>().add(
-                            //   LoadCalendarMonth(month),
-                            // );
-                            context.go('/home');
+                            context.go(
+                              '${RoutePaths.home}?date=${Uri.encodeComponent(month.toIso8601String())}',
+                            );
                           },
                           child: const Text('View Full Month'),
                         ),

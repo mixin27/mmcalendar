@@ -52,7 +52,13 @@ final GoRouter router = GoRouter(
             GoRoute(
               path: RoutePaths.home,
               builder: (context, state) {
-                return const CalendarHomePage();
+                final dateStr = state.uri.queryParameters['date'];
+                DateTime? initialDate;
+                if (dateStr != null && dateStr.isNotEmpty) {
+                  initialDate = DateTime.tryParse(dateStr);
+                }
+
+                return CalendarHomePage(initialDate: initialDate);
               },
               routes: [
                 // Day details

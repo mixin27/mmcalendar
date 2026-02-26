@@ -4,6 +4,7 @@ import 'package:shared_core/shared_core.dart';
 
 import '../data/datasources/settings_local_datasource.dart';
 import '../data/repositories/settings_repository_impl.dart';
+import '../data/services/database_display_preferences_port.dart';
 import '../domain/repositories/settings_repository.dart';
 import '../domain/usecases/get_settings.dart';
 import '../domain/usecases/mark_as_consent_dialog_shown.dart';
@@ -30,6 +31,12 @@ Future<void> initSettingsDependencies() async {
       getIt<AppDatabase>(),
     ),
   );
+
+  if (!getIt.isRegistered<DisplayPreferencesPort>()) {
+    getIt.registerLazySingleton<DisplayPreferencesPort>(
+      () => DatabaseDisplayPreferencesPort(getIt<AppDatabase>()),
+    );
+  }
 
   // Use cases
   getIt.registerLazySingleton(() => GetSettings(getIt<SettingsRepository>()));

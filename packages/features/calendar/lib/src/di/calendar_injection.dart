@@ -11,6 +11,7 @@ import '../domain/usecases/get_date_details.dart';
 import '../domain/usecases/navigate_month.dart';
 import '../domain/usecases/select_date.dart';
 import '../domain/usecases/toggle_astrology.dart';
+import '../presentation/adapters/calendar_month_preview_port.dart';
 import '../presentation/bloc/calendar_bloc.dart';
 
 final getIt = GetIt.instance;
@@ -29,6 +30,12 @@ Future<void> initCalendarDependencies() async {
   getIt.registerLazySingleton<CalendarRepository>(
     () => CalendarRepositoryImpl(getIt<CalendarLocalDataSource>()),
   );
+
+  if (!getIt.isRegistered<MonthPreviewPort>()) {
+    getIt.registerLazySingleton<MonthPreviewPort>(
+      () => CalendarMonthPreviewPort(),
+    );
+  }
 
   // Use cases
   getIt.registerLazySingleton(

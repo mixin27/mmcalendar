@@ -29,6 +29,7 @@ class _MonthPreviewState extends State<MonthPreview>
   void initState() {
     super.initState();
     _initializeAnimations();
+    _ensurePreviewMonthLoaded();
   }
 
   void _initializeAnimations() {
@@ -44,6 +45,21 @@ class _MonthPreviewState extends State<MonthPreview>
 
     // Start animations
     _fadeController.forward();
+  }
+
+  void _ensurePreviewMonthLoaded() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      final calendarState = context.read<CalendarBloc>().state;
+      if (calendarState is! CalendarLoaded ||
+          calendarState.calendarMonth.month.year != widget.date.year ||
+          calendarState.calendarMonth.month.month != widget.date.month) {
+        context.read<CalendarBloc>().add(LoadCalendarMonth(widget.date));
+      }
+    });
   }
 
   @override
@@ -228,7 +244,7 @@ class _MonthPreviewState extends State<MonthPreview>
             FilledButton.icon(
               onPressed: () {
                 context.read<CalendarBloc>().add(
-                  LoadCalendarMonth(DateTime.now()),
+                  LoadCalendarMonth(widget.date),
                 );
               },
               icon: const Icon(Icons.refresh),

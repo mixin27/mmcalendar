@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
     hide MoonPhaseIndicator;
 import 'package:shared_localizations/shared_localizations.dart';
-import 'package:settings/settings.dart';
 import 'package:views/src/utils/utils.dart';
 
 import '../../di/views_injection.dart';
@@ -25,6 +24,8 @@ class DayViewPage extends StatefulWidget {
 class _DayViewPageState extends State<DayViewPage>
     with TickerProviderStateMixin {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final DisplayPreferencesPort _displayPreferencesPort =
+      getIt<DisplayPreferencesPort>();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -113,55 +114,57 @@ class _DayViewPageState extends State<DayViewPage>
     final completeDate = dayData.completeDate;
     final date = dayData.date;
 
-    return CustomScrollView(
-      slivers: [
-        // Beautiful App Bar
-        _buildAppBar(date),
+    return StreamBuilder<bool>(
+      stream: _displayPreferencesPort.watchShowShanCalendar(),
+      initialData: true,
+      builder: (context, snapshot) {
+        final showShanCalendar = snapshot.data ?? true;
 
-        // Main Content
-        SliverToBoxAdapter(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    // Hero Date Card
-                    BlocBuilder<SettingsBloc, SettingsState>(
-                      builder: (context, settingsState) {
-                        final showShanCalendar = settingsState is SettingsLoaded
-                            ? settingsState.settings.showShanCalendar
-                            : true;
-                        return _buildHeroDateCard(
+        return CustomScrollView(
+          slivers: [
+            // Beautiful App Bar
+            _buildAppBar(date),
+
+            // Main Content
+            SliverToBoxAdapter(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // Hero Date Card
+                        _buildHeroDateCard(
                           completeDate,
                           date,
                           showShanCalendar,
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Moon Phase Section
+                        _buildMoonPhaseCard(completeDate),
+                        const SizedBox(height: 16),
+
+                        // Holidays Card
+                        if (completeDate.hasHolidays ||
+                            completeDate.hasAnniversaryDays)
+                          _buildHolidaysCard(completeDate),
+                        if (completeDate.hasHolidays)
+                          const SizedBox(height: 16),
+
+                        // Astrology Card
+                        _buildAstrologyCard(completeDate),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-
-                    // Moon Phase Section
-                    _buildMoonPhaseCard(completeDate),
-                    const SizedBox(height: 16),
-
-                    // Holidays Card
-                    if (completeDate.hasHolidays ||
-                        completeDate.hasAnniversaryDays)
-                      _buildHolidaysCard(completeDate),
-                    if (completeDate.hasHolidays) const SizedBox(height: 16),
-
-                    // Astrology Card
-                    _buildAstrologyCard(completeDate),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
