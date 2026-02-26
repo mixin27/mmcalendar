@@ -231,6 +231,7 @@ myanmar_calendar_app/
 - ✅ Repository Pattern for data access
 - ✅ Explicit feature orchestration (no global event bus)
 - ✅ Modular, feature-based structure
+- ✅ Dependency-boundary guardrails (`dart run tool/check_dependency_boundaries.dart`)
 
 ---
 

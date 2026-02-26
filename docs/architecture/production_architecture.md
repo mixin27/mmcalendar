@@ -54,6 +54,12 @@
 UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> State
 ```
 
+## Automated Guardrails
+
+- Run `dart run tool/check_dependency_boundaries.dart` to enforce package-layer boundaries.
+- Use `./scripts/analyze_all.sh` for boundary check + static analysis.
+- Use `./scripts/test_all.sh` for boundary check + test run.
+
 ## What Was Changed In This Refactor Pass
 
 - Removed active `AppEventBus` usage from BLoCs and use cases.
