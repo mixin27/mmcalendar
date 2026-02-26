@@ -26,6 +26,8 @@ dependencies:
     path: ../../packages/integrations/database
   integrations_firebase:
     path: ../../packages/integrations/firebase
+  integrations_app_update:
+    path: ../../packages/integrations/app_update
 
   # Features
   calendar:
@@ -74,8 +76,6 @@ dependencies:
 
   # Firebase
   firebase_core: ^4.1.1
-
-  app_update_manager: ^1.0.2
 
 dev_dependencies:
   flutter_test:

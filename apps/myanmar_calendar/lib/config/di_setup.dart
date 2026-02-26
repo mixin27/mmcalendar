@@ -4,6 +4,7 @@ import 'package:events/events.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:integrations_app_update/integrations_app_update.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:promo/promo.dart';
@@ -34,6 +35,12 @@ Future<void> initializeDependencies() async {
   // Initialize Remote Config
   final remoteConfigService = await FirebaseRemoteConfigModule.initialize();
   getIt.registerSingleton<RemoteConfigPort>(remoteConfigService);
+  getIt.registerSingleton<AppUpdatePort>(
+    RemoteConfigAppUpdatePort(
+      remoteConfigPort: remoteConfigService,
+      playStoreId: 'dev.mixin27.mmcalendar',
+    ),
+  );
   getIt.registerSingleton<HolidayConfigPort>(
     HolidayConfigService(remoteConfigPort: remoteConfigService),
   );

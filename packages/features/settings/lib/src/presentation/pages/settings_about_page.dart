@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:promo/promo.dart';
-import 'package:app_update_manager/app_update_manager.dart' as um;
 
 import '../../di/settings_injection.dart';
 import '../widgets/settings_widgets.dart';
@@ -20,6 +19,7 @@ class SettingsAboutPage extends StatefulWidget {
 
 class _SettingsAboutPageState extends State<SettingsAboutPage> {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final AppUpdatePort _appUpdatePort = getIt<AppUpdatePort>();
 
   @override
   void initState() {
@@ -61,21 +61,7 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
               subtitle: Text(widget.appVersion ?? AppConstants.appVersion),
               trailing: !(kIsWeb || kIsWasm)
                   ? IconButton(
-                      onPressed: () async {
-                        final updateFound =
-                            await um.AppUpdateManager.checkAndShowUpdate(
-                              context: context,
-                            );
-
-                        if (!updateFound && context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Your app is up to date!'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        }
-                      },
+                      onPressed: _checkForUpdates,
                       icon: const Icon(Icons.update),
                       tooltip: 'Check for Updates',
                     )
@@ -131,6 +117,83 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _checkForUpdates() async {
+    final updateInfo = await _appUpdatePort.checkForUpdate(forceRefresh: true);
+    if (!mounted) return;
+
+    switch (updateInfo.availability) {
+      case AppUpdateAvailability.optionalUpdateAvailable:
+        await _showUpdateDialog(updateInfo: updateInfo, isRequired: false);
+        return;
+      case AppUpdateAvailability.requiredUpdate:
+        await _showUpdateDialog(updateInfo: updateInfo, isRequired: true);
+        return;
+      case AppUpdateAvailability.upToDate:
+        _showSnackBar('Your app is up to date!');
+        return;
+      case AppUpdateAvailability.unavailable:
+      case AppUpdateAvailability.unsupportedPlatform:
+      case AppUpdateAvailability.failed:
+        _showSnackBar(updateInfo.message);
+        return;
+    }
+  }
+
+  Future<void> _showUpdateDialog({
+    required AppUpdateInfo updateInfo,
+    required bool isRequired,
+  }) async {
+    final details = <String>[updateInfo.message];
+    final notes = updateInfo.releaseNotes?.trim() ?? '';
+    if (notes.isNotEmpty) {
+      details.add(notes);
+    }
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: true,
+          child: AlertDialog(
+            title: Text(updateInfo.title),
+            content: Text(details.join('\n\n')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(isRequired ? 'Close' : 'Later'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  final launched = await _appUpdatePort.launchUpdate(
+                    updateInfo,
+                  );
+                  if (!mounted) return;
+
+                  if (launched) {
+                    if (dialogContext.mounted) {
+                      Navigator.of(dialogContext).pop();
+                    }
+                    return;
+                  }
+
+                  _showSnackBar('Unable to open the update page.');
+                },
+                child: Text(isRequired ? 'Update Now' : 'Update'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 }

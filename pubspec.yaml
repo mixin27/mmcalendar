@@ -25,6 +25,7 @@ workspace:
   - packages/integrations/telegram_web
   - packages/integrations/database
   - packages/integrations/firebase
+  - packages/integrations/app_update
   - packages/features/promo
   - packages/features/holidays
 

@@ -22,6 +22,7 @@
   /integrations
     /firebase
     /database
+    /app_update
     /telegram_web
 
   /features
@@ -59,9 +60,10 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 
 ## Integration Ports
 
-- `AnalyticsPort`, `CrashlyticsPort`, `RemoteConfigPort`, `HolidayConfigPort`, `HolidayOverridesPort`, `DisplayPreferencesPort`, `CalendarDisplayConfigPort`, `EventActionsPort`, `EventMarkersPort`, and `MonthPreviewPort` are defined in `packages/shared/core`.
+- `AnalyticsPort`, `CrashlyticsPort`, `RemoteConfigPort`, `AppUpdatePort`, `HolidayConfigPort`, `HolidayOverridesPort`, `DisplayPreferencesPort`, `CalendarDisplayConfigPort`, `EventActionsPort`, `EventMarkersPort`, and `MonthPreviewPort` are defined in `packages/shared/core`.
 - Feature packages consume these ports instead of Firebase SDK-facing services.
 - `packages/integrations/firebase` provides the concrete implementations and DI wiring.
+- `packages/integrations/app_update` provides remote-config-backed app update checks and store launch wiring.
 - `packages/features/holidays` provides holiday-override implementation wiring consumed through `HolidayOverridesPort`.
 - `packages/features/settings` provides database-backed display preference wiring consumed through `DisplayPreferencesPort` and `CalendarDisplayConfigPort`.
 - `packages/features/events` provides repository-backed marker/event wiring consumed through `EventMarkersPort` and navigation actions through `EventActionsPort`.
@@ -90,6 +92,7 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 - Moved `calendar` event navigation flows behind `EventActionsPort` (removed direct event-route coupling).
 - Moved `views` display preference reads behind `DisplayPreferencesPort` (removed direct `settings` feature dependency).
 - Moved `views` month-preview rendering behind `MonthPreviewPort` (removed direct `calendar` feature dependency).
+- Replaced `app_update_manager` with `integrations_app_update` and shared `AppUpdatePort`.
 - Added strict feature-to-feature dependency allowlists in boundary checks.
 - Retired legacy `core` and `localizations` shim packages.
 - Retired legacy `data` and `app_remote_config` shim packages.

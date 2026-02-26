@@ -26,6 +26,7 @@ class _SplashPageState extends State<SplashPage>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+  bool _isBlockedByRequiredUpdate = false;
 
   @override
   void initState() {
@@ -72,6 +73,10 @@ class _SplashPageState extends State<SplashPage>
         _loadInitialData(),
       ]);
 
+      if (_isBlockedByRequiredUpdate) {
+        return;
+      }
+
       // Navigate to home
       if (mounted) {
         // Check if consent dialog needs to be shown
@@ -109,6 +114,83 @@ class _SplashPageState extends State<SplashPage>
 
     // For now, just a simple delay
     await Future.delayed(const Duration(milliseconds: 500));
+    await _checkRequiredUpdate();
+  }
+
+  Future<void> _checkRequiredUpdate() async {
+    final updatePort = GetIt.I<AppUpdatePort>();
+    final updateInfo = await updatePort.checkForUpdate();
+    if (!mounted || !updateInfo.isRequired) {
+      return;
+    }
+
+    _isBlockedByRequiredUpdate = true;
+    await _showRequiredUpdateDialog(updatePort, updateInfo);
+  }
+
+  Future<void> _showRequiredUpdateDialog(
+    AppUpdatePort updatePort,
+    AppUpdateInfo initialInfo,
+  ) async {
+    var updateInfo = initialInfo;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: StatefulBuilder(
+            builder: (dialogContext, setDialogState) {
+              final details = <String>[updateInfo.message];
+              final releaseNotes = updateInfo.releaseNotes?.trim() ?? '';
+              if (releaseNotes.isNotEmpty) {
+                details.add(releaseNotes);
+              }
+
+              return AlertDialog(
+                title: Text(updateInfo.title),
+                content: Text(details.join('\n\n')),
+                actions: [
+                  TextButton(
+                    onPressed: () async {
+                      final refreshedInfo = await updatePort.checkForUpdate(
+                        forceRefresh: true,
+                      );
+                      if (!dialogContext.mounted) return;
+
+                      if (!refreshedInfo.isRequired) {
+                        _isBlockedByRequiredUpdate = false;
+                        Navigator.of(dialogContext).pop();
+                        return;
+                      }
+
+                      setDialogState(() {
+                        updateInfo = refreshedInfo;
+                      });
+                    },
+                    child: const Text('Check Again'),
+                  ),
+                  FilledButton(
+                    onPressed: () async {
+                      final launched = await updatePort.launchUpdate(
+                        updateInfo,
+                      );
+                      if (!mounted || launched) {
+                        return;
+                      }
+
+                      _showStatusSnackBar('Unable to open the update page.');
+                    },
+                    child: const Text('Update Now'),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   void _showErrorDialog(String error) {
@@ -128,6 +210,13 @@ class _SplashPageState extends State<SplashPage>
           ),
         ],
       ),
+    );
+  }
+
+  void _showStatusSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 

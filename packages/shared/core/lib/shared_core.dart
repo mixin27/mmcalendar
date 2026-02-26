@@ -27,6 +27,7 @@ export 'src/utils/share.dart';
 export 'src/di/injection.dart' hide getIt;
 
 export 'src/ports/analytics_port.dart';
+export 'src/ports/app_update_port.dart';
 export 'src/ports/calendar_display_config_port.dart';
 export 'src/ports/crashlytics_port.dart';
 export 'src/ports/display_preferences_port.dart';

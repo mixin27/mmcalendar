@@ -5,6 +5,7 @@ Shared core facade package used during the architecture migration.
 ## Port Contracts
 
 - `AnalyticsPort`: SDK-agnostic analytics contract for feature/application layers.
+- `AppUpdatePort`: SDK-agnostic app-update contract for feature/application layers.
 - `CrashlyticsPort`: SDK-agnostic crash reporting contract for feature/application layers.
 - `DisplayPreferencesPort`: Shared display preference contract for feature/application layers.
 - `CalendarDisplayConfigPort`: Shared calendar display/config contract for feature/application layers.
