@@ -3,7 +3,6 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'connection/connection.dart' as impl;
 
-import 'app_database.steps.dart';
 import 'daos/events_dao.dart';
 import 'daos/recurring_exceptions_dao.dart';
 import 'tables/calendar_settings_table.dart';
@@ -56,12 +55,12 @@ class AppDatabase extends _$AppDatabase {
         // Create default calendar settings
         await calendarDao.createDefaultSettings();
       },
-      onUpgrade: stepByStep(
-        from1To2: (m, schema) async {
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from < 2) {
           await m.create(recurringEventExceptions);
           await m.addColumn(userEvents, userEvents.isRecurringMaster);
-        },
-      ),
+        }
+      },
       beforeOpen: (details) async {
         // Enable foreign keys
         await customStatement('PRAGMA foreign_keys = ON');
@@ -72,16 +71,8 @@ class AppDatabase extends _$AppDatabase {
           debugPrint('Database created successfully');
         }
 
-        // Only validate schema in release mode to avoid issues with
-        // changing default timestamps during development
-        if (kReleaseMode) {
-          // This follows the recommendation to validate that the database schema
-          // matches what drift expects (https://drift.simonbinder.eu/docs/advanced-features/migrations/#verifying-a-database-schema-at-runtime).
-          // It allows catching bugs in the migration logic early.
-          await impl.validateDatabaseSchema(this);
-        } else {
-          debugPrint('Skipping schema validation in debug mode');
-        }
+        // Manual migration policy: runtime drift_dev schema checks are disabled.
+        await impl.validateDatabaseSchema(this);
       },
     );
   }

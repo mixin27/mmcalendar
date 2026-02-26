@@ -34,8 +34,6 @@
     /notes
     /home_widgets
 
-  /data (compatibility shim)
-  /app_remote_config (compatibility shim)
 ```
 
 ## Dependency Rules
@@ -84,8 +82,8 @@ UI -> Bloc Event -> UseCase -> Repository Contract -> Integration Adapter -> Sta
 - Moved holiday-config retrieval/JSON decoding behind `HolidayConfigPort` and Firebase integration adapter.
 - Added strict feature-to-feature dependency allowlists in boundary checks.
 - Retired legacy `core` and `localizations` shim packages.
-- Converted legacy `data` and `app_remote_config` to compatibility shims.
+- Retired legacy `data` and `app_remote_config` shim packages.
 
 ## Next Migration Steps
 
-1. Plan remaining shim package deprecation/removal once downstream imports are fully migrated.
+1. Continue reducing direct feature-to-feature dependencies until each feature depends only on shared contracts.

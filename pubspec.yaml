@@ -14,8 +14,6 @@ workspace:
   - packages/shared/core
   - packages/shared/ui_kit
   - packages/shared/localizations
-  - packages/app_remote_config
-  - packages/data
   - packages/features/calendar
   - packages/features/views
   - packages/features/converter

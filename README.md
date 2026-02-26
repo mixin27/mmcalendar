@@ -200,8 +200,6 @@ myanmar_calendar_app/
 ├── packages/
 │   ├── shared/            # Shared facades (core, ui_kit, localizations)
 │   ├── integrations/      # Platform/service adapters (firebase, database, telegram_web)
-│   ├── data/              # Legacy compatibility package (temporary)
-│   ├── app_remote_config/ # Legacy compatibility package (temporary)
 │   └── features/
 │       ├── calendar/      # Calendar feature module
 │       ├── views/         # Year/Week/Day views

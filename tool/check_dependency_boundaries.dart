@@ -43,8 +43,6 @@ final Map<String, Set<String>> _strictAllowedInternalDependencies =
       'shared_core': <String>{},
       'shared_ui_kit': <String>{'shared_core'},
       'shared_localizations': <String>{},
-      'data': <String>{'integrations_database'},
-      'app_remote_config': <String>{'integrations_firebase'},
     };
 
 /// Explicit feature-to-feature dependency allowlist.
