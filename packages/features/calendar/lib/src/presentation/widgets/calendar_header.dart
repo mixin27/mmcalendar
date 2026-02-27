@@ -74,9 +74,7 @@ class CalendarHeader extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  MyanmarCalendar.currentLanguage ==
-                                              Language.shan &&
-                                          showShanCalendar
+                                  language == Language.shan && showShanCalendar
                                       ? '$monthLabel $shanYearLabel'
                                       : '$monthLabel $myanmarYearLabel',
                                   maxLines: 1,

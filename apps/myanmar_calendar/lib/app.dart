@@ -7,6 +7,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
@@ -74,13 +75,33 @@ class _AppContentState extends State<_AppContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsBloc, SettingsState>(
+    return BlocConsumer<SettingsBloc, SettingsState>(
+      listenWhen: (prev, curr) {
+        if (curr is! SettingsLoaded) {
+          return false;
+        }
+        if (prev is! SettingsLoaded) {
+          return true;
+        }
+        return prev.settings.calendarLanguage !=
+                curr.settings.calendarLanguage ||
+            prev.settings.calendarConfig != curr.settings.calendarConfig;
+      },
+      listener: (context, state) {
+        if (state is! SettingsLoaded) {
+          return;
+        }
+        _syncMyanmarCalendarRuntime(state.settings);
+      },
       buildWhen: (prev, curr) {
         if (prev is SettingsLoaded && curr is SettingsLoaded) {
           return prev.settings.themeMode != curr.settings.themeMode ||
               prev.settings.customColors != curr.settings.customColors ||
               prev.settings.themePreset != curr.settings.themePreset ||
-              prev.settings.appLanguage != curr.settings.appLanguage;
+              prev.settings.appLanguage != curr.settings.appLanguage ||
+              prev.settings.calendarLanguage !=
+                  curr.settings.calendarLanguage ||
+              prev.settings.calendarConfig != curr.settings.calendarConfig;
         }
         return true;
       },
@@ -143,6 +164,28 @@ class _AppContentState extends State<_AppContent> {
         );
       },
     );
+  }
+
+  void _syncMyanmarCalendarRuntime(AppSettingsEntity settings) {
+    final config = settings.calendarConfig;
+    final holidayOverridesPort = getIt<HolidayOverridesPort>();
+
+    MyanmarCalendar.configure(
+      language: settings.calendarLanguage,
+      timezoneOffset: config.timezoneOffset,
+      sasanaYearType: config.sasanaYearType,
+      calendarType: config.calendarType,
+      gregorianStart: config.gregorianStart,
+      customHolidays: [
+        ...config.customHolidays,
+        ...holidayOverridesPort.getCustomHolidays(),
+      ],
+      disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
+      disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
+      disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
+    );
+    MyanmarCalendar.clearCache();
+    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
   }
 }
 

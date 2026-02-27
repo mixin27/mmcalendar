@@ -143,8 +143,8 @@ class CalendarAppBar extends StatelessWidget {
   String _getTodayMyanmarString([bool showShanCalendar = true]) {
     final myanmarDateTime = MyanmarCalendar.today();
 
-    if (showShanCalendar && MyanmarCalendar.currentLanguage == Language.shan) {
-      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")}}';
+    if (showShanCalendar && language == Language.shan) {
+      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")}';
     } else {
       return myanmarDateTime.formatMyanmar(null, language);
     }

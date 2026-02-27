@@ -186,6 +186,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                           opacity: _fadeAnimation,
                           child: _buildCalendarContent(
                             _lastLoadedState!,
+                            calendarLanguage: displayConfig.calendarLanguage,
                             showHolidays: displayConfig.showHolidays,
                             showAnniversaryDays:
                                 displayConfig.showAnniversaryDays,
@@ -206,6 +207,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                           opacity: _fadeAnimation,
                           child: _buildCalendarContent(
                             _lastLoadedState!,
+                            calendarLanguage: displayConfig.calendarLanguage,
                             showHolidays: displayConfig.showHolidays,
                             showAnniversaryDays:
                                 displayConfig.showAnniversaryDays,
@@ -225,6 +227,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                         opacity: _fadeAnimation,
                         child: _buildCalendarContent(
                           state,
+                          calendarLanguage: displayConfig.calendarLanguage,
                           showHolidays: displayConfig.showHolidays,
                           showAnniversaryDays:
                               displayConfig.showAnniversaryDays,
@@ -254,6 +257,13 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   void _handleDisplayConfigUpdate(CalendarDisplayConfig currentConfig) {
     final previousConfig = _lastDisplayConfig;
+    if (previousConfig == null ||
+        previousConfig.calendarLanguage != currentConfig.calendarLanguage) {
+      MyanmarCalendar.setLanguage(currentConfig.calendarLanguage);
+      MyanmarCalendar.clearCache();
+      MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
+    }
+
     if (previousConfig == null) {
       _lastDisplayConfig = currentConfig;
       return;
@@ -302,6 +312,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   Widget _buildCalendarContent(
     CalendarLoaded state, {
+    required Language calendarLanguage,
     bool showHolidays = true,
     bool showAnniversaryDays = true,
     bool showSabbaths = true,
@@ -325,6 +336,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               // Master-Detail Layout for large screens
               return _buildMasterDetailLayout(
                 state,
+                calendarLanguage: calendarLanguage,
                 eventsByDate: eventsByDate,
                 showHolidays: showHolidays,
                 showAnniversaryDays: showAnniversaryDays,
@@ -339,6 +351,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             // Standard single-column layout for mobile/tablet
             return _buildStandardLayout(
               state,
+              calendarLanguage: calendarLanguage,
               eventsByDate: eventsByDate,
               showHolidays: showHolidays,
               showAnniversaryDays: showAnniversaryDays,
@@ -356,6 +369,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   Widget _buildStandardLayout(
     CalendarLoaded state, {
+    required Language calendarLanguage,
     Map<DateTime, List<CalendarEventItem>> eventsByDate =
         const <DateTime, List<CalendarEventItem>>{},
     bool showHolidays = true,
@@ -378,6 +392,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             key: ValueKey(state.calendarMonth.month),
             currentMonth: state.calendarMonth.month,
             monthDates: state.calendarMonth.dates,
+            language: calendarLanguage,
             showShanCalendar: showShanCalendar,
             onPreviousMonth: () {
               _analyticsService.logWidgetInteraction(
@@ -509,6 +524,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   Widget _buildMasterDetailLayout(
     CalendarLoaded state, {
+    required Language calendarLanguage,
     Map<DateTime, List<CalendarEventItem>> eventsByDate =
         const <DateTime, List<CalendarEventItem>>{},
     bool showHolidays = true,
@@ -532,6 +548,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                 key: ValueKey(state.calendarMonth.month),
                 currentMonth: state.calendarMonth.month,
                 monthDates: state.calendarMonth.dates,
+                language: calendarLanguage,
                 showShanCalendar: showShanCalendar,
                 onPreviousMonth: () {
                   _analyticsService.logWidgetInteraction(
