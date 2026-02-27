@@ -8,7 +8,7 @@ import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 void main() {
   test(
-    'manual migration from v1 to v2 preserves data and adds new schema',
+    'manual migration from v1 to v3 preserves legacy and normalized event schema',
     () async {
       final tempDir = await Directory.systemTemp.createTemp(
         'mmcalendar_migration_',
@@ -27,7 +27,7 @@ void main() {
             .customSelect('PRAGMA user_version')
             .map((row) => row.read<int>('user_version'))
             .getSingle();
-        expect(userVersion, 2);
+        expect(userVersion, 3);
 
         final calendarCount = await migratedDb
             .customSelect('SELECT COUNT(*) AS c FROM calendar_settings')
@@ -59,6 +59,72 @@ void main() {
             .getSingle();
         expect(hasNewTable, 1);
 
+        final hasCalendarEventsTable = await migratedDb
+            .customSelect('''
+            SELECT COUNT(*) AS c
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'calendar_events'
+            ''')
+            .map((row) => row.read<int>('c'))
+            .getSingle();
+        expect(hasCalendarEventsTable, 1);
+
+        final hasEventRemindersTable = await migratedDb
+            .customSelect('''
+            SELECT COUNT(*) AS c
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'event_reminders'
+            ''')
+            .map((row) => row.read<int>('c'))
+            .getSingle();
+        expect(hasEventRemindersTable, 1);
+
+        final hasEventRecurrenceRulesTable = await migratedDb
+            .customSelect('''
+            SELECT COUNT(*) AS c
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'event_recurrence_rules'
+            ''')
+            .map((row) => row.read<int>('c'))
+            .getSingle();
+        expect(hasEventRecurrenceRulesTable, 1);
+
+        final normalizedEventsCount = await migratedDb
+            .customSelect('SELECT COUNT(*) AS c FROM calendar_events')
+            .map((row) => row.read<int>('c'))
+            .getSingle();
+        expect(normalizedEventsCount, 1);
+
+        final normalizedRecurrenceCount = await migratedDb
+            .customSelect('SELECT COUNT(*) AS c FROM event_recurrence_rules')
+            .map((row) => row.read<int>('c'))
+            .getSingle();
+        expect(normalizedRecurrenceCount, 1);
+
+        final normalizedReminderCount = await migratedDb
+            .customSelect('SELECT COUNT(*) AS c FROM event_reminders')
+            .map((row) => row.read<int>('c'))
+            .getSingle();
+        expect(normalizedReminderCount, 2);
+
+        final migratedEventStatus = await migratedDb
+            .customSelect(
+              'SELECT status FROM calendar_events WHERE legacy_event_id = 1',
+            )
+            .map((row) => row.read<String>('status'))
+            .getSingle();
+        expect(migratedEventStatus, 'pending');
+
+        final migratedRecurrenceType = await migratedDb
+            .customSelect('''
+              SELECT recurrence_type
+              FROM event_recurrence_rules
+              WHERE event_id = 1
+              ''')
+            .map((row) => row.read<String>('recurrence_type'))
+            .getSingle();
+        expect(migratedRecurrenceType, 'weekly');
+
         await migratedDb.close();
       } finally {
         if (await dbFile.exists()) {
@@ -87,20 +153,38 @@ void _seedSchemaV1(String path) {
       INSERT INTO user_events (
         id,
         title,
+        description,
         event_date,
+        event_time,
         is_all_day,
         category,
+        recurrence_type,
+        recurrence_interval,
+        recurrence_days,
+        recurrence_end_date,
+        recurrence_count,
         has_notification,
+        notification_times,
         is_completed,
+        completed_at,
         priority
       ) VALUES (
         1,
         'Water Festival',
+        'Thingyan Event',
         1704067200,
+        1704070800,
         1,
         'personal',
+        'weekly',
+        2,
+        '[1,3,5]',
+        1706659200,
+        10,
+        1,
+        '[60,1440]',
         0,
-        0,
+        NULL,
         2
       )
       ''');
