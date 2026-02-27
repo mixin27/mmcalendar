@@ -13,20 +13,14 @@ import 'package:views/views.dart';
 
 import '../presentation/pages/consent_page.dart';
 import '../presentation/pages/privacy_policy_page.dart';
-import '../presentation/pages/splash_page.dart';
 import '../presentation/shell/app_shell.dart';
 import '../presentation/widgets/promo_initializer.dart';
 import 'di_setup.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: RoutePaths.splash,
+  initialLocation: RoutePaths.home,
   debugLogDiagnostics: true,
   routes: [
-    // Splash Screen
-    GoRoute(
-      path: RoutePaths.splash,
-      builder: (context, state) => const SplashPage(),
-    ),
     GoRoute(
       path: RoutePaths.consent,
       builder: (context, state) => const ConsentPage(),

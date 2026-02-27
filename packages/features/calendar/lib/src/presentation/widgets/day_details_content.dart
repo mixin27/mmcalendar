@@ -161,7 +161,7 @@ class DayDetailsContent extends StatelessWidget {
                   if (MyanmarCalendar.currentLanguage == Language.shan &&
                       showShanCalendar)
                     Text(
-                      '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${completeDate.formatMyanmar(pattern: "&M &P &ff")} ${TranslationService.translate('Yat')}',
+                      '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${completeDate.formatMyanmar(pattern: "&M &P &ff")}',
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
@@ -171,7 +171,7 @@ class DayDetailsContent extends StatelessWidget {
                     )
                   else
                     Text(
-                      '${completeDate.formatMyanmar()} ${TranslationService.translate('Yat')}',
+                      completeDate.formatMyanmar(),
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,

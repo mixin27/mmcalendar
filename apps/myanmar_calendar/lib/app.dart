@@ -129,7 +129,7 @@ class _AppContentState extends State<_AppContent> {
             final mediaQuery = MediaQuery.of(context);
             final width = mediaQuery.size.width;
             final maxTextScale = width < 360 ? 1.15 : 1.3;
-            return MediaQuery(
+            final content = MediaQuery(
               data: mediaQuery.copyWith(
                 textScaler: mediaQuery.textScaler.clamp(
                   maxScaleFactor: maxTextScale,
@@ -137,10 +137,149 @@ class _AppContentState extends State<_AppContent> {
               ),
               child: child ?? const SizedBox.shrink(),
             );
+            return _AppStartupGuard(child: content);
           },
           routerConfig: router,
         );
       },
+    );
+  }
+}
+
+class _AppStartupGuard extends StatefulWidget {
+  final Widget child;
+
+  const _AppStartupGuard({required this.child});
+
+  @override
+  State<_AppStartupGuard> createState() => _AppStartupGuardState();
+}
+
+class _AppStartupGuardState extends State<_AppStartupGuard> {
+  bool _didStartUpdateCheck = false;
+  bool _updateCheckCompleted = false;
+  bool _requiredUpdateDialogOpen = false;
+  bool _routedToConsent = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didStartUpdateCheck) return;
+    _didStartUpdateCheck = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkRequiredUpdate();
+    });
+  }
+
+  Future<void> _checkRequiredUpdate() async {
+    final updatePort = getIt<AppUpdatePort>();
+    final updateInfo = await updatePort.checkForUpdate();
+
+    if (!mounted) return;
+
+    if (updateInfo.isRequired) {
+      _requiredUpdateDialogOpen = true;
+      await _showRequiredUpdateDialog(updatePort, updateInfo);
+      _requiredUpdateDialogOpen = false;
+    }
+
+    _updateCheckCompleted = true;
+    _maybeRouteToConsent();
+  }
+
+  Future<void> _showRequiredUpdateDialog(
+    AppUpdatePort updatePort,
+    AppUpdateInfo initialInfo,
+  ) async {
+    var updateInfo = initialInfo;
+    final l10n = AppLocalizations.of(context);
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: StatefulBuilder(
+            builder: (dialogContext, setDialogState) {
+              final details = <String>[updateInfo.message];
+              final releaseNotes = updateInfo.releaseNotes?.trim() ?? '';
+              if (releaseNotes.isNotEmpty) {
+                details.add(releaseNotes);
+              }
+
+              return AlertDialog(
+                title: Text(updateInfo.title),
+                content: Text(details.join('\n\n')),
+                actions: [
+                  TextButton(
+                    onPressed: () async {
+                      final refreshedInfo = await updatePort.checkForUpdate(
+                        forceRefresh: true,
+                      );
+                      if (!dialogContext.mounted) return;
+
+                      if (!refreshedInfo.isRequired) {
+                        Navigator.of(dialogContext).pop();
+                        return;
+                      }
+
+                      setDialogState(() {
+                        updateInfo = refreshedInfo;
+                      });
+                    },
+                    child: Text(l10n?.checkAgain ?? 'Check Again'),
+                  ),
+                  FilledButton(
+                    onPressed: () async {
+                      final launched = await updatePort.launchUpdate(
+                        updateInfo,
+                      );
+                      if (!dialogContext.mounted || launched) return;
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            l10n?.unableToOpenUpdatePage ??
+                                'Unable to open the update page.',
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    child: Text(l10n?.updateNow ?? 'Update Now'),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _maybeRouteToConsent() {
+    if (!mounted || !_updateCheckCompleted || _requiredUpdateDialogOpen) {
+      return;
+    }
+
+    final settingsState = context.read<SettingsBloc>().state;
+    if (settingsState is! SettingsLoaded) return;
+    if (settingsState.settings.hasShownConsentDialog) return;
+    if (_routedToConsent) return;
+
+    final currentPath = router.routeInformationProvider.value.uri.path;
+    if (currentPath == RoutePaths.consent) return;
+
+    _routedToConsent = true;
+    router.go(RoutePaths.consent);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<SettingsBloc, SettingsState>(
+      listenWhen: (_, state) => state is SettingsLoaded,
+      listener: (context, _) => _maybeRouteToConsent(),
+      child: widget.child,
     );
   }
 }

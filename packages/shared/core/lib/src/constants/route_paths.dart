@@ -1,6 +1,5 @@
 class RoutePaths {
   // Main Routes
-  static const String splash = '/splash';
   static const String home = '/home';
   static const String views = '/views';
   static const String events = '/events';

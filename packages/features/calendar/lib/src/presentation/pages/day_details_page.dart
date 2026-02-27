@@ -471,9 +471,9 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     final myanmarDateTime = MyanmarCalendar.today();
 
     if (showShanCalendar && MyanmarCalendar.currentLanguage == Language.shan) {
-      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")} ${TranslationService.translate('Yat')}';
+      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")}';
     }
 
-    return '${myanmarDateTime.formatMyanmar()} ${TranslationService.translate('Yat')}';
+    return myanmarDateTime.formatMyanmar();
   }
 }
