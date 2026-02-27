@@ -24,7 +24,7 @@ class AppTheme {
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: colorScheme.surfaceTint,
-        titleTextStyle: GoogleFonts.roboto(
+        titleTextStyle: GoogleFonts.notoSansMyanmar(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
@@ -48,7 +48,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(defaultRadius),
           ),
-          textStyle: GoogleFonts.roboto(
+          textStyle: GoogleFonts.notoSansMyanmar(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -62,7 +62,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(defaultRadius),
           ),
-          textStyle: GoogleFonts.roboto(
+          textStyle: GoogleFonts.notoSansMyanmar(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -77,7 +77,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(defaultRadius),
           ),
           side: BorderSide(color: colorScheme.outline),
-          textStyle: GoogleFonts.roboto(
+          textStyle: GoogleFonts.notoSansMyanmar(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -170,13 +170,13 @@ class AppTheme {
         indicatorColor: colorScheme.primaryContainer,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.roboto(
+            return GoogleFonts.notoSansMyanmar(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: colorScheme.onSurface,
             );
           }
-          return GoogleFonts.roboto(
+          return GoogleFonts.notoSansMyanmar(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: colorScheme.onSurfaceVariant,
@@ -192,7 +192,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(defaultRadius),
         ),
         backgroundColor: colorScheme.surfaceContainerHighest,
-        labelStyle: GoogleFonts.roboto(
+        labelStyle: GoogleFonts.notoSansMyanmar(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: colorScheme.onSurface,
@@ -231,7 +231,7 @@ class AppTheme {
       // Snackbar Theme
       snackBarTheme: SnackBarThemeData(
         backgroundColor: colorScheme.inverseSurface,
-        contentTextStyle: GoogleFonts.roboto(
+        contentTextStyle: GoogleFonts.notoSansMyanmar(
           color: colorScheme.onInverseSurface,
         ),
         behavior: SnackBarBehavior.floating,
@@ -258,7 +258,7 @@ class AppTheme {
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: colorScheme.surfaceTint,
-        titleTextStyle: GoogleFonts.roboto(
+        titleTextStyle: GoogleFonts.notoSansMyanmar(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
@@ -282,7 +282,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(defaultRadius),
           ),
-          textStyle: GoogleFonts.roboto(
+          textStyle: GoogleFonts.notoSansMyanmar(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -296,7 +296,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(defaultRadius),
           ),
-          textStyle: GoogleFonts.roboto(
+          textStyle: GoogleFonts.notoSansMyanmar(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -311,7 +311,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(defaultRadius),
           ),
           side: BorderSide(color: colorScheme.outline),
-          textStyle: GoogleFonts.roboto(
+          textStyle: GoogleFonts.notoSansMyanmar(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -404,13 +404,13 @@ class AppTheme {
         indicatorColor: colorScheme.primaryContainer,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.roboto(
+            return GoogleFonts.notoSansMyanmar(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: colorScheme.onSurface,
             );
           }
-          return GoogleFonts.roboto(
+          return GoogleFonts.notoSansMyanmar(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: colorScheme.onSurfaceVariant,
@@ -426,7 +426,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(defaultRadius),
         ),
         backgroundColor: colorScheme.surfaceContainerHighest,
-        labelStyle: GoogleFonts.roboto(
+        labelStyle: GoogleFonts.notoSansMyanmar(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: colorScheme.onSurface,
@@ -465,7 +465,7 @@ class AppTheme {
       // Snackbar Theme
       snackBarTheme: SnackBarThemeData(
         backgroundColor: colorScheme.inverseSurface,
-        contentTextStyle: GoogleFonts.roboto(
+        contentTextStyle: GoogleFonts.notoSansMyanmar(
           color: colorScheme.onInverseSurface,
         ),
         behavior: SnackBarBehavior.floating,

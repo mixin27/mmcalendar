@@ -31,11 +31,6 @@ final GoRouter router = GoRouter(
       path: RoutePaths.consent,
       builder: (context, state) => const ConsentPage(),
     ),
-    GoRoute(
-      path: '/widget-preview/generate',
-      name: 'widget-preview-generate',
-      builder: (context, state) => const WidgetPreviewScreen(),
-    ),
 
     // Main App Shell with Bottom Navigation
     StatefulShellRoute.indexedStack(

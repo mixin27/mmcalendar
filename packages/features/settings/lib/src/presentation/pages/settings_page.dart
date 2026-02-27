@@ -45,14 +45,6 @@ class _SettingsPageState extends State<SettingsPage> {
           SliverAppBar(
             expandedHeight: 140,
             pinned: true,
-            actions: [
-              if (kDebugMode)
-                IconButton(
-                  onPressed: () =>
-                      GoRouter.of(context).push('/widget-preview/generate'),
-                  icon: const Icon(Icons.preview_outlined),
-                ),
-            ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 l10n?.settings ?? 'Settings',
