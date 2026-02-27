@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:home_widgets/home_widgets.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
@@ -23,6 +24,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final UpdateDisplayPreferences updateDisplayPreferences;
   final ResetSettings resetSettings;
   final MarkAsConsentDialogShown markAsConsentDialogShown;
+  final WidgetRepository widgetRepository;
   final AnalyticsPort analyticsService;
   final CrashlyticsPort crashlyticsService;
   final HolidayOverridesPort holidayOverridesPort;
@@ -35,6 +37,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required this.updateDisplayPreferences,
     required this.resetSettings,
     required this.markAsConsentDialogShown,
+    required this.widgetRepository,
     required this.analyticsService,
     required this.crashlyticsService,
     required this.holidayOverridesPort,
@@ -176,9 +179,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     final currentState = state as SettingsLoaded;
     final result = await updateLanguage.updateCalendarLanguage(event.language);
 
-    result.fold(
-      (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
-      (_) {
+    await result.fold(
+      (failure) async {
+        emit(SettingsError(_mapFailureToMessage(failure)));
+      },
+      (_) async {
         // Log to Analytics
         analyticsService.logLanguageChange(
           languageCode: event.language.code,
@@ -191,6 +196,16 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           calendarLanguage: event.language,
         );
         emit(SettingsLoaded(updatedSettings));
+
+        try {
+          await widgetRepository.refreshWidget();
+        } catch (e, stackTrace) {
+          await crashlyticsService.recordException(
+            exception: e,
+            stackTrace: stackTrace,
+            reason: 'Failed to refresh home widgets after language change',
+          );
+        }
       },
     );
   }

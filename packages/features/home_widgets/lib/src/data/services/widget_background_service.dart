@@ -24,7 +24,7 @@ void callbackDispatcher() {
       final prefs = await SharedPreferences.getInstance();
       final languageCode =
           prefs.getString(StorageKeys.calendarLanguage) ??
-          Language.myanmar.code;
+          Language.english.code;
 
       // Create data source with prefs
       final dataSource = WidgetLocalDataSource(prefs);

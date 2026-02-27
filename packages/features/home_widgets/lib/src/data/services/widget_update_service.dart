@@ -161,6 +161,10 @@ class WidgetUpdateService {
     // Save widget configuration preferences
     await HomeWidget.saveWidgetData<String>('widget_size', config.size.name);
     await HomeWidget.saveWidgetData<String>('widget_theme', config.theme.name);
+    await HomeWidget.saveWidgetData<String>(
+      'calendar_language',
+      config.language,
+    );
     await HomeWidget.saveWidgetData<String>('widget_language', config.language);
   }
 

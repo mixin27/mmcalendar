@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:home_widgets/src/domain/entities/widget_data.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -29,7 +30,10 @@ class WidgetLocalDataSource {
     WidgetData data,
     WidgetConfig config,
   ) async {
-    await WidgetUpdateService.updateAllWidgets(data, config);
+    final effectiveConfig = config.copyWith(
+      language: resolveCalendarLanguageCode(),
+    );
+    await WidgetUpdateService.updateAllWidgets(data, effectiveConfig);
   }
 
   /// Generate widget data with specific language
@@ -147,24 +151,28 @@ class WidgetLocalDataSource {
 
   /// Get widget configuration
   Future<WidgetConfig> getWidgetConfig() async {
+    final language = resolveCalendarLanguageCode();
     final configJson = sharedPreferences.getString(_configKey);
     if (configJson == null) {
       debugPrint('No saved config found, using defaults');
-      return const WidgetConfig.defaults();
+      return const WidgetConfig.defaults().copyWith(language: language);
     }
 
     try {
       final config = json.decode(configJson) as Map<String, dynamic>;
-      return WidgetConfig.fromJson(config);
+      return WidgetConfig.fromJson(config).copyWith(language: language);
     } catch (e) {
       debugPrint('Error loading config, using defaults: $e');
-      return const WidgetConfig.defaults();
+      return const WidgetConfig.defaults().copyWith(language: language);
     }
   }
 
   /// Save widget configuration
   Future<void> saveWidgetConfig(WidgetConfig config) async {
-    final configJson = json.encode(config.toJson());
+    final normalizedConfig = config.copyWith(
+      language: resolveCalendarLanguageCode(),
+    );
+    final configJson = json.encode(normalizedConfig.toJson());
     await sharedPreferences.setString(_configKey, configJson);
     debugPrint('Widget config saved');
   }
@@ -172,7 +180,11 @@ class WidgetLocalDataSource {
   /// Build a timeline cache used by native widget providers to serve daily
   /// data changes even when Dart background tasks do not run.
   Future<void> warmupTimeline(WidgetConfig config, {bool force = false}) async {
-    final shouldRegenerate = force || _shouldRegenerateTimeline(config);
+    final effectiveConfig = config.copyWith(
+      language: resolveCalendarLanguageCode(),
+    );
+    final shouldRegenerate =
+        force || _shouldRegenerateTimeline(effectiveConfig);
     if (!shouldRegenerate) {
       debugPrint('Widget timeline is still fresh');
       return;
@@ -189,7 +201,10 @@ class WidgetLocalDataSource {
 
     for (var i = 0; i < _timelineHorizonDays; i++) {
       final date = today.add(Duration(days: i));
-      final data = await generateWidgetDataWithLanguage(date, config.language);
+      final data = await generateWidgetDataWithLanguage(
+        date,
+        effectiveConfig.language,
+      );
       final dateKey = _dateKey(date);
       final moonKey = '${data.moonPhaseValue}_${data.fortnightDay}';
       final monthKey = MyanmarMonthWidgetService.monthPayloadKeyForDate(date);
@@ -199,7 +214,7 @@ class WidgetLocalDataSource {
         final monthSnapshot =
             await MyanmarMonthWidgetService.generateMonthTimelineSnapshot(
               date,
-              config.language,
+              effectiveConfig.language,
             );
         monthEntries[monthSnapshot.monthKey] = monthSnapshot.monthPayload;
       }
@@ -243,7 +258,7 @@ class WidgetLocalDataSource {
 
     final timelinePayload = json.encode({
       'version': 1,
-      'language': config.language,
+      'language': effectiveConfig.language,
       'generated_at': DateTime.now().toIso8601String(),
       'entries': entries,
     });
@@ -252,7 +267,7 @@ class WidgetLocalDataSource {
 
     final monthTimelinePayload = json.encode({
       'version': 1,
-      'language': config.language,
+      'language': effectiveConfig.language,
       'generated_at': DateTime.now().toIso8601String(),
       'date_to_month_key': monthKeyByDate,
       'month_entries': monthEntries,
@@ -275,7 +290,10 @@ class WidgetLocalDataSource {
       _timelineGeneratedAtKey,
       DateTime.now().toIso8601String(),
     );
-    await sharedPreferences.setString(_timelineLanguageKey, config.language);
+    await sharedPreferences.setString(
+      _timelineLanguageKey,
+      effectiveConfig.language,
+    );
     await sharedPreferences.setString(
       _timelineEndDateKey,
       timelineEndDate.toIso8601String(),
@@ -418,6 +436,21 @@ class WidgetLocalDataSource {
   /// Mark updates as scheduled
   Future<void> markUpdatesScheduled(bool scheduled) async {
     await sharedPreferences.setBool('widget_updates_scheduled', scheduled);
+  }
+
+  /// Widget language always follows app calendar language.
+  String resolveCalendarLanguageCode() {
+    final language = sharedPreferences.getString(StorageKeys.calendarLanguage);
+    if (language != null && language.isNotEmpty) {
+      return language;
+    }
+
+    final configuredLanguage = MyanmarCalendar.currentLanguage.code;
+    if (configuredLanguage.isNotEmpty) {
+      return configuredLanguage;
+    }
+
+    return Language.english.code;
   }
 
   // Helper methods

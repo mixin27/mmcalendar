@@ -1,5 +1,6 @@
 import 'package:integrations_database/integrations_database.dart';
 import 'package:get_it/get_it.dart';
+import 'package:home_widgets/home_widgets.dart';
 import 'package:shared_core/shared_core.dart';
 
 import '../data/datasources/settings_local_datasource.dart';
@@ -79,6 +80,7 @@ Future<void> initSettingsDependencies() async {
       updateDisplayPreferences: getIt<UpdateDisplayPreferences>(),
       resetSettings: getIt<ResetSettings>(),
       markAsConsentDialogShown: getIt<MarkAsConsentDialogShown>(),
+      widgetRepository: getIt<WidgetRepository>(),
       analyticsService: getIt<AnalyticsPort>(),
       crashlyticsService: getIt<CrashlyticsPort>(),
       holidayOverridesPort: getIt<HolidayOverridesPort>(),

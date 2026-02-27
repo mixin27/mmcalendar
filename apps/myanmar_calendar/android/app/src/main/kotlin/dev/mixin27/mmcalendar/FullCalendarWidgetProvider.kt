@@ -224,8 +224,16 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
             showWesternDate = hasWesternDate,
             showHolidays = hasHolidays,
             showAstrology = hasAstrology,
-            language = prefs.getString("widget_language", "my") ?: "my"
+            language = resolveLanguage(prefs)
         )
+    }
+
+    private fun resolveLanguage(prefs: SharedPreferences): String {
+        val calendarLanguage = prefs.getString("calendar_language", null)
+        if (!calendarLanguage.isNullOrEmpty()) {
+            return calendarLanguage
+        }
+        return prefs.getString("widget_language", "en") ?: "en"
     }
     private fun applyTheme(views: RemoteViews, theme: String) {
         val bgDrawable = when (theme) {

@@ -200,27 +200,27 @@ Future<void> _initializeWidgetUpdates() async {
     // Import the repository from DI
     final widgetRepository = getIt<WidgetRepository>();
     final analyticsService = getIt<AnalyticsPort>();
-    final isWidgetActive = await widgetRepository.isWidgetActive();
 
-    if (!isWidgetActive) {
-      debugPrint('ℹ️ No home widgets installed, skipping widget refresh setup');
-      return;
-    }
-
-    // Update widget IMMEDIATELY on app start
+    // Prime widget data/timeline on every startup so first-time widget adds
+    // already have content without requiring manual refresh.
     await widgetRepository.refreshWidget();
+
+    final isWidgetActive = await widgetRepository.isWidgetActive();
 
     // Schedule best-effort background refreshes (native date rollover handles
     // daily redraws even when WorkManager is delayed).
-    await widgetRepository.scheduleWidgetUpdates();
-
-    // Log widget update to analytics
-    await analyticsService.logWidgetInteraction(
-      widgetName: 'home_screen_widget',
-      actionType: 'updated_on_app_start',
-    );
-
-    debugPrint('✅ Background updates scheduled');
+    if (isWidgetActive) {
+      await widgetRepository.scheduleWidgetUpdates();
+      await analyticsService.logWidgetInteraction(
+        widgetName: 'home_screen_widget',
+        actionType: 'updated_on_app_start',
+      );
+      debugPrint('✅ Home widgets active, background updates scheduled');
+    } else {
+      debugPrint(
+        'ℹ️ No home widgets installed, but widget data has been initialized',
+      );
+    }
   } catch (e) {
     debugPrint('⚠️ Failed to initialize widget updates: $e');
   }
