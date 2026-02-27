@@ -24,7 +24,17 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Create firebase_options.dart from secret
+        run: echo "${{ secrets.FIREBASE_OPTIONS_BASE64 }}" | base64 -d > apps/myanmar_calendar/lib/firebase_options.dart
+
+      - name: Run Workspace Code Generation
+        run: |
+          flutter pub get
+          ./scripts/codegen_all.sh
+
       - name: Run Analyzer and Architecture Guardrails
+        env:
+          SKIP_PUB_GET: '1'
         run: ./scripts/analyze_all.sh
 
   test:
@@ -42,5 +52,15 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Create firebase_options.dart from secret
+        run: echo "${{ secrets.FIREBASE_OPTIONS_BASE64 }}" | base64 -d > apps/myanmar_calendar/lib/firebase_options.dart
+
+      - name: Run Workspace Code Generation
+        run: |
+          flutter pub get
+          ./scripts/codegen_all.sh
+
       - name: Run Test Suite and Architecture Guardrails
+        env:
+          SKIP_PUB_GET: '1'
         run: ./scripts/test_all.sh

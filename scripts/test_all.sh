@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-flutter pub get
+if [[ "${SKIP_PUB_GET:-0}" != "1" ]]; then
+  flutter pub get
+fi
 dart run tool/check_dependency_boundaries.dart
 
 # Run package tests sequentially to avoid Flutter tool cache and build output
