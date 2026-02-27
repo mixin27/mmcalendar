@@ -443,7 +443,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
         ),
 
         // Weekday Header
-        const WeekdayHeader(),
+        WeekdayHeader(language: calendarLanguage),
 
         // Calendar Grid with page transition
         Focus(
@@ -600,7 +600,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               ),
 
               // Weekday Header
-              const WeekdayHeader(),
+              WeekdayHeader(language: calendarLanguage),
 
               // Calendar Grid
               Focus(
