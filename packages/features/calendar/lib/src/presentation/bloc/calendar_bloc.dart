@@ -1,31 +1,29 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
 import 'package:shared_core/shared_core.dart';
 
+import '../../domain/entities/calendar_month.dart';
 import '../../domain/usecases/get_calendar_month.dart';
-import '../../domain/usecases/navigate_month.dart';
-import '../../domain/usecases/toggle_astrology.dart';
 import '../../domain/usecases/select_date.dart';
 import 'calendar_event.dart';
 import 'calendar_state.dart';
 
 class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   final GetCalendarMonth getCalendarMonth;
-  final NavigateMonth navigateMonth;
   final SelectDate selectDateUseCase;
-  final ToggleAstrology toggleAstrology;
+  final Map<int, CalendarMonth> _monthCache = <int, CalendarMonth>{};
 
   CalendarBloc({
     required this.getCalendarMonth,
-    required this.navigateMonth,
     required this.selectDateUseCase,
-    required this.toggleAstrology,
   }) : super(const CalendarInitial()) {
     on<LoadCalendarMonth>(_onLoadCalendarMonth);
     on<NavigateToNextMonth>(_onNavigateToNextMonth);
     on<NavigateToPreviousMonth>(_onNavigateToPreviousMonth);
     on<NavigateToToday>(_onNavigateToToday);
     on<SelectDateEvent>(_onSelectDate);
-    on<ToggleAstrologyCard>(_onToggleAstrologyCard);
     on<RefreshCalendar>(_onRefreshCalendar);
   }
 
@@ -33,17 +31,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     LoadCalendarMonth event,
     Emitter<CalendarState> emit,
   ) async {
-    emit(const CalendarLoading());
-
-    // Get astrology expansion state
-    final astrologyResult = await toggleAstrology.get();
-    final isAstrologyExpanded = astrologyResult.fold(
-      (_) => false,
-      (isExpanded) => isExpanded,
-    );
-
-    // Get calendar month
-    final result = await getCalendarMonth(event.month);
+    final currentState = state;
+    final result = await _getMonth(event.month);
 
     if (result.isLeft()) {
       final failure = result.fold((f) => f, (_) => null)!;
@@ -56,10 +45,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     emit(
       CalendarLoaded(
         calendarMonth: calendarMonth,
-        isAstrologyExpanded: isAstrologyExpanded,
-        today: DateTime.now(),
+        today: currentState is CalendarLoaded
+            ? currentState.today
+            : DateTime.now(),
       ),
     );
+
+    _prefetchAdjacentMonths(calendarMonth.month);
   }
 
   Future<void> _onNavigateToNextMonth(
@@ -69,13 +61,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     if (state is! CalendarLoaded) return;
 
     final currentState = state as CalendarLoaded;
-
-    // Preserve astrology expansion state
-    final currentAstrologyExpanded = currentState.isAstrologyExpanded;
-
-    emit(const CalendarLoading());
-
-    final result = await navigateMonth.next(currentState.calendarMonth.month);
+    final nextMonth = DateTime(
+      currentState.calendarMonth.month.year,
+      currentState.calendarMonth.month.month + 1,
+      1,
+    );
+    final result = await _getMonth(nextMonth);
     if (result.isLeft()) {
       final failure = result.fold((f) => f, (_) => null)!;
       emit(CalendarError(_mapFailureToMessage(failure)));
@@ -85,12 +76,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     final calendarMonth = result.fold((_) => null, (m) => m)!;
 
     emit(
-      CalendarLoaded(
-        calendarMonth: calendarMonth,
-        isAstrologyExpanded: currentAstrologyExpanded,
-        today: DateTime.now(),
-      ),
+      CalendarLoaded(calendarMonth: calendarMonth, today: currentState.today),
     );
+    _prefetchAdjacentMonths(calendarMonth.month);
   }
 
   Future<void> _onNavigateToPreviousMonth(
@@ -100,15 +88,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     if (state is! CalendarLoaded) return;
 
     final currentState = state as CalendarLoaded;
-
-    // Preserve astrology expansion state
-    final currentAstrologyExpanded = currentState.isAstrologyExpanded;
-
-    emit(const CalendarLoading());
-
-    final result = await navigateMonth.previous(
-      currentState.calendarMonth.month,
+    final previousMonth = DateTime(
+      currentState.calendarMonth.month.year,
+      currentState.calendarMonth.month.month - 1,
+      1,
     );
+    final result = await _getMonth(previousMonth);
 
     if (result.isLeft()) {
       final failure = result.fold((f) => f, (_) => null)!;
@@ -119,12 +104,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     final calendarMonth = result.fold((_) => null, (m) => m)!;
 
     emit(
-      CalendarLoaded(
-        calendarMonth: calendarMonth,
-        isAstrologyExpanded: currentAstrologyExpanded,
-        today: DateTime.now(),
-      ),
+      CalendarLoaded(calendarMonth: calendarMonth, today: currentState.today),
     );
+    _prefetchAdjacentMonths(calendarMonth.month);
   }
 
   Future<void> _onNavigateToToday(
@@ -134,13 +116,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     if (state is! CalendarLoaded) return;
 
     final currentState = state as CalendarLoaded;
-
-    // Preserve astrology expansion state
-    final currentAstrologyExpanded = currentState.isAstrologyExpanded;
-
-    emit(const CalendarLoading());
-
-    final result = await navigateMonth.today();
+    final result = await _getMonth(DateTime.now());
     if (result.isLeft()) {
       final failure = result.fold((f) => f, (_) => null)!;
       emit(CalendarError(_mapFailureToMessage(failure)));
@@ -153,10 +129,10 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       CalendarLoaded(
         calendarMonth: calendarMonth,
         selectedDate: null, // Clear selection when changing month
-        isAstrologyExpanded: currentAstrologyExpanded, // Preserve state
         today: currentState.today,
       ),
     );
+    _prefetchAdjacentMonths(calendarMonth.month);
   }
 
   Future<void> _onSelectDate(
@@ -177,31 +153,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     );
   }
 
-  Future<void> _onToggleAstrologyCard(
-    ToggleAstrologyCard event,
-    Emitter<CalendarState> emit,
-  ) async {
-    if (state is! CalendarLoaded) return;
-
-    final currentState = state as CalendarLoaded;
-
-    final result = await toggleAstrology();
-
-    result.fold(
-      (failure) {
-        // Just toggle locally if fails
-        emit(
-          currentState.copyWith(
-            isAstrologyExpanded: !currentState.isAstrologyExpanded,
-          ),
-        );
-      },
-      (isExpanded) {
-        emit(currentState.copyWith(isAstrologyExpanded: isExpanded));
-      },
-    );
-  }
-
   Future<void> _onRefreshCalendar(
     RefreshCalendar event,
     Emitter<CalendarState> emit,
@@ -209,8 +160,49 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     if (state is! CalendarLoaded) return;
 
     final currentState = state as CalendarLoaded;
+    _monthCache.clear();
     add(LoadCalendarMonth(currentState.calendarMonth.month));
   }
+
+  Future<Either<Failure, CalendarMonth>> _getMonth(DateTime month) async {
+    final normalizedMonth = _normalizeMonth(month);
+    final cacheKey = _monthKey(normalizedMonth);
+    final cached = _monthCache[cacheKey];
+    if (cached != null) {
+      return Right(cached);
+    }
+
+    final result = await getCalendarMonth(normalizedMonth);
+    result.fold((_) => null, (calendarMonth) {
+      _monthCache[cacheKey] = calendarMonth;
+    });
+    return result;
+  }
+
+  void _prefetchAdjacentMonths(DateTime month) {
+    final baseMonth = _normalizeMonth(month);
+    final previousMonth = DateTime(baseMonth.year, baseMonth.month - 1, 1);
+    final nextMonth = DateTime(baseMonth.year, baseMonth.month + 1, 1);
+    unawaited(_prefetchMonth(previousMonth));
+    unawaited(_prefetchMonth(nextMonth));
+  }
+
+  Future<void> _prefetchMonth(DateTime month) async {
+    final normalizedMonth = _normalizeMonth(month);
+    final cacheKey = _monthKey(normalizedMonth);
+    if (_monthCache.containsKey(cacheKey)) {
+      return;
+    }
+    final result = await getCalendarMonth(normalizedMonth);
+    result.fold((_) => null, (calendarMonth) {
+      _monthCache[cacheKey] = calendarMonth;
+    });
+  }
+
+  DateTime _normalizeMonth(DateTime month) =>
+      DateTime(month.year, month.month, 1);
+
+  int _monthKey(DateTime month) => month.year * 100 + month.month;
 
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {

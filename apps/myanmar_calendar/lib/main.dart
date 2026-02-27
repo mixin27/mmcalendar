@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:calendar/calendar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,6 +54,7 @@ void main() async {
       firebaseInitialized: firebaseInitialized,
     );
     await _initializeMyanmarCalendar();
+    await _prewarmCalendarStartupData();
     runApp(const MyanmarCalendarApp());
     unawaited(_runPostLaunchInitialization());
   } catch (error, stackTrace) {
@@ -73,6 +75,35 @@ void main() async {
         ),
       ),
     );
+  }
+}
+
+Future<void> _prewarmCalendarStartupData() async {
+  try {
+    final getCalendarMonth = app_di.getIt<GetCalendarMonth>();
+    final now = DateTime.now();
+    final monthsToWarm = <DateTime>[
+      DateTime(now.year, now.month - 1, 1),
+      DateTime(now.year, now.month, 1),
+      DateTime(now.year, now.month + 1, 1),
+    ];
+
+    final stopwatch = Stopwatch()..start();
+    await Future.wait(
+      monthsToWarm.map((month) => getCalendarMonth(month)),
+    ).timeout(
+      const Duration(milliseconds: 1200),
+      onTimeout: () {
+        debugPrint('⚠️ Calendar prewarm timeout, continuing startup');
+        return const [];
+      },
+    );
+    stopwatch.stop();
+    debugPrint(
+      '✅ Calendar prewarm finished in ${stopwatch.elapsedMilliseconds}ms',
+    );
+  } catch (error, stackTrace) {
+    debugPrint('⚠️ Failed to prewarm calendar data: $error\n$stackTrace');
   }
 }
 

@@ -25,13 +25,11 @@ final class CalendarLoading extends CalendarState {
 final class CalendarLoaded extends CalendarState {
   final CalendarMonth calendarMonth;
   final DateSelection? selectedDate;
-  final bool isAstrologyExpanded;
   final DateTime today;
 
   const CalendarLoaded({
     required this.calendarMonth,
     this.selectedDate,
-    required this.isAstrologyExpanded,
     required this.today,
   });
 
@@ -53,14 +51,12 @@ final class CalendarLoaded extends CalendarState {
   CalendarLoaded copyWith({
     CalendarMonth? calendarMonth,
     DateSelection? selectedDate,
-    bool? isAstrologyExpanded,
     DateTime? today,
     bool clearSelection = false,
   }) {
     return CalendarLoaded(
       calendarMonth: calendarMonth ?? this.calendarMonth,
       selectedDate: clearSelection ? null : (selectedDate ?? this.selectedDate),
-      isAstrologyExpanded: isAstrologyExpanded ?? this.isAstrologyExpanded,
       today: today ?? this.today,
     );
   }
@@ -70,7 +66,6 @@ final class CalendarLoaded extends CalendarState {
     calendarMonth,
     selectedDate,
     todayCompleteDate,
-    isAstrologyExpanded,
     today,
   ];
 }

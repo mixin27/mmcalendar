@@ -42,11 +42,6 @@ final class SelectDateEvent extends CalendarEvent {
   List<Object?> get props => [date];
 }
 
-/// Toggle astrology card expansion
-final class ToggleAstrologyCard extends CalendarEvent {
-  const ToggleAstrologyCard();
-}
-
 /// Refresh calendar (after settings change)
 final class RefreshCalendar extends CalendarEvent {
   const RefreshCalendar();
