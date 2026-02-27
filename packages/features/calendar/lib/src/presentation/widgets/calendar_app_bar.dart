@@ -9,9 +9,11 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 class CalendarAppBar extends StatelessWidget {
   final Language language;
   final bool showShanCalendar;
+  final VoidCallback onTodayTap;
 
   const CalendarAppBar({
     super.key,
+    required this.onTodayTap,
     this.language = Language.myanmar,
     this.showShanCalendar = true,
   });
@@ -101,6 +103,16 @@ class CalendarAppBar extends StatelessWidget {
                 backgroundColor: context.colorScheme.tertiaryContainer,
                 foregroundColor: context.colorScheme.onTertiaryContainer,
               ),
+              icon: const Icon(Icons.today_outlined, size: 22),
+              onPressed: onTodayTap,
+              tooltip: l10n?.go_to_today ?? 'Go to Today',
+            ),
+            const SizedBox(width: 8),
+            IconButton.filledTonal(
+              style: IconButton.styleFrom(
+                backgroundColor: context.colorScheme.tertiaryContainer,
+                foregroundColor: context.colorScheme.onTertiaryContainer,
+              ),
               icon: const Icon(Icons.share_outlined, size: 22),
               onPressed: () {
                 final today = DateTime.now();
@@ -118,16 +130,6 @@ class CalendarAppBar extends StatelessWidget {
                 );
               },
               tooltip: l10n?.today ?? 'Share Today',
-            ),
-            const SizedBox(width: 8),
-            IconButton.filledTonal(
-              style: IconButton.styleFrom(
-                backgroundColor: context.colorScheme.tertiaryContainer,
-                foregroundColor: context.colorScheme.onTertiaryContainer,
-              ),
-              icon: const Icon(Icons.settings_outlined, size: 22),
-              onPressed: () => GoRouter.of(context).go(RoutePaths.settings),
-              tooltip: AppLocalizations.of(context)?.settings ?? 'Settings',
             ),
           ],
         ),

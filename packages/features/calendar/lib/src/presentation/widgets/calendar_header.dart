@@ -9,7 +9,6 @@ class CalendarHeader extends StatelessWidget {
   final List<CompleteDate>? monthDates;
   final VoidCallback onPreviousMonth;
   final VoidCallback onNextMonth;
-  final VoidCallback onTodayTap;
   final VoidCallback onMonthYearTap;
   final Language language;
   final bool showShanCalendar;
@@ -20,7 +19,6 @@ class CalendarHeader extends StatelessWidget {
     this.monthDates,
     required this.onPreviousMonth,
     required this.onNextMonth,
-    required this.onTodayTap,
     required this.onMonthYearTap,
     this.language = Language.english,
     this.showShanCalendar = true,
@@ -42,90 +40,77 @@ class CalendarHeader extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: [
-              IconButton.filled(
-                icon: const Icon(Icons.chevron_left, size: 20),
-                onPressed: onPreviousMonth,
-                tooltip:
-                    AppLocalizations.of(context)?.previous_month ??
-                    'Previous Month',
-                style: IconButton.styleFrom(
-                  backgroundColor: context.colorScheme.surfaceContainerHighest,
-                  foregroundColor: context.colorScheme.onSurface,
-                ),
-              ),
-              Expanded(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: onMonthYearTap,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 12,
-                      ),
-                      child: Column(
+          IconButton.filled(
+            icon: const Icon(Icons.chevron_left, size: 20),
+            onPressed: onPreviousMonth,
+            tooltip:
+                AppLocalizations.of(context)?.previous_month ??
+                'Previous Month',
+            style: IconButton.styleFrom(
+              backgroundColor: context.colorScheme.surfaceContainerHighest,
+              foregroundColor: context.colorScheme.onSurface,
+            ),
+          ),
+          Expanded(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onMonthYearTap,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 12,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  language == Language.shan && showShanCalendar
-                                      ? '$monthLabel $shanYearLabel'
-                                      : '$monthLabel $myanmarYearLabel',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: context.textTheme.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                ),
+                          Expanded(
+                            child: Text(
+                              language == Language.shan && showShanCalendar
+                                  ? '$monthLabel $shanYearLabel'
+                                  : '$monthLabel $myanmarYearLabel',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: context.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(width: 2),
-                              Icon(
-                                Icons.arrow_drop_down,
-                                size: 20,
-                                color: context.colorScheme.onSurfaceVariant,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            currentMonth.format('MMMM yyyy'),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: context.colorScheme.onSurfaceVariant,
                             ),
+                          ),
+                          const SizedBox(width: 2),
+                          Icon(
+                            Icons.arrow_drop_down,
+                            size: 20,
+                            color: context.colorScheme.onSurfaceVariant,
                           ),
                         ],
                       ),
-                    ),
+                      const SizedBox(height: 2),
+                      Text(
+                        currentMonth.format('MMMM yyyy'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              IconButton.filled(
-                icon: const Icon(Icons.chevron_right, size: 20),
-                onPressed: onNextMonth,
-                tooltip:
-                    AppLocalizations.of(context)?.next_month ?? 'Next Month',
-                style: IconButton.styleFrom(
-                  backgroundColor: context.colorScheme.surfaceContainerHighest,
-                  foregroundColor: context.colorScheme.onSurface,
-                ),
-              ),
-            ],
+            ),
           ),
-          const SizedBox(height: 6),
-          Align(
-            alignment: Alignment.centerRight,
-            child: FilledButton.tonalIcon(
-              onPressed: onTodayTap,
-              icon: const Icon(Icons.today, size: 16),
-              label: Text(AppLocalizations.of(context)?.today ?? 'Today'),
+          IconButton.filled(
+            icon: const Icon(Icons.chevron_right, size: 20),
+            onPressed: onNextMonth,
+            tooltip: AppLocalizations.of(context)?.next_month ?? 'Next Month',
+            style: IconButton.styleFrom(
+              backgroundColor: context.colorScheme.surfaceContainerHighest,
+              foregroundColor: context.colorScheme.onSurface,
             ),
           ),
         ],

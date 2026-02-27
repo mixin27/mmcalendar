@@ -136,6 +136,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               // Compact App Bar
               SliverToBoxAdapter(
                 child: CalendarAppBar(
+                  onTodayTap: _goToToday,
                   language: displayConfig.calendarLanguage,
                   showShanCalendar: displayConfig.showShanCalendar,
                 ),
@@ -422,16 +423,6 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               );
               context.read<CalendarBloc>().add(const NavigateToNextMonth());
             },
-            onTodayTap: () {
-              final today = DateTime.now();
-              _analyticsService.logButtonClick(
-                buttonName: 'today',
-                buttonLocation: 'calendar_header',
-              );
-              context.read<CalendarBloc>().add(const NavigateToToday());
-              // Also select today's date to show in split view
-              context.read<CalendarBloc>().add(SelectDateEvent(today));
-            },
             onMonthYearTap: () {
               _analyticsService.logButtonClick(
                 buttonName: 'month_year_picker',
@@ -579,16 +570,6 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                     },
                   );
                   context.read<CalendarBloc>().add(const NavigateToNextMonth());
-                },
-                onTodayTap: () {
-                  final today = DateTime.now();
-                  _analyticsService.logButtonClick(
-                    buttonName: 'today',
-                    buttonLocation: 'calendar_header',
-                  );
-                  context.read<CalendarBloc>().add(const NavigateToToday());
-                  // Also select today's date to show in split view
-                  context.read<CalendarBloc>().add(SelectDateEvent(today));
                 },
                 onMonthYearTap: () {
                   _analyticsService.logButtonClick(
@@ -825,6 +806,16 @@ class _CalendarHomePageState extends State<CalendarHomePage>
         ),
       ),
     );
+  }
+
+  void _goToToday() {
+    final today = DateTime.now();
+    _analyticsService.logButtonClick(
+      buttonName: 'today',
+      buttonLocation: 'calendar_app_bar',
+    );
+    context.read<CalendarBloc>().add(const NavigateToToday());
+    context.read<CalendarBloc>().add(SelectDateEvent(today));
   }
 }
 
