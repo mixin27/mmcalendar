@@ -48,47 +48,69 @@ class RecurrenceRule extends Equatable {
     DateTime rangeEnd,
   ) {
     final occurrences = <DateTime>[];
+    if (rangeEnd.isBefore(rangeStart)) return occurrences;
 
-    // Start from the original event date
-    var currentDate = originalEventDate;
+    final start = _dateOnly(rangeStart);
+    final end = _dateOnly(rangeEnd);
+    final anchor = _dateOnly(originalEventDate);
+
+    if (type == RecurrenceType.none) {
+      if (!_isDateBefore(anchor, start) &&
+          !_isDateAfter(anchor, end) &&
+          !isException(anchor)) {
+        occurrences.add(anchor);
+      }
+      return occurrences;
+    }
+
+    // Generate from the series anchor so occurrenceCount and endDate are correct
+    // even when rangeStart is in the middle of the series.
+    var currentDate = anchor;
     int count = 0;
+    int safety = 0;
+    final maxIterations = 20000;
 
-    // Generate occurrences until we exceed the range
-    while (currentDate.isBefore(rangeEnd) ||
-        _isSameDay(currentDate, rangeEnd)) {
+    while (!_isDateAfter(currentDate, end) && safety < maxIterations) {
       // Check occurrence count limit
       if (occurrenceCount != null && count >= occurrenceCount!) {
         break;
       }
 
       // Check end date
-      if (endDate != null && currentDate.isAfter(endDate!)) {
+      if (endDate != null && _isDateAfter(currentDate, _dateOnly(endDate!))) {
         break;
       }
 
-      // If this occurrence is within or after our range, add it
-      if ((currentDate.isAfter(rangeStart) ||
-              _isSameDay(currentDate, rangeStart)) &&
-          (currentDate.isBefore(rangeEnd) ||
-              _isSameDay(currentDate, rangeEnd))) {
-        if (!isException(currentDate)) {
-          occurrences.add(currentDate);
-          count++;
-        }
+      final isExceptionDate = isException(currentDate);
+      if (!isExceptionDate &&
+          !_isDateBefore(currentDate, start) &&
+          !_isDateAfter(currentDate, end)) {
+        occurrences.add(currentDate);
       }
 
-      // Move to next occurrence
-      currentDate = _getNextOccurrence(currentDate);
+      // Count real series occurrences (excluding exceptions) from anchor date.
+      if (!isExceptionDate) {
+        count++;
+      }
 
-      // Safety check to prevent infinite loops
-      if (count > 10000) break;
+      final nextDate = _getNextOccurrence(currentDate, anchor);
+      if (!nextDate.isAfter(currentDate)) {
+        break;
+      }
+      currentDate = nextDate;
+      safety++;
+
+      // If series starts beyond the target range, we can stop.
+      if (_isDateAfter(currentDate, end) && _isDateAfter(anchor, end)) {
+        break;
+      }
     }
 
     return occurrences;
   }
 
   /// Get next occurrence date based on recurrence type and interval
-  DateTime _getNextOccurrence(DateTime currentDate) {
+  DateTime _getNextOccurrence(DateTime currentDate, DateTime anchorDate) {
     switch (type) {
       case RecurrenceType.daily:
         return currentDate.add(Duration(days: interval));
@@ -96,7 +118,7 @@ class RecurrenceRule extends Equatable {
       case RecurrenceType.weekly:
         // If specific days of week are set
         if (daysOfWeek != null && daysOfWeek!.isNotEmpty) {
-          return _getNextWeekdayOccurrence(currentDate);
+          return _getNextWeekdayOccurrence(currentDate, anchorDate);
         }
         // Otherwise, just add weeks
         return currentDate.add(Duration(days: 7 * interval));
@@ -113,13 +135,28 @@ class RecurrenceRule extends Equatable {
   }
 
   /// Get next occurrence for weekly recurrence with specific days
-  DateTime _getNextWeekdayOccurrence(DateTime currentDate) {
+  DateTime _getNextWeekdayOccurrence(
+    DateTime currentDate,
+    DateTime anchorDate,
+  ) {
+    final validDays = daysOfWeek!
+        .where((day) => day >= DateTime.monday && day <= DateTime.sunday)
+        .toSet();
+    if (validDays.isEmpty) {
+      return currentDate.add(Duration(days: 7 * interval));
+    }
+
+    final anchorWeekStart = _startOfWeek(anchorDate);
     var nextDate = currentDate.add(const Duration(days: 1));
 
-    // Find next day that matches one of the specified weekdays
-    for (int i = 0; i < 14; i++) {
-      // Check up to 2 weeks ahead
-      if (daysOfWeek!.contains(nextDate.weekday)) {
+    // Find next matching weekday in the correct interval week bucket.
+    for (int i = 0; i < 3650; i++) {
+      final candidateWeekStart = _startOfWeek(nextDate);
+      final weekOffset =
+          candidateWeekStart.difference(anchorWeekStart).inDays ~/ 7;
+      final isCorrectWeek = weekOffset >= 0 && weekOffset % interval == 0;
+
+      if (isCorrectWeek && validDays.contains(nextDate.weekday)) {
         return nextDate;
       }
       nextDate = nextDate.add(const Duration(days: 1));
@@ -196,11 +233,18 @@ class RecurrenceRule extends Equatable {
     );
   }
 
-  /// Check if two dates are the same day
-  bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
+  bool _isDateBefore(DateTime date1, DateTime date2) =>
+      _dateOnly(date1).isBefore(_dateOnly(date2));
+
+  bool _isDateAfter(DateTime date1, DateTime date2) =>
+      _dateOnly(date1).isAfter(_dateOnly(date2));
+
+  DateTime _dateOnly(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
+
+  DateTime _startOfWeek(DateTime date) {
+    final dayOnly = _dateOnly(date);
+    return dayOnly.subtract(Duration(days: dayOnly.weekday - DateTime.monday));
   }
 
   RecurrenceRule copyWith({

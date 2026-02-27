@@ -14,6 +14,8 @@ import '../bloc/user_events_event.dart';
 import '../bloc/user_events_state.dart';
 import '../widgets/animated_event_card.dart';
 
+enum _EventsQuickFilter { all, upcoming, thisMonth }
+
 class EventsListPage extends StatefulWidget {
   const EventsListPage({super.key});
 
@@ -25,6 +27,7 @@ class _EventsListPageState extends State<EventsListPage>
     with TickerProviderStateMixin {
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScaleAnimation;
+  _EventsQuickFilter _activeQuickFilter = _EventsQuickFilter.all;
   // bool _showCompletedEvents = false;
 
   @override
@@ -281,9 +284,7 @@ class _EventsListPageState extends State<EventsListPage>
               //   );
               //   break;
               case 'refresh':
-                context.read<UserEventsBloc>().add(
-                  RefreshEvents(includeCompleted: false),
-                );
+                _loadForFilter(_activeQuickFilter);
                 break;
             }
           },
@@ -371,32 +372,24 @@ class _EventsListPageState extends State<EventsListPage>
               context,
               label: 'All',
               icon: Icons.event,
-              onTap: () {
-                context.read<UserEventsBloc>().add(const LoadAllEvents());
-              },
+              selected: _activeQuickFilter == _EventsQuickFilter.all,
+              onTap: () => _applyQuickFilter(_EventsQuickFilter.all),
             ),
             const SizedBox(width: 8),
             _buildFilterChip(
               context,
               label: 'Upcoming',
               icon: Icons.upcoming,
-              onTap: () {
-                context.read<UserEventsBloc>().add(const LoadUpcomingEvents());
-              },
+              selected: _activeQuickFilter == _EventsQuickFilter.upcoming,
+              onTap: () => _applyQuickFilter(_EventsQuickFilter.upcoming),
             ),
             const SizedBox(width: 8),
             _buildFilterChip(
               context,
               label: 'This Month',
               icon: Icons.calendar_month,
-              onTap: () {
-                final now = DateTime.now();
-                final startOfMonth = DateTime(now.year, now.month, 1);
-                final endOfMonth = DateTime(now.year, now.month + 1, 0);
-                context.read<UserEventsBloc>().add(
-                  LoadEventsByDateRange(startOfMonth, endOfMonth),
-                );
-              },
+              selected: _activeQuickFilter == _EventsQuickFilter.thisMonth,
+              onTap: () => _applyQuickFilter(_EventsQuickFilter.thisMonth),
             ),
             // const SizedBox(width: 8),
             // _buildFilterChip(
@@ -417,14 +410,26 @@ class _EventsListPageState extends State<EventsListPage>
     BuildContext context, {
     required String label,
     required IconData icon,
+    required bool selected,
     required VoidCallback onTap,
   }) {
-    return ActionChip(
-      avatar: Icon(icon, size: 18),
+    final colorScheme = Theme.of(context).colorScheme;
+    return FilterChip(
+      avatar: Icon(
+        icon,
+        size: 18,
+        color: selected ? colorScheme.onPrimaryContainer : null,
+      ),
       label: Text(label),
-      onPressed: onTap,
+      selected: selected,
+      onSelected: (_) => onTap(),
+      selectedColor: colorScheme.primaryContainer,
       elevation: 0,
       padding: const EdgeInsets.symmetric(horizontal: 8),
+      labelStyle: TextStyle(
+        fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+        color: selected ? colorScheme.onPrimaryContainer : null,
+      ),
     );
   }
 
@@ -609,7 +614,7 @@ class _EventsListPageState extends State<EventsListPage>
               subtitle: 'Show all events',
               onTap: () {
                 Navigator.pop(dialogContext);
-                context.read<UserEventsBloc>().add(const LoadAllEvents());
+                _applyQuickFilter(_EventsQuickFilter.all);
               },
             ),
             _FilterOption(
@@ -618,7 +623,7 @@ class _EventsListPageState extends State<EventsListPage>
               subtitle: 'Next 7 days',
               onTap: () {
                 Navigator.pop(dialogContext);
-                context.read<UserEventsBloc>().add(const LoadUpcomingEvents());
+                _applyQuickFilter(_EventsQuickFilter.upcoming);
               },
             ),
             _FilterOption(
@@ -627,18 +632,37 @@ class _EventsListPageState extends State<EventsListPage>
               subtitle: 'Current month events',
               onTap: () {
                 Navigator.pop(dialogContext);
-                final now = DateTime.now();
-                final startOfMonth = DateTime(now.year, now.month, 1);
-                final endOfMonth = DateTime(now.year, now.month + 1, 0);
-                context.read<UserEventsBloc>().add(
-                  LoadEventsByDateRange(startOfMonth, endOfMonth),
-                );
+                _applyQuickFilter(_EventsQuickFilter.thisMonth);
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _applyQuickFilter(_EventsQuickFilter filter) {
+    setState(() => _activeQuickFilter = filter);
+    _loadForFilter(filter);
+  }
+
+  void _loadForFilter(_EventsQuickFilter filter) {
+    switch (filter) {
+      case _EventsQuickFilter.all:
+        context.read<UserEventsBloc>().add(const LoadAllEvents());
+        break;
+      case _EventsQuickFilter.upcoming:
+        context.read<UserEventsBloc>().add(const LoadUpcomingEvents());
+        break;
+      case _EventsQuickFilter.thisMonth:
+        final now = DateTime.now();
+        final startOfMonth = DateTime(now.year, now.month, 1);
+        final endOfMonth = DateTime(now.year, now.month + 1, 0);
+        context.read<UserEventsBloc>().add(
+          LoadEventsByDateRange(startOfMonth, endOfMonth),
+        );
+        break;
+    }
   }
 }
 

@@ -6,6 +6,8 @@ import 'recurrence_rule.dart';
 
 /// Core event entity representing a calendar event
 class Event extends Equatable {
+  static const Object _noChange = Object();
+
   final int? id;
   final String title;
   final String? description;
@@ -104,42 +106,54 @@ class Event extends Equatable {
 
   /// Copy with method for immutability
   Event copyWith({
-    int? id,
+    Object? id = _noChange,
     String? title,
-    String? description,
+    Object? description = _noChange,
     DateTime? eventDate,
-    DateTime? eventTime,
+    Object? eventTime = _noChange,
     bool? isAllDay,
     EventCategory? category,
-    int? colorCode,
-    RecurrenceRule? recurrenceRule,
+    Object? colorCode = _noChange,
+    Object? recurrenceRule = _noChange,
     List<NotificationSetting>? notifications,
-    String? location,
+    Object? location = _noChange,
     EventStatus? status,
     EventPriority? priority,
     List<String>? tags,
     DateTime? createdAt,
     DateTime? updatedAt,
-    DateTime? completedAt,
+    Object? completedAt = _noChange,
   }) {
     return Event(
-      id: id ?? this.id,
+      id: identical(id, _noChange) ? this.id : id as int?,
       title: title ?? this.title,
-      description: description ?? this.description,
+      description: identical(description, _noChange)
+          ? this.description
+          : description as String?,
       eventDate: eventDate ?? this.eventDate,
-      eventTime: eventTime ?? this.eventTime,
+      eventTime: identical(eventTime, _noChange)
+          ? this.eventTime
+          : eventTime as DateTime?,
       isAllDay: isAllDay ?? this.isAllDay,
       category: category ?? this.category,
-      colorCode: colorCode ?? this.colorCode,
-      recurrenceRule: recurrenceRule ?? this.recurrenceRule,
+      colorCode: identical(colorCode, _noChange)
+          ? this.colorCode
+          : colorCode as int?,
+      recurrenceRule: identical(recurrenceRule, _noChange)
+          ? this.recurrenceRule
+          : recurrenceRule as RecurrenceRule?,
       notifications: notifications ?? this.notifications,
-      location: location ?? this.location,
+      location: identical(location, _noChange)
+          ? this.location
+          : location as String?,
       status: status ?? this.status,
       priority: priority ?? this.priority,
       tags: tags ?? this.tags,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      completedAt: completedAt ?? this.completedAt,
+      completedAt: identical(completedAt, _noChange)
+          ? this.completedAt
+          : completedAt as DateTime?,
     );
   }
 

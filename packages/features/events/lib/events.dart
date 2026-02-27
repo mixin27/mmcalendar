@@ -6,6 +6,7 @@ export 'src/domain/entities/event_category.dart';
 export 'src/domain/entities/recurrence_rule.dart';
 export 'src/domain/entities/notification_setting.dart';
 export 'src/domain/repositories/events_repository.dart';
+export 'src/domain/services/event_validation_service.dart';
 
 // Use Cases
 export 'src/domain/usecases/create_user_event.dart';
@@ -25,7 +26,7 @@ export 'src/domain/usecases/get_event_by_id.dart';
 export 'src/presentation/bloc/user_events_bloc.dart';
 export 'src/presentation/bloc/user_events_event.dart';
 export 'src/presentation/bloc/user_events_state.dart';
-export 'src/presentation/bloc/event_form_bloc.dart' hide getIt;
+export 'src/presentation/bloc/event_form_bloc.dart';
 export 'src/presentation/bloc/event_form_event.dart';
 export 'src/presentation/bloc/event_form_state.dart';
 export 'src/presentation/bloc/event_categories_bloc.dart';
@@ -49,6 +50,7 @@ export 'src/presentation/widgets/animated_event_card.dart';
 export 'src/services/notification_service.dart';
 export 'src/services/event_notification_manager.dart';
 export 'src/services/smart_notification_scheduler.dart';
+export 'src/application/services/event_flow_service.dart';
 
 // DI
 export 'src/di/events_injection.dart' hide getIt;

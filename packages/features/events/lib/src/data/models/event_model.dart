@@ -233,45 +233,4 @@ class EventModel extends Event {
       completedAt: completedAt,
     );
   }
-
-  @override
-  EventModel copyWith({
-    int? id,
-    String? title,
-    String? description,
-    DateTime? eventDate,
-    DateTime? eventTime,
-    bool? isAllDay,
-    EventCategory? category,
-    int? colorCode,
-    RecurrenceRule? recurrenceRule,
-    List<NotificationSetting>? notifications,
-    String? location,
-    EventStatus? status,
-    EventPriority? priority,
-    List<String>? tags,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? completedAt,
-  }) {
-    return EventModel(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      eventDate: eventDate ?? this.eventDate,
-      eventTime: eventTime ?? this.eventTime,
-      isAllDay: isAllDay ?? this.isAllDay,
-      category: category ?? this.category,
-      colorCode: colorCode ?? this.colorCode,
-      recurrenceRule: recurrenceRule ?? this.recurrenceRule,
-      notifications: notifications ?? this.notifications,
-      location: location ?? this.location,
-      status: status ?? this.status,
-      priority: priority ?? this.priority,
-      tags: tags ?? this.tags,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      completedAt: completedAt ?? this.completedAt,
-    );
-  }
 }
