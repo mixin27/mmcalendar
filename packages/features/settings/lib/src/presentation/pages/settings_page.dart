@@ -180,6 +180,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   ).go('/settings/${RoutePaths.privacyAndData}'),
                 ),
                 SettingsListTile(
+                  title: 'App Updates',
+                  trailing: '',
+                  icon: Icons.system_update_alt_outlined,
+                  onTap: () => GoRouter.of(
+                    context,
+                  ).go('/settings/${RoutePaths.appUpdate}'),
+                ),
+                SettingsListTile(
                   title: 'About',
                   trailing: '',
                   icon: Icons.info_outline,

@@ -23,6 +23,7 @@ export 'src/presentation/pages/settings_appearance_page.dart';
 export 'src/presentation/pages/settings_calendar_configuration_page.dart';
 export 'src/presentation/pages/settings_display_preferences_page.dart';
 export 'src/presentation/pages/settings_language_page.dart';
+export 'src/presentation/pages/settings_app_update_page.dart';
 export 'src/presentation/pages/settings_about_page.dart';
 export 'src/presentation/pages/settings_privacy_data_page.dart';
 

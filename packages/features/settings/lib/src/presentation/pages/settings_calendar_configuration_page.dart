@@ -22,6 +22,8 @@ class SettingsCalendarConfigurationPage extends StatefulWidget {
 class _SettingsCalendarConfigurationPageState
     extends State<SettingsCalendarConfigurationPage> {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final RemoteConfigPort _remoteConfigPort = getIt<RemoteConfigPort>();
+  bool _isRefreshingHolidayConfig = false;
 
   @override
   void initState() {
@@ -89,6 +91,8 @@ class _SettingsCalendarConfigurationPageState
           if (state is SettingsLoaded) {
             return _SettingsCalendarConfigurationContent(
               settings: state.settings,
+              isRefreshingHolidayConfig: _isRefreshingHolidayConfig,
+              onForceRefreshHolidayConfig: _forceRefreshHolidayConfig,
             );
           }
 
@@ -97,12 +101,62 @@ class _SettingsCalendarConfigurationPageState
       ),
     );
   }
+
+  Future<void> _forceRefreshHolidayConfig() async {
+    if (_isRefreshingHolidayConfig) return;
+
+    _analyticsService.logButtonClick(
+      buttonName: 'force_refresh_holiday_config',
+      buttonLocation: 'settings_calendar_configuration',
+    );
+
+    setState(() {
+      _isRefreshingHolidayConfig = true;
+    });
+
+    final fetchResult = await _remoteConfigPort.fetchAndActivate();
+    if (!mounted) return;
+
+    setState(() {
+      _isRefreshingHolidayConfig = false;
+    });
+
+    if (fetchResult == RemoteFetchResult.failed) {
+      showErrorSnackBar(context, 'Failed to fetch holiday config from server.');
+      return;
+    }
+
+    context.read<SettingsBloc>().add(const LoadSettings());
+
+    final holidayOverridesPort = getIt<HolidayOverridesPort>();
+    final customCount = holidayOverridesPort.getCustomHolidays().length;
+    final disabledCount = holidayOverridesPort.getDisabledHolidays().length;
+    final fetchSummary = fetchResult == RemoteFetchResult.activated
+        ? 'updated'
+        : 'no changes';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Holiday config refreshed ($fetchSummary). '
+          'Custom: $customCount, Disabled: $disabledCount',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 }
 
 class _SettingsCalendarConfigurationContent extends StatelessWidget {
-  const _SettingsCalendarConfigurationContent({required this.settings});
+  const _SettingsCalendarConfigurationContent({
+    required this.settings,
+    required this.onForceRefreshHolidayConfig,
+    required this.isRefreshingHolidayConfig,
+  });
 
   final AppSettingsEntity settings;
+  final Future<void> Function() onForceRefreshHolidayConfig;
+  final bool isRefreshingHolidayConfig;
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +182,23 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
             subtitle: '${settings.calendarConfig.timezoneOffset} hours',
             leading: const Icon(Icons.access_time),
             onTap: () => _showTimezoneDialog(context, settings),
+          ),
+          ListTile(
+            leading: const Icon(Icons.cloud_sync_outlined),
+            title: const Text('Holiday Config (Remote)'),
+            subtitle: const Text(
+              'Force refresh and apply holiday overrides from Remote Config',
+            ),
+            trailing: isRefreshingHolidayConfig
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh),
+            onTap: isRefreshingHolidayConfig
+                ? null
+                : () => onForceRefreshHolidayConfig(),
           ),
         ],
       ),

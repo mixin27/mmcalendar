@@ -19,7 +19,6 @@ class SettingsAboutPage extends StatefulWidget {
 
 class _SettingsAboutPageState extends State<SettingsAboutPage> {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
-  final AppUpdatePort _appUpdatePort = getIt<AppUpdatePort>();
 
   @override
   void initState() {
@@ -59,14 +58,16 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
               leading: const Icon(Icons.tag),
               title: const Text('App Version'),
               subtitle: Text(widget.appVersion ?? AppConstants.appVersion),
-              trailing: !(kIsWeb || kIsWasm)
-                  ? IconButton(
-                      onPressed: _checkForUpdates,
-                      icon: const Icon(Icons.update),
-                      tooltip: 'Check for Updates',
-                    )
-                  : null,
             ),
+            if (!(kIsWeb || kIsWasm))
+              SettingsTile(
+                leading: const Icon(Icons.system_update_alt),
+                title: 'App Updates',
+                subtitle: 'Check for new versions and update settings',
+                onTap: () => GoRouter.of(
+                  context,
+                ).go("${RoutePaths.settings}/${RoutePaths.appUpdate}"),
+              ),
             SettingsTile(
               title: 'Open Source Licenses',
               subtitle: 'View all licenses',
@@ -117,83 +118,6 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
           ],
         ),
       ),
-    );
-  }
-
-  Future<void> _checkForUpdates() async {
-    final updateInfo = await _appUpdatePort.checkForUpdate(forceRefresh: true);
-    if (!mounted) return;
-
-    switch (updateInfo.availability) {
-      case AppUpdateAvailability.optionalUpdateAvailable:
-        await _showUpdateDialog(updateInfo: updateInfo, isRequired: false);
-        return;
-      case AppUpdateAvailability.requiredUpdate:
-        await _showUpdateDialog(updateInfo: updateInfo, isRequired: true);
-        return;
-      case AppUpdateAvailability.upToDate:
-        _showSnackBar('Your app is up to date!');
-        return;
-      case AppUpdateAvailability.unavailable:
-      case AppUpdateAvailability.unsupportedPlatform:
-      case AppUpdateAvailability.failed:
-        _showSnackBar(updateInfo.message);
-        return;
-    }
-  }
-
-  Future<void> _showUpdateDialog({
-    required AppUpdateInfo updateInfo,
-    required bool isRequired,
-  }) async {
-    final details = <String>[updateInfo.message];
-    final notes = updateInfo.releaseNotes?.trim() ?? '';
-    if (notes.isNotEmpty) {
-      details.add(notes);
-    }
-
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (dialogContext) {
-        return PopScope(
-          canPop: true,
-          child: AlertDialog(
-            title: Text(updateInfo.title),
-            content: Text(details.join('\n\n')),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: Text(isRequired ? 'Close' : 'Later'),
-              ),
-              FilledButton(
-                onPressed: () async {
-                  final launched = await _appUpdatePort.launchUpdate(
-                    updateInfo,
-                  );
-                  if (!mounted) return;
-
-                  if (launched) {
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop();
-                    }
-                    return;
-                  }
-
-                  _showSnackBar('Unable to open the update page.');
-                },
-                child: Text(isRequired ? 'Update Now' : 'Update'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 }

@@ -228,6 +228,13 @@ final GoRouter router = GoRouter(
                   builder: (context, state) => const SettingsPrivacyDataPage(),
                 ),
                 GoRoute(
+                  path: RoutePaths.appUpdate,
+                  builder: (context, state) {
+                    final version = appVersion();
+                    return SettingsAppUpdatePage(appVersion: version);
+                  },
+                ),
+                GoRoute(
                   path: RoutePaths.about,
                   builder: (context, state) {
                     final version = appVersion();

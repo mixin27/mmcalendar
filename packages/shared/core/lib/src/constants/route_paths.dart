@@ -36,5 +36,6 @@ class RoutePaths {
   static const String themeSettings = 'theme';
   static const String calendarConfig = 'calendar-config';
   static const String displayPreferences = 'display-preferences';
+  static const String appUpdate = 'app-update';
   static const String about = 'about';
 }
