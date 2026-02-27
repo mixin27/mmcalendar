@@ -3,88 +3,70 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingStart="14dp"
+    android:paddingEnd="14dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:background="@drawable/widget_bg_compact">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="bottom">
-
-                <TextView
-                    android:id="@+id/western_day"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="12"
-                    android:textSize="30sp"
-                    android:textColor="#1C2430"
-                    android:fontFamily="sans-serif-medium"
-                    android:includeFontPadding="false" />
-
-                <TextView
-                    android:id="@+id/western_month"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginBottom="4dp"
-                    android:text="DEC"
-                    android:textSize="11sp"
-                    android:textColor="#576071"
-                    android:fontFamily="sans-serif-medium" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Myanmar Calendar"
-                android:textSize="10sp"
-                android:textColor="#617086"
-                android:alpha="0.85"
-                android:fontFamily="sans-serif-medium" />
-        </LinearLayout>
+        android:gravity="bottom">
 
         <TextView
-            android:id="@+id/today_indicator"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:background="@drawable/today_dot"
-            android:visibility="gone" />
+            android:id="@+id/western_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12"
+            android:textSize="22sp"
+            android:textColor="#1C2430"
+            android:fontFamily="sans-serif-medium"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:id="@+id/western_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="3dp"
+            android:text="DEC"
+            android:textSize="10sp"
+            android:textColor="#576071"
+            android:fontFamily="sans-serif-medium" />
     </LinearLayout>
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="1dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_gravity="center_vertical"
         android:background="#1F2D3D"
         android:alpha="0.15" />
 
     <TextView
         android:id="@+id/myanmar_date"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:text="၁၃၈၆ နတ်တော် လဆုတ် ၈ ရက်"
-        android:textSize="15sp"
+        android:textSize="13sp"
         android:textColor="#1C2430"
         android:fontFamily="sans-serif-medium"
-        android:maxLines="2"
-        android:ellipsize="end"
-        android:lineSpacingExtra="2dp" />
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/today_indicator"
+        android:layout_width="7dp"
+        android:layout_height="7dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/today_dot"
+        android:visibility="gone" />
 
 </LinearLayout>

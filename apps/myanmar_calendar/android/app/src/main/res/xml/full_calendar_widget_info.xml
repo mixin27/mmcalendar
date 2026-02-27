@@ -4,7 +4,7 @@
     android:initialLayout="@layout/widget_layout_full_calendar"
     android:minWidth="320dp"
     android:minHeight="140dp"
-    android:minResizeWidth="280dp"
+    android:minResizeWidth="320dp"
     android:minResizeHeight="140dp"
     android:previewImage="@drawable/full_calendar"
     android:resizeMode="horizontal|vertical"
