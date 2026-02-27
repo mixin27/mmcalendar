@@ -377,6 +377,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
           child: CalendarHeader(
             key: ValueKey(state.calendarMonth.month),
             currentMonth: state.calendarMonth.month,
+            monthDates: state.calendarMonth.dates,
             showShanCalendar: showShanCalendar,
             onPreviousMonth: () {
               _analyticsService.logWidgetInteraction(
@@ -530,6 +531,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               CalendarHeader(
                 key: ValueKey(state.calendarMonth.month),
                 currentMonth: state.calendarMonth.month,
+                monthDates: state.calendarMonth.dates,
                 showShanCalendar: showShanCalendar,
                 onPreviousMonth: () {
                   _analyticsService.logWidgetInteraction(
@@ -930,30 +932,25 @@ class _MonthYearPickerBottomSheetState
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Jump to month',
-                        style: context.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Jump to month',
+                      style: context.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        selectedLabel,
-                        style: context.textTheme.bodyMedium?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
-                        ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      selectedLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colorScheme.onSurfaceVariant,
                       ),
-                    ],
-                  ),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: _selectToday,
-                  icon: const Icon(Icons.today, size: 18),
-                  label: const Text('Today'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1018,6 +1015,15 @@ class _MonthYearPickerBottomSheetState
               ),
             ),
             const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.tonalIcon(
+                onPressed: _selectToday,
+                icon: const Icon(Icons.today, size: 18),
+                label: const Text('Today'),
+              ),
+            ),
+            const SizedBox(height: 12),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
