@@ -1,8 +1,8 @@
-# Contributing to thadin
+# Contributing to Myanmar Calendar
 
 👍🎉 First off, thanks for taking the time to contribute! 🎉👍
 
-The following is a set of guidelines for contributing to thadin.
+The following is a set of guidelines for contributing to Myanmar Calendar.
 These are mostly guidelines, not rules. Use your best judgment,
 and feel free to propose changes to this document in a pull request.
 
