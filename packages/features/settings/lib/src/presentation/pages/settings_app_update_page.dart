@@ -1,5 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../di/settings_injection.dart';
 import '../widgets/settings_widgets.dart';
@@ -32,6 +33,7 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final updateInfo = _lastUpdateInfo;
 
     return Scaffold(
@@ -54,7 +56,7 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
             ),
             const SizedBox(width: 8),
             Text(
-              'App Updates',
+              l10n?.appUpdates ?? 'App Updates',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
@@ -65,18 +67,24 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
           children: [
             ListTile(
               leading: const Icon(Icons.tag),
-              title: const Text('Current Version'),
+              title: Text(l10n?.currentVersion ?? 'Current Version'),
               subtitle: Text(widget.appVersion ?? AppConstants.appVersion),
             ),
             SettingsTile(
-              title: 'Check for Updates',
-              subtitle: 'Use current remote config values',
+              title: l10n?.checkForUpdates ?? 'Check for Updates',
+              subtitle:
+                  l10n?.useCurrentRemoteConfigValues ??
+                  'Use current remote config values',
               leading: const Icon(Icons.update),
               onTap: () => _checkForUpdates(forceRefresh: false),
             ),
             SettingsTile(
-              title: 'Force Refresh Update Config',
-              subtitle: 'Fetch remote config now and check again',
+              title:
+                  l10n?.forceRefreshUpdateConfig ??
+                  'Force Refresh Update Config',
+              subtitle:
+                  l10n?.fetchRemoteConfigNowAndCheckAgain ??
+                  'Fetch remote config now and check again',
               leading: const Icon(Icons.cloud_download_outlined),
               onTap: () => _checkForUpdates(forceRefresh: true),
             ),
@@ -102,21 +110,32 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
                         const SizedBox(height: 8),
                         if (_lastCheckedAt != null)
                           Text(
-                            'Last checked: ${_formatDateTime(_lastCheckedAt!)}',
+                            l10n?.lastCheckedAt(
+                                  _formatDateTime(context, _lastCheckedAt!),
+                                ) ??
+                                'Last checked: ${_formatDateTime(context, _lastCheckedAt!)}',
                           ),
                         const SizedBox(height: 4),
                         Text(
-                          'Current: ${updateInfo.currentVersion} (${updateInfo.currentBuildNumber})',
+                          l10n?.currentVersionWithBuild(
+                                updateInfo.currentVersion,
+                                updateInfo.currentBuildNumber.toString(),
+                              ) ??
+                              'Current: ${updateInfo.currentVersion} (${updateInfo.currentBuildNumber})',
                         ),
                         Text(
-                          'Latest: ${updateInfo.latestVersion} (${updateInfo.latestBuildNumber})',
+                          l10n?.latestVersionWithBuild(
+                                updateInfo.latestVersion,
+                                updateInfo.latestBuildNumber.toString(),
+                              ) ??
+                              'Latest: ${updateInfo.latestVersion} (${updateInfo.latestBuildNumber})',
                         ),
                         const SizedBox(height: 8),
                         Text(updateInfo.message),
                         if ((updateInfo.releaseNotes ?? '').isNotEmpty) ...[
                           const SizedBox(height: 12),
                           Text(
-                            'Release Notes',
+                            l10n?.releaseNotes ?? 'Release Notes',
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                           const SizedBox(height: 4),
@@ -131,7 +150,7 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
                                   ? null
                                   : () => _launchUpdate(updateInfo),
                               icon: const Icon(Icons.open_in_new),
-                              label: const Text('Open Store'),
+                              label: Text(l10n?.openStore ?? 'Open Store'),
                             ),
                           ),
                         ],
@@ -207,11 +226,19 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(isRequired ? 'Close' : 'Later'),
+              child: Text(
+                isRequired
+                    ? (AppLocalizations.of(context)?.close ?? 'Close')
+                    : (AppLocalizations.of(context)?.later ?? 'Later'),
+              ),
             ),
             FilledButton(
               onPressed: () => _launchUpdate(updateInfo, dialogContext),
-              child: Text(isRequired ? 'Update Now' : 'Update'),
+              child: Text(
+                isRequired
+                    ? (AppLocalizations.of(context)?.updateNow ?? 'Update Now')
+                    : (AppLocalizations.of(context)?.update ?? 'Update'),
+              ),
             ),
           ],
         );
@@ -233,33 +260,38 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
       return;
     }
 
-    _showSnackBar('Unable to open the update page.');
+    _showSnackBar(
+      AppLocalizations.of(context)?.unableToOpenUpdatePage ??
+          'Unable to open the update page.',
+    );
   }
 
   String _availabilityLabel(AppUpdateAvailability availability) {
+    final l10n = AppLocalizations.of(context);
     switch (availability) {
       case AppUpdateAvailability.upToDate:
-        return 'Up to date';
+        return l10n?.upToDate ?? 'Up to date';
       case AppUpdateAvailability.optionalUpdateAvailable:
-        return 'Update available';
+        return l10n?.updateAvailable ?? 'Update available';
       case AppUpdateAvailability.requiredUpdate:
-        return 'Update required';
+        return l10n?.updateRequired ?? 'Update required';
       case AppUpdateAvailability.unsupportedPlatform:
-        return 'Unsupported platform';
+        return l10n?.unsupportedPlatform ?? 'Unsupported platform';
       case AppUpdateAvailability.unavailable:
-        return 'Update check disabled';
+        return l10n?.updateCheckDisabled ?? 'Update check disabled';
       case AppUpdateAvailability.failed:
-        return 'Check failed';
+        return l10n?.checkFailed ?? 'Check failed';
     }
   }
 
-  String _formatDateTime(DateTime value) {
-    final year = value.year.toString().padLeft(4, '0');
-    final month = value.month.toString().padLeft(2, '0');
-    final day = value.day.toString().padLeft(2, '0');
-    final hour = value.hour.toString().padLeft(2, '0');
-    final minute = value.minute.toString().padLeft(2, '0');
-    return '$year-$month-$day $hour:$minute';
+  String _formatDateTime(BuildContext context, DateTime value) {
+    final localizations = MaterialLocalizations.of(context);
+    final date = localizations.formatCompactDate(value);
+    final time = localizations.formatTimeOfDay(
+      TimeOfDay.fromDateTime(value),
+      alwaysUse24HourFormat: true,
+    );
+    return '$date $time';
   }
 
   void _showSnackBar(String message) {

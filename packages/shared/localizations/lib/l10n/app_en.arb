@@ -1,162 +1,695 @@
 {
-    "developer": "Kyaw Zayar Tun",
-    "@developer": {
-        "description": "Name of developer"
-    },
-    "home": "Home",
-    "@home": {
-        "description": "Home label"
-    },
-    "views": "Views",
-    "@views": {
-        "description": "Views label"
-    },
-    "converter": "Converter",
-    "@converter": {
-        "description": "Converter label"
-    },
-    "events": "Events",
-    "@events": {
-        "description": "Events label"
-    },
-    "settings": "Settings",
-    "@settings": {
-        "description": "Settings label"
-    },
-    "next_month": "Next Month",
-    "@next_month": {
-        "description": "Next Month label"
-    },
-    "previous_month": "Previous Month",
-    "@previous_month": {
-        "description": "Previous Month label"
-    },
-    "go_to_today": "Go To Today",
-    "@go_to_today": {
-        "description": "Go To Today label"
-    },
-    "today": "Today",
-    "@today": {
-        "description": "Today label"
-    },
-    "choose_your_view": "Choose Your View",
-    "@choose_your_view": {
-        "description": "Choose Your View label"
-    },
-    "year_view": "Year View",
-    "@year_view": {
-        "description": "Year View label"
-    },
-    "week_view": "Week View",
-    "@week_view": {
-        "description": "Week View label"
-    },
-    "day_view": "Day View",
-    "@day_view": {
-        "description": "Day View label"
-    },
-    "convert": "Convert",
-    "@convert": {
-        "description": "Convert label"
-    },
-    "calculate": "Calculate",
-    "@calculate": {
-        "description": "Calculate label"
-    },
-    "arithmetic": "Arithmetic",
-    "@arithmetic": {
-        "description": "Arithmetic label"
-    },
-    "appearance": "Appearance",
-    "@appearance": {
-        "description": "Appearance label"
-    },
-    "language": "Language",
-    "@language": {
-        "description": "Language label"
-    },
-    "display_preferences": "Display Preferences",
-    "@display_preferences": {
-        "description": "Display Preferences label"
-    },
-    "calendar_configuration": "Calendar Configuration",
-    "@calendar_configuration": {
-        "description": "Calendar Configuration label"
-    },
-    "home_screen_widget": "Home Screen Widget",
-    "@home_screen_widget": {
-        "description": "Home Screen Widget label"
-    },
-    "about": "About",
-    "@about": {
-        "description": "About label"
-    },
-    "theme_preset": "Theme Preset",
-    "@theme_preset": {
-        "description": "Theme Preset label"
-    },
-    "nagahle": "Nagahle",
-    "@nagahle": {
-        "description": "Nagahle label"
-    },
-    "nakhat": "Nakhat",
-    "@nakhat": {
-        "description": "Nakhat label"
-    },
-    "mahabote": "Mahabote",
-    "@mahabote": {
-        "description": "Mahabote label"
-    },
-    "year_name": "Year Name",
-    "@year_name": {
-        "description": "Year name label"
-    },
-    "moon_phase": "Moon Phase",
-    "@moon_phase": {
-        "description": "Moon Phase label"
-    },
-    "year": "Year",
-    "@year": {
-        "description": "Year label"
-    },
-    "month": "Month",
-    "@month": {
-        "description": "Month label"
-    },
-    "day": "Day",
-    "@day": {
-        "description": "Day label"
-    },
-    "weekday": "Weekday",
-    "@weekday": {
-        "description": "Weekday label"
-    },
-    "astrological_information": "Astrological Information",
-    "@astrological_information": {
-        "description": "Astrological Information label"
-    },
-    "holidays": "Holidays",
-    "@holidays": {
-        "description": "Holidays label"
-    },
-    "special_days": "Special Days",
-    "@special_days": {
-        "description": "Special Days label"
-    },
-    "anniversary_days": "Anniversary Days",
-    "@anniversary_days": {
-        "description": "Anniversary Days label"
-    },
-    "buddhist_era": "Buddhist Era (BE)",
-    "@buddhist_era": {
-        "description": "Buddhist Era label"
-    },
-    "sasana_year": "Sasana Year",
-    "@sasana_year": {
-        "description": "Sasana Year label"
-    },
-    "myanmar_era": "Myanmar Era (ME)",
-    "@myanmar_era": {
-        "description": "Myanmar Era label"
+  "about": "About",
+  "@about": {
+    "description": "About label"
+  },
+  "alternativeCalculationMethod": "Alternative calculation method",
+  "@alternativeCalculationMethod": {
+    "description": "Localized text for alternativeCalculationMethod."
+  },
+  "alwaysUseDarkTheme": "Always use dark theme",
+  "@alwaysUseDarkTheme": {
+    "description": "Localized text for alwaysUseDarkTheme."
+  },
+  "alwaysUseLightTheme": "Always use light theme",
+  "@alwaysUseLightTheme": {
+    "description": "Localized text for alwaysUseLightTheme."
+  },
+  "analytics": "Analytics",
+  "@analytics": {
+    "description": "Localized text for analytics."
+  },
+  "analyticsDisabledChangeInSettings": "Analytics disabled. You can change this in Settings.",
+  "@analyticsDisabledChangeInSettings": {
+    "description": "Localized text for analyticsDisabledChangeInSettings."
+  },
+  "analyticsDisabledInSettings": "Analytics disabled. You can enable it in Settings.",
+  "@analyticsDisabledInSettings": {
+    "description": "Localized text for analyticsDisabledInSettings."
+  },
+  "analyticsEnabledChangeInSettings": "Thank you! Analytics enabled. You can change this in Settings.",
+  "@analyticsEnabledChangeInSettings": {
+    "description": "Localized text for analyticsEnabledChangeInSettings."
+  },
+  "anniversary_days": "Anniversary Days",
+  "@anniversary_days": {
+    "description": "Anniversary Days label"
+  },
+  "appLanguage": "App Language",
+  "@appLanguage": {
+    "description": "Localized text for appLanguage."
+  },
+  "appUpdates": "App Updates",
+  "@appUpdates": {
+    "description": "Localized text for appUpdates."
+  },
+  "appVersion": "App Version",
+  "@appVersion": {
+    "description": "Localized text for appVersion."
+  },
+  "appearance": "Appearance",
+  "@appearance": {
+    "description": "Appearance label"
+  },
+  "arithmetic": "Arithmetic",
+  "@arithmetic": {
+    "description": "Arithmetic label"
+  },
+  "astrological_information": "Astrological Information",
+  "@astrological_information": {
+    "description": "Astrological Information label"
+  },
+  "britishCalendarSystem": "British calendar system",
+  "@britishCalendarSystem": {
+    "description": "Localized text for britishCalendarSystem."
+  },
+  "buddhist_era": "Buddhist Era (BE)",
+  "@buddhist_era": {
+    "description": "Buddhist Era label"
+  },
+  "calculate": "Calculate",
+  "@calculate": {
+    "description": "Calculate label"
+  },
+  "calendar": "Calendar",
+  "@calendar": {
+    "description": "Localized text for calendar."
+  },
+  "calendarLanguage": "Calendar Language",
+  "@calendarLanguage": {
+    "description": "Localized text for calendarLanguage."
+  },
+  "calendarType": "Calendar Type",
+  "@calendarType": {
+    "description": "Localized text for calendarType."
+  },
+  "calendarTypeBritish": "British",
+  "@calendarTypeBritish": {
+    "description": "Localized text for calendarTypeBritish."
+  },
+  "calendarTypeGregorian": "Gregorian",
+  "@calendarTypeGregorian": {
+    "description": "Localized text for calendarTypeGregorian."
+  },
+  "calendarTypeJulian": "Julian",
+  "@calendarTypeJulian": {
+    "description": "Localized text for calendarTypeJulian."
+  },
+  "calendar_configuration": "Calendar Configuration",
+  "@calendar_configuration": {
+    "description": "Calendar Configuration label"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Localized text for cancel."
+  },
+  "checkAgain": "Check Again",
+  "@checkAgain": {
+    "description": "Localized text for checkAgain."
+  },
+  "checkFailed": "Check failed",
+  "@checkFailed": {
+    "description": "Localized text for checkFailed."
+  },
+  "checkForNewVersionsAndUpdateSettings": "Check for new versions and update settings",
+  "@checkForNewVersionsAndUpdateSettings": {
+    "description": "Localized text for checkForNewVersionsAndUpdateSettings."
+  },
+  "checkForUpdates": "Check for Updates",
+  "@checkForUpdates": {
+    "description": "Localized text for checkForUpdates."
+  },
+  "choose_your_view": "Choose Your View",
+  "@choose_your_view": {
+    "description": "Choose Your View label"
+  },
+  "clearPromoDataDebug": "Clear Promo Data (Debug)",
+  "@clearPromoDataDebug": {
+    "description": "Localized text for clearPromoDataDebug."
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Localized text for close."
+  },
+  "comingSoon": "Coming Soon",
+  "@comingSoon": {
+    "description": "Localized text for comingSoon."
+  },
+  "consentDescription": "Myanmar Calendar would like to collect analytics and crash reports to help improve your experience.\n\nThis data is never shared with third parties.",
+  "@consentDescription": {
+    "description": "Localized text for consentDescription."
+  },
+  "consentDialogDescription": "Myanmar Calendar would like to collect analytics and crash reports to help improve your experience. This data is never shared with third parties.\n\nYou can change these settings anytime in Settings > Privacy & Data.",
+  "@consentDialogDescription": {
+    "description": "Localized text for consentDialogDescription."
+  },
+  "consentSettingsHint": "You can change these settings anytime in Settings > Privacy & Data",
+  "@consentSettingsHint": {
+    "description": "Localized text for consentSettingsHint."
+  },
+  "convert": "Convert",
+  "@convert": {
+    "description": "Convert label"
+  },
+  "converter": "Converter",
+  "@converter": {
+    "description": "Converter label"
+  },
+  "crashReports": "Crash Reports",
+  "@crashReports": {
+    "description": "Localized text for crashReports."
+  },
+  "currentVersion": "Current Version",
+  "@currentVersion": {
+    "description": "Localized text for currentVersion."
+  },
+  "currentVersionWithBuild": "Current: {version} ({build})",
+  "@currentVersionWithBuild": {
+    "description": "Localized text for currentVersionWithBuild.",
+    "placeholders": {
+      "version": {},
+      "build": {}
     }
+  },
+  "dark": "Dark",
+  "@dark": {
+    "description": "Localized text for dark."
+  },
+  "day": "Day",
+  "@day": {
+    "description": "Day label"
+  },
+  "day_view": "Day View",
+  "@day_view": {
+    "description": "Day View label"
+  },
+  "defaultCalculationMethod": "Default calculation method",
+  "@defaultCalculationMethod": {
+    "description": "Localized text for defaultCalculationMethod."
+  },
+  "developer": "Kyaw Zayar Tun",
+  "@developer": {
+    "description": "Name of developer"
+  },
+  "disableAll": "Disable All",
+  "@disableAll": {
+    "description": "Localized text for disableAll."
+  },
+  "displayAnniversaryDaysIndicators": "Display anniversary days indicators",
+  "@displayAnniversaryDaysIndicators": {
+    "description": "Localized text for displayAnniversaryDaysIndicators."
+  },
+  "displayAppInEnglish": "Display app in English",
+  "@displayAppInEnglish": {
+    "description": "Localized text for displayAppInEnglish."
+  },
+  "displayAppInMyanmar": "Display app in Myanmar",
+  "@displayAppInMyanmar": {
+    "description": "Localized text for displayAppInMyanmar."
+  },
+  "displayAstrologicalIndicators": "Display astrological indicators",
+  "@displayAstrologicalIndicators": {
+    "description": "Localized text for displayAstrologicalIndicators."
+  },
+  "displayCalendarIn": "Display calendar in {language}",
+  "@displayCalendarIn": {
+    "description": "Localized text for displayCalendarIn.",
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "displayHolidayIndicators": "Display holiday indicators",
+  "@displayHolidayIndicators": {
+    "description": "Localized text for displayHolidayIndicators."
+  },
+  "displayMyanmarCalendarDates": "Display Myanmar calendar dates",
+  "@displayMyanmarCalendarDates": {
+    "description": "Localized text for displayMyanmarCalendarDates."
+  },
+  "displaySabbathIndicators": "Display sabbath indicators",
+  "@displaySabbathIndicators": {
+    "description": "Localized text for displaySabbathIndicators."
+  },
+  "displayWesternCalendarDates": "Display Western calendar dates",
+  "@displayWesternCalendarDates": {
+    "description": "Localized text for displayWesternCalendarDates."
+  },
+  "display_preferences": "Display Preferences",
+  "@display_preferences": {
+    "description": "Display Preferences label"
+  },
+  "enableAll": "Enable All",
+  "@enableAll": {
+    "description": "Localized text for enableAll."
+  },
+  "english": "English",
+  "@english": {
+    "description": "Localized text for english."
+  },
+  "errorLoadingSettings": "Error Loading Settings",
+  "@errorLoadingSettings": {
+    "description": "Localized text for errorLoadingSettings."
+  },
+  "errorTitle": "Error",
+  "@errorTitle": {
+    "description": "Localized text for errorTitle."
+  },
+  "errorWithMessage": "Error: {error}",
+  "@errorWithMessage": {
+    "description": "Localized text for errorWithMessage.",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "events": "Events",
+  "@events": {
+    "description": "Events label"
+  },
+  "failedToFetchHolidayConfig": "Failed to fetch holiday config from server.",
+  "@failedToFetchHolidayConfig": {
+    "description": "Localized text for failedToFetchHolidayConfig."
+  },
+  "failedToInitializeApp": "Failed to initialize the app:\n\n{error}",
+  "@failedToInitializeApp": {
+    "description": "Localized text for failedToInitializeApp.",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "fetchRemoteConfigNowAndCheckAgain": "Fetch remote config now and check again",
+  "@fetchRemoteConfigNowAndCheckAgain": {
+    "description": "Localized text for fetchRemoteConfigNowAndCheckAgain."
+  },
+  "forceRefreshHolidayConfigDescription": "Force refresh and apply holiday overrides from Remote Config",
+  "@forceRefreshHolidayConfigDescription": {
+    "description": "Localized text for forceRefreshHolidayConfigDescription."
+  },
+  "forceRefreshUpdateConfig": "Force Refresh Update Config",
+  "@forceRefreshUpdateConfig": {
+    "description": "Localized text for forceRefreshUpdateConfig."
+  },
+  "general": "General",
+  "@general": {
+    "description": "Localized text for general."
+  },
+  "goToHome": "Go to Home",
+  "@goToHome": {
+    "description": "Localized text for goToHome."
+  },
+  "go_to_today": "Go To Today",
+  "@go_to_today": {
+    "description": "Go To Today label"
+  },
+  "gregorianCalendarSystem": "Gregorian calendar system",
+  "@gregorianCalendarSystem": {
+    "description": "Localized text for gregorianCalendarSystem."
+  },
+  "helpImproveBySharingAnalytics": "Help improve the app by sharing usage analytics",
+  "@helpImproveBySharingAnalytics": {
+    "description": "Localized text for helpImproveBySharingAnalytics."
+  },
+  "helpUsImprove": "Help Us Improve",
+  "@helpUsImprove": {
+    "description": "Localized text for helpUsImprove."
+  },
+  "holidayConfigRefreshed": "Holiday config refreshed ({status}). Custom: {customCount}, Disabled: {disabledCount}",
+  "@holidayConfigRefreshed": {
+    "description": "Localized text for holidayConfigRefreshed.",
+    "placeholders": {
+      "status": {},
+      "customCount": {},
+      "disabledCount": {}
+    }
+  },
+  "holidayConfigRemote": "Holiday Config (Remote)",
+  "@holidayConfigRemote": {
+    "description": "Localized text for holidayConfigRemote."
+  },
+  "holidays": "Holidays",
+  "@holidays": {
+    "description": "Holidays label"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Home label"
+  },
+  "homeWidgets": "Home Widgets",
+  "@homeWidgets": {
+    "description": "Localized text for homeWidgets."
+  },
+  "home_screen_widget": "Home Screen Widget",
+  "@home_screen_widget": {
+    "description": "Home Screen Widget label"
+  },
+  "hours": "Hours",
+  "@hours": {
+    "description": "Localized text for hours."
+  },
+  "hoursValue": "{value} hours",
+  "@hoursValue": {
+    "description": "Localized text for hoursValue.",
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "initializationErrorTitle": "Initialization Error",
+  "@initializationErrorTitle": {
+    "description": "Localized text for initializationErrorTitle."
+  },
+  "julianCalendarSystem": "Julian calendar system",
+  "@julianCalendarSystem": {
+    "description": "Localized text for julianCalendarSystem."
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language label"
+  },
+  "lastCheckedAt": "Last checked: {time}",
+  "@lastCheckedAt": {
+    "description": "Localized text for lastCheckedAt.",
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "later": "Later",
+  "@later": {
+    "description": "Localized text for later."
+  },
+  "latestVersionWithBuild": "Latest: {version} ({build})",
+  "@latestVersionWithBuild": {
+    "description": "Localized text for latestVersionWithBuild.",
+    "placeholders": {
+      "version": {},
+      "build": {}
+    }
+  },
+  "light": "Light",
+  "@light": {
+    "description": "Localized text for light."
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Localized text for loading."
+  },
+  "loadingSettings": "Loading settings...",
+  "@loadingSettings": {
+    "description": "Localized text for loadingSettings."
+  },
+  "mahabote": "Mahabote",
+  "@mahabote": {
+    "description": "Mahabote label"
+  },
+  "matchSystemTheme": "Match system theme",
+  "@matchSystemTheme": {
+    "description": "Localized text for matchSystemTheme."
+  },
+  "month": "Month",
+  "@month": {
+    "description": "Month label"
+  },
+  "moon_phase": "Moon Phase",
+  "@moon_phase": {
+    "description": "Moon Phase label"
+  },
+  "myanmar": "Myanmar",
+  "@myanmar": {
+    "description": "Localized text for myanmar."
+  },
+  "myanmarCalendar": "Myanmar Calendar",
+  "@myanmarCalendar": {
+    "description": "Localized text for myanmarCalendar."
+  },
+  "myanmar_era": "Myanmar Era (ME)",
+  "@myanmar_era": {
+    "description": "Myanmar Era label"
+  },
+  "nagahle": "Nagahle",
+  "@nagahle": {
+    "description": "Nagahle label"
+  },
+  "nakhat": "Nakhat",
+  "@nakhat": {
+    "description": "Nakhat label"
+  },
+  "next_month": "Next Month",
+  "@next_month": {
+    "description": "Next Month label"
+  },
+  "noChanges": "no changes",
+  "@noChanges": {
+    "description": "Localized text for noChanges."
+  },
+  "openSourceLicenses": "Open Source Licenses",
+  "@openSourceLicenses": {
+    "description": "Localized text for openSourceLicenses."
+  },
+  "openStore": "Open Store",
+  "@openStore": {
+    "description": "Localized text for openStore."
+  },
+  "others": "Others",
+  "@others": {
+    "description": "Localized text for others."
+  },
+  "pageNotFound": "Page not found",
+  "@pageNotFound": {
+    "description": "Localized text for pageNotFound."
+  },
+  "preferShanYear": "Prefer Shan Year",
+  "@preferShanYear": {
+    "description": "Localized text for preferShanYear."
+  },
+  "preferShanYearDescription": "Display Shan calendar year instead of Myanmar year in Shan language",
+  "@preferShanYearDescription": {
+    "description": "Localized text for preferShanYearDescription."
+  },
+  "previous_month": "Previous Month",
+  "@previous_month": {
+    "description": "Previous Month label"
+  },
+  "privacyAndData": "Privacy & Data",
+  "@privacyAndData": {
+    "description": "Localized text for privacyAndData."
+  },
+  "privacyDataUsageDescription": "This data is used only for app improvement and is never shared with third parties.",
+  "@privacyDataUsageDescription": {
+    "description": "Localized text for privacyDataUsageDescription."
+  },
+  "privacyPolicy": "Privacy policy",
+  "@privacyPolicy": {
+    "description": "Localized text for privacyPolicy."
+  },
+  "privacyPolicyContentHint": "App privacy & policy contents will be here.",
+  "@privacyPolicyContentHint": {
+    "description": "Localized text for privacyPolicyContentHint."
+  },
+  "promoDataClearedRestartApp": "Promo data cleared! Restart app to see onboarding.",
+  "@promoDataClearedRestartApp": {
+    "description": "Localized text for promoDataClearedRestartApp."
+  },
+  "releaseNotes": "Release Notes",
+  "@releaseNotes": {
+    "description": "Localized text for releaseNotes."
+  },
+  "reset": "Reset",
+  "@reset": {
+    "description": "Localized text for reset."
+  },
+  "resetAllSettings": "Reset All Settings",
+  "@resetAllSettings": {
+    "description": "Localized text for resetAllSettings."
+  },
+  "resetOnboardingAnnouncements": "Reset onboarding & announcements",
+  "@resetOnboardingAnnouncements": {
+    "description": "Localized text for resetOnboardingAnnouncements."
+  },
+  "resetSettingsConfirmation": "This will reset all settings to their default values. This action cannot be undone.",
+  "@resetSettingsConfirmation": {
+    "description": "Localized text for resetSettingsConfirmation."
+  },
+  "resetSettingsQuestion": "Reset Settings?",
+  "@resetSettingsQuestion": {
+    "description": "Localized text for resetSettingsQuestion."
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Localized text for retry."
+  },
+  "sasanaYearType": "Sasana Year Type",
+  "@sasanaYearType": {
+    "description": "Localized text for sasanaYearType."
+  },
+  "sasana_year": "Sasana Year",
+  "@sasana_year": {
+    "description": "Sasana Year label"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Localized text for save."
+  },
+  "sendCrashReportsToHelpFixIssues": "Send crash reports to help fix issues",
+  "@sendCrashReportsToHelpFixIssues": {
+    "description": "Localized text for sendCrashReportsToHelpFixIssues."
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings label"
+  },
+  "settingsResetSuccessfully": "Settings reset successfully",
+  "@settingsResetSuccessfully": {
+    "description": "Localized text for settingsResetSuccessfully."
+  },
+  "showAnniversaryDays": "Show Anniversary Days",
+  "@showAnniversaryDays": {
+    "description": "Localized text for showAnniversaryDays."
+  },
+  "showAstrology": "Show Astrology",
+  "@showAstrology": {
+    "description": "Localized text for showAstrology."
+  },
+  "showHolidays": "Show Holidays",
+  "@showHolidays": {
+    "description": "Localized text for showHolidays."
+  },
+  "showMyanmarDates": "Show Myanmar Dates",
+  "@showMyanmarDates": {
+    "description": "Localized text for showMyanmarDates."
+  },
+  "showSabbath": "Show Sabbath",
+  "@showSabbath": {
+    "description": "Localized text for showSabbath."
+  },
+  "showWesternDates": "Show Western Dates",
+  "@showWesternDates": {
+    "description": "Localized text for showWesternDates."
+  },
+  "special_days": "Special Days",
+  "@special_days": {
+    "description": "Special Days label"
+  },
+  "system": "System",
+  "@system": {
+    "description": "Localized text for system."
+  },
+  "telegramUserLabel": "TG: {userName}",
+  "@telegramUserLabel": {
+    "description": "Localized text for telegramUserLabel.",
+    "placeholders": {
+      "userName": {}
+    }
+  },
+  "themeMode": "Theme Mode",
+  "@themeMode": {
+    "description": "Localized text for themeMode."
+  },
+  "theme_preset": "Theme Preset",
+  "@theme_preset": {
+    "description": "Theme Preset label"
+  },
+  "timezoneOffset": "Timezone Offset",
+  "@timezoneOffset": {
+    "description": "Localized text for timezoneOffset."
+  },
+  "timezoneOffsetExample": "e.g., 6.5 for Myanmar Time (UTC+6:30)",
+  "@timezoneOffsetExample": {
+    "description": "Localized text for timezoneOffsetExample."
+  },
+  "today": "Today",
+  "@today": {
+    "description": "Today label"
+  },
+  "typeValue": "Type {value}",
+  "@typeValue": {
+    "description": "Localized text for typeValue.",
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "unableToOpenUpdatePage": "Unable to open the update page.",
+  "@unableToOpenUpdatePage": {
+    "description": "Localized text for unableToOpenUpdatePage."
+  },
+  "unknown": "Unknown",
+  "@unknown": {
+    "description": "Localized text for unknown."
+  },
+  "unsupportedPlatform": "Unsupported platform",
+  "@unsupportedPlatform": {
+    "description": "Localized text for unsupportedPlatform."
+  },
+  "upToDate": "Up to date",
+  "@upToDate": {
+    "description": "Localized text for upToDate."
+  },
+  "update": "Update",
+  "@update": {
+    "description": "Localized text for update."
+  },
+  "updateAvailable": "Update available",
+  "@updateAvailable": {
+    "description": "Localized text for updateAvailable."
+  },
+  "updateCheckDisabled": "Update check disabled",
+  "@updateCheckDisabled": {
+    "description": "Localized text for updateCheckDisabled."
+  },
+  "updateNow": "Update Now",
+  "@updateNow": {
+    "description": "Localized text for updateNow."
+  },
+  "updateRequired": "Update required",
+  "@updateRequired": {
+    "description": "Localized text for updateRequired."
+  },
+  "updated": "updated",
+  "@updated": {
+    "description": "Localized text for updated."
+  },
+  "useCurrentRemoteConfigValues": "Use current remote config values",
+  "@useCurrentRemoteConfigValues": {
+    "description": "Localized text for useCurrentRemoteConfigValues."
+  },
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "description": "Localized text for versionLabel.",
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "viewAllLicenses": "View all licenses",
+  "@viewAllLicenses": {
+    "description": "Localized text for viewAllLicenses."
+  },
+  "viewPrivacyPolicy": "View privacy & policy",
+  "@viewPrivacyPolicy": {
+    "description": "Localized text for viewPrivacyPolicy."
+  },
+  "views": "Views",
+  "@views": {
+    "description": "Views label"
+  },
+  "week_view": "Week View",
+  "@week_view": {
+    "description": "Week View label"
+  },
+  "weekday": "Weekday",
+  "@weekday": {
+    "description": "Weekday label"
+  },
+  "widgetSettings": "Widget Settings",
+  "@widgetSettings": {
+    "description": "Localized text for widgetSettings."
+  },
+  "year": "Year",
+  "@year": {
+    "description": "Year label"
+  },
+  "year_name": "Year Name",
+  "@year_name": {
+    "description": "Year name label"
+  },
+  "year_view": "Year View",
+  "@year_view": {
+    "description": "Year View label"
+  }
 }

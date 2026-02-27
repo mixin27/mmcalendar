@@ -1,162 +1,695 @@
 {
-    "developer": "Kyaw Zayar Tun",
-    "@developer": {
-        "description": "Name of developer"
-    },
-    "home": "ပင်မ",
-    "@home": {
-        "description": "Home label"
-    },
-    "views": "အမြင်များ",
-    "@views": {
-        "description": "Views label"
-    },
-    "converter": "ပြောင်းလဲခြင်း",
-    "@converter": {
-        "description": "Converter label"
-    },
-    "events": "Events",
-    "@events": {
-        "description": "Events label"
-    },
-    "settings": "ဆက်တင်များ",
-    "@settings": {
-        "description": "Settings label"
-    },
-    "next_month": "နောက်လ",
-    "@next_month": {
-        "description": "Next Month label"
-    },
-    "previous_month": "ယခင်လ",
-    "@previous_month": {
-        "description": "Previous Month label"
-    },
-    "go_to_today": "ယနေ့သို့ သွားပါ",
-    "@go_to_today": {
-        "description": "Go To Today label"
-    },
-    "today": "ယနေ့",
-    "@today": {
-        "description": "Today label"
-    },
-    "choose_your_view": "သင်၏အမြင်ကိုရွေးချယ်ပါ",
-    "@choose_your_view": {
-        "description": "Choose Your View label"
-    },
-    "year_view": "နှစ်မြင်ကွင်း",
-    "@year_view": {
-        "description": "Year View label"
-    },
-    "week_view": "ရက်သတ္တပတ်မြင်ကွင်း",
-    "@week_view": {
-        "description": "Week View label"
-    },
-    "day_view": "နေ့မြင်ကွင်း",
-    "@day_view": {
-        "description": "Day View label"
-    },
-    "convert": "ပြောင်းလဲခြင်း",
-    "@convert": {
-        "description": "Convert label"
-    },
-    "calculate": "တွက်ချက်မှု",
-    "@calculate": {
-        "description": "Calculate label"
-    },
-    "arithmetic": "ဂဏန်းသင်္ချာ",
-    "@arithmetic": {
-        "description": "Arithmetic label"
-    },
-    "appearance": "အသွင်အပြင်",
-    "@appearance": {
-        "description": "Appearance label"
-    },
-    "language": "ဘာသာစကား",
-    "@language": {
-        "description": "Language label"
-    },
-    "display_preferences": "ပြသရန် ဆက်တင်များ",
-    "@display_preferences": {
-        "description": "Display Preferences label"
-    },
-    "calendar_configuration": "ပြက္ခဒိန်ဖွဲ့စည်းမှု",
-    "@calendar_configuration": {
-        "description": "Calendar Configuration label"
-    },
-    "home_screen_widget": "ပင်မစခရင်ဝစ်ဂျက်",
-    "@home_screen_widget": {
-        "description": "Home Screen Widget label"
-    },
-    "about": "ဤအက်ပ်အကြောင်း",
-    "@about": {
-        "description": "About label"
-    },
-    "theme_preset": "ကြိုတင်သတ်မှတ်ထားသည့် အပြင်အဆင်များ",
-    "@theme_preset": {
-        "description": "Theme Preset label"
-    },
-    "nagahle": "နဂါးခေါင်း",
-    "@nagahle": {
-        "description": "Nagahle label"
-    },
-    "nakhat": "နက္ခတ်",
-    "@nakhat": {
-        "description": "Nakhat label"
-    },
-    "mahabote": "မဟာဘုတ်",
-    "@mahabote": {
-        "description": "Mahabote label"
-    },
-    "year_name": "နှစ်အမည်",
-    "@year_name": {
-        "description": "Year name label"
-    },
-    "moon_phase": "လအဆင့်",
-    "@moon_phase": {
-        "description": "Moon Phase label"
-    },
-    "year": "နှစ်",
-    "@year": {
-        "description": "Year label"
-    },
-    "month": "လ",
-    "@month": {
-        "description": "Month label"
-    },
-    "day": "နေ့",
-    "@day": {
-        "description": "Day label"
-    },
-    "weekday": "အပတ်စဉ်",
-    "@weekday": {
-        "description": "Weekday label"
-    },
-    "astrological_information": "နက္ခတ်ဗေဒဆိုင်ရာအချက်အလက်များ",
-    "@astrological_information": {
-        "description": "Astrological Information label"
-    },
-    "holidays": "ရုံးပိတ်ရက်များ",
-    "@holidays": {
-        "description": "Holidays label"
-    },
-    "special_days": "အထူးနေ့များ",
-    "@special_days": {
-        "description": "Special Days label"
-    },
-    "anniversary_days": "နှစ်ပတ်လည်နေ့များ",
-    "@anniversary_days": {
-        "description": "Anniversary Days label"
-    },
-    "buddhist_era": "ဗုဒ္ဓခေတ် (BE)",
-    "@buddhist_era": {
-        "description": "Buddhist Era label"
-    },
-    "sasana_year": "သာသနာနှစ်",
-    "@sasana_year": {
-        "description": "Sasana Year label"
-    },
-    "myanmar_era": "မြန်မာခေတ် (ME)",
-    "@myanmar_era": {
-        "description": "Myanmar Era label"
+  "about": "ဤအက်ပ်အကြောင်း",
+  "@about": {
+    "description": "About label"
+  },
+  "alternativeCalculationMethod": "အခြားတွက်ချက်နည်း",
+  "@alternativeCalculationMethod": {
+    "description": "Localized text for alternativeCalculationMethod."
+  },
+  "alwaysUseDarkTheme": "အမှောင် Theme ကို အမြဲသုံးမည်",
+  "@alwaysUseDarkTheme": {
+    "description": "Localized text for alwaysUseDarkTheme."
+  },
+  "alwaysUseLightTheme": "အလင်း Theme ကို အမြဲသုံးမည်",
+  "@alwaysUseLightTheme": {
+    "description": "Localized text for alwaysUseLightTheme."
+  },
+  "analytics": "Analytics",
+  "@analytics": {
+    "description": "Localized text for analytics."
+  },
+  "analyticsDisabledChangeInSettings": "Analytics ပိတ်ထားပြီးပါပြီ။ Settings တွင် ပြောင်းနိုင်သည်။",
+  "@analyticsDisabledChangeInSettings": {
+    "description": "Localized text for analyticsDisabledChangeInSettings."
+  },
+  "analyticsDisabledInSettings": "Analytics ပိတ်ထားပြီးပါပြီ။ Settings တွင် ပြန်ဖွင့်နိုင်သည်။",
+  "@analyticsDisabledInSettings": {
+    "description": "Localized text for analyticsDisabledInSettings."
+  },
+  "analyticsEnabledChangeInSettings": "ကျေးဇူးတင်ပါတယ်! Analytics ဖွင့်ထားပြီးပါပြီ။ Settings တွင် ပြောင်းနိုင်သည်။",
+  "@analyticsEnabledChangeInSettings": {
+    "description": "Localized text for analyticsEnabledChangeInSettings."
+  },
+  "anniversary_days": "နှစ်ပတ်လည်နေ့များ",
+  "@anniversary_days": {
+    "description": "Anniversary Days label"
+  },
+  "appLanguage": "အက်ပ် ဘာသာစကား",
+  "@appLanguage": {
+    "description": "Localized text for appLanguage."
+  },
+  "appUpdates": "အက်ပ် အပ်ဒိတ်များ",
+  "@appUpdates": {
+    "description": "Localized text for appUpdates."
+  },
+  "appVersion": "အက်ပ် ဗားရှင်း",
+  "@appVersion": {
+    "description": "Localized text for appVersion."
+  },
+  "appearance": "အသွင်အပြင်",
+  "@appearance": {
+    "description": "Appearance label"
+  },
+  "arithmetic": "ဂဏန်းသင်္ချာ",
+  "@arithmetic": {
+    "description": "Arithmetic label"
+  },
+  "astrological_information": "နက္ခတ်ဗေဒဆိုင်ရာအချက်အလက်များ",
+  "@astrological_information": {
+    "description": "Astrological Information label"
+  },
+  "britishCalendarSystem": "ဗြိတိသျှ ပြက္ခဒိန်စနစ်",
+  "@britishCalendarSystem": {
+    "description": "Localized text for britishCalendarSystem."
+  },
+  "buddhist_era": "ဗုဒ္ဓခေတ် (BE)",
+  "@buddhist_era": {
+    "description": "Buddhist Era label"
+  },
+  "calculate": "တွက်ချက်မှု",
+  "@calculate": {
+    "description": "Calculate label"
+  },
+  "calendar": "ပြက္ခဒိန်",
+  "@calendar": {
+    "description": "Localized text for calendar."
+  },
+  "calendarLanguage": "ပြက္ခဒိန် ဘာသာစကား",
+  "@calendarLanguage": {
+    "description": "Localized text for calendarLanguage."
+  },
+  "calendarType": "ပြက္ခဒိန် အမျိုးအစား",
+  "@calendarType": {
+    "description": "Localized text for calendarType."
+  },
+  "calendarTypeBritish": "ဗြိတိသျှ",
+  "@calendarTypeBritish": {
+    "description": "Localized text for calendarTypeBritish."
+  },
+  "calendarTypeGregorian": "ဂရီဂေါရီယန်",
+  "@calendarTypeGregorian": {
+    "description": "Localized text for calendarTypeGregorian."
+  },
+  "calendarTypeJulian": "ဂျူလီယန်",
+  "@calendarTypeJulian": {
+    "description": "Localized text for calendarTypeJulian."
+  },
+  "calendar_configuration": "ပြက္ခဒိန်ဖွဲ့စည်းမှု",
+  "@calendar_configuration": {
+    "description": "Calendar Configuration label"
+  },
+  "cancel": "ပယ်ဖျက်မည်",
+  "@cancel": {
+    "description": "Localized text for cancel."
+  },
+  "checkAgain": "ထပ်မံစစ်ဆေးမည်",
+  "@checkAgain": {
+    "description": "Localized text for checkAgain."
+  },
+  "checkFailed": "စစ်ဆေးမှု မအောင်မြင်ပါ",
+  "@checkFailed": {
+    "description": "Localized text for checkFailed."
+  },
+  "checkForNewVersionsAndUpdateSettings": "ဗားရှင်းအသစ်များ စစ်ဆေးပြီး အပ်ဒိတ် ဆက်တင်များကို ကြည့်ရှုပါ",
+  "@checkForNewVersionsAndUpdateSettings": {
+    "description": "Localized text for checkForNewVersionsAndUpdateSettings."
+  },
+  "checkForUpdates": "အပ်ဒိတ် စစ်ဆေးမည်",
+  "@checkForUpdates": {
+    "description": "Localized text for checkForUpdates."
+  },
+  "choose_your_view": "သင်၏အမြင်ကိုရွေးချယ်ပါ",
+  "@choose_your_view": {
+    "description": "Choose Your View label"
+  },
+  "clearPromoDataDebug": "Promo Data ဖျက်ရန် (Debug)",
+  "@clearPromoDataDebug": {
+    "description": "Localized text for clearPromoDataDebug."
+  },
+  "close": "ပိတ်မည်",
+  "@close": {
+    "description": "Localized text for close."
+  },
+  "comingSoon": "မကြာမီ ရရှိမည်",
+  "@comingSoon": {
+    "description": "Localized text for comingSoon."
+  },
+  "consentDescription": "Myanmar Calendar သည် သင့်အတွေ့အကြုံကို တိုးတက်ကောင်းမွန်စေရန် analytics နှင့် crash reports များကို စုဆောင်းလိုပါသည်။\n\nဤဒေတာကို တတိယပါတီများနှင့် မမျှဝေပါ။",
+  "@consentDescription": {
+    "description": "Localized text for consentDescription."
+  },
+  "consentDialogDescription": "Myanmar Calendar သည် သင့်အတွေ့အကြုံကို တိုးတက်ကောင်းမွန်စေရန် analytics နှင့် crash reports များကို စုဆောင်းလိုပါသည်။ ဤဒေတာကို တတိယပါတီများနှင့် မမျှဝေပါ။\n\nဤဆက်တင်များကို Settings > Privacy & Data တွင် အချိန်မရွေး ပြောင်းနိုင်ပါသည်။",
+  "@consentDialogDescription": {
+    "description": "Localized text for consentDialogDescription."
+  },
+  "consentSettingsHint": "ဤဆက်တင်များကို Settings > Privacy & Data တွင် အချိန်မရွေး ပြောင်းနိုင်ပါသည်",
+  "@consentSettingsHint": {
+    "description": "Localized text for consentSettingsHint."
+  },
+  "convert": "ပြောင်းလဲခြင်း",
+  "@convert": {
+    "description": "Convert label"
+  },
+  "converter": "ပြောင်းလဲခြင်း",
+  "@converter": {
+    "description": "Converter label"
+  },
+  "crashReports": "Crash Reports",
+  "@crashReports": {
+    "description": "Localized text for crashReports."
+  },
+  "currentVersion": "လက်ရှိ ဗားရှင်း",
+  "@currentVersion": {
+    "description": "Localized text for currentVersion."
+  },
+  "currentVersionWithBuild": "လက်ရှိ: {version} ({build})",
+  "@currentVersionWithBuild": {
+    "description": "Localized text for currentVersionWithBuild.",
+    "placeholders": {
+      "version": {},
+      "build": {}
     }
+  },
+  "dark": "အမှောင်",
+  "@dark": {
+    "description": "Localized text for dark."
+  },
+  "day": "နေ့",
+  "@day": {
+    "description": "Day label"
+  },
+  "day_view": "နေ့မြင်ကွင်း",
+  "@day_view": {
+    "description": "Day View label"
+  },
+  "defaultCalculationMethod": "မူလတွက်ချက်နည်း",
+  "@defaultCalculationMethod": {
+    "description": "Localized text for defaultCalculationMethod."
+  },
+  "developer": "Kyaw Zayar Tun",
+  "@developer": {
+    "description": "Name of developer"
+  },
+  "disableAll": "အားလုံး ပိတ်မည်",
+  "@disableAll": {
+    "description": "Localized text for disableAll."
+  },
+  "displayAnniversaryDaysIndicators": "နှစ်ပတ်လည်နေ့ အမှတ်အသားများ ပြသမည်",
+  "@displayAnniversaryDaysIndicators": {
+    "description": "Localized text for displayAnniversaryDaysIndicators."
+  },
+  "displayAppInEnglish": "အက်ပ်ကို အင်္ဂလိပ်ဖြင့် ပြသမည်",
+  "@displayAppInEnglish": {
+    "description": "Localized text for displayAppInEnglish."
+  },
+  "displayAppInMyanmar": "အက်ပ်ကို မြန်မာဖြင့် ပြသမည်",
+  "@displayAppInMyanmar": {
+    "description": "Localized text for displayAppInMyanmar."
+  },
+  "displayAstrologicalIndicators": "နက္ခတ်ဗေဒ အမှတ်အသားများ ပြသမည်",
+  "@displayAstrologicalIndicators": {
+    "description": "Localized text for displayAstrologicalIndicators."
+  },
+  "displayCalendarIn": "ပြက္ခဒိန်ကို {language} ဖြင့် ပြသမည်",
+  "@displayCalendarIn": {
+    "description": "Localized text for displayCalendarIn.",
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "displayHolidayIndicators": "ရုံးပိတ်ရက် အမှတ်အသားများ ပြသမည်",
+  "@displayHolidayIndicators": {
+    "description": "Localized text for displayHolidayIndicators."
+  },
+  "displayMyanmarCalendarDates": "မြန်မာ ပြက္ခဒိန် ရက်စွဲများ ပြသမည်",
+  "@displayMyanmarCalendarDates": {
+    "description": "Localized text for displayMyanmarCalendarDates."
+  },
+  "displaySabbathIndicators": "ဥပုသ် အမှတ်အသားများ ပြသမည်",
+  "@displaySabbathIndicators": {
+    "description": "Localized text for displaySabbathIndicators."
+  },
+  "displayWesternCalendarDates": "အနောက်တိုင်း ပြက္ခဒိန် ရက်စွဲများ ပြသမည်",
+  "@displayWesternCalendarDates": {
+    "description": "Localized text for displayWesternCalendarDates."
+  },
+  "display_preferences": "ပြသရန် ဆက်တင်များ",
+  "@display_preferences": {
+    "description": "Display Preferences label"
+  },
+  "enableAll": "အားလုံး ဖွင့်မည်",
+  "@enableAll": {
+    "description": "Localized text for enableAll."
+  },
+  "english": "အင်္ဂလိပ်",
+  "@english": {
+    "description": "Localized text for english."
+  },
+  "errorLoadingSettings": "ဆက်တင်များ ဖတ်ရာတွင် အမှားဖြစ်ပွား",
+  "@errorLoadingSettings": {
+    "description": "Localized text for errorLoadingSettings."
+  },
+  "errorTitle": "အမှား",
+  "@errorTitle": {
+    "description": "Localized text for errorTitle."
+  },
+  "errorWithMessage": "အမှား: {error}",
+  "@errorWithMessage": {
+    "description": "Localized text for errorWithMessage.",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "events": "Events",
+  "@events": {
+    "description": "Events label"
+  },
+  "failedToFetchHolidayConfig": "ဆာဗာမှ holiday config ကို မရယူနိုင်ပါ။",
+  "@failedToFetchHolidayConfig": {
+    "description": "Localized text for failedToFetchHolidayConfig."
+  },
+  "failedToInitializeApp": "App ကို စတင်မရပါ:\n\n{error}",
+  "@failedToInitializeApp": {
+    "description": "Localized text for failedToInitializeApp.",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "fetchRemoteConfigNowAndCheckAgain": "Remote Config ကို ယခုရယူပြီး ပြန်စစ်မည်",
+  "@fetchRemoteConfigNowAndCheckAgain": {
+    "description": "Localized text for fetchRemoteConfigNowAndCheckAgain."
+  },
+  "forceRefreshHolidayConfigDescription": "Remote Config မှ holiday override များကို force refresh လုပ်ပြီး သက်ရောက်စေမည်",
+  "@forceRefreshHolidayConfigDescription": {
+    "description": "Localized text for forceRefreshHolidayConfigDescription."
+  },
+  "forceRefreshUpdateConfig": "Update Config ကို Force Refresh လုပ်မည်",
+  "@forceRefreshUpdateConfig": {
+    "description": "Localized text for forceRefreshUpdateConfig."
+  },
+  "general": "အထွေထွေ",
+  "@general": {
+    "description": "Localized text for general."
+  },
+  "goToHome": "ပင်မသို့ သွားမည်",
+  "@goToHome": {
+    "description": "Localized text for goToHome."
+  },
+  "go_to_today": "ယနေ့သို့ သွားပါ",
+  "@go_to_today": {
+    "description": "Go To Today label"
+  },
+  "gregorianCalendarSystem": "ဂရီဂေါရီယန် ပြက္ခဒိန်စနစ်",
+  "@gregorianCalendarSystem": {
+    "description": "Localized text for gregorianCalendarSystem."
+  },
+  "helpImproveBySharingAnalytics": "အသုံးပြုမှု analytics မျှဝေခြင်းဖြင့် app ကိုတိုးတက်ကောင်းမွန်စေရန် ကူညီပါ",
+  "@helpImproveBySharingAnalytics": {
+    "description": "Localized text for helpImproveBySharingAnalytics."
+  },
+  "helpUsImprove": "ပိုမိုကောင်းမွန်အောင် ကူညီပါ",
+  "@helpUsImprove": {
+    "description": "Localized text for helpUsImprove."
+  },
+  "holidayConfigRefreshed": "Holiday config ကို refresh လုပ်ပြီးပါပြီ ({status})။ Custom: {customCount}, Disabled: {disabledCount}",
+  "@holidayConfigRefreshed": {
+    "description": "Localized text for holidayConfigRefreshed.",
+    "placeholders": {
+      "status": {},
+      "customCount": {},
+      "disabledCount": {}
+    }
+  },
+  "holidayConfigRemote": "Holiday Config (Remote)",
+  "@holidayConfigRemote": {
+    "description": "Localized text for holidayConfigRemote."
+  },
+  "holidays": "ရုံးပိတ်ရက်များ",
+  "@holidays": {
+    "description": "Holidays label"
+  },
+  "home": "ပင်မ",
+  "@home": {
+    "description": "Home label"
+  },
+  "homeWidgets": "ပင်မ ဝစ်ဂျက်များ",
+  "@homeWidgets": {
+    "description": "Localized text for homeWidgets."
+  },
+  "home_screen_widget": "ပင်မစခရင်ဝစ်ဂျက်",
+  "@home_screen_widget": {
+    "description": "Home Screen Widget label"
+  },
+  "hours": "နာရီ",
+  "@hours": {
+    "description": "Localized text for hours."
+  },
+  "hoursValue": "{value} နာရီ",
+  "@hoursValue": {
+    "description": "Localized text for hoursValue.",
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "initializationErrorTitle": "စတင်ခြင်း အမှား",
+  "@initializationErrorTitle": {
+    "description": "Localized text for initializationErrorTitle."
+  },
+  "julianCalendarSystem": "ဂျူလီယန် ပြက္ခဒိန်စနစ်",
+  "@julianCalendarSystem": {
+    "description": "Localized text for julianCalendarSystem."
+  },
+  "language": "ဘာသာစကား",
+  "@language": {
+    "description": "Language label"
+  },
+  "lastCheckedAt": "နောက်ဆုံးစစ်ဆေးချိန်: {time}",
+  "@lastCheckedAt": {
+    "description": "Localized text for lastCheckedAt.",
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "later": "နောက်မှ",
+  "@later": {
+    "description": "Localized text for later."
+  },
+  "latestVersionWithBuild": "နောက်ဆုံး: {version} ({build})",
+  "@latestVersionWithBuild": {
+    "description": "Localized text for latestVersionWithBuild.",
+    "placeholders": {
+      "version": {},
+      "build": {}
+    }
+  },
+  "light": "အလင်း",
+  "@light": {
+    "description": "Localized text for light."
+  },
+  "loading": "လုပ်ဆောင်နေသည်...",
+  "@loading": {
+    "description": "Localized text for loading."
+  },
+  "loadingSettings": "ဆက်တင်များကို ဖတ်နေသည်...",
+  "@loadingSettings": {
+    "description": "Localized text for loadingSettings."
+  },
+  "mahabote": "မဟာဘုတ်",
+  "@mahabote": {
+    "description": "Mahabote label"
+  },
+  "matchSystemTheme": "စနစ် Theme နှင့် ကိုက်ညီစေမည်",
+  "@matchSystemTheme": {
+    "description": "Localized text for matchSystemTheme."
+  },
+  "month": "လ",
+  "@month": {
+    "description": "Month label"
+  },
+  "moon_phase": "လအဆင့်",
+  "@moon_phase": {
+    "description": "Moon Phase label"
+  },
+  "myanmar": "မြန်မာ",
+  "@myanmar": {
+    "description": "Localized text for myanmar."
+  },
+  "myanmarCalendar": "မြန်မာပြက္ခဒိန်",
+  "@myanmarCalendar": {
+    "description": "Localized text for myanmarCalendar."
+  },
+  "myanmar_era": "မြန်မာခေတ် (ME)",
+  "@myanmar_era": {
+    "description": "Myanmar Era label"
+  },
+  "nagahle": "နဂါးခေါင်း",
+  "@nagahle": {
+    "description": "Nagahle label"
+  },
+  "nakhat": "နက္ခတ်",
+  "@nakhat": {
+    "description": "Nakhat label"
+  },
+  "next_month": "နောက်လ",
+  "@next_month": {
+    "description": "Next Month label"
+  },
+  "noChanges": "ပြောင်းလဲမှုမရှိ",
+  "@noChanges": {
+    "description": "Localized text for noChanges."
+  },
+  "openSourceLicenses": "Open Source လိုင်စင်များ",
+  "@openSourceLicenses": {
+    "description": "Localized text for openSourceLicenses."
+  },
+  "openStore": "Store ဖွင့်မည်",
+  "@openStore": {
+    "description": "Localized text for openStore."
+  },
+  "others": "အခြား",
+  "@others": {
+    "description": "Localized text for others."
+  },
+  "pageNotFound": "စာမျက်နှာ မတွေ့ပါ",
+  "@pageNotFound": {
+    "description": "Localized text for pageNotFound."
+  },
+  "preferShanYear": "ရှမ်းနှစ်ကို ဦးစားပေးမည်",
+  "@preferShanYear": {
+    "description": "Localized text for preferShanYear."
+  },
+  "preferShanYearDescription": "ရှမ်းဘာသာတွင် မြန်မာနှစ်အစား ရှမ်းနှစ်ကို ပြသမည်",
+  "@preferShanYearDescription": {
+    "description": "Localized text for preferShanYearDescription."
+  },
+  "previous_month": "ယခင်လ",
+  "@previous_month": {
+    "description": "Previous Month label"
+  },
+  "privacyAndData": "ကိုယ်ရေးကိုယ်တာ နှင့် ဒေတာ",
+  "@privacyAndData": {
+    "description": "Localized text for privacyAndData."
+  },
+  "privacyDataUsageDescription": "ဤဒေတာကို app တိုးတက်စေရန်သာ အသုံးပြုပြီး တတိယပါတီများနှင့် မမျှဝေပါ။",
+  "@privacyDataUsageDescription": {
+    "description": "Localized text for privacyDataUsageDescription."
+  },
+  "privacyPolicy": "ကိုယ်ရေးကိုယ်တာ မူဝါဒ",
+  "@privacyPolicy": {
+    "description": "Localized text for privacyPolicy."
+  },
+  "privacyPolicyContentHint": "App privacy နှင့် policy အကြောင်းအရာများကို ဤနေရာတွင် ပြသမည်။",
+  "@privacyPolicyContentHint": {
+    "description": "Localized text for privacyPolicyContentHint."
+  },
+  "promoDataClearedRestartApp": "Promo data ဖျက်ပြီးပါပြီ။ Onboarding ပြန်မြင်ရန် app ကို restart လုပ်ပါ။",
+  "@promoDataClearedRestartApp": {
+    "description": "Localized text for promoDataClearedRestartApp."
+  },
+  "releaseNotes": "ပြောင်းလဲမှု မှတ်စုများ",
+  "@releaseNotes": {
+    "description": "Localized text for releaseNotes."
+  },
+  "reset": "ပြန်သတ်မှတ်မည်",
+  "@reset": {
+    "description": "Localized text for reset."
+  },
+  "resetAllSettings": "ဆက်တင်အားလုံး ပြန်လည်သတ်မှတ်မည်",
+  "@resetAllSettings": {
+    "description": "Localized text for resetAllSettings."
+  },
+  "resetOnboardingAnnouncements": "Onboarding နှင့် ကြေညာချက်များ ပြန်လည်စတင်ရန်",
+  "@resetOnboardingAnnouncements": {
+    "description": "Localized text for resetOnboardingAnnouncements."
+  },
+  "resetSettingsConfirmation": "ဆက်တင်အားလုံးကို မူလတန်ဖိုးများသို့ ပြန်ထားမည်။ ဤလုပ်ဆောင်ချက်ကို နောက်ပြန်မဆုတ်နိုင်ပါ။",
+  "@resetSettingsConfirmation": {
+    "description": "Localized text for resetSettingsConfirmation."
+  },
+  "resetSettingsQuestion": "ဆက်တင်များ ပြန်သတ်မှတ်မလား?",
+  "@resetSettingsQuestion": {
+    "description": "Localized text for resetSettingsQuestion."
+  },
+  "retry": "ပြန်ကြိုးစားမည်",
+  "@retry": {
+    "description": "Localized text for retry."
+  },
+  "sasanaYearType": "သာသနာနှစ် အမျိုးအစား",
+  "@sasanaYearType": {
+    "description": "Localized text for sasanaYearType."
+  },
+  "sasana_year": "သာသနာနှစ်",
+  "@sasana_year": {
+    "description": "Sasana Year label"
+  },
+  "save": "သိမ်းမည်",
+  "@save": {
+    "description": "Localized text for save."
+  },
+  "sendCrashReportsToHelpFixIssues": "ပြဿနာများ ပြင်ဆင်နိုင်ရန် crash reports ပို့ပါ",
+  "@sendCrashReportsToHelpFixIssues": {
+    "description": "Localized text for sendCrashReportsToHelpFixIssues."
+  },
+  "settings": "ဆက်တင်များ",
+  "@settings": {
+    "description": "Settings label"
+  },
+  "settingsResetSuccessfully": "ဆက်တင်များ ပြန်သတ်မှတ်ပြီးပါပြီ",
+  "@settingsResetSuccessfully": {
+    "description": "Localized text for settingsResetSuccessfully."
+  },
+  "showAnniversaryDays": "နှစ်ပတ်လည်နေ့များ ပြ",
+  "@showAnniversaryDays": {
+    "description": "Localized text for showAnniversaryDays."
+  },
+  "showAstrology": "နက္ခတ်ဗေဒ ပြ",
+  "@showAstrology": {
+    "description": "Localized text for showAstrology."
+  },
+  "showHolidays": "ရုံးပိတ်ရက်များ ပြ",
+  "@showHolidays": {
+    "description": "Localized text for showHolidays."
+  },
+  "showMyanmarDates": "မြန်မာ ရက်စွဲ ပြ",
+  "@showMyanmarDates": {
+    "description": "Localized text for showMyanmarDates."
+  },
+  "showSabbath": "ဥပုသ် ပြ",
+  "@showSabbath": {
+    "description": "Localized text for showSabbath."
+  },
+  "showWesternDates": "အနောက်တိုင်း ရက်စွဲ ပြ",
+  "@showWesternDates": {
+    "description": "Localized text for showWesternDates."
+  },
+  "special_days": "အထူးနေ့များ",
+  "@special_days": {
+    "description": "Special Days label"
+  },
+  "system": "စနစ်အတိုင်း",
+  "@system": {
+    "description": "Localized text for system."
+  },
+  "telegramUserLabel": "TG: {userName}",
+  "@telegramUserLabel": {
+    "description": "Localized text for telegramUserLabel.",
+    "placeholders": {
+      "userName": {}
+    }
+  },
+  "themeMode": "Theme မုဒ်",
+  "@themeMode": {
+    "description": "Localized text for themeMode."
+  },
+  "theme_preset": "ကြိုတင်သတ်မှတ်ထားသည့် အပြင်အဆင်များ",
+  "@theme_preset": {
+    "description": "Theme Preset label"
+  },
+  "timezoneOffset": "အချိန်ဇုန် ကွာဟချက်",
+  "@timezoneOffset": {
+    "description": "Localized text for timezoneOffset."
+  },
+  "timezoneOffsetExample": "ဥပမာ - မြန်မာစံတော်ချိန် (UTC+6:30) အတွက် 6.5",
+  "@timezoneOffsetExample": {
+    "description": "Localized text for timezoneOffsetExample."
+  },
+  "today": "ယနေ့",
+  "@today": {
+    "description": "Today label"
+  },
+  "typeValue": "အမျိုးအစား {value}",
+  "@typeValue": {
+    "description": "Localized text for typeValue.",
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "unableToOpenUpdatePage": "အပ်ဒိတ် စာမျက်နှာကို မဖွင့်နိုင်ပါ။",
+  "@unableToOpenUpdatePage": {
+    "description": "Localized text for unableToOpenUpdatePage."
+  },
+  "unknown": "မသိရှိ",
+  "@unknown": {
+    "description": "Localized text for unknown."
+  },
+  "unsupportedPlatform": "မထောက်ပံ့သော ပလက်ဖောင်း",
+  "@unsupportedPlatform": {
+    "description": "Localized text for unsupportedPlatform."
+  },
+  "upToDate": "နောက်ဆုံးဗားရှင်း ဖြစ်သည်",
+  "@upToDate": {
+    "description": "Localized text for upToDate."
+  },
+  "update": "အပ်ဒိတ်",
+  "@update": {
+    "description": "Localized text for update."
+  },
+  "updateAvailable": "အပ်ဒိတ် ရနိုင်သည်",
+  "@updateAvailable": {
+    "description": "Localized text for updateAvailable."
+  },
+  "updateCheckDisabled": "အပ်ဒိတ် စစ်ဆေးမှု ပိတ်ထားသည်",
+  "@updateCheckDisabled": {
+    "description": "Localized text for updateCheckDisabled."
+  },
+  "updateNow": "ယခု အပ်ဒိတ်လုပ်မည်",
+  "@updateNow": {
+    "description": "Localized text for updateNow."
+  },
+  "updateRequired": "အပ်ဒိတ် လိုအပ်သည်",
+  "@updateRequired": {
+    "description": "Localized text for updateRequired."
+  },
+  "updated": "အပ်ဒိတ်လုပ်ပြီး",
+  "@updated": {
+    "description": "Localized text for updated."
+  },
+  "useCurrentRemoteConfigValues": "လက်ရှိ remote config တန်ဖိုးများကို သုံးမည်",
+  "@useCurrentRemoteConfigValues": {
+    "description": "Localized text for useCurrentRemoteConfigValues."
+  },
+  "versionLabel": "ဗားရှင်း {version}",
+  "@versionLabel": {
+    "description": "Localized text for versionLabel.",
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "viewAllLicenses": "လိုင်စင်အားလုံးကို ကြည့်ရန်",
+  "@viewAllLicenses": {
+    "description": "Localized text for viewAllLicenses."
+  },
+  "viewPrivacyPolicy": "ကိုယ်ရေးကိုယ်တာ မူဝါဒကို ကြည့်ရန်",
+  "@viewPrivacyPolicy": {
+    "description": "Localized text for viewPrivacyPolicy."
+  },
+  "views": "အမြင်များ",
+  "@views": {
+    "description": "Views label"
+  },
+  "week_view": "ရက်သတ္တပတ်မြင်ကွင်း",
+  "@week_view": {
+    "description": "Week View label"
+  },
+  "weekday": "အပတ်စဉ်",
+  "@weekday": {
+    "description": "Weekday label"
+  },
+  "widgetSettings": "ဝစ်ဂျက် ဆက်တင်များ",
+  "@widgetSettings": {
+    "description": "Localized text for widgetSettings."
+  },
+  "year": "နှစ်",
+  "@year": {
+    "description": "Year label"
+  },
+  "year_name": "နှစ်အမည်",
+  "@year_name": {
+    "description": "Year name label"
+  },
+  "year_view": "နှစ်မြင်ကွင်း",
+  "@year_view": {
+    "description": "Year View label"
+  }
 }

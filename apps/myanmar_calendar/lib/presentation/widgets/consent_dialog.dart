@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:settings/settings.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 void showConsentDialog(BuildContext context, SettingsBloc settingsBloc) {
+  final l10n = AppLocalizations.of(context);
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (dialogContext) => AlertDialog(
       icon: Icon(Icons.privacy_tip_outlined, size: 32),
-      title: const Text('Help Us Improve'),
-      content: const Text(
-        'Myanmar Calendar would like to collect analytics and '
-        'crash reports to help improve your experience. '
-        'This data is never shared with third parties. '
-        '\n\nYou can change these settings anytime in Settings > Privacy & Data.',
+      title: Text(l10n?.helpUsImprove ?? 'Help Us Improve'),
+      content: Text(
+        l10n?.consentDialogDescription ??
+            'Myanmar Calendar would like to collect analytics and crash reports to help improve your experience. This data is never shared with third parties.\n\nYou can change these settings anytime in Settings > Privacy & Data.',
       ),
       actions: [
         TextButton(
@@ -28,15 +28,16 @@ void showConsentDialog(BuildContext context, SettingsBloc settingsBloc) {
 
             // Show confirmation
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
+              SnackBar(
                 content: Text(
-                  'Analytics disabled. You can change this in Settings.',
+                  l10n?.analyticsDisabledChangeInSettings ??
+                      'Analytics disabled. You can change this in Settings.',
                 ),
                 behavior: SnackBarBehavior.floating,
               ),
             );
           },
-          child: const Text('Disable All'),
+          child: Text(l10n?.disableAll ?? 'Disable All'),
         ),
         FilledButton(
           onPressed: () {
@@ -47,15 +48,16 @@ void showConsentDialog(BuildContext context, SettingsBloc settingsBloc) {
 
             // Show confirmation
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
+              SnackBar(
                 content: Text(
-                  'Thank you! Analytics enabled. You can change this in Settings.',
+                  l10n?.analyticsEnabledChangeInSettings ??
+                      'Thank you! Analytics enabled. You can change this in Settings.',
                 ),
                 behavior: SnackBarBehavior.floating,
               ),
             );
           },
-          child: const Text('Enable All'),
+          child: Text(l10n?.enableAll ?? 'Enable All'),
         ),
       ],
     ),

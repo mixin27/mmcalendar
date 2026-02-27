@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 /// Loading View
 class LoadingView extends StatelessWidget {
@@ -6,13 +7,14 @@ class LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context);
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Loading settings...'),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Text(l10n?.loadingSettings ?? 'Loading settings...'),
         ],
       ),
     );
@@ -28,6 +30,7 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Center(
@@ -50,7 +53,7 @@ class ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Error Loading Settings',
+              l10n?.errorLoadingSettings ?? 'Error Loading Settings',
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
@@ -65,7 +68,7 @@ class ErrorView extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(l10n?.retry ?? 'Retry'),
             ),
           ],
         ),

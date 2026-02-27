@@ -33,6 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -54,7 +55,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                AppLocalizations.of(context)?.settings ?? 'Settings',
+                l10n?.settings ?? 'Settings',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               background: Container(
@@ -79,7 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                SectionHeader(title: 'General'),
+                SectionHeader(title: l10n?.general ?? 'General'),
                 BlocBuilder<SettingsBloc, SettingsState>(
                   builder: (context, state) {
                     final settings = state is SettingsLoaded
@@ -87,9 +88,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         : null;
                     final themeMode = settings?.themeMode ?? ThemeMode.system;
                     return SettingsListTile(
-                      title:
-                          AppLocalizations.of(context)?.appearance ??
-                          'Appearance',
+                      title: l10n?.appearance ?? 'Appearance',
                       trailing: themeMode.name.capitalize,
                       icon: Icons.palette_outlined,
                       onTap: () => GoRouter.of(
@@ -104,13 +103,15 @@ class _SettingsPageState extends State<SettingsPage> {
                         ? state.settings
                         : null;
                     final language = settings?.appLanguage ?? 'en';
+                    final appLanguageName = language == 'en'
+                        ? (l10n?.english ?? 'English')
+                        : (l10n?.myanmar ?? 'Myanmar');
                     final calendarLanguage =
                         settings?.calendarLanguage.name.capitalize ?? 'English';
 
                     return SettingsListTile(
-                      title:
-                          AppLocalizations.of(context)?.language ?? 'Language',
-                      trailing: '$language / $calendarLanguage',
+                      title: l10n?.language ?? 'Language',
+                      trailing: '$appLanguageName / $calendarLanguage',
                       icon: Icons.language_outlined,
                       onTap: () => GoRouter.of(
                         context,
@@ -120,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
 
                 // Calendar section
-                SectionHeader(title: 'Calendar'),
+                SectionHeader(title: l10n?.calendar ?? 'Calendar'),
                 BlocBuilder<SettingsBloc, SettingsState>(
                   builder: (context, state) {
                     final settings = state is SettingsLoaded
@@ -132,9 +133,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                     return SettingsListTile(
                       title:
-                          AppLocalizations.of(
-                            context,
-                          )?.calendar_configuration ??
+                          l10n?.calendar_configuration ??
                           'Calendar Configuration',
                       trailing: 'tz: $timezoneOffset',
                       icon: Icons.edit_calendar,
@@ -145,9 +144,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
                 SettingsListTile(
-                  title:
-                      AppLocalizations.of(context)?.display_preferences ??
-                      'Display Preferences',
+                  title: l10n?.display_preferences ?? 'Display Preferences',
                   trailing: '',
                   icon: Icons.display_settings_outlined,
                   onTap: () => GoRouter.of(
@@ -159,9 +156,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 // in ios
                 // Home Screen Widget Section
                 if (!kIsWeb && Platform.isAndroid) ...[
-                  SectionHeader(title: 'Home Widgets'),
+                  SectionHeader(title: l10n?.homeWidgets ?? 'Home Widgets'),
                   SettingsListTile(
-                    title: 'Widget Settings',
+                    title: l10n?.widgetSettings ?? 'Widget Settings',
                     trailing: '',
                     icon: Icons.widgets_outlined,
                     onTap: () => GoRouter.of(
@@ -170,9 +167,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ],
 
-                SectionHeader(title: 'Others'),
+                SectionHeader(title: l10n?.others ?? 'Others'),
                 SettingsListTile(
-                  title: 'Privacy & Data',
+                  title: l10n?.privacyAndData ?? 'Privacy & Data',
                   trailing: '',
                   icon: Icons.analytics_outlined,
                   onTap: () => GoRouter.of(
@@ -180,7 +177,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ).go('/settings/${RoutePaths.privacyAndData}'),
                 ),
                 SettingsListTile(
-                  title: 'App Updates',
+                  title: l10n?.appUpdates ?? 'App Updates',
                   trailing: '',
                   icon: Icons.system_update_alt_outlined,
                   onTap: () => GoRouter.of(
@@ -188,7 +185,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ).go('/settings/${RoutePaths.appUpdate}'),
                 ),
                 SettingsListTile(
-                  title: 'About',
+                  title: l10n?.about ?? 'About',
                   trailing: '',
                   icon: Icons.info_outline,
                   onTap: () =>

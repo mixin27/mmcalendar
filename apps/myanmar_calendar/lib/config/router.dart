@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:mmcalendar/src/build_number.dart';
 import 'package:settings/settings.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:views/views.dart';
 
 import '../presentation/pages/consent_page.dart';
@@ -243,9 +244,15 @@ final GoRouter router = GoRouter(
                   routes: [
                     GoRoute(
                       path: RoutePaths.privacyPolicy,
-                      builder: (context, state) => const PrivacyPolicyPage(
-                        title: "Privacy policy",
-                        message: "App privacy & policy contents will be here.",
+                      builder: (context, state) => PrivacyPolicyPage(
+                        title:
+                            AppLocalizations.of(context)?.privacyPolicy ??
+                            'Privacy policy',
+                        message:
+                            AppLocalizations.of(
+                              context,
+                            )?.privacyPolicyContentHint ??
+                            'App privacy & policy contents will be here.',
                       ),
                     ),
                   ],
@@ -267,27 +274,39 @@ final GoRouter router = GoRouter(
   ],
 
   // Error handling
-  errorBuilder: (context, state) => Scaffold(
-    appBar: AppBar(title: const Text('Error')),
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.red),
-          const SizedBox(height: 16),
-          Text(
-            'Page not found',
-            style: Theme.of(context).textTheme.headlineSmall,
+  errorBuilder: (context, state) {
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n?.errorTitle ?? 'Error')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                l10n?.pageNotFound ?? 'Page not found',
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                state.error.toString(),
+                textAlign: TextAlign.center,
+                maxLines: 5,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => context.go(RoutePaths.home),
+                child: Text(l10n?.goToHome ?? 'Go to Home'),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(state.error.toString()),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => context.go(RoutePaths.home),
-            child: const Text('Go to Home'),
-          ),
-        ],
+        ),
       ),
-    ),
-  ),
+    );
+  },
 );

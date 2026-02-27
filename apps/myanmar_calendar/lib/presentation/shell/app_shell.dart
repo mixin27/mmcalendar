@@ -63,8 +63,15 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: userName != null ? AppBar(title: Text('TG: $userName')) : null,
+      appBar: userName != null
+          ? AppBar(
+              title: Text(
+                l10n?.telegramUserLabel(userName!) ?? 'TG: $userName',
+              ),
+            )
+          : null,
       body: body,
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
@@ -72,27 +79,27 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
           NavigationDestination(
             icon: const Icon(Icons.calendar_today_outlined),
             selectedIcon: const Icon(Icons.calendar_today),
-            label: AppLocalizations.of(context)?.home ?? "Home",
+            label: l10n?.home ?? "Home",
           ),
           NavigationDestination(
             icon: const Icon(Icons.view_module_outlined),
             selectedIcon: const Icon(Icons.view_module),
-            label: AppLocalizations.of(context)?.views ?? 'Views',
+            label: l10n?.views ?? 'Views',
           ),
           NavigationDestination(
             icon: const Icon(Icons.sync_alt_outlined),
             selectedIcon: const Icon(Icons.sync_alt),
-            label: AppLocalizations.of(context)?.converter ?? 'Converter',
+            label: l10n?.converter ?? 'Converter',
           ),
           NavigationDestination(
             icon: const Icon(Icons.event_outlined),
             selectedIcon: const Icon(Icons.event),
-            label: AppLocalizations.of(context)?.events ?? 'Events',
+            label: l10n?.events ?? 'Events',
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),
             selectedIcon: const Icon(Icons.settings),
-            label: AppLocalizations.of(context)?.settings ?? 'Settings',
+            label: l10n?.settings ?? 'Settings',
           ),
         ],
         onDestinationSelected: onDestinationSelected,
@@ -119,8 +126,15 @@ class ScaffoldWithNavigationRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: userName != null ? AppBar(title: Text('TG: $userName')) : null,
+      appBar: userName != null
+          ? AppBar(
+              title: Text(
+                l10n?.telegramUserLabel(userName!) ?? 'TG: $userName',
+              ),
+            )
+          : null,
       body: Row(
         children: [
           NavigationRail(
@@ -149,8 +163,10 @@ class ScaffoldWithNavigationRail extends StatelessWidget {
                 if (extended) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Myanmar Calendar',
+                    l10n?.myanmarCalendar ?? 'Myanmar Calendar',
                     style: Theme.of(context).textTheme.bodyLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
                 // FloatingActionButton(
@@ -165,31 +181,27 @@ class ScaffoldWithNavigationRail extends StatelessWidget {
               NavigationRailDestination(
                 icon: const Icon(Icons.calendar_today_outlined),
                 selectedIcon: const Icon(Icons.calendar_today),
-                label: Text(AppLocalizations.of(context)?.home ?? "Home"),
+                label: Text(l10n?.home ?? "Home"),
               ),
               NavigationRailDestination(
                 icon: const Icon(Icons.view_module_outlined),
                 selectedIcon: const Icon(Icons.view_module),
-                label: Text(AppLocalizations.of(context)?.views ?? 'Views'),
+                label: Text(l10n?.views ?? 'Views'),
               ),
               NavigationRailDestination(
                 icon: const Icon(Icons.sync_alt_outlined),
                 selectedIcon: const Icon(Icons.sync_alt),
-                label: Text(
-                  AppLocalizations.of(context)?.converter ?? 'Converter',
-                ),
+                label: Text(l10n?.converter ?? 'Converter'),
               ),
               NavigationRailDestination(
                 icon: const Icon(Icons.event_outlined),
                 selectedIcon: const Icon(Icons.event),
-                label: Text(AppLocalizations.of(context)?.events ?? 'Events'),
+                label: Text(l10n?.events ?? 'Events'),
               ),
               NavigationRailDestination(
                 icon: const Icon(Icons.settings_outlined),
                 selectedIcon: const Icon(Icons.settings),
-                label: Text(
-                  AppLocalizations.of(context)?.settings ?? 'Settings',
-                ),
+                label: Text(l10n?.settings ?? 'Settings'),
               ),
             ],
           ),

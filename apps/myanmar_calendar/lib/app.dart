@@ -125,6 +125,19 @@ class _AppContentState extends State<_AppContent> {
           ],
           supportedLocales: AppLocalizations.supportedLocales,
           locale: locale,
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            final width = mediaQuery.size.width;
+            final maxTextScale = width < 360 ? 1.15 : 1.3;
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                textScaler: mediaQuery.textScaler.clamp(
+                  maxScaleFactor: maxTextScale,
+                ),
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
           routerConfig: router,
         );
       },

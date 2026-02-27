@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 import '../widgets/settings_widgets.dart';
 import '../widgets/snackbar.dart';
@@ -30,6 +31,7 @@ class _SettingsPrivacyDataPageState extends State<SettingsPrivacyDataPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -50,7 +52,7 @@ class _SettingsPrivacyDataPageState extends State<SettingsPrivacyDataPage> {
             ),
             const SizedBox(width: 8),
             Text(
-              'Privacy & Data',
+              l10n?.privacyAndData ?? 'Privacy & Data',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
@@ -99,12 +101,15 @@ class _SettingsPrivacyDataContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       child: Column(
         children: [
           AnimatedSwitchTile(
-            title: 'Analytics',
-            subtitle: 'Help improve the app by sharing usage analytics',
+            title: l10n?.analytics ?? 'Analytics',
+            subtitle:
+                l10n?.helpImproveBySharingAnalytics ??
+                'Help improve the app by sharing usage analytics',
             icon: Icons.analytics_outlined,
             iconColor: Colors.blue,
             value: settings.enableAnalytics,
@@ -114,8 +119,10 @@ class _SettingsPrivacyDataContent extends StatelessWidget {
             },
           ),
           AnimatedSwitchTile(
-            title: 'Crash Reports',
-            subtitle: 'Send crash reports to help fix issues',
+            title: l10n?.crashReports ?? 'Crash Reports',
+            subtitle:
+                l10n?.sendCrashReportsToHelpFixIssues ??
+                'Send crash reports to help fix issues',
             icon: Icons.bug_report_outlined,
             iconColor: Colors.orange,
             value: settings.enableCrashlytics,
@@ -134,7 +141,8 @@ class _SettingsPrivacyDataContent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'This data is used only for app improvement and is never shared with third parties.',
+                l10n?.privacyDataUsageDescription ??
+                    'This data is used only for app improvement and is never shared with third parties.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),

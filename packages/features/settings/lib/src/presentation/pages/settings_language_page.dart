@@ -99,17 +99,20 @@ class _SettingsLanguageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       child: Column(
         children: [
           SettingsTile(
-            title: 'App Language',
-            subtitle: settings.appLanguage == 'en' ? 'English' : 'Myanmar',
+            title: l10n?.appLanguage ?? 'App Language',
+            subtitle: settings.appLanguage == 'en'
+                ? (l10n?.english ?? 'English')
+                : (l10n?.myanmar ?? 'Myanmar'),
             leading: const Icon(Icons.translate),
             onTap: () => _showAppLanguageDialog(context, settings),
           ),
           SettingsTile(
-            title: 'Calendar Language',
+            title: l10n?.calendarLanguage ?? 'Calendar Language',
             subtitle: settings.calendarLanguage.name.capitalize,
             leading: const Icon(Icons.calendar_today),
             onTap: () => _showCalendarLanguageDialog(context, settings),
@@ -123,17 +126,18 @@ class _SettingsLanguageContent extends StatelessWidget {
     BuildContext context,
     AppSettingsEntity settings,
   ) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (dialogContext) => EnhancedDialog(
-        title: 'App Language',
+        title: l10n?.appLanguage ?? 'App Language',
         icon: Icons.translate,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioOption<String>(
-              title: 'English',
-              subtitle: 'Display app in English',
+              title: l10n?.english ?? 'English',
+              subtitle: l10n?.displayAppInEnglish ?? 'Display app in English',
               icon: Icons.language,
               value: 'en',
               groupValue: settings.appLanguage,
@@ -143,8 +147,8 @@ class _SettingsLanguageContent extends StatelessWidget {
               },
             ),
             RadioOption<String>(
-              title: 'Myanmar',
-              subtitle: 'Display app in Myanmar',
+              title: l10n?.myanmar ?? 'Myanmar',
+              subtitle: l10n?.displayAppInMyanmar ?? 'Display app in Myanmar',
               icon: Icons.language,
               value: 'my',
               groupValue: settings.appLanguage,
@@ -163,10 +167,11 @@ class _SettingsLanguageContent extends StatelessWidget {
     BuildContext context,
     AppSettingsEntity settings,
   ) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (dialogContext) => EnhancedDialog(
-        title: 'Calendar Language',
+        title: l10n?.calendarLanguage ?? 'Calendar Language',
         icon: Icons.calendar_today,
         child: SingleChildScrollView(
           child: Column(
@@ -174,7 +179,9 @@ class _SettingsLanguageContent extends StatelessWidget {
             children: Language.values.map((language) {
               return RadioOption<Language>(
                 title: language.name.capitalize,
-                subtitle: 'Display calendar in ${language.name}',
+                subtitle:
+                    l10n?.displayCalendarIn(language.name.capitalize) ??
+                    'Display calendar in ${language.name}',
                 icon: Icons.calendar_month,
                 value: language,
                 groupValue: settings.calendarLanguage,

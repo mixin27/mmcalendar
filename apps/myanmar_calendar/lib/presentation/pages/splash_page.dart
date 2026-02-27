@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:settings/settings.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 /// Splash screen shown during app initialization
 ///
@@ -133,6 +134,7 @@ class _SplashPageState extends State<SplashPage>
     AppUpdateInfo initialInfo,
   ) async {
     var updateInfo = initialInfo;
+    final l10n = AppLocalizations.of(context);
 
     await showDialog<void>(
       context: context,
@@ -169,7 +171,7 @@ class _SplashPageState extends State<SplashPage>
                         updateInfo = refreshedInfo;
                       });
                     },
-                    child: const Text('Check Again'),
+                    child: Text(l10n?.checkAgain ?? 'Check Again'),
                   ),
                   FilledButton(
                     onPressed: () async {
@@ -180,9 +182,12 @@ class _SplashPageState extends State<SplashPage>
                         return;
                       }
 
-                      _showStatusSnackBar('Unable to open the update page.');
+                      _showStatusSnackBar(
+                        l10n?.unableToOpenUpdatePage ??
+                            'Unable to open the update page.',
+                      );
                     },
-                    child: const Text('Update Now'),
+                    child: Text(l10n?.updateNow ?? 'Update Now'),
                   ),
                 ],
               );
@@ -194,19 +199,23 @@ class _SplashPageState extends State<SplashPage>
   }
 
   void _showErrorDialog(String error) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Initialization Error'),
-        content: Text('Failed to initialize the app:\n\n$error'),
+        title: Text(l10n?.initializationErrorTitle ?? 'Initialization Error'),
+        content: Text(
+          l10n?.failedToInitializeApp(error) ??
+              'Failed to initialize the app:\n\n$error',
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _initializeApp(); // Retry
             },
-            child: const Text('Retry'),
+            child: Text(l10n?.retry ?? 'Retry'),
           ),
         ],
       ),
@@ -318,7 +327,7 @@ class _SplashPageState extends State<SplashPage>
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Text(
-                    'Loading...',
+                    AppLocalizations.of(context)?.loading ?? 'Loading...',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
@@ -333,7 +342,10 @@ class _SplashPageState extends State<SplashPage>
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: Text(
-                      'Version ${AppConstants.appVersion}',
+                      AppLocalizations.of(
+                            context,
+                          )?.versionLabel(AppConstants.appVersion) ??
+                          'Version ${AppConstants.appVersion}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(
                           alpha: 0.5,
