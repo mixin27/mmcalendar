@@ -2,19 +2,30 @@ import 'package:shared_core/shared_core.dart' show RoutePaths;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../domain/entities/event.dart';
 import '../bloc/user_events_bloc.dart';
 import '../bloc/user_events_event.dart';
 
+/// Animated, lightweight list row for events.
+/// Kept as `AnimatedEventCard` to avoid broad API changes in callers.
 class AnimatedEventCard extends StatefulWidget {
   final Event event;
   final Duration delay;
+  final VoidCallback? onTap;
+  final bool showTimeline;
+  final bool isFirst;
+  final bool isLast;
 
   const AnimatedEventCard({
     super.key,
     required this.event,
     this.delay = Duration.zero,
+    this.onTap,
+    this.showTimeline = false,
+    this.isFirst = false,
+    this.isLast = false,
   });
 
   @override
@@ -23,251 +34,222 @@ class AnimatedEventCard extends StatefulWidget {
 
 class _AnimatedEventCardState extends State<AnimatedEventCard>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _fadeAnimation;
-  bool _isPressed = false;
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 320),
       vsync: this,
     );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutCubic,
+    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.9,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-
-    Future.delayed(widget.delay, () {
-      if (mounted) {
-        _controller.forward();
-      }
-    });
+    if (widget.delay == Duration.zero) {
+      _animationController.forward();
+    } else {
+      Future.delayed(widget.delay, () {
+        if (mounted) {
+          _animationController.forward();
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final x = _isPressed ? 0.98 : 1.0;
+    final colorScheme = Theme.of(context).colorScheme;
+    final event = widget.event;
+    final eventColor = Color(event.effectiveColor);
+    final isCompleted = event.isCompleted;
+    final showOverdue = event.isOverdue && !isCompleted;
 
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: GestureDetector(
-          onTapDown: (_) => setState(() => _isPressed = true),
-          onTapUp: (_) => setState(() => _isPressed = false),
-          onTapCancel: () => setState(() => _isPressed = false),
-          onTap: () {
-            if (!widget.event.isCompleted && widget.event.id != null) {
-              context.push(RoutePaths.eventsDetail(widget.event.id!));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Event marked as completed")),
-              );
-            }
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            margin: const EdgeInsets.only(bottom: 12),
-            transform: Matrix4.identity()..scaleByDouble(x, x, x, 1.0),
-            child: Card(
-              elevation: _isPressed ? 1 : 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: Color(
-                    widget.event.effectiveColor,
-                  ).withValues(alpha: 0.3),
-                  width: 1.5,
-                ),
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [eventColor.withValues(alpha: 0.08), Colors.transparent],
+            ),
+            border: Border(
+              bottom: BorderSide(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.45),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    // gradient: LinearGradient(
-                    //   begin: Alignment.topLeft,
-                    //   end: Alignment.bottomRight,
-                    //   colors: [
-                    //     Theme.of(context).colorScheme.surface,
-                    //     Color(
-                    //       widget.event.effectiveColor,
-                    //     ).withValues(alpha: 0.03),
-                    //   ],
-                    // ),
-                  ),
-                  child: Row(
-                    children: [
-                      // Color indicator bar
-                      Container(
-                        width: 6,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(widget.event.effectiveColor),
-                              Color(
-                                widget.event.effectiveColor,
-                              ).withValues(alpha: 0.6),
-                            ],
+            ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: widget.onTap ?? () => _openDetail(context, event),
+              onLongPress: () => _showActions(context, event),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 12, 4, 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 74,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _timeLabel(event),
+                            style: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: isCompleted
+                                      ? colorScheme.onSurfaceVariant
+                                      : colorScheme.onSurface,
+                                ),
                           ),
-                        ),
+                          const SizedBox(height: 2),
+                          Text(
+                            DateFormat('EEE, MMM d').format(event.eventDate),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: colorScheme.onSurfaceVariant),
+                          ),
+                        ],
                       ),
-
-                      // Main content
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                    const SizedBox(width: 10),
+                    _buildTimelineDot(eventColor),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              // Title row with checkbox
-                              Row(
-                                children: [
-                                  // Custom animated checkbox
-                                  _AnimatedCheckbox(
-                                    value: widget.event.isCompleted,
-                                    color: Color(widget.event.effectiveColor),
-                                    onChanged: (checked) {
-                                      if (widget.event.id != null) {
-                                        context.read<UserEventsBloc>().add(
-                                          ToggleEventComplete(
-                                            widget.event.id!,
-                                            checked ?? false,
-                                          ),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(width: 12),
-
-                                  // Title
-                                  Expanded(
-                                    child: Text(
-                                      widget.event.title,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            decoration: widget.event.isCompleted
-                                                ? TextDecoration.lineThrough
-                                                : null,
-                                            color: widget.event.isCompleted
-                                                ? Colors.grey
-                                                : null,
-                                          ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-
-                                  // Priority badge
-                                  if (widget.event.priority ==
-                                          EventPriority.high ||
-                                      widget.event.priority ==
-                                          EventPriority.urgent)
-                                    Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            widget.event.priority ==
-                                                EventPriority.urgent
-                                            ? Colors.red.withValues(alpha: 0.2)
-                                            : Colors.orange.withValues(
-                                                alpha: 0.2,
-                                              ),
-                                        shape: BoxShape.circle,
+                              Expanded(
+                                child: Text(
+                                  event.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        decoration: isCompleted
+                                            ? TextDecoration.lineThrough
+                                            : null,
+                                        color: isCompleted
+                                            ? colorScheme.onSurfaceVariant
+                                            : colorScheme.onSurface,
                                       ),
-                                      child: Icon(
-                                        Icons.priority_high,
-                                        size: 16,
-                                        color:
-                                            widget.event.priority ==
-                                                EventPriority.urgent
-                                            ? Colors.red
-                                            : Colors.orange,
-                                      ),
-                                    ),
-                                ],
+                                ),
                               ),
-
-                              const SizedBox(height: 12),
-
-                              // Event details
-                              Wrap(
-                                spacing: 12,
-                                runSpacing: 8,
-                                children: [
-                                  // Time
-                                  _buildInfoChip(
-                                    icon: widget.event.isAllDay
-                                        ? Icons.event
-                                        : Icons.access_time,
-                                    label: _formatEventTime(),
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-
-                                  // Category
-                                  _buildInfoChip(
-                                    icon: _getCategoryIcon(),
-                                    label: widget.event.category.name,
-                                    color: Color(
-                                      widget.event.category.colorCode,
-                                    ),
-                                  ),
-
-                                  // Location
-                                  if (widget.event.location != null &&
-                                      widget.event.location!.isNotEmpty)
-                                    _buildInfoChip(
-                                      icon: Icons.location_on,
-                                      label: widget.event.location!,
-                                      color: Colors.blue,
-                                    ),
-
-                                  // Recurring
-                                  if (widget.event.isRecurring)
-                                    _buildInfoChip(
-                                      icon: Icons.repeat,
-                                      label: 'Repeats',
-                                      color: Colors.purple,
-                                    ),
-
-                                  // Notifications
-                                  if (widget.event.hasNotifications)
-                                    _buildInfoChip(
-                                      icon: Icons.notifications_active,
-                                      label:
-                                          '${widget.event.notifications.length}',
-                                      color: Colors.amber.shade700,
-                                    ),
-                                ],
-                              ),
+                              if (event.isRecurring)
+                                Icon(
+                                  Icons.repeat,
+                                  size: 16,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              if (event.hasNotifications) ...[
+                                const SizedBox(width: 6),
+                                Icon(
+                                  Icons.notifications_active_outlined,
+                                  size: 16,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ],
                             ],
                           ),
-                        ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                _categoryIcon(event.category.iconName),
+                                size: 14,
+                                color: eventColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  event.category.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ),
+                              if (showOverdue)
+                                Text(
+                                  'Overdue',
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: colorScheme.error,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                            ],
+                          ),
+                          if ((event.location ?? '').isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  size: 14,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    event.location!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      onPressed: event.id == null
+                          ? null
+                          : () => _toggleComplete(context, event),
+                      tooltip: isCompleted ? 'Reopen event' : 'Mark complete',
+                      icon: Icon(
+                        isCompleted
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        color: isCompleted ? colorScheme.primary : eventColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -277,47 +259,172 @@ class _AnimatedEventCardState extends State<AnimatedEventCard>
     );
   }
 
-  Widget _buildInfoChip({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+  void _toggleComplete(BuildContext context, Event event) {
+    final eventId = event.id;
+    if (eventId == null) return;
+
+    if (event.isRecurring) {
+      if (event.isCompleted) {
+        context.read<UserEventsBloc>().add(
+          RestoreRecurringInstanceEvent(
+            masterEventId: eventId,
+            occurrenceDate: event.eventDate,
+          ),
+        );
+      } else {
+        context.read<UserEventsBloc>().add(
+          CompleteRecurringInstanceEvent(
+            masterEventId: eventId,
+            occurrenceDate: event.eventDate,
+          ),
+        );
+      }
+      return;
+    }
+
+    context.read<UserEventsBloc>().add(
+      ToggleEventComplete(eventId, !event.isCompleted),
+    );
+  }
+
+  Future<void> _openDetail(BuildContext context, Event event) async {
+    final eventId = event.id;
+    if (eventId == null) return;
+    await context.push(
+      RoutePaths.eventsDetail(eventId),
+      extra: event.eventDate,
+    );
+  }
+
+  Future<void> _showActions(BuildContext context, Event event) async {
+    final eventId = event.id;
+    if (eventId == null) return;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(
+                  event.isCompleted ? Icons.restart_alt : Icons.check_circle,
+                ),
+                title: Text(
+                  event.isCompleted ? 'Mark as pending' : 'Mark as complete',
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _toggleComplete(context, event);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('Edit event'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  context.push(RoutePaths.eventsEdit(eventId));
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text(
+                  event.isRecurring ? 'Delete this occurrence' : 'Delete event',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _confirmDelete(context, event);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, Event event) async {
+    final eventId = event.id;
+    if (eventId == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          event.isRecurring ? 'Delete this occurrence?' : 'Delete event?',
+        ),
+        content: Text(
+          event.isRecurring
+              ? 'Only this occurrence will be removed.'
+              : 'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+    );
+
+    if (confirmed == true && context.mounted) {
+      if (event.isRecurring) {
+        context.read<UserEventsBloc>().add(
+          DeleteRecurringInstanceEvent(
+            masterEventId: eventId,
+            occurrenceDate: event.eventDate,
+          ),
+        );
+      } else {
+        context.read<UserEventsBloc>().add(DeleteEventEvent(eventId));
+      }
+    }
+  }
+
+  Widget _buildTimelineDot(Color color) {
+    final lineColor = color.withValues(alpha: 0.35);
+    return SizedBox(
+      width: 14,
+      height: 48,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: color,
-              fontWeight: FontWeight.w500,
+          if (widget.showTimeline && !widget.isFirst)
+            Positioned(
+              top: 0,
+              child: Container(width: 2, height: 18, color: lineColor),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          if (widget.showTimeline && !widget.isLast)
+            Positioned(
+              bottom: 0,
+              child: Container(width: 2, height: 18, color: lineColor),
+            ),
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
         ],
       ),
     );
   }
 
-  String _formatEventTime() {
-    if (widget.event.isAllDay) {
-      return 'All day';
-    } else {
-      return TimeOfDay.fromDateTime(widget.event.eventDateTime).format(context);
-    }
+  String _timeLabel(Event event) {
+    if (event.isAllDay || event.eventTime == null) return 'All day';
+    return DateFormat.jm().format(event.eventDateTime);
   }
 
-  IconData _getCategoryIcon() {
-    switch (widget.event.category.iconName) {
+  IconData _categoryIcon(String iconName) {
+    switch (iconName) {
       case 'person':
         return Icons.person;
       case 'work':
@@ -331,93 +438,5 @@ class _AnimatedEventCardState extends State<AnimatedEventCard>
       default:
         return Icons.event;
     }
-  }
-}
-
-class _AnimatedCheckbox extends StatefulWidget {
-  final bool value;
-  final Color color;
-  final ValueChanged<bool?>? onChanged;
-
-  const _AnimatedCheckbox({
-    required this.value,
-    required this.color,
-    this.onChanged,
-  });
-
-  @override
-  State<_AnimatedCheckbox> createState() => _AnimatedCheckboxState();
-}
-
-class _AnimatedCheckboxState extends State<_AnimatedCheckbox>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-
-    if (widget.value) {
-      _controller.forward();
-    }
-  }
-
-  @override
-  void didUpdateWidget(_AnimatedCheckbox oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value) {
-      if (widget.value) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        widget.onChanged?.call(!widget.value);
-      },
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: widget.value ? widget.color : Colors.transparent,
-            border: Border.all(
-              color: widget.value ? widget.color : Colors.grey,
-              width: 2,
-            ),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: widget.value
-              ? Icon(
-                  Icons.check,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.surface,
-                )
-              : null,
-        ),
-      ),
-    );
   }
 }

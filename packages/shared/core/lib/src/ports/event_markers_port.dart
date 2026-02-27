@@ -95,5 +95,7 @@ abstract interface class EventMarkersPort {
   Future<void> toggleEventCompletion({
     required int eventId,
     required bool isCompleted,
+    bool isRecurring = false,
+    DateTime? occurrenceDate,
   });
 }

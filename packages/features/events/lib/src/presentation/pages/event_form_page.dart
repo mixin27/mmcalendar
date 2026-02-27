@@ -61,24 +61,6 @@ class _EventFormPageState extends State<EventFormPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.eventId == null ? 'New Event' : 'Edit Event'),
-        actions: [
-          BlocBuilder<EventFormBloc, EventFormState>(
-            builder: (context, state) {
-              if (state is! EventFormEditing) return const SizedBox.shrink();
-
-              return IconButton(
-                icon: const Icon(Icons.check),
-                onPressed: state.isValid
-                    ? () {
-                        context.read<EventFormBloc>().add(
-                          const SubmitEventForm(),
-                        );
-                      }
-                    : null,
-              );
-            },
-          ),
-        ],
       ),
       body: BlocConsumer<EventFormBloc, EventFormState>(
         listener: (context, state) {
@@ -111,6 +93,34 @@ class _EventFormPageState extends State<EventFormPage> {
 
           return _buildForm(state);
         },
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: BlocBuilder<EventFormBloc, EventFormState>(
+          builder: (context, state) {
+            if (state is EventFormSubmitting) {
+              return FilledButton.icon(
+                onPressed: null,
+                icon: const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                label: const Text('Saving...'),
+              );
+            }
+            if (state is! EventFormEditing) {
+              return const SizedBox.shrink();
+            }
+            return FilledButton.icon(
+              onPressed: state.isValid ? _submitForm : null,
+              icon: const Icon(Icons.check),
+              label: Text(
+                widget.eventId == null ? 'Create Event' : 'Save Changes',
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -171,67 +181,54 @@ class _EventFormPageState extends State<EventFormPage> {
           const SizedBox(height: 16),
 
           // Date and time section
-          Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Colors.grey.shade300),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Date & Time',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+          _buildSectionCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionHeader(
+                  icon: Icons.calendar_today,
+                  title: 'Date & Time',
+                ),
+                const SizedBox(height: 16),
 
-                  // Date picker
+                // Date picker
+                ListTile(
+                  leading: const Icon(Icons.event),
+                  title: const Text('Date'),
+                  subtitle: Text(
+                    DateFormat('EEEE, MMM d, yyyy').format(state.eventDate),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _selectDate(context, state.eventDate),
+                ),
+
+                // All day toggle
+                SwitchListTile(
+                  secondary: const Icon(Icons.all_inclusive),
+                  title: const Text('All day'),
+                  value: state.isAllDay,
+                  onChanged: (value) {
+                    context.read<EventFormBloc>().add(const ToggleAllDay());
+                  },
+                ),
+
+                // Time picker (if not all day)
+                if (!state.isAllDay)
                   ListTile(
-                    leading: const Icon(Icons.event),
-                    title: const Text('Date'),
+                    leading: const Icon(Icons.access_time),
+                    title: const Text('Time'),
                     subtitle: Text(
-                      DateFormat('EEEE, MMM d, yyyy').format(state.eventDate),
+                      state.eventTime != null
+                          ? TimeOfDay.fromDateTime(
+                              state.eventTime!,
+                            ).format(context)
+                          : 'Select time',
                     ),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _selectDate(context, state.eventDate),
+                    onTap: () =>
+                        _selectTime(context, state.eventTime, state.eventDate),
                   ),
-
-                  // All day toggle
-                  SwitchListTile(
-                    secondary: const Icon(Icons.all_inclusive),
-                    title: const Text('All day'),
-                    value: state.isAllDay,
-                    onChanged: (value) {
-                      context.read<EventFormBloc>().add(const ToggleAllDay());
-                    },
-                  ),
-
-                  // Time picker (if not all day)
-                  if (!state.isAllDay)
-                    ListTile(
-                      leading: const Icon(Icons.access_time),
-                      title: const Text('Time'),
-                      subtitle: Text(
-                        state.eventTime != null
-                            ? TimeOfDay.fromDateTime(
-                                state.eventTime!,
-                              ).format(context)
-                            : 'Select time',
-                      ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _selectTime(context, state.eventTime),
-                    ),
-                ],
-              ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
@@ -283,271 +280,190 @@ class _EventFormPageState extends State<EventFormPage> {
   }
 
   Widget _buildCategorySection(EventFormEditing state) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.category, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Category',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            BlocBuilder<EventCategoriesBloc, EventCategoriesState>(
-              builder: (context, categoriesState) {
-                if (categoriesState is EventCategoriesLoaded) {
-                  return Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: categoriesState.categories.map((category) {
-                      return CategoryChip(
-                        category: category,
-                        selected: category.id == state.category.id,
-                        onTap: () {
-                          context.read<EventFormBloc>().add(
-                            UpdateEventCategory(category),
-                          );
-                        },
-                      );
-                    }).toList(),
-                  );
-                }
-                return const CircularProgressIndicator();
-              },
-            ),
-          ],
-        ),
+    return _buildSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(icon: Icons.category, title: 'Category'),
+          const SizedBox(height: 12),
+          BlocBuilder<EventCategoriesBloc, EventCategoriesState>(
+            builder: (context, categoriesState) {
+              if (categoriesState is EventCategoriesLoaded) {
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: categoriesState.categories.map((category) {
+                    return CategoryChip(
+                      category: category,
+                      selected: category.id == state.category.id,
+                      onTap: () {
+                        context.read<EventFormBloc>().add(
+                          UpdateEventCategory(category),
+                        );
+                      },
+                    );
+                  }).toList(),
+                );
+              }
+              return const CircularProgressIndicator();
+            },
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildPrioritySection(EventFormEditing state) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.flag, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Priority',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: EventPriority.values.map((priority) {
-                final isSelected = priority == state.priority;
-                return FilterChip(
-                  label: Text(priority.displayName),
-                  selected: isSelected,
-                  onSelected: (_) {
-                    context.read<EventFormBloc>().add(
-                      UpdateEventPriority(priority),
-                    );
-                  },
-                );
-              }).toList(),
-            ),
-          ],
-        ),
+    return _buildSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(icon: Icons.flag, title: 'Priority'),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: EventPriority.values.map((priority) {
+              final isSelected = priority == state.priority;
+              return FilterChip(
+                label: Text(priority.displayName),
+                selected: isSelected,
+                onSelected: (_) {
+                  context.read<EventFormBloc>().add(
+                    UpdateEventPriority(priority),
+                  );
+                },
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildRecurrenceSection(EventFormEditing state) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.repeat, size: 20),
-                const SizedBox(width: 8),
-                Text('Repeat', style: Theme.of(context).textTheme.titleMedium),
-              ],
+    return _buildSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(icon: Icons.repeat, title: 'Repeat'),
+          const SizedBox(height: 12),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              state.recurrenceRule?.type.displayName ?? 'Does not repeat',
             ),
-            const SizedBox(height: 12),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(
-                state.recurrenceRule?.type.displayName ?? 'Does not repeat',
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _showRecurrencePicker(context, state.recurrenceRule),
-            ),
-          ],
-        ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _showRecurrencePicker(context, state.recurrenceRule),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildNotificationsSection(EventFormEditing state) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.notifications, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Notifications',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Add'),
-                  onPressed: () => _showNotificationPicker(context),
-                ),
-              ],
+    return _buildSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(
+            icon: Icons.notifications,
+            title: 'Notifications',
+            trailing: TextButton.icon(
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add'),
+              onPressed: () => _showNotificationPicker(context),
             ),
-            if (state.notifications.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text('No notifications'),
-              )
-            else
-              ...state.notifications.asMap().entries.map((entry) {
-                final index = entry.key;
-                final notification = entry.value;
-                return ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.alarm),
-                  title: Text(notification.displayName),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      context.read<EventFormBloc>().add(
-                        RemoveNotification(index),
-                      );
-                    },
-                  ),
-                );
-              }),
-          ],
-        ),
+          ),
+          if (state.notifications.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text('No notifications'),
+            )
+          else
+            ...state.notifications.asMap().entries.map((entry) {
+              final index = entry.key;
+              final notification = entry.value;
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.alarm),
+                title: Text(notification.displayName),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    context.read<EventFormBloc>().add(
+                      RemoveNotification(index),
+                    );
+                  },
+                ),
+              );
+            }),
+        ],
       ),
     );
   }
 
   Widget _buildTagsSection(EventFormEditing state) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.label, size: 20),
-                const SizedBox(width: 8),
-                Text('Tags', style: Theme.of(context).textTheme.titleMedium),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _tagController,
-                    decoration: const InputDecoration(
-                      hintText: 'Add tag',
-                      border: OutlineInputBorder(),
-                    ),
-                    onSubmitted: (value) {
-                      if (value.isNotEmpty) {
-                        context.read<EventFormBloc>().add(AddTag(value));
-                        _tagController.clear();
-                      }
-                    },
+    return _buildSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(icon: Icons.label, title: 'Tags'),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _tagController,
+                  decoration: const InputDecoration(
+                    hintText: 'Add tag',
+                    border: OutlineInputBorder(),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    if (_tagController.text.isNotEmpty) {
-                      context.read<EventFormBloc>().add(
-                        AddTag(_tagController.text),
-                      );
+                  onSubmitted: (value) {
+                    if (value.isNotEmpty) {
+                      context.read<EventFormBloc>().add(AddTag(value));
                       _tagController.clear();
                     }
                   },
                 ),
-              ],
-            ),
-            if (state.tags.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: state.tags.map((tag) {
-                  return Chip(
-                    label: Text(tag),
-                    deleteIcon: const Icon(Icons.close, size: 18),
-                    onDeleted: () {
-                      context.read<EventFormBloc>().add(RemoveTag(tag));
-                    },
-                  );
-                }).toList(),
+              ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  if (_tagController.text.isNotEmpty) {
+                    context.read<EventFormBloc>().add(
+                      AddTag(_tagController.text),
+                    );
+                    _tagController.clear();
+                  }
+                },
               ),
             ],
+          ),
+          if (state.tags.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: state.tags.map((tag) {
+                return Chip(
+                  label: Text(tag),
+                  deleteIcon: const Icon(Icons.close, size: 18),
+                  onDeleted: () {
+                    context.read<EventFormBloc>().add(RemoveTag(tag));
+                  },
+                );
+              }).toList(),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildColorSection(EventFormEditing state) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
+    return _buildSectionCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: Container(
           width: 40,
@@ -557,7 +473,9 @@ class _EventFormPageState extends State<EventFormPage> {
                 ? Color(state.colorCode!)
                 : Color(state.category.colorCode),
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
         ),
         title: const Text('Custom Color'),
@@ -565,6 +483,35 @@ class _EventFormPageState extends State<EventFormPage> {
         trailing: const Icon(Icons.chevron_right),
         onTap: () => _showColorPicker(context, state.colorCode),
       ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required Widget child,
+    EdgeInsetsGeometry padding = const EdgeInsets.all(16),
+  }) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Padding(padding: padding, child: child),
+    );
+  }
+
+  Widget _buildSectionHeader({
+    required IconData icon,
+    required String title,
+    Widget? trailing,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 20),
+        const SizedBox(width: 8),
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        if (trailing != null) ...[const Spacer(), trailing],
+      ],
     );
   }
 
@@ -581,7 +528,11 @@ class _EventFormPageState extends State<EventFormPage> {
     }
   }
 
-  Future<void> _selectTime(BuildContext context, DateTime? currentTime) async {
+  Future<void> _selectTime(
+    BuildContext context,
+    DateTime? currentTime,
+    DateTime selectedDate,
+  ) async {
     final picked = await showTimePicker(
       context: context,
       initialTime: currentTime != null
@@ -590,16 +541,37 @@ class _EventFormPageState extends State<EventFormPage> {
     );
 
     if (picked != null && context.mounted) {
-      final now = DateTime.now();
       final dateTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
         picked.hour,
         picked.minute,
       );
       context.read<EventFormBloc>().add(UpdateEventTime(dateTime));
     }
+  }
+
+  void _submitForm() {
+    final currentState = context.read<EventFormBloc>().state;
+    if (currentState is! EventFormEditing) return;
+
+    final isFormValid = _formKey.currentState?.validate() ?? true;
+    if (!isFormValid) return;
+
+    if (!currentState.isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            currentState.errorMessage ?? 'Please fill in required fields',
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
+    context.read<EventFormBloc>().add(const SubmitEventForm());
   }
 
   void _showRecurrencePicker(BuildContext context, RecurrenceRule? current) {

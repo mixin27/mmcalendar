@@ -17,7 +17,10 @@ class GoRouterEventActionsPort implements EventActionsPort {
   Future<void> openEventDetail(
     BuildContext context, {
     required int eventId,
+    DateTime? occurrenceDate,
   }) async {
-    await GoRouter.of(context).push(RoutePaths.eventsDetail(eventId));
+    await GoRouter.of(
+      context,
+    ).push(RoutePaths.eventsDetail(eventId), extra: occurrenceDate);
   }
 }

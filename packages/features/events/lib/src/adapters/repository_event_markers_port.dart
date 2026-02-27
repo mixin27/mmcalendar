@@ -38,7 +38,26 @@ class RepositoryEventMarkersPort implements EventMarkersPort {
   Future<void> toggleEventCompletion({
     required int eventId,
     required bool isCompleted,
+    bool isRecurring = false,
+    DateTime? occurrenceDate,
   }) async {
+    if (isRecurring) {
+      if (occurrenceDate == null) {
+        throw StateError('occurrenceDate is required for recurring instances');
+      }
+      final result = isCompleted
+          ? await _eventsRepository.completeRecurringInstance(
+              eventId,
+              occurrenceDate,
+            )
+          : await _eventsRepository.restoreRecurringInstance(
+              eventId,
+              occurrenceDate,
+            );
+      result.fold((failure) => throw StateError(failure.message), (_) => null);
+      return;
+    }
+
     final result = await _eventsRepository.toggleEventCompletion(
       eventId,
       isCompleted,

@@ -171,7 +171,13 @@ final GoRouter router = GoRouter(
                   path: ':id/detail',
                   builder: (context, state) {
                     final id = int.parse(state.pathParameters['id']!);
-                    return EventDetailPage(eventId: id);
+                    final occurrenceDate = state.extra is DateTime
+                        ? state.extra as DateTime
+                        : null;
+                    return EventDetailPage(
+                      eventId: id,
+                      occurrenceDate: occurrenceDate,
+                    );
                   },
                 ),
 
