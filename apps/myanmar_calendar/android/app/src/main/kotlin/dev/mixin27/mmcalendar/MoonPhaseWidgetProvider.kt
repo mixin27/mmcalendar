@@ -117,7 +117,7 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
     }
 
     /**
-     * Load moon phase image with glow effect
+     * Load moon phase image.
      */
     private fun loadMoonPhaseImage(views: RemoteViews, imagePath: String) {
         try {
@@ -127,18 +127,15 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
                     val bitmap = BitmapFactory.decodeFile(imagePath)
                     views.setImageViewBitmap(R.id.moon_phase_image, bitmap)
                     views.setViewVisibility(R.id.moon_phase_image, View.VISIBLE)
-                    views.setViewVisibility(R.id.moon_outer_glow, View.VISIBLE)
                     Log.d(TAG, "✅ Moon phase image loaded")
                     return
                 }
             }
             Log.w(TAG, "⚠️ Moon phase image file not found")
             views.setViewVisibility(R.id.moon_phase_image, View.GONE)
-            views.setViewVisibility(R.id.moon_outer_glow, View.GONE)
         } catch (e: Exception) {
             Log.e(TAG, "❌ Error loading moon phase image", e)
             views.setViewVisibility(R.id.moon_phase_image, View.GONE)
-            views.setViewVisibility(R.id.moon_outer_glow, View.GONE)
         }
     }
 

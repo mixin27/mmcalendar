@@ -28,16 +28,7 @@
         android:layout_width="102dp"
         android:layout_height="102dp"
         android:layout_marginTop="8dp"
-        android:background="@drawable/widget_surface_light"
-        android:padding="7dp">
-
-        <ImageView
-            android:id="@+id/moon_outer_glow"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/moon_glow_large"
-            android:alpha="0.22"
-            android:scaleType="fitCenter" />
+        android:padding="2dp">
 
         <ImageView
             android:id="@+id/moon_phase_image"
