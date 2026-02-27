@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.graphics.toColorInt
 import es.antonborri.home_widget.HomeWidgetProvider
 import java.io.File
 
@@ -229,7 +230,7 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
     private fun applyTheme(views: RemoteViews, theme: String) {
         val bgDrawable = when (theme) {
             "dark" -> R.drawable.widget_background_dark
-            // "light" -> R.drawable.widget_background_light
+            "light" -> R.drawable.widget_background_light
             "traditional" -> R.drawable.widget_background_traditional
             "gradientPurple" -> R.drawable.widget_background_gradient_purple
             "gradientTeal" -> R.drawable.widget_background_gradient_teal
@@ -237,6 +238,22 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
         }
 
         views.setInt(R.id.widget_root, "setBackgroundResource", bgDrawable)
+
+        val isLightTheme = theme == "light"
+        val primaryText = if (isLightTheme) "#1C2430" else "#F7FBFF"
+        val secondaryText = if (isLightTheme) "#5E6C80" else "#E6EEF8"
+        val accentText = if (isLightTheme) "#A86800" else "#FFE08A"
+
+        views.setTextColor(R.id.widget_title, secondaryText.toColorInt())
+        views.setTextColor(R.id.western_day, primaryText.toColorInt())
+        views.setTextColor(R.id.western_month, secondaryText.toColorInt())
+        views.setTextColor(R.id.western_year, secondaryText.toColorInt())
+        views.setTextColor(R.id.myanmar_date, primaryText.toColorInt())
+        views.setTextColor(R.id.holidays, accentText.toColorInt())
+        views.setTextColor(R.id.moon_phase_name, accentText.toColorInt())
+        views.setTextColor(R.id.fortnight_day, secondaryText.toColorInt())
+        views.setTextColor(R.id.astrology_info, secondaryText.toColorInt())
+        views.setTextColor(R.id.last_updated, secondaryText.toColorInt())
     }
 
     private fun setupClickHandler(

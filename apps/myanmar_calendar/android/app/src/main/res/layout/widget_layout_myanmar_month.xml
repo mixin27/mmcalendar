@@ -12,7 +12,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="10dp"
+    android:padding="12dp"
     android:background="@drawable/widget_bg_calendar">
 
     <!-- Header -->
@@ -20,28 +20,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="8dp">
 
         <TextView
             android:id="@+id/myanmar_month_year"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="နတ်တော်"
-            android:textSize="14sp"
+            android:textSize="15sp"
             android:textColor="#FFFFFF"
             android:fontFamily="sans-serif-medium"
-            android:gravity="center" />
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
         <TextView
             android:id="@+id/western_month_year"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="December 2024"
-            android:textSize="10sp"
+            android:textSize="11sp"
             android:textColor="#FFFFFF"
-            android:alpha="0.7"
+            android:alpha="0.78"
             android:gravity="center"
-            android:layout_marginTop="2dp" />
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
     </LinearLayout>
 
     <!-- Weekday Headers -->
@@ -306,7 +310,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="8dp"
         android:gravity="center_vertical">
 
         <TextView
@@ -321,9 +325,10 @@
             android:layout_weight="1"
             android:layout_marginStart="6dp"
             android:text="နတ်တော် လဆုတ် ၈ ရက်"
-            android:textSize="9sp"
+            android:textSize="9.5sp"
             android:textColor="#FFFFFF"
-            android:alpha="0.9"
+            android:alpha="0.95"
+            android:fontFamily="sans-serif-medium"
             android:maxLines="1"
             android:ellipsize="end" />
     </LinearLayout>

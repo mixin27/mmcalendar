@@ -9,6 +9,7 @@ import java.util.Locale
 internal object WidgetTimelineResolver {
     private const val TAG = "WidgetTimelineResolver"
     private const val TIMELINE_KEY = "widget_timeline_v1"
+    private const val MONTH_TIMELINE_KEY = "widget_month_timeline_v1"
 
     fun resolveTodayEntry(widgetData: SharedPreferences): JSONObject? {
         val timelineJson = widgetData.getString(TIMELINE_KEY, null) ?: return null
@@ -19,6 +20,24 @@ internal object WidgetTimelineResolver {
             entries.optJSONObject(todayKey())
         } catch (e: Exception) {
             Log.e(TAG, "Failed to parse widget timeline payload", e)
+            null
+        }
+    }
+
+    fun resolveCurrentMonthEntry(widgetData: SharedPreferences): JSONObject? {
+        val timelineJson = widgetData.getString(MONTH_TIMELINE_KEY, null) ?: return null
+
+        return try {
+            val root = JSONObject(timelineJson)
+            val dateToMonthKey = root.optJSONObject("date_to_month_key") ?: return null
+            val monthEntries = root.optJSONObject("month_entries") ?: return null
+            val monthKey = dateToMonthKey.optString(todayKey(), "")
+            if (monthKey.isEmpty()) {
+                return null
+            }
+            monthEntries.optJSONObject(monthKey)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to parse widget month timeline payload", e)
             null
         }
     }

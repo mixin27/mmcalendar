@@ -7,6 +7,7 @@ import '../../domain/entities/widget_data.dart';
 
 class WidgetUpdateService {
   static const String timelineStorageKey = 'widget_timeline_v1';
+  static const String monthTimelineStorageKey = 'widget_month_timeline_v1';
 
   /// Update all widgets with new data
   ///
@@ -14,6 +15,7 @@ class WidgetUpdateService {
   /// - CompactDateWidgetProvider
   /// - FullCalendarWidgetProvider
   /// - MoonPhaseWidgetProvider
+  /// - MyanmarMonthWidgetProvider
   static Future<void> updateAllWidgets(
     WidgetData data,
     WidgetConfig config,
@@ -47,6 +49,7 @@ class WidgetUpdateService {
       await _updateCompactWidget();
       await _updateFullCalendarWidget();
       await _updateMoonPhaseWidget();
+      await _updateMyanmarMonthWidget();
 
       debugPrint('✅ All widgets updated successfully');
     } catch (e, stackTrace) {
@@ -200,6 +203,19 @@ class WidgetUpdateService {
     }
   }
 
+  /// Update Myanmar month widget
+  static Future<void> _updateMyanmarMonthWidget() async {
+    try {
+      await HomeWidget.updateWidget(
+        androidName: 'MyanmarMonthWidgetProvider',
+        iOSName: 'MyanmarMonthWidget',
+      );
+      debugPrint('✅ Myanmar month widget updated');
+    } catch (e) {
+      debugPrint('⚠️ Error updating Myanmar month widget: $e');
+    }
+  }
+
   /// Render moon phase image
   static Future<String?> _renderMoonPhaseImage(
     int moonPhase,
@@ -256,6 +272,14 @@ class WidgetUpdateService {
   /// without requiring a Dart background task at midnight.
   static Future<void> saveTimelinePayload(String timelineJson) async {
     await HomeWidget.saveWidgetData<String>(timelineStorageKey, timelineJson);
+  }
+
+  /// Save month timeline payload used by Myanmar month widget provider.
+  static Future<void> saveMonthTimelinePayload(String timelineJson) async {
+    await HomeWidget.saveWidgetData<String>(
+      monthTimelineStorageKey,
+      timelineJson,
+    );
   }
 
   /// Format timestamp for display

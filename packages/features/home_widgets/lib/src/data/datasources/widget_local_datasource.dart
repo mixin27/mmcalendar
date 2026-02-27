@@ -30,11 +30,6 @@ class WidgetLocalDataSource {
     WidgetConfig config,
   ) async {
     await WidgetUpdateService.updateAllWidgets(data, config);
-
-    await MyanmarMonthWidgetService.updateMyanmarMonthWidget(
-      DateTime.now(),
-      config,
-    );
   }
 
   /// Generate widget data with specific language
@@ -185,6 +180,8 @@ class WidgetLocalDataSource {
 
     final today = _dateOnly(DateTime.now());
     final entries = <String, Map<String, Object?>>{};
+    final monthKeyByDate = <String, String>{};
+    final monthEntries = <String, Map<String, dynamic>>{};
     final largeMoonImageCache = <String, String?>{};
     final smallMoonImageCache = <String, String?>{};
 
@@ -195,6 +192,17 @@ class WidgetLocalDataSource {
       final data = await generateWidgetDataWithLanguage(date, config.language);
       final dateKey = _dateKey(date);
       final moonKey = '${data.moonPhaseValue}_${data.fortnightDay}';
+      final monthKey = MyanmarMonthWidgetService.monthPayloadKeyForDate(date);
+
+      monthKeyByDate[dateKey] = monthKey;
+      if (!monthEntries.containsKey(monthKey)) {
+        final monthSnapshot =
+            await MyanmarMonthWidgetService.generateMonthTimelineSnapshot(
+              date,
+              config.language,
+            );
+        monthEntries[monthSnapshot.monthKey] = monthSnapshot.monthPayload;
+      }
 
       if (!largeMoonImageCache.containsKey(moonKey)) {
         largeMoonImageCache[moonKey] =
@@ -241,6 +249,24 @@ class WidgetLocalDataSource {
     });
 
     await WidgetUpdateService.saveTimelinePayload(timelinePayload);
+
+    final monthTimelinePayload = json.encode({
+      'version': 1,
+      'language': config.language,
+      'generated_at': DateTime.now().toIso8601String(),
+      'date_to_month_key': monthKeyByDate,
+      'month_entries': monthEntries,
+    });
+    await WidgetUpdateService.saveMonthTimelinePayload(monthTimelinePayload);
+
+    final todayKey = _dateKey(today);
+    final todayMonthKey = monthKeyByDate[todayKey];
+    if (todayMonthKey != null && monthEntries.containsKey(todayMonthKey)) {
+      await HomeWidget.saveWidgetData<String>(
+        'myanmar_month_data',
+        MyanmarMonthWidgetService.monthDataToJson(monthEntries[todayMonthKey]!),
+      );
+    }
 
     final timelineEndDate = today.add(
       const Duration(days: _timelineHorizonDays - 1),
