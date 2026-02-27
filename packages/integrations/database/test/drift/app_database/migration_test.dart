@@ -8,7 +8,7 @@ import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 void main() {
   test(
-    'manual migration from v1 to v3 preserves legacy and normalized event schema',
+    'manual migration from v1 to v4 preserves normalized event schema',
     () async {
       final tempDir = await Directory.systemTemp.createTemp(
         'mmcalendar_migration_',
@@ -27,7 +27,7 @@ void main() {
             .customSelect('PRAGMA user_version')
             .map((row) => row.read<int>('user_version'))
             .getSingle();
-        expect(userVersion, 3);
+        expect(userVersion, 4);
 
         final calendarCount = await migratedDb
             .customSelect('SELECT COUNT(*) AS c FROM calendar_settings')
@@ -35,19 +35,15 @@ void main() {
             .getSingle();
         expect(calendarCount, 1);
 
-        final eventsCount = await migratedDb
-            .customSelect('SELECT COUNT(*) AS c FROM user_events')
+        final hasLegacyUserEventsTable = await migratedDb
+            .customSelect('''
+            SELECT COUNT(*) AS c
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'user_events'
+            ''')
             .map((row) => row.read<int>('c'))
             .getSingle();
-        expect(eventsCount, 1);
-
-        final recurringMasterValue = await migratedDb
-            .customSelect(
-              'SELECT is_recurring_master FROM user_events WHERE id = 1',
-            )
-            .map((row) => row.read<int>('is_recurring_master'))
-            .getSingle();
-        expect(recurringMasterValue, 0);
+        expect(hasLegacyUserEventsTable, 0);
 
         final hasNewTable = await migratedDb
             .customSelect('''

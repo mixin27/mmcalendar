@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import 'user_events_table.dart';
+import 'event_categories_table.dart';
 
 /// Normalized event master records.
 class CalendarEvents extends Table {

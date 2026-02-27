@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../app_database.dart';
-import '../tables/user_events_table.dart';
+import '../tables/recurring_event_exceptions_table.dart';
 
 part 'recurring_exceptions_dao.g.dart';
 

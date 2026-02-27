@@ -12,7 +12,8 @@ import 'tables/calendar_settings_table.dart';
 import 'tables/events_v2_tables.dart';
 import 'tables/app_settings_table.dart';
 import 'tables/custom_holidays_table.dart';
-import 'tables/user_events_table.dart';
+import 'tables/event_categories_table.dart';
+import 'tables/recurring_event_exceptions_table.dart';
 import 'daos/calendar_dao.dart';
 import 'daos/settings_dao.dart';
 import 'daos/holidays_dao.dart';
@@ -24,7 +25,6 @@ part 'app_database.g.dart';
     CalendarSettings,
     AppSettings,
     CustomHolidays,
-    UserEvents,
     EventCategories,
     RecurringEventExceptions,
     CalendarEvents,
@@ -52,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -66,13 +66,15 @@ class AppDatabase extends _$AppDatabase {
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 2) {
           await m.create(recurringEventExceptions);
-          await m.addColumn(userEvents, userEvents.isRecurringMaster);
         }
         if (from < 3) {
           await m.create(calendarEvents);
           await m.create(eventReminders);
           await m.create(eventRecurrenceRules);
           await _migrateLegacyEventsToV3();
+        }
+        if (from < 4) {
+          await customStatement('DROP TABLE IF EXISTS user_events');
         }
       },
       beforeOpen: (details) async {

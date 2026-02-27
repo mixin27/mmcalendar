@@ -1,108 +1,13 @@
 import 'package:drift/drift.dart';
 
 import '../app_database.dart';
-import '../tables/user_events_table.dart';
+import '../tables/event_categories_table.dart';
 
 part 'events_dao.g.dart';
 
-@DriftAccessor(tables: [UserEvents, EventCategories])
+@DriftAccessor(tables: [EventCategories])
 class EventsDao extends DatabaseAccessor<AppDatabase> with _$EventsDaoMixin {
   EventsDao(super.db);
-
-  // ========== USER EVENTS ==========
-
-  Future<List<UserEvent>> getAllEvents() {
-    return (select(
-      userEvents,
-    )..orderBy([(e) => OrderingTerm.asc(e.eventDate)])).get();
-  }
-
-  Future<List<UserEvent>> getAllIncompleteEvents() {
-    return (select(userEvents)
-          ..where((e) => e.isCompleted.equals(false))
-          ..orderBy([(e) => OrderingTerm.asc(e.eventDate)]))
-        .get();
-  }
-
-  Future<List<UserEvent>> getAllCompletedEvents() {
-    return (select(userEvents)
-          ..where((e) => e.isCompleted.equals(true))
-          ..orderBy([(e) => OrderingTerm.asc(e.eventDate)]))
-        .get();
-  }
-
-  Future<List<UserEvent>> getEventsByDate(DateTime date) {
-    final startOfDay = DateTime(date.year, date.month, date.day);
-    final endOfDay = startOfDay.add(const Duration(days: 1));
-
-    return (select(userEvents)..where(
-          (e) =>
-              e.eventDate.isBiggerOrEqualValue(startOfDay) &
-              e.eventDate.isSmallerThanValue(endOfDay) &
-              e.isCompleted.equals(false),
-        ))
-        .get();
-  }
-
-  Future<List<UserEvent>> getEventsByDateRange(DateTime start, DateTime end) {
-    return (select(userEvents)
-          ..where(
-            (e) =>
-                e.eventDate.isBiggerOrEqualValue(start) &
-                e.eventDate.isSmallerOrEqualValue(end) &
-                e.isCompleted.equals(false),
-          )
-          ..orderBy([(e) => OrderingTerm.asc(e.eventDate)]))
-        .get();
-  }
-
-  Future<UserEvent?> getEventById(int id) {
-    return (select(
-      userEvents,
-    )..where((e) => e.id.equals(id))).getSingleOrNull();
-  }
-
-  Future<List<UserEvent>> getEventsByCategory(String category) {
-    return (select(userEvents)..where(
-          (e) => e.category.equals(category) & e.isCompleted.equals(false),
-        ))
-        .get();
-  }
-
-  Future<int> createEvent(UserEventsCompanion event) {
-    return into(userEvents).insert(event);
-  }
-
-  Future<bool> updateEvent(UserEventsCompanion event) {
-    return update(userEvents).replace(event);
-  }
-
-  Future<int> deleteEvent(int id) {
-    return (delete(userEvents)..where((e) => e.id.equals(id))).go();
-  }
-
-  Future<void> toggleComplete(int id, bool isCompleted) async {
-    await (update(userEvents)..where((e) => e.id.equals(id))).write(
-      UserEventsCompanion(
-        isCompleted: Value(isCompleted),
-        completedAt: Value(isCompleted ? DateTime.now() : null),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
-  }
-
-  Stream<List<UserEvent>> watchAllEvents() {
-    return (select(userEvents)
-          ..where((e) => e.isCompleted.equals(false))
-          ..orderBy([(e) => OrderingTerm.asc(e.eventDate)]))
-        .watch();
-  }
-
-  Stream<UserEvent?> watchEventById(int id) {
-    return (select(
-      userEvents,
-    )..where((e) => e.id.equals(id))).watchSingleOrNull();
-  }
 
   // ========== CATEGORIES ==========
 
