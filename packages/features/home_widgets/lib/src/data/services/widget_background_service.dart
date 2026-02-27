@@ -58,16 +58,6 @@ void callbackDispatcher() {
       // Update widget
       await dataSource.updateWidgetWithConfig(widgetData, config);
 
-      // Robust Handoff Pattern:
-      // If this was the initial task triggered by the OneOffTask delay,
-      // now schedule the long-term 24h PeriodicTask.
-      // if (task == initialTask) {
-      //   debugPrint(
-      //     '🎯 Initial update complete, handing off to periodic updates...',
-      //   );
-      //   await dataSource.schedulePeriodicTask();
-      // }
-
       // Calculate execution time
       final duration = DateTime.now().difference(startTime);
 

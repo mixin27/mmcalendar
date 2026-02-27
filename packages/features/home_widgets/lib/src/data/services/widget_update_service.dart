@@ -6,13 +6,14 @@ import '../../domain/entities/widget_config.dart';
 import '../../domain/entities/widget_data.dart';
 
 class WidgetUpdateService {
+  static const String timelineStorageKey = 'widget_timeline_v1';
+
   /// Update all widgets with new data
   ///
   /// This method prepares and sends data to ALL widget providers:
   /// - CompactDateWidgetProvider
   /// - FullCalendarWidgetProvider
   /// - MoonPhaseWidgetProvider
-  /// - MonthlyCalendarWidgetProvider
   static Future<void> updateAllWidgets(
     WidgetData data,
     WidgetConfig config,
@@ -46,7 +47,6 @@ class WidgetUpdateService {
       await _updateCompactWidget();
       await _updateFullCalendarWidget();
       await _updateMoonPhaseWidget();
-      // await _updateMonthlyCalendarWidget();
 
       debugPrint('✅ All widgets updated successfully');
     } catch (e, stackTrace) {
@@ -70,6 +70,10 @@ class WidgetUpdateService {
     await HomeWidget.saveWidgetData<String>(
       'moon_phase_emoji',
       data.moonPhaseEmoji,
+    );
+    await HomeWidget.saveWidgetData<int>(
+      'moon_phase_value',
+      data.moonPhaseValue,
     );
     await HomeWidget.saveWidgetData<String>(
       'fortnight_day',
@@ -137,10 +141,22 @@ class WidgetUpdateService {
     );
 
     // Configuration
-    await HomeWidget.saveWidgetData<bool>('show_holidays', true);
-    await HomeWidget.saveWidgetData<bool>('show_astrology', true);
+    await HomeWidget.saveWidgetData<bool>('show_holidays', config.showHolidays);
+    await HomeWidget.saveWidgetData<bool>(
+      'show_astrology',
+      config.showAstrology,
+    );
     await HomeWidget.saveWidgetData<bool>('show_last_updated', false);
+    await HomeWidget.saveWidgetData<bool>(
+      'show_myanmar_date',
+      config.showMyanmarDate,
+    );
+    await HomeWidget.saveWidgetData<bool>(
+      'show_western_date',
+      config.showWesternDate,
+    );
     // Save widget configuration preferences
+    await HomeWidget.saveWidgetData<String>('widget_size', config.size.name);
     await HomeWidget.saveWidgetData<String>('widget_theme', config.theme.name);
     await HomeWidget.saveWidgetData<String>('widget_language', config.language);
   }
@@ -184,20 +200,6 @@ class WidgetUpdateService {
     }
   }
 
-  /// Update monthly calendar widget
-  // ignore: unused_element
-  static Future<void> _updateMonthlyCalendarWidget() async {
-    try {
-      await HomeWidget.updateWidget(
-        androidName: 'MonthlyCalendarWidgetProvider',
-        iOSName: 'MonthlyCalendarWidget',
-      );
-      debugPrint('✅ Monthly calendar widget updated');
-    } catch (e) {
-      debugPrint('⚠️ Error updating monthly calendar widget: $e');
-    }
-  }
-
   /// Render moon phase image
   static Future<String?> _renderMoonPhaseImage(
     int moonPhase,
@@ -235,35 +237,32 @@ class WidgetUpdateService {
     }
   }
 
+  /// Render moon phase image that can be reused by timeline entries.
+  static Future<String?> renderMoonPhaseImage(
+    int moonPhase,
+    int fortnightDay, {
+    double size = 120,
+    required String storageKey,
+  }) {
+    return _renderMoonPhaseImage(
+      moonPhase,
+      fortnightDay,
+      size: size,
+      storageKey: storageKey,
+    );
+  }
+
+  /// Save timeline payload used by native widget providers to read daily data
+  /// without requiring a Dart background task at midnight.
+  static Future<void> saveTimelinePayload(String timelineJson) async {
+    await HomeWidget.saveWidgetData<String>(timelineStorageKey, timelineJson);
+  }
+
   /// Format timestamp for display
   static String _formatTimestamp(DateTime dateTime) {
     final hour = dateTime.hour.toString().padLeft(2, '0');
     final minute = dateTime.minute.toString().padLeft(2, '0');
     final amPm = dateTime.hour >= 12 ? 'PM' : 'AM';
     return '$hour:$minute $amPm';
-  }
-
-  /// Get all installed widget IDs
-  Future<Map<String, List<int>>> getInstalledWidgets() async {
-    try {
-      // This would need platform-specific implementation
-      // For now, just check if any widgets exist
-      final widgetIds = await HomeWidget.getInstalledWidgets();
-      return {'all': widgetIds.map((e) => e.androidWidgetId!).toList()};
-    } catch (e) {
-      debugPrint('⚠️ Error getting installed widgets: $e');
-      return {};
-    }
-  }
-
-  /// Check if specific widget type is installed
-  Future<bool> isWidgetInstalled(String widgetType) async {
-    try {
-      final widgets = await getInstalledWidgets();
-      return widgets['all']?.isNotEmpty ?? false;
-    } catch (e) {
-      debugPrint('⚠️ Error checking widget installation: $e');
-      return false;
-    }
   }
 }

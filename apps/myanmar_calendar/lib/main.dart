@@ -200,11 +200,18 @@ Future<void> _initializeWidgetUpdates() async {
     // Import the repository from DI
     final widgetRepository = getIt<WidgetRepository>();
     final analyticsService = getIt<AnalyticsPort>();
+    final isWidgetActive = await widgetRepository.isWidgetActive();
+
+    if (!isWidgetActive) {
+      debugPrint('ℹ️ No home widgets installed, skipping widget refresh setup');
+      return;
+    }
 
     // Update widget IMMEDIATELY on app start
     await widgetRepository.refreshWidget();
 
-    // Schedule daily background updates at 12:01 AM
+    // Schedule best-effort background refreshes (native date rollover handles
+    // daily redraws even when WorkManager is delayed).
     await widgetRepository.scheduleWidgetUpdates();
 
     // Log widget update to analytics

@@ -8,5 +8,5 @@
     android:minResizeHeight="280dp"
     android:previewImage="@drawable/myanmar_month"
     android:resizeMode="horizontal|vertical"
-    android:updatePeriodMillis="0"
+    android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />

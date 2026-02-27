@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import androidx.core.graphics.toColorInt
 import es.antonborri.home_widget.HomeWidgetProvider
 import java.io.File
 
@@ -52,6 +51,7 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
         try {
             Log.d(TAG, "Updating full calendar widget $widgetId")
 
+            val dataReader = WidgetDataReader(widgetData)
             val config = readWidgetConfig(widgetData)
             Log.d(TAG, "Widget config: $config")
 
@@ -61,17 +61,15 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
             val showHolidays = widgetData.getBoolean("show_holidays", true)
             val showAstrology = widgetData.getBoolean("show_astrology", false)
             val showLastUpdated = widgetData.getBoolean("show_last_updated", false)
-//            val theme = widgetData.getString("widget_theme", "gradientBlue") ?: "gradientBlue"
 
             // Read data
-            val myanmarDate = widgetData.getString("myanmar_date", "") ?: ""
-            val westernDate = widgetData.getString("western_date", "") ?: ""
-            val moonPhase = widgetData.getString("moon_phase", "") ?: ""
-            val fortnightDay = widgetData.getString("fortnight_day", "") ?: ""
-            val fortnightDayText = widgetData.getString("fortnight_day_text", "") ?: ""
-            val holidays = widgetData.getString("holidays", "") ?: ""
-            val astroInfo = buildAstrologyText(widgetData)
-            val lastUpdated = widgetData.getString("last_updated", "") ?: ""
+            val myanmarDate = dataReader.getString("myanmar_date")
+            val westernDate = dataReader.getString("western_date")
+            val moonPhase = dataReader.getString("moon_phase")
+            val fortnightDayText = dataReader.getString("fortnight_day_text")
+            val holidays = dataReader.getString("holidays")
+            val astroInfo = buildAstrologyText(dataReader)
+            val lastUpdated = dataReader.getString("last_updated")
 
             // Parse Western date into components
             val (day, month, year) = parseWesternDateFull(westernDate)
@@ -85,7 +83,7 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
             views.setTextViewText(R.id.myanmar_date, myanmarDate)
 
             // Load moon phase image
-            loadMoonPhaseImage(context, views, widgetData)
+            loadMoonPhaseImage(views, dataReader.getString("moon_phase_image_path"))
 
             // Update moon phase name
             views.setTextViewText(R.id.moon_phase_name, moonPhase)
@@ -110,7 +108,7 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
             }
 
             // Today badge
-            val isToday = isToday(widgetData)
+            val isToday = dataReader.hasTimelineData() || isToday(widgetData)
             views.setViewVisibility(
                 R.id.today_badge,
                 if (isToday) View.VISIBLE else View.GONE
@@ -157,38 +155,33 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
         }
     }
 
-    private fun loadMoonPhaseImage(
-        context: Context,
-        views: RemoteViews,
-        widgetData: SharedPreferences
-    ) {
+    private fun loadMoonPhaseImage(views: RemoteViews, imagePath: String) {
         try {
-            val imagePath = widgetData.getString("moon_phase_image_path", null)
-            imagePath?.let {
-                val file = File(it)
+            if (imagePath.isNotEmpty()) {
+                val file = File(imagePath)
                 if (file.exists()) {
-                    val bitmap = BitmapFactory.decodeFile(it)
+                    val bitmap = BitmapFactory.decodeFile(imagePath)
                     views.setImageViewBitmap(R.id.moon_phase_image, bitmap)
                     views.setViewVisibility(R.id.moon_phase_image, View.VISIBLE)
                     Log.d(TAG, "✅ Moon phase image loaded")
-                } else {
-                    Log.w(TAG, "⚠️ Moon phase image file not found")
-                    views.setViewVisibility(R.id.moon_phase_image, View.GONE)
+                    return
                 }
             }
+            Log.w(TAG, "⚠️ Moon phase image file not found")
+            views.setViewVisibility(R.id.moon_phase_image, View.GONE)
         } catch (e: Exception) {
             Log.e(TAG, "❌ Error loading moon phase image", e)
             views.setViewVisibility(R.id.moon_phase_image, View.GONE)
         }
     }
 
-    private fun buildAstrologyText(widgetData: SharedPreferences): String {
+    private fun buildAstrologyText(dataReader: WidgetDataReader): String {
         val items = mutableListOf<String>()
 
-        val sabbath = widgetData.getString("sabbath_info", "")
-        val yatyaza = widgetData.getString("yatyaza_info", "")
-        val pyathada = widgetData.getString("pyathada_info", "")
-        val astroDays = widgetData.getString("astrological_days", "")
+        val sabbath = dataReader.getString("sabbath_info")
+        val yatyaza = dataReader.getString("yatyaza_info")
+        val pyathada = dataReader.getString("pyathada_info")
+        val astroDays = dataReader.getString("astrological_days")
 
         if (!sabbath.isNullOrEmpty() && sabbath != "null") items.add(sabbath)
         if (!yatyaza.isNullOrEmpty() && yatyaza != "null") items.add(yatyaza)
@@ -244,19 +237,6 @@ class FullCalendarWidgetProvider : HomeWidgetProvider() {
         }
 
         views.setInt(R.id.widget_root, "setBackgroundResource", bgDrawable)
-
-        // Text colors are already white in XML for gradient themes
-        // For light theme, you'd need to update text colors
-        /*
-        if (theme == "light") {
-            views.setTextColor(R.id.western_day, "#1A1A1A".toColorInt())
-            views.setTextColor(R.id.western_month, "#666666".toColorInt())
-            views.setTextColor(R.id.western_year, "#666666".toColorInt())
-            views.setTextColor(R.id.myanmar_date, "#1A1A1A".toColorInt())
-            views.setTextColor(R.id.moon_phase_name, "#FF6F00".toColorInt())
-            views.setTextColor(R.id.fortnight_day, "#666666".toColorInt())
-        }
-        */
     }
 
     private fun setupClickHandler(

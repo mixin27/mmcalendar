@@ -12,5 +12,5 @@
     android:maxResizeHeight="220dp"
     android:previewImage="@drawable/moon_phase"
     android:resizeMode="vertical"
-    android:updatePeriodMillis="0"
+    android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />

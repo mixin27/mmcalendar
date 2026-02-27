@@ -13,8 +13,12 @@ import '../services/widget_update_service.dart';
 
 class WidgetLocalDataSource {
   static const String _configKey = 'widget_config';
-  // static const String _initialTaskName = 'widget_initial_task';
   static const String _periodicTaskName = 'widget_periodic_task';
+  static const String _timelineGeneratedAtKey = 'widget_timeline_generated_at';
+  static const String _timelineLanguageKey = 'widget_timeline_language';
+  static const String _timelineEndDateKey = 'widget_timeline_end_date';
+  static const int _timelineHorizonDays = 180;
+  static const int _timelineMinimumRemainingDays = 30;
 
   final SharedPreferences sharedPreferences;
 
@@ -170,9 +174,92 @@ class WidgetLocalDataSource {
     debugPrint('Widget config saved');
   }
 
-  /// Schedule periodic widget updates using a robust handoff pattern:
-  /// 1. Schedule a OneOffTask to reach the first 12:01 AM
-  /// 2. Once triggered, the background service will schedule the PeriodicTask
+  /// Build a timeline cache used by native widget providers to serve daily
+  /// data changes even when Dart background tasks do not run.
+  Future<void> warmupTimeline(WidgetConfig config, {bool force = false}) async {
+    final shouldRegenerate = force || _shouldRegenerateTimeline(config);
+    if (!shouldRegenerate) {
+      debugPrint('Widget timeline is still fresh');
+      return;
+    }
+
+    final today = _dateOnly(DateTime.now());
+    final entries = <String, Map<String, Object?>>{};
+    final largeMoonImageCache = <String, String?>{};
+    final smallMoonImageCache = <String, String?>{};
+
+    debugPrint('Generating widget timeline for $_timelineHorizonDays days...');
+
+    for (var i = 0; i < _timelineHorizonDays; i++) {
+      final date = today.add(Duration(days: i));
+      final data = await generateWidgetDataWithLanguage(date, config.language);
+      final dateKey = _dateKey(date);
+      final moonKey = '${data.moonPhaseValue}_${data.fortnightDay}';
+
+      if (!largeMoonImageCache.containsKey(moonKey)) {
+        largeMoonImageCache[moonKey] =
+            await WidgetUpdateService.renderMoonPhaseImage(
+              data.moonPhaseValue,
+              data.fortnightDay,
+              storageKey: 'moon_phase_large_$moonKey',
+            );
+      }
+      if (!smallMoonImageCache.containsKey(moonKey)) {
+        smallMoonImageCache[moonKey] =
+            await WidgetUpdateService.renderMoonPhaseImage(
+              data.moonPhaseValue,
+              data.fortnightDay,
+              size: 90,
+              storageKey: 'moon_phase_small_$moonKey',
+            );
+      }
+
+      entries[dateKey] = {
+        'myanmar_date': data.myanmarDate,
+        'western_date': data.westernDate,
+        'moon_phase': data.moonPhase,
+        'moon_phase_value': data.moonPhaseValue,
+        'moon_phase_emoji': data.moonPhaseEmoji,
+        'fortnight_day': data.fortnightDay.toString(),
+        'fortnight_day_text': data.fortnightDayText,
+        'holidays': data.holidays.join(', '),
+        'sabbath_info': data.sabbathInfo ?? '',
+        'yatyaza_info': data.yatyazaInfo ?? '',
+        'pyathada_info': data.pyathadaInfo ?? '',
+        'astrological_days': data.astrologicalDays.join(', '),
+        'next_moon_phase': data.nextMoonPhase,
+        'moon_phase_image_path': smallMoonImageCache[moonKey] ?? '',
+        'full_moon_phase_image_path': largeMoonImageCache[moonKey] ?? '',
+      };
+    }
+
+    final timelinePayload = json.encode({
+      'version': 1,
+      'language': config.language,
+      'generated_at': DateTime.now().toIso8601String(),
+      'entries': entries,
+    });
+
+    await WidgetUpdateService.saveTimelinePayload(timelinePayload);
+
+    final timelineEndDate = today.add(
+      const Duration(days: _timelineHorizonDays - 1),
+    );
+    await sharedPreferences.setString(
+      _timelineGeneratedAtKey,
+      DateTime.now().toIso8601String(),
+    );
+    await sharedPreferences.setString(_timelineLanguageKey, config.language);
+    await sharedPreferences.setString(
+      _timelineEndDateKey,
+      timelineEndDate.toIso8601String(),
+    );
+
+    debugPrint('Widget timeline generated successfully');
+  }
+
+  /// Schedule periodic best-effort background refreshes. Daily date rollover is
+  /// primarily handled natively by Android receivers + timeline cache.
   Future<void> scheduleUpdates() async {
     try {
       debugPrint('Scheduling initial widget update...');
@@ -189,21 +276,6 @@ class WidgetLocalDataSource {
       debugPrint('Initial delay: ${initialDelay.inMinutes} minutes');
       await schedulePeriodicTask(initialDelay);
 
-      // Schedule one-off task for the first execution
-      // await Workmanager().registerOneOffTask(
-      //   _initialTaskName,
-      //   _initialTaskName,
-      //   initialDelay: initialDelay,
-      //   constraints: Constraints(
-      //     networkType: NetworkType.notRequired,
-      //     requiresBatteryNotLow: false,
-      //     requiresCharging: false,
-      //     requiresDeviceIdle: false,
-      //     requiresStorageNotLow: false,
-      //   ),
-      //   existingWorkPolicy: ExistingWorkPolicy.replace,
-      // );
-
       debugPrint('Initial widget update scheduled successfully');
     } catch (e, stackTrace) {
       debugPrint('Failed to schedule initial update: $e');
@@ -212,8 +284,7 @@ class WidgetLocalDataSource {
     }
   }
 
-  /// Schedule the 24h periodic task
-  /// This should be called from the background service after the initial task completes
+  /// Schedule a 24h periodic fallback background refresh task.
   Future<void> schedulePeriodicTask([Duration? initialDelay]) async {
     try {
       debugPrint('Scheduling periodic 24h widget updates...');
@@ -242,12 +313,54 @@ class WidgetLocalDataSource {
   /// Cancel scheduled updates
   Future<void> cancelUpdates() async {
     try {
-      // await Workmanager().cancelByUniqueName(_initialTaskName);
       await Workmanager().cancelByUniqueName(_periodicTaskName);
       debugPrint('Widget updates cancelled');
     } catch (e) {
       debugPrint('Error cancelling updates: $e');
     }
+  }
+
+  bool _shouldRegenerateTimeline(WidgetConfig config) {
+    final generatedAtRaw = sharedPreferences.getString(_timelineGeneratedAtKey);
+    final languageRaw = sharedPreferences.getString(_timelineLanguageKey);
+    final endDateRaw = sharedPreferences.getString(_timelineEndDateKey);
+
+    if (generatedAtRaw == null || languageRaw == null || endDateRaw == null) {
+      return true;
+    }
+
+    if (languageRaw != config.language) {
+      return true;
+    }
+
+    final endDate = DateTime.tryParse(endDateRaw);
+    if (endDate == null) {
+      return true;
+    }
+
+    final remainingDays = _dateOnly(
+      endDate,
+    ).difference(_dateOnly(DateTime.now())).inDays;
+    if (remainingDays < _timelineMinimumRemainingDays) {
+      return true;
+    }
+
+    final generatedAt = DateTime.tryParse(generatedAtRaw);
+    if (generatedAt == null) {
+      return true;
+    }
+
+    return DateTime.now().difference(generatedAt) > const Duration(days: 14);
+  }
+
+  DateTime _dateOnly(DateTime input) =>
+      DateTime(input.year, input.month, input.day);
+
+  String _dateKey(DateTime date) {
+    final d = _dateOnly(date);
+    final month = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '${d.year}-$month-$day';
   }
 
   /// Check if widget is active on home screen

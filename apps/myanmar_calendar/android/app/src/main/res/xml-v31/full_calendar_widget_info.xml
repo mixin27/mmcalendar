@@ -12,5 +12,5 @@
     android:targetCellHeight="2"
     android:previewImage="@drawable/full_calendar"
     android:resizeMode="horizontal|vertical"
-    android:updatePeriodMillis="0"
+    android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />

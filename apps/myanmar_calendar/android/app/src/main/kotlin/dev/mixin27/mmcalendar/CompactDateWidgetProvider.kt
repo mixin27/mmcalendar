@@ -48,11 +48,12 @@ class CompactDateWidgetProvider : HomeWidgetProvider() {
             Log.d(TAG, "Updating compact widget $widgetId")
 
             val views = RemoteViews(context.packageName, R.layout.widget_layout_compact)
+            val dataReader = WidgetDataReader(widgetData)
 
             // Read data
-            val myanmarDate = widgetData.getString("myanmar_date", "") ?: ""
-            val westernDate = widgetData.getString("western_date", "") ?: ""
-            val theme = widgetData.getString("widget_theme", "light") ?: "light"
+            val myanmarDate = dataReader.getString("myanmar_date")
+            val westernDate = dataReader.getString("western_date")
+            val theme = dataReader.getString("widget_theme", "light")
 
             // Parse Western date
             val (day, month) = parseWesternDate(westernDate)
@@ -65,7 +66,7 @@ class CompactDateWidgetProvider : HomeWidgetProvider() {
             views.setTextViewText(R.id.myanmar_date, myanmarDate)
 
             // Check if today
-            val isToday = isToday(widgetData)
+            val isToday = dataReader.hasTimelineData() || isToday(widgetData)
             views.setViewVisibility(
                 R.id.today_indicator,
                 if (isToday) View.VISIBLE else View.GONE

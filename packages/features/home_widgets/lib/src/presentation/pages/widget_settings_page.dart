@@ -404,7 +404,7 @@ class WidgetSettingsPage extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
-                        'Auto updates enabled! Widget will update daily at 12:01 AM',
+                        'Auto updates enabled! Widgets will refresh automatically every day.',
                       ),
                       backgroundColor: Colors.green,
                       duration: Duration(seconds: 3),
@@ -488,7 +488,7 @@ class WidgetSettingsPage extends StatelessWidget {
                   Expanded(
                     child: Text(
                       state.isScheduled
-                          ? 'Widget updates automatically at 12:01 AM every day'
+                          ? 'Widgets refresh automatically each day'
                           : 'Enable auto updates to keep widget current',
                       style: Theme.of(
                         context,
