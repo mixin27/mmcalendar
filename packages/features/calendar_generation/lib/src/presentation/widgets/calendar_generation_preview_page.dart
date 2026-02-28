@@ -6,6 +6,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_page_model.dart';
+import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
 import '../../rendering/export/calendar_export_layout.dart';
 
@@ -56,7 +57,15 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     final dayPadding = compact ? 2.0 : 4.0;
     final dayRadius = compact ? 3.0 : 4.0;
     final gridSpacing = compact ? 1.5 : 2.0;
-    final gridAspectRatio = compact ? 0.8 : 0.86;
+    final gridAspectRatioFallback = compact ? 0.8 : 0.86;
+    final visibleRows = _visibleRowCount(model.dayCells);
+    final visibleCellCount = visibleRows * 7;
+    final isLandscape =
+        request.pageOrientation == CalendarPageOrientation.landscape;
+    final portraitCalendarFlex = compact ? 80 : 72;
+    final portraitDecorationFlex = 100 - portraitCalendarFlex;
+    final landscapeCalendarFlex = compact ? 80 : 76;
+    final landscapeDecorationFlex = 100 - landscapeCalendarFlex;
 
     final previewBody = AspectRatio(
       aspectRatio: aspectRatio,
@@ -102,101 +111,88 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                 ),
               ],
               SizedBox(height: compact ? 4 : 8),
-              _WeekdayHeader(
-                labels: model.weekdayLabels,
-                foregroundColor: foregroundColor,
-                fontSize: weekdayFontSize,
-              ),
-              SizedBox(height: compact ? 3 : 6),
               Expanded(
-                child: GridView.builder(
-                  itemCount: model.dayCells.length,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 7,
-                    childAspectRatio: gridAspectRatio,
-                    crossAxisSpacing: gridSpacing,
-                    mainAxisSpacing: gridSpacing,
-                  ),
-                  itemBuilder: (context, index) {
-                    final day = model.dayCells[index];
-                    if (day.isPlaceholder) {
-                      return const SizedBox.shrink();
-                    }
-                    final dayTextColor =
-                        (day.hasPublicHoliday || day.isWeekend == true)
-                        ? holidayColor
-                        : foregroundColor;
-                    final moonPhaseColor = day.hasPublicHoliday
-                        ? holidayColor
-                        : day.isFullMoon
-                        ? fullMoonColor
-                        : day.isNewMoon
-                        ? newMoonColor
-                        : dayTextColor;
-
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: backgroundColor.withValues(alpha: 0.96),
-                        border: Border.all(
-                          color: foregroundColor.withValues(alpha: 0.22),
-                          width: 0.6,
-                        ),
-                        borderRadius: BorderRadius.circular(dayRadius),
-                      ),
-                      padding: EdgeInsets.all(dayPadding),
-                      child: Stack(
+                child: isLandscape
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (request.showWesternDates)
-                            Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                day.westernDayLabel,
-                                style: TextStyle(
-                                  color: dayTextColor.withValues(
-                                    alpha: day.isCurrentMonth ? 0.97 : 0.6,
-                                  ),
-                                  fontSize: westernDayFontSize,
-                                  fontWeight: FontWeight.w800,
-                                  height: 1.0,
+                          Expanded(
+                            flex: landscapeCalendarFlex,
+                            child: Column(
+                              children: [
+                                _WeekdayHeader(
+                                  labels: model.weekdayLabels,
+                                  foregroundColor: foregroundColor,
+                                  fontSize: weekdayFontSize,
                                 ),
-                              ),
-                            ),
-                          if (request.showMyanmarDates)
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 1, left: 1),
-                                child: _buildMoonPhaseVisual(day: day),
-                              ),
-                            ),
-                          if (request.showMyanmarDates)
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Text(
-                                day.myanmarDayLabel,
-                                style: TextStyle(
-                                  color: moonPhaseColor.withValues(
-                                    alpha: day.isCurrentMonth ? 0.78 : 0.45,
+                                SizedBox(height: compact ? 3 : 6),
+                                Expanded(
+                                  child: _buildCalendarGrid(
+                                    backgroundColor: backgroundColor,
+                                    foregroundColor: foregroundColor,
+                                    holidayColor: holidayColor,
+                                    fullMoonColor: fullMoonColor,
+                                    newMoonColor: newMoonColor,
+                                    dayRadius: dayRadius,
+                                    dayPadding: dayPadding,
+                                    gridSpacing: gridSpacing,
+                                    gridAspectRatioFallback:
+                                        gridAspectRatioFallback,
+                                    visibleRows: visibleRows,
+                                    visibleCellCount: visibleCellCount,
+                                    westernDayFontSize: westernDayFontSize,
+                                    myanmarDayFontSize: myanmarDayFontSize,
                                   ),
-                                  fontSize: myanmarDayFontSize,
-                                  fontWeight: day.isFullMoon || day.isNewMoon
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
-                                  height: 1.0,
                                 ),
-                              ),
+                              ],
                             ),
-                          if (request.showAstrology || request.showHolidays)
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: _buildCellMetaText(day: day),
+                          ),
+                          SizedBox(width: compact ? 4 : 8),
+                          Expanded(
+                            flex: landscapeDecorationFlex,
+                            child: _buildCustomDecorationArea(
+                              backgroundColor: backgroundColor,
+                              foregroundColor: foregroundColor,
                             ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          _WeekdayHeader(
+                            labels: model.weekdayLabels,
+                            foregroundColor: foregroundColor,
+                            fontSize: weekdayFontSize,
+                          ),
+                          SizedBox(height: compact ? 3 : 6),
+                          Expanded(
+                            flex: portraitCalendarFlex,
+                            child: _buildCalendarGrid(
+                              backgroundColor: backgroundColor,
+                              foregroundColor: foregroundColor,
+                              holidayColor: holidayColor,
+                              fullMoonColor: fullMoonColor,
+                              newMoonColor: newMoonColor,
+                              dayRadius: dayRadius,
+                              dayPadding: dayPadding,
+                              gridSpacing: gridSpacing,
+                              gridAspectRatioFallback: gridAspectRatioFallback,
+                              visibleRows: visibleRows,
+                              visibleCellCount: visibleCellCount,
+                              westernDayFontSize: westernDayFontSize,
+                              myanmarDayFontSize: myanmarDayFontSize,
+                            ),
+                          ),
+                          SizedBox(height: compact ? 4 : 8),
+                          Expanded(
+                            flex: portraitDecorationFlex,
+                            child: _buildCustomDecorationArea(
+                              backgroundColor: backgroundColor,
+                              foregroundColor: foregroundColor,
+                            ),
+                          ),
                         ],
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
@@ -290,6 +286,190 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildCalendarGrid({
+    required Color backgroundColor,
+    required Color foregroundColor,
+    required Color holidayColor,
+    required Color fullMoonColor,
+    required Color newMoonColor,
+    required double dayRadius,
+    required double dayPadding,
+    required double gridSpacing,
+    required double gridAspectRatioFallback,
+    required int visibleRows,
+    required int visibleCellCount,
+    required double westernDayFontSize,
+    required double myanmarDayFontSize,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final gridAspectRatio = _resolveGridAspectRatio(
+          maxWidth: constraints.maxWidth,
+          maxHeight: constraints.maxHeight,
+          rows: visibleRows,
+          columns: 7,
+          spacing: gridSpacing,
+          fallback: gridAspectRatioFallback,
+        );
+        return GridView.builder(
+          itemCount: visibleCellCount,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            childAspectRatio: gridAspectRatio,
+            crossAxisSpacing: gridSpacing,
+            mainAxisSpacing: gridSpacing,
+          ),
+          itemBuilder: (context, index) {
+            final day = model.dayCells[index];
+            if (day.isPlaceholder) {
+              return _buildPlaceholderCell(
+                backgroundColor: backgroundColor,
+                foregroundColor: foregroundColor,
+                dayRadius: dayRadius,
+              );
+            }
+            final dayTextColor = (day.hasPublicHoliday || day.isWeekend == true)
+                ? holidayColor
+                : foregroundColor;
+            final moonPhaseColor = day.hasPublicHoliday
+                ? holidayColor
+                : day.isFullMoon
+                ? fullMoonColor
+                : day.isNewMoon
+                ? newMoonColor
+                : dayTextColor;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: backgroundColor.withValues(alpha: 0.96),
+                border: Border.all(
+                  color: foregroundColor.withValues(alpha: 0.22),
+                  width: 0.6,
+                ),
+                borderRadius: BorderRadius.circular(dayRadius),
+              ),
+              padding: EdgeInsets.all(dayPadding),
+              child: Stack(
+                children: [
+                  if (request.showWesternDates)
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        day.westernDayLabel,
+                        style: TextStyle(
+                          color: dayTextColor.withValues(
+                            alpha: day.isCurrentMonth ? 0.97 : 0.6,
+                          ),
+                          fontSize: westernDayFontSize,
+                          fontWeight: FontWeight.w800,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  if (request.showMyanmarDates)
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 1, left: 1),
+                        child: _buildMoonPhaseVisual(day: day),
+                      ),
+                    ),
+                  if (request.showMyanmarDates)
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Text(
+                        day.myanmarDayLabel,
+                        style: TextStyle(
+                          color: moonPhaseColor.withValues(
+                            alpha: day.isCurrentMonth ? 0.78 : 0.45,
+                          ),
+                          fontSize: myanmarDayFontSize,
+                          fontWeight: day.isFullMoon || day.isNewMoon
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  if (request.showAstrology || request.showHolidays)
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: _buildCellMetaText(day: day),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildCustomDecorationArea({
+    required Color backgroundColor,
+    required Color foregroundColor,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor.withValues(alpha: 0.56),
+        border: Border.all(color: foregroundColor.withValues(alpha: 0.22)),
+        borderRadius: BorderRadius.circular(compact ? 4 : 6),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderCell({
+    required Color backgroundColor,
+    required Color foregroundColor,
+    required double dayRadius,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor.withValues(alpha: 0.90),
+        border: Border.all(color: foregroundColor.withValues(alpha: 0.14)),
+        borderRadius: BorderRadius.circular(dayRadius),
+      ),
+    );
+  }
+
+  int _visibleRowCount(List<CalendarDayCellModel> dayCells) {
+    var lastRowWithData = -1;
+    for (var row = 0; row < 6; row++) {
+      final start = row * 7;
+      final hasCurrentMonthDay = dayCells
+          .skip(start)
+          .take(7)
+          .any((day) => !day.isPlaceholder);
+      if (hasCurrentMonthDay) {
+        lastRowWithData = row;
+      }
+    }
+    return lastRowWithData < 0 ? 6 : (lastRowWithData + 1);
+  }
+
+  double _resolveGridAspectRatio({
+    required double maxWidth,
+    required double maxHeight,
+    required int rows,
+    required int columns,
+    required double spacing,
+    required double fallback,
+  }) {
+    if (maxWidth <= 0 || maxHeight <= 0 || rows <= 0 || columns <= 0) {
+      return fallback;
+    }
+
+    final totalCrossSpacing = spacing * (columns - 1);
+    final totalMainSpacing = spacing * (rows - 1);
+    final cellWidth = (maxWidth - totalCrossSpacing) / columns;
+    final cellHeight = (maxHeight - totalMainSpacing) / rows;
+    if (cellWidth <= 0 || cellHeight <= 0) {
+      return fallback;
+    }
+    return cellWidth / cellHeight;
   }
 
   Widget _buildMoonPhaseVisual({required CalendarDayCellModel day}) {
