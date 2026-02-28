@@ -12,6 +12,10 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
   const CalendarGenerationPreviewPage({
     required this.model,
     required this.request,
+    this.margin = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.elevation = 2,
+    this.contentPadding = const EdgeInsets.all(12),
+    this.compact = false,
     super.key,
   });
 
@@ -22,6 +26,10 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
 
   final CalendarPageModel model;
   final CalendarGenerationRequest request;
+  final EdgeInsetsGeometry margin;
+  final double elevation;
+  final EdgeInsetsGeometry contentPadding;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +41,19 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     final pageBackgroundImage = theme.backgroundImageUrlForMonth(model.month);
     final imageProvider = _parseImageProvider(pageBackgroundImage);
 
+    final titleFontSize = compact ? 13.0 : 20.0;
+    final weekdayFontSize = compact ? 8.0 : 11.0;
+    final westernDayFontSize = compact ? 7.0 : 10.0;
+    final myanmarDayFontSize = compact ? 6.0 : 9.0;
+    final dayPadding = compact ? 2.0 : 4.0;
+    final markerSize = compact ? 4.0 : 6.0;
+    final dayRadius = compact ? 3.0 : 4.0;
+    final gridSpacing = compact ? 1.5 : 2.0;
+    final gridAspectRatio = compact ? 0.8 : 0.86;
+
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      elevation: 2,
+      margin: margin,
+      elevation: elevation,
       child: AspectRatio(
         aspectRatio: aspectRatio,
         child: Container(
@@ -53,34 +71,34 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                   ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: contentPadding,
             child: Column(
               children: [
                 Text(
                   model.title,
                   style: TextStyle(
                     color: foregroundColor,
-                    fontSize: 20,
+                    fontSize: titleFontSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: compact ? 4 : 8),
                 _WeekdayHeader(
                   labels: model.weekdayLabels,
                   foregroundColor: foregroundColor,
+                  fontSize: weekdayFontSize,
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: compact ? 3 : 6),
                 Expanded(
                   child: GridView.builder(
                     itemCount: model.dayCells.length,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 7,
-                          childAspectRatio: 0.86,
-                          crossAxisSpacing: 2,
-                          mainAxisSpacing: 2,
-                        ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 7,
+                      childAspectRatio: gridAspectRatio,
+                      crossAxisSpacing: gridSpacing,
+                      mainAxisSpacing: gridSpacing,
+                    ),
                     itemBuilder: (context, index) {
                       final day = model.dayCells[index];
                       final hasMarker =
@@ -98,9 +116,9 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                                 : foregroundColor.withValues(alpha: 0.15),
                             width: day.isToday ? 1.3 : 0.6,
                           ),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(dayRadius),
                         ),
-                        padding: const EdgeInsets.all(4),
+                        padding: EdgeInsets.all(dayPadding),
                         child: Stack(
                           children: [
                             if (request.showWesternDates)
@@ -112,7 +130,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                                     color: foregroundColor.withValues(
                                       alpha: day.isCurrentMonth ? 0.95 : 0.5,
                                     ),
-                                    fontSize: 10,
+                                    fontSize: westernDayFontSize,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -126,7 +144,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                                     color: foregroundColor.withValues(
                                       alpha: day.isCurrentMonth ? 0.78 : 0.45,
                                     ),
-                                    fontSize: 9,
+                                    fontSize: myanmarDayFontSize,
                                   ),
                                 ),
                               ),
@@ -134,8 +152,8 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                               Align(
                                 alignment: Alignment.topRight,
                                 child: Container(
-                                  width: 6,
-                                  height: 6,
+                                  width: markerSize,
+                                  height: markerSize,
                                   decoration: BoxDecoration(
                                     color: accentColor,
                                     shape: BoxShape.circle,
@@ -251,10 +269,15 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
 }
 
 class _WeekdayHeader extends StatelessWidget {
-  const _WeekdayHeader({required this.labels, required this.foregroundColor});
+  const _WeekdayHeader({
+    required this.labels,
+    required this.foregroundColor,
+    required this.fontSize,
+  });
 
   final List<String> labels;
   final Color foregroundColor;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +290,7 @@ class _WeekdayHeader extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: foregroundColor.withValues(alpha: 0.9),
-                  fontSize: 11,
+                  fontSize: fontSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),
