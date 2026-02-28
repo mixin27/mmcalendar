@@ -4,6 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_page_model.dart';
+import '../../domain/entities/calendar_preview_theme.dart';
 import '../export/background_image_loader.dart';
 import '../export/calendar_export_layout.dart';
 
@@ -90,8 +91,14 @@ class CalendarPdfRenderer {
           if (backgroundImage != null)
             pw.Positioned.fill(
               child: pw.Opacity(
-                opacity: 0.18,
-                child: pw.Image(backgroundImage, fit: pw.BoxFit.cover),
+                opacity: request.theme.backgroundImageOpacity.clamp(0.0, 1.0),
+                child: pw.Image(
+                  backgroundImage,
+                  fit: _toPdfFit(request.theme.backgroundImageFit),
+                  alignment: _toPdfAlignment(
+                    request.theme.backgroundImageAlignment,
+                  ),
+                ),
               ),
             ),
           pw.Padding(
@@ -294,5 +301,21 @@ class CalendarPdfRenderer {
   PdfColor _withAlpha(PdfColor color, double opacity) {
     final nextOpacity = opacity.clamp(0.0, 1.0).toDouble();
     return PdfColor(color.red, color.green, color.blue, nextOpacity);
+  }
+
+  pw.BoxFit _toPdfFit(CalendarBackgroundImageFit fit) {
+    return switch (fit) {
+      CalendarBackgroundImageFit.cover => pw.BoxFit.cover,
+      CalendarBackgroundImageFit.contain => pw.BoxFit.contain,
+      CalendarBackgroundImageFit.fill => pw.BoxFit.fill,
+    };
+  }
+
+  pw.Alignment _toPdfAlignment(CalendarBackgroundImageAlignment alignment) {
+    return switch (alignment) {
+      CalendarBackgroundImageAlignment.top => pw.Alignment.topCenter,
+      CalendarBackgroundImageAlignment.center => pw.Alignment.center,
+      CalendarBackgroundImageAlignment.bottom => pw.Alignment.bottomCenter,
+    };
   }
 }

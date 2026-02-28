@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +12,7 @@ import '../../domain/entities/calendar_generation_template.dart';
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
+import '../../domain/entities/calendar_preview_theme.dart';
 import '../../domain/entities/generation_artifact.dart';
 import '../../rendering/export/calendar_export_service.dart';
 import '../bloc/calendar_generation_bloc.dart';
@@ -633,6 +632,111 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                                         },
                                       ),
                                       const SizedBox(height: 12),
+                                      DropdownButtonFormField<
+                                        CalendarBackgroundImageFit
+                                      >(
+                                        initialValue: state
+                                            .request
+                                            .theme
+                                            .backgroundImageFit,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Image Fit',
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        items: CalendarBackgroundImageFit.values
+                                            .map(
+                                              (fit) =>
+                                                  DropdownMenuItem<
+                                                    CalendarBackgroundImageFit
+                                                  >(
+                                                    value: fit,
+                                                    child: Text(fit.label),
+                                                  ),
+                                            )
+                                            .toList(growable: false),
+                                        onChanged: (value) {
+                                          if (value == null) {
+                                            return;
+                                          }
+                                          context
+                                              .read<CalendarGenerationBloc>()
+                                              .add(
+                                                ChangeBackgroundImageFit(value),
+                                              );
+                                        },
+                                      ),
+                                      const SizedBox(height: 12),
+                                      SegmentedButton<
+                                        CalendarBackgroundImageAlignment
+                                      >(
+                                        showSelectedIcon: false,
+                                        segments: const [
+                                          ButtonSegment<
+                                            CalendarBackgroundImageAlignment
+                                          >(
+                                            value:
+                                                CalendarBackgroundImageAlignment
+                                                    .top,
+                                            label: Text('Top'),
+                                          ),
+                                          ButtonSegment<
+                                            CalendarBackgroundImageAlignment
+                                          >(
+                                            value:
+                                                CalendarBackgroundImageAlignment
+                                                    .center,
+                                            label: Text('Center'),
+                                          ),
+                                          ButtonSegment<
+                                            CalendarBackgroundImageAlignment
+                                          >(
+                                            value:
+                                                CalendarBackgroundImageAlignment
+                                                    .bottom,
+                                            label: Text('Bottom'),
+                                          ),
+                                        ],
+                                        selected:
+                                            <CalendarBackgroundImageAlignment>{
+                                              state
+                                                  .request
+                                                  .theme
+                                                  .backgroundImageAlignment,
+                                            },
+                                        onSelectionChanged: (selection) {
+                                          context
+                                              .read<CalendarGenerationBloc>()
+                                              .add(
+                                                ChangeBackgroundImageAlignment(
+                                                  selection.first,
+                                                ),
+                                              );
+                                        },
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        'Image Opacity (${(state.request.theme.backgroundImageOpacity * 100).round()}%)',
+                                      ),
+                                      Slider(
+                                        value: state
+                                            .request
+                                            .theme
+                                            .backgroundImageOpacity
+                                            .clamp(0.0, 1.0),
+                                        min: 0,
+                                        max: 1,
+                                        divisions: 20,
+                                        onChanged: (value) {
+                                          context
+                                              .read<CalendarGenerationBloc>()
+                                              .add(
+                                                ChangeBackgroundImageOpacity(
+                                                  value,
+                                                ),
+                                              );
+                                        },
+                                      ),
+                                      const SizedBox(height: 4),
                                       TextField(
                                         controller: _imageUrlController,
                                         focusNode: _imageUrlFocusNode,
@@ -988,7 +1092,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
 
   void _applyBackgroundImageUrl(String url, {int? monthOverride}) {
     final bloc = context.read<CalendarGenerationBloc>();
-    final normalizedUrl = url.trim();
+    final normalizedUrl = _normalizeBackgroundImageUrl(url);
     if (monthOverride == null) {
       bloc.add(ChangeBackgroundImageUrl(normalizedUrl));
     } else {
@@ -1002,22 +1106,23 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   Future<void> _pickBackgroundImage({int? monthOverride}) async {
     final selected = await FilePicker.platform.pickFiles(
       type: FileType.image,
-      withData: true,
+      withData: false,
     );
     if (!mounted || selected == null || selected.files.isEmpty) {
       return;
     }
 
     final file = selected.files.first;
-    final bytes = file.bytes;
-    if (bytes == null || bytes.isEmpty) {
-      _showSnack('Unable to read selected image.');
+    final path = file.path?.trim();
+    if (path == null || path.isEmpty) {
+      _showSnack('Unable to access selected image path.');
       return;
     }
 
-    final mimeType = _mimeTypeFromExtension(file.extension);
-    final dataUri = 'data:$mimeType;base64,${base64Encode(bytes)}';
-    _applyBackgroundImageUrl(dataUri, monthOverride: monthOverride);
+    _applyBackgroundImageUrl(
+      Uri.file(path).toString(),
+      monthOverride: monthOverride,
+    );
     _showSnack('Selected image applied.');
   }
 
@@ -1201,20 +1306,33 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     return request.theme.backgroundImageUrlsByMonth[monthOverride] ?? '';
   }
 
-  String _mimeTypeFromExtension(String? extension) {
-    final ext = extension?.toLowerCase().trim();
-    return switch (ext) {
-      'jpg' || 'jpeg' => 'image/jpeg',
-      'webp' => 'image/webp',
-      'gif' => 'image/gif',
-      'bmp' => 'image/bmp',
-      'heic' => 'image/heic',
-      _ => 'image/png',
-    };
+  String _normalizeBackgroundImageUrl(String value) {
+    final normalized = value.trim();
+    if (normalized.isEmpty) {
+      return '';
+    }
+
+    final uri = Uri.tryParse(normalized);
+    if (uri != null && uri.hasScheme) {
+      return normalized;
+    }
+
+    if (_looksLikeAbsoluteLocalPath(normalized)) {
+      return Uri.file(normalized).toString();
+    }
+
+    return normalized;
   }
 
   bool _isDataImageUri(String value) {
     return value.startsWith('data:image/') && value.contains(';base64,');
+  }
+
+  bool _looksLikeAbsoluteLocalPath(String value) {
+    if (value.startsWith('/')) {
+      return true;
+    }
+    return RegExp(r'^[a-zA-Z]:[\\\/]').hasMatch(value);
   }
 }
 

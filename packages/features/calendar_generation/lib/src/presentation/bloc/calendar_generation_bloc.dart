@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:shared_core/shared_core.dart';
@@ -36,6 +38,9 @@ class CalendarGenerationBloc
     on<ChangeForegroundColor>(_onChangeForegroundColor);
     on<ChangeAccentColor>(_onChangeAccentColor);
     on<ChangeBackgroundImageUrl>(_onChangeBackgroundImageUrl);
+    on<ChangeBackgroundImageOpacity>(_onChangeBackgroundImageOpacity);
+    on<ChangeBackgroundImageFit>(_onChangeBackgroundImageFit);
+    on<ChangeBackgroundImageAlignment>(_onChangeBackgroundImageAlignment);
     on<ChangeMonthBackgroundImageUrl>(_onChangeMonthBackgroundImageUrl);
     on<ToggleGenerationHolidays>(_onToggleHolidays);
     on<ToggleGenerationAstrology>(_onToggleAstrology);
@@ -54,6 +59,11 @@ class CalendarGenerationBloc
   final CalendarDisplayConfigPort _calendarDisplayConfigPort;
   final CalendarGenerationPreferencesDataSource _preferencesDataSource;
   final AnalyticsPort _analyticsPort;
+  Timer? _requestSaveDebounceTimer;
+  CalendarGenerationRequest? _pendingRequestToSave;
+  static const Duration _requestSaveDebounceDuration = Duration(
+    milliseconds: 320,
+  );
 
   Future<void> _onInitialize(
     InitializeCalendarGeneration event,
@@ -88,7 +98,8 @@ class CalendarGenerationBloc
         imageQuality: CalendarImageQuality.print,
       );
 
-      final restoredRequest = _preferencesDataSource.restoreRequest(request);
+      var restoredRequest = _preferencesDataSource.restoreRequest(request);
+      restoredRequest = await _migrateLegacyDataImageUris(restoredRequest);
       final templates = _preferencesDataSource.getTemplates();
       final pages = _buildCalendarPreviews(restoredRequest);
       emit(
@@ -193,6 +204,46 @@ class CalendarGenerationBloc
       emit,
       (loaded) => loaded.request.copyWith(
         theme: loaded.request.theme.copyWith(backgroundImageUrl: event.url),
+      ),
+    );
+  }
+
+  void _onChangeBackgroundImageOpacity(
+    ChangeBackgroundImageOpacity event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(
+        theme: loaded.request.theme.copyWith(
+          backgroundImageOpacity: event.opacity.clamp(0.0, 1.0).toDouble(),
+        ),
+      ),
+    );
+  }
+
+  void _onChangeBackgroundImageFit(
+    ChangeBackgroundImageFit event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(
+        theme: loaded.request.theme.copyWith(backgroundImageFit: event.fit),
+      ),
+    );
+  }
+
+  void _onChangeBackgroundImageAlignment(
+    ChangeBackgroundImageAlignment event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(
+        theme: loaded.request.theme.copyWith(
+          backgroundImageAlignment: event.alignment,
+        ),
       ),
     );
   }
@@ -325,7 +376,7 @@ class CalendarGenerationBloc
     );
     final pages = _buildCalendarPreviews(nextRequest);
     emit(currentState.copyWith(request: nextRequest, pages: pages));
-    unawaited(_preferencesDataSource.saveRequest(nextRequest));
+    _queueRequestPersistence(nextRequest);
   }
 
   Future<void> _onDeleteGenerationTemplate(
@@ -372,7 +423,129 @@ class CalendarGenerationBloc
     final nextRequest = updateRequest(currentState);
     final pages = _buildCalendarPreviews(nextRequest);
     emit(currentState.copyWith(request: nextRequest, pages: pages));
-    unawaited(_preferencesDataSource.saveRequest(nextRequest));
+    _queueRequestPersistence(nextRequest);
+  }
+
+  void _queueRequestPersistence(CalendarGenerationRequest request) {
+    _pendingRequestToSave = request;
+    _requestSaveDebounceTimer?.cancel();
+    _requestSaveDebounceTimer = Timer(_requestSaveDebounceDuration, () {
+      final pending = _pendingRequestToSave;
+      _pendingRequestToSave = null;
+      if (pending == null) {
+        return;
+      }
+      unawaited(_preferencesDataSource.saveRequest(pending));
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    _requestSaveDebounceTimer?.cancel();
+    final pending = _pendingRequestToSave;
+    _pendingRequestToSave = null;
+    if (pending != null) {
+      await _preferencesDataSource.saveRequest(pending);
+    }
+    await super.close();
+  }
+
+  Future<CalendarGenerationRequest> _migrateLegacyDataImageUris(
+    CalendarGenerationRequest request,
+  ) async {
+    final theme = request.theme;
+    final migratedDefault = await _persistDataImageUri(
+      theme.backgroundImageUrl,
+    );
+
+    var hasChanges = migratedDefault != theme.backgroundImageUrl;
+    var migratedMonthly = theme.backgroundImageUrlsByMonth;
+
+    for (final entry in theme.backgroundImageUrlsByMonth.entries) {
+      final migratedValue = await _persistDataImageUri(entry.value);
+      if (migratedValue == null || migratedValue == entry.value) {
+        continue;
+      }
+      if (!hasChanges) {
+        migratedMonthly = Map<int, String>.from(
+          theme.backgroundImageUrlsByMonth,
+        );
+      }
+      hasChanges = true;
+      migratedMonthly[entry.key] = migratedValue;
+    }
+
+    if (!hasChanges) {
+      return request;
+    }
+
+    final migratedRequest = request.copyWith(
+      theme: theme.copyWith(
+        backgroundImageUrl: migratedDefault,
+        backgroundImageUrlsByMonth: migratedMonthly,
+      ),
+    );
+    await _preferencesDataSource.saveRequest(migratedRequest);
+    return migratedRequest;
+  }
+
+  Future<String?> _persistDataImageUri(String? source) async {
+    final normalized = source?.trim();
+    if (normalized == null ||
+        normalized.isEmpty ||
+        !_isDataImageUri(normalized)) {
+      return normalized;
+    }
+
+    final payloadStart = normalized.indexOf('base64,');
+    if (payloadStart < 0) {
+      return normalized;
+    }
+
+    try {
+      final encoded = normalized.substring(payloadStart + 7);
+      final bytes = base64Decode(encoded);
+      if (bytes.isEmpty) {
+        return '';
+      }
+
+      final directory = Directory(
+        '${Directory.systemTemp.path}/mmcalendar_background_images',
+      );
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+
+      final extension = _fileExtensionFromDataImageUri(normalized);
+      final file = File(
+        '${directory.path}/bg_${DateTime.now().microsecondsSinceEpoch}.$extension',
+      );
+      await file.writeAsBytes(bytes, flush: true);
+      return Uri.file(file.path).toString();
+    } catch (_) {
+      return normalized;
+    }
+  }
+
+  bool _isDataImageUri(String value) {
+    return value.startsWith('data:image/') && value.contains(';base64,');
+  }
+
+  String _fileExtensionFromDataImageUri(String dataUri) {
+    final mimeStart = dataUri.indexOf(':');
+    final mimeEnd = dataUri.indexOf(';');
+    if (mimeStart < 0 || mimeEnd <= mimeStart) {
+      return 'png';
+    }
+    final mimeType = dataUri.substring(mimeStart + 1, mimeEnd).toLowerCase();
+    return switch (mimeType) {
+      'image/jpeg' || 'image/jpg' => 'jpg',
+      'image/webp' => 'webp',
+      'image/gif' => 'gif',
+      'image/bmp' => 'bmp',
+      'image/heic' => 'heic',
+      _ => 'png',
+    };
   }
 
   CalendarGenerationTemplate? _findTemplate(

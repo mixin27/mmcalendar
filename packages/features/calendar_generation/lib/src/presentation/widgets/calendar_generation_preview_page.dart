@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_page_model.dart';
+import '../../domain/entities/calendar_preview_theme.dart';
 import '../../rendering/export/calendar_export_layout.dart';
 
 class CalendarGenerationPreviewPage extends StatelessWidget {
@@ -12,6 +14,11 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     required this.request,
     super.key,
   });
+
+  static final Map<String, ImageProvider<Object>> _imageProviderCache =
+      <String, ImageProvider<Object>>{};
+  static final List<String> _imageProviderCacheOrder = <String>[];
+  static const int _maxImageProviderCacheSize = 24;
 
   final CalendarPageModel model;
   final CalendarGenerationRequest request;
@@ -38,8 +45,11 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                 ? null
                 : DecorationImage(
                     image: imageProvider,
-                    fit: BoxFit.cover,
-                    opacity: 0.18,
+                    fit: _toFlutterFit(theme.backgroundImageFit),
+                    alignment: _toFlutterAlignment(
+                      theme.backgroundImageAlignment,
+                    ),
+                    opacity: theme.backgroundImageOpacity.clamp(0.0, 1.0),
                   ),
           ),
           child: Padding(
@@ -146,10 +156,15 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     );
   }
 
-  ImageProvider? _parseImageProvider(String? source) {
+  ImageProvider<Object>? _parseImageProvider(String? source) {
     final normalized = source?.trim();
     if (normalized == null || normalized.isEmpty) {
       return null;
+    }
+
+    final cached = _imageProviderCache[normalized];
+    if (cached != null) {
+      return cached;
     }
 
     if (normalized.startsWith('data:image/') &&
@@ -160,13 +175,78 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
       }
       try {
         final bytes = base64Decode(normalized.substring(start + 7));
-        return MemoryImage(bytes);
+        final provider = MemoryImage(bytes);
+        _rememberProvider(normalized, provider);
+        return provider;
       } catch (_) {
         return null;
       }
     }
 
-    return NetworkImage(normalized);
+    final uri = Uri.tryParse(normalized);
+    if (uri != null && uri.scheme == 'file') {
+      try {
+        final provider = FileImage(File(uri.toFilePath()));
+        _rememberProvider(normalized, provider);
+        return provider;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    if (_looksLikeAbsoluteLocalPath(normalized)) {
+      final provider = FileImage(File(normalized));
+      _rememberProvider(normalized, provider);
+      return provider;
+    }
+
+    if (uri != null &&
+        uri.hasScheme &&
+        uri.scheme != 'http' &&
+        uri.scheme != 'https') {
+      return null;
+    }
+
+    final provider = NetworkImage(normalized);
+    _rememberProvider(normalized, provider);
+    return provider;
+  }
+
+  void _rememberProvider(String source, ImageProvider<Object> provider) {
+    if (_imageProviderCache.containsKey(source)) {
+      _imageProviderCache[source] = provider;
+      return;
+    }
+
+    _imageProviderCache[source] = provider;
+    _imageProviderCacheOrder.add(source);
+    if (_imageProviderCacheOrder.length > _maxImageProviderCacheSize) {
+      final evictedKey = _imageProviderCacheOrder.removeAt(0);
+      _imageProviderCache.remove(evictedKey);
+    }
+  }
+
+  bool _looksLikeAbsoluteLocalPath(String value) {
+    if (value.startsWith('/')) {
+      return true;
+    }
+    return RegExp(r'^[a-zA-Z]:[\\\/]').hasMatch(value);
+  }
+
+  BoxFit _toFlutterFit(CalendarBackgroundImageFit fit) {
+    return switch (fit) {
+      CalendarBackgroundImageFit.cover => BoxFit.cover,
+      CalendarBackgroundImageFit.contain => BoxFit.contain,
+      CalendarBackgroundImageFit.fill => BoxFit.fill,
+    };
+  }
+
+  Alignment _toFlutterAlignment(CalendarBackgroundImageAlignment alignment) {
+    return switch (alignment) {
+      CalendarBackgroundImageAlignment.top => Alignment.topCenter,
+      CalendarBackgroundImageAlignment.center => Alignment.center,
+      CalendarBackgroundImageAlignment.bottom => Alignment.bottomCenter,
+    };
   }
 }
 

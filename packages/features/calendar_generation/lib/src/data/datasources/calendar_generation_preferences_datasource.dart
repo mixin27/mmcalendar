@@ -274,6 +274,9 @@ class CalendarGenerationPreferencesDataSource {
       'foregroundColorValue': theme.foregroundColorValue,
       'accentColorValue': theme.accentColorValue,
       'backgroundImageUrl': theme.backgroundImageUrl,
+      'backgroundImageOpacity': theme.backgroundImageOpacity,
+      'backgroundImageFit': theme.backgroundImageFit.name,
+      'backgroundImageAlignment': theme.backgroundImageAlignment.name,
       'backgroundImageUrlsByMonth': theme.backgroundImageUrlsByMonth.map(
         (key, value) => MapEntry('$key', value),
       ),
@@ -410,6 +413,17 @@ class CalendarGenerationPreferencesDataSource {
       backgroundImageUrl:
           rawTheme['backgroundImageUrl']?.toString() ??
           fallback.backgroundImageUrl,
+      backgroundImageOpacity:
+          _parseDouble(rawTheme['backgroundImageOpacity']) ??
+          fallback.backgroundImageOpacity,
+      backgroundImageFit:
+          _parseBackgroundImageFit(rawTheme['backgroundImageFit']) ??
+          fallback.backgroundImageFit,
+      backgroundImageAlignment:
+          _parseBackgroundImageAlignment(
+            rawTheme['backgroundImageAlignment'],
+          ) ??
+          fallback.backgroundImageAlignment,
       backgroundImageUrlsByMonth: monthlyImages,
     );
   }
@@ -469,6 +483,16 @@ class CalendarGenerationPreferencesDataSource {
     return int.tryParse(raw?.toString() ?? '');
   }
 
+  double? _parseDouble(Object? raw) {
+    if (raw is double) {
+      return raw;
+    }
+    if (raw is int) {
+      return raw.toDouble();
+    }
+    return double.tryParse(raw?.toString() ?? '');
+  }
+
   bool? _parseBool(Object? raw) {
     if (raw is bool) {
       return raw;
@@ -482,6 +506,24 @@ class CalendarGenerationPreferencesDataSource {
       return false;
     }
     return null;
+  }
+
+  CalendarBackgroundImageFit? _parseBackgroundImageFit(Object? raw) {
+    final name = raw?.toString();
+    return _firstWhereOrNull<CalendarBackgroundImageFit>(
+      CalendarBackgroundImageFit.values,
+      (value) => value.name == name,
+    );
+  }
+
+  CalendarBackgroundImageAlignment? _parseBackgroundImageAlignment(
+    Object? raw,
+  ) {
+    final name = raw?.toString();
+    return _firstWhereOrNull<CalendarBackgroundImageAlignment>(
+      CalendarBackgroundImageAlignment.values,
+      (value) => value.name == name,
+    );
   }
 
   T? _firstWhereOrNull<T>(Iterable<T> values, bool Function(T) test) {

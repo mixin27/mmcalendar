@@ -5,6 +5,7 @@ import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
+import '../../domain/entities/calendar_preview_theme.dart';
 
 sealed class CalendarGenerationEvent extends Equatable {
   const CalendarGenerationEvent();
@@ -87,6 +88,33 @@ final class ChangeBackgroundImageUrl extends CalendarGenerationEvent {
 
   @override
   List<Object?> get props => [url];
+}
+
+final class ChangeBackgroundImageOpacity extends CalendarGenerationEvent {
+  const ChangeBackgroundImageOpacity(this.opacity);
+
+  final double opacity;
+
+  @override
+  List<Object?> get props => [opacity];
+}
+
+final class ChangeBackgroundImageFit extends CalendarGenerationEvent {
+  const ChangeBackgroundImageFit(this.fit);
+
+  final CalendarBackgroundImageFit fit;
+
+  @override
+  List<Object?> get props => [fit];
+}
+
+final class ChangeBackgroundImageAlignment extends CalendarGenerationEvent {
+  const ChangeBackgroundImageAlignment(this.alignment);
+
+  final CalendarBackgroundImageAlignment alignment;
+
+  @override
+  List<Object?> get props => [alignment];
 }
 
 final class ChangeMonthBackgroundImageUrl extends CalendarGenerationEvent {

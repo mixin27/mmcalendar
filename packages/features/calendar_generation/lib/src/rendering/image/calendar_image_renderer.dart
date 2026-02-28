@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_page_model.dart';
+import '../../domain/entities/calendar_preview_theme.dart';
 import '../export/background_image_loader.dart';
 
 class CalendarImageRenderer {
@@ -85,22 +86,14 @@ class CalendarImageRenderer {
     canvas.drawRect(rect, Paint()..color = backgroundColor);
 
     if (backgroundImage != null) {
-      canvas.saveLayer(
-        rect,
-        Paint()..color = Colors.white.withValues(alpha: 0.18),
+      _paintBackgroundImage(
+        canvas: canvas,
+        rect: rect,
+        image: backgroundImage,
+        fit: request.theme.backgroundImageFit,
+        alignment: request.theme.backgroundImageAlignment,
+        opacity: request.theme.backgroundImageOpacity.clamp(0.0, 1.0),
       );
-      canvas.drawImageRect(
-        backgroundImage,
-        Rect.fromLTWH(
-          0,
-          0,
-          backgroundImage.width.toDouble(),
-          backgroundImage.height.toDouble(),
-        ),
-        rect,
-        Paint()..filterQuality = FilterQuality.high,
-      );
-      canvas.restore();
     }
 
     const margin = 52.0;
@@ -288,5 +281,80 @@ class CalendarImageRenderer {
       ellipsis: '',
     )..layout(maxWidth: maxWidth);
     return painter;
+  }
+
+  void _paintBackgroundImage({
+    required Canvas canvas,
+    required Rect rect,
+    required ui.Image image,
+    required CalendarBackgroundImageFit fit,
+    required CalendarBackgroundImageAlignment alignment,
+    required double opacity,
+  }) {
+    if (opacity <= 0) {
+      return;
+    }
+
+    final imageRect = Rect.fromLTWH(
+      0,
+      0,
+      image.width.toDouble(),
+      image.height.toDouble(),
+    );
+    final destinationRect = _resolveBackgroundDestinationRect(
+      container: rect,
+      image: imageRect,
+      fit: fit,
+      alignment: alignment,
+    );
+
+    canvas.save();
+    canvas.clipRect(rect);
+    canvas.saveLayer(
+      rect,
+      Paint()..color = Colors.white.withValues(alpha: opacity),
+    );
+    canvas.drawImageRect(
+      image,
+      imageRect,
+      destinationRect,
+      Paint()..filterQuality = FilterQuality.high,
+    );
+    canvas.restore();
+    canvas.restore();
+  }
+
+  Rect _resolveBackgroundDestinationRect({
+    required Rect container,
+    required Rect image,
+    required CalendarBackgroundImageFit fit,
+    required CalendarBackgroundImageAlignment alignment,
+  }) {
+    if (fit == CalendarBackgroundImageFit.fill) {
+      return container;
+    }
+
+    final widthScale = container.width / image.width;
+    final heightScale = container.height / image.height;
+    final scale = switch (fit) {
+      CalendarBackgroundImageFit.cover =>
+        widthScale > heightScale ? widthScale : heightScale,
+      CalendarBackgroundImageFit.contain =>
+        widthScale < heightScale ? widthScale : heightScale,
+      CalendarBackgroundImageFit.fill => 1.0,
+    };
+
+    final targetWidth = image.width * scale;
+    final targetHeight = image.height * scale;
+    final left = container.left + ((container.width - targetWidth) / 2);
+    final top = switch (alignment) {
+      CalendarBackgroundImageAlignment.top => container.top,
+      CalendarBackgroundImageAlignment.center =>
+        container.top + ((container.height - targetHeight) / 2),
+      CalendarBackgroundImageAlignment.bottom =>
+        container.bottom - targetHeight,
+    };
+
+    return Rect.fromLTWH(left, top, targetWidth, targetHeight);
   }
 }
