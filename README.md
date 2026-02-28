@@ -217,7 +217,7 @@ myanmar_calendar_app/
 - **Navigation**: go_router
 - **Database**: drift (SQLite)
 - **Dependency Injection**: get_it + injectable
-- **Calendar Engine**: flutter_mmcalendar (custom package)
+- **Calendar Engine**: myanmar_calendar_dart
 
 ### Key Patterns
 

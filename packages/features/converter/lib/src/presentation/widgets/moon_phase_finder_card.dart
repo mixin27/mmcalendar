@@ -248,25 +248,37 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
       children: [
         _buildMoonPhaseOption(
           0,
-          TranslationService.translate('Waxing'),
+          TranslationService.translateTo(
+            'Waxing',
+            MyanmarCalendar.currentLanguage,
+          ),
           Icons.brightness_2,
           Colors.amber,
         ),
         _buildMoonPhaseOption(
           1,
-          TranslationService.translate('Full Moon'),
+          TranslationService.translateTo(
+            'Full Moon',
+            MyanmarCalendar.currentLanguage,
+          ),
           Icons.brightness_1,
           Colors.orange,
         ),
         _buildMoonPhaseOption(
           2,
-          TranslationService.translate('Waning'),
+          TranslationService.translateTo(
+            'Waning',
+            MyanmarCalendar.currentLanguage,
+          ),
           Icons.brightness_3,
           Colors.blue,
         ),
         _buildMoonPhaseOption(
           3,
-          TranslationService.translate('New Moon'),
+          TranslationService.translateTo(
+            'New Moon',
+            MyanmarCalendar.currentLanguage,
+          ),
           Icons.brightness_4,
           Colors.indigo,
         ),
@@ -638,7 +650,10 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                 ),
                 Expanded(
                   child: Text(
-                    TranslationService.translate(item),
+                    TranslationService.translateTo(
+                      item,
+                      MyanmarCalendar.currentLanguage,
+                    ),
                     style: theme.textTheme.bodyMedium,
                   ),
                 ),

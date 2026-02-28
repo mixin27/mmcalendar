@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:integrations_database/integrations_database.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
+    hide CacheException;
 
 import '../../domain/entities/calendar_month.dart';
 import '../../domain/repositories/calendar_repository.dart';

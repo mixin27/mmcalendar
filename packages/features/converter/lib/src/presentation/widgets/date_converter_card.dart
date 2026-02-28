@@ -667,7 +667,10 @@ class _DateConverterCardState extends State<DateConverterCard>
                 Text('•  ', style: TextStyle(color: color)),
                 Expanded(
                   child: Text(
-                    TranslationService.translate(item),
+                    TranslationService.translateTo(
+                      item,
+                      MyanmarCalendar.currentLanguage,
+                    ),
                     style: theme.textTheme.bodyMedium,
                   ),
                 ),

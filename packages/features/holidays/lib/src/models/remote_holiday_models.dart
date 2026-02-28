@@ -89,7 +89,7 @@ class RemoteCustomHoliday {
       id: id,
       name: name,
       type: type,
-      predicate: rule.toPredicate(),
+      matcher: rule.toMatcher(),
     );
   }
 }
@@ -111,19 +111,21 @@ class RemoteHolidayRule {
     );
   }
 
-  HolidayPredicate toPredicate() {
+  CustomHolidayMatcher toMatcher() {
     if (type == 'western') {
-      return (MyanmarDate mm, WesternDate wd) {
+      return (CustomHolidayContext context) {
+        final wd = context.westernDate;
         return wd.month == month && wd.day == day;
       };
     } else if (type == 'myanmar') {
-      return (MyanmarDate mm, WesternDate wd) {
+      return (CustomHolidayContext context) {
+        final mm = context.myanmarDate;
         if (month != null && mm.month != month) return false;
         if (day != null && mm.day != day) return false;
         if (moonPhase != null && mm.moonPhase != moonPhase) return false;
         return true;
       };
     }
-    return (mm, wd) => false;
+    return (_) => false;
   }
 }

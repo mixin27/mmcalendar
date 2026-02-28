@@ -179,7 +179,7 @@ Future<void> _initializeMyanmarCalendar() async {
       sasanaYearType: int.tryParse(sasanaYearType ?? '0') ?? 0,
       calendarType: int.tryParse(calendarType ?? '0') ?? 0,
       gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
-      customHolidays: holidayOverridesPort.getCustomHolidays(),
+      customHolidayRules: holidayOverridesPort.getCustomHolidays(),
       disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
       disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
       disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),

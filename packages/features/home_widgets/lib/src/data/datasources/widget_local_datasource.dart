@@ -58,7 +58,10 @@ class WidgetLocalDataSource {
       );
 
       // Format dates with correct language
-      final yat = TranslationService.translate('Yat');
+      final yat = TranslationService.translateTo(
+        'Yat',
+        MyanmarCalendar.currentLanguage,
+      );
       final myanmarDate =
           '${myanmarDateTime.formatMyanmar('&y &M &P &f')} $yat';
       final westernDate = myanmarDateTime.formatWestern('%d %M %yyyy');

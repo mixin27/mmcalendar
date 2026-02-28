@@ -2,8 +2,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
-    hide MoonPhaseIndicator;
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:views/src/utils/utils.dart';
@@ -577,7 +576,12 @@ class _DayViewPageState extends State<DayViewPage>
               runSpacing: 8,
               children: completeDate.astrologicalDays.map((day) {
                 return Chip(
-                  label: Text(TranslationService.translate(day)),
+                  label: Text(
+                    TranslationService.translateTo(
+                      day,
+                      MyanmarCalendar.currentLanguage,
+                    ),
+                  ),
                   labelStyle: context.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
@@ -661,7 +665,10 @@ class _DayViewPageState extends State<DayViewPage>
       items.add(
         _AstroItemData(
           'Sabbath',
-          TranslationService.translate(completeDate.sabbath),
+          TranslationService.translateTo(
+            completeDate.sabbath,
+            MyanmarCalendar.currentLanguage,
+          ),
           Icons.brightness_2,
           Colors.orange,
         ),

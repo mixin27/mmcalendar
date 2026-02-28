@@ -28,7 +28,6 @@ dependencies:
 
   # Myanmar Calendar Package
   myanmar_calendar_dart: ^2.0.0
-  # flutter_mmcalendar: ^3.3.0
 
   # Utilities
   intl: ^0.20.2

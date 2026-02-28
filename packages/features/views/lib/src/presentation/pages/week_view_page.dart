@@ -344,8 +344,14 @@ class _WeekViewPageState extends State<WeekViewPage>
                               const SizedBox(width: 8),
                               Text(
                                 dayInfo.isFullMoon
-                                    ? TranslationService.translate("Full Moon")
-                                    : TranslationService.translate('New Moon'),
+                                    ? TranslationService.translateTo(
+                                        "Full Moon",
+                                        MyanmarCalendar.currentLanguage,
+                                      )
+                                    : TranslationService.translateTo(
+                                        'New Moon',
+                                        MyanmarCalendar.currentLanguage,
+                                      ),
                                 style: context.textTheme.bodySmall?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),

@@ -176,7 +176,7 @@ class _AppContentState extends State<_AppContent> {
       sasanaYearType: config.sasanaYearType,
       calendarType: config.calendarType,
       gregorianStart: config.gregorianStart,
-      customHolidays: [
+      customHolidayRules: [
         ...config.customHolidays,
         ...holidayOverridesPort.getCustomHolidays(),
       ],

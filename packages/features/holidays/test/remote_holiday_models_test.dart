@@ -38,7 +38,7 @@ void main() {
   group('RemoteHolidayRule', () {
     test('western rule predicate should work', () {
       final rule = RemoteHolidayRule(type: "western", month: 12, day: 25);
-      final predicate = rule.toPredicate();
+      final matcher = rule.toMatcher();
 
       final wdTrue = WesternDate(
         year: 2024,
@@ -68,8 +68,14 @@ void main() {
         monthType: 0,
       );
 
-      expect(predicate(mm, wdTrue), isTrue);
-      expect(predicate(mm, wdFalse), isFalse);
+      expect(
+        matcher(CustomHolidayContext(myanmarDate: mm, westernDate: wdTrue)),
+        isTrue,
+      );
+      expect(
+        matcher(CustomHolidayContext(myanmarDate: mm, westernDate: wdFalse)),
+        isFalse,
+      );
     });
 
     test('myanmar rule predicate should work', () {
@@ -78,7 +84,7 @@ void main() {
         month: 2,
         moonPhase: 1,
       ); // Kason Full Moon
-      final predicate = rule.toPredicate();
+      final matcher = rule.toMatcher();
 
       final mmTrue = MyanmarDate(
         year: 1386,
@@ -114,8 +120,14 @@ void main() {
         julianDayNumber: 0,
       );
 
-      expect(predicate(mmTrue, wd), isTrue);
-      expect(predicate(mmFalse, wd), isFalse);
+      expect(
+        matcher(CustomHolidayContext(myanmarDate: mmTrue, westernDate: wd)),
+        isTrue,
+      );
+      expect(
+        matcher(CustomHolidayContext(myanmarDate: mmFalse, westernDate: wd)),
+        isFalse,
+      );
     });
   });
 }

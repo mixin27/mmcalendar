@@ -21,6 +21,7 @@ export 'src/utils/validators.dart';
 export 'src/utils/debouncer.dart';
 export 'src/utils/throttler.dart';
 export 'src/utils/translate_numbers.dart';
+export 'src/utils/myanmar_calendar_compat.dart';
 export 'src/utils/share.dart';
 
 // Dependency Injection
