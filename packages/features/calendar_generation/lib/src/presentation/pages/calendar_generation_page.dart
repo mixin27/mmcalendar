@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
@@ -40,10 +43,12 @@ class _CalendarGenerationView extends StatefulWidget {
 
 class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   final TextEditingController _imageUrlController = TextEditingController();
+  final TextEditingController _templateNameController = TextEditingController();
   int _previewPage = 0;
   bool _isProcessingAction = false;
   String? _processingLabel;
   int? _imageOverrideMonth;
+  String? _selectedTemplateId;
 
   static const List<Color> _presetColors = <Color>[
     Color(0xFFFFFFFF),
@@ -60,6 +65,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   @override
   void dispose() {
     _imageUrlController.dispose();
+    _templateNameController.dispose();
     super.dispose();
   }
 
@@ -123,10 +129,21 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
               final loadedState = state as CalendarGenerationLoaded;
               final request = loadedState.request;
               final pages = loadedState.pages;
+              final templates = loadedState.templates;
               final selectedBackgroundImage = _selectedBackgroundImage(request);
+              final backgroundImageInputValue =
+                  _isDataImageUri(selectedBackgroundImage)
+                  ? ''
+                  : selectedBackgroundImage;
+              final currentTemplateId =
+                  templates.any(
+                    (template) => template.id == _selectedTemplateId,
+                  )
+                  ? _selectedTemplateId
+                  : null;
 
-              if (_imageUrlController.text != selectedBackgroundImage) {
-                _imageUrlController.text = selectedBackgroundImage;
+              if (_imageUrlController.text != backgroundImageInputValue) {
+                _imageUrlController.text = backgroundImageInputValue;
               }
 
               final now = DateTime.now();
@@ -453,29 +470,116 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                                       ? 'Background Image URL (optional)'
                                       : 'Month ${_imageOverrideMonth!} Image URL (optional)',
                                   border: const OutlineInputBorder(),
-                                  suffixIcon: IconButton(
+                                ),
+                                onSubmitted: (value) =>
+                                    _applyBackgroundImageUrl(value.trim()),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  FilledButton.icon(
+                                    onPressed: _pickBackgroundImage,
+                                    icon: const Icon(
+                                      Icons.photo_library_outlined,
+                                    ),
+                                    label: const Text('Pick Image'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  OutlinedButton.icon(
+                                    onPressed: () =>
+                                        _applyBackgroundImageUrl(''),
+                                    icon: const Icon(Icons.delete_outline),
+                                    label: const Text('Clear'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  OutlinedButton.icon(
+                                    onPressed: () => _applyBackgroundImageUrl(
+                                      _imageUrlController.text.trim(),
+                                    ),
                                     icon: const Icon(Icons.check),
-                                    onPressed: () {
-                                      final url = _imageUrlController.text
-                                          .trim();
-                                      if (_imageOverrideMonth == null) {
-                                        context
-                                            .read<CalendarGenerationBloc>()
-                                            .add(ChangeBackgroundImageUrl(url));
-                                      } else {
-                                        context
-                                            .read<CalendarGenerationBloc>()
-                                            .add(
-                                              ChangeMonthBackgroundImageUrl(
-                                                month: _imageOverrideMonth!,
-                                                url: url,
-                                              ),
-                                            );
-                                      }
-                                      FocusScope.of(context).unfocus();
-                                    },
+                                    label: const Text('Apply URL'),
+                                  ),
+                                ],
+                              ),
+                              if (_isDataImageUri(selectedBackgroundImage))
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: Text(
+                                    'Using picked image from device for this scope.',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                   ),
                                 ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Templates',
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _templateNameController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Template Name',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      onSubmitted: (_) => _saveTemplate(),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  FilledButton(
+                                    onPressed: _saveTemplate,
+                                    child: const Text('Save'),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: DropdownButtonFormField<String>(
+                                      initialValue: currentTemplateId,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Load Template',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      items: templates
+                                          .map(
+                                            (template) =>
+                                                DropdownMenuItem<String>(
+                                                  value: template.id,
+                                                  child: Text(template.name),
+                                                ),
+                                          )
+                                          .toList(growable: false),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedTemplateId = value;
+                                        });
+                                        if (value != null) {
+                                          context
+                                              .read<CalendarGenerationBloc>()
+                                              .add(
+                                                ApplyGenerationTemplate(value),
+                                              );
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  OutlinedButton.icon(
+                                    onPressed: currentTemplateId == null
+                                        ? null
+                                        : () => _deleteTemplate(
+                                            currentTemplateId,
+                                          ),
+                                    icon: const Icon(Icons.delete_outline),
+                                    label: const Text('Delete'),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -675,11 +779,85 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void _applyBackgroundImageUrl(String url) {
+    final bloc = context.read<CalendarGenerationBloc>();
+    if (_imageOverrideMonth == null) {
+      bloc.add(ChangeBackgroundImageUrl(url));
+    } else {
+      bloc.add(
+        ChangeMonthBackgroundImageUrl(month: _imageOverrideMonth!, url: url),
+      );
+    }
+    FocusScope.of(context).unfocus();
+  }
+
+  Future<void> _pickBackgroundImage() async {
+    final selected = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (!mounted || selected == null || selected.files.isEmpty) {
+      return;
+    }
+
+    final file = selected.files.first;
+    final bytes = file.bytes;
+    if (bytes == null || bytes.isEmpty) {
+      _showSnack('Unable to read selected image.');
+      return;
+    }
+
+    final mimeType = _mimeTypeFromExtension(file.extension);
+    final dataUri = 'data:$mimeType;base64,${base64Encode(bytes)}';
+    _applyBackgroundImageUrl(dataUri);
+    _showSnack('Selected image applied.');
+  }
+
+  String _mimeTypeFromExtension(String? extension) {
+    final ext = extension?.toLowerCase().trim();
+    return switch (ext) {
+      'jpg' || 'jpeg' => 'image/jpeg',
+      'webp' => 'image/webp',
+      'gif' => 'image/gif',
+      'bmp' => 'image/bmp',
+      'heic' => 'image/heic',
+      _ => 'image/png',
+    };
+  }
+
+  void _saveTemplate() {
+    final name = _templateNameController.text.trim();
+    if (name.isEmpty) {
+      _showSnack('Template name is required.');
+      return;
+    }
+    context.read<CalendarGenerationBloc>().add(SaveGenerationTemplate(name));
+    _templateNameController.clear();
+    _showSnack('Template saved.');
+  }
+
+  void _deleteTemplate(String? templateId) {
+    if (templateId == null) {
+      return;
+    }
+    context.read<CalendarGenerationBloc>().add(
+      DeleteGenerationTemplate(templateId),
+    );
+    setState(() {
+      _selectedTemplateId = null;
+    });
+    _showSnack('Template deleted.');
+  }
+
   String _selectedBackgroundImage(CalendarGenerationRequest request) {
     if (_imageOverrideMonth == null) {
       return request.theme.backgroundImageUrl ?? '';
     }
     return request.theme.backgroundImageUrlsByMonth[_imageOverrideMonth!] ?? '';
+  }
+
+  bool _isDataImageUri(String value) {
+    return value.startsWith('data:image/') && value.contains(';base64,');
   }
 }
 

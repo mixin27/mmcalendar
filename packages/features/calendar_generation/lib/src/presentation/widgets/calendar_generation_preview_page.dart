@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
@@ -22,6 +24,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     final accentColor = Color(theme.accentColorValue);
     final aspectRatio = CalendarExportLayout.previewAspectRatio(request);
     final pageBackgroundImage = theme.backgroundImageUrlForMonth(model.month);
+    final imageProvider = _parseImageProvider(pageBackgroundImage);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -31,14 +34,13 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: backgroundColor,
-            image:
-                (pageBackgroundImage != null && pageBackgroundImage.isNotEmpty)
-                ? DecorationImage(
-                    image: NetworkImage(pageBackgroundImage),
+            image: imageProvider == null
+                ? null
+                : DecorationImage(
+                    image: imageProvider,
                     fit: BoxFit.cover,
                     opacity: 0.18,
-                  )
-                : null,
+                  ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -142,6 +144,29 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  ImageProvider? _parseImageProvider(String? source) {
+    final normalized = source?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    if (normalized.startsWith('data:image/') &&
+        normalized.contains(';base64,')) {
+      final start = normalized.indexOf('base64,');
+      if (start < 0) {
+        return null;
+      }
+      try {
+        final bytes = base64Decode(normalized.substring(start + 7));
+        return MemoryImage(bytes);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    return NetworkImage(normalized);
   }
 }
 

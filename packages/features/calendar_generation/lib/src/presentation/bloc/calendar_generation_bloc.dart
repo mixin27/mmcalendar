@@ -9,6 +9,7 @@ import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/calendar_generation_request.dart';
+import '../../domain/entities/calendar_generation_template.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
 import '../../domain/usecases/build_calendar_previews.dart';
 import 'calendar_generation_event.dart';
@@ -42,6 +43,9 @@ class CalendarGenerationBloc
     on<ChangePaperSize>(_onChangePaperSize);
     on<ChangePageOrientation>(_onChangePageOrientation);
     on<ChangeImageQuality>(_onChangeImageQuality);
+    on<SaveGenerationTemplate>(_onSaveGenerationTemplate);
+    on<ApplyGenerationTemplate>(_onApplyGenerationTemplate);
+    on<DeleteGenerationTemplate>(_onDeleteGenerationTemplate);
   }
 
   final BuildCalendarPreviews _buildCalendarPreviews;
@@ -83,8 +87,15 @@ class CalendarGenerationBloc
       );
 
       final restoredRequest = _preferencesDataSource.restoreRequest(request);
+      final templates = _preferencesDataSource.getTemplates();
       final pages = _buildCalendarPreviews(restoredRequest);
-      emit(CalendarGenerationLoaded(request: restoredRequest, pages: pages));
+      emit(
+        CalendarGenerationLoaded(
+          request: restoredRequest,
+          pages: pages,
+          templates: templates,
+        ),
+      );
     } catch (error) {
       emit(CalendarGenerationError(error.toString()));
     }
@@ -266,6 +277,60 @@ class CalendarGenerationBloc
     );
   }
 
+  Future<void> _onSaveGenerationTemplate(
+    SaveGenerationTemplate event,
+    Emitter<CalendarGenerationState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! CalendarGenerationLoaded) {
+      return;
+    }
+
+    final templates = await _preferencesDataSource.saveTemplate(
+      name: event.name,
+      request: currentState.request,
+    );
+    emit(currentState.copyWith(templates: templates));
+  }
+
+  void _onApplyGenerationTemplate(
+    ApplyGenerationTemplate event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    final currentState = state;
+    if (currentState is! CalendarGenerationLoaded) {
+      return;
+    }
+
+    final template = _findTemplate(currentState.templates, event.templateId);
+    if (template == null) {
+      return;
+    }
+
+    final nextRequest = _preferencesDataSource.applyTemplate(
+      baseRequest: currentState.request,
+      template: template,
+    );
+    final pages = _buildCalendarPreviews(nextRequest);
+    emit(currentState.copyWith(request: nextRequest, pages: pages));
+    unawaited(_preferencesDataSource.saveRequest(nextRequest));
+  }
+
+  Future<void> _onDeleteGenerationTemplate(
+    DeleteGenerationTemplate event,
+    Emitter<CalendarGenerationState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! CalendarGenerationLoaded) {
+      return;
+    }
+
+    final templates = await _preferencesDataSource.deleteTemplate(
+      event.templateId,
+    );
+    emit(currentState.copyWith(templates: templates));
+  }
+
   void _regenerateIfLoaded(
     Emitter<CalendarGenerationState> emit,
     CalendarGenerationRequest Function(CalendarGenerationLoaded loaded)
@@ -280,5 +345,17 @@ class CalendarGenerationBloc
     final pages = _buildCalendarPreviews(nextRequest);
     emit(currentState.copyWith(request: nextRequest, pages: pages));
     unawaited(_preferencesDataSource.saveRequest(nextRequest));
+  }
+
+  CalendarGenerationTemplate? _findTemplate(
+    List<CalendarGenerationTemplate> templates,
+    String templateId,
+  ) {
+    for (final template in templates) {
+      if (template.id == templateId) {
+        return template;
+      }
+    }
+    return null;
   }
 }

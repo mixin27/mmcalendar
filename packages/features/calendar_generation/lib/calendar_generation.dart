@@ -3,6 +3,7 @@ library;
 // Domain
 export 'src/domain/entities/calendar_generation_mode.dart';
 export 'src/domain/entities/calendar_generation_request.dart';
+export 'src/domain/entities/calendar_generation_template.dart';
 export 'src/domain/entities/calendar_page_model.dart';
 export 'src/domain/entities/calendar_preview_theme.dart';
 export 'src/domain/entities/generation_artifact.dart';

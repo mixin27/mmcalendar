@@ -151,3 +151,30 @@ final class ChangeImageQuality extends CalendarGenerationEvent {
   @override
   List<Object?> get props => [quality];
 }
+
+final class SaveGenerationTemplate extends CalendarGenerationEvent {
+  const SaveGenerationTemplate(this.name);
+
+  final String name;
+
+  @override
+  List<Object?> get props => [name];
+}
+
+final class ApplyGenerationTemplate extends CalendarGenerationEvent {
+  const ApplyGenerationTemplate(this.templateId);
+
+  final String templateId;
+
+  @override
+  List<Object?> get props => [templateId];
+}
+
+final class DeleteGenerationTemplate extends CalendarGenerationEvent {
+  const DeleteGenerationTemplate(this.templateId);
+
+  final String templateId;
+
+  @override
+  List<Object?> get props => [templateId];
+}
