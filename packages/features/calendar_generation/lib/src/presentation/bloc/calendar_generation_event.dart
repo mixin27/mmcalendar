@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
@@ -41,6 +42,15 @@ final class ChangeGenerationMonth extends CalendarGenerationEvent {
 
   @override
   List<Object?> get props => [month];
+}
+
+final class ChangeGenerationLanguage extends CalendarGenerationEvent {
+  const ChangeGenerationLanguage(this.language);
+
+  final Language language;
+
+  @override
+  List<Object?> get props => [language];
 }
 
 final class ChangeBackgroundColor extends CalendarGenerationEvent {
@@ -177,4 +187,17 @@ final class DeleteGenerationTemplate extends CalendarGenerationEvent {
 
   @override
   List<Object?> get props => [templateId];
+}
+
+final class RenameGenerationTemplate extends CalendarGenerationEvent {
+  const RenameGenerationTemplate({
+    required this.templateId,
+    required this.name,
+  });
+
+  final String templateId;
+  final String name;
+
+  @override
+  List<Object?> get props => [templateId, name];
 }

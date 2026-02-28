@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 import 'calendar_generation_mode.dart';
 import 'calendar_image_quality.dart';
@@ -10,6 +11,7 @@ class CalendarGenerationTemplate extends Equatable {
   const CalendarGenerationTemplate({
     required this.id,
     required this.name,
+    required this.language,
     required this.mode,
     required this.showHolidays,
     required this.showAstrology,
@@ -25,6 +27,7 @@ class CalendarGenerationTemplate extends Equatable {
 
   final String id;
   final String name;
+  final Language language;
   final CalendarGenerationMode mode;
   final bool showHolidays;
   final bool showAstrology;
@@ -41,6 +44,7 @@ class CalendarGenerationTemplate extends Equatable {
   List<Object?> get props => [
     id,
     name,
+    language,
     mode,
     showHolidays,
     showAstrology,

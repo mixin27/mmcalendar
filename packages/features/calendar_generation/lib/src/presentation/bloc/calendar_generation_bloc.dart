@@ -29,6 +29,7 @@ class CalendarGenerationBloc
        super(const CalendarGenerationInitial()) {
     on<InitializeCalendarGeneration>(_onInitialize);
     on<ChangeGenerationMode>(_onChangeMode);
+    on<ChangeGenerationLanguage>(_onChangeLanguage);
     on<ChangeGenerationYear>(_onChangeYear);
     on<ChangeGenerationMonth>(_onChangeMonth);
     on<ChangeBackgroundColor>(_onChangeBackgroundColor);
@@ -46,6 +47,7 @@ class CalendarGenerationBloc
     on<SaveGenerationTemplate>(_onSaveGenerationTemplate);
     on<ApplyGenerationTemplate>(_onApplyGenerationTemplate);
     on<DeleteGenerationTemplate>(_onDeleteGenerationTemplate);
+    on<RenameGenerationTemplate>(_onRenameGenerationTemplate);
   }
 
   final BuildCalendarPreviews _buildCalendarPreviews;
@@ -108,6 +110,16 @@ class CalendarGenerationBloc
     _regenerateIfLoaded(
       emit,
       (loaded) => loaded.request.copyWith(mode: event.mode),
+    );
+  }
+
+  void _onChangeLanguage(
+    ChangeGenerationLanguage event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(language: event.language),
     );
   }
 
@@ -327,6 +339,22 @@ class CalendarGenerationBloc
 
     final templates = await _preferencesDataSource.deleteTemplate(
       event.templateId,
+    );
+    emit(currentState.copyWith(templates: templates));
+  }
+
+  Future<void> _onRenameGenerationTemplate(
+    RenameGenerationTemplate event,
+    Emitter<CalendarGenerationState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! CalendarGenerationLoaded) {
+      return;
+    }
+
+    final templates = await _preferencesDataSource.renameTemplate(
+      templateId: event.templateId,
+      name: event.name,
     );
     emit(currentState.copyWith(templates: templates));
   }

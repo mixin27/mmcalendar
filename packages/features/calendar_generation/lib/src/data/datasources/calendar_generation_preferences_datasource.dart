@@ -100,6 +100,7 @@ class CalendarGenerationPreferencesDataSource {
           ? templates[existingIndex].id
           : _generateTemplateId(normalizedName, now),
       name: normalizedName,
+      language: request.language,
       mode: request.mode,
       showHolidays: request.showHolidays,
       showAstrology: request.showAstrology,
@@ -123,6 +124,23 @@ class CalendarGenerationPreferencesDataSource {
     return getTemplates();
   }
 
+  bool hasTemplateName(String name, {String? excludingTemplateId}) {
+    final normalized = name.trim().toLowerCase();
+    if (normalized.isEmpty) {
+      return false;
+    }
+
+    for (final template in getTemplates()) {
+      if (excludingTemplateId != null && template.id == excludingTemplateId) {
+        continue;
+      }
+      if (template.name.trim().toLowerCase() == normalized) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   Future<List<CalendarGenerationTemplate>> deleteTemplate(
     String templateId,
   ) async {
@@ -133,11 +151,49 @@ class CalendarGenerationPreferencesDataSource {
     return getTemplates();
   }
 
+  Future<List<CalendarGenerationTemplate>> renameTemplate({
+    required String templateId,
+    required String name,
+  }) async {
+    final normalizedName = name.trim();
+    if (normalizedName.isEmpty) {
+      return getTemplates();
+    }
+
+    final templates = getTemplates().toList(growable: true);
+    final index = templates.indexWhere((template) => template.id == templateId);
+    if (index < 0) {
+      return templates;
+    }
+
+    final target = templates[index];
+    templates[index] = CalendarGenerationTemplate(
+      id: target.id,
+      name: normalizedName,
+      language: target.language,
+      mode: target.mode,
+      showHolidays: target.showHolidays,
+      showAstrology: target.showAstrology,
+      showWesternDates: target.showWesternDates,
+      showMyanmarDates: target.showMyanmarDates,
+      firstDayOfWeek: target.firstDayOfWeek,
+      paperSize: target.paperSize,
+      pageOrientation: target.pageOrientation,
+      imageQuality: target.imageQuality,
+      theme: target.theme,
+      updatedAt: DateTime.now(),
+    );
+
+    await _saveTemplates(templates);
+    return getTemplates();
+  }
+
   CalendarGenerationRequest applyTemplate({
     required CalendarGenerationRequest baseRequest,
     required CalendarGenerationTemplate template,
   }) {
     return baseRequest.copyWith(
+      language: template.language,
       mode: template.mode,
       showHolidays: template.showHolidays,
       showAstrology: template.showAstrology,
@@ -176,6 +232,7 @@ class CalendarGenerationPreferencesDataSource {
   ) {
     return <String, dynamic>{
       'mode': template.mode.name,
+      'language': template.language.code,
       'showHolidays': template.showHolidays,
       'showAstrology': template.showAstrology,
       'showWesternDates': template.showWesternDates,
@@ -194,6 +251,7 @@ class CalendarGenerationPreferencesDataSource {
   }) {
     return <String, dynamic>{
       'mode': request.mode.name,
+      'language': request.language.code,
       if (includeDateSelection) ...{
         'year': request.year,
         'month': request.month,
@@ -243,6 +301,7 @@ class CalendarGenerationPreferencesDataSource {
     return CalendarGenerationTemplate(
       id: id,
       name: name,
+      language: parsedRequest.language,
       mode: parsedRequest.mode,
       showHolidays: parsedRequest.showHolidays,
       showAstrology: parsedRequest.showAstrology,
@@ -285,6 +344,7 @@ class CalendarGenerationPreferencesDataSource {
     required bool includeDateSelection,
   }) {
     final mode = _parseMode(map['mode']) ?? fallback.mode;
+    final language = _parseLanguage(map['language']) ?? fallback.language;
     final year = _parseInt(map['year']) ?? fallback.year;
     final month = _parseInt(map['month']) ?? fallback.month;
     final paperSize = _parsePaperSize(map['paperSize']) ?? fallback.paperSize;
@@ -295,6 +355,7 @@ class CalendarGenerationPreferencesDataSource {
     final theme = _parseTheme(map['theme'], fallback.theme);
 
     return fallback.copyWith(
+      language: language,
       mode: mode,
       year: includeDateSelection ? year : fallback.year,
       month: includeDateSelection ? month : fallback.month,
@@ -367,6 +428,14 @@ class CalendarGenerationPreferencesDataSource {
       CalendarGenerationMode.values,
       (value) => value.name == name,
     );
+  }
+
+  Language? _parseLanguage(Object? raw) {
+    final code = raw?.toString();
+    if (code == null || code.trim().isEmpty) {
+      return null;
+    }
+    return Language.fromCode(code);
   }
 
   CalendarPaperSize? _parsePaperSize(Object? raw) {
