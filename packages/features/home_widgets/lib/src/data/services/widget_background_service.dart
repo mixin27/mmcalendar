@@ -29,18 +29,13 @@ void callbackDispatcher() {
       // Create data source with prefs
       final dataSource = WidgetLocalDataSource(prefs);
 
-      // Configure Myanmar Calendar with defaults
-      // Note: We can't access database in background isolate
-      MyanmarCalendar.configure(
+      // Configure Myanmar Calendar with isolate-safe defaults.
+      // Note: we avoid DB reads in background isolate.
+      applyMyanmarCalendarRuntimeConfig(
+        baseConfig: const CalendarConfig(),
         language: Language.fromCode(languageCode),
-        timezoneOffset: 6.5,
-        sasanaYearType: 0,
-        calendarType: 0,
-        gregorianStart: 2361222,
+        cacheProfile: MyanmarCalendarCacheProfile.memoryEfficient,
       );
-
-      MyanmarCalendar.clearCache();
-      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
 
       debugPrint('Myanmar Calendar configured in background');
 

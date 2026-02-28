@@ -134,7 +134,7 @@ class _SettingsCalendarConfigurationPageState
     context.read<SettingsBloc>().add(const LoadSettings());
 
     final holidayOverridesPort = getIt<HolidayOverridesPort>();
-    final customCount = holidayOverridesPort.getCustomHolidays().length;
+    final customCount = holidayOverridesPort.getCustomHolidayRules().length;
     final disabledCount = holidayOverridesPort.getDisabledHolidays().length;
     final fetchSummary = fetchResult == RemoteFetchResult.activated
         ? (l10n?.updated ?? 'updated')

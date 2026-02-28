@@ -162,6 +162,6 @@ class WeekdayHeader extends StatelessWidget {
 
   String _getWeekdayNumberLabel(int weekdayIndex) {
     final value = weekdayIndex == 0 ? 7 : weekdayIndex;
-    return FormatService().translateNumbers('$value', language: language);
+    return translateNumbers('$value', language: language);
   }
 }

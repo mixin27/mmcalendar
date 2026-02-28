@@ -318,14 +318,15 @@ class _WeekViewPageState extends State<WeekViewPage>
                         if (MyanmarCalendar.currentLanguage == Language.shan &&
                             showShanCalendar)
                           Text(
-                            '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${dayInfo.formatMyanmar(pattern: "&M &P &ff")}',
+                            '${translateNumbers(year.toString(), language: Language.shan)} '
+                            '${MyanmarCalendar.formatMyanmar(dayInfo.myanmar, pattern: "&M &P &ff")}',
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: context.colorScheme.primary,
                             ),
                           )
                         else
                           Text(
-                            dayInfo.formatMyanmar(),
+                            MyanmarCalendar.formatMyanmar(dayInfo.myanmar),
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: context.colorScheme.primary,
                             ),

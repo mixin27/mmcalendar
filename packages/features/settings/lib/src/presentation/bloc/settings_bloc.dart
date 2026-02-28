@@ -68,8 +68,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (settings) {
         // Apply both config AND language
-        _applyCalendarConfiguration(settings.calendarConfig);
-        MyanmarCalendar.setLanguage(settings.calendarLanguage);
+        _applyCalendarConfiguration(
+          config: settings.calendarConfig,
+          language: settings.calendarLanguage,
+        );
 
         emit(SettingsLoaded(settings));
       },
@@ -189,8 +191,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           languageCode: event.language.code,
           languageName: event.language.name,
         );
-
-        MyanmarCalendar.setLanguage(event.language);
+        _applyCalendarConfiguration(
+          config: currentState.settings.calendarConfig,
+          language: event.language,
+        );
 
         final updatedSettings = currentState.settings.copyWith(
           calendarLanguage: event.language,
@@ -222,7 +226,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
-        _applyCalendarConfiguration(event.config);
+        _applyCalendarConfiguration(
+          config: event.config,
+          language: currentState.settings.calendarLanguage,
+        );
 
         final updatedSettings = currentState.settings.copyWith(
           calendarConfig: event.config,
@@ -278,7 +285,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           buttonLocation: 'settings_page',
         );
 
-        _applyCalendarConfiguration(null);
+        _applyCalendarConfiguration(
+          config: const CalendarConfig(),
+          language: Language.english,
+        );
 
         // Reload settings after reset
         add(const LoadSettings());
@@ -440,30 +450,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   }
 
   // Helper method to apply calendar configuration
-  void _applyCalendarConfiguration(CalendarConfig? config) {
-    if (config == null) {
-      MyanmarCalendar.configure();
-      MyanmarCalendar.clearCache();
-      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
-    } else {
-      MyanmarCalendar.configure(
-        language: Language.fromCode(config.defaultLanguage),
-        timezoneOffset: config.timezoneOffset,
-        sasanaYearType: config.sasanaYearType,
-        calendarType: config.calendarType,
-        gregorianStart: config.gregorianStart,
-        customHolidayRules: [
-          ...config.customHolidays,
-          ...holidayOverridesPort.getCustomHolidays(),
-        ],
-        disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
-        disabledHolidaysByYear: holidayOverridesPort
-            .getDisabledHolidaysByYear(),
-        disabledHolidaysByDate: holidayOverridesPort
-            .getDisabledHolidaysByDate(),
-      );
-      MyanmarCalendar.clearCache();
-      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
-    }
+  void _applyCalendarConfiguration({
+    required CalendarConfig config,
+    required Language language,
+  }) {
+    applyMyanmarCalendarRuntimeConfig(
+      baseConfig: config,
+      language: language,
+      customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
+      disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
+      disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
+      disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
+      cacheProfile: MyanmarCalendarCacheProfile.memoryEfficient,
+    );
   }
 }

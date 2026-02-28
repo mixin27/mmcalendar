@@ -35,14 +35,9 @@ class MyanmarMonthWidgetService {
     DateTime date,
     String languageCode,
   ) async {
-    final currentLanguage = MyanmarCalendar.currentLanguage;
     final targetLanguage = Language.fromCode(languageCode);
 
     try {
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(targetLanguage);
-      }
-
       // Get Myanmar date for the given date
       final myanmarDate = MyanmarCalendar.fromWestern(
         date.year,
@@ -118,6 +113,7 @@ class MyanmarMonthWidgetService {
             myanmarMonthName: MyanmarCalendar.formatMyanmar(
               mmDate,
               pattern: '&M',
+              language: targetLanguage,
             ),
             moonPhase: mmDate.moonPhase,
             fortnightDay: mmDate.fortnightDay,
@@ -143,7 +139,7 @@ class MyanmarMonthWidgetService {
       debugPrint('📅 Total grid cells: ${gridDays.length}');
 
       // Get month names
-      final myanmarMonthName = myanmarDate.formatMyanmar("&M");
+      final myanmarMonthName = myanmarDate.formatMyanmar('&M', targetLanguage);
       final westernMonthName = DateFormat('MMMM').format(firstWesternDate);
 
       return MyanmarMonthData(
@@ -159,10 +155,6 @@ class MyanmarMonthWidgetService {
       debugPrint('❌ Error generating Myanmar month data: $e');
       debugPrint('Stack trace: $stackTrace');
       rethrow;
-    } finally {
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(currentLanguage);
-      }
     }
   }
 
@@ -200,7 +192,7 @@ class MyanmarMonthWidgetService {
         westernDay: westernDate.day,
         myanmarYear: myanmarYear,
         myanmarMonth: myanmarDateTime.myanmarMonth,
-        myanmarMonthName: myanmarDateTime.formatMyanmar('&M'),
+        myanmarMonthName: myanmarDateTime.formatMyanmar('&M', targetLanguage),
         moonPhase: myanmarDateTime.moonPhase,
         fortnightDay: myanmarDateTime.fortnightDay,
         hasHoliday: myanmarDateTime.allHolidays.isNotEmpty,
@@ -213,7 +205,7 @@ class MyanmarMonthWidgetService {
     return MyanmarMonthData(
       myanmarYear: anchorMyanmarDate.myanmarYear,
       myanmarMonth: anchorMyanmarDate.myanmarMonth,
-      myanmarMonthName: anchorMyanmarDate.formatMyanmar('&M'),
+      myanmarMonthName: anchorMyanmarDate.formatMyanmar('&M', targetLanguage),
       westernYear: firstOfMonth.year,
       westernMonth: firstOfMonth.month,
       westernMonthName: westernMonthName,
@@ -228,14 +220,9 @@ class MyanmarMonthWidgetService {
     int count,
     String languageCode,
   ) {
-    final currentLanguage = MyanmarCalendar.currentLanguage;
     final targetLanguage = Language.fromCode(languageCode);
 
     try {
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(targetLanguage);
-      }
-
       // Calculate previous Myanmar month
       int prevYear = currentYear;
       int prevMonth = currentMonth - 1;
@@ -283,6 +270,7 @@ class MyanmarMonthWidgetService {
             myanmarMonthName: MyanmarCalendar.formatMyanmar(
               mmDate,
               pattern: '&M',
+              language: targetLanguage,
             ),
             moonPhase: mmDate.moonPhase,
             fortnightDay: mmDate.fortnightDay,
@@ -297,10 +285,6 @@ class MyanmarMonthWidgetService {
     } catch (e) {
       debugPrint('⚠️ Error getting previous month days: $e');
       return [];
-    } finally {
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(currentLanguage);
-      }
     }
   }
 
@@ -311,14 +295,9 @@ class MyanmarMonthWidgetService {
     int count,
     String languageCode,
   ) {
-    final currentLanguage = MyanmarCalendar.currentLanguage;
     final targetLanguage = Language.fromCode(languageCode);
 
     try {
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(targetLanguage);
-      }
-
       // Calculate next Myanmar month
       int nextYear = currentYear;
       int nextMonth = currentMonth + 1;
@@ -365,6 +344,7 @@ class MyanmarMonthWidgetService {
             myanmarMonthName: MyanmarCalendar.formatMyanmar(
               mmDate,
               pattern: '&M',
+              language: targetLanguage,
             ),
             moonPhase: mmDate.moonPhase,
             fortnightDay: mmDate.fortnightDay,
@@ -379,10 +359,6 @@ class MyanmarMonthWidgetService {
     } catch (e) {
       debugPrint('⚠️ Error getting next month days: $e');
       return [];
-    } finally {
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(currentLanguage);
-      }
     }
   }
 

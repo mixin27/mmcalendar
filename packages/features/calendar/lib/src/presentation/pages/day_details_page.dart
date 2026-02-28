@@ -6,6 +6,7 @@ import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../di/calendar_injection.dart';
 import '../widgets/day_details_content.dart';
+import '../widgets/myanmar_date_picker_dialog.dart';
 
 class DayDetailsPage extends StatefulWidget {
   final DateTime date;
@@ -319,23 +320,19 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Future<void> _showDatePicker(BuildContext context) async {
-    final isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
-    final selectedDate = await showMyanmarDatePicker(
+    final selectedDate = await showMyanmarDatePickerDialog(
       context: context,
       initialDate: _currentDate,
-      theme: MyanmarCalendarTheme.fromColor(
-        Theme.of(context).colorScheme.primary,
-        isDark: isDark,
-      ),
+      language: MyanmarCalendar.currentLanguage,
     );
 
     if (selectedDate != null) {
       _analyticsService.logDateSelection(
-        selectedDate: selectedDate.western.toDateTime().toString(),
+        selectedDate: selectedDate.toString(),
         calendarType: 'myanmar',
         dateFormat: 'from_date_picker',
       );
-      _navigateToDay(selectedDate.western.toDateTime());
+      _navigateToDay(selectedDate);
     }
   }
 

@@ -7,7 +7,6 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
@@ -169,23 +168,15 @@ class _AppContentState extends State<_AppContent> {
   void _syncMyanmarCalendarRuntime(AppSettingsEntity settings) {
     final config = settings.calendarConfig;
     final holidayOverridesPort = getIt<HolidayOverridesPort>();
-
-    MyanmarCalendar.configure(
+    applyMyanmarCalendarRuntimeConfig(
+      baseConfig: config,
       language: settings.calendarLanguage,
-      timezoneOffset: config.timezoneOffset,
-      sasanaYearType: config.sasanaYearType,
-      calendarType: config.calendarType,
-      gregorianStart: config.gregorianStart,
-      customHolidayRules: [
-        ...config.customHolidays,
-        ...holidayOverridesPort.getCustomHolidays(),
-      ],
+      customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
       disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
       disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
       disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
+      cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
     );
-    MyanmarCalendar.clearCache();
-    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
   }
 }
 

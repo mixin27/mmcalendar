@@ -1,0 +1,55 @@
+{
+  "customHolidayRules": [
+    {
+      "id": "new_year_day_custom",
+      "name": "New Year Day",
+      "type": "public",
+      "rule": {
+        "kind": "westernDate",
+        "month": 1,
+        "day": 1
+      },
+      "localizedNames": {
+        "en": "New Year Day",
+        "my": "နှစ်သစ်ကူးနေ့"
+      },
+      "cacheKey": "western:new_year_day",
+      "cacheVersion": 1
+    },
+    {
+      "id": "waso_full_moon_custom",
+      "name": "Waso Full Moon Special",
+      "type": "religious",
+      "rule": {
+        "kind": "myanmarDate",
+        "month": 4,
+        "day": 15
+      },
+      "cacheVersion": 1
+    },
+    {
+      "id": "full_moon_friday",
+      "name": "Full Moon Friday",
+      "type": "other",
+      "rule": {
+        "kind": "matcher",
+        "myanmar": {
+          "moonPhase": 1
+        },
+        "western": {
+          "weekday": 6
+        }
+      },
+      "cacheVersion": 2
+    }
+  ],
+  "disabledHolidays": [
+    "halloween"
+  ],
+  "disabledHolidaysByYear": {
+    "2026": ["thingyanAkya"]
+  },
+  "disabledHolidaysByDate": {
+    "2026-10-31": ["halloween"]
+  }
+}

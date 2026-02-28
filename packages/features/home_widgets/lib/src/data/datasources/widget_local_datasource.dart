@@ -42,13 +42,7 @@ class WidgetLocalDataSource {
     String languageCode,
   ) async {
     try {
-      // Temporarily set language
-      final currentLanguage = MyanmarCalendar.currentLanguage;
       final targetLanguage = Language.fromCode(languageCode);
-
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(targetLanguage);
-      }
 
       // Get Myanmar calendar date info
       final myanmarDateTime = MyanmarCalendar.fromWestern(
@@ -58,13 +52,13 @@ class WidgetLocalDataSource {
       );
 
       // Format dates with correct language
-      final yat = TranslationService.translateTo(
-        'Yat',
-        MyanmarCalendar.currentLanguage,
-      );
+      final yat = TranslationService.translateTo('Yat', targetLanguage);
       final myanmarDate =
-          '${myanmarDateTime.formatMyanmar('&y &M &P &f')} $yat';
-      final westernDate = myanmarDateTime.formatWestern('%d %M %yyyy');
+          '${myanmarDateTime.formatMyanmar('&y &M &P &f', targetLanguage)} $yat';
+      final westernDate = myanmarDateTime.formatWestern(
+        '%d %M %yyyy',
+        targetLanguage,
+      );
 
       // Get moon phase
       final moonPhase = _getMoonPhaseName(
@@ -110,11 +104,6 @@ class WidgetLocalDataSource {
           myanmarDateTime.pyathada,
           targetLanguage,
         );
-      }
-
-      // Restore original language
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(currentLanguage);
       }
 
       final weekdayNames = _getWeekdayNames(targetLanguage);

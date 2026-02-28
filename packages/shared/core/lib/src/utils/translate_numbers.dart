@@ -1,7 +1,7 @@
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
-String translateNumbers(String text) {
-  final currentLang = MyanmarCalendar.currentLanguage;
+String translateNumbers(String text, {Language? language}) {
+  final currentLang = language ?? MyanmarCalendar.currentLanguage;
 
   if (!TranslationService.shouldTranslateDigits(currentLang)) {
     return text;

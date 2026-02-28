@@ -121,7 +121,7 @@ class CalendarHeader extends StatelessWidget {
   String _buildMyanmarMonthLabel(List<CompleteDate> dates) {
     final months = <String>[];
     for (final date in dates) {
-      final month = date.formatMyanmar(pattern: '&M');
+      final month = MyanmarCalendar.formatMyanmar(date.myanmar, pattern: '&M');
       if (!months.contains(month)) {
         months.add(month);
       }
@@ -139,7 +139,7 @@ class CalendarHeader extends StatelessWidget {
   String _buildMyanmarYearLabel(List<CompleteDate> dates) {
     final years = <String>[];
     for (final date in dates) {
-      final year = date.formatMyanmar(pattern: '&y');
+      final year = MyanmarCalendar.formatMyanmar(date.myanmar, pattern: '&y');
       if (!years.contains(year)) {
         years.add(year);
       }
@@ -167,7 +167,7 @@ class CalendarHeader extends StatelessWidget {
       return '';
     }
 
-    final firstYear = FormatService().translateNumbers(
+    final firstYear = translateNumbers(
       years.first.toString(),
       language: Language.shan,
     );
@@ -175,7 +175,7 @@ class CalendarHeader extends StatelessWidget {
       return firstYear;
     }
 
-    final lastYear = FormatService().translateNumbers(
+    final lastYear = translateNumbers(
       years.last.toString(),
       language: Language.shan,
     );

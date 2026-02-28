@@ -173,33 +173,30 @@ Future<void> _initializeMyanmarCalendar() async {
     final calendarLanguage = settings[4];
 
     // Configure Myanmar Calendar with saved settings
-    MyanmarCalendar.configure(
-      language: Language.fromCode(calendarLanguage ?? 'en'),
-      timezoneOffset: double.tryParse(timezoneOffset ?? '6.5') ?? 6.5,
-      sasanaYearType: int.tryParse(sasanaYearType ?? '0') ?? 0,
-      calendarType: int.tryParse(calendarType ?? '0') ?? 0,
-      gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
-      customHolidayRules: holidayOverridesPort.getCustomHolidays(),
+    applyMyanmarCalendarRuntimeConfig(
+      baseConfig: CalendarConfig(
+        timezoneOffset: double.tryParse(timezoneOffset ?? '6.5') ?? 6.5,
+        sasanaYearType: int.tryParse(sasanaYearType ?? '0') ?? 0,
+        calendarType: int.tryParse(calendarType ?? '0') ?? 0,
+        gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
+        defaultLanguage: calendarLanguage ?? Language.english.code,
+      ),
+      language: Language.fromCode(calendarLanguage ?? Language.english.code),
+      customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
       disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
       disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
       disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
+      cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
     );
-
-    MyanmarCalendar.clearCache();
-    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
 
     debugPrint('✅ Myanmar Calendar initialized with saved settings');
   } catch (e) {
     // If loading fails, use defaults
-    MyanmarCalendar.configure(
+    applyMyanmarCalendarRuntimeConfig(
+      baseConfig: const CalendarConfig(),
       language: Language.english,
-      timezoneOffset: 6.5,
-      sasanaYearType: 0,
-      calendarType: 0,
-      gregorianStart: 2361222,
+      cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
     );
-    MyanmarCalendar.clearCache();
-    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
     debugPrint('⚠️ Myanmar Calendar initialized with defaults: $e');
   }
 }

@@ -11,8 +11,8 @@ class HolidayService implements HolidayOverridesPort {
   RemoteHolidayConfig getHolidayConfig() {
     final jsonMap = _holidayConfigPort.getHolidayConfig();
     if (jsonMap.isEmpty) {
-      return RemoteHolidayConfig(
-        customHolidays: [],
+      return const RemoteHolidayConfig(
+        customHolidayRules: [],
         disabledHolidays: [],
         disabledHolidaysByYear: {},
         disabledHolidaysByDate: {},
@@ -23,8 +23,8 @@ class HolidayService implements HolidayOverridesPort {
       return RemoteHolidayConfig.fromJson(jsonMap);
     } catch (_) {
       // Log error or handle gracefully
-      return RemoteHolidayConfig(
-        customHolidays: [],
+      return const RemoteHolidayConfig(
+        customHolidayRules: [],
         disabledHolidays: [],
         disabledHolidaysByYear: {},
         disabledHolidaysByDate: {},
@@ -33,9 +33,10 @@ class HolidayService implements HolidayOverridesPort {
   }
 
   @override
-  List<CustomHoliday> getCustomHolidays() {
-    return getHolidayConfig().customHolidays
-        .map((e) => e.toCustomHoliday())
+  List<CustomHoliday> getCustomHolidayRules() {
+    return getHolidayConfig().customHolidayRules
+        .map((e) => e.toCustomHolidayRule())
+        .whereType<CustomHoliday>()
         .toList();
   }
 
@@ -45,12 +46,12 @@ class HolidayService implements HolidayOverridesPort {
   }
 
   @override
-  Map<int, List<HolidayId>>? getDisabledHolidaysByYear() {
+  Map<int, List<HolidayId>> getDisabledHolidaysByYear() {
     return getHolidayConfig().disabledHolidaysByYear;
   }
 
   @override
-  Map<String, List<HolidayId>>? getDisabledHolidaysByDate() {
+  Map<String, List<HolidayId>> getDisabledHolidaysByDate() {
     return getHolidayConfig().disabledHolidaysByDate;
   }
 }
