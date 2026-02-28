@@ -21,7 +21,7 @@ dependencies:
     path: ../../integrations/database
 
   # Myanmar calendar
-  flutter_mmcalendar: ^3.2.8
+  flutter_mmcalendar: ^3.3.0
 
   # State management
   bloc: ^9.2.0
