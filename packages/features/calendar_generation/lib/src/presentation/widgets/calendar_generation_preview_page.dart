@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_page_model.dart';
+import '../../rendering/export/calendar_export_layout.dart';
 
 class CalendarGenerationPreviewPage extends StatelessWidget {
   const CalendarGenerationPreviewPage({
@@ -19,12 +20,13 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     final backgroundColor = Color(theme.backgroundColorValue);
     final foregroundColor = Color(theme.foregroundColorValue);
     final accentColor = Color(theme.accentColorValue);
+    final aspectRatio = CalendarExportLayout.previewAspectRatio(request);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       elevation: 2,
       child: AspectRatio(
-        aspectRatio: 1 / 1.414,
+        aspectRatio: aspectRatio,
         child: Container(
           decoration: BoxDecoration(
             color: backgroundColor,

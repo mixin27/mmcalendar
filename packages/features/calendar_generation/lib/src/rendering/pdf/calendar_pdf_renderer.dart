@@ -5,6 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../export/background_image_loader.dart';
+import '../export/calendar_export_layout.dart';
 
 class CalendarPdfRenderer {
   CalendarPdfRenderer(this._backgroundImageLoader);
@@ -15,6 +16,7 @@ class CalendarPdfRenderer {
     required CalendarGenerationRequest request,
     required List<CalendarPageModel> pages,
   }) async {
+    final pdfPageFormat = CalendarExportLayout.resolvePdfPageFormat(request);
     final regularFont = await _loadFont(
       'assets/fonts/google_fonts/NotoSansMyanmar-Regular.ttf',
       fallback: pw.Font.helvetica(),
@@ -35,7 +37,7 @@ class CalendarPdfRenderer {
     for (final page in pages) {
       document.addPage(
         pw.Page(
-          pageFormat: PdfPageFormat.a4,
+          pageFormat: pdfPageFormat,
           margin: const pw.EdgeInsets.all(18),
           build: (context) => _buildPage(
             request: request,

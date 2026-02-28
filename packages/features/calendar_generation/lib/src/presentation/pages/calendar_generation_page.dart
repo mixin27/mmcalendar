@@ -4,7 +4,10 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_core/shared_core.dart';
 
 import '../../di/calendar_generation_injection.dart';
+import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
+import '../../domain/entities/calendar_page_orientation.dart';
+import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/generation_artifact.dart';
 import '../../rendering/export/calendar_export_service.dart';
 import '../bloc/calendar_generation_bloc.dart';
@@ -228,6 +231,102 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                                 ],
                               ),
                               const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child:
+                                        DropdownButtonFormField<
+                                          CalendarPaperSize
+                                        >(
+                                          initialValue: request.paperSize,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Paper Size',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          items: CalendarPaperSize.values
+                                              .map(
+                                                (paperSize) =>
+                                                    DropdownMenuItem<
+                                                      CalendarPaperSize
+                                                    >(
+                                                      value: paperSize,
+                                                      child: Text(
+                                                        paperSize.label,
+                                                      ),
+                                                    ),
+                                              )
+                                              .toList(growable: false),
+                                          onChanged: (value) {
+                                            if (value == null) {
+                                              return;
+                                            }
+                                            context
+                                                .read<CalendarGenerationBloc>()
+                                                .add(ChangePaperSize(value));
+                                          },
+                                        ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child:
+                                        DropdownButtonFormField<
+                                          CalendarImageQuality
+                                        >(
+                                          initialValue: request.imageQuality,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Image Quality',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          items: CalendarImageQuality.values
+                                              .map(
+                                                (quality) =>
+                                                    DropdownMenuItem<
+                                                      CalendarImageQuality
+                                                    >(
+                                                      value: quality,
+                                                      child: Text(
+                                                        quality.label,
+                                                      ),
+                                                    ),
+                                              )
+                                              .toList(growable: false),
+                                          onChanged: (value) {
+                                            if (value == null) {
+                                              return;
+                                            }
+                                            context
+                                                .read<CalendarGenerationBloc>()
+                                                .add(ChangeImageQuality(value));
+                                          },
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              SegmentedButton<CalendarPageOrientation>(
+                                showSelectedIcon: false,
+                                segments: const [
+                                  ButtonSegment<CalendarPageOrientation>(
+                                    value: CalendarPageOrientation.portrait,
+                                    label: Text('Portrait'),
+                                    icon: Icon(Icons.stay_current_portrait),
+                                  ),
+                                  ButtonSegment<CalendarPageOrientation>(
+                                    value: CalendarPageOrientation.landscape,
+                                    label: Text('Landscape'),
+                                    icon: Icon(Icons.stay_current_landscape),
+                                  ),
+                                ],
+                                selected: <CalendarPageOrientation>{
+                                  request.pageOrientation,
+                                },
+                                onSelectionChanged: (selection) {
+                                  context.read<CalendarGenerationBloc>().add(
+                                    ChangePageOrientation(selection.first),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 12),
                               Wrap(
                                 spacing: 8,
                                 runSpacing: 8,
@@ -430,15 +529,30 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     await _runGenerationAction(
       actionLabel: 'Generating images',
       onRun: (state) async {
-        final artifacts = await getIt<CalendarExportService>().buildImages(
+        final exportService = getIt<CalendarExportService>();
+        final artifacts = await exportService.buildImages(
           request: state.request,
           pages: state.pages,
         );
-        await _shareArtifacts(artifacts, title: 'Calendar Images');
+        if (artifacts.length > 1) {
+          final zip = exportService.buildImagesZip(
+            year: state.request.year,
+            images: artifacts,
+          );
+          await _shareArtifacts([zip], title: 'Calendar Images ZIP');
+        } else {
+          await _shareArtifacts(artifacts, title: 'Calendar Images');
+        }
         if (!mounted) {
           return;
         }
-        _showSnack('Generated ${artifacts.length} image file(s)');
+        if (artifacts.length > 1) {
+          _showSnack(
+            'Generated ${artifacts.length} images and shared ZIP bundle.',
+          );
+        } else {
+          _showSnack('Generated 1 image file.');
+        }
       },
     );
   }

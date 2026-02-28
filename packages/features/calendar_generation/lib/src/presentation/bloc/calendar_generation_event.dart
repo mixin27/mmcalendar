@@ -1,6 +1,9 @@
 import 'package:equatable/equatable.dart';
 
+import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
+import '../../domain/entities/calendar_page_orientation.dart';
+import '../../domain/entities/calendar_paper_size.dart';
 
 sealed class CalendarGenerationEvent extends Equatable {
   const CalendarGenerationEvent();
@@ -110,4 +113,31 @@ final class ToggleGenerationMyanmarDates extends CalendarGenerationEvent {
 
   @override
   List<Object?> get props => [value];
+}
+
+final class ChangePaperSize extends CalendarGenerationEvent {
+  const ChangePaperSize(this.paperSize);
+
+  final CalendarPaperSize paperSize;
+
+  @override
+  List<Object?> get props => [paperSize];
+}
+
+final class ChangePageOrientation extends CalendarGenerationEvent {
+  const ChangePageOrientation(this.orientation);
+
+  final CalendarPageOrientation orientation;
+
+  @override
+  List<Object?> get props => [orientation];
+}
+
+final class ChangeImageQuality extends CalendarGenerationEvent {
+  const ChangeImageQuality(this.quality);
+
+  final CalendarImageQuality quality;
+
+  @override
+  List<Object?> get props => [quality];
 }

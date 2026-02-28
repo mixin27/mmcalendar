@@ -1,7 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:shared_core/shared_core.dart';
 
+import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
+import '../../domain/entities/calendar_page_orientation.dart';
+import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
 import '../../domain/usecases/build_calendar_previews.dart';
@@ -30,6 +33,9 @@ class CalendarGenerationBloc
     on<ToggleGenerationAstrology>(_onToggleAstrology);
     on<ToggleGenerationWesternDates>(_onToggleWesternDates);
     on<ToggleGenerationMyanmarDates>(_onToggleMyanmarDates);
+    on<ChangePaperSize>(_onChangePaperSize);
+    on<ChangePageOrientation>(_onChangePageOrientation);
+    on<ChangeImageQuality>(_onChangeImageQuality);
   }
 
   final BuildCalendarPreviews _buildCalendarPreviews;
@@ -64,6 +70,9 @@ class CalendarGenerationBloc
         showMyanmarDates: displayConfig.showMyanmarDates,
         firstDayOfWeek: 1,
         theme: CalendarPreviewTheme.defaults(),
+        paperSize: CalendarPaperSize.a4,
+        pageOrientation: CalendarPageOrientation.portrait,
+        imageQuality: CalendarImageQuality.print,
       );
 
       final pages = _buildCalendarPreviews(request);
@@ -194,6 +203,36 @@ class CalendarGenerationBloc
     _regenerateIfLoaded(
       emit,
       (loaded) => loaded.request.copyWith(showMyanmarDates: event.value),
+    );
+  }
+
+  void _onChangePaperSize(
+    ChangePaperSize event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(paperSize: event.paperSize),
+    );
+  }
+
+  void _onChangePageOrientation(
+    ChangePageOrientation event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(pageOrientation: event.orientation),
+    );
+  }
+
+  void _onChangeImageQuality(
+    ChangeImageQuality event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(imageQuality: event.quality),
     );
   }
 

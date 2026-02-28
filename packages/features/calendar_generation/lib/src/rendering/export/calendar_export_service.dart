@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+
+import 'package:archive/archive.dart';
 import 'package:printing/printing.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../domain/entities/generation_artifact.dart';
+import 'calendar_export_layout.dart';
 import '../image/calendar_image_renderer.dart';
 import '../pdf/calendar_pdf_renderer.dart';
 
@@ -32,9 +36,12 @@ class CalendarExportService {
     required CalendarGenerationRequest request,
     required List<CalendarPageModel> pages,
   }) async {
+    final imageSize = CalendarExportLayout.resolveImageSize(request);
     final imageBytes = await _imageRenderer.renderPages(
       request: request,
       pages: pages,
+      width: imageSize.width,
+      height: imageSize.height,
     );
 
     return List<GenerationArtifact>.generate(imageBytes.length, (index) {
@@ -49,6 +56,26 @@ class CalendarExportService {
         bytes: imageBytes[index],
       );
     }, growable: false);
+  }
+
+  GenerationArtifact buildImagesZip({
+    required int year,
+    required List<GenerationArtifact> images,
+  }) {
+    final archive = Archive();
+    for (final image in images) {
+      archive.addFile(
+        ArchiveFile(image.fileName, image.bytes.length, image.bytes),
+      );
+    }
+
+    final zipBytes = ZipEncoder().encode(archive);
+
+    return GenerationArtifact(
+      fileName: 'myanmar_calendar_${year}_images.zip',
+      mimeType: 'application/zip',
+      bytes: Uint8List.fromList(zipBytes),
+    );
   }
 
   Future<void> print({
