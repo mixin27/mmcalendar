@@ -49,6 +49,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _templateNameController = TextEditingController();
   final FocusNode _imageUrlFocusNode = FocusNode();
+  final PageController _previewPageController = PageController();
 
   int _previewPage = 0;
   bool _isProcessingAction = false;
@@ -78,6 +79,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     _imageUrlController.dispose();
     _templateNameController.dispose();
     _imageUrlFocusNode.dispose();
+    _previewPageController.dispose();
     super.dispose();
   }
 
@@ -276,6 +278,8 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         ),
         Expanded(
           child: PageView.builder(
+            controller: _previewPageController,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: pages.length,
             onPageChanged: (index) {
               setState(() => _previewPage = index);
@@ -293,24 +297,28 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                       width: 1,
                     ),
                   ),
-                  child: ClipRect(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
                     child: InteractiveViewer(
-                      constrained: false,
-                      boundaryMargin: const EdgeInsets.all(48),
-                      minScale: 0.45,
-                      maxScale: 2.8,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: SizedBox(
-                          width: previewCanvasSize.width,
-                          height: previewCanvasSize.height,
-                          child: CalendarGenerationPreviewPage(
-                            model: pages[index],
-                            request: previewRequest,
-                            margin: EdgeInsets.zero,
-                            elevation: 0,
-                            contentPadding: const EdgeInsets.all(12),
-                            useCardChrome: false,
+                      constrained: true,
+                      boundaryMargin: const EdgeInsets.all(80),
+                      minScale: 1.0,
+                      maxScale: 4.0,
+                      child: SizedBox.expand(
+                        child: FittedBox(
+                          fit: BoxFit.contain,
+                          alignment: Alignment.center,
+                          child: SizedBox(
+                            width: previewCanvasSize.width,
+                            height: previewCanvasSize.height,
+                            child: CalendarGenerationPreviewPage(
+                              model: pages[index],
+                              request: previewRequest,
+                              margin: EdgeInsets.zero,
+                              elevation: 0,
+                              contentPadding: const EdgeInsets.all(12),
+                              useCardChrome: false,
+                            ),
                           ),
                         ),
                       ),
@@ -324,9 +332,43 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         if (pages.length > 1)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: Text('Page ${_previewPage + 1} / ${pages.length}'),
+            child: Row(
+              children: [
+                FilledButton.tonalIcon(
+                  onPressed: _previewPage > 0
+                      ? () => _goToPreviewPage(_previewPage - 1)
+                      : null,
+                  icon: const Icon(Icons.chevron_left),
+                  label: const Text('Previous'),
+                ),
+                Expanded(
+                  child: Center(
+                    child: Text('Page ${_previewPage + 1} / ${pages.length}'),
+                  ),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: _previewPage < pages.length - 1
+                      ? () => _goToPreviewPage(_previewPage + 1)
+                      : null,
+                  icon: const Icon(Icons.chevron_right),
+                  label: const Text('Next'),
+                  iconAlignment: IconAlignment.end,
+                ),
+              ],
+            ),
           ),
       ],
+    );
+  }
+
+  void _goToPreviewPage(int page) {
+    if (!_previewPageController.hasClients) {
+      return;
+    }
+    _previewPageController.animateToPage(
+      page,
+      duration: const Duration(milliseconds: 240),
+      curve: Curves.easeOutCubic,
     );
   }
 
