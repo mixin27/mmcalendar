@@ -584,7 +584,10 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
   }
 
   String _getMoonPhaseName(int moonPhase) {
-    return TranslationService.getMoonPhaseName(moonPhase);
+    return TranslationService.getMoonPhaseName(
+      moonPhase,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 
   Color _getMoonPhaseColor(int moonPhase) {
@@ -593,6 +596,9 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
   }
 
   String _getWeekdayName(int weekday) {
-    return TranslationService.getWeekdayName(weekday);
+    return TranslationService.getWeekdayName(
+      weekday,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 }

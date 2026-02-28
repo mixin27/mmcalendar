@@ -568,6 +568,9 @@ class _DateCalculatorCardState extends State<DateCalculatorCard>
     // But our TranslationService.getWeekdayName start from Saturday
     // So we need to adjust the weekday
     weekday = (weekday + 1) % 7;
-    return TranslationService.getWeekdayName(weekday);
+    return TranslationService.getWeekdayName(
+      weekday,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 }

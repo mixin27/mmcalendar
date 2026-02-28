@@ -1121,6 +1121,9 @@ class _MonthYearPickerBottomSheetState
   }
 
   String _getMonthName(int month) {
-    return TranslationService.getShortWesternMonthName(month - 1);
+    return TranslationService.getShortWesternMonthName(
+      month - 1,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 }

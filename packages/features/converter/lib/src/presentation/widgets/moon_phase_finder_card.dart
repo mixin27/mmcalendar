@@ -681,6 +681,9 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
   }
 
   String _getWeekdayName(int weekday) {
-    return TranslationService.getWeekdayName(weekday);
+    return TranslationService.getWeekdayName(
+      weekday,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 }

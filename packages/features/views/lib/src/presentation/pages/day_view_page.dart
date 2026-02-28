@@ -417,7 +417,10 @@ class _DayViewPageState extends State<DayViewPage>
               fortnightDay: completeDate.fortnightDay,
               size: 100,
               getMoonPhaseName: (mp) {
-                return TranslationService.getMoonPhaseName(mp);
+                return TranslationService.getMoonPhaseName(
+                  mp,
+                  MyanmarCalendar.currentLanguage,
+                );
               },
               getFortnightDay: (fd) {
                 return translateNumbers('Day $fd');

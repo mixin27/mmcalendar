@@ -207,6 +207,7 @@ class DayDetailsContent extends StatelessWidget {
                     TranslationService.getMonthName(
                       completeDate.myanmarMonth,
                       completeDate.yearType,
+                      MyanmarCalendar.currentLanguage,
                     ),
                     Theme.of(context).colorScheme.secondary,
                   ),
@@ -286,7 +287,10 @@ class DayDetailsContent extends StatelessWidget {
   }
 
   String _getYearTypeName(int yearType) {
-    return TranslationService.getYearTypeName(yearType);
+    return TranslationService.getYearTypeName(
+      yearType,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 
   Widget _buildBuddhistCalendarCard(BuildContext context) {
@@ -407,9 +411,13 @@ class DayDetailsContent extends StatelessWidget {
             Semantics(
               label: TranslationService.getMoonPhaseName(
                 completeDate.moonPhase,
+                MyanmarCalendar.currentLanguage,
               ),
               child: Text(
-                TranslationService.getMoonPhaseName(completeDate.moonPhase),
+                TranslationService.getMoonPhaseName(
+                  completeDate.moonPhase,
+                  MyanmarCalendar.currentLanguage,
+                ),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -429,7 +437,10 @@ class DayDetailsContent extends StatelessWidget {
   }
 
   Widget _buildWeekdayCard(BuildContext context) {
-    final weekdayName = TranslationService.getWeekdayName(completeDate.weekday);
+    final weekdayName = TranslationService.getWeekdayName(
+      completeDate.weekday,
+      MyanmarCalendar.currentLanguage,
+    );
 
     return Card(
       elevation: 0,
