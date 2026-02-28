@@ -50,7 +50,7 @@ class CalendarImageRenderer {
       );
       final encoded = await _encodeRenderedImage(
         renderedImage,
-        quality: _jpegQualityFor(request.imageQuality),
+        imageQuality: request.imageQuality,
       );
       renderedImage.dispose();
       result.add(encoded);
@@ -160,7 +160,7 @@ class CalendarImageRenderer {
 
   Future<Uint8List> _encodeRenderedImage(
     ui.Image image, {
-    required int quality,
+    required CalendarImageQuality imageQuality,
   }) async {
     final pngData = await image.toByteData(format: ui.ImageByteFormat.png);
     if (pngData == null) {
@@ -171,8 +171,48 @@ class CalendarImageRenderer {
     if (decoded == null) {
       return pngBytes;
     }
-    final jpegBytes = img.encodeJpg(decoded, quality: quality);
-    return Uint8List.fromList(jpegBytes);
+
+    final baseQuality = _jpegQualityFor(imageQuality);
+    final targetBytes = _targetBytesFor(imageQuality);
+    var working = decoded;
+    var best = img.encodeJpg(working, quality: baseQuality);
+
+    if (best.length <= targetBytes) {
+      return Uint8List.fromList(best);
+    }
+
+    for (var quality = baseQuality - 6; quality >= 58; quality -= 6) {
+      final compressed = img.encodeJpg(working, quality: quality);
+      best = compressed;
+      if (compressed.length <= targetBytes) {
+        return Uint8List.fromList(compressed);
+      }
+    }
+
+    const downscaleFactors = <double>[0.92, 0.85];
+    for (final factor in downscaleFactors) {
+      final resizedWidth = (decoded.width * factor).round();
+      final resizedHeight = (decoded.height * factor).round();
+      if (resizedWidth < 900 || resizedHeight < 1200) {
+        continue;
+      }
+      working = img.copyResize(
+        decoded,
+        width: resizedWidth,
+        height: resizedHeight,
+        interpolation: img.Interpolation.average,
+      );
+      final compressed = img.encodeJpg(
+        working,
+        quality: (baseQuality - 8).clamp(58, 90).toInt(),
+      );
+      best = compressed;
+      if (compressed.length <= targetBytes) {
+        return Uint8List.fromList(compressed);
+      }
+    }
+
+    return Uint8List.fromList(best);
   }
 
   double _exportPixelRatioFor(CalendarImageQuality quality) {
@@ -181,5 +221,9 @@ class CalendarImageRenderer {
 
   int _jpegQualityFor(CalendarImageQuality quality) {
     return quality == CalendarImageQuality.print ? 88 : 78;
+  }
+
+  int _targetBytesFor(CalendarImageQuality quality) {
+    return quality == CalendarImageQuality.print ? 2600000 : 900000;
   }
 }
