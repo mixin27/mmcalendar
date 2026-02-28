@@ -162,7 +162,7 @@ class DayDetailsContent extends StatelessWidget {
                       showShanCalendar)
                     Text(
                       '${translateNumbers(year.toString(), language: Language.shan)} '
-                      '${MyanmarCalendar.formatMyanmar(completeDate.myanmar, pattern: "&M &P &ff")}',
+                      '${MyanmarCalendar.formatMyanmar(completeDate.myanmar, pattern: "&M &P &f &Yat")}',
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
@@ -172,7 +172,10 @@ class DayDetailsContent extends StatelessWidget {
                     )
                   else
                     Text(
-                      MyanmarCalendar.formatMyanmar(completeDate.myanmar),
+                      MyanmarCalendar.formatMyanmar(
+                        completeDate.myanmar,
+                        pattern: '&y &M &P &f &Yat',
+                      ),
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,

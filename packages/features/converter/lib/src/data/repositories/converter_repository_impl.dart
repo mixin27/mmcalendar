@@ -17,7 +17,9 @@ class ConverterRepositoryImpl extends BaseRepository
       final myanmarDateTime = MyanmarCalendar.fromDateTime(date);
       final completeDate = myanmarDateTime.completeDate;
 
-      final formattedMyanmar = myanmarDateTime.formatMyanmar('&y &M &P &ff');
+      final formattedMyanmar = myanmarDateTime.formatMyanmar(
+        '&y &M &P &f &Yat',
+      );
       final formattedWestern = myanmarDateTime.formatWestern('%dd %M %yyyy');
 
       return Right(

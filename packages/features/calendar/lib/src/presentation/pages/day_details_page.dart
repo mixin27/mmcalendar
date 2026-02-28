@@ -1,12 +1,12 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as flutter_mmcal;
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../di/calendar_injection.dart';
 import '../widgets/day_details_content.dart';
-import '../widgets/myanmar_date_picker_dialog.dart';
 
 class DayDetailsPage extends StatefulWidget {
   final DateTime date;
@@ -320,19 +320,24 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Future<void> _showDatePicker(BuildContext context) async {
-    final selectedDate = await showMyanmarDatePickerDialog(
+    final selectedDate = await flutter_mmcal.showMyanmarDatePicker(
       context: context,
       initialDate: _currentDate,
       language: MyanmarCalendar.currentLanguage,
+      theme: flutter_mmcal.MyanmarCalendarTheme.fromColor(
+        Theme.of(context).colorScheme.primary,
+        isDark: Theme.of(context).brightness == Brightness.dark,
+      ),
     );
 
     if (selectedDate != null) {
+      final selectedWesternDate = selectedDate.western.toDateTime();
       _analyticsService.logDateSelection(
-        selectedDate: selectedDate.toString(),
+        selectedDate: selectedWesternDate.toString(),
         calendarType: 'myanmar',
         dateFormat: 'from_date_picker',
       );
-      _navigateToDay(selectedDate);
+      _navigateToDay(selectedWesternDate);
     }
   }
 
@@ -470,7 +475,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     final myanmarDateTime = MyanmarCalendar.today();
 
     if (showShanCalendar && MyanmarCalendar.currentLanguage == Language.shan) {
-      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")}';
+      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &f &Yat")}';
     }
 
     return myanmarDateTime.formatMyanmar();

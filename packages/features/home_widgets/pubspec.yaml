@@ -22,6 +22,7 @@ dependencies:
 
   # Myanmar calendar
   myanmar_calendar_dart: ^2.0.0
+  flutter_mmcalendar: ^3.3.0
 
   # State management
   bloc: ^9.2.0

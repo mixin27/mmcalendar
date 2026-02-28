@@ -27,7 +27,6 @@ export 'src/presentation/widgets/calendar_grid.dart';
 export 'src/presentation/widgets/date_cell.dart';
 export 'src/presentation/widgets/astrology_expandable_card.dart';
 export 'src/presentation/widgets/month_preview.dart';
-export 'src/presentation/widgets/myanmar_date_picker_dialog.dart';
 
 // DI
 export 'src/di/calendar_injection.dart' hide getIt;

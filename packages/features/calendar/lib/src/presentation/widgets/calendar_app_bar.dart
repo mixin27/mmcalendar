@@ -146,9 +146,9 @@ class CalendarAppBar extends StatelessWidget {
     final myanmarDateTime = MyanmarCalendar.today();
 
     if (showShanCalendar && language == Language.shan) {
-      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")}';
+      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &f &Yat")}';
     } else {
-      return myanmarDateTime.formatMyanmar(null, language);
+      return myanmarDateTime.formatMyanmar('&y &M &P &f &Yat', language);
     }
 
     // final s = TranslationService.translateTo('Sasana Year', MyanmarCalendar.currentLanguage);
