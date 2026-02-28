@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:holidays/holidays.dart';
 
 void main() {

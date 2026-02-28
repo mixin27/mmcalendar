@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 /// Represents data to be displayed in home widgets
 class WidgetData extends Equatable {

@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:integrations_database/integrations_database.dart';

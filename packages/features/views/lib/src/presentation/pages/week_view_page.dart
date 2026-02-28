@@ -2,7 +2,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 

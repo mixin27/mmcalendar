@@ -1,4 +1,4 @@
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 /// SDK-agnostic contract for holiday overrides consumed by features.
 ///

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 enum _WeekdayLabelDensity { short, narrow, numeric }

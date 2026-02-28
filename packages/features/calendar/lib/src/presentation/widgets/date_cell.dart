@@ -1,6 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 class DateCell extends StatefulWidget {
