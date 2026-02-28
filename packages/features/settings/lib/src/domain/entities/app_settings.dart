@@ -20,6 +20,7 @@ class AppSettingsEntity extends Equatable {
   final bool enableCrashlytics;
   final bool hasShownConsentDialog;
   final bool showShanCalendar;
+  final bool useDeviceTimezone;
 
   const AppSettingsEntity({
     required this.themeMode,
@@ -39,6 +40,7 @@ class AppSettingsEntity extends Equatable {
     this.enableCrashlytics = true,
     this.hasShownConsentDialog = false,
     this.showShanCalendar = true,
+    this.useDeviceTimezone = true,
   });
 
   AppSettingsEntity copyWith({
@@ -59,6 +61,7 @@ class AppSettingsEntity extends Equatable {
     bool? enableCrashlytics,
     bool? hasShownConsentDialog,
     bool? showShanCalendar,
+    bool? useDeviceTimezone,
   }) {
     return AppSettingsEntity(
       themeMode: themeMode ?? this.themeMode,
@@ -79,6 +82,7 @@ class AppSettingsEntity extends Equatable {
       hasShownConsentDialog:
           hasShownConsentDialog ?? this.hasShownConsentDialog,
       showShanCalendar: showShanCalendar ?? this.showShanCalendar,
+      useDeviceTimezone: useDeviceTimezone ?? this.useDeviceTimezone,
     );
   }
 
@@ -102,5 +106,6 @@ class AppSettingsEntity extends Equatable {
     enableCrashlytics,
     hasShownConsentDialog,
     showShanCalendar,
+    useDeviceTimezone,
   ];
 }

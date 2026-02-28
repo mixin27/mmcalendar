@@ -171,6 +171,7 @@ class _AppContentState extends State<_AppContent> {
     applyMyanmarCalendarRuntimeConfig(
       baseConfig: config,
       language: settings.calendarLanguage,
+      useDeviceTimezone: settings.useDeviceTimezone,
       customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
       disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
       disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),

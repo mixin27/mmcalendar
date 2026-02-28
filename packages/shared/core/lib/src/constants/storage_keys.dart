@@ -14,6 +14,7 @@ class StorageKeys {
   static const String calendarType = 'calendar_type';
   static const String gregorianStart = 'gregorian_start';
   static const String timezoneOffset = 'timezone_offset';
+  static const String useDeviceTimezone = 'use_device_timezone';
 
   // Display Preferences
   static const String firstDayOfWeek = 'first_day_of_week';

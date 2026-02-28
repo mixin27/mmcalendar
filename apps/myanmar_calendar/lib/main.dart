@@ -155,33 +155,29 @@ Future<void> _initializeMyanmarCalendar() async {
   try {
     final database = app_di.getIt<AppDatabase>();
     final settingsDao = database.settingsDao;
+    final calendarSettings = await database.calendarDao.getOrCreateSettings();
 
     final holidayOverridesPort = app_di.getIt<HolidayOverridesPort>();
 
-    // Load calendar configuration from database in parallel.
-    final settings = await Future.wait<String?>([
-      settingsDao.getSetting('sasana_year_type'),
-      settingsDao.getSetting('calendar_type'),
-      settingsDao.getSetting('timezone_offset'),
-      settingsDao.getSetting('gregorian_start'),
-      settingsDao.getSetting('calendar_language'),
-    ]);
-    final sasanaYearType = settings[0];
-    final calendarType = settings[1];
-    final timezoneOffset = settings[2];
-    final gregorianStart = settings[3];
-    final calendarLanguage = settings[4];
+    final calendarLanguage = await settingsDao.getSetting(
+      StorageKeys.calendarLanguage,
+    );
+    final useDeviceTimezone =
+        await settingsDao.getBoolSetting(StorageKeys.useDeviceTimezone) ?? true;
 
     // Configure Myanmar Calendar with saved settings
     applyMyanmarCalendarRuntimeConfig(
       baseConfig: CalendarConfig(
-        timezoneOffset: double.tryParse(timezoneOffset ?? '6.5') ?? 6.5,
-        sasanaYearType: int.tryParse(sasanaYearType ?? '0') ?? 0,
-        calendarType: int.tryParse(calendarType ?? '0') ?? 0,
-        gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
-        defaultLanguage: calendarLanguage ?? Language.english.code,
+        timezoneOffset: calendarSettings.timezoneOffset,
+        sasanaYearType: calendarSettings.sasanaYearType,
+        calendarType: calendarSettings.calendarType,
+        gregorianStart: calendarSettings.gregorianStart,
+        defaultLanguage: calendarSettings.defaultLanguage.isEmpty
+            ? Language.english.code
+            : calendarSettings.defaultLanguage,
       ),
       language: Language.fromCode(calendarLanguage ?? Language.english.code),
+      useDeviceTimezone: useDeviceTimezone,
       customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
       disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
       disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),

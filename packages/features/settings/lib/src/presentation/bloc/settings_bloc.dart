@@ -71,6 +71,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         _applyCalendarConfiguration(
           config: settings.calendarConfig,
           language: settings.calendarLanguage,
+          useDeviceTimezone: settings.useDeviceTimezone,
         );
 
         emit(SettingsLoaded(settings));
@@ -194,6 +195,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         _applyCalendarConfiguration(
           config: currentState.settings.calendarConfig,
           language: event.language,
+          useDeviceTimezone: currentState.settings.useDeviceTimezone,
         );
 
         final updatedSettings = currentState.settings.copyWith(
@@ -229,6 +231,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         _applyCalendarConfiguration(
           config: event.config,
           language: currentState.settings.calendarLanguage,
+          useDeviceTimezone: currentState.settings.useDeviceTimezone,
         );
 
         final updatedSettings = currentState.settings.copyWith(
@@ -263,6 +266,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           event.key,
           event.value,
         );
+        if (event.key == StorageKeys.useDeviceTimezone) {
+          _applyCalendarConfiguration(
+            config: updatedSettings.calendarConfig,
+            language: updatedSettings.calendarLanguage,
+            useDeviceTimezone: updatedSettings.useDeviceTimezone,
+          );
+        }
         emit(SettingsLoaded(updatedSettings));
       },
     );
@@ -288,6 +298,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         _applyCalendarConfiguration(
           config: const CalendarConfig(),
           language: Language.english,
+          useDeviceTimezone: true,
         );
 
         // Reload settings after reset
@@ -433,6 +444,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return settings.copyWith(showMyanmarDates: value);
       case StorageKeys.showShanCalendar:
         return settings.copyWith(showShanCalendar: value);
+      case StorageKeys.useDeviceTimezone:
+        return settings.copyWith(useDeviceTimezone: value);
       default:
         return settings;
     }
@@ -453,10 +466,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   void _applyCalendarConfiguration({
     required CalendarConfig config,
     required Language language,
+    required bool useDeviceTimezone,
   }) {
     applyMyanmarCalendarRuntimeConfig(
       baseConfig: config,
       language: language,
+      useDeviceTimezone: useDeviceTimezone,
       customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
       disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
       disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),

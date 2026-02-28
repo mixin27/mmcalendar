@@ -11,6 +11,7 @@ class CalendarDisplayConfig extends Equatable {
     required this.showWesternDates,
     required this.showMyanmarDates,
     required this.showShanCalendar,
+    required this.useDeviceTimezone,
     required this.sasanaYearType,
     required this.calendarType,
     required this.gregorianStart,
@@ -28,6 +29,7 @@ class CalendarDisplayConfig extends Equatable {
       showWesternDates: true,
       showMyanmarDates: true,
       showShanCalendar: true,
+      useDeviceTimezone: true,
       sasanaYearType: 0,
       calendarType: 0,
       gregorianStart: 2361222,
@@ -44,6 +46,7 @@ class CalendarDisplayConfig extends Equatable {
   final bool showWesternDates;
   final bool showMyanmarDates;
   final bool showShanCalendar;
+  final bool useDeviceTimezone;
   final int sasanaYearType;
   final int calendarType;
   final int gregorianStart;
@@ -53,7 +56,7 @@ class CalendarDisplayConfig extends Equatable {
   CalendarConfig get calendarConfig {
     return CalendarConfig(
       sasanaYearType: sasanaYearType,
-      calendarType: calendarType,
+      calendarType: 0,
       gregorianStart: gregorianStart,
       timezoneOffset: timezoneOffset,
       defaultLanguage: defaultLanguage,
@@ -62,10 +65,9 @@ class CalendarDisplayConfig extends Equatable {
 
   bool requiresCalendarRefreshComparedTo(CalendarDisplayConfig previous) {
     return calendarLanguage != previous.calendarLanguage ||
+        useDeviceTimezone != previous.useDeviceTimezone ||
         sasanaYearType != previous.sasanaYearType ||
-        calendarType != previous.calendarType ||
         gregorianStart != previous.gregorianStart ||
-        timezoneOffset != previous.timezoneOffset ||
         defaultLanguage != previous.defaultLanguage;
   }
 
@@ -79,6 +81,7 @@ class CalendarDisplayConfig extends Equatable {
     showWesternDates,
     showMyanmarDates,
     showShanCalendar,
+    useDeviceTimezone,
     sasanaYearType,
     calendarType,
     gregorianStart,

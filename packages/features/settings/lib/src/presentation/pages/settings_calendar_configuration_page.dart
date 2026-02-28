@@ -1,6 +1,5 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
@@ -184,24 +183,32 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
             leading: const Icon(Icons.auto_awesome),
             onTap: () => _showSasanaYearTypeDialog(context, settings),
           ),
-          SettingsTile(
-            title: l10n?.calendarType ?? 'Calendar Type',
-            subtitle: _getCalendarTypeName(
-              context,
-              settings.calendarConfig.calendarType,
-            ),
+          ListTile(
             leading: const Icon(Icons.event_note),
-            onTap: () => _showCalendarTypeDialog(context, settings),
+            title: Text(l10n?.calendarType ?? 'Calendar Type'),
+            subtitle: Text('${_getCalendarTypeName(context, 0)} (Locked)'),
+            trailing: const Icon(Icons.lock_outline),
           ),
-          SettingsTile(
-            title: l10n?.timezoneOffset ?? 'Timezone Offset',
-            subtitle:
-                l10n?.hoursValue(
-                  settings.calendarConfig.timezoneOffset.toString(),
-                ) ??
-                '${settings.calendarConfig.timezoneOffset} hours',
-            leading: const Icon(Icons.access_time),
-            onTap: () => _showTimezoneDialog(context, settings),
+          AnimatedSwitchTile(
+            title: 'Use Device Timezone',
+            subtitle: settings.useDeviceTimezone
+                ? 'Use device timezone (${_formatUtcOffset(getDeviceTimezoneOffsetHours())})'
+                : 'Use Myanmar Time (${_formatUtcOffset(kMyanmarTimezoneOffset)})',
+            icon: Icons.access_time,
+            value: settings.useDeviceTimezone,
+            useIcon: true,
+            onChanged: (value) {
+              context.read<SettingsBloc>().add(
+                ToggleDisplayPreference(StorageKeys.useDeviceTimezone, value),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.schedule),
+            title: Text(l10n?.timezoneOffset ?? 'Timezone Offset'),
+            subtitle: Text(
+              'Current runtime: ${_formatUtcOffset(settings.useDeviceTimezone ? getDeviceTimezoneOffsetHours() : kMyanmarTimezoneOffset)}',
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.cloud_sync_outlined),
@@ -298,122 +305,30 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
     );
   }
 
-  void _showCalendarTypeDialog(
-    BuildContext context,
-    AppSettingsEntity settings,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => EnhancedDialog(
-        title: l10n?.calendarType ?? 'Calendar Type',
-        icon: Icons.event_note,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioOption<int>(
-              title: l10n?.calendarTypeBritish ?? 'British',
-              subtitle:
-                  l10n?.britishCalendarSystem ?? 'British calendar system',
-              icon: Icons.flag,
-              value: 0,
-              groupValue: settings.calendarConfig.calendarType,
-              onChanged: (value) {
-                _updateCalendarConfig(context, settings, calendarType: value);
-                Navigator.pop(dialogContext);
-              },
-            ),
-            RadioOption<int>(
-              title: l10n?.calendarTypeGregorian ?? 'Gregorian',
-              subtitle:
-                  l10n?.gregorianCalendarSystem ?? 'Gregorian calendar system',
-              icon: Icons.calendar_month,
-              value: 1,
-              groupValue: settings.calendarConfig.calendarType,
-              onChanged: (value) {
-                _updateCalendarConfig(context, settings, calendarType: value);
-                Navigator.pop(dialogContext);
-              },
-            ),
-            RadioOption<int>(
-              title: l10n?.calendarTypeJulian ?? 'Julian',
-              subtitle: l10n?.julianCalendarSystem ?? 'Julian calendar system',
-              icon: Icons.calendar_today,
-              value: 2,
-              groupValue: settings.calendarConfig.calendarType,
-              onChanged: (value) {
-                _updateCalendarConfig(context, settings, calendarType: value);
-                Navigator.pop(dialogContext);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showTimezoneDialog(BuildContext context, AppSettingsEntity settings) {
-    final l10n = AppLocalizations.of(context);
-    final controller = TextEditingController(
-      text: settings.calendarConfig.timezoneOffset.toString(),
-    );
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        icon: const Icon(Icons.access_time),
-        title: Text(l10n?.timezoneOffset ?? 'Timezone Offset'),
-        content: TextField(
-          controller: controller,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-          ],
-          decoration: InputDecoration(
-            labelText: l10n?.hours ?? 'Hours',
-            hintText: (DateTime.now().timeZoneOffset.inMinutes.toDouble() / 60)
-                .toString(),
-            helperText:
-                l10n?.timezoneOffsetExample ??
-                'e.g., 6.5 for Myanmar Time (UTC+6:30)',
-            prefixIcon: const Icon(Icons.schedule),
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(l10n?.cancel ?? 'Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final value = double.tryParse(controller.text);
-              if (value != null) {
-                _updateCalendarConfig(context, settings, timezoneOffset: value);
-                Navigator.pop(dialogContext);
-              }
-            },
-            child: Text(l10n?.save ?? 'Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _updateCalendarConfig(
     BuildContext context,
     AppSettingsEntity settings, {
     int? sasanaYearType,
-    int? calendarType,
-    double? timezoneOffset,
   }) {
     final newConfig = CalendarConfig(
       sasanaYearType: sasanaYearType ?? settings.calendarConfig.sasanaYearType,
-      calendarType: calendarType ?? settings.calendarConfig.calendarType,
+      calendarType: 0,
       gregorianStart: settings.calendarConfig.gregorianStart,
-      timezoneOffset: timezoneOffset ?? settings.calendarConfig.timezoneOffset,
+      timezoneOffset: kMyanmarTimezoneOffset,
       defaultLanguage: settings.calendarConfig.defaultLanguage,
     );
     context.read<SettingsBloc>().add(UpdateCalendarConfiguration(newConfig));
+  }
+
+  String _formatUtcOffset(double offset) {
+    final sign = offset >= 0 ? '+' : '-';
+    final absoluteOffset = offset.abs();
+    var hours = absoluteOffset.floor();
+    var minutes = ((absoluteOffset - hours) * 60).round();
+    if (minutes == 60) {
+      hours += 1;
+      minutes = 0;
+    }
+    return 'UTC$sign${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 }

@@ -259,11 +259,15 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   void _handleDisplayConfigUpdate(CalendarDisplayConfig currentConfig) {
     final previousConfig = _lastDisplayConfig;
-    if (previousConfig == null ||
-        previousConfig.calendarLanguage != currentConfig.calendarLanguage) {
+    final requiresRefresh =
+        previousConfig == null ||
+        currentConfig.requiresCalendarRefreshComparedTo(previousConfig);
+
+    if (requiresRefresh) {
       applyMyanmarCalendarRuntimeConfig(
-        baseConfig: MyanmarCalendar.config,
+        baseConfig: currentConfig.calendarConfig,
         language: currentConfig.calendarLanguage,
+        useDeviceTimezone: currentConfig.useDeviceTimezone,
         cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
       );
     }
@@ -274,7 +278,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     }
 
     _lastDisplayConfig = currentConfig;
-    if (!currentConfig.requiresCalendarRefreshComparedTo(previousConfig)) {
+    if (!requiresRefresh) {
       return;
     }
 

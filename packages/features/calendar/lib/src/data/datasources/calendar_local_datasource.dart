@@ -80,7 +80,7 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
 
       return CalendarConfig(
         sasanaYearType: settings.sasanaYearType,
-        calendarType: settings.calendarType,
+        calendarType: 0,
         gregorianStart: settings.gregorianStart,
         timezoneOffset: settings.timezoneOffset,
         defaultLanguage: settings.defaultLanguage,
@@ -96,13 +96,18 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
       await database.calendarDao.updateSettings(
         CalendarSettingsCompanion(
           sasanaYearType: Value(config.sasanaYearType),
-          calendarType: Value(config.calendarType),
+          calendarType: const Value(0),
           gregorianStart: Value(config.gregorianStart),
           timezoneOffset: Value(config.timezoneOffset),
           defaultLanguage: Value(config.defaultLanguage),
           updatedAt: Value(DateTime.now()),
         ),
       );
+      final useDeviceTimezone =
+          await database.settingsDao.getBoolSetting(
+            StorageKeys.useDeviceTimezone,
+          ) ??
+          true;
 
       // Apply to Myanmar Calendar package
       log(
@@ -114,6 +119,7 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
       applyMyanmarCalendarRuntimeConfig(
         baseConfig: config,
         language: Language.fromCode(config.defaultLanguage),
+        useDeviceTimezone: useDeviceTimezone,
         customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
         disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
         disabledHolidaysByYear: holidayOverridesPort

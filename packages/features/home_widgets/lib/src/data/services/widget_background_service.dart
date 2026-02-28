@@ -25,6 +25,8 @@ void callbackDispatcher() {
       final languageCode =
           prefs.getString(StorageKeys.calendarLanguage) ??
           Language.english.code;
+      final useDeviceTimezone =
+          prefs.getBool(StorageKeys.useDeviceTimezone) ?? true;
 
       // Create data source with prefs
       final dataSource = WidgetLocalDataSource(prefs);
@@ -34,6 +36,7 @@ void callbackDispatcher() {
       applyMyanmarCalendarRuntimeConfig(
         baseConfig: const CalendarConfig(),
         language: Language.fromCode(languageCode),
+        useDeviceTimezone: useDeviceTimezone,
         cacheProfile: MyanmarCalendarCacheProfile.memoryEfficient,
       );
 

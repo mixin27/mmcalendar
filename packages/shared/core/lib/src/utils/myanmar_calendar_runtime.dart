@@ -1,9 +1,6 @@
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
-enum MyanmarCalendarCacheProfile {
-  highPerformance,
-  memoryEfficient,
-}
+enum MyanmarCalendarCacheProfile { highPerformance, memoryEfficient }
 
 extension MyanmarCalendarCacheProfileX on MyanmarCalendarCacheProfile {
   CacheConfig get cacheConfig {
@@ -16,6 +13,13 @@ extension MyanmarCalendarCacheProfileX on MyanmarCalendarCacheProfile {
   }
 }
 
+const double kMyanmarTimezoneOffset = 6.5;
+
+double getDeviceTimezoneOffsetHours() {
+  final offset = DateTime.now().timeZoneOffset;
+  return offset.inMinutes / 60.0;
+}
+
 void applyMyanmarCalendarRuntimeConfig({
   required CalendarConfig baseConfig,
   Language? language,
@@ -23,6 +27,8 @@ void applyMyanmarCalendarRuntimeConfig({
   List<HolidayId>? disabledHolidays,
   Map<int, List<HolidayId>>? disabledHolidaysByYear,
   Map<String, List<HolidayId>>? disabledHolidaysByDate,
+  bool useDeviceTimezone = true,
+  bool lockCalendarTypeToBritish = true,
   MyanmarCalendarCacheProfile cacheProfile =
       MyanmarCalendarCacheProfile.highPerformance,
 }) {
@@ -31,13 +37,20 @@ void applyMyanmarCalendarRuntimeConfig({
     for (final holiday in customHolidayRules) holiday.id: holiday,
   }.values.toList(growable: false);
 
-  final targetLanguage = language ?? Language.fromCode(baseConfig.defaultLanguage);
+  final targetLanguage =
+      language ?? Language.fromCode(baseConfig.defaultLanguage);
+  final effectiveTimezoneOffset = useDeviceTimezone
+      ? getDeviceTimezoneOffsetHours()
+      : kMyanmarTimezoneOffset;
+  final effectiveCalendarType = lockCalendarTypeToBritish
+      ? 0
+      : baseConfig.calendarType;
 
   MyanmarCalendar.configure(
     language: targetLanguage,
-    timezoneOffset: baseConfig.timezoneOffset,
+    timezoneOffset: effectiveTimezoneOffset,
     sasanaYearType: baseConfig.sasanaYearType,
-    calendarType: baseConfig.calendarType,
+    calendarType: effectiveCalendarType,
     gregorianStart: baseConfig.gregorianStart,
     customHolidayRules: mergedCustomRules,
     disabledHolidays: disabledHolidays ?? baseConfig.disabledHolidays,
