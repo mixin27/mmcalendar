@@ -18,13 +18,24 @@ class CalendarImageRenderer {
     int width = 1240,
     int height = 1754,
   }) async {
-    final backgroundImageBytes = await _backgroundImageLoader.loadBytes(
-      request.theme.backgroundImageUrl,
-    );
-    final backgroundImage = await _decodeImage(backgroundImageBytes);
+    final backgroundImagesByUrl = <String, ui.Image?>{};
+    Future<ui.Image?> resolveBackgroundImage(int month) async {
+      final url = request.theme.backgroundImageUrlForMonth(month);
+      if (url == null || url.isEmpty) {
+        return null;
+      }
+      if (backgroundImagesByUrl.containsKey(url)) {
+        return backgroundImagesByUrl[url];
+      }
+      final imageBytes = await _backgroundImageLoader.loadBytes(url);
+      final image = await _decodeImage(imageBytes);
+      backgroundImagesByUrl[url] = image;
+      return image;
+    }
 
     final generated = <Uint8List>[];
     for (final page in pages) {
+      final backgroundImage = await resolveBackgroundImage(page.month);
       final bytes = await _renderSinglePage(
         request: request,
         page: page,
@@ -35,7 +46,9 @@ class CalendarImageRenderer {
       generated.add(bytes);
     }
 
-    backgroundImage?.dispose();
+    for (final image in backgroundImagesByUrl.values) {
+      image?.dispose();
+    }
     return generated;
   }
 

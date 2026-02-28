@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_core/shared_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/datasources/calendar_generation_preferences_datasource.dart';
 import '../data/repositories/calendar_generation_repository_impl.dart';
 import '../domain/repositories/calendar_generation_repository.dart';
 import '../domain/usecases/build_calendar_previews.dart';
@@ -59,10 +61,17 @@ Future<void> initCalendarGenerationDependencies() async {
     );
   }
 
+  if (!getIt.isRegistered<CalendarGenerationPreferencesDataSource>()) {
+    getIt.registerLazySingleton<CalendarGenerationPreferencesDataSource>(
+      () => CalendarGenerationPreferencesDataSource(getIt<SharedPreferences>()),
+    );
+  }
+
   getIt.registerFactory<CalendarGenerationBloc>(
     () => CalendarGenerationBloc(
       buildCalendarPreviews: getIt<BuildCalendarPreviews>(),
       calendarDisplayConfigPort: getIt<CalendarDisplayConfigPort>(),
+      preferencesDataSource: getIt<CalendarGenerationPreferencesDataSource>(),
       analyticsPort: getIt<AnalyticsPort>(),
     ),
   );

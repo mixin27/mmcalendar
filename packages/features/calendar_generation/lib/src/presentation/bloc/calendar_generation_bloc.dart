@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:shared_core/shared_core.dart';
 
+import '../../data/datasources/calendar_generation_preferences_datasource.dart';
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
@@ -16,9 +19,11 @@ class CalendarGenerationBloc
   CalendarGenerationBloc({
     required BuildCalendarPreviews buildCalendarPreviews,
     required CalendarDisplayConfigPort calendarDisplayConfigPort,
+    required CalendarGenerationPreferencesDataSource preferencesDataSource,
     required AnalyticsPort analyticsPort,
   }) : _buildCalendarPreviews = buildCalendarPreviews,
        _calendarDisplayConfigPort = calendarDisplayConfigPort,
+       _preferencesDataSource = preferencesDataSource,
        _analyticsPort = analyticsPort,
        super(const CalendarGenerationInitial()) {
     on<InitializeCalendarGeneration>(_onInitialize);
@@ -29,6 +34,7 @@ class CalendarGenerationBloc
     on<ChangeForegroundColor>(_onChangeForegroundColor);
     on<ChangeAccentColor>(_onChangeAccentColor);
     on<ChangeBackgroundImageUrl>(_onChangeBackgroundImageUrl);
+    on<ChangeMonthBackgroundImageUrl>(_onChangeMonthBackgroundImageUrl);
     on<ToggleGenerationHolidays>(_onToggleHolidays);
     on<ToggleGenerationAstrology>(_onToggleAstrology);
     on<ToggleGenerationWesternDates>(_onToggleWesternDates);
@@ -40,6 +46,7 @@ class CalendarGenerationBloc
 
   final BuildCalendarPreviews _buildCalendarPreviews;
   final CalendarDisplayConfigPort _calendarDisplayConfigPort;
+  final CalendarGenerationPreferencesDataSource _preferencesDataSource;
   final AnalyticsPort _analyticsPort;
 
   Future<void> _onInitialize(
@@ -75,8 +82,9 @@ class CalendarGenerationBloc
         imageQuality: CalendarImageQuality.print,
       );
 
-      final pages = _buildCalendarPreviews(request);
-      emit(CalendarGenerationLoaded(request: request, pages: pages));
+      final restoredRequest = _preferencesDataSource.restoreRequest(request);
+      final pages = _buildCalendarPreviews(restoredRequest);
+      emit(CalendarGenerationLoaded(request: restoredRequest, pages: pages));
     } catch (error) {
       emit(CalendarGenerationError(error.toString()));
     }
@@ -166,6 +174,28 @@ class CalendarGenerationBloc
     );
   }
 
+  void _onChangeMonthBackgroundImageUrl(
+    ChangeMonthBackgroundImageUrl event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(emit, (loaded) {
+      final imagesByMonth = Map<int, String>.from(
+        loaded.request.theme.backgroundImageUrlsByMonth,
+      );
+      final normalizedUrl = event.url.trim();
+      if (normalizedUrl.isEmpty) {
+        imagesByMonth.remove(event.month);
+      } else {
+        imagesByMonth[event.month] = normalizedUrl;
+      }
+      return loaded.request.copyWith(
+        theme: loaded.request.theme.copyWith(
+          backgroundImageUrlsByMonth: imagesByMonth,
+        ),
+      );
+    });
+  }
+
   void _onToggleHolidays(
     ToggleGenerationHolidays event,
     Emitter<CalendarGenerationState> emit,
@@ -249,5 +279,6 @@ class CalendarGenerationBloc
     final nextRequest = updateRequest(currentState);
     final pages = _buildCalendarPreviews(nextRequest);
     emit(currentState.copyWith(request: nextRequest, pages: pages));
+    unawaited(_preferencesDataSource.saveRequest(nextRequest));
   }
 }

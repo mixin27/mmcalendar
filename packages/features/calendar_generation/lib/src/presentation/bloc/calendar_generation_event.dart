@@ -79,6 +79,16 @@ final class ChangeBackgroundImageUrl extends CalendarGenerationEvent {
   List<Object?> get props => [url];
 }
 
+final class ChangeMonthBackgroundImageUrl extends CalendarGenerationEvent {
+  const ChangeMonthBackgroundImageUrl({required this.month, required this.url});
+
+  final int month;
+  final String url;
+
+  @override
+  List<Object?> get props => [month, url];
+}
+
 final class ToggleGenerationHolidays extends CalendarGenerationEvent {
   const ToggleGenerationHolidays(this.value);
 

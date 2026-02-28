@@ -8,6 +8,7 @@ import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
+import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/generation_artifact.dart';
 import '../../rendering/export/calendar_export_service.dart';
 import '../bloc/calendar_generation_bloc.dart';
@@ -42,6 +43,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   int _previewPage = 0;
   bool _isProcessingAction = false;
   String? _processingLabel;
+  int? _imageOverrideMonth;
 
   static const List<Color> _presetColors = <Color>[
     Color(0xFFFFFFFF),
@@ -121,11 +123,10 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
               final loadedState = state as CalendarGenerationLoaded;
               final request = loadedState.request;
               final pages = loadedState.pages;
+              final selectedBackgroundImage = _selectedBackgroundImage(request);
 
-              if (_imageUrlController.text !=
-                  (request.theme.backgroundImageUrl ?? '')) {
-                _imageUrlController.text =
-                    request.theme.backgroundImageUrl ?? '';
+              if (_imageUrlController.text != selectedBackgroundImage) {
+                _imageUrlController.text = selectedBackgroundImage;
               }
 
               final now = DateTime.now();
@@ -411,21 +412,66 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                                 },
                               ),
                               const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: DropdownButtonFormField<int?>(
+                                      initialValue: _imageOverrideMonth,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Image Scope',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      items: <DropdownMenuItem<int?>>[
+                                        const DropdownMenuItem<int?>(
+                                          value: null,
+                                          child: Text('Default (All months)'),
+                                        ),
+                                        ...List<
+                                          DropdownMenuItem<int?>
+                                        >.generate(
+                                          12,
+                                          (index) => DropdownMenuItem<int?>(
+                                            value: index + 1,
+                                            child: Text('Month ${index + 1}'),
+                                          ),
+                                        ),
+                                      ],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _imageOverrideMonth = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
                               TextField(
                                 controller: _imageUrlController,
                                 decoration: InputDecoration(
-                                  labelText: 'Background Image URL (optional)',
+                                  labelText: _imageOverrideMonth == null
+                                      ? 'Background Image URL (optional)'
+                                      : 'Month ${_imageOverrideMonth!} Image URL (optional)',
                                   border: const OutlineInputBorder(),
                                   suffixIcon: IconButton(
                                     icon: const Icon(Icons.check),
                                     onPressed: () {
-                                      context
-                                          .read<CalendarGenerationBloc>()
-                                          .add(
-                                            ChangeBackgroundImageUrl(
-                                              _imageUrlController.text.trim(),
-                                            ),
-                                          );
+                                      final url = _imageUrlController.text
+                                          .trim();
+                                      if (_imageOverrideMonth == null) {
+                                        context
+                                            .read<CalendarGenerationBloc>()
+                                            .add(ChangeBackgroundImageUrl(url));
+                                      } else {
+                                        context
+                                            .read<CalendarGenerationBloc>()
+                                            .add(
+                                              ChangeMonthBackgroundImageUrl(
+                                                month: _imageOverrideMonth!,
+                                                url: url,
+                                              ),
+                                            );
+                                      }
                                       FocusScope.of(context).unfocus();
                                     },
                                   ),
@@ -627,6 +673,13 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _selectedBackgroundImage(CalendarGenerationRequest request) {
+    if (_imageOverrideMonth == null) {
+      return request.theme.backgroundImageUrl ?? '';
+    }
+    return request.theme.backgroundImageUrlsByMonth[_imageOverrideMonth!] ?? '';
   }
 }
 

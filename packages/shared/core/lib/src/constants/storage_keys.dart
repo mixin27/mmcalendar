@@ -31,6 +31,8 @@ class StorageKeys {
   static const String calendarView = 'calendar_view'; // month, year, week, day
   static const String lastViewedDate = 'last_viewed_date';
   static const String astrologyCardExpanded = 'astrology_card_expanded';
+  static const String calendarGenerationSettings =
+      'calendar_generation_settings';
 
   // Onboarding
   static const String isFirstLaunch = 'is_first_launch';

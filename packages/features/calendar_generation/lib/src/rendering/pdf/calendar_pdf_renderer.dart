@@ -25,12 +25,17 @@ class CalendarPdfRenderer {
       'assets/fonts/google_fonts/NotoSansMyanmar-Bold.ttf',
       fallback: pw.Font.helveticaBold(),
     );
-    final backgroundImageBytes = await _backgroundImageLoader.loadBytes(
-      request.theme.backgroundImageUrl,
-    );
-    final backgroundImage = backgroundImageBytes == null
-        ? null
-        : pw.MemoryImage(backgroundImageBytes);
+    final backgroundImagesByMonth = <int, pw.MemoryImage?>{};
+    for (final page in pages) {
+      if (backgroundImagesByMonth.containsKey(page.month)) {
+        continue;
+      }
+      final url = request.theme.backgroundImageUrlForMonth(page.month);
+      final imageBytes = await _backgroundImageLoader.loadBytes(url);
+      backgroundImagesByMonth[page.month] = imageBytes == null
+          ? null
+          : pw.MemoryImage(imageBytes);
+    }
 
     final document = pw.Document();
 
@@ -44,7 +49,7 @@ class CalendarPdfRenderer {
             page: page,
             regularFont: regularFont,
             boldFont: boldFont,
-            backgroundImage: backgroundImage,
+            backgroundImage: backgroundImagesByMonth[page.month],
           ),
         ),
       );

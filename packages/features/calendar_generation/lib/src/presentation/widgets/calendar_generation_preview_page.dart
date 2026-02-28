@@ -21,6 +21,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     final foregroundColor = Color(theme.foregroundColorValue);
     final accentColor = Color(theme.accentColorValue);
     final aspectRatio = CalendarExportLayout.previewAspectRatio(request);
+    final pageBackgroundImage = theme.backgroundImageUrlForMonth(model.month);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -31,10 +32,9 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
           decoration: BoxDecoration(
             color: backgroundColor,
             image:
-                (theme.backgroundImageUrl != null &&
-                    theme.backgroundImageUrl!.isNotEmpty)
+                (pageBackgroundImage != null && pageBackgroundImage.isNotEmpty)
                 ? DecorationImage(
-                    image: NetworkImage(theme.backgroundImageUrl!),
+                    image: NetworkImage(pageBackgroundImage),
                     fit: BoxFit.cover,
                     opacity: 0.18,
                   )
