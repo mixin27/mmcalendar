@@ -186,7 +186,7 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
 
     return InkWell(
       onTap: () async {
-        final date = await showDatePicker(
+        final date = await showAppMyanmarDatePicker(
           context: context,
           initialDate: _startDate,
           firstDate: DateTime(1900),

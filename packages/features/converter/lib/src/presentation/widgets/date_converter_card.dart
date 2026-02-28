@@ -243,7 +243,7 @@ class _DateConverterCardState extends State<DateConverterCard>
 
     return InkWell(
       onTap: () async {
-        final date = await showDatePicker(
+        final date = await showAppMyanmarDatePicker(
           context: context,
           initialDate: _selectedWesternDate,
           firstDate: DateTime(1900),

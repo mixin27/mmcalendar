@@ -225,7 +225,7 @@ class _DateCalculatorCardState extends State<DateCalculatorCard>
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
-            final selectedDate = await showDatePicker(
+            final selectedDate = await showAppMyanmarDatePicker(
               context: context,
               initialDate: date,
               firstDate: DateTime(1900),

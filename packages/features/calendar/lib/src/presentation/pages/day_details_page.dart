@@ -1,7 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as flutter_mmcal;
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 
@@ -320,18 +319,14 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Future<void> _showDatePicker(BuildContext context) async {
-    final selectedDate = await flutter_mmcal.showMyanmarDatePicker(
+    final selectedWesternDate = await showAppMyanmarDatePicker(
       context: context,
       initialDate: _currentDate,
-      language: MyanmarCalendar.currentLanguage,
-      theme: flutter_mmcal.MyanmarCalendarTheme.fromColor(
-        Theme.of(context).colorScheme.primary,
-        isDark: Theme.of(context).brightness == Brightness.dark,
-      ),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
     );
 
-    if (selectedDate != null) {
-      final selectedWesternDate = selectedDate.western.toDateTime();
+    if (selectedWesternDate != null) {
       _analyticsService.logDateSelection(
         selectedDate: selectedWesternDate.toString(),
         calendarType: 'myanmar',

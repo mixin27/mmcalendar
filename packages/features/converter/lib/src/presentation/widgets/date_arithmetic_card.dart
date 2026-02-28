@@ -227,7 +227,7 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
 
     return InkWell(
       onTap: () async {
-        final date = await showDatePicker(
+        final date = await showAppMyanmarDatePicker(
           context: context,
           initialDate: _startDate,
           firstDate: DateTime(1900),
