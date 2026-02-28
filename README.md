@@ -149,7 +149,7 @@ flutter build ios --release
 
 ### Firebase Remote Config
 
-**Key:** - `holidays_config`
+**Key:** - `holidays_config_v2`
 
 **Value:** - JSON string
 

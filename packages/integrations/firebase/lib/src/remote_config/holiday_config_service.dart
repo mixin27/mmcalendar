@@ -10,7 +10,7 @@ import 'package:shared_core/shared_core.dart';
 class HolidayConfigService implements HolidayConfigPort {
   HolidayConfigService({
     required RemoteConfigPort remoteConfigPort,
-    String configKey = 'holidays_config',
+    String configKey = 'holidays_config_v2',
   }) : _remoteConfigPort = remoteConfigPort,
        _configKey = configKey;
 
