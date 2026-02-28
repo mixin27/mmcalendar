@@ -572,6 +572,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                         CalendarGenerationBloc,
                         CalendarGenerationState
                       >(
+                        bloc: bloc,
                         builder: (context, state) {
                           if (state is! CalendarGenerationLoaded) {
                             return const Center(
@@ -840,6 +841,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                         CalendarGenerationBloc,
                         CalendarGenerationState
                       >(
+                        bloc: bloc,
                         builder: (context, state) {
                           if (state is! CalendarGenerationLoaded) {
                             return const Center(
