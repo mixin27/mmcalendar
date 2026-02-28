@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_page_model.dart';
@@ -40,7 +41,6 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     final theme = request.theme;
     final backgroundColor = Color(theme.backgroundColorValue);
     final foregroundColor = Color(theme.foregroundColorValue);
-    final accentColor = Color(theme.accentColorValue);
     const holidayColor = Color(0xFFC62828);
     const fullMoonColor = Color(0xFFB45309);
     const newMoonColor = Color(0xFF4338CA);
@@ -50,7 +50,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
         backgroundImageProvider ?? _parseImageProvider(pageBackgroundImage);
 
     final titleFontSize = compact ? 13.0 : 20.0;
-    final weekdayFontSize = compact ? 8.0 : 12.0;
+    final weekdayFontSize = compact ? 9.0 : 13.0;
     final westernDayFontSize = compact ? 20.0 : 34.0;
     final myanmarDayFontSize = compact ? 7.0 : 11.5;
     final dayPadding = compact ? 2.0 : 4.0;
@@ -86,7 +86,9 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              if (!compact && model.myanmarTitle.trim().isNotEmpty) ...[
+              if (!compact &&
+                  request.showMyanmarDates &&
+                  model.myanmarTitle.trim().isNotEmpty) ...[
                 const SizedBox(height: 2),
                 Text(
                   model.myanmarTitle,
@@ -121,7 +123,8 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                     if (day.isPlaceholder) {
                       return const SizedBox.shrink();
                     }
-                    final dayTextColor = day.hasPublicHoliday
+                    final dayTextColor =
+                        (day.hasPublicHoliday || day.isWeekend == true)
                         ? holidayColor
                         : foregroundColor;
                     final moonPhaseColor = day.hasPublicHoliday
@@ -136,10 +139,8 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: backgroundColor.withValues(alpha: 0.96),
                         border: Border.all(
-                          color: day.isToday
-                              ? accentColor
-                              : foregroundColor.withValues(alpha: 0.22),
-                          width: day.isToday ? 1.3 : 0.6,
+                          color: foregroundColor.withValues(alpha: 0.22),
+                          width: 0.6,
                         ),
                         borderRadius: BorderRadius.circular(dayRadius),
                       ),
@@ -166,19 +167,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                               alignment: Alignment.topLeft,
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 1, left: 1),
-                                child: _MoonPhaseIndicator(
-                                  moonPhase: day.moonPhase,
-                                  compact: compact,
-                                  lightColor: moonPhaseColor.withValues(
-                                    alpha: 0.88,
-                                  ),
-                                  darkColor: foregroundColor.withValues(
-                                    alpha: 0.22,
-                                  ),
-                                  borderColor: foregroundColor.withValues(
-                                    alpha: 0.45,
-                                  ),
-                                ),
+                                child: _buildMoonPhaseVisual(day: day),
                               ),
                             ),
                           if (request.showMyanmarDates)
@@ -198,10 +187,10 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          if (!compact && request.showAstrology)
+                          if (request.showAstrology || request.showHolidays)
                             Align(
                               alignment: Alignment.bottomCenter,
-                              child: _buildAstroBadges(context, day: day),
+                              child: _buildCellMetaText(day: day),
                             ),
                         ],
                       ),
@@ -221,84 +210,93 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     return Card(margin: margin, elevation: elevation, child: previewBody);
   }
 
-  Widget _buildAstroBadges(
-    BuildContext context, {
-    required CalendarDayCellModel day,
-  }) {
-    final allBadges = <_AstroBadge>[
+  Widget _buildCellMetaText({required CalendarDayCellModel day}) {
+    final holidayText = request.showHolidays
+        ? day.publicHolidayLabel?.trim()
+        : null;
+    final astroTexts = <String>[
       if (day.sabbathLabel?.trim().isNotEmpty ?? false)
-        const _AstroBadge('S', Color(0xFFF59E0B)),
+        day.sabbathLabel!.trim(),
       if (day.sabbathEveLabel?.trim().isNotEmpty ?? false)
-        const _AstroBadge('SE', Color(0xFFD97706)),
+        day.sabbathEveLabel!.trim(),
       if (day.yatyazaLabel?.trim().isNotEmpty ?? false)
-        const _AstroBadge('Y', Color(0xFF7E22CE)),
+        day.yatyazaLabel!.trim(),
       if (day.pyathadaLabel?.trim().isNotEmpty ?? false)
-        const _AstroBadge('P', Color(0xFF4F46E5)),
+        day.pyathadaLabel!.trim(),
       if (day.afternoonPyathadaLabel?.trim().isNotEmpty ?? false)
-        const _AstroBadge('AP', Color(0xFFEA580C)),
+        day.afternoonPyathadaLabel!.trim(),
       if (day.otherAstrologyLabel?.trim().isNotEmpty ?? false)
-        const _AstroBadge('+', Color(0xFF64748B)),
+        day.otherAstrologyLabel!.trim(),
     ];
-    if (allBadges.isEmpty) {
+    final astroText = request.showAstrology && astroTexts.isNotEmpty
+        ? astroTexts.join(' • ')
+        : null;
+
+    if ((holidayText == null || holidayText.isEmpty) &&
+        (astroText == null || astroText.isEmpty)) {
       return const SizedBox.shrink();
     }
-    const maxVisibleBadges = 4;
-    final overflowCount = allBadges.length - maxVisibleBadges;
-    final badges = overflowCount > 0
-        ? allBadges.take(maxVisibleBadges).toList(growable: false)
-        : allBadges;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 2, right: 2, bottom: 2),
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(2, 0, 2, 2),
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (final badge in badges)
+          if (holidayText != null && holidayText.isNotEmpty)
             Container(
-              width: 12,
-              height: 12,
-              margin: const EdgeInsets.symmetric(horizontal: 1),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1.2),
               decoration: BoxDecoration(
-                color: badge.color.withValues(alpha: 0.22),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: badge.color.withValues(alpha: 0.58),
-                  width: 0.6,
-                ),
+                color: const Color(0xFFC62828).withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(3),
               ),
-              alignment: Alignment.center,
               child: Text(
-                badge.code,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: badge.color.withValues(alpha: 0.96),
-                  fontSize: 5.4,
+                holidayText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0xFFC62828).withValues(alpha: 0.95),
+                  fontSize: compact ? 5.0 : 6.0,
                   fontWeight: FontWeight.w700,
-                  height: 0.95,
+                  height: 1.0,
                 ),
               ),
             ),
-          if (overflowCount > 0)
+          if (astroText != null && astroText.isNotEmpty) ...[
+            if (holidayText != null && holidayText.isNotEmpty)
+              const SizedBox(height: 1),
             Container(
-              width: 12,
-              height: 12,
-              margin: const EdgeInsets.symmetric(horizontal: 1),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1.2),
               decoration: BoxDecoration(
-                color: const Color(0xFF334155).withValues(alpha: 0.22),
-                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.62),
+                borderRadius: BorderRadius.circular(3),
               ),
-              alignment: Alignment.center,
               child: Text(
-                '+$overflowCount',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: const Color(0xFF334155).withValues(alpha: 0.94),
-                  fontSize: 4.8,
-                  fontWeight: FontWeight.w700,
-                  height: 0.95,
+                astroText,
+                maxLines: compact ? 1 : (holidayText == null ? 2 : 1),
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0xFF334155).withValues(alpha: 0.95),
+                  fontSize: compact ? 5.0 : 6.0,
+                  fontWeight: FontWeight.w600,
+                  height: 1.0,
                 ),
               ),
             ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildMoonPhaseVisual({required CalendarDayCellModel day}) {
+    return CompactMoonPhaseIndicator(
+      moonPhase: day.moonPhase,
+      fortnightDay: day.fortnightDay ?? 0,
+      size: compact ? 12 : 16,
     );
   }
 
@@ -394,61 +392,6 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
       CalendarBackgroundImageAlignment.bottom => Alignment.bottomCenter,
     };
   }
-}
-
-class _MoonPhaseIndicator extends StatelessWidget {
-  const _MoonPhaseIndicator({
-    required this.moonPhase,
-    required this.compact,
-    required this.lightColor,
-    required this.darkColor,
-    required this.borderColor,
-  });
-
-  final int moonPhase;
-  final bool compact;
-  final Color lightColor;
-  final Color darkColor;
-  final Color borderColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = compact ? 12.0 : 16.0;
-    final icon = switch (moonPhase % 4) {
-      1 => '●', // full
-      2 => '◐', // waning
-      3 => '○', // new
-      _ => '◑', // waxing
-    };
-    final iconColor = moonPhase == 3 ? darkColor : lightColor;
-
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: darkColor.withValues(alpha: 0.2),
-        shape: BoxShape.circle,
-        border: Border.all(color: borderColor, width: 0.6),
-      ),
-      child: Text(
-        icon,
-        style: TextStyle(
-          color: iconColor.withValues(alpha: 0.96),
-          fontSize: compact ? 7.0 : 8.8,
-          fontWeight: FontWeight.w700,
-          height: 0.95,
-        ),
-      ),
-    );
-  }
-}
-
-class _AstroBadge {
-  const _AstroBadge(this.code, this.color);
-
-  final String code;
-  final Color color;
 }
 
 class _WeekdayHeader extends StatelessWidget {

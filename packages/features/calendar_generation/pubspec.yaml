@@ -14,6 +14,8 @@ dependencies:
 
   shared_core:
     path: ../../shared/core
+  shared_ui_kit:
+    path: ../../shared/ui_kit
 
   myanmar_calendar_dart: ^2.0.0
   bloc: ^9.2.0

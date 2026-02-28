@@ -16,6 +16,7 @@ import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
 import '../../domain/entities/generation_artifact.dart';
 import '../../domain/usecases/build_calendar_previews.dart';
+import '../../rendering/export/calendar_export_layout.dart';
 import '../../rendering/export/calendar_export_service.dart';
 import '../bloc/calendar_generation_bloc.dart';
 import '../bloc/calendar_generation_event.dart';
@@ -55,6 +56,8 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   int? _imageOverrideMonth;
   String? _selectedTemplateId;
   int? _templatePreviewCacheKey;
+  CalendarPageOrientation? _previewOrientationOverride;
+  bool _syncPreviewOrientationToExport = false;
   final Map<String, _TemplatePreviewData> _templatePreviewCache =
       <String, _TemplatePreviewData>{};
 
@@ -173,6 +176,13 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
 
   Widget _buildLoadedBody(CalendarGenerationLoaded state) {
     final request = state.request;
+    final previewOrientation = _syncPreviewOrientationToExport
+        ? request.pageOrientation
+        : (_previewOrientationOverride ?? request.pageOrientation);
+    final previewRequest = request.copyWith(
+      pageOrientation: previewOrientation,
+    );
+    final previewCanvasSize = _resolvePreviewCanvasSize(previewRequest);
     final pages = state.pages;
 
     return Column(
@@ -195,6 +205,75 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Preview: ${previewOrientation.label}',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SegmentedButton<CalendarPageOrientation>(
+                  showSelectedIcon: false,
+                  segments: CalendarPageOrientation.values
+                      .map(
+                        (orientation) => ButtonSegment<CalendarPageOrientation>(
+                          value: orientation,
+                          label: Text(orientation.label),
+                        ),
+                      )
+                      .toList(growable: false),
+                  selected: <CalendarPageOrientation>{previewOrientation},
+                  onSelectionChanged: (selection) {
+                    if (selection.isEmpty) {
+                      return;
+                    }
+                    final selected = selection.first;
+                    if (_syncPreviewOrientationToExport) {
+                      context.read<CalendarGenerationBloc>().add(
+                        ChangePageOrientation(selected),
+                      );
+                      return;
+                    }
+                    setState(() => _previewOrientationOverride = selected);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Sync preview orientation to export setting',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              Switch.adaptive(
+                value: _syncPreviewOrientationToExport,
+                onChanged: (value) {
+                  setState(() => _syncPreviewOrientationToExport = value);
+                  if (!value) {
+                    return;
+                  }
+                  final orientation =
+                      _previewOrientationOverride ?? request.pageOrientation;
+                  _previewOrientationOverride = null;
+                  context.read<CalendarGenerationBloc>().add(
+                    ChangePageOrientation(orientation),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
         Expanded(
           child: PageView.builder(
             itemCount: pages.length,
@@ -202,9 +281,42 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
               setState(() => _previewPage = index);
             },
             itemBuilder: (context, index) {
-              return CalendarGenerationPreviewPage(
-                model: pages[index],
-                request: request,
+              final colorScheme = Theme.of(context).colorScheme;
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerLowest,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+                      width: 1,
+                    ),
+                  ),
+                  child: ClipRect(
+                    child: InteractiveViewer(
+                      constrained: false,
+                      boundaryMargin: const EdgeInsets.all(48),
+                      minScale: 0.45,
+                      maxScale: 2.8,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SizedBox(
+                          width: previewCanvasSize.width,
+                          height: previewCanvasSize.height,
+                          child: CalendarGenerationPreviewPage(
+                            model: pages[index],
+                            request: previewRequest,
+                            margin: EdgeInsets.zero,
+                            elevation: 0,
+                            contentPadding: const EdgeInsets.all(12),
+                            useCardChrome: false,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               );
             },
           ),
@@ -216,6 +328,14 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
           ),
       ],
     );
+  }
+
+  Size _resolvePreviewCanvasSize(CalendarGenerationRequest request) {
+    final imageSize = CalendarExportLayout.resolveImageSize(request);
+    final divisor = request.imageQuality == CalendarImageQuality.print
+        ? 4.0
+        : 2.0;
+    return Size(imageSize.width / divisor, imageSize.height / divisor);
   }
 
   Widget _buildSettingsLauncherRow() {

@@ -61,9 +61,11 @@ class CalendarPageModelBuilder {
           westernDate: date,
           westernDayLabel: '',
           myanmarDayLabel: '',
+          fortnightDay: 0,
           isCurrentMonth: false,
           isPlaceholder: true,
           isToday: false,
+          isWeekend: false,
           isFullMoon: false,
           isNewMoon: false,
           moonPhase: 0,
@@ -82,6 +84,10 @@ class CalendarPageModelBuilder {
           completeDate.allHolidays.isNotEmpty ||
           completeDate.allAnniversaryDays.isNotEmpty;
       final hasPublicHoliday = completeDate.publicHolidays.isNotEmpty;
+      final publicHolidayLabel = _resolvePrimaryPublicHolidayLabel(
+        completeDate.publicHolidays,
+        request.language,
+      );
       final sabbathRaw = completeDate.sabbath.trim();
       final sabbathLabel = sabbathRaw == 'Sabbath'
           ? TranslationService.translateTo(sabbathRaw, request.language)
@@ -125,15 +131,18 @@ class CalendarPageModelBuilder {
           completeDate: completeDate,
           language: request.language,
         ),
+        fortnightDay: completeDate.fortnightDay,
         isCurrentMonth: true,
         isPlaceholder: false,
         isToday: _isSameDate(date, DateTime.now()),
+        isWeekend: _isWeekend(date),
         isFullMoon: completeDate.isFullMoon,
         isNewMoon: completeDate.isNewMoon,
         moonPhase: completeDate.moonPhase,
         hasHoliday: hasHoliday,
         hasPublicHoliday: hasPublicHoliday,
         hasAstrology: hasAstrology,
+        publicHolidayLabel: publicHolidayLabel,
         sabbathLabel: sabbathLabel,
         sabbathEveLabel: sabbathEveLabel,
         yatyazaLabel: yatyazaLabel,
@@ -281,5 +290,22 @@ class CalendarPageModelBuilder {
     return first.year == second.year &&
         first.month == second.month &&
         first.day == second.day;
+  }
+
+  bool _isWeekend(DateTime date) {
+    return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+  }
+
+  String? _resolvePrimaryPublicHolidayLabel(
+    List<String> publicHolidays,
+    Language language,
+  ) {
+    for (final holiday in publicHolidays) {
+      final translated = _translateIfNotEmpty(holiday, language);
+      if (translated != null) {
+        return translated;
+      }
+    }
+    return null;
   }
 }
