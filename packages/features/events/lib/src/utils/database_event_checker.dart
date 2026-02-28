@@ -1,4 +1,4 @@
-import 'package:data/data.dart' as db;
+import 'package:integrations_database/integrations_database.dart' as db;
 import 'package:flutter/foundation.dart';
 
 class DatabaseEventChecker {
@@ -7,23 +7,24 @@ class DatabaseEventChecker {
   DatabaseEventChecker(this.database);
 
   Future<void> checkRecurringEvents() async {
-    final dao = database.eventsDao;
-
-    // Get all events with recurrence
+    final dao = database.eventsV2Dao;
     final allEvents = await dao.getAllEvents();
-    final recurringEvents = allEvents
-        .where((e) => e.recurrenceType != null && e.recurrenceType!.isNotEmpty)
-        .toList();
+    final recurrenceByEventId = await dao.getRecurrenceRulesForEventIds(
+      allEvents.map((event) => event.id),
+    );
 
     debugPrint('\n${'=' * 60}');
     debugPrint('DATABASE RECURRING EVENTS CHECK');
     debugPrint('=' * 60);
 
-    // Group by title and recurrence type
-    final grouped = <String, List<db.UserEvent>>{};
-    for (final event in recurringEvents) {
-      final key = '${event.title}|${event.recurrenceType}';
-      grouped[key] = [...(grouped[key] ?? []), event];
+    // Group recurring masters by title + recurrence type.
+    final grouped = <String, List<db.CalendarEvent>>{};
+    for (final event in allEvents) {
+      final recurrence = recurrenceByEventId[event.id];
+      if (recurrence == null) continue;
+
+      final key = '${event.title}|${recurrence.recurrenceType}';
+      grouped[key] = [...(grouped[key] ?? const []), event];
     }
 
     for (final entry in grouped.entries) {
@@ -47,20 +48,21 @@ class DatabaseEventChecker {
   }
 
   Future<void> cleanupDuplicateRecurringEvents() async {
-    // final dao = database.eventsDao;
-
     debugPrint('Cleaning up duplicate recurring events...');
 
-    // This SQL will keep only the first occurrence of each recurring event
     await database.customStatement('''
-      DELETE FROM user_events
-      WHERE id NOT IN (
-        SELECT MIN(id)
-        FROM user_events
-        WHERE recurrence_type IS NOT NULL
-        GROUP BY title, recurrence_type
+      DELETE FROM calendar_events
+      WHERE id IN (
+        SELECT ce.id
+        FROM calendar_events ce
+        JOIN event_recurrence_rules rr ON rr.event_id = ce.id
+        WHERE ce.id NOT IN (
+          SELECT MIN(ce2.id)
+          FROM calendar_events ce2
+          JOIN event_recurrence_rules rr2 ON rr2.event_id = ce2.id
+          GROUP BY ce2.title, rr2.recurrence_type
+        )
       )
-      AND recurrence_type IS NOT NULL
     ''');
 
     debugPrint('✅ Cleanup complete');

@@ -1,11 +1,9 @@
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:localizations/l10n/app_localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:promo/promo.dart';
-import 'package:app_update_manager/app_update_manager.dart' as um;
 
 import '../../di/settings_injection.dart';
 import '../widgets/settings_widgets.dart';
@@ -20,7 +18,7 @@ class SettingsAboutPage extends StatefulWidget {
 }
 
 class _SettingsAboutPageState extends State<SettingsAboutPage> {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   @override
   void initState() {
@@ -33,6 +31,7 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -58,40 +57,30 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.tag),
-              title: const Text('App Version'),
+              title: Text(l10n?.appVersion ?? 'App Version'),
               subtitle: Text(widget.appVersion ?? AppConstants.appVersion),
-              trailing: !(kIsWeb || kIsWasm)
-                  ? IconButton(
-                      onPressed: () async {
-                        final updateFound =
-                            await um.AppUpdateManager.checkAndShowUpdate(
-                              context: context,
-                            );
-
-                        if (!updateFound && context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Your app is up to date!'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.update),
-                      tooltip: 'Check for Updates',
-                    )
-                  : null,
             ),
+            if (!(kIsWeb || kIsWasm))
+              SettingsTile(
+                leading: const Icon(Icons.system_update_alt),
+                title: l10n?.appUpdates ?? 'App Updates',
+                subtitle:
+                    l10n?.checkForNewVersionsAndUpdateSettings ??
+                    'Check for new versions and update settings',
+                onTap: () => GoRouter.of(
+                  context,
+                ).go("${RoutePaths.settings}/${RoutePaths.appUpdate}"),
+              ),
             SettingsTile(
-              title: 'Open Source Licenses',
-              subtitle: 'View all licenses',
+              title: l10n?.openSourceLicenses ?? 'Open Source Licenses',
+              subtitle: l10n?.viewAllLicenses ?? 'View all licenses',
               leading: const Icon(Icons.description),
               onTap: () => showLicensePage(context: context),
             ),
             SettingsTile(
               leading: const Icon(Icons.privacy_tip_outlined),
-              title: 'Privacy policy',
-              subtitle: "View privacy & policy",
+              title: l10n?.privacyPolicy ?? 'Privacy policy',
+              subtitle: l10n?.viewPrivacyPolicy ?? 'View privacy & policy',
               onTap: () => GoRouter.of(context).go(
                 "${RoutePaths.settings}/${RoutePaths.about}/${RoutePaths.privacyPolicy}",
               ),
@@ -101,17 +90,20 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
             if (kDebugMode)
               SettingsTile(
                 leading: const Icon(Icons.refresh, color: Colors.orange),
-                title: 'Clear Promo Data (Debug)',
-                subtitle: 'Reset onboarding & announcements',
+                title: l10n?.clearPromoDataDebug ?? 'Clear Promo Data (Debug)',
+                subtitle:
+                    l10n?.resetOnboardingAnnouncements ??
+                    'Reset onboarding & announcements',
                 onTap: () async {
                   try {
                     final promoRepo = getIt<PromoRepository>();
                     await promoRepo.clearAllData();
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
+                        SnackBar(
                           content: Text(
-                            '✅ Promo data cleared! Restart app to see onboarding.',
+                            l10n?.promoDataClearedRestartApp ??
+                                'Promo data cleared! Restart app to see onboarding.',
                           ),
                           duration: Duration(seconds: 3),
                         ),
@@ -121,7 +113,9 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('❌ Error: $e'),
+                          content: Text(
+                            l10n?.errorWithMessage(e.toString()) ?? 'Error: $e',
+                          ),
                           backgroundColor: Colors.red,
                         ),
                       );

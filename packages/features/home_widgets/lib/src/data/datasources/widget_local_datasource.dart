@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:home_widgets/src/domain/entities/widget_data.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -13,8 +14,12 @@ import '../services/widget_update_service.dart';
 
 class WidgetLocalDataSource {
   static const String _configKey = 'widget_config';
-  // static const String _initialTaskName = 'widget_initial_task';
   static const String _periodicTaskName = 'widget_periodic_task';
+  static const String _timelineGeneratedAtKey = 'widget_timeline_generated_at';
+  static const String _timelineLanguageKey = 'widget_timeline_language';
+  static const String _timelineEndDateKey = 'widget_timeline_end_date';
+  static const int _timelineHorizonDays = 180;
+  static const int _timelineMinimumRemainingDays = 30;
 
   final SharedPreferences sharedPreferences;
 
@@ -25,12 +30,10 @@ class WidgetLocalDataSource {
     WidgetData data,
     WidgetConfig config,
   ) async {
-    await WidgetUpdateService.updateAllWidgets(data, config);
-
-    await MyanmarMonthWidgetService.updateMyanmarMonthWidget(
-      DateTime.now(),
-      config,
+    final effectiveConfig = config.copyWith(
+      language: resolveCalendarLanguageCode(),
     );
+    await WidgetUpdateService.updateAllWidgets(data, effectiveConfig);
   }
 
   /// Generate widget data with specific language
@@ -148,31 +151,159 @@ class WidgetLocalDataSource {
 
   /// Get widget configuration
   Future<WidgetConfig> getWidgetConfig() async {
+    final language = resolveCalendarLanguageCode();
     final configJson = sharedPreferences.getString(_configKey);
     if (configJson == null) {
       debugPrint('No saved config found, using defaults');
-      return const WidgetConfig.defaults();
+      return const WidgetConfig.defaults().copyWith(language: language);
     }
 
     try {
       final config = json.decode(configJson) as Map<String, dynamic>;
-      return WidgetConfig.fromJson(config);
+      return WidgetConfig.fromJson(config).copyWith(language: language);
     } catch (e) {
       debugPrint('Error loading config, using defaults: $e');
-      return const WidgetConfig.defaults();
+      return const WidgetConfig.defaults().copyWith(language: language);
     }
   }
 
   /// Save widget configuration
   Future<void> saveWidgetConfig(WidgetConfig config) async {
-    final configJson = json.encode(config.toJson());
+    final normalizedConfig = config.copyWith(
+      language: resolveCalendarLanguageCode(),
+    );
+    final configJson = json.encode(normalizedConfig.toJson());
     await sharedPreferences.setString(_configKey, configJson);
     debugPrint('Widget config saved');
   }
 
-  /// Schedule periodic widget updates using a robust handoff pattern:
-  /// 1. Schedule a OneOffTask to reach the first 12:01 AM
-  /// 2. Once triggered, the background service will schedule the PeriodicTask
+  /// Build a timeline cache used by native widget providers to serve daily
+  /// data changes even when Dart background tasks do not run.
+  Future<void> warmupTimeline(WidgetConfig config, {bool force = false}) async {
+    final effectiveConfig = config.copyWith(
+      language: resolveCalendarLanguageCode(),
+    );
+    final shouldRegenerate =
+        force || _shouldRegenerateTimeline(effectiveConfig);
+    if (!shouldRegenerate) {
+      debugPrint('Widget timeline is still fresh');
+      return;
+    }
+
+    final today = _dateOnly(DateTime.now());
+    final entries = <String, Map<String, Object?>>{};
+    final monthKeyByDate = <String, String>{};
+    final monthEntries = <String, Map<String, dynamic>>{};
+    final largeMoonImageCache = <String, String?>{};
+    final smallMoonImageCache = <String, String?>{};
+
+    debugPrint('Generating widget timeline for $_timelineHorizonDays days...');
+
+    for (var i = 0; i < _timelineHorizonDays; i++) {
+      final date = today.add(Duration(days: i));
+      final data = await generateWidgetDataWithLanguage(
+        date,
+        effectiveConfig.language,
+      );
+      final dateKey = _dateKey(date);
+      final moonKey = '${data.moonPhaseValue}_${data.fortnightDay}';
+      final monthKey = MyanmarMonthWidgetService.monthPayloadKeyForDate(date);
+
+      monthKeyByDate[dateKey] = monthKey;
+      if (!monthEntries.containsKey(monthKey)) {
+        final monthSnapshot =
+            await MyanmarMonthWidgetService.generateMonthTimelineSnapshot(
+              date,
+              effectiveConfig.language,
+            );
+        monthEntries[monthSnapshot.monthKey] = monthSnapshot.monthPayload;
+      }
+
+      if (!largeMoonImageCache.containsKey(moonKey)) {
+        largeMoonImageCache[moonKey] =
+            await WidgetUpdateService.renderMoonPhaseImage(
+              data.moonPhaseValue,
+              data.fortnightDay,
+              storageKey: 'moon_phase_large_$moonKey',
+            );
+      }
+      if (!smallMoonImageCache.containsKey(moonKey)) {
+        smallMoonImageCache[moonKey] =
+            await WidgetUpdateService.renderMoonPhaseImage(
+              data.moonPhaseValue,
+              data.fortnightDay,
+              size: 90,
+              storageKey: 'moon_phase_small_$moonKey',
+            );
+      }
+
+      entries[dateKey] = {
+        'myanmar_date': data.myanmarDate,
+        'western_date': data.westernDate,
+        'moon_phase': data.moonPhase,
+        'moon_phase_value': data.moonPhaseValue,
+        'moon_phase_emoji': data.moonPhaseEmoji,
+        'fortnight_day': data.fortnightDay.toString(),
+        'fortnight_day_text': data.fortnightDayText,
+        'holidays': data.holidays.join(', '),
+        'sabbath_info': data.sabbathInfo ?? '',
+        'yatyaza_info': data.yatyazaInfo ?? '',
+        'pyathada_info': data.pyathadaInfo ?? '',
+        'astrological_days': data.astrologicalDays.join(', '),
+        'next_moon_phase': data.nextMoonPhase,
+        'moon_phase_image_path': smallMoonImageCache[moonKey] ?? '',
+        'full_moon_phase_image_path': largeMoonImageCache[moonKey] ?? '',
+      };
+    }
+
+    final timelinePayload = json.encode({
+      'version': 1,
+      'language': effectiveConfig.language,
+      'generated_at': DateTime.now().toIso8601String(),
+      'entries': entries,
+    });
+
+    await WidgetUpdateService.saveTimelinePayload(timelinePayload);
+
+    final monthTimelinePayload = json.encode({
+      'version': 1,
+      'language': effectiveConfig.language,
+      'generated_at': DateTime.now().toIso8601String(),
+      'date_to_month_key': monthKeyByDate,
+      'month_entries': monthEntries,
+    });
+    await WidgetUpdateService.saveMonthTimelinePayload(monthTimelinePayload);
+
+    final todayKey = _dateKey(today);
+    final todayMonthKey = monthKeyByDate[todayKey];
+    if (todayMonthKey != null && monthEntries.containsKey(todayMonthKey)) {
+      await HomeWidget.saveWidgetData<String>(
+        'myanmar_month_data',
+        MyanmarMonthWidgetService.monthDataToJson(monthEntries[todayMonthKey]!),
+      );
+    }
+
+    final timelineEndDate = today.add(
+      const Duration(days: _timelineHorizonDays - 1),
+    );
+    await sharedPreferences.setString(
+      _timelineGeneratedAtKey,
+      DateTime.now().toIso8601String(),
+    );
+    await sharedPreferences.setString(
+      _timelineLanguageKey,
+      effectiveConfig.language,
+    );
+    await sharedPreferences.setString(
+      _timelineEndDateKey,
+      timelineEndDate.toIso8601String(),
+    );
+
+    debugPrint('Widget timeline generated successfully');
+  }
+
+  /// Schedule periodic best-effort background refreshes. Daily date rollover is
+  /// primarily handled natively by Android receivers + timeline cache.
   Future<void> scheduleUpdates() async {
     try {
       debugPrint('Scheduling initial widget update...');
@@ -189,21 +320,6 @@ class WidgetLocalDataSource {
       debugPrint('Initial delay: ${initialDelay.inMinutes} minutes');
       await schedulePeriodicTask(initialDelay);
 
-      // Schedule one-off task for the first execution
-      // await Workmanager().registerOneOffTask(
-      //   _initialTaskName,
-      //   _initialTaskName,
-      //   initialDelay: initialDelay,
-      //   constraints: Constraints(
-      //     networkType: NetworkType.notRequired,
-      //     requiresBatteryNotLow: false,
-      //     requiresCharging: false,
-      //     requiresDeviceIdle: false,
-      //     requiresStorageNotLow: false,
-      //   ),
-      //   existingWorkPolicy: ExistingWorkPolicy.replace,
-      // );
-
       debugPrint('Initial widget update scheduled successfully');
     } catch (e, stackTrace) {
       debugPrint('Failed to schedule initial update: $e');
@@ -212,8 +328,7 @@ class WidgetLocalDataSource {
     }
   }
 
-  /// Schedule the 24h periodic task
-  /// This should be called from the background service after the initial task completes
+  /// Schedule a 24h periodic fallback background refresh task.
   Future<void> schedulePeriodicTask([Duration? initialDelay]) async {
     try {
       debugPrint('Scheduling periodic 24h widget updates...');
@@ -242,12 +357,54 @@ class WidgetLocalDataSource {
   /// Cancel scheduled updates
   Future<void> cancelUpdates() async {
     try {
-      // await Workmanager().cancelByUniqueName(_initialTaskName);
       await Workmanager().cancelByUniqueName(_periodicTaskName);
       debugPrint('Widget updates cancelled');
     } catch (e) {
       debugPrint('Error cancelling updates: $e');
     }
+  }
+
+  bool _shouldRegenerateTimeline(WidgetConfig config) {
+    final generatedAtRaw = sharedPreferences.getString(_timelineGeneratedAtKey);
+    final languageRaw = sharedPreferences.getString(_timelineLanguageKey);
+    final endDateRaw = sharedPreferences.getString(_timelineEndDateKey);
+
+    if (generatedAtRaw == null || languageRaw == null || endDateRaw == null) {
+      return true;
+    }
+
+    if (languageRaw != config.language) {
+      return true;
+    }
+
+    final endDate = DateTime.tryParse(endDateRaw);
+    if (endDate == null) {
+      return true;
+    }
+
+    final remainingDays = _dateOnly(
+      endDate,
+    ).difference(_dateOnly(DateTime.now())).inDays;
+    if (remainingDays < _timelineMinimumRemainingDays) {
+      return true;
+    }
+
+    final generatedAt = DateTime.tryParse(generatedAtRaw);
+    if (generatedAt == null) {
+      return true;
+    }
+
+    return DateTime.now().difference(generatedAt) > const Duration(days: 14);
+  }
+
+  DateTime _dateOnly(DateTime input) =>
+      DateTime(input.year, input.month, input.day);
+
+  String _dateKey(DateTime date) {
+    final d = _dateOnly(date);
+    final month = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '${d.year}-$month-$day';
   }
 
   /// Check if widget is active on home screen
@@ -279,6 +436,21 @@ class WidgetLocalDataSource {
   /// Mark updates as scheduled
   Future<void> markUpdatesScheduled(bool scheduled) async {
     await sharedPreferences.setBool('widget_updates_scheduled', scheduled);
+  }
+
+  /// Widget language always follows app calendar language.
+  String resolveCalendarLanguageCode() {
+    final language = sharedPreferences.getString(StorageKeys.calendarLanguage);
+    if (language != null && language.isNotEmpty) {
+      return language;
+    }
+
+    final configuredLanguage = MyanmarCalendar.currentLanguage.code;
+    if (configuredLanguage.isNotEmpty) {
+      return configuredLanguage;
+    }
+
+    return Language.english.code;
   }
 
   // Helper methods

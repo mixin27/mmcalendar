@@ -1,9 +1,10 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
 import '../entities/event.dart';
 import '../repositories/events_repository.dart';
+import '../services/event_validation_service.dart';
 
 /// Use case for creating a new event
 class CreateUserEvent implements UseCase<Event, CreateUserEventParams> {
@@ -13,39 +14,23 @@ class CreateUserEvent implements UseCase<Event, CreateUserEventParams> {
 
   @override
   Future<Either<Failure, Event>> call(CreateUserEventParams params) async {
-    // Validate event data
-    final validationResult = _validateEvent(params.event);
-    if (validationResult != null) {
-      return Left(ValidationFailure(validationResult));
+    final validation = EventValidationService.validateEvent(
+      params.event,
+      isUpdate: false,
+    );
+    if (!validation.isValid) {
+      return Left(
+        ValidationFailure(validation.message ?? 'Invalid event data'),
+      );
     }
 
-    // Create event
-    final result = await repository.createEvent(params.event);
+    final sanitized = EventValidationService.sanitizeForPersist(
+      params.event,
+      now: DateTime.now(),
+      isUpdate: false,
+    );
 
-    // Fire domain event on success
-    result.fold((failure) => null, (event) {
-      if (event.id != null) {
-        AppEventBus.fire(EventCreatedEvent(event.id!, event.title));
-      }
-    });
-
-    return result;
-  }
-
-  String? _validateEvent(Event event) {
-    if (event.title.trim().isEmpty) {
-      return 'Event title cannot be empty';
-    }
-    if (event.title.length > 200) {
-      return 'Event title cannot exceed 200 characters';
-    }
-    if (event.eventDate.year < 1900 || event.eventDate.year > 2100) {
-      return 'Event date must be between 1900 and 2100';
-    }
-    if (!event.isAllDay && event.eventTime == null) {
-      return 'Event time is required for non-all-day events';
-    }
-    return null;
+    return repository.createEvent(sanitized);
   }
 }
 

@@ -1,4 +1,4 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/event.dart';
@@ -17,6 +17,8 @@ final class EventFormInitial extends EventFormState {}
 
 /// Form editing state
 final class EventFormEditing extends EventFormState {
+  static const Object _noChange = Object();
+
   final int? eventId;
   final String title;
   final String description;
@@ -30,6 +32,8 @@ final class EventFormEditing extends EventFormState {
   final String location;
   final EventPriority priority;
   final List<String> tags;
+  final DateTime createdAt;
+  final DateTime updatedAt;
   final bool isValid;
   final String? errorMessage;
 
@@ -47,6 +51,8 @@ final class EventFormEditing extends EventFormState {
     required this.location,
     required this.priority,
     required this.tags,
+    required this.createdAt,
+    required this.updatedAt,
     this.isValid = false,
     this.errorMessage,
   });
@@ -66,6 +72,8 @@ final class EventFormEditing extends EventFormState {
     location,
     priority,
     tags,
+    createdAt,
+    updatedAt,
     isValid,
     errorMessage,
   ];
@@ -84,8 +92,10 @@ final class EventFormEditing extends EventFormState {
     String? location,
     EventPriority? priority,
     List<String>? tags,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     bool? isValid,
-    String? errorMessage,
+    Object? errorMessage = _noChange,
   }) {
     return EventFormEditing(
       eventId: eventId ?? this.eventId,
@@ -101,8 +111,12 @@ final class EventFormEditing extends EventFormState {
       location: location ?? this.location,
       priority: priority ?? this.priority,
       tags: tags ?? this.tags,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       isValid: isValid ?? this.isValid,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: identical(errorMessage, _noChange)
+          ? this.errorMessage
+          : errorMessage as String?,
     );
   }
 
@@ -121,8 +135,8 @@ final class EventFormEditing extends EventFormState {
       location: location.isEmpty ? null : location,
       priority: priority,
       tags: tags,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }

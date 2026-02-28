@@ -1,3 +1,15 @@
+## [2.1.6+216] - 2026-02-27
+
+- Events UX refresh: redesigned day-based event list items with timeline style and quicker actions.
+- Day Details events section redesigned with cleaner list items and improved readability.
+- Event form polished with consistent section cards and clearer structure.
+- Event categories page polished for cleaner management flow.
+- Fixed recurring event completion to update only the selected occurrence (not the whole series).
+- Fixed recurring event detail to open the correct past/selected occurrence.
+- Fixed completed event detail opening issue (`Event not found`) in event detail flow.
+- Fixed selected-date row indicators not updating correctly after editing event date.
+- Simplified event list app bar actions by removing unnecessary debug/overflow actions.
+
 ## [2.1.5+209]
 
 - Fixed home widget background update issue

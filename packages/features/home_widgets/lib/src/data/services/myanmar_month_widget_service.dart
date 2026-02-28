@@ -1,44 +1,33 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
 
-import '../../domain/entities/widget_config.dart';
-
 class MyanmarMonthWidgetService {
-  /// Update Myanmar month widget with calendar grid data
-  static Future<void> updateMyanmarMonthWidget(
+  /// Build month payload for timeline cache.
+  static Future<MonthTimelineSnapshot> generateMonthTimelineSnapshot(
     DateTime date,
-    WidgetConfig config,
+    String languageCode,
   ) async {
-    try {
-      debugPrint('📅 Generating Myanmar month data for: $date');
+    final monthData = await _generateMyanmarMonthData(date, languageCode);
+    return MonthTimelineSnapshot(
+      monthKey: '${monthData.myanmarYear}-${monthData.myanmarMonth}',
+      monthPayload: _toMap(monthData),
+    );
+  }
 
-      // Generate Myanmar month data
-      final monthData = await _generateMyanmarMonthData(date, config.language);
+  static String monthDataToJson(Map<String, dynamic> payload) =>
+      json.encode(payload);
 
-      // Convert to JSON
-      final jsonData = _convertToJson(monthData);
-
-      // Save to SharedPreferences
-      await HomeWidget.saveWidgetData<String>('myanmar_month_data', jsonData);
-
-      debugPrint('✅ Myanmar month data saved');
-
-      // Trigger widget update
-      await HomeWidget.updateWidget(
-        androidName: 'MyanmarMonthWidgetProvider',
-        iOSName: 'MyanmarMonthWidget',
-      );
-
-      debugPrint('✅ Myanmar month widget updated');
-    } catch (e, stackTrace) {
-      debugPrint('❌ Error updating Myanmar month widget: $e');
-      debugPrint('Stack trace: $stackTrace');
-      rethrow;
-    }
+  static String monthPayloadKeyForDate(DateTime date) {
+    final myanmarDate = MyanmarCalendar.fromWestern(
+      date.year,
+      date.month,
+      date.day,
+    );
+    return '${myanmarDate.myanmarYear}-${myanmarDate.myanmarMonth}';
   }
 
   /// Generate Myanmar month calendar data
@@ -46,11 +35,10 @@ class MyanmarMonthWidgetService {
     DateTime date,
     String languageCode,
   ) async {
-    try {
-      // Temporarily set language
-      final currentLanguage = MyanmarCalendar.currentLanguage;
-      final targetLanguage = Language.fromCode(languageCode);
+    final currentLanguage = MyanmarCalendar.currentLanguage;
+    final targetLanguage = Language.fromCode(languageCode);
 
+    try {
       if (currentLanguage != targetLanguage) {
         MyanmarCalendar.setLanguage(targetLanguage);
       }
@@ -79,6 +67,14 @@ class MyanmarMonthWidgetService {
         myanmarYear,
         myanmarMonth,
       );
+
+      if (myanmarDates.isEmpty || westernDates.isEmpty) {
+        debugPrint(
+          '⚠️ Empty Myanmar month payload for $myanmarYear/$myanmarMonth; '
+          'falling back to western-month grid.',
+        );
+        return _generateFallbackMonthData(date, targetLanguage);
+      }
 
       // Get first day's weekday to determine grid start
       final firstWesternDate = westernDates.first;
@@ -160,7 +156,66 @@ class MyanmarMonthWidgetService {
       debugPrint('❌ Error generating Myanmar month data: $e');
       debugPrint('Stack trace: $stackTrace');
       rethrow;
+    } finally {
+      if (currentLanguage != targetLanguage) {
+        MyanmarCalendar.setLanguage(currentLanguage);
+      }
     }
+  }
+
+  /// Fallback for edge cases where getMyanmarMonth() yields empty results.
+  /// Builds a stable 6x7 grid anchored to the western month containing [date].
+  static MyanmarMonthData _generateFallbackMonthData(
+    DateTime date,
+    Language targetLanguage,
+  ) {
+    final firstOfMonth = DateTime(date.year, date.month, 1);
+    final startOffset = firstOfMonth.weekday % 7; // Sunday-based grid
+    final gridStart = firstOfMonth.subtract(Duration(days: startOffset));
+
+    final anchorMyanmarDate = MyanmarCalendar.fromWestern(
+      date.year,
+      date.month,
+      date.day,
+    );
+    final westernMonthName = DateFormat('MMMM').format(firstOfMonth);
+
+    final days = List<MyanmarDayData>.generate(42, (index) {
+      final westernDate = gridStart.add(Duration(days: index));
+      final myanmarDateTime = MyanmarCalendar.fromWestern(
+        westernDate.year,
+        westernDate.month,
+        westernDate.day,
+      );
+      final myanmarYear = targetLanguage == Language.shan
+          ? myanmarDateTime.shanDate.year
+          : myanmarDateTime.myanmarYear;
+
+      return MyanmarDayData(
+        westernYear: westernDate.year,
+        westernMonth: westernDate.month,
+        westernDay: westernDate.day,
+        myanmarYear: myanmarYear,
+        myanmarMonth: myanmarDateTime.myanmarMonth,
+        myanmarMonthName: myanmarDateTime.formatMyanmar('&M'),
+        moonPhase: myanmarDateTime.moonPhase,
+        fortnightDay: myanmarDateTime.fortnightDay,
+        hasHoliday: myanmarDateTime.allHolidays.isNotEmpty,
+        isToday: _isToday(westernDate),
+        isCurrentMonth:
+            westernDate.year == date.year && westernDate.month == date.month,
+      );
+    });
+
+    return MyanmarMonthData(
+      myanmarYear: anchorMyanmarDate.myanmarYear,
+      myanmarMonth: anchorMyanmarDate.myanmarMonth,
+      myanmarMonthName: anchorMyanmarDate.formatMyanmar('&M'),
+      westernYear: firstOfMonth.year,
+      westernMonth: firstOfMonth.month,
+      westernMonthName: westernMonthName,
+      days: days,
+    );
   }
 
   /// Get previous month days to fill grid
@@ -170,11 +225,10 @@ class MyanmarMonthWidgetService {
     int count,
     String languageCode,
   ) {
-    try {
-      // Temporarily set language
-      final currentLanguage = MyanmarCalendar.currentLanguage;
-      final targetLanguage = Language.fromCode(languageCode);
+    final currentLanguage = MyanmarCalendar.currentLanguage;
+    final targetLanguage = Language.fromCode(languageCode);
 
+    try {
       if (currentLanguage != targetLanguage) {
         MyanmarCalendar.setLanguage(targetLanguage);
       }
@@ -199,8 +253,12 @@ class MyanmarMonthWidgetService {
         prevMonth,
       );
 
+      if (prevMonthDates.isEmpty || prevWesternDates.isEmpty) {
+        return [];
+      }
+
       // Get last 'count' days from previous month
-      final startIndex = prevMonthDates.length - count;
+      final startIndex = math.max(0, prevMonthDates.length - count);
       final days = <MyanmarDayData>[];
 
       for (var i = startIndex; i < prevMonthDates.length; i++) {
@@ -233,6 +291,10 @@ class MyanmarMonthWidgetService {
     } catch (e) {
       debugPrint('⚠️ Error getting previous month days: $e');
       return [];
+    } finally {
+      if (currentLanguage != targetLanguage) {
+        MyanmarCalendar.setLanguage(currentLanguage);
+      }
     }
   }
 
@@ -243,11 +305,10 @@ class MyanmarMonthWidgetService {
     int count,
     String languageCode,
   ) {
-    try {
-      // Temporarily set language
-      final currentLanguage = MyanmarCalendar.currentLanguage;
-      final targetLanguage = Language.fromCode(languageCode);
+    final currentLanguage = MyanmarCalendar.currentLanguage;
+    final targetLanguage = Language.fromCode(languageCode);
 
+    try {
       if (currentLanguage != targetLanguage) {
         MyanmarCalendar.setLanguage(targetLanguage);
       }
@@ -271,6 +332,10 @@ class MyanmarMonthWidgetService {
         nextYear,
         nextMonth,
       );
+
+      if (nextMonthDates.isEmpty || nextWesternDates.isEmpty) {
+        return [];
+      }
 
       // Get first 'count' days from next month
       final days = <MyanmarDayData>[];
@@ -305,6 +370,10 @@ class MyanmarMonthWidgetService {
     } catch (e) {
       debugPrint('⚠️ Error getting next month days: $e');
       return [];
+    } finally {
+      if (currentLanguage != targetLanguage) {
+        MyanmarCalendar.setLanguage(currentLanguage);
+      }
     }
   }
 
@@ -316,9 +385,9 @@ class MyanmarMonthWidgetService {
         date.day == now.day;
   }
 
-  /// Convert month data to JSON
-  static String _convertToJson(MyanmarMonthData monthData) {
-    final map = {
+  /// Convert month data to map for timeline serialization.
+  static Map<String, dynamic> _toMap(MyanmarMonthData monthData) {
+    return {
       'myanmar_year': monthData.myanmarYear,
       'myanmar_month': monthData.myanmarMonth,
       'myanmar_month_name': monthData.myanmarMonthName,
@@ -343,9 +412,17 @@ class MyanmarMonthWidgetService {
           )
           .toList(),
     };
-
-    return json.encode(map);
   }
+}
+
+class MonthTimelineSnapshot {
+  final String monthKey;
+  final Map<String, dynamic> monthPayload;
+
+  const MonthTimelineSnapshot({
+    required this.monthKey,
+    required this.monthPayload,
+  });
 }
 
 // ============================================

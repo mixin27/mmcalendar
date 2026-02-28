@@ -11,8 +11,22 @@ class CategoriesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Event Categories')),
+      appBar: AppBar(
+        title: const Text('Event Categories'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.read<EventCategoriesBloc>().add(
+                const LoadEventCategories(),
+              );
+            },
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateCategoryDialog(context),
         icon: const Icon(Icons.add),
@@ -29,17 +43,18 @@ class CategoriesPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  Icon(Icons.error_outline, size: 64, color: colorScheme.error),
                   const SizedBox(height: 16),
                   Text(state.failure.message),
                   const SizedBox(height: 16),
-                  ElevatedButton(
+                  FilledButton.icon(
                     onPressed: () {
                       context.read<EventCategoriesBloc>().add(
                         const LoadEventCategories(),
                       );
                     },
-                    child: const Text('Retry'),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
                   ),
                 ],
               ),
@@ -48,30 +63,58 @@ class CategoriesPage extends StatelessWidget {
 
           if (state is EventCategoriesLoaded) {
             if (state.categories.isEmpty) {
-              return const Center(
-                child: Text('No categories yet. Create one to get started.'),
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.category_outlined,
+                        size: 64,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('No categories yet'),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Create one to personalize event organization.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
               );
             }
 
-            return ListView.builder(
+            return ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: state.categories.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final category = state.categories[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
+                final categoryColor = Color(category.colorCode);
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: colorScheme.outlineVariant),
+                  ),
                   child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     leading: Container(
-                      width: 40,
-                      height: 40,
+                      width: 42,
+                      height: 42,
                       decoration: BoxDecoration(
-                        color: Color(category.colorCode),
-                        shape: BoxShape.circle,
+                        color: categoryColor.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         _getIconData(category.iconName),
-                        color: Colors.white,
-                        size: 20,
+                        color: categoryColor,
                       ),
                     ),
                     title: Text(
@@ -82,51 +125,14 @@ class CategoriesPage extends StatelessWidget {
                       category.isDefault
                           ? 'Default category'
                           : 'Custom category',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                     trailing: category.isDefault
-                        ? null
-                        : PopupMenuButton(
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.edit, size: 20),
-                                    SizedBox(width: 8),
-                                    Text('Edit'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.delete,
-                                      size: 20,
-                                      color: Colors.red,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Delete',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            onSelected: (value) {
-                              if (value == 'edit') {
-                                _showEditCategoryDialog(context, category);
-                              } else if (value == 'delete') {
-                                _confirmDeleteCategory(context, category);
-                              }
-                            },
-                          ),
+                        ? Icon(
+                            Icons.lock_outline,
+                            color: colorScheme.onSurfaceVariant,
+                          )
+                        : null,
                   ),
                 );
               },
@@ -170,6 +176,20 @@ class CategoriesPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: selectedColor.withValues(alpha: 0.16),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _getIconData(selectedIcon),
+                    color: selectedColor,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(
@@ -232,9 +252,10 @@ class CategoriesPage extends StatelessWidget {
             ),
             FilledButton(
               onPressed: () {
-                if (nameController.text.isNotEmpty) {
+                final name = nameController.text.trim();
+                if (name.isNotEmpty) {
                   final category = EventCategory(
-                    name: nameController.text,
+                    name: name,
                     iconName: selectedIcon,
                     colorCode: selectedColor.toARGB32(),
                     createdAt: DateTime.now(),
@@ -249,35 +270,6 @@ class CategoriesPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showEditCategoryDialog(BuildContext context, EventCategory category) {
-    // Similar to create dialog but with pre-filled values
-    _showCreateCategoryDialog(context);
-  }
-
-  void _confirmDeleteCategory(BuildContext context, EventCategory category) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Category'),
-        content: Text('Are you sure you want to delete "${category.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              // Add delete functionality
-              Navigator.pop(context);
-            },
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
       ),
     );
   }

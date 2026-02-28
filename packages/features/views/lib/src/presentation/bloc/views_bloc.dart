@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../../domain/usecases/get_day_view.dart';
 import '../../domain/usecases/get_week_view.dart';

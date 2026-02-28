@@ -1,25 +1,25 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:app_update_manager/app_update_manager.dart' as um;
-import 'package:data/data.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:calendar/calendar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:holidays/holidays.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:integrations_database/integrations_database.dart';
+import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:promo/promo.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 import 'app.dart';
 import 'config/bloc_observer.dart';
-import 'config/di_setup.dart';
+import 'config/di_setup.dart' as app_di;
 import 'firebase_options.dart';
 
 void main() async {
@@ -36,51 +36,6 @@ void main() async {
     yield LicenseEntryWithLineBreaks(<String>['google_fonts'], license);
   });
 
-  // Initialize
-  await um.AppUpdateManager.initialize(
-    config: um.UpdateConfig(
-      playStoreId: 'dev.mixin27.mmcalendar',
-      // appStoreId: 'YOUR_APP_STORE_ID', // Add this when available
-      enableAnalytics: true,
-      onAnalyticsEvent: (event, data) {
-        FirebaseService.analytics.logEvent(
-          name: 'app_update_${event.name}',
-          parameters: data?.cast<String, Object>(),
-        );
-      },
-      enableBackgroundCheck: !kIsWeb,
-      enableCaching: false,
-    ),
-  );
-
-  // Initialize Firebase with consent settings
-  await _initializeFirebaseWithConsent();
-
-  // Initialize timezone database for notifications
-  tz.initializeTimeZones();
-
-  // Initialize dependency injection
-  await initializeDependencies();
-
-  // Configure system UI
-  await _configureSystemUI();
-
-  if (!kIsWeb) {
-    debugPrint('🔧 Initializing WorkManager...');
-    // Initialize WorkManager for background widget updates
-    await Workmanager().initialize(callbackDispatcher);
-  }
-
-  // Load saved settings and configure Myanmar Calendar
-  await _initializeMyanmarCalendar();
-
-  // todo(mixin27): remove conditional when home_widgets configured
-  // in ios
-  // SYNC BACKGROUND LOGS TO FIREBASE
-  if (!kIsWeb && Platform.isAndroid) {
-    await _syncBackgroundLogs();
-  }
-
   // Set up Bloc observer
   Bloc.observer = AppBlocObserver();
 
@@ -88,104 +43,134 @@ void main() async {
     return ErrorBoundary.errorWidget(details);
   };
 
-  // todo(mixin27): remove conditional when home_widgets configured
-  // in ios
-  // Schedule widget updates on app start
-  if (!kIsWeb && Platform.isAndroid) {
-    await _initializeWidgetUpdates();
-  }
+  try {
+    // Ensure startup begins from a clean service locator state.
+    await app_di.resetDependencies();
 
-  runApp(const MyanmarCalendarApp());
+    await _configureSystemUI();
+
+    final firebaseInitialized = await _initializeFirebaseWithConsent();
+    await app_di.initializeDependencies(
+      firebaseInitialized: firebaseInitialized,
+    );
+    await _initializeMyanmarCalendar();
+    await _prewarmCalendarStartupData();
+    runApp(const MyanmarCalendarApp());
+    unawaited(_runPostLaunchInitialization());
+  } catch (error, stackTrace) {
+    debugPrint('❌ Startup bootstrap failed: $error\n$stackTrace');
+    runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Failed to initialize app. Please restart.',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-Future<void> _initializeFirebaseWithConsent() async {
+Future<void> _prewarmCalendarStartupData() async {
+  try {
+    final getCalendarMonth = app_di.getIt<GetCalendarMonth>();
+    final now = DateTime.now();
+    final monthsToWarm = <DateTime>[
+      DateTime(now.year, now.month - 1, 1),
+      DateTime(now.year, now.month, 1),
+      DateTime(now.year, now.month + 1, 1),
+    ];
+
+    final stopwatch = Stopwatch()..start();
+    await Future.wait(
+      monthsToWarm.map((month) => getCalendarMonth(month)),
+    ).timeout(
+      const Duration(milliseconds: 1200),
+      onTimeout: () {
+        debugPrint('⚠️ Calendar prewarm timeout, continuing startup');
+        return const [];
+      },
+    );
+    stopwatch.stop();
+    debugPrint(
+      '✅ Calendar prewarm finished in ${stopwatch.elapsedMilliseconds}ms',
+    );
+  } catch (error, stackTrace) {
+    debugPrint('⚠️ Failed to prewarm calendar data: $error\n$stackTrace');
+  }
+}
+
+Future<void> _runPostLaunchInitialization() async {
+  try {
+    tz.initializeTimeZones();
+  } catch (error) {
+    debugPrint('⚠️ Failed to initialize timezone database: $error');
+  }
+
+  if (!kIsWeb) {
+    try {
+      debugPrint('🔧 Initializing WorkManager...');
+      await Workmanager().initialize(callbackDispatcher);
+    } catch (error) {
+      debugPrint('⚠️ Failed to initialize WorkManager: $error');
+    }
+  }
+
+  if (!kIsWeb && Platform.isAndroid) {
+    await _syncBackgroundLogs();
+    await _initializeWidgetUpdates();
+  }
+}
+
+Future<bool> _initializeFirebaseWithConsent() async {
   try {
     debugPrint('🔧 Initializing Firebase...');
 
-    // Initialize Firebase Core for all platforms
-    await Firebase.initializeApp(
+    final firebaseBootstrap = FirebaseConsentBootstrap();
+    await firebaseBootstrap.initialize(
       options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    // Load user consent settings from database
-    final database = AppDatabase();
-    final settingsDao = database.settingsDao;
-
-    final analyticsConsent =
-        await settingsDao.getSetting('enable_analytics') ?? 'true';
-    final crashlyticsConsent =
-        await settingsDao.getSetting('enable_crashlytics') ?? 'true';
-
-    final enableAnalytics = analyticsConsent.toLowerCase() == 'true';
-    final enableCrashlytics = crashlyticsConsent.toLowerCase() == 'true';
-
-    // Create configs with user consent
-    final analyticsConfig = AnalyticsConfig(
-      enableCollection: enableAnalytics,
+      database: DatabaseModule.createDatabase(),
       enableDebugLogging: !kReleaseMode,
-      eventPrefix: 'app_',
+      analyticsEventPrefix: 'app_',
     );
-
-    final crashlyticsConfig = CrashlyticsConfig(
-      enableCollection: enableCrashlytics,
-      enableDebugLogging: !kReleaseMode,
-    );
-
-    // Initialize Firebase Services with configs
-    await FirebaseService.initialize(
-      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
-      analyticsConfig: analyticsConfig,
-      crashlyticsConfig: crashlyticsConfig,
-      enableDebugLogging: !kReleaseMode,
-    );
-
-    // Set up error handlers for Firebase Crashlytics
-    _setupCrashlyticsHandlers();
+    firebaseBootstrap.registerCrashHandlers();
 
     debugPrint('✅ Firebase initialized');
+    return true;
   } catch (e, stack) {
     debugPrint('❌ Error initializing Firebase: $e\n$stack');
-    rethrow;
+    return false;
   }
-}
-
-/// Setup error handlers to report to Crashlytics
-void _setupCrashlyticsHandlers() {
-  final crashlytics = FirebaseService.crashlytics;
-
-  // Handle Flutter framework errors
-  FlutterError.onError = (FlutterErrorDetails details) {
-    if (kReleaseMode) {
-      crashlytics.recordFlutterFatalError(details);
-    } else {
-      FlutterError.presentError(details);
-    }
-  };
-
-  // Handle PlatformDispatcher errors
-  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-    if (kReleaseMode) {
-      crashlytics.recordError(error, stack, fatal: true);
-    }
-    debugPrint('Platform error: $error\n$stack');
-    return true;
-  };
 }
 
 // Initialize Myanmar Calendar with saved settings
 Future<void> _initializeMyanmarCalendar() async {
   try {
-    final database = getIt<AppDatabase>();
+    final database = app_di.getIt<AppDatabase>();
     final settingsDao = database.settingsDao;
 
-    final holidayService = getIt<HolidayService>();
+    final holidayOverridesPort = app_di.getIt<HolidayOverridesPort>();
 
-    // Load calendar configuration from database
-    final sasanaYearType = await settingsDao.getSetting('sasana_year_type');
-    final calendarType = await settingsDao.getSetting('calendar_type');
-    final timezoneOffset = await settingsDao.getSetting('timezone_offset');
-    final gregorianStart = await settingsDao.getSetting('gregorian_start');
-    final calendarLanguage = await settingsDao.getSetting('calendar_language');
+    // Load calendar configuration from database in parallel.
+    final settings = await Future.wait<String?>([
+      settingsDao.getSetting('sasana_year_type'),
+      settingsDao.getSetting('calendar_type'),
+      settingsDao.getSetting('timezone_offset'),
+      settingsDao.getSetting('gregorian_start'),
+      settingsDao.getSetting('calendar_language'),
+    ]);
+    final sasanaYearType = settings[0];
+    final calendarType = settings[1];
+    final timezoneOffset = settings[2];
+    final gregorianStart = settings[3];
+    final calendarLanguage = settings[4];
 
     // Configure Myanmar Calendar with saved settings
     MyanmarCalendar.configure(
@@ -194,10 +179,10 @@ Future<void> _initializeMyanmarCalendar() async {
       sasanaYearType: int.tryParse(sasanaYearType ?? '0') ?? 0,
       calendarType: int.tryParse(calendarType ?? '0') ?? 0,
       gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
-      customHolidays: holidayService.getCustomHolidays(),
-      disabledHolidays: holidayService.getDisabledHolidays(),
-      disabledHolidaysByYear: holidayService.getDisabledHolidaysByYear(),
-      disabledHolidaysByDate: holidayService.getDisabledHolidaysByDate(),
+      customHolidays: holidayOverridesPort.getCustomHolidays(),
+      disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
+      disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
+      disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
     );
 
     MyanmarCalendar.clearCache();
@@ -217,8 +202,6 @@ Future<void> _initializeMyanmarCalendar() async {
     MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
     debugPrint('⚠️ Myanmar Calendar initialized with defaults: $e');
   }
-
-  MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
 }
 
 // Sync background logs to Firebase
@@ -226,13 +209,9 @@ Future<void> _syncBackgroundLogs() async {
   try {
     debugPrint('📊 Syncing background logs to Firebase...');
 
-    final prefs = await SharedPreferences.getInstance();
-    final analyticsService = AnalyticsService(
-      firebaseAnalytics: FirebaseService.analytics,
-    );
-    final crashlyticsService = CrashlyticsService(
-      crashlytics: FirebaseService.crashlytics,
-    );
+    final prefs = app_di.getIt<SharedPreferences>();
+    final analyticsService = app_di.getIt<AnalyticsPort>();
+    final crashlyticsService = app_di.getIt<CrashlyticsPort>();
 
     final logSyncService = BackgroundLogSyncService(
       analyticsService: analyticsService,
@@ -262,9 +241,7 @@ Future<void> _syncBackgroundLogs() async {
     );
   } catch (e, stackTrace) {
     debugPrint('⚠️ Failed to sync background logs: $e');
-    final crashlyticsService = CrashlyticsService(
-      crashlytics: FirebaseService.crashlytics,
-    );
+    final crashlyticsService = app_di.getIt<CrashlyticsPort>();
     await crashlyticsService.recordException(
       exception: e,
       stackTrace: stackTrace,
@@ -277,24 +254,29 @@ Future<void> _syncBackgroundLogs() async {
 Future<void> _initializeWidgetUpdates() async {
   try {
     // Import the repository from DI
-    final widgetRepository = getIt<WidgetRepository>();
-    final analyticsService = AnalyticsService(
-      firebaseAnalytics: FirebaseService.analytics,
-    );
+    final widgetRepository = app_di.getIt<WidgetRepository>();
+    final analyticsService = app_di.getIt<AnalyticsPort>();
 
-    // Update widget IMMEDIATELY on app start
+    // Prime widget data/timeline on every startup so first-time widget adds
+    // already have content without requiring manual refresh.
     await widgetRepository.refreshWidget();
 
-    // Schedule daily background updates at 12:01 AM
-    await widgetRepository.scheduleWidgetUpdates();
+    final isWidgetActive = await widgetRepository.isWidgetActive();
 
-    // Log widget update to analytics
-    await analyticsService.logWidgetInteraction(
-      widgetName: 'home_screen_widget',
-      actionType: 'updated_on_app_start',
-    );
-
-    debugPrint('✅ Background updates scheduled');
+    // Schedule best-effort background refreshes (native date rollover handles
+    // daily redraws even when WorkManager is delayed).
+    if (isWidgetActive) {
+      await widgetRepository.scheduleWidgetUpdates();
+      await analyticsService.logWidgetInteraction(
+        widgetName: 'home_screen_widget',
+        actionType: 'updated_on_app_start',
+      );
+      debugPrint('✅ Home widgets active, background updates scheduled');
+    } else {
+      debugPrint(
+        'ℹ️ No home widgets installed, but widget data has been initialized',
+      );
+    }
   } catch (e) {
     debugPrint('⚠️ Failed to initialize widget updates: $e');
   }

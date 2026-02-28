@@ -1,5 +1,5 @@
-import 'package:core/core.dart';
-import 'package:data/data.dart' as db;
+import 'package:shared_core/shared_core.dart';
+import 'package:integrations_database/integrations_database.dart' as db;
 
 import '../../domain/entities/event.dart';
 import '../../domain/entities/event_category.dart';
@@ -43,13 +43,17 @@ abstract class EventsLocalDataSource {
   Future<void> initializeDefaultCategories();
 }
 
-/// Implementation of local data source using Drift database
+/// Implementation of local data source using normalized Drift event schema.
 class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   final db.AppDatabase database;
-  late final db.EventsDao _dao;
+  late final db.EventsV2Dao _eventsDao;
+  late final db.EventsDao _categoryDao;
+  late final db.RecurringExceptionsDao _exceptionsDao;
 
   EventsLocalDataSourceImpl(this.database) {
-    _dao = database.eventsDao;
+    _eventsDao = database.eventsV2Dao;
+    _categoryDao = database.eventsDao;
+    _exceptionsDao = database.recurringExceptionsDao;
   }
 
   // ============================================================================
@@ -61,28 +65,27 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
     try {
       EventCreationDiagnostic.logDatasourceCreateStart(event.title);
 
-      // Get category if needed
-      EventCategory? category = event.category;
-      if (category.id == null && category.name.isNotEmpty) {
-        final categories = await _dao.getAllCategories();
-        final matching = categories.where((c) => c.name == event.category.name);
-        if (matching.isNotEmpty) {
-          category = EventCategoryModel.fromDatabaseEntity(matching.first);
-        } else {
-          category = EventCategory.personal;
+      final resolvedCategory = await _resolveCategoryForInput(event.category);
+
+      final created = await database.transaction(() async {
+        final id = await _eventsDao.createEvent(
+          event.toCalendarEventCompanion(category: resolvedCategory),
+        );
+
+        await _persistRecurrenceAndReminders(
+          eventId: id,
+          event: event,
+          now: DateTime.now(),
+        );
+
+        final created = await _eventsDao.getEventById(id);
+        if (created == null) {
+          throw CacheException('Failed to create event');
         }
-      }
+        return created;
+      });
 
-      final companion = event.toDatabaseCompanion();
-      final id = await _dao.createEvent(companion);
-
-      final created = await _dao.getEventById(id);
-
-      if (created == null) {
-        throw CacheException('Failed to create event');
-      }
-
-      return EventModel.fromDatabaseEntity(created, category);
+      return _hydrateEvent(created, resolvedCategory: resolvedCategory);
     } catch (e) {
       throw CacheException('Failed to create event: ${e.toString()}');
     }
@@ -95,19 +98,31 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
         throw CacheException('Event ID is required for update');
       }
 
-      final companion = event.toDatabaseCompanion();
-      final success = await _dao.updateEvent(companion);
+      final resolvedCategory = await _resolveCategoryForInput(event.category);
 
-      if (!success) {
-        throw CacheException('Failed to update event');
-      }
+      final updated = await database.transaction(() async {
+        final success = await _eventsDao.updateEvent(
+          event.toCalendarEventCompanion(category: resolvedCategory),
+        );
 
-      final updated = await _dao.getEventById(event.id!);
-      if (updated == null) {
-        throw CacheException('Event not found after update');
-      }
+        if (!success) {
+          throw CacheException('Failed to update event');
+        }
 
-      return EventModel.fromDatabaseEntity(updated, event.category);
+        await _persistRecurrenceAndReminders(
+          eventId: event.id!,
+          event: event,
+          now: DateTime.now(),
+        );
+
+        final updated = await _eventsDao.getEventById(event.id!);
+        if (updated == null) {
+          throw CacheException('Event not found after update');
+        }
+        return updated;
+      });
+
+      return _hydrateEvent(updated, resolvedCategory: resolvedCategory);
     } catch (e) {
       throw CacheException('Failed to update event: ${e.toString()}');
     }
@@ -116,10 +131,15 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<void> deleteEvent(int eventId) async {
     try {
-      final deleted = await _dao.deleteEvent(eventId);
-      if (deleted == 0) {
-        throw CacheException('Event not found');
-      }
+      await database.transaction(() async {
+        final deleted = await _eventsDao.deleteEvent(eventId);
+        if (deleted == 0) {
+          throw CacheException('Event not found');
+        }
+
+        // Keep exceptions table consistent even if legacy rows still exist.
+        await _exceptionsDao.deleteExceptionsForEvent(eventId);
+      });
     } catch (e) {
       throw CacheException('Failed to delete event: ${e.toString()}');
     }
@@ -128,12 +148,9 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<EventModel?> getEventById(int eventId) async {
     try {
-      final event = await _dao.getEventById(eventId);
+      final event = await _eventsDao.getEventById(eventId);
       if (event == null) return null;
-
-      final category = await _getCategoryForEvent(event);
-
-      return EventModel.fromDatabaseEntity(event, category);
+      return _hydrateEvent(event);
     } catch (e) {
       throw CacheException('Failed to get event: ${e.toString()}');
     }
@@ -143,14 +160,9 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   Future<List<EventModel>> getAllEvents({bool includeCompleted = false}) async {
     try {
       final events = includeCompleted
-          ? await _dao.getAllEvents()
-          : await _dao.getAllIncompleteEvents();
-      return Future.wait(
-        events.map((e) async {
-          final category = await _getCategoryForEvent(e);
-          return EventModel.fromDatabaseEntity(e, category);
-        }),
-      );
+          ? await _eventsDao.getAllEvents()
+          : await _eventsDao.getAllIncompleteEvents();
+      return _hydrateEvents(events);
     } catch (e) {
       throw CacheException('Failed to get all events: ${e.toString()}');
     }
@@ -159,14 +171,8 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<List<EventModel>> getEventsByDate(DateTime date) async {
     try {
-      final events = await _dao.getEventsByDate(date);
-
-      return Future.wait(
-        events.map((e) async {
-          final category = await _getCategoryForEvent(e);
-          return EventModel.fromDatabaseEntity(e, category);
-        }),
-      );
+      final events = await _eventsDao.getEventsByDate(date);
+      return _hydrateEvents(events);
     } catch (e) {
       throw CacheException('Failed to get events by date: ${e.toString()}');
     }
@@ -178,16 +184,10 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
     DateTime endDate,
   ) async {
     try {
-      // For simplicity, return ALL master events
-      // Repository will filter virtual instances
-      final events = await _dao.getAllEvents();
-
-      return Future.wait(
-        events.map((e) async {
-          final category = await _getCategoryForEvent(e);
-          return EventModel.fromDatabaseEntity(e, category);
-        }),
-      );
+      // Keep behavior compatible with recurrence expansion in repository:
+      // return all master events so virtual instances can be generated.
+      final events = await _eventsDao.getAllEvents();
+      return _hydrateEvents(events);
     } catch (e) {
       throw CacheException(
         'Failed to get events by date range: ${e.toString()}',
@@ -198,13 +198,8 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<List<EventModel>> getEventsByCategory(String category) async {
     try {
-      final events = await _dao.getEventsByCategory(category);
-      return Future.wait(
-        events.map((e) async {
-          final cat = await _getCategoryForEvent(e);
-          return EventModel.fromDatabaseEntity(e, cat);
-        }),
-      );
+      final events = await _eventsDao.getEventsByCategoryName(category);
+      return _hydrateEvents(events);
     } catch (e) {
       throw CacheException('Failed to get events by category: ${e.toString()}');
     }
@@ -213,18 +208,14 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<List<EventModel>> getEventsByStatus(EventStatus status) async {
     try {
-      final events = await _dao.getAllEvents();
-      final filtered = events.where((e) {
-        final isCompleted = e.isCompleted;
-        return status == EventStatus.completed ? isCompleted : !isCompleted;
-      }).toList();
-
-      return Future.wait(
-        filtered.map((e) async {
-          final category = await _getCategoryForEvent(e);
-          return EventModel.fromDatabaseEntity(e, category);
-        }),
-      );
+      final events = await _eventsDao.getAllEvents();
+      final filtered = events
+          .where((event) {
+            final eventStatus = EventModel.parseStatus(event.status);
+            return status == eventStatus;
+          })
+          .toList(growable: false);
+      return _hydrateEvents(filtered);
     } catch (e) {
       throw CacheException('Failed to get events by status: ${e.toString()}');
     }
@@ -233,20 +224,21 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<List<EventModel>> searchEvents(String query) async {
     try {
-      final events = await _dao.getAllEvents();
-      final filtered = events.where((e) {
-        final titleMatch = e.title.toLowerCase().contains(query.toLowerCase());
-        final descMatch =
-            e.description?.toLowerCase().contains(query.toLowerCase()) ?? false;
-        return titleMatch || descMatch;
-      }).toList();
+      final normalizedQuery = query.trim().toLowerCase();
+      final events = await _eventsDao.getAllEvents();
+      final filtered = events
+          .where((event) {
+            final titleMatch = event.title.toLowerCase().contains(
+              normalizedQuery,
+            );
+            final descMatch =
+                event.description?.toLowerCase().contains(normalizedQuery) ??
+                false;
+            return titleMatch || descMatch;
+          })
+          .toList(growable: false);
 
-      return Future.wait(
-        filtered.map((e) async {
-          final category = await _getCategoryForEvent(e);
-          return EventModel.fromDatabaseEntity(e, category);
-        }),
-      );
+      return _hydrateEvents(filtered);
     } catch (e) {
       throw CacheException('Failed to search events: ${e.toString()}');
     }
@@ -258,15 +250,19 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
     bool isCompleted,
   ) async {
     try {
-      await _dao.toggleComplete(eventId, isCompleted);
-      final updated = await _dao.getEventById(eventId);
+      final now = DateTime.now();
+      await _eventsDao.updateEventCompletion(
+        eventId: eventId,
+        isCompleted: isCompleted,
+        now: now,
+      );
 
+      final updated = await _eventsDao.getEventById(eventId);
       if (updated == null) {
         throw CacheException('Event not found');
       }
 
-      final category = await _getCategoryForEvent(updated);
-      return EventModel.fromDatabaseEntity(updated, category);
+      return _hydrateEvent(updated);
     } catch (e) {
       throw CacheException('Failed to toggle completion: ${e.toString()}');
     }
@@ -279,14 +275,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Stream<List<EventModel>> watchAllEvents() {
     try {
-      return _dao.watchAllEvents().asyncMap((events) async {
-        return Future.wait(
-          events.map((e) async {
-            final category = await _getCategoryForEvent(e);
-            return EventModel.fromDatabaseEntity(e, category);
-          }),
-        );
-      });
+      return _eventsDao.watchAllEvents().asyncMap(_hydrateEvents);
     } catch (e) {
       throw CacheException('Failed to watch all events: ${e.toString()}');
     }
@@ -303,16 +292,9 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
     DateTime endDate,
   ) {
     try {
-      // Return all master events
-      // Repository will handle virtual instance generation
-      return _dao.watchAllEvents().asyncMap((events) async {
-        return Future.wait(
-          events.map((e) async {
-            final category = await _getCategoryForEvent(e);
-            return EventModel.fromDatabaseEntity(e, category);
-          }),
-        );
-      });
+      // Keep behavior compatible with recurrence expansion in repository:
+      // watch all masters, repository applies range and recurrence.
+      return _eventsDao.watchAllEvents().asyncMap(_hydrateEvents);
     } catch (e) {
       throw CacheException('Failed to watch events by range: ${e.toString()}');
     }
@@ -321,10 +303,9 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Stream<EventModel?> watchEventById(int eventId) {
     try {
-      return _dao.watchEventById(eventId).asyncMap((event) async {
+      return _eventsDao.watchEventById(eventId).asyncMap((event) async {
         if (event == null) return null;
-        final category = await _getCategoryForEvent(event);
-        return EventModel.fromDatabaseEntity(event, category);
+        return _hydrateEvent(event);
       });
     } catch (e) {
       throw CacheException('Failed to watch event: ${e.toString()}');
@@ -338,9 +319,9 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<List<EventCategoryModel>> getAllCategories() async {
     try {
-      final categories = await _dao.getAllCategories();
+      final categories = await _categoryDao.getAllCategories();
       return categories
-          .map((c) => EventCategoryModel.fromDatabaseEntity(c))
+          .map((category) => EventCategoryModel.fromDatabaseEntity(category))
           .toList();
     } catch (e) {
       throw CacheException('Failed to get categories: ${e.toString()}');
@@ -351,8 +332,8 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   Future<EventCategoryModel> createCategory(EventCategoryModel category) async {
     try {
       final companion = category.toDatabaseCompanion();
-      final id = await _dao.createCategory(companion);
-      final created = await _dao.getCategoryById(id);
+      final id = await _categoryDao.createCategory(companion);
+      final created = await _categoryDao.getCategoryById(id);
 
       if (created == null) {
         throw CacheException('Failed to create category');
@@ -372,13 +353,13 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
       }
 
       final companion = category.toDatabaseCompanion();
-      final success = await _dao.updateCategory(companion);
+      final success = await _categoryDao.updateCategory(companion);
 
       if (!success) {
         throw CacheException('Failed to update category');
       }
 
-      final updated = await _dao.getCategoryById(category.id!);
+      final updated = await _categoryDao.getCategoryById(category.id!);
       if (updated == null) {
         throw CacheException('Category not found after update');
       }
@@ -392,7 +373,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<void> deleteCategory(int categoryId) async {
     try {
-      final deleted = await _dao.deleteCategory(categoryId);
+      final deleted = await _categoryDao.deleteCategory(categoryId);
       if (deleted == 0) {
         throw CacheException('Category not found');
       }
@@ -404,7 +385,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<EventCategoryModel?> getCategoryById(int categoryId) async {
     try {
-      final category = await _dao.getCategoryById(categoryId);
+      final category = await _categoryDao.getCategoryById(categoryId);
       if (category == null) return null;
       return EventCategoryModel.fromDatabaseEntity(category);
     } catch (e) {
@@ -415,32 +396,143 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   @override
   Future<void> initializeDefaultCategories() async {
     try {
-      await _dao.initializeDefaultCategories();
+      await _categoryDao.initializeDefaultCategories();
     } catch (e) {
       throw CacheException('Failed to initialize categories: ${e.toString()}');
     }
   }
 
   // ============================================================================
-  // HELPER METHODS
+  // HELPERS
   // ============================================================================
 
-  Future<EventCategory> _getCategoryForEvent(db.UserEvent event) async {
+  Future<void> _persistRecurrenceAndReminders({
+    required int eventId,
+    required EventModel event,
+    required DateTime now,
+  }) async {
+    final recurrenceCompanion = event.toRecurrenceCompanion(
+      eventId: eventId,
+      now: now,
+    );
+    if (recurrenceCompanion == null) {
+      await _eventsDao.deleteRecurrenceRuleForEvent(eventId);
+    } else {
+      await _eventsDao.upsertRecurrenceRule(recurrenceCompanion);
+    }
+
+    final reminderCompanions = event.toReminderCompanions(
+      eventId: eventId,
+      now: now,
+    );
+    await _eventsDao.replaceRemindersForEvent(eventId, reminderCompanions);
+  }
+
+  Future<EventCategory> _resolveCategoryForInput(EventCategory category) async {
+    if (category.id != null) {
+      final byId = await _categoryDao.getCategoryById(category.id!);
+      if (byId != null) {
+        return EventCategoryModel.fromDatabaseEntity(byId);
+      }
+    }
+
+    final all = await _categoryDao.getAllCategories();
+    final byName = all.where((item) => item.name == category.name).toList();
+    if (byName.isNotEmpty) {
+      return EventCategoryModel.fromDatabaseEntity(byName.first);
+    }
+
+    return EventCategory.personal;
+  }
+
+  Future<EventModel> _hydrateEvent(
+    db.CalendarEvent event, {
+    EventCategory? resolvedCategory,
+  }) async {
+    final recurrence = await _eventsDao.getRecurrenceRuleForEvent(event.id);
+    final reminders = await _eventsDao.getRemindersForEvent(event.id);
+
+    final category =
+        resolvedCategory ?? await _resolveCategoryForStoredEvent(event);
+    return EventModel.fromV2DatabaseEntity(
+      event,
+      category: category,
+      recurrenceRule: recurrence,
+      reminders: reminders,
+    );
+  }
+
+  Future<List<EventModel>> _hydrateEvents(List<db.CalendarEvent> events) async {
+    if (events.isEmpty) return const [];
+
+    final eventIds = events.map((event) => event.id).toList(growable: false);
+    final recurrenceMap = await _eventsDao.getRecurrenceRulesForEventIds(
+      eventIds,
+    );
+    final remindersMap = await _eventsDao.getRemindersForEventIds(eventIds);
+
+    final categories = await _categoryDao.getAllCategories();
+    final categoriesById = <int, db.EventCategory>{
+      for (final category in categories) category.id: category,
+    };
+    final categoriesByName = <String, db.EventCategory>{
+      for (final category in categories) category.name: category,
+    };
+
+    return events
+        .map((event) {
+          final category = _resolveCategoryFromCaches(
+            event: event,
+            categoriesById: categoriesById,
+            categoriesByName: categoriesByName,
+          );
+          return EventModel.fromV2DatabaseEntity(
+            event,
+            category: category,
+            recurrenceRule: recurrenceMap[event.id],
+            reminders: remindersMap[event.id] ?? const [],
+          );
+        })
+        .toList(growable: false);
+  }
+
+  Future<EventCategory> _resolveCategoryForStoredEvent(
+    db.CalendarEvent event,
+  ) async {
     if (event.categoryId != null) {
-      final category = await _dao.getCategoryById(event.categoryId!);
+      final category = await _categoryDao.getCategoryById(event.categoryId!);
       if (category != null) {
         return EventCategoryModel.fromDatabaseEntity(category);
       }
     }
 
-    // Fallback to default category
-    final dbCategories = await _dao.getAllCategories();
-    final matching = dbCategories
-        .where((c) => c.name == event.category)
+    final categories = await _categoryDao.getAllCategories();
+    final matching = categories
+        .where((category) => category.name == event.categoryName)
         .toList();
     if (matching.isNotEmpty) {
       return EventCategoryModel.fromDatabaseEntity(matching.first);
     }
+    return EventCategory.personal;
+  }
+
+  EventCategory _resolveCategoryFromCaches({
+    required db.CalendarEvent event,
+    required Map<int, db.EventCategory> categoriesById,
+    required Map<String, db.EventCategory> categoriesByName,
+  }) {
+    if (event.categoryId != null) {
+      final byId = categoriesById[event.categoryId!];
+      if (byId != null) {
+        return EventCategoryModel.fromDatabaseEntity(byId);
+      }
+    }
+
+    final byName = categoriesByName[event.categoryName];
+    if (byName != null) {
+      return EventCategoryModel.fromDatabaseEntity(byName);
+    }
+
     return EventCategory.personal;
   }
 }

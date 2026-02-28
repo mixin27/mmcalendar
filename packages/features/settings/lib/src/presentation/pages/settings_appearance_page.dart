@@ -1,10 +1,10 @@
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:localizations/localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../widgets/settings_widgets.dart';
 import '../widgets/snackbar.dart';
@@ -18,7 +18,7 @@ class SettingsAppearancePage extends StatefulWidget {
 }
 
 class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   @override
   void initState() {
@@ -31,6 +31,7 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -51,7 +52,7 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
             ),
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)?.appearance ?? 'Apperance',
+              l10n?.appearance ?? 'Appearance',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
@@ -93,11 +94,12 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
   }
 
   Widget _buildContent(BuildContext context, AppSettingsEntity settings) {
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       child: Column(
         children: [
           SettingsTile(
-            title: 'Theme Mode',
+            title: l10n?.themeMode ?? 'Theme Mode',
             subtitle: _getThemeModeText(settings.themeMode),
             leading: const Icon(Icons.brightness_6),
             onTap: () => _showThemeModeDialog(context, settings),
@@ -114,17 +116,18 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
   }
 
   void _showThemeModeDialog(BuildContext context, AppSettingsEntity settings) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (dialogContext) => EnhancedDialog(
-        title: 'Theme Mode',
+        title: l10n?.themeMode ?? 'Theme Mode',
         icon: Icons.brightness_6,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioOption<ThemeMode>(
-              title: 'Light',
-              subtitle: 'Always use light theme',
+              title: l10n?.light ?? 'Light',
+              subtitle: l10n?.alwaysUseLightTheme ?? 'Always use light theme',
               icon: Icons.light_mode,
               value: ThemeMode.light,
               groupValue: settings.themeMode,
@@ -134,8 +137,8 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
               },
             ),
             RadioOption<ThemeMode>(
-              title: 'Dark',
-              subtitle: 'Always use dark theme',
+              title: l10n?.dark ?? 'Dark',
+              subtitle: l10n?.alwaysUseDarkTheme ?? 'Always use dark theme',
               icon: Icons.dark_mode,
               value: ThemeMode.dark,
               groupValue: settings.themeMode,
@@ -145,8 +148,8 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
               },
             ),
             RadioOption<ThemeMode>(
-              title: 'System',
-              subtitle: 'Match system theme',
+              title: l10n?.system ?? 'System',
+              subtitle: l10n?.matchSystemTheme ?? 'Match system theme',
               icon: Icons.brightness_auto,
               value: ThemeMode.system,
               groupValue: settings.themeMode,
@@ -214,13 +217,14 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
 
   // Helper methods
   String _getThemeModeText(ThemeMode mode) {
+    final l10n = AppLocalizations.of(context);
     switch (mode) {
       case ThemeMode.light:
-        return 'Light';
+        return l10n?.light ?? 'Light';
       case ThemeMode.dark:
-        return 'Dark';
+        return l10n?.dark ?? 'Dark';
       default:
-        return 'System';
+        return l10n?.system ?? 'System';
     }
   }
 

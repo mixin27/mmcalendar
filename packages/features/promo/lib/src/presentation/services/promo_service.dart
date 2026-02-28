@@ -1,8 +1,8 @@
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:promo_carousel/promo_carousel.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/promo_interaction.dart';
 import '../../domain/repositories/promo_repository.dart';
@@ -14,7 +14,7 @@ class PromoService {
   final PromoRepository repository;
   final GetOnboardingSlides getOnboardingSlides;
   final GetFeatureAnnouncements getFeatureAnnouncements;
-  final AnalyticsService? analyticsService;
+  final AnalyticsPort? analyticsService;
 
   const PromoService({
     required this.repository,
@@ -198,13 +198,9 @@ class PromoService {
           (map, entry) => map..[entry.key] = entry.value!,
         );
 
-    analyticsService!.logEvent(
-      _PromoAnalyticsEvent(name: eventName, parameters: nonNullParams),
+    analyticsService!.logCustomEvent(
+      name: eventName,
+      parameters: nonNullParams,
     );
   }
-}
-
-/// Custom analytics event for promo tracking
-class _PromoAnalyticsEvent extends AnalyticsEvent {
-  const _PromoAnalyticsEvent({required super.name, required super.parameters});
 }

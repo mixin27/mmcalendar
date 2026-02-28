@@ -1,3 +1,4 @@
+import 'package:shared_core/shared_core.dart' show RoutePaths;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -10,8 +11,13 @@ import '../bloc/user_events_state.dart';
 
 class EventDetailPage extends StatefulWidget {
   final int eventId;
+  final DateTime? occurrenceDate;
 
-  const EventDetailPage({super.key, required this.eventId});
+  const EventDetailPage({
+    super.key,
+    required this.eventId,
+    this.occurrenceDate,
+  });
 
   @override
   State<EventDetailPage> createState() => _EventDetailPageState();
@@ -20,6 +26,7 @@ class EventDetailPage extends StatefulWidget {
 class _EventDetailPageState extends State<EventDetailPage>
     with TickerProviderStateMixin {
   Event? _currentEvent;
+  bool _hasTriedDirectLookup = false;
   late AnimationController _fabController;
   late Animation<double> _fabScaleAnimation;
 
@@ -51,70 +58,162 @@ class _EventDetailPageState extends State<EventDetailPage>
   }
 
   void _loadEvent() {
-    context.read<UserEventsBloc>().add(const LoadAllEvents());
+    final occurrenceDate = widget.occurrenceDate;
+    if (occurrenceDate != null) {
+      context.read<UserEventsBloc>().add(LoadEventsByDate(occurrenceDate));
+      return;
+    }
+    context.read<UserEventsBloc>().add(
+      const LoadAllEvents(includeCompleted: true),
+    );
+  }
+
+  bool _syncCurrentEvent(List<Event> events) {
+    for (final event in events) {
+      if (_matchesEvent(event)) {
+        setState(() {
+          _currentEvent = event;
+        });
+        return true;
+      }
+    }
+    if (_currentEvent != null) {
+      setState(() {
+        _currentEvent = null;
+      });
+    }
+    return false;
+  }
+
+  bool _matchesEvent(Event event) {
+    if (event.id != widget.eventId) return false;
+    final occurrenceDate = widget.occurrenceDate;
+    if (occurrenceDate == null) return true;
+    return _isSameDay(event.eventDate, occurrenceDate);
+  }
+
+  Future<void> _tryLoadDirectCompletedEvent() async {
+    if (_hasTriedDirectLookup || widget.occurrenceDate == null) return;
+    _hasTriedDirectLookup = true;
+
+    final result = await context
+        .read<UserEventsBloc>()
+        .eventsRepository
+        .getEventById(widget.eventId);
+
+    if (!mounted) return;
+
+    result.fold((_) => null, (event) {
+      final occurrenceDate = widget.occurrenceDate!;
+      final isOneTimeMatch =
+          !event.isRecurring && _isSameDay(event.eventDate, occurrenceDate);
+      if (isOneTimeMatch) {
+        setState(() {
+          _currentEvent = event;
+        });
+      }
+    });
+  }
+
+  void _popWithResult() {
+    context.pop(_currentEvent?.eventDate);
+  }
+
+  void _toggleCurrentEventCompletion(Event event) {
+    final eventId = event.id;
+    if (eventId == null) return;
+
+    final occurrenceDate = widget.occurrenceDate;
+    if (event.isRecurring && occurrenceDate != null) {
+      if (event.isCompleted) {
+        context.read<UserEventsBloc>().add(
+          RestoreRecurringInstanceEvent(
+            masterEventId: eventId,
+            occurrenceDate: occurrenceDate,
+          ),
+        );
+      } else {
+        context.read<UserEventsBloc>().add(
+          CompleteRecurringInstanceEvent(
+            masterEventId: eventId,
+            occurrenceDate: occurrenceDate,
+          ),
+        );
+      }
+      return;
+    }
+
+    context.read<UserEventsBloc>().add(
+      ToggleEventComplete(eventId, !event.isCompleted),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocConsumer<UserEventsBloc, UserEventsState>(
-        listener: (context, state) {
-          if (state is EventsLoaded) {
-            try {
-              final event = state.events.firstWhere(
-                (e) => e.id == widget.eventId,
-              );
-              setState(() {
-                _currentEvent = event;
-              });
-            } catch (e) {
-              // Event not found
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _popWithResult();
+      },
+      child: Scaffold(
+        body: BlocConsumer<UserEventsBloc, UserEventsState>(
+          listener: (context, state) {
+            if (state is EventsLoaded) {
+              final found = _syncCurrentEvent(state.events);
+              if (!found) {
+                _tryLoadDirectCompletedEvent();
+              }
+            } else if (state is EventsOperationSuccess) {
+              final found = _syncCurrentEvent(state.events);
+              if (!found) {
+                _tryLoadDirectCompletedEvent();
+              }
+            } else if (state is EventsOperationInProgress) {
+              _syncCurrentEvent(state.currentEvents);
             }
-          }
-        },
-        builder: (context, state) {
-          if (state is EventsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          },
+          builder: (context, state) {
+            if (state is EventsLoading && _currentEvent == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state is EventsError) {
-            return _buildErrorState(state.failure.message);
-          }
+            if (state is EventsError) {
+              return _buildErrorState(state.failure.message);
+            }
 
-          if (_currentEvent != null) {
-            return _buildEventDetail(_currentEvent!);
-          }
+            if (_currentEvent != null) {
+              return _buildEventDetail(_currentEvent!);
+            }
 
-          return _buildEventNotFound();
-        },
+            return _buildEventNotFound();
+          },
+        ),
+        floatingActionButton: _currentEvent != null
+            ? ScaleTransition(
+                scale: _fabScaleAnimation,
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    _toggleCurrentEventCompletion(_currentEvent!);
+                  },
+                  icon: Icon(
+                    _currentEvent!.isCompleted
+                        ? Icons.restart_alt
+                        : Icons.check,
+                  ),
+                  label: Text(
+                    _currentEvent!.isCompleted
+                        ? 'Reopen Event'
+                        : 'Mark Complete',
+                  ),
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  backgroundColor: _currentEvent!.isCompleted
+                      ? Theme.of(context).colorScheme.secondary
+                      : Color(_currentEvent!.effectiveColor),
+                ),
+              )
+            : null,
       ),
-      floatingActionButton: _currentEvent != null
-          ? ScaleTransition(
-              scale: _fabScaleAnimation,
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  if (_currentEvent!.id != null) {
-                    context.read<UserEventsBloc>().add(
-                      ToggleEventComplete(
-                        _currentEvent!.id!,
-                        !_currentEvent!.isCompleted,
-                      ),
-                    );
-                  }
-                },
-                icon: Icon(
-                  _currentEvent!.isCompleted ? Icons.restart_alt : Icons.check,
-                ),
-                label: Text(
-                  _currentEvent!.isCompleted ? 'Reopen Event' : 'Mark Complete',
-                ),
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                backgroundColor: _currentEvent!.isCompleted
-                    ? Theme.of(context).colorScheme.secondary
-                    : Color(_currentEvent!.effectiveColor),
-              ),
-            )
-          : null,
     );
   }
 
@@ -128,6 +227,10 @@ class _EventDetailPageState extends State<EventDetailPage>
           expandedHeight: 200,
           pinned: true,
           elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _popWithResult,
+          ),
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
               decoration: BoxDecoration(
@@ -147,36 +250,75 @@ class _EventDetailPageState extends State<EventDetailPage>
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (event.isCompleted)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                size: 16,
-                                color: Colors.white,
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (event.isCompleted)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
                               ),
-                              SizedBox(width: 6),
-                              Text(
-                                'Completed',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                            ],
-                          ),
-                        ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Completed',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (event.isRecurring &&
+                              widget.occurrenceDate != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.24),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'Occurrence',
+                                style: Theme.of(context).textTheme.labelMedium
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ),
+                        ],
+                      ),
                       const SizedBox(height: 12),
+                      if (!event.isAllDay && event.eventTime != null) ...[
+                        Text(
+                          TimeOfDay.fromDateTime(
+                            event.eventTime!,
+                          ).format(context),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.95),
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+                      ],
                       Text(
                         event.title,
                         style: Theme.of(context).textTheme.headlineSmall
@@ -188,6 +330,13 @@ class _EventDetailPageState extends State<EventDetailPage>
                                   : null,
                             ),
                       ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${DateFormat('EEE, MMM d, y').format(event.eventDate)} • ${event.category.name}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.92),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -197,10 +346,13 @@ class _EventDetailPageState extends State<EventDetailPage>
           actions: [
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
-              onSelected: (value) {
+              onSelected: (value) async {
                 switch (value) {
                   case 'edit':
-                    context.push('/events/${widget.eventId}');
+                    await context.push(RoutePaths.eventsEdit(widget.eventId));
+                    if (context.mounted) {
+                      _loadEvent();
+                    }
                     break;
                   case 'delete':
                     _confirmDelete(context);
@@ -658,4 +810,7 @@ class _EventDetailPageState extends State<EventDetailPage>
       ),
     );
   }
+
+  static bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 }

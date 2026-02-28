@@ -1,9 +1,9 @@
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:localizations/l10n/app_localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/views_injection.dart';
 import '../bloc/views_bloc.dart';
@@ -17,7 +17,7 @@ class ViewsSelectorPage extends StatefulWidget {
 }
 
 class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   @override
   void initState() {
     super.initState();

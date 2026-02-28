@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../../domain/repositories/events_repository.dart';
 import '../../domain/usecases/delete_user_event.dart';
@@ -28,7 +28,7 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
   final SmartNotificationScheduler smartScheduler;
 
   StreamSubscription? _eventsSubscription;
-  StreamSubscription<MonthChangedEvent>? _monthChangedSubscription;
+  UserEventsEvent _lastRefreshableEvent = const LoadAllEvents();
 
   UserEventsBloc({
     required this.getEventsByDate,
@@ -56,29 +56,11 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     on<CompleteRecurringInstanceEvent>(_onCompleteRecurringInstance);
     on<DeleteRecurringInstanceEvent>(_onDeleteRecurringInstance);
     on<ModifyRecurringInstanceEvent>(_onModifyRecurringInstance);
+    on<RestoreRecurringInstanceEvent>(_onRestoreRecurringInstance);
 
     on<StartWatchingEvents>(_onStartWatchingEvents);
     on<StartWatchingEventsByDateRange>(_onStartWatchingEventsByDateRange);
     on<StopWatchingEvents>(_onStopWatchingEvents);
-
-    _subscribeToEvents();
-  }
-
-  void _subscribeToEvents() {
-    _monthChangedSubscription = AppEventBus.on<MonthChangedEvent>().listen((
-      event,
-    ) {
-      final month = event.month;
-      // Load events for the month (include a few days buffer for grid)
-      final startOfMonth = DateTime(month.year, month.month, 1);
-      final endOfMonth = DateTime(month.year, month.month + 1, 0);
-
-      // Add a buffer for grid display (some days from prev/next month)
-      final startDate = startOfMonth.subtract(const Duration(days: 7));
-      final endDate = endOfMonth.add(const Duration(days: 7));
-
-      add(LoadEventsByDateRange(startDate, endDate));
-    });
   }
 
   // ...
@@ -86,22 +68,20 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     LoadAllEvents event,
     Emitter<UserEventsState> emit,
   ) async {
+    _lastRefreshableEvent = event;
     emit(const EventsLoading());
 
-    final now = DateTime.now();
-    // Load past 30 days and future 90 days initially
-    final startDate = now.subtract(const Duration(days: 30));
-    final endDate = now.add(const Duration(days: 90));
-
-    final result = await eventsRepository.getEventsByDateRange(
-      startDate,
-      endDate,
-    );
+    final result = event.includeCompleted
+        ? await eventsRepository.getAllEvents(includeCompleted: true)
+        : await eventsRepository.getEventsByDateRange(
+            DateTime.now().subtract(const Duration(days: 30)),
+            DateTime.now().add(const Duration(days: 90)),
+          );
 
     result.fold((failure) => emit(EventsError(failure)), (events) {
       // Sort by date and then time
       events.sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
-      emit(EventsLoaded(events, hasMore: true, endDate: endDate));
+      emit(EventsLoaded(events, hasMore: !event.includeCompleted));
     });
   }
 
@@ -141,6 +121,7 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     LoadEventsByDate event,
     Emitter<UserEventsState> emit,
   ) async {
+    _lastRefreshableEvent = event;
     emit(const EventsLoading());
 
     final result = await getEventsByDate(GetEventsByDateParams(event.date));
@@ -155,6 +136,7 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     LoadEventsByDateRange event,
     Emitter<UserEventsState> emit,
   ) async {
+    _lastRefreshableEvent = event;
     // log('UserEventsBloc: Loading events from ${event.startDate} to ${event.endDate}');
     emit(const EventsLoading());
 
@@ -177,6 +159,7 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     LoadUpcomingEvents event,
     Emitter<UserEventsState> emit,
   ) async {
+    _lastRefreshableEvent = event;
     emit(const EventsLoading());
 
     final result = await getUpcomingEvents(
@@ -194,10 +177,12 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     Emitter<UserEventsState> emit,
   ) async {
     if (event.query.trim().isEmpty) {
+      _lastRefreshableEvent = const LoadAllEvents();
       add(const LoadAllEvents());
       return;
     }
 
+    _lastRefreshableEvent = event;
     emit(const EventsLoading());
 
     final result = await searchEvents(SearchUserEventsParams(event.query));
@@ -212,8 +197,15 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     RefreshEvents event,
     Emitter<UserEventsState> emit,
   ) async {
-    // Reload all events
-    add(const LoadAllEvents());
+    final refreshTarget = _lastRefreshableEvent;
+    if (refreshTarget is RefreshEvents ||
+        refreshTarget is StartWatchingEvents ||
+        refreshTarget is StartWatchingEventsByDateRange ||
+        refreshTarget is StopWatchingEvents) {
+      add(const LoadAllEvents());
+      return;
+    }
+    add(refreshTarget);
   }
 
   Future<void> _onToggleEventComplete(
@@ -439,10 +431,37 @@ class UserEventsBloc extends Bloc<UserEventsEvent, UserEventsState> {
     emit(EventsOperationSuccess(currentState.events, 'Instance modified'));
   }
 
+  Future<void> _onRestoreRecurringInstance(
+    RestoreRecurringInstanceEvent event,
+    Emitter<UserEventsState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! EventsLoaded) return;
+
+    emit(
+      EventsOperationInProgress(currentState.events, 'Restoring instance...'),
+    );
+
+    final result = await eventsRepository.restoreRecurringInstance(
+      event.masterEventId,
+      event.occurrenceDate,
+    );
+
+    if (result.isLeft()) {
+      final failure = result.fold((f) => f, (_) => null)!;
+      emit(EventsError(failure));
+      emit(currentState);
+      return;
+    }
+
+    await smartScheduler.rescheduleAllNotifications();
+    add(const RefreshEvents());
+    emit(EventsOperationSuccess(currentState.events, 'Instance restored'));
+  }
+
   @override
   Future<void> close() {
     _eventsSubscription?.cancel();
-    _monthChangedSubscription?.cancel();
     return super.close();
   }
 }

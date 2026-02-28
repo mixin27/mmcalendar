@@ -1,7 +1,11 @@
-import 'package:data/data.dart';
+import 'package:integrations_database/integrations_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_core/shared_core.dart';
 
+import '../application/services/event_flow_service.dart';
+import '../adapters/go_router_event_actions_port.dart';
+import '../adapters/repository_event_markers_port.dart';
 import '../data/datasources/events_local_datasource.dart';
 import '../data/datasources/recurring_exceptions_datasource.dart';
 import '../data/repositories/events_repository_impl.dart';
@@ -78,6 +82,18 @@ Future<void> initEventsDependencies() async {
     ),
   );
 
+  if (!getIt.isRegistered<EventMarkersPort>()) {
+    getIt.registerLazySingleton<EventMarkersPort>(
+      () => RepositoryEventMarkersPort(getIt<EventsRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<EventActionsPort>()) {
+    getIt.registerLazySingleton<EventActionsPort>(
+      () => GoRouterEventActionsPort(),
+    );
+  }
+
   // ============================================================================
   // USE CASES
   // ============================================================================
@@ -104,6 +120,15 @@ Future<void> initEventsDependencies() async {
     () => WatchEventsByDateRange(getIt<EventsRepository>()),
   );
   getIt.registerLazySingleton(() => GetEventById(getIt<EventsRepository>()));
+
+  // Flow orchestration
+  getIt.registerLazySingleton(
+    () => EventFlowService(
+      createUserEvent: getIt<CreateUserEvent>(),
+      updateUserEvent: getIt<UpdateUserEvent>(),
+      smartNotificationScheduler: getIt<SmartNotificationScheduler>(),
+    ),
+  );
 
   // Category operations
   getIt.registerLazySingleton(
@@ -145,10 +170,8 @@ Future<void> initEventsDependencies() async {
 
   getIt.registerFactory(
     () => EventFormBloc(
-      createEvent: getIt<CreateUserEvent>(),
-      updateEvent: getIt<UpdateUserEvent>(),
+      eventFlowService: getIt<EventFlowService>(),
       getEventById: getIt<GetEventById>(),
-      smartScheduler: getIt<SmartNotificationScheduler>(),
     ),
   );
 

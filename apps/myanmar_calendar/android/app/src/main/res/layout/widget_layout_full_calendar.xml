@@ -1,35 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    FULL CALENDAR WIDGET (4x2 or 4x3)
-    Purpose: Complete date information with beautiful moon phase
-    Features: Myanmar date, Western date, Moon phase, Holidays, Astrology
--->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:padding="14dp"
     android:background="@drawable/widget_bg_full">
 
-    <!-- Header Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="10dp">
 
-        <!-- Calendar Icon -->
         <ImageView
             android:id="@+id/widget_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@drawable/ic_calendar"
-            android:tint="#FFFFFF"
-            android:alpha="0.9" />
+            android:tint="#F7FBFF"
+            android:alpha="0.95" />
 
-        <!-- Title -->
         <TextView
             android:id="@+id/widget_title"
             android:layout_width="0dp"
@@ -37,28 +29,29 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:text="Myanmar Calendar"
-            android:textSize="13sp"
-            android:textColor="#FFFFFF"
-            android:alpha="0.9"
-            android:fontFamily="sans-serif-medium" />
+            android:textSize="12sp"
+            android:textColor="#F7FBFF"
+            android:alpha="0.92"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
-        <!-- Today Badge (Optional) -->
         <TextView
             android:id="@+id/today_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="TODAY"
-            android:textSize="10sp"
-            android:textColor="#FFFFFF"
+            android:textSize="9sp"
+            android:textColor="#1A2738"
             android:background="@drawable/today_badge_bg"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:paddingTop="3dp"
             android:paddingBottom="3dp"
+            android:fontFamily="sans-serif-medium"
             android:visibility="gone" />
     </LinearLayout>
 
-    <!-- Main Content Container -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -66,7 +59,6 @@
         android:orientation="horizontal"
         android:baselineAligned="false">
 
-        <!-- Left Side: Dates (60%) -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -75,7 +67,6 @@
             android:gravity="center_vertical"
             android:layout_marginEnd="12dp">
 
-            <!-- Western Date -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -88,9 +79,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="12"
-                    android:textSize="36sp"
-                    android:textColor="#FFFFFF"
-                    android:fontFamily="sans-serif-light"
+                    android:textSize="34sp"
+                    android:textColor="#F7FBFF"
+                    android:fontFamily="sans-serif-medium"
                     android:includeFontPadding="false" />
 
                 <LinearLayout
@@ -105,9 +96,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="December"
-                        android:textSize="13sp"
-                        android:textColor="#FFFFFF"
-                        android:alpha="0.9"
+                        android:textSize="12sp"
+                        android:textColor="#F7FBFF"
+                        android:alpha="0.92"
                         android:fontFamily="sans-serif-medium" />
 
                     <TextView
@@ -115,50 +106,46 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="2024"
-                        android:textSize="11sp"
-                        android:textColor="#FFFFFF"
-                        android:alpha="0.7" />
+                        android:textSize="10sp"
+                        android:textColor="#E6EEF8"
+                        android:alpha="0.82" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Divider -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#FFFFFF"
-                android:alpha="0.2"
-                android:layout_marginTop="8dp"
+                android:alpha="0.18"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Myanmar Date -->
             <TextView
                 android:id="@+id/myanmar_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="၁၃၈၆ နတ်တော် လဆုတ် ၈ ရက်"
-                android:textSize="15sp"
-                android:textColor="#FFFFFF"
-                android:fontFamily="sans-serif"
+                android:textSize="14sp"
+                android:textColor="#F7FBFF"
+                android:fontFamily="sans-serif-medium"
                 android:lineSpacingExtra="2dp"
                 android:maxLines="2"
                 android:ellipsize="end" />
 
-            <!-- Holidays (Conditional) -->
             <TextView
                 android:id="@+id/holidays"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="🎉 Independence Day"
-                android:textSize="11sp"
-                android:textColor="#FFD700"
+                android:textSize="10sp"
+                android:textColor="#FFE08A"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:visibility="gone" />
         </LinearLayout>
 
-        <!-- Right Side: Moon Phase (40%) -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -166,21 +153,11 @@
             android:orientation="vertical"
             android:gravity="center">
 
-            <!-- Moon Phase Image -->
             <FrameLayout
-                android:layout_width="90dp"
-                android:layout_height="90dp">
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:padding="2dp">
 
-                <!-- Glow Effect -->
-                <ImageView
-                    android:id="@+id/moon_glow"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/moon_glow"
-                    android:alpha="0.3"
-                    android:scaleType="fitCenter" />
-
-                <!-- Moon Image -->
                 <ImageView
                     android:id="@+id/moon_phase_image"
                     android:layout_width="match_parent"
@@ -189,49 +166,47 @@
                     android:contentDescription="Moon Phase" />
             </FrameLayout>
 
-            <!-- Moon Phase Name -->
             <TextView
                 android:id="@+id/moon_phase_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:text="Full Moon"
-                android:textSize="12sp"
-                android:textColor="#FFD700"
+                android:textSize="11sp"
+                android:textColor="#FFE08A"
                 android:fontFamily="sans-serif-medium"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
-            <!-- Fortnight Day -->
             <TextView
                 android:id="@+id/fortnight_day"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="၁၅ ရက်"
-                android:textSize="11sp"
-                android:textColor="#FFFFFF"
-                android:alpha="0.7"
+                android:textSize="10sp"
+                android:textColor="#E6EEF8"
+                android:alpha="0.85"
                 android:textAlignment="center"
                 android:visibility="gone"/>
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Astrology Info (Bottom, Conditional) -->
     <TextView
         android:id="@+id/astrology_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:text="Sabbath • Yatyaza • Pyathada"
         android:textSize="10sp"
-        android:textColor="#FFFFFF"
-        android:alpha="0.8"
+        android:textColor="#E6EEF8"
+        android:alpha="0.86"
         android:fontFamily="sans-serif"
         android:maxLines="2"
         android:ellipsize="end"
         android:visibility="gone" />
 
-    <!-- Last Updated -->
     <TextView
         android:id="@+id/last_updated"
         android:layout_width="match_parent"
@@ -239,8 +214,8 @@
         android:layout_marginTop="4dp"
         android:text="Updated: 7:36 AM"
         android:textSize="8sp"
-        android:textColor="#FFFFFF"
-        android:alpha="0.5"
+        android:textColor="#E6EEF8"
+        android:alpha="0.60"
         android:gravity="end"
         android:visibility="gone" />
 

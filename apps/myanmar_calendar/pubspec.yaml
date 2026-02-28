@@ -1,11 +1,11 @@
 name: mmcalendar
 description: "Myanmar Calendar Application"
 publish_to: 'none'
-version: 2.1.5+209
+version: 2.1.6+216
 resolution: workspace
 
 environment:
-  sdk: ^3.10.0
+  sdk: ^3.11.0
 
 dependencies:
   flutter:
@@ -16,12 +16,18 @@ dependencies:
     sdk: flutter
 
   # Core packages
-  core:
-    path: ../../packages/core
-  data:
-    path: ../../packages/data
-  localizations:
-    path: ../../packages/localizations
+  shared_core:
+    path: ../../packages/shared/core
+  shared_ui_kit:
+    path: ../../packages/shared/ui_kit
+  shared_localizations:
+    path: ../../packages/shared/localizations
+  integrations_database:
+    path: ../../packages/integrations/database
+  integrations_firebase:
+    path: ../../packages/integrations/firebase
+  integrations_app_update:
+    path: ../../packages/integrations/app_update
 
   # Features
   calendar:
@@ -36,14 +42,10 @@ dependencies:
     path: ../../packages/features/events
   home_widgets:
     path: ../../packages/features/home_widgets
-  firebase_analytics_app:
-    path: ../../packages/features/firebase_analytics_app
   telegram_web:
     path: ../../packages/integrations/telegram_web
   promo:
     path: ../../packages/features/promo
-  app_remote_config:
-    path: ../../packages/app_remote_config
   holidays:
     path: ../../packages/features/holidays
 
@@ -74,8 +76,6 @@ dependencies:
 
   # Firebase
   firebase_core: ^4.1.1
-
-  app_update_manager: ^1.0.2
 
 dev_dependencies:
   flutter_test:

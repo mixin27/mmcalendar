@@ -1,9 +1,11 @@
-import 'package:data/data.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:integrations_database/integrations_database.dart';
 import 'package:get_it/get_it.dart';
+import 'package:home_widgets/home_widgets.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../data/datasources/settings_local_datasource.dart';
 import '../data/repositories/settings_repository_impl.dart';
+import '../data/services/database_display_preferences_port.dart';
 import '../domain/repositories/settings_repository.dart';
 import '../domain/usecases/get_settings.dart';
 import '../domain/usecases/mark_as_consent_dialog_shown.dart';
@@ -30,6 +32,26 @@ Future<void> initSettingsDependencies() async {
       getIt<AppDatabase>(),
     ),
   );
+
+  if (!getIt.isRegistered<DisplayPreferencesPort>()) {
+    final port = DatabaseDisplayPreferencesPort(getIt<AppDatabase>());
+    getIt.registerSingleton<DisplayPreferencesPort>(port);
+
+    if (!getIt.isRegistered<CalendarDisplayConfigPort>()) {
+      getIt.registerSingleton<CalendarDisplayConfigPort>(port);
+    }
+  } else if (!getIt.isRegistered<CalendarDisplayConfigPort>()) {
+    final existing = getIt<DisplayPreferencesPort>();
+    if (existing is CalendarDisplayConfigPort) {
+      getIt.registerSingleton<CalendarDisplayConfigPort>(
+        existing as CalendarDisplayConfigPort,
+      );
+    } else {
+      getIt.registerSingleton<CalendarDisplayConfigPort>(
+        DatabaseDisplayPreferencesPort(getIt<AppDatabase>()),
+      );
+    }
+  }
 
   // Use cases
   getIt.registerLazySingleton(() => GetSettings(getIt<SettingsRepository>()));
@@ -58,8 +80,10 @@ Future<void> initSettingsDependencies() async {
       updateDisplayPreferences: getIt<UpdateDisplayPreferences>(),
       resetSettings: getIt<ResetSettings>(),
       markAsConsentDialogShown: getIt<MarkAsConsentDialogShown>(),
-      analyticsService: getIt<AnalyticsService>(),
-      crashlyticsService: getIt<CrashlyticsService>(),
+      widgetRepository: getIt<WidgetRepository>(),
+      analyticsService: getIt<AnalyticsPort>(),
+      crashlyticsService: getIt<CrashlyticsPort>(),
+      holidayOverridesPort: getIt<HolidayOverridesPort>(),
     ),
   );
 }

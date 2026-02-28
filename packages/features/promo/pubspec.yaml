@@ -25,19 +25,16 @@ dependencies:
   # Storage
   shared_preferences: ^2.3.4
 
-  # Analytics
-  firebase_analytics: ^12.0.2
-
   # Utilities
   package_info_plus: ^9.0.0
   device_info_plus: ^11.2.0
   get_it: ^8.2.0
 
   # Internal packages
-  core:
-    path: ../../core
-  firebase_analytics_app:
-    path: ../firebase_analytics_app
+  shared_core:
+    path: ../../shared/core
+  shared_ui_kit:
+    path: ../../shared/ui_kit
 
 dev_dependencies:
   flutter_test:

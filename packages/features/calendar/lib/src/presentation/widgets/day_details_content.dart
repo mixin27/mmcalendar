@@ -1,20 +1,22 @@
-import 'package:events/events.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:core/core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:go_router/go_router.dart';
-import 'package:localizations/localizations.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/calendar_injection.dart';
+
+typedef Event = CalendarEventItem;
+typedef EventPriority = CalendarEventPriority;
 
 class DayDetailsContent extends StatelessWidget {
   final DateTime date;
   final CompleteDate completeDate;
   final bool showShanCalendar;
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final EventActionsPort _eventActionsPort = getIt<EventActionsPort>();
+  final EventMarkersPort _eventMarkersPort = getIt<EventMarkersPort>();
 
   DayDetailsContent({
     super.key,
@@ -25,48 +27,67 @@ class DayDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Hero Date Card with both calendars
-        _buildHeroDateCard(context, showShanCalendar),
-        const SizedBox(height: 16),
+    return StreamBuilder<List<Event>>(
+      stream: _eventMarkersPort.watchEventsForDate(date),
+      builder: (context, eventsSnapshot) {
+        final dateEvents = eventsSnapshot.data ?? const <Event>[];
+        final isEventsLoading =
+            eventsSnapshot.connectionState == ConnectionState.waiting &&
+            !eventsSnapshot.hasData;
+        final eventsErrorMessage = eventsSnapshot.hasError
+            ? eventsSnapshot.error.toString()
+            : null;
 
-        // Buddhist Calendar Info
-        _buildBuddhistCalendarCard(context),
-        const SizedBox(height: 16),
-
-        // Moon Phase & Weekday Info
-        Row(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(child: _buildMoonPhaseCard(context)),
-            const SizedBox(width: 12),
-            Expanded(child: _buildWeekdayCard(context)),
+            // Hero Date Card with both calendars
+            _buildHeroDateCard(context, showShanCalendar),
+            const SizedBox(height: 16),
+
+            // Buddhist Calendar Info
+            _buildBuddhistCalendarCard(context),
+            const SizedBox(height: 16),
+
+            // Moon Phase & Weekday Info
+            Row(
+              children: [
+                Expanded(child: _buildMoonPhaseCard(context)),
+                const SizedBox(width: 12),
+                Expanded(child: _buildWeekdayCard(context)),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Holidays Section
+            if (completeDate.hasHolidays ||
+                completeDate.hasAnniversaryDays) ...[
+              _buildHolidaysCard(context),
+              const SizedBox(height: 16),
+            ],
+
+            // Astrological Information
+            _buildAstrologyCard(context),
+            const SizedBox(height: 16),
+
+            // AI Prompt Generation
+            _buildAIPromptSection(context),
+            const SizedBox(height: 16),
+
+            _buildQuickStatsCard(context, eventCount: dateEvents.length),
+            const SizedBox(height: 16),
+
+            // Events Section
+            _buildEventsSection(
+              context,
+              dateEvents: dateEvents,
+              isLoading: isEventsLoading,
+              errorMessage: eventsErrorMessage,
+            ),
+            const SizedBox(height: 24),
           ],
-        ),
-        const SizedBox(height: 16),
-
-        // Holidays Section
-        if (completeDate.hasHolidays || completeDate.hasAnniversaryDays) ...[
-          _buildHolidaysCard(context),
-          const SizedBox(height: 16),
-        ],
-
-        // Astrological Information
-        _buildAstrologyCard(context),
-        const SizedBox(height: 16),
-
-        // AI Prompt Generation
-        _buildAIPromptSection(context),
-        const SizedBox(height: 16),
-
-        _buildQuickStatsCard(context),
-        const SizedBox(height: 16),
-
-        // Events Section
-        _buildEventsSection(context),
-        const SizedBox(height: 24),
-      ],
+        );
+      },
     );
   }
 
@@ -140,7 +161,7 @@ class DayDetailsContent extends StatelessWidget {
                   if (MyanmarCalendar.currentLanguage == Language.shan &&
                       showShanCalendar)
                     Text(
-                      '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${completeDate.formatMyanmar(pattern: "&M &P &ff")} ${TranslationService.translate('Yat')}',
+                      '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${completeDate.formatMyanmar(pattern: "&M &P &ff")}',
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
@@ -150,7 +171,7 @@ class DayDetailsContent extends StatelessWidget {
                     )
                   else
                     Text(
-                      '${completeDate.formatMyanmar()} ${TranslationService.translate('Yat')}',
+                      completeDate.formatMyanmar(),
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
@@ -830,7 +851,7 @@ class DayDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickStatsCard(BuildContext context) {
+  Widget _buildQuickStatsCard(BuildContext context, {required int eventCount}) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -851,28 +872,12 @@ class DayDetailsContent extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                BlocBuilder<UserEventsBloc, UserEventsState>(
-                  builder: (context, state) {
-                    int count = 0;
-                    if (state is EventsLoaded ||
-                        state is EventsOperationSuccess) {
-                      final items = state is EventsLoaded
-                          ? state.events
-                          : (state as EventsOperationSuccess).events;
-                      count = items.where((event) {
-                        return event.eventDate.year == date.year &&
-                            event.eventDate.month == date.month &&
-                            event.eventDate.day == date.day;
-                      }).length;
-                    }
-                    return _buildStatItem(
-                      context,
-                      Icons.event,
-                      count.toString(),
-                      'Events',
-                      Theme.of(context).colorScheme.primary,
-                    );
-                  },
+                _buildStatItem(
+                  context,
+                  Icons.event,
+                  eventCount.toString(),
+                  'Events',
+                  Theme.of(context).colorScheme.primary,
                 ),
                 Container(
                   width: 1,
@@ -931,203 +936,131 @@ class DayDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _buildEventsSection(BuildContext context) {
-    return BlocBuilder<UserEventsBloc, UserEventsState>(
-      builder: (context, state) {
-        // Loading state
-        if (state is EventsLoading) {
-          return _buildEventsLoadingCard(context);
-        }
+  Widget _buildEventsSection(
+    BuildContext context, {
+    required List<Event> dateEvents,
+    required bool isLoading,
+    required String? errorMessage,
+  }) {
+    if (isLoading) {
+      return _buildEventsLoadingCard(context);
+    }
 
-        // Error state
-        if (state is EventsError) {
-          return _buildEventsErrorCard(context, state.failure.message);
-        }
+    if (errorMessage != null) {
+      return _buildEventsErrorCard(context, errorMessage);
+    }
 
-        // Get events for current date
-        List<Event> dateEvents = [];
-        if (state is EventsLoaded || state is EventsOperationSuccess) {
-          final allEvents = state is EventsLoaded
-              ? state.events
-              : (state as EventsOperationSuccess).events;
+    final sortedEvents = <Event>[...dateEvents]
+      ..sort((a, b) {
+        if (a.isAllDay && !b.isAllDay) return -1;
+        if (!a.isAllDay && b.isAllDay) return 1;
+        if (a.isAllDay && b.isAllDay) return 0;
+        return a.eventTime!.compareTo(b.eventTime!);
+      });
 
-          dateEvents = allEvents.where((event) {
-            return event.eventDate.year == date.year &&
-                event.eventDate.month == date.month &&
-                event.eventDate.day == date.day;
-          }).toList();
-
-          // Sort by time
-          dateEvents.sort((a, b) {
-            if (a.isAllDay && !b.isAllDay) return -1;
-            if (!a.isAllDay && b.isAllDay) return 1;
-            if (a.isAllDay && b.isAllDay) return 0;
-            return a.eventTime!.compareTo(b.eventTime!);
-          });
-        }
-
-        return _buildEventsCard(context, dateEvents);
-      },
-    );
+    return _buildEventsCard(context, sortedEvents);
   }
 
   Widget _buildEventsCard(BuildContext context, List<Event> events) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-        ),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colorScheme.outlineVariant),
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(
-                context,
-              ).colorScheme.primaryContainer.withValues(alpha: 0.2),
-              Theme.of(context).colorScheme.surface,
-            ],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with action button
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.8),
-                        ],
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.event_note,
+                    size: 20,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Events',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                      Text(
+                        '${events.length} ${events.length == 1 ? 'event' : 'events'} scheduled',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.event_note,
-                      color: Colors.white,
-                      size: 22,
-                    ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Events',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        if (events.isNotEmpty)
-                          Text(
-                            '${events.length} ${events.length == 1 ? 'event' : 'events'} scheduled',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  FilledButton.tonalIcon(
-                    onPressed: () async {
-                      _analyticsService.logButtonClick(
-                        buttonName: 'add_event_from_day',
-                        buttonLocation: 'day_details_events_section',
-                      );
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: () async {
+                    _analyticsService.logButtonClick(
+                      buttonName: 'add_event_from_day',
+                      buttonLocation: 'day_details_events_section',
+                    );
+                    await _eventActionsPort.openCreateEvent(
+                      context,
+                      initialDate: date,
+                    );
+                  },
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (events.isEmpty)
+              _buildEventsEmptyState(context)
+            else
+              ...events.asMap().entries.map((entry) {
+                final index = entry.key;
+                final event = entry.value;
+                return _AnimatedEventItem(
+                  event: event,
+                  delay: Duration(milliseconds: index * 80),
+                  onTap: () async {
+                    _analyticsService.logButtonClick(
+                      buttonName: 'view_event_detail',
+                      buttonLocation: 'day_details_events_section',
+                      additionalData: {'event_id': event.id.toString()},
+                    );
 
-                      await GoRouter.of(
+                    if (event.id != null) {
+                      await _eventActionsPort.openEventDetail(
                         context,
-                      ).push('/events/create', extra: date);
-
-                      if (context.mounted) {
-                        context.read<UserEventsBloc>().add(
-                          const LoadAllEvents(),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Add'),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Events list or empty state
-              if (events.isEmpty)
-                _buildEventsEmptyState(context)
-              else
-                ...events.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final event = entry.value;
-                  return _AnimatedEventItem(
-                    event: event,
-                    delay: Duration(milliseconds: index * 100),
-                    onTap: () async {
-                      _analyticsService.logButtonClick(
-                        buttonName: 'view_event_detail',
-                        buttonLocation: 'day_details_events_section',
-                        additionalData: {'event_id': event.id.toString()},
+                        eventId: event.id!,
+                        occurrenceDate: event.eventDate,
                       );
-
-                      if (event.id != null && !event.isCompleted) {
-                        await GoRouter.of(
-                          context,
-                        ).push('/events/${event.id}/detail');
-
-                        if (context.mounted) {
-                          context.read<UserEventsBloc>().add(
-                            const LoadAllEvents(),
-                          );
-                        }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Event marked as completed")),
-                        );
-                      }
-                    },
-                    onCheckboxChanged: (checked) {
-                      if (event.id != null) {
-                        context.read<UserEventsBloc>().add(
-                          ToggleEventComplete(event.id!, checked ?? false),
-                        );
-                      }
-                    },
-                  );
-                }),
-            ],
-          ),
+                    }
+                  },
+                  onCheckboxChanged: (checked) async {
+                    if (event.id != null) {
+                      await _toggleEventCompletion(
+                        context,
+                        event: event,
+                        isCompleted: checked ?? false,
+                      );
+                    }
+                  },
+                );
+              }),
+          ],
         ),
       ),
     );
@@ -1239,18 +1172,32 @@ class DayDetailsContent extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () {
-                context.read<UserEventsBloc>().add(const LoadAllEvents());
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _toggleEventCompletion(
+    BuildContext context, {
+    required Event event,
+    required bool isCompleted,
+  }) async {
+    try {
+      await _eventMarkersPort.toggleEventCompletion(
+        eventId: event.id!,
+        isCompleted: isCompleted,
+        isRecurring: event.isRecurring,
+        occurrenceDate: event.eventDate,
+      );
+    } catch (error) {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to update event: $error')));
+    }
   }
 }
 
@@ -1273,32 +1220,23 @@ class _AnimatedEventItem extends StatefulWidget {
 
 class _AnimatedEventItemState extends State<_AnimatedEventItem>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-  bool _isPressed = false;
+  late final AnimationController _controller;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 320),
       vsync: this,
     );
-
-    _scaleAnimation = Tween<double>(
-      begin: 0.9,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(-0.1, 0),
+      begin: const Offset(0, 0.08),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
@@ -1317,221 +1255,170 @@ class _AnimatedEventItemState extends State<_AnimatedEventItem>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final event = widget.event;
+    final eventColor = Color(event.effectiveColor);
+    final isCompleted = event.isCompleted;
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
         position: _slideAnimation,
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: GestureDetector(
-            onTapDown: (_) => setState(() => _isPressed = true),
-            onTapUp: (_) {
-              setState(() => _isPressed = false);
-              widget.onTap();
-            },
-            onTapCancel: () => setState(() => _isPressed = false),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              margin: const EdgeInsets.only(bottom: 12),
-              transform: Matrix4.identity()
-                ..scaleByDouble(
-                  _isPressed ? 0.98 : 1.0,
-                  _isPressed ? 0.98 : 1.0,
-                  _isPressed ? 0.98 : 1.0,
-                  1.0,
-                ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(widget.event.effectiveColor).withValues(alpha: 0.15),
-                    Color(widget.event.effectiveColor).withValues(alpha: 0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Color(
-                    widget.event.effectiveColor,
-                  ).withValues(alpha: 0.4),
-                  width: 1.5,
-                ),
-                boxShadow: _isPressed
-                    ? []
-                    : [
-                        BoxShadow(
-                          color: Color(
-                            widget.event.effectiveColor,
-                          ).withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [eventColor.withValues(alpha: 0.08), Colors.transparent],
+            ),
+            border: Border(
+              bottom: BorderSide(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.45),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: widget.onTap,
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
                 child: Row(
                   children: [
-                    // Color indicator bar
+                    IconButton(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        widget.onCheckboxChanged(!event.isCompleted);
+                      },
+                      icon: Icon(
+                        isCompleted
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        color: isCompleted ? colorScheme.primary : eventColor,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    const SizedBox(width: 4),
                     Container(
-                      width: 6,
-                      height: 90,
+                      width: 10,
+                      height: 10,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Color(widget.event.effectiveColor),
-                            Color(
-                              widget.event.effectiveColor,
-                            ).withValues(alpha: 0.7),
-                          ],
-                        ),
+                        color: eventColor,
+                        shape: BoxShape.circle,
                       ),
                     ),
-
-                    // Checkbox
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: _CustomCheckbox(
-                        value: widget.event.isCompleted,
-                        color: Color(widget.event.effectiveColor),
-                        onChanged: widget.onCheckboxChanged,
-                      ),
-                    ),
-
-                    // Content
+                    const SizedBox(width: 12),
                     Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Title and Priority
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  event.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        decoration: isCompleted
+                                            ? TextDecoration.lineThrough
+                                            : null,
+                                        color: isCompleted
+                                            ? colorScheme.onSurfaceVariant
+                                            : colorScheme.onSurface,
+                                      ),
+                                ),
+                              ),
+                              if (event.isRecurring)
+                                Icon(
+                                  Icons.repeat,
+                                  size: 16,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              if (event.hasNotifications) ...[
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.notifications_active_outlined,
+                                  size: 16,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                event.isAllDay
+                                    ? Icons.event
+                                    : Icons.access_time,
+                                size: 14,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _timeLabel(context),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                              ),
+                              const SizedBox(width: 10),
+                              Icon(
+                                _getCategoryIcon(event.category.iconName),
+                                size: 14,
+                                color: eventColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  event.category.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if ((event.location ?? '').isNotEmpty) ...[
+                            const SizedBox(height: 4),
                             Row(
                               children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  size: 14,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    widget.event.title,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          decoration: widget.event.isCompleted
-                                              ? TextDecoration.lineThrough
-                                              : null,
-                                          color: widget.event.isCompleted
-                                              ? Colors.grey
-                                              : null,
-                                        ),
-                                    maxLines: 2,
+                                    event.location!,
+                                    maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
                                   ),
                                 ),
-                                if (widget.event.priority ==
-                                        EventPriority.high ||
-                                    widget.event.priority ==
-                                        EventPriority.urgent)
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          widget.event.priority ==
-                                              EventPriority.urgent
-                                          ? Colors.red.withValues(alpha: 0.2)
-                                          : Colors.orange.withValues(
-                                              alpha: 0.2,
-                                            ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.priority_high,
-                                      size: 14,
-                                      color:
-                                          widget.event.priority ==
-                                              EventPriority.urgent
-                                          ? Colors.red
-                                          : Colors.orange,
-                                    ),
-                                  ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 8),
-
-                            // Event details
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 6,
-                              children: [
-                                // Time
-                                _buildDetailChip(
-                                  context,
-                                  icon: widget.event.isAllDay
-                                      ? Icons.event
-                                      : Icons.access_time,
-                                  label: widget.event.isAllDay
-                                      ? 'All day'
-                                      : TimeOfDay.fromDateTime(
-                                          widget.event.eventTime!,
-                                        ).format(context),
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-
-                                // Category
-                                _buildDetailChip(
-                                  context,
-                                  icon: _getCategoryIcon(
-                                    widget.event.category.iconName,
-                                  ),
-                                  label: widget.event.category.name,
-                                  color: Color(widget.event.category.colorCode),
-                                ),
-
-                                // Location
-                                if (widget.event.location != null &&
-                                    widget.event.location!.isNotEmpty)
-                                  _buildDetailChip(
-                                    context,
-                                    icon: Icons.location_on,
-                                    label: widget.event.location!,
-                                    color: Colors.red,
-                                  ),
-
-                                // Recurring
-                                if (widget.event.isRecurring)
-                                  _buildDetailChip(
-                                    context,
-                                    icon: Icons.repeat,
-                                    label: 'Repeats',
-                                    color: Colors.purple,
-                                  ),
-
-                                // Notifications
-                                if (widget.event.hasNotifications)
-                                  _buildDetailChip(
-                                    context,
-                                    icon: Icons.notifications_active,
-                                    label:
-                                        '${widget.event.notifications.length}',
-                                    color: Colors.amber.shade700,
-                                  ),
                               ],
                             ),
                           ],
-                        ),
+                        ],
                       ),
                     ),
-
-                    // Arrow
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: Icon(
-                        Icons.chevron_right,
-                        color: Color(widget.event.effectiveColor),
-                      ),
+                    Icon(
+                      Icons.chevron_right,
+                      size: 18,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ],
                 ),
@@ -1543,39 +1430,11 @@ class _AnimatedEventItemState extends State<_AnimatedEventItem>
     );
   }
 
-  Widget _buildDetailChip(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
+  String _timeLabel(BuildContext context) {
+    if (widget.event.isAllDay || widget.event.eventTime == null) {
+      return 'All day';
+    }
+    return TimeOfDay.fromDateTime(widget.event.eventTime!).format(context);
   }
 
   IconData _getCategoryIcon(String iconName) {
@@ -1593,99 +1452,5 @@ class _AnimatedEventItemState extends State<_AnimatedEventItem>
       default:
         return Icons.event;
     }
-  }
-}
-
-class _CustomCheckbox extends StatefulWidget {
-  final bool value;
-  final Color color;
-  final ValueChanged<bool?>? onChanged;
-
-  const _CustomCheckbox({
-    required this.value,
-    required this.color,
-    this.onChanged,
-  });
-
-  @override
-  State<_CustomCheckbox> createState() => _CustomCheckboxState();
-}
-
-class _CustomCheckboxState extends State<_CustomCheckbox>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-
-    if (widget.value) {
-      _controller.forward();
-    }
-  }
-
-  @override
-  void didUpdateWidget(_CustomCheckbox oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value) {
-      if (widget.value) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        widget.onChanged?.call(!widget.value);
-      },
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: widget.value ? widget.color : Colors.transparent,
-            border: Border.all(
-              color: widget.value ? widget.color : Colors.grey.shade400,
-              width: 2,
-            ),
-            borderRadius: BorderRadius.circular(6),
-            boxShadow: widget.value
-                ? [
-                    BoxShadow(
-                      color: widget.color.withValues(alpha: 0.3),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: widget.value
-              ? const Icon(Icons.check, size: 16, color: Colors.white)
-              : null,
-        ),
-      ),
-    );
   }
 }

@@ -12,9 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_mmcalendar: ^3.2.8
-  firebase_remote_config: ^6.1.3
-  app_remote_config:
-    path: ../../app_remote_config
+  shared_core:
+    path: ../../shared/core
 
 dev_dependencies:
   flutter_test:

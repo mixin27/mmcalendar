@@ -1,0 +1,30 @@
+name: integrations_firebase
+description: Firebase integration package (analytics, crashlytics, remote config).
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.11.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_core:
+    path: ../../shared/core
+  firebase_core: ^4.1.1
+  firebase_analytics: ^12.0.2
+  firebase_crashlytics: ^5.0.2
+  firebase_remote_config: ^6.0.2
+  logger: ^2.6.2
+  equatable: ^2.0.7
+  shared_preferences: ^2.5.3
+  get_it: ^8.2.0
+  integrations_database:
+    path: ../database
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

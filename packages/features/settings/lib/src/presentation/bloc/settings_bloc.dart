@@ -1,10 +1,9 @@
 import 'package:bloc/bloc.dart';
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
-import 'package:get_it/get_it.dart';
+import 'package:home_widgets/home_widgets.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:holidays/holidays.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings.dart';
@@ -25,8 +24,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final UpdateDisplayPreferences updateDisplayPreferences;
   final ResetSettings resetSettings;
   final MarkAsConsentDialogShown markAsConsentDialogShown;
-  final AnalyticsService analyticsService;
-  final CrashlyticsService crashlyticsService;
+  final WidgetRepository widgetRepository;
+  final AnalyticsPort analyticsService;
+  final CrashlyticsPort crashlyticsService;
+  final HolidayOverridesPort holidayOverridesPort;
 
   SettingsBloc({
     required this.getSettings,
@@ -36,8 +37,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required this.updateDisplayPreferences,
     required this.resetSettings,
     required this.markAsConsentDialogShown,
+    required this.widgetRepository,
     required this.analyticsService,
     required this.crashlyticsService,
+    required this.holidayOverridesPort,
   }) : super(SettingsInitial()) {
     on<LoadSettings>(_onLoadSettings);
     on<ChangeThemeMode>(_onChangeThemeMode);
@@ -176,9 +179,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     final currentState = state as SettingsLoaded;
     final result = await updateLanguage.updateCalendarLanguage(event.language);
 
-    result.fold(
-      (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
-      (_) {
+    await result.fold(
+      (failure) async {
+        emit(SettingsError(_mapFailureToMessage(failure)));
+      },
+      (_) async {
         // Log to Analytics
         analyticsService.logLanguageChange(
           languageCode: event.language.code,
@@ -187,13 +192,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
         MyanmarCalendar.setLanguage(event.language);
 
-        // Fire calendar language changed event
-        AppEventBus.fire(CalendarLanguageChangedEvent(event.language));
-
         final updatedSettings = currentState.settings.copyWith(
           calendarLanguage: event.language,
         );
         emit(SettingsLoaded(updatedSettings));
+
+        try {
+          await widgetRepository.refreshWidget();
+        } catch (e, stackTrace) {
+          await crashlyticsService.recordException(
+            exception: e,
+            stackTrace: stackTrace,
+            reason: 'Failed to refresh home widgets after language change',
+          );
+        }
       },
     );
   }
@@ -211,9 +223,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
         _applyCalendarConfiguration(event.config);
-
-        // Fire clanedar configuraton changed event
-        AppEventBus.fire(CalendarConfigurationChangedEvent(event.config));
 
         final updatedSettings = currentState.settings.copyWith(
           calendarConfig: event.config,
@@ -315,7 +324,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     final currentState = state as SettingsLoaded;
 
-    // Update the AnalyticsService config
+    // Update the AnalyticsPort config
     await analyticsService.updateConfig(
       analyticsService.config.copyWith(enableCollection: event.enableAnalytics),
     );
@@ -352,7 +361,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     final currentState = state as SettingsLoaded;
 
-    // Update the CrashlyticsService config
+    // Update the CrashlyticsPort config
     await crashlyticsService.updateConfig(
       crashlyticsService.config.copyWith(
         enableCollection: event.enableCrashlytics,
@@ -445,12 +454,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         gregorianStart: config.gregorianStart,
         customHolidays: [
           ...config.customHolidays,
-          ...GetIt.I<HolidayService>().getCustomHolidays(),
+          ...holidayOverridesPort.getCustomHolidays(),
         ],
-        disabledHolidays: GetIt.I<HolidayService>().getDisabledHolidays(),
-        disabledHolidaysByYear: GetIt.I<HolidayService>()
+        disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
+        disabledHolidaysByYear: holidayOverridesPort
             .getDisabledHolidaysByYear(),
-        disabledHolidaysByDate: GetIt.I<HolidayService>()
+        disabledHolidaysByDate: holidayOverridesPort
             .getDisabledHolidaysByDate(),
       );
       MyanmarCalendar.clearCache();

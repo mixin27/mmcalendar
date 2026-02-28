@@ -1,7 +1,10 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../bloc/calendar_bloc.dart';
 import '../bloc/calendar_event.dart';
@@ -22,6 +25,10 @@ class MonthPreview extends StatefulWidget {
 
 class _MonthPreviewState extends State<MonthPreview>
     with TickerProviderStateMixin {
+  final EventMarkersPort _eventMarkersPort = GetIt.instance<EventMarkersPort>();
+  DateTime? _visibleEventsMonth;
+  Stream<Map<DateTime, List<CalendarEventItem>>>? _visibleEventsStream;
+
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -29,6 +36,7 @@ class _MonthPreviewState extends State<MonthPreview>
   void initState() {
     super.initState();
     _initializeAnimations();
+    _ensurePreviewMonthLoaded();
   }
 
   void _initializeAnimations() {
@@ -46,10 +54,46 @@ class _MonthPreviewState extends State<MonthPreview>
     _fadeController.forward();
   }
 
+  void _ensurePreviewMonthLoaded() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      final calendarState = context.read<CalendarBloc>().state;
+      if (calendarState is! CalendarLoaded ||
+          calendarState.calendarMonth.month.year != widget.date.year ||
+          calendarState.calendarMonth.month.month != widget.date.month) {
+        context.read<CalendarBloc>().add(LoadCalendarMonth(widget.date));
+      }
+    });
+  }
+
   @override
   void dispose() {
     _fadeController.dispose();
     super.dispose();
+  }
+
+  Stream<Map<DateTime, List<CalendarEventItem>>> _eventsStreamForMonth(
+    DateTime month,
+  ) {
+    final monthKey = DateTime(month.year, month.month);
+    if (_visibleEventsMonth != null &&
+        _visibleEventsStream != null &&
+        _visibleEventsMonth!.year == monthKey.year &&
+        _visibleEventsMonth!.month == monthKey.month) {
+      return _visibleEventsStream!;
+    }
+
+    _visibleEventsMonth = monthKey;
+    final startOfMonth = DateTime(month.year, month.month, 1);
+    final endOfMonth = DateTime(month.year, month.month + 1, 0);
+    _visibleEventsStream = _eventMarkersPort.watchEventMarkers(
+      startDate: startOfMonth.subtract(const Duration(days: 7)),
+      endDate: endOfMonth.add(const Duration(days: 7)),
+    );
+    return _visibleEventsStream!;
   }
 
   @override
@@ -91,48 +135,60 @@ class _MonthPreviewState extends State<MonthPreview>
   }
 
   Widget _buildCalendarContent(CalendarLoaded state) {
-    return Column(
-      children: [
-        // Weekday Header
-        const WeekdayHeader(),
+    return StreamBuilder<Map<DateTime, List<CalendarEventItem>>>(
+      stream: _eventsStreamForMonth(state.calendarMonth.month),
+      initialData: const <DateTime, List<CalendarEventItem>>{},
+      builder: (context, eventsSnapshot) {
+        final eventsByDate =
+            eventsSnapshot.data ?? const <DateTime, List<CalendarEventItem>>{};
 
-        // Calendar Grid with page transition
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 350),
-          switchInCurve: Curves.easeOut,
-          switchOutCurve: Curves.easeIn,
-          transitionBuilder: (child, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.95, end: 1.0).animate(animation),
-                child: child,
+        return Column(
+          children: [
+            // Weekday Header
+            WeekdayHeader(language: MyanmarCalendar.currentLanguage),
+
+            // Calendar Grid with page transition
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(
+                    scale: Tween<double>(
+                      begin: 0.95,
+                      end: 1.0,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+              child: CalendarGrid(
+                key: ValueKey(state.calendarMonth.month),
+                gridDates: state.calendarMonth.gridDates,
+                currentMonth: state.calendarMonth.month,
+                selectedDate: state.selectedDate?.date,
+                today: state.today,
+                showHolidays: false,
+                showAstrology: false,
+                showWesternDates: true,
+                showMyanmarDates: true,
+                eventsByDate: eventsByDate,
+                onDateTap: (date) {
+                  widget.onDateTap?.call(date);
+                },
               ),
-            );
-          },
-          child: CalendarGrid(
-            key: ValueKey(state.calendarMonth.month),
-            gridDates: state.calendarMonth.gridDates,
-            currentMonth: state.calendarMonth.month,
-            selectedDate: state.selectedDate?.date,
-            today: state.today,
-            showHolidays: false,
-            showAstrology: false,
-            showWesternDates: true,
-            showMyanmarDates: true,
-            eventsByDate: state.eventsByDate,
-            onDateTap: (date) {
-              widget.onDateTap?.call(date);
-            },
-          ),
-        ),
+            ),
 
-        // const SizedBox(height: 8),
+            // const SizedBox(height: 8),
 
-        // // Astrology Card with smooth expansion
-        // _buildAstrologyCard(state),
-        const SizedBox(height: 16),
-      ],
+            // // Astrology Card with smooth expansion
+            // _buildAstrologyCard(state),
+            const SizedBox(height: 16),
+          ],
+        );
+      },
     );
   }
 
@@ -228,7 +284,7 @@ class _MonthPreviewState extends State<MonthPreview>
             FilledButton.icon(
               onPressed: () {
                 context.read<CalendarBloc>().add(
-                  LoadCalendarMonth(DateTime.now()),
+                  LoadCalendarMonth(widget.date),
                 );
               },
               icon: const Icon(Icons.refresh),

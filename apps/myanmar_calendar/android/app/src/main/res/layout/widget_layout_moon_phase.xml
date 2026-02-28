@@ -1,94 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    MOON PHASE WIDGET (2x2)
-    Purpose: Beautiful moon phase display with minimal text
-    Features: Large moon visual, Phase name, Fortnight day, Next phase countdown
--->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingStart="14dp"
+    android:paddingEnd="14dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
     android:background="@drawable/widget_bg_moon">
 
-    <!-- Moon Phase Container (Center) -->
-    <LinearLayout
-        android:id="@+id/moon_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:orientation="vertical"
-        android:gravity="center">
-
-        <!-- Moon Phase Image with Glow -->
-        <FrameLayout
-            android:layout_width="100dp"
-            android:layout_height="100dp">
-
-            <!-- Outer Glow -->
-            <ImageView
-                android:id="@+id/moon_outer_glow"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/moon_glow_large"
-                android:alpha="0.2"
-                android:scaleType="fitCenter" />
-
-            <!-- Moon Image -->
-            <ImageView
-                android:id="@+id/moon_phase_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="fitCenter"
-                android:contentDescription="Moon Phase" />
-        </FrameLayout>
-
-        <!-- Moon Phase Name -->
-        <TextView
-            android:id="@+id/moon_phase_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Full Moon"
-            android:textSize="16sp"
-            android:textColor="#FFFFFF"
-            android:fontFamily="sans-serif-medium"
-            android:textAlignment="center" />
-
-        <!-- Fortnight Day -->
-        <TextView
-            android:id="@+id/fortnight_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="၁၅ ရက်"
-            android:textSize="13sp"
-            android:textColor="#FFFFFF"
-            android:alpha="0.8"
-            android:textAlignment="center" />
-    </LinearLayout>
-
-    <!-- Myanmar Date (Top) -->
     <TextView
         android:id="@+id/myanmar_date_compact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:text="နတ်တော် လဆုတ် ၈"
-        android:textSize="11sp"
-        android:textColor="#FFFFFF"
-        android:alpha="0.8"
+        android:textSize="10sp"
+        android:textColor="#E5EEF9"
+        android:alpha="0.88"
         android:gravity="center"
+        android:fontFamily="sans-serif-medium"
         android:maxLines="1"
         android:ellipsize="end" />
 
-    <!-- Next Phase Info (Bottom) -->
+    <FrameLayout
+        android:layout_width="102dp"
+        android:layout_height="102dp"
+        android:layout_marginTop="8dp"
+        android:padding="2dp">
+
+        <ImageView
+            android:id="@+id/moon_phase_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:contentDescription="Moon Phase" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/moon_phase_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Full Moon"
+        android:textSize="15sp"
+        android:textColor="#FFFFFF"
+        android:fontFamily="sans-serif-medium"
+        android:textAlignment="center"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/fortnight_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="၁၅ ရက်"
+        android:textSize="12sp"
+        android:textColor="#E5EEF9"
+        android:alpha="0.88"
+        android:textAlignment="center" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal"
         android:gravity="center">
 
@@ -98,8 +75,9 @@
             android:layout_height="wrap_content"
             android:text="Next:"
             android:textSize="9sp"
-            android:textColor="#FFFFFF"
-            android:alpha="0.6" />
+            android:textColor="#D7E2F2"
+            android:alpha="0.78"
+            android:fontFamily="sans-serif-medium" />
 
         <TextView
             android:id="@+id/next_phase"
@@ -108,8 +86,10 @@
             android:layout_marginStart="4dp"
             android:text="New Moon in 7d"
             android:textSize="9sp"
-            android:textColor="#FFD700"
-            android:fontFamily="sans-serif-medium" />
+            android:textColor="#FFD871"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end" />
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

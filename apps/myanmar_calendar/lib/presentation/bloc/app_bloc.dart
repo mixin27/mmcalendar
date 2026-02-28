@@ -1,8 +1,9 @@
 import 'package:bloc/bloc.dart';
-import 'package:core/core.dart';
-import 'package:data/data.dart';
+import 'package:shared_core/shared_core.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:integrations_database/integrations_database.dart';
 
 import '../../config/di_setup.dart';
 
@@ -60,7 +61,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         _themeModeToString(event.themeMode),
       );
 
-      AppEventBus.fire(ThemeModeChangedEvent(event.themeMode));
       emit(currentState.copyWith(themeMode: event.themeMode));
     } catch (e) {
       emit(AppError(e.toString()));
@@ -85,8 +85,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       final themeColors = currentState.themeMode == ThemeMode.dark
           ? preset.darkColors
           : preset.lightColors;
-
-      AppEventBus.fire(ThemePresetChangedEvent(event.presetId));
 
       emit(
         currentState.copyWith(

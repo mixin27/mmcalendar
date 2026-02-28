@@ -1,65 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    COMPACT DATE WIDGET (2x1 or 2x2)
-    Purpose: Minimal Myanmar date display for maximum screen real estate
-    Features: Myanmar date, Western date (optional), Today indicator
--->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="12dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingStart="14dp"
+    android:paddingEnd="14dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:background="@drawable/widget_bg_compact">
 
-    <!-- Western Date (Small, Top Left) -->
-    <TextView
-        android:id="@+id/western_day"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:text="12"
-        android:textSize="28sp"
-        android:textColor="#1A1A1A"
+        android:orientation="horizontal"
+        android:gravity="bottom">
+
+        <TextView
+            android:id="@+id/western_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12"
+            android:textSize="22sp"
+            android:textColor="#1C2430"
+            android:fontFamily="sans-serif-medium"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:id="@+id/western_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="3dp"
+            android:text="DEC"
+            android:textSize="10sp"
+            android:textColor="#576071"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="1dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_gravity="center_vertical"
+        android:background="#1F2D3D"
+        android:alpha="0.15" />
+
+    <TextView
+        android:id="@+id/myanmar_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:text="၁၃၈၆ နတ်တော် လဆုတ် ၈ ရက်"
+        android:textSize="13sp"
+        android:textColor="#1C2430"
         android:fontFamily="sans-serif-medium"
-        android:includeFontPadding="false" />
+        android:maxLines="1"
+        android:ellipsize="end" />
 
-    <TextView
-        android:id="@+id/western_month"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/western_day"
-        android:layout_alignBottom="@id/western_day"
-        android:layout_marginStart="4dp"
-        android:layout_marginBottom="2dp"
-        android:text="DEC"
-        android:textSize="11sp"
-        android:textColor="#666666"
-        android:fontFamily="sans-serif-medium" />
-
-    <!-- Today Indicator (Optional) -->
     <TextView
         android:id="@+id/today_indicator"
-        android:layout_width="6dp"
-        android:layout_height="6dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
+        android:layout_width="7dp"
+        android:layout_height="7dp"
+        android:layout_marginStart="8dp"
         android:background="@drawable/today_dot"
         android:visibility="gone" />
 
-    <!-- Myanmar Date (Large, Center-Bottom) -->
-    <TextView
-        android:id="@+id/myanmar_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="8dp"
-        android:paddingTop="8dp"
-        android:text="၁၃၈၆ နတ်တော် လဆုတ် ၈ ရက်"
-        android:textSize="16sp"
-        android:textColor="#1A1A1A"
-        android:fontFamily="sans-serif"
-        android:maxLines="2"
-        android:ellipsize="end" />
-
-</RelativeLayout>
+</LinearLayout>

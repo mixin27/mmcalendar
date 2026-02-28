@@ -1,7 +1,7 @@
 import 'package:calendar/src/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:core/core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 class AstrologyExpandableCard extends StatefulWidget {
   final CompleteDate dateInfo;

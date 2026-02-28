@@ -104,9 +104,13 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
             Log.d(TAG, "Updating Myanmar month widget $widgetId")
 
             val views = RemoteViews(context.packageName, R.layout.widget_layout_myanmar_month)
+            val timelineMonthJson = WidgetTimelineResolver
+                .resolveCurrentMonthEntry(widgetData)
+                ?.toString()
 
-            // Read Myanmar month data from SharedPreferences
-            val myanmarMonthJson = widgetData.getString("myanmar_month_data", null)
+            // Read Myanmar month data (timeline-first, then legacy fallback)
+            val myanmarMonthJson = timelineMonthJson
+                ?: widgetData.getString("myanmar_month_data", null)
 
             if (myanmarMonthJson.isNullOrEmpty()) {
                 Log.w(TAG, "No Myanmar month data found")
@@ -263,13 +267,7 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
      * Display Myanmar weekday headers
      */
     private fun displayWeekdayHeaders(views: RemoteViews, widgetData: SharedPreferences) {
-        val items = mutableListOf<String>()
-        val weekdayNames = widgetData.getString("weekday_names", "")
-        if (!weekdayNames.isNullOrEmpty() && weekdayNames != "null") {
-            items.addAll(weekdayNames.split(",").map { it.trim() })
-        }
-
-        val language = widgetData.getString("widget_language", "my") ?: "my";
+        val language = resolveLanguage(widgetData)
 
         var weekdays = arrayOf("နွေ", "လာ", "ဂါ", "ဟူး", "ကြာ", "သော", "နေ")
         if (language == "en") {
@@ -282,11 +280,7 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
         )
 
         for (i in weekdays.indices) {
-            // if (items.isEmpty()) {
-                views.setTextViewText(headerIds[i], weekdays[i])
-            // } else {
-                // views.setTextViewText(headerIds[i], items[i])
-            // }
+            views.setTextViewText(headerIds[i], weekdays[i])
         }
     }
 
@@ -328,7 +322,7 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
      * Convert number to Myanmar numerals
      */
     private fun convertToMyanmarNumber(number: Int, widgetData: SharedPreferences): String {
-        val language = widgetData.getString("widget_language", "my") ?: "my"
+        val language = resolveLanguage(widgetData)
         if (language == "en") {
             return number.toString()
         }
@@ -378,6 +372,14 @@ class MyanmarMonthWidgetProvider : HomeWidgetProvider() {
             views.setTextColor(R.id.western_month_year, "#FFFFFF".toColorInt())
             views.setTextColor(R.id.today_myanmar, "#FFFFFF".toColorInt())
         }
+    }
+
+    private fun resolveLanguage(widgetData: SharedPreferences): String {
+        val calendarLanguage = widgetData.getString("calendar_language", null)
+        if (!calendarLanguage.isNullOrEmpty()) {
+            return calendarLanguage
+        }
+        return widgetData.getString("widget_language", "en") ?: "en"
     }
 
     /**

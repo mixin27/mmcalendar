@@ -5,19 +5,17 @@ publish_to: none
 resolution: workspace
 
 environment:
-  sdk: ^3.10.0
+  sdk: ^3.11.0
   flutter: ">=1.17.0"
 
 dependencies:
   flutter:
     sdk: flutter
   # Core packages
-  core:
-    path: ../../core
-  data:
-    path: ../../data
-  firebase_analytics_app:
-    path: ../firebase_analytics_app
+  shared_core:
+    path: ../../shared/core
+  integrations_database:
+    path: ../../integrations/database
 
   # Utilities
   intl: ^0.20.2

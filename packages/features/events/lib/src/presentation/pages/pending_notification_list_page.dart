@@ -1,4 +1,4 @@
-import 'package:data/data.dart';
+import 'package:integrations_database/integrations_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';

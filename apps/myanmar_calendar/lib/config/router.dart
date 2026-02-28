@@ -1,6 +1,6 @@
 import 'package:calendar/calendar.dart';
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,32 +8,22 @@ import 'package:go_router/go_router.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:mmcalendar/src/build_number.dart';
 import 'package:settings/settings.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:views/views.dart';
 
 import '../presentation/pages/consent_page.dart';
 import '../presentation/pages/privacy_policy_page.dart';
-import '../presentation/pages/splash_page.dart';
 import '../presentation/shell/app_shell.dart';
 import '../presentation/widgets/promo_initializer.dart';
 import 'di_setup.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: RoutePaths.splash,
+  initialLocation: RoutePaths.home,
   debugLogDiagnostics: true,
   routes: [
-    // Splash Screen
-    GoRoute(
-      path: RoutePaths.splash,
-      builder: (context, state) => const SplashPage(),
-    ),
     GoRoute(
       path: RoutePaths.consent,
       builder: (context, state) => const ConsentPage(),
-    ),
-    GoRoute(
-      path: '/widget-preview/generate',
-      name: 'widget-preview-generate',
-      builder: (context, state) => const WidgetPreviewScreen(),
     ),
 
     // Main App Shell with Bottom Navigation
@@ -52,7 +42,13 @@ final GoRouter router = GoRouter(
             GoRoute(
               path: RoutePaths.home,
               builder: (context, state) {
-                return const CalendarHomePage();
+                final dateStr = state.uri.queryParameters['date'];
+                DateTime? initialDate;
+                if (dateStr != null && dateStr.isNotEmpty) {
+                  initialDate = DateTime.tryParse(dateStr);
+                }
+
+                return CalendarHomePage(initialDate: initialDate);
               },
               routes: [
                 // Day details
@@ -169,7 +165,13 @@ final GoRouter router = GoRouter(
                   path: ':id/detail',
                   builder: (context, state) {
                     final id = int.parse(state.pathParameters['id']!);
-                    return EventDetailPage(eventId: id);
+                    final occurrenceDate = state.extra is DateTime
+                        ? state.extra as DateTime
+                        : null;
+                    return EventDetailPage(
+                      eventId: id,
+                      occurrenceDate: occurrenceDate,
+                    );
                   },
                 ),
 
@@ -222,6 +224,13 @@ final GoRouter router = GoRouter(
                   builder: (context, state) => const SettingsPrivacyDataPage(),
                 ),
                 GoRoute(
+                  path: RoutePaths.appUpdate,
+                  builder: (context, state) {
+                    final version = appVersion();
+                    return SettingsAppUpdatePage(appVersion: version);
+                  },
+                ),
+                GoRoute(
                   path: RoutePaths.about,
                   builder: (context, state) {
                     final version = appVersion();
@@ -230,9 +239,15 @@ final GoRouter router = GoRouter(
                   routes: [
                     GoRoute(
                       path: RoutePaths.privacyPolicy,
-                      builder: (context, state) => const PrivacyPolicyPage(
-                        title: "Privacy policy",
-                        message: "App privacy & policy contents will be here.",
+                      builder: (context, state) => PrivacyPolicyPage(
+                        title:
+                            AppLocalizations.of(context)?.privacyPolicy ??
+                            'Privacy policy',
+                        message:
+                            AppLocalizations.of(
+                              context,
+                            )?.privacyPolicyContentHint ??
+                            'App privacy & policy contents will be here.',
                       ),
                     ),
                   ],
@@ -254,27 +269,39 @@ final GoRouter router = GoRouter(
   ],
 
   // Error handling
-  errorBuilder: (context, state) => Scaffold(
-    appBar: AppBar(title: const Text('Error')),
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.red),
-          const SizedBox(height: 16),
-          Text(
-            'Page not found',
-            style: Theme.of(context).textTheme.headlineSmall,
+  errorBuilder: (context, state) {
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n?.errorTitle ?? 'Error')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                l10n?.pageNotFound ?? 'Page not found',
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                state.error.toString(),
+                textAlign: TextAlign.center,
+                maxLines: 5,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => context.go(RoutePaths.home),
+                child: Text(l10n?.goToHome ?? 'Go to Home'),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(state.error.toString()),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => context.go(RoutePaths.home),
-            child: const Text('Go to Home'),
-          ),
-        ],
+        ),
       ),
-    ),
-  ),
+    );
+  },
 );

@@ -5,28 +5,21 @@ publish_to: none
 resolution: workspace
 
 environment:
-  sdk: ^3.10.0
+  sdk: ^3.11.0
   flutter: ">=1.17.0"
 
 dependencies:
   flutter:
     sdk: flutter
   # Core packages
-  core:
-    path: ../../core
-  data:
-    path: ../../data
-  localizations:
-    path: ../../localizations
-
-  settings:
-    path: ../settings
-  events:
-    path: ../events
-  firebase_analytics_app:
-    path: ../firebase_analytics_app
-  holidays:
-    path: ../holidays
+  shared_core:
+    path: ../../shared/core
+  shared_ui_kit:
+    path: ../../shared/ui_kit
+  integrations_database:
+    path: ../../integrations/database
+  shared_localizations:
+    path: ../../shared/localizations
   telegram_web:
     path: ../../integrations/telegram_web
 

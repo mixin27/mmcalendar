@@ -1,4 +1,4 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
@@ -13,23 +13,8 @@ class ToggleEventCompletion
   ToggleEventCompletion(this.repository);
 
   @override
-  Future<Either<Failure, Event>> call(
-    ToggleEventCompletionParams params,
-  ) async {
-    final result = await repository.toggleEventCompletion(
-      params.eventId,
-      params.isCompleted,
-    );
-
-    // Fire domain event on success
-    result.fold((failure) => null, (event) {
-      if (event.id != null) {
-        AppEventBus.fire(EventUpdatedEvent(event.id!, event.title));
-      }
-    });
-
-    return result;
-  }
+  Future<Either<Failure, Event>> call(ToggleEventCompletionParams params) =>
+      repository.toggleEventCompletion(params.eventId, params.isCompleted);
 }
 
 class ToggleEventCompletionParams extends Equatable {

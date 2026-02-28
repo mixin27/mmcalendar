@@ -1,0 +1,24 @@
+name: shared_ui_kit
+description: Shared UI kit facade for reusable themes and widgets.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.11.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_core:
+    path: ../core
+  equatable: ^2.0.7
+  google_fonts: ^6.3.2
+  markdown_widget: ^2.3.2+8
+  flutter_colorpicker: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:data/data.dart' as db;
+import 'package:integrations_database/integrations_database.dart' as db;
 import 'package:drift/drift.dart';
 
 import '../../domain/entities/event.dart';
@@ -53,11 +53,13 @@ class EventModel extends Event {
     );
   }
 
-  /// Convert from database UserEvent to EventModel
-  factory EventModel.fromDatabaseEntity(
-    db.UserEvent dbEvent,
-    EventCategory category,
-  ) {
+  /// Convert from normalized v2 event schema to EventModel.
+  factory EventModel.fromV2DatabaseEntity(
+    db.CalendarEvent dbEvent, {
+    required EventCategory category,
+    db.EventRecurrenceRule? recurrenceRule,
+    List<db.EventReminder> reminders = const [],
+  }) {
     return EventModel(
       id: dbEvent.id,
       title: dbEvent.title,
@@ -67,19 +69,10 @@ class EventModel extends Event {
       isAllDay: dbEvent.isAllDay,
       category: category,
       colorCode: dbEvent.colorCode,
-      recurrenceRule: dbEvent.recurrenceType != null
-          ? _parseRecurrenceRule(
-              dbEvent.recurrenceType,
-              dbEvent.recurrenceInterval,
-              dbEvent.recurrenceDays,
-              dbEvent.recurrenceEndDate,
-              dbEvent.recurrenceCount,
-              dbEvent.eventDate,
-            )
-          : null,
-      notifications: _parseNotifications(dbEvent.notificationTimes),
+      recurrenceRule: _parseV2RecurrenceRule(recurrenceRule, dbEvent.eventDate),
+      notifications: _parseV2Notifications(reminders),
       location: dbEvent.location,
-      status: dbEvent.isCompleted ? EventStatus.completed : EventStatus.pending,
+      status: parseStatus(dbEvent.status),
       priority: EventPriority.fromValue(dbEvent.priority),
       tags: _parseTags(dbEvent.tags),
       createdAt: dbEvent.createdAt,
@@ -88,77 +81,96 @@ class EventModel extends Event {
     );
   }
 
-  /// Convert to database companion for insert/update
-  db.UserEventsCompanion toDatabaseCompanion() {
-    return db.UserEventsCompanion.insert(
+  /// Convert to normalized v2 event companion.
+  db.CalendarEventsCompanion toCalendarEventCompanion({
+    required EventCategory category,
+  }) {
+    return db.CalendarEventsCompanion.insert(
       id: id != null ? Value(id!) : const Value.absent(),
       title: title,
       description: Value(description),
       eventDate: eventDate,
       eventTime: Value(eventTime),
       isAllDay: Value(isAllDay),
-      category: category.name,
+      timezoneId: const Value('Asia/Yangon'),
       categoryId: Value(category.id),
+      categoryName: Value(category.name),
       colorCode: Value(colorCode),
-      recurrenceType: Value(recurrenceRule?.type.name),
-      recurrenceInterval: Value(recurrenceRule?.interval),
-      recurrenceDays: Value(_serializeDaysOfWeek(recurrenceRule?.daysOfWeek)),
-      recurrenceEndDate: Value(recurrenceRule?.endDate),
-      recurrenceCount: Value(recurrenceRule?.occurrenceCount),
-      isRecurringMaster: Value(recurrenceRule != null),
-      hasNotification: Value(notifications.isNotEmpty),
-      notificationTimes: Value(_serializeNotifications(notifications)),
       location: Value(location),
-      isCompleted: Value(status == EventStatus.completed),
-      completedAt: Value(completedAt),
+      status: Value(serializeStatus(status)),
       priority: Value(priority.value),
       tags: Value(_serializeTags(tags)),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      completedAt: Value(completedAt),
+      legacyEventId: id != null ? Value(id) : const Value.absent(),
     );
+  }
+
+  db.EventRecurrenceRulesCompanion? toRecurrenceCompanion({
+    required int eventId,
+    required DateTime now,
+  }) {
+    final rule = recurrenceRule;
+    if (rule == null || rule.type == RecurrenceType.none) {
+      return null;
+    }
+
+    return db.EventRecurrenceRulesCompanion.insert(
+      eventId: Value(eventId),
+      recurrenceType: rule.type.name,
+      recurrenceInterval: Value(rule.interval),
+      recurrenceDays: Value(_serializeDaysOfWeek(rule.daysOfWeek)),
+      dayOfMonth: Value(rule.dayOfMonth),
+      monthOfYear: Value(rule.monthOfYear),
+      recurrenceEndDate: Value(rule.endDate),
+      recurrenceCount: Value(rule.occurrenceCount),
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
+
+  List<db.EventRemindersCompanion> toReminderCompanions({
+    required int eventId,
+    required DateTime now,
+  }) {
+    return notifications
+        .map(
+          (notification) => db.EventRemindersCompanion.insert(
+            eventId: eventId,
+            minutesBefore: notification.minutesBefore,
+            channel: Value(notification.channel.name),
+            createdAt: now,
+          ),
+        )
+        .toList(growable: false);
   }
 
   // ============================================================================
   // SERIALIZATION HELPERS
   // ============================================================================
 
-  static RecurrenceRule? _parseRecurrenceRule(
-    String? typeStr,
-    int? interval,
-    String? daysJson,
-    DateTime? endDate,
-    int? count,
-    DateTime originalEventDate, // Pass the original event date
-  ) {
-    if (typeStr == null) return null;
-
-    final type = RecurrenceType.values.firstWhere(
-      (t) => t.name == typeStr,
-      orElse: () => RecurrenceType.none,
-    );
-
-    if (type == RecurrenceType.none) return null;
-
-    // Extract month and day from original event date for yearly/monthly recurrence
-    int? dayOfMonth;
-    int? monthOfYear;
-
-    if (type == RecurrenceType.yearly) {
-      monthOfYear = originalEventDate.month;
-      dayOfMonth = originalEventDate.day;
-    } else if (type == RecurrenceType.monthly) {
-      dayOfMonth = originalEventDate.day;
+  static EventStatus parseStatus(String status) {
+    switch (status) {
+      case 'completed':
+        return EventStatus.completed;
+      case 'cancelled':
+        return EventStatus.cancelled;
+      case 'pending':
+      default:
+        return EventStatus.pending;
     }
+  }
 
-    return RecurrenceRule(
-      type: type,
-      interval: interval ?? 1,
-      daysOfWeek: _parseDaysOfWeek(daysJson),
-      dayOfMonth: dayOfMonth,
-      monthOfYear: monthOfYear,
-      endDate: endDate,
-      occurrenceCount: count,
-    );
+  static String serializeStatus(EventStatus status) {
+    switch (status) {
+      case EventStatus.completed:
+        return 'completed';
+      case EventStatus.cancelled:
+        return 'cancelled';
+      case EventStatus.pending:
+        return 'pending';
+    }
   }
 
   static List<int>? _parseDaysOfWeek(String? json) {
@@ -176,24 +188,32 @@ class EventModel extends Event {
     return jsonEncode(days);
   }
 
-  static List<NotificationSetting> _parseNotifications(String? json) {
-    if (json == null || json.isEmpty) return [];
-    try {
-      final list = jsonDecode(json) as List;
-      return list
-          .map((minutes) => NotificationSetting(minutesBefore: minutes as int))
-          .toList();
-    } catch (e) {
-      return [];
-    }
+  static List<NotificationSetting> _parseV2Notifications(
+    List<db.EventReminder> reminders,
+  ) {
+    if (reminders.isEmpty) return const [];
+    final parsed = reminders
+        .map(
+          (reminder) => NotificationSetting(
+            minutesBefore: reminder.minutesBefore,
+            channel: _parseNotificationChannel(reminder.channel),
+          ),
+        )
+        .toList(growable: false);
+    parsed.sort((a, b) => b.minutesBefore.compareTo(a.minutesBefore));
+    return parsed;
   }
 
-  static String? _serializeNotifications(
-    List<NotificationSetting> notifications,
-  ) {
-    if (notifications.isEmpty) return null;
-    final minutes = notifications.map((n) => n.minutesBefore).toList();
-    return jsonEncode(minutes);
+  static NotificationChannel _parseNotificationChannel(String channel) {
+    switch (channel) {
+      case 'push':
+        return NotificationChannel.push;
+      case 'email':
+        return NotificationChannel.email;
+      case 'local':
+      default:
+        return NotificationChannel.local;
+    }
   }
 
   static List<String> _parseTags(String? json) {
@@ -209,6 +229,33 @@ class EventModel extends Event {
   static String? _serializeTags(List<String> tags) {
     if (tags.isEmpty) return null;
     return jsonEncode(tags);
+  }
+
+  static RecurrenceRule? _parseV2RecurrenceRule(
+    db.EventRecurrenceRule? rule,
+    DateTime originalEventDate,
+  ) {
+    if (rule == null) return null;
+
+    final type = RecurrenceType.values.firstWhere(
+      (item) => item.name == rule.recurrenceType,
+      orElse: () => RecurrenceType.none,
+    );
+    if (type == RecurrenceType.none) return null;
+
+    return RecurrenceRule(
+      type: type,
+      interval: rule.recurrenceInterval,
+      daysOfWeek: _parseDaysOfWeek(rule.recurrenceDays),
+      dayOfMonth:
+          rule.dayOfMonth ??
+          (type == RecurrenceType.monthly ? originalEventDate.day : null),
+      monthOfYear:
+          rule.monthOfYear ??
+          (type == RecurrenceType.yearly ? originalEventDate.month : null),
+      endDate: rule.recurrenceEndDate,
+      occurrenceCount: rule.recurrenceCount,
+    );
   }
 
   /// Convert to domain entity
@@ -231,47 +278,6 @@ class EventModel extends Event {
       createdAt: createdAt,
       updatedAt: updatedAt,
       completedAt: completedAt,
-    );
-  }
-
-  @override
-  EventModel copyWith({
-    int? id,
-    String? title,
-    String? description,
-    DateTime? eventDate,
-    DateTime? eventTime,
-    bool? isAllDay,
-    EventCategory? category,
-    int? colorCode,
-    RecurrenceRule? recurrenceRule,
-    List<NotificationSetting>? notifications,
-    String? location,
-    EventStatus? status,
-    EventPriority? priority,
-    List<String>? tags,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? completedAt,
-  }) {
-    return EventModel(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      eventDate: eventDate ?? this.eventDate,
-      eventTime: eventTime ?? this.eventTime,
-      isAllDay: isAllDay ?? this.isAllDay,
-      category: category ?? this.category,
-      colorCode: colorCode ?? this.colorCode,
-      recurrenceRule: recurrenceRule ?? this.recurrenceRule,
-      notifications: notifications ?? this.notifications,
-      location: location ?? this.location,
-      status: status ?? this.status,
-      priority: priority ?? this.priority,
-      tags: tags ?? this.tags,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      completedAt: completedAt ?? this.completedAt,
     );
   }
 }

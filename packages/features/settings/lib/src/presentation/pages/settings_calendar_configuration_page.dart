@@ -1,9 +1,9 @@
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:localizations/localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
 
@@ -21,7 +21,9 @@ class SettingsCalendarConfigurationPage extends StatefulWidget {
 
 class _SettingsCalendarConfigurationPageState
     extends State<SettingsCalendarConfigurationPage> {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final RemoteConfigPort _remoteConfigPort = getIt<RemoteConfigPort>();
+  bool _isRefreshingHolidayConfig = false;
 
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _SettingsCalendarConfigurationPageState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -54,8 +57,7 @@ class _SettingsCalendarConfigurationPageState
             ),
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)?.calendar_configuration ??
-                  'Calendar Configuration',
+              l10n?.calendar_configuration ?? 'Calendar Configuration',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
@@ -89,6 +91,8 @@ class _SettingsCalendarConfigurationPageState
           if (state is SettingsLoaded) {
             return _SettingsCalendarConfigurationContent(
               settings: state.settings,
+              isRefreshingHolidayConfig: _isRefreshingHolidayConfig,
+              onForceRefreshHolidayConfig: _forceRefreshHolidayConfig,
             );
           }
 
@@ -97,53 +101,142 @@ class _SettingsCalendarConfigurationPageState
       ),
     );
   }
+
+  Future<void> _forceRefreshHolidayConfig() async {
+    if (_isRefreshingHolidayConfig) return;
+
+    _analyticsService.logButtonClick(
+      buttonName: 'force_refresh_holiday_config',
+      buttonLocation: 'settings_calendar_configuration',
+    );
+
+    setState(() {
+      _isRefreshingHolidayConfig = true;
+    });
+
+    final fetchResult = await _remoteConfigPort.fetchAndActivate();
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
+
+    setState(() {
+      _isRefreshingHolidayConfig = false;
+    });
+
+    if (fetchResult == RemoteFetchResult.failed) {
+      showErrorSnackBar(
+        context,
+        l10n?.failedToFetchHolidayConfig ??
+            'Failed to fetch holiday config from server.',
+      );
+      return;
+    }
+
+    context.read<SettingsBloc>().add(const LoadSettings());
+
+    final holidayOverridesPort = getIt<HolidayOverridesPort>();
+    final customCount = holidayOverridesPort.getCustomHolidays().length;
+    final disabledCount = holidayOverridesPort.getDisabledHolidays().length;
+    final fetchSummary = fetchResult == RemoteFetchResult.activated
+        ? (l10n?.updated ?? 'updated')
+        : (l10n?.noChanges ?? 'no changes');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          l10n?.holidayConfigRefreshed(
+                fetchSummary,
+                customCount.toString(),
+                disabledCount.toString(),
+              ) ??
+              'Holiday config refreshed ($fetchSummary). '
+                  'Custom: $customCount, Disabled: $disabledCount',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 }
 
 class _SettingsCalendarConfigurationContent extends StatelessWidget {
-  const _SettingsCalendarConfigurationContent({required this.settings});
+  const _SettingsCalendarConfigurationContent({
+    required this.settings,
+    required this.onForceRefreshHolidayConfig,
+    required this.isRefreshingHolidayConfig,
+  });
 
   final AppSettingsEntity settings;
+  final Future<void> Function() onForceRefreshHolidayConfig;
+  final bool isRefreshingHolidayConfig;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       child: Column(
         children: [
           SettingsTile(
-            title: 'Sasana Year Type',
-            subtitle: 'Type ${settings.calendarConfig.sasanaYearType}',
+            title: l10n?.sasanaYearType ?? 'Sasana Year Type',
+            subtitle:
+                l10n?.typeValue(
+                  settings.calendarConfig.sasanaYearType.toString(),
+                ) ??
+                'Type ${settings.calendarConfig.sasanaYearType}',
             leading: const Icon(Icons.auto_awesome),
             onTap: () => _showSasanaYearTypeDialog(context, settings),
           ),
           SettingsTile(
-            title: 'Calendar Type',
+            title: l10n?.calendarType ?? 'Calendar Type',
             subtitle: _getCalendarTypeName(
+              context,
               settings.calendarConfig.calendarType,
             ),
             leading: const Icon(Icons.event_note),
             onTap: () => _showCalendarTypeDialog(context, settings),
           ),
           SettingsTile(
-            title: 'Timezone Offset',
-            subtitle: '${settings.calendarConfig.timezoneOffset} hours',
+            title: l10n?.timezoneOffset ?? 'Timezone Offset',
+            subtitle:
+                l10n?.hoursValue(
+                  settings.calendarConfig.timezoneOffset.toString(),
+                ) ??
+                '${settings.calendarConfig.timezoneOffset} hours',
             leading: const Icon(Icons.access_time),
             onTap: () => _showTimezoneDialog(context, settings),
+          ),
+          ListTile(
+            leading: const Icon(Icons.cloud_sync_outlined),
+            title: Text(l10n?.holidayConfigRemote ?? 'Holiday Config (Remote)'),
+            subtitle: Text(
+              l10n?.forceRefreshHolidayConfigDescription ??
+                  'Force refresh and apply holiday overrides from Remote Config',
+            ),
+            trailing: isRefreshingHolidayConfig
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh),
+            onTap: isRefreshingHolidayConfig
+                ? null
+                : () => onForceRefreshHolidayConfig(),
           ),
         ],
       ),
     );
   }
 
-  String _getCalendarTypeName(int type) {
+  String _getCalendarTypeName(BuildContext context, int type) {
+    final l10n = AppLocalizations.of(context);
     switch (type) {
       case 0:
-        return 'British';
+        return l10n?.calendarTypeBritish ?? 'British';
       case 1:
-        return 'Gregorian';
+        return l10n?.calendarTypeGregorian ?? 'Gregorian';
       case 2:
-        return 'Julian';
+        return l10n?.calendarTypeJulian ?? 'Julian';
       default:
-        return 'Unknown';
+        return l10n?.unknown ?? 'Unknown';
     }
   }
 
@@ -151,17 +244,20 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
     BuildContext context,
     AppSettingsEntity settings,
   ) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (dialogContext) => EnhancedDialog(
-        title: 'Sasana Year Type',
+        title: l10n?.sasanaYearType ?? 'Sasana Year Type',
         icon: Icons.auto_awesome,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioOption<int>(
-              title: 'Type 0',
-              subtitle: 'Default calculation method',
+              title: l10n?.typeValue('0') ?? 'Type 0',
+              subtitle:
+                  l10n?.defaultCalculationMethod ??
+                  'Default calculation method',
               icon: Icons.looks_one,
               value: 0,
               groupValue: settings.calendarConfig.sasanaYearType,
@@ -171,8 +267,10 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
               },
             ),
             RadioOption<int>(
-              title: 'Type 1',
-              subtitle: 'Alternative calculation method',
+              title: l10n?.typeValue('1') ?? 'Type 1',
+              subtitle:
+                  l10n?.alternativeCalculationMethod ??
+                  'Alternative calculation method',
               icon: Icons.looks_two,
               value: 1,
               groupValue: settings.calendarConfig.sasanaYearType,
@@ -182,8 +280,10 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
               },
             ),
             RadioOption<int>(
-              title: 'Type 2',
-              subtitle: 'Alternative calculation method',
+              title: l10n?.typeValue('2') ?? 'Type 2',
+              subtitle:
+                  l10n?.alternativeCalculationMethod ??
+                  'Alternative calculation method',
               icon: Icons.looks_3,
               value: 2,
               groupValue: settings.calendarConfig.sasanaYearType,
@@ -202,17 +302,19 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
     BuildContext context,
     AppSettingsEntity settings,
   ) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (dialogContext) => EnhancedDialog(
-        title: 'Calendar Type',
+        title: l10n?.calendarType ?? 'Calendar Type',
         icon: Icons.event_note,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioOption<int>(
-              title: 'British',
-              subtitle: 'British calendar system',
+              title: l10n?.calendarTypeBritish ?? 'British',
+              subtitle:
+                  l10n?.britishCalendarSystem ?? 'British calendar system',
               icon: Icons.flag,
               value: 0,
               groupValue: settings.calendarConfig.calendarType,
@@ -222,8 +324,9 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
               },
             ),
             RadioOption<int>(
-              title: 'Gregorian',
-              subtitle: 'Gregorian calendar system',
+              title: l10n?.calendarTypeGregorian ?? 'Gregorian',
+              subtitle:
+                  l10n?.gregorianCalendarSystem ?? 'Gregorian calendar system',
               icon: Icons.calendar_month,
               value: 1,
               groupValue: settings.calendarConfig.calendarType,
@@ -233,8 +336,8 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
               },
             ),
             RadioOption<int>(
-              title: 'Julian',
-              subtitle: 'Julian calendar system',
+              title: l10n?.calendarTypeJulian ?? 'Julian',
+              subtitle: l10n?.julianCalendarSystem ?? 'Julian calendar system',
               icon: Icons.calendar_today,
               value: 2,
               groupValue: settings.calendarConfig.calendarType,
@@ -250,6 +353,7 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
   }
 
   void _showTimezoneDialog(BuildContext context, AppSettingsEntity settings) {
+    final l10n = AppLocalizations.of(context);
     final controller = TextEditingController(
       text: settings.calendarConfig.timezoneOffset.toString(),
     );
@@ -258,7 +362,7 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         icon: const Icon(Icons.access_time),
-        title: const Text('Timezone Offset'),
+        title: Text(l10n?.timezoneOffset ?? 'Timezone Offset'),
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -266,18 +370,20 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
             FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
           ],
           decoration: InputDecoration(
-            labelText: 'Hours',
+            labelText: l10n?.hours ?? 'Hours',
             hintText: (DateTime.now().timeZoneOffset.inMinutes.toDouble() / 60)
                 .toString(),
-            helperText: 'e.g., 6.5 for Myanmar Time (UTC+6:30)',
-            prefixIcon: Icon(Icons.schedule),
-            border: OutlineInputBorder(),
+            helperText:
+                l10n?.timezoneOffsetExample ??
+                'e.g., 6.5 for Myanmar Time (UTC+6:30)',
+            prefixIcon: const Icon(Icons.schedule),
+            border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
           ),
           FilledButton(
             onPressed: () {
@@ -287,7 +393,7 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
                 Navigator.pop(dialogContext);
               }
             },
-            child: const Text('Save'),
+            child: Text(l10n?.save ?? 'Save'),
           ),
         ],
       ),

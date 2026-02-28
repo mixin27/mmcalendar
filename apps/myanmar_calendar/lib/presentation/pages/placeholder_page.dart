@@ -1,5 +1,6 @@
-import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 class PlaceholderPage extends StatelessWidget {
   final String title;
@@ -13,6 +14,7 @@ class PlaceholderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(title), centerTitle: true),
       body: Center(
@@ -26,7 +28,7 @@ class PlaceholderPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Coming Soon',
+              l10n?.comingSoon ?? 'Coming Soon',
               style: context.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

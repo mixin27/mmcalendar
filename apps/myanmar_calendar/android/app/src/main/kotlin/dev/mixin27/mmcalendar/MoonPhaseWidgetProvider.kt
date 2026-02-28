@@ -52,15 +52,14 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
             Log.d(TAG, "Updating moon phase widget $widgetId")
 
             val views = RemoteViews(context.packageName, R.layout.widget_layout_moon_phase)
+            val dataReader = WidgetDataReader(widgetData)
 
             // Read data
-            val myanmarDate = widgetData.getString("myanmar_date", "") ?: ""
-            val moonPhase = widgetData.getString("moon_phase", "") ?: ""
-            val fortnightDay = widgetData.getString("fortnight_day", "") ?: ""
-            val fortnightDayText = widgetData.getString("fortnight_day_text", "") ?: ""
-            val nextMoonPhase = widgetData.getString("next_moon_phase", "") ?: ""
-            val moonPhaseValue = widgetData.getInt("moon_phase_value", 0)
-            val theme = widgetData.getString("widget_theme", "dark") ?: "dark"
+            val myanmarDate = dataReader.getString("myanmar_date")
+            val moonPhase = dataReader.getString("moon_phase")
+            val fortnightDayText = dataReader.getString("fortnight_day_text")
+            val nextMoonPhase = dataReader.getString("next_moon_phase")
+            val theme = dataReader.getString("widget_theme", "dark")
 
             // Extract compact Myanmar date (month and day only)
             val compactMyanmarDate = extractCompactMyanmarDate(myanmarDate)
@@ -69,17 +68,18 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
             views.setTextViewText(R.id.myanmar_date_compact, compactMyanmarDate)
 
             // Load moon phase image
-            loadMoonPhaseImage(context, views, widgetData)
+            loadMoonPhaseImage(
+                views,
+                dataReader.getString("full_moon_phase_image_path"),
+            )
 
             // Update moon phase name
             views.setTextViewText(R.id.moon_phase_name, moonPhase)
 
             // Update fortnight day
-            // val fortnightText = formatFortnightDay(fortnightDay, widgetData)
             views.setTextViewText(R.id.fortnight_day, fortnightDayText)
 
             // Calculate and display next phase
-            // val nextPhaseInfo = calculateNextPhase(moonPhaseValue, fortnightDay.toIntOrNull() ?: 1)
             views.setTextViewText(R.id.next_phase, nextMoonPhase)
 
             // Apply theme
@@ -117,33 +117,25 @@ class MoonPhaseWidgetProvider : HomeWidgetProvider() {
     }
 
     /**
-     * Load moon phase image with glow effect
+     * Load moon phase image.
      */
-    private fun loadMoonPhaseImage(
-        context: Context,
-        views: RemoteViews,
-        widgetData: SharedPreferences
-    ) {
+    private fun loadMoonPhaseImage(views: RemoteViews, imagePath: String) {
         try {
-            val imagePath = widgetData.getString("moon_phase_image_path", null)
-            imagePath?.let {
-                val file = File(it)
+            if (imagePath.isNotEmpty()) {
+                val file = File(imagePath)
                 if (file.exists()) {
-                    val bitmap = BitmapFactory.decodeFile(it)
+                    val bitmap = BitmapFactory.decodeFile(imagePath)
                     views.setImageViewBitmap(R.id.moon_phase_image, bitmap)
                     views.setViewVisibility(R.id.moon_phase_image, View.VISIBLE)
-                    views.setViewVisibility(R.id.moon_outer_glow, View.VISIBLE)
                     Log.d(TAG, "✅ Moon phase image loaded")
-                } else {
-                    Log.w(TAG, "⚠️ Moon phase image file not found")
-                    views.setViewVisibility(R.id.moon_phase_image, View.GONE)
-                    views.setViewVisibility(R.id.moon_outer_glow, View.GONE)
+                    return
                 }
             }
+            Log.w(TAG, "⚠️ Moon phase image file not found")
+            views.setViewVisibility(R.id.moon_phase_image, View.GONE)
         } catch (e: Exception) {
             Log.e(TAG, "❌ Error loading moon phase image", e)
             views.setViewVisibility(R.id.moon_phase_image, View.GONE)
-            views.setViewVisibility(R.id.moon_outer_glow, View.GONE)
         }
     }
 

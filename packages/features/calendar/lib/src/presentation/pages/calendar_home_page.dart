@@ -1,12 +1,10 @@
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:core/core.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:go_router/go_router.dart';
-import 'package:settings/settings.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:telegram_web/telegram_web.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/calendar_injection.dart';
 import '../bloc/calendar_bloc.dart';
@@ -20,7 +18,9 @@ import '../widgets/day_details_content.dart';
 // import '../widgets/astrology_expandable_card.dart';
 
 class CalendarHomePage extends StatefulWidget {
-  const CalendarHomePage({super.key});
+  const CalendarHomePage({super.key, this.initialDate});
+
+  final DateTime? initialDate;
 
   @override
   State<CalendarHomePage> createState() => _CalendarHomePageState();
@@ -28,7 +28,15 @@ class CalendarHomePage extends StatefulWidget {
 
 class _CalendarHomePageState extends State<CalendarHomePage>
     with TickerProviderStateMixin {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final CalendarDisplayConfigPort _calendarDisplayConfigPort =
+      getIt<CalendarDisplayConfigPort>();
+  final EventMarkersPort _eventMarkersPort = getIt<EventMarkersPort>();
+  DateTime? _lastAppliedInitialDate;
+  CalendarLoaded? _lastLoadedState;
+  CalendarDisplayConfig? _lastDisplayConfig;
+  DateTime? _visibleEventsMonth;
+  Stream<Map<DateTime, List<CalendarEventItem>>>? _visibleEventsStream;
 
   late AnimationController _fadeController;
   // late AnimationController _slideController;
@@ -45,6 +53,13 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
 
     _initializeAnimations();
+    _applyInitialDateIfNeeded(widget.initialDate);
+  }
+
+  @override
+  void didUpdateWidget(covariant CalendarHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _applyInitialDateIfNeeded(widget.initialDate);
   }
 
   void _initializeAnimations() {
@@ -73,6 +88,31 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     // _slideController.forward();
   }
 
+  void _applyInitialDateIfNeeded(DateTime? initialDate) {
+    if (initialDate == null) {
+      return;
+    }
+
+    final normalizedDate = DateTime(
+      initialDate.year,
+      initialDate.month,
+      initialDate.day,
+    );
+
+    if (_lastAppliedInitialDate == normalizedDate) {
+      return;
+    }
+    _lastAppliedInitialDate = normalizedDate;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      context.read<CalendarBloc>().add(LoadCalendarMonth(normalizedDate));
+    });
+  }
+
   @override
   void dispose() {
     _fadeController.dispose();
@@ -83,43 +123,22 @@ class _CalendarHomePageState extends State<CalendarHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<SettingsBloc, SettingsState>(
-        builder: (context, settingsState) {
-          // Get display preferences from settings
-          final showHolidays = settingsState is SettingsLoaded
-              ? settingsState.settings.showHolidays
-              : true;
-          final showAnniversaryDays = settingsState is SettingsLoaded
-              ? settingsState.settings.showAnniversaryDays
-              : true;
-          final showSabbaths = settingsState is SettingsLoaded
-              ? settingsState.settings.showSabbaths
-              : true;
-          final showAstrology = settingsState is SettingsLoaded
-              ? settingsState.settings.showAstrology
-              : false;
-          final showWesternDates = settingsState is SettingsLoaded
-              ? settingsState.settings.showWesternDates
-              : true;
-          final showMyanmarDates = settingsState is SettingsLoaded
-              ? settingsState.settings.showMyanmarDates
-              : true;
-
-          final showShanCalendar = settingsState is SettingsLoaded
-              ? settingsState.settings.showShanCalendar
-              : true;
-
-          final calendarLanguage = settingsState is SettingsLoaded
-              ? settingsState.settings.calendarLanguage
-              : Language.myanmar;
+      body: StreamBuilder<CalendarDisplayConfig>(
+        stream: _calendarDisplayConfigPort.watchDisplayConfig(),
+        initialData: CalendarDisplayConfig.defaults(),
+        builder: (context, configSnapshot) {
+          final displayConfig =
+              configSnapshot.data ?? CalendarDisplayConfig.defaults();
+          _handleDisplayConfigUpdate(displayConfig);
 
           return CustomScrollView(
             slivers: [
               // Compact App Bar
               SliverToBoxAdapter(
                 child: CalendarAppBar(
-                  language: calendarLanguage,
-                  showShanCalendar: showShanCalendar,
+                  onTodayTap: _goToToday,
+                  language: displayConfig.calendarLanguage,
+                  showShanCalendar: displayConfig.showShanCalendar,
                 ),
               ),
 
@@ -158,11 +177,49 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                     // }
                   },
                   builder: (context, state) {
+                    if (state is CalendarLoaded) {
+                      _lastLoadedState = state;
+                    }
+
                     if (state is CalendarLoading) {
+                      if (_lastLoadedState != null) {
+                        return FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: _buildCalendarContent(
+                            _lastLoadedState!,
+                            calendarLanguage: displayConfig.calendarLanguage,
+                            showHolidays: displayConfig.showHolidays,
+                            showAnniversaryDays:
+                                displayConfig.showAnniversaryDays,
+                            showSabbaths: displayConfig.showSabbaths,
+                            showAstrology: displayConfig.showAstrology,
+                            showWesternDates: displayConfig.showWesternDates,
+                            showMyanmarDates: displayConfig.showMyanmarDates,
+                            showShanCalendar: displayConfig.showShanCalendar,
+                          ),
+                        );
+                      }
                       return _buildLoadingSkeleton();
                     }
 
                     if (state is CalendarError) {
+                      if (_lastLoadedState != null) {
+                        return FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: _buildCalendarContent(
+                            _lastLoadedState!,
+                            calendarLanguage: displayConfig.calendarLanguage,
+                            showHolidays: displayConfig.showHolidays,
+                            showAnniversaryDays:
+                                displayConfig.showAnniversaryDays,
+                            showSabbaths: displayConfig.showSabbaths,
+                            showAstrology: displayConfig.showAstrology,
+                            showWesternDates: displayConfig.showWesternDates,
+                            showMyanmarDates: displayConfig.showMyanmarDates,
+                            showShanCalendar: displayConfig.showShanCalendar,
+                          ),
+                        );
+                      }
                       return _buildErrorState(state.message);
                     }
 
@@ -171,13 +228,15 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                         opacity: _fadeAnimation,
                         child: _buildCalendarContent(
                           state,
-                          showHolidays: showHolidays,
-                          showAnniversaryDays: showAnniversaryDays,
-                          showSabbaths: showSabbaths,
-                          showAstrology: showAstrology,
-                          showWesternDates: showWesternDates,
-                          showMyanmarDates: showMyanmarDates,
-                          showShanCalendar: showShanCalendar,
+                          calendarLanguage: displayConfig.calendarLanguage,
+                          showHolidays: displayConfig.showHolidays,
+                          showAnniversaryDays:
+                              displayConfig.showAnniversaryDays,
+                          showSabbaths: displayConfig.showSabbaths,
+                          showAstrology: displayConfig.showAstrology,
+                          showWesternDates: displayConfig.showWesternDates,
+                          showMyanmarDates: displayConfig.showMyanmarDates,
+                          showShanCalendar: displayConfig.showShanCalendar,
                         ),
                         // child: SlideTransition(
                         //   position: _slideAnimation,
@@ -197,8 +256,64 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
   }
 
+  void _handleDisplayConfigUpdate(CalendarDisplayConfig currentConfig) {
+    final previousConfig = _lastDisplayConfig;
+    if (previousConfig == null ||
+        previousConfig.calendarLanguage != currentConfig.calendarLanguage) {
+      MyanmarCalendar.setLanguage(currentConfig.calendarLanguage);
+      MyanmarCalendar.clearCache();
+      MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
+    }
+
+    if (previousConfig == null) {
+      _lastDisplayConfig = currentConfig;
+      return;
+    }
+
+    _lastDisplayConfig = currentConfig;
+    if (!currentConfig.requiresCalendarRefreshComparedTo(previousConfig)) {
+      return;
+    }
+
+    _visibleEventsMonth = null;
+    _visibleEventsStream = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      if (context.read<CalendarBloc>().state is CalendarLoaded) {
+        context.read<CalendarBloc>().add(const RefreshCalendar());
+      }
+    });
+  }
+
+  Stream<Map<DateTime, List<CalendarEventItem>>> _eventsStreamForMonth(
+    DateTime month,
+  ) {
+    final currentMonthKey = DateTime(month.year, month.month);
+    if (_visibleEventsMonth != null &&
+        _visibleEventsStream != null &&
+        _visibleEventsMonth!.year == currentMonthKey.year &&
+        _visibleEventsMonth!.month == currentMonthKey.month) {
+      return _visibleEventsStream!;
+    }
+
+    _visibleEventsMonth = currentMonthKey;
+    final startOfMonth = DateTime(month.year, month.month, 1);
+    final endOfMonth = DateTime(month.year, month.month + 1, 0);
+    final startDate = startOfMonth.subtract(const Duration(days: 7));
+    final endDate = endOfMonth.add(const Duration(days: 7));
+    _visibleEventsStream = _eventMarkersPort.watchEventMarkers(
+      startDate: startDate,
+      endDate: endDate,
+    );
+    return _visibleEventsStream!;
+  }
+
   Widget _buildCalendarContent(
     CalendarLoaded state, {
+    required Language calendarLanguage,
     bool showHolidays = true,
     bool showAnniversaryDays = true,
     bool showSabbaths = true,
@@ -207,34 +322,47 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     bool showMyanmarDates = true,
     bool showShanCalendar = true,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isLargeScreen = constraints.maxWidth > 1000;
+    return StreamBuilder<Map<DateTime, List<CalendarEventItem>>>(
+      stream: _eventsStreamForMonth(state.calendarMonth.month),
+      initialData: const <DateTime, List<CalendarEventItem>>{},
+      builder: (context, eventsSnapshot) {
+        final eventsByDate =
+            eventsSnapshot.data ?? const <DateTime, List<CalendarEventItem>>{};
 
-        if (isLargeScreen && state.selectedDate != null) {
-          // Master-Detail Layout for large screens
-          return _buildMasterDetailLayout(
-            state,
-            showHolidays: showHolidays,
-            showAnniversaryDays: showAnniversaryDays,
-            showSabbaths: showSabbaths,
-            showAstrology: showAstrology,
-            showWesternDates: showWesternDates,
-            showMyanmarDates: showMyanmarDates,
-            showShanCalendar: showShanCalendar,
-          );
-        }
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final isLargeScreen = constraints.maxWidth > 1000;
 
-        // Standard single-column layout for mobile/tablet
-        return _buildStandardLayout(
-          state,
-          showHolidays: showHolidays,
-          showAnniversaryDays: showAnniversaryDays,
-          showSabbaths: showSabbaths,
-          showAstrology: showAstrology,
-          showWesternDates: showWesternDates,
-          showMyanmarDates: showMyanmarDates,
-          showShanCalendar: showShanCalendar,
+            if (isLargeScreen && state.selectedDate != null) {
+              // Master-Detail Layout for large screens
+              return _buildMasterDetailLayout(
+                state,
+                calendarLanguage: calendarLanguage,
+                eventsByDate: eventsByDate,
+                showHolidays: showHolidays,
+                showAnniversaryDays: showAnniversaryDays,
+                showSabbaths: showSabbaths,
+                showAstrology: showAstrology,
+                showWesternDates: showWesternDates,
+                showMyanmarDates: showMyanmarDates,
+                showShanCalendar: showShanCalendar,
+              );
+            }
+
+            // Standard single-column layout for mobile/tablet
+            return _buildStandardLayout(
+              state,
+              calendarLanguage: calendarLanguage,
+              eventsByDate: eventsByDate,
+              showHolidays: showHolidays,
+              showAnniversaryDays: showAnniversaryDays,
+              showSabbaths: showSabbaths,
+              showAstrology: showAstrology,
+              showWesternDates: showWesternDates,
+              showMyanmarDates: showMyanmarDates,
+              showShanCalendar: showShanCalendar,
+            );
+          },
         );
       },
     );
@@ -242,6 +370,9 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   Widget _buildStandardLayout(
     CalendarLoaded state, {
+    required Language calendarLanguage,
+    Map<DateTime, List<CalendarEventItem>> eventsByDate =
+        const <DateTime, List<CalendarEventItem>>{},
     bool showHolidays = true,
     bool showAnniversaryDays = true,
     bool showSabbaths = true,
@@ -261,6 +392,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
           child: CalendarHeader(
             key: ValueKey(state.calendarMonth.month),
             currentMonth: state.calendarMonth.month,
+            monthDates: state.calendarMonth.dates,
+            language: calendarLanguage,
             showShanCalendar: showShanCalendar,
             onPreviousMonth: () {
               _analyticsService.logWidgetInteraction(
@@ -290,16 +423,6 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               );
               context.read<CalendarBloc>().add(const NavigateToNextMonth());
             },
-            onTodayTap: () {
-              final today = DateTime.now();
-              _analyticsService.logButtonClick(
-                buttonName: 'today',
-                buttonLocation: 'calendar_header',
-              );
-              context.read<CalendarBloc>().add(const NavigateToToday());
-              // Also select today's date to show in split view
-              context.read<CalendarBloc>().add(SelectDateEvent(today));
-            },
             onMonthYearTap: () {
               _analyticsService.logButtonClick(
                 buttonName: 'month_year_picker',
@@ -311,7 +434,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
         ),
 
         // Weekday Header
-        const WeekdayHeader(),
+        WeekdayHeader(language: calendarLanguage),
 
         // Calendar Grid with page transition
         Focus(
@@ -371,7 +494,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               showAstrology: showAstrology,
               showWesternDates: showWesternDates,
               showMyanmarDates: showMyanmarDates,
-              eventsByDate: state.eventsByDate,
+              eventsByDate: eventsByDate,
               onDateTap: (date) {
                 _analyticsService.logDateSelection(
                   selectedDate: date.toString(),
@@ -392,6 +515,9 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   Widget _buildMasterDetailLayout(
     CalendarLoaded state, {
+    required Language calendarLanguage,
+    Map<DateTime, List<CalendarEventItem>> eventsByDate =
+        const <DateTime, List<CalendarEventItem>>{},
     bool showHolidays = true,
     bool showAnniversaryDays = true,
     bool showSabbaths = true,
@@ -412,6 +538,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               CalendarHeader(
                 key: ValueKey(state.calendarMonth.month),
                 currentMonth: state.calendarMonth.month,
+                monthDates: state.calendarMonth.dates,
+                language: calendarLanguage,
                 showShanCalendar: showShanCalendar,
                 onPreviousMonth: () {
                   _analyticsService.logWidgetInteraction(
@@ -443,16 +571,6 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                   );
                   context.read<CalendarBloc>().add(const NavigateToNextMonth());
                 },
-                onTodayTap: () {
-                  final today = DateTime.now();
-                  _analyticsService.logButtonClick(
-                    buttonName: 'today',
-                    buttonLocation: 'calendar_header',
-                  );
-                  context.read<CalendarBloc>().add(const NavigateToToday());
-                  // Also select today's date to show in split view
-                  context.read<CalendarBloc>().add(SelectDateEvent(today));
-                },
                 onMonthYearTap: () {
                   _analyticsService.logButtonClick(
                     buttonName: 'month_year_picker',
@@ -463,7 +581,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               ),
 
               // Weekday Header
-              const WeekdayHeader(),
+              WeekdayHeader(language: calendarLanguage),
 
               // Calendar Grid
               Focus(
@@ -512,7 +630,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                   showAstrology: showAstrology,
                   showWesternDates: showWesternDates,
                   showMyanmarDates: showMyanmarDates,
-                  eventsByDate: state.eventsByDate,
+                  eventsByDate: eventsByDate,
                   onDateTap: (date) {
                     _analyticsService.logDateSelection(
                       selectedDate: date.toString(),
@@ -557,39 +675,11 @@ class _CalendarHomePageState extends State<CalendarHomePage>
   }
 
   Widget _buildLoadingSkeleton() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Shimmer.fromColors(
-        baseColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-        highlightColor: Theme.of(
-          context,
-        ).colorScheme.secondary.withValues(alpha: 0.2),
-        child: Column(
-          children: [
-            Container(
-              height: 250,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ],
+    return SizedBox(
+      height: 420,
+      child: Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );
@@ -717,11 +807,21 @@ class _CalendarHomePageState extends State<CalendarHomePage>
       ),
     );
   }
+
+  void _goToToday() {
+    final today = DateTime.now();
+    _analyticsService.logButtonClick(
+      buttonName: 'today',
+      buttonLocation: 'calendar_app_bar',
+    );
+    context.read<CalendarBloc>().add(const NavigateToToday());
+    context.read<CalendarBloc>().add(SelectDateEvent(today));
+  }
 }
 
 class _MonthYearPickerBottomSheet extends StatefulWidget {
   final DateTime currentMonth;
-  final AnalyticsService analyticsService;
+  final AnalyticsPort analyticsService;
   final Function(DateTime) onMonthSelected;
 
   const _MonthYearPickerBottomSheet({
@@ -737,14 +837,21 @@ class _MonthYearPickerBottomSheet extends StatefulWidget {
 
 class _MonthYearPickerBottomSheetState
     extends State<_MonthYearPickerBottomSheet> {
+  static const int _minYear = 1900;
+  static const int _maxYear = 2100;
+
   late int selectedYear;
   late int selectedMonth;
+  late final FixedExtentScrollController _yearController;
 
   @override
   void initState() {
     super.initState();
     selectedYear = widget.currentMonth.year;
     selectedMonth = widget.currentMonth.month;
+    _yearController = FixedExtentScrollController(
+      initialItem: selectedYear - _minYear,
+    );
 
     widget.analyticsService.logWidgetInteraction(
       widgetName: 'month_year_picker',
@@ -753,152 +860,260 @@ class _MonthYearPickerBottomSheetState
   }
 
   @override
+  void dispose() {
+    _yearController.dispose();
+    super.dispose();
+  }
+
+  void _shiftYear(int delta) {
+    final nextYear = (selectedYear + delta).clamp(_minYear, _maxYear);
+    if (nextYear == selectedYear) return;
+    setState(() {
+      selectedYear = nextYear;
+    });
+    _yearController.animateToItem(
+      selectedYear - _minYear,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _selectToday() {
+    final now = DateTime.now();
+    setState(() {
+      selectedYear = now.year;
+      selectedMonth = now.month;
+    });
+    _yearController.animateToItem(
+      selectedYear - _minYear,
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
+    );
+    widget.analyticsService.logWidgetInteraction(
+      widgetName: 'month_year_picker',
+      actionType: 'jump_to_today',
+      metadata: {
+        'year': selectedYear.toString(),
+        'month': selectedMonth.toString(),
+      },
+    );
+  }
+
+  void _applySelection() {
+    widget.analyticsService.logWidgetInteraction(
+      widgetName: 'month_year_picker',
+      actionType: 'applied',
+      metadata: {
+        'year': selectedYear.toString(),
+        'month': selectedMonth.toString(),
+      },
+    );
+    widget.onMonthSelected(DateTime(selectedYear, selectedMonth, 1));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle bar
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: context.colorScheme.onSurfaceVariant.withValues(
-                alpha: 0.4,
+    final now = DateTime.now();
+    final selectedLabel = '${_getMonthName(selectedMonth)} $selectedYear';
+
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        decoration: BoxDecoration(
+          color: context.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 4,
+              decoration: BoxDecoration(
+                color: context.colorScheme.onSurfaceVariant.withValues(
+                  alpha: 0.32,
+                ),
+                borderRadius: BorderRadius.circular(2),
               ),
-              borderRadius: BorderRadius.circular(2),
             ),
-          ),
-          const SizedBox(height: 24),
-
-          // Title
-          Text(
-            'Select Month & Year',
-            style: context.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Year selector
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: context.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            const SizedBox(height: 16),
+            Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: () {
-                    widget.analyticsService.logWidgetInteraction(
-                      widgetName: 'year_selector',
-                      actionType: 'previous_year',
-                      metadata: {
-                        'from_year': selectedYear.toString(),
-                        'to_year': (selectedYear - 1).toString(),
-                      },
-                    );
-                    setState(() => selectedYear--);
-                  },
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  selectedYear.toString(),
-                  style: context.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: () {
-                    widget.analyticsService.logWidgetInteraction(
-                      widgetName: 'year_selector',
-                      actionType: 'next_year',
-                      metadata: {
-                        'from_year': selectedYear.toString(),
-                        'to_year': (selectedYear + 1).toString(),
-                      },
-                    );
-                    setState(() => selectedYear++);
-                  },
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Jump to month',
+                      style: context.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      selectedLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
-
-          // Month grid
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 3,
-            childAspectRatio: 2.2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            children: List.generate(12, (index) {
-              final month = index + 1;
-              final isSelected =
-                  month == selectedMonth &&
-                  selectedYear == widget.currentMonth.year;
-
-              return Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    widget.analyticsService.logWidgetInteraction(
-                      widgetName: 'month_picker',
-                      actionType: 'month_selected',
-                      metadata: {
-                        'selected_month': month.toString(),
-                        'selected_year': selectedYear.toString(),
+            const SizedBox(height: 16),
+            Container(
+              height: 120,
+              decoration: BoxDecoration(
+                color: context.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.6,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    tooltip: 'Previous year',
+                    onPressed: () => _shiftYear(-1),
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Expanded(
+                    child: ListWheelScrollView.useDelegate(
+                      controller: _yearController,
+                      itemExtent: 40,
+                      physics: const FixedExtentScrollPhysics(),
+                      perspective: 0.004,
+                      onSelectedItemChanged: (index) {
+                        final year = _minYear + index;
+                        if (year == selectedYear) return;
+                        setState(() {
+                          selectedYear = year;
+                        });
                       },
-                    );
-                    widget.onMonthSelected(DateTime(selectedYear, month, 1));
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? context.colorScheme.primaryContainer
-                          : context.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(12),
-                      border: isSelected
-                          ? Border.all(
-                              color: context.colorScheme.primary,
-                              width: 2,
-                            )
-                          : null,
+                      childDelegate: ListWheelChildBuilderDelegate(
+                        childCount: _maxYear - _minYear + 1,
+                        builder: (context, index) {
+                          final year = _minYear + index;
+                          final isSelected = year == selectedYear;
+                          return Center(
+                            child: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 160),
+                              style: context.textTheme.titleMedium!.copyWith(
+                                fontWeight: isSelected
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
+                                color: isSelected
+                                    ? context.colorScheme.primary
+                                    : context.colorScheme.onSurfaceVariant,
+                              ),
+                              child: Text(year.toString()),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                    child: Center(
-                      child: Text(
-                        _getMonthName(month),
-                        style: context.textTheme.bodyMedium?.copyWith(
+                  ),
+                  IconButton(
+                    tooltip: 'Next year',
+                    onPressed: () => _shiftYear(1),
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.tonalIcon(
+                onPressed: _selectToday,
+                icon: const Icon(Icons.today, size: 18),
+                label: const Text('Today'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 12,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                childAspectRatio: 1.9,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+              ),
+              itemBuilder: (context, index) {
+                final month = index + 1;
+                final isSelected = month == selectedMonth;
+                final isCurrentMonth =
+                    selectedYear == now.year && month == now.month;
+
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedMonth = month;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 160),
+                      curve: Curves.easeOutCubic,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? context.colorScheme.primaryContainer
+                            : context.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
                           color: isSelected
-                              ? context.colorScheme.onPrimaryContainer
-                              : context.colorScheme.onSurface,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.normal,
+                              ? context.colorScheme.primary
+                              : (isCurrentMonth
+                                    ? context.colorScheme.primary.withValues(
+                                        alpha: 0.6,
+                                      )
+                                    : context.colorScheme.outlineVariant),
+                          width: isSelected ? 1.8 : 1.0,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _getMonthName(month),
+                          style: context.textTheme.bodyMedium?.copyWith(
+                            color: isSelected
+                                ? context.colorScheme.onPrimaryContainer
+                                : context.colorScheme.onSurface,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),
                   ),
+                );
+              },
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
                 ),
-              );
-            }),
-          ),
-          const SizedBox(height: 24),
-        ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _applySelection,
+                    child: const Text('Apply'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

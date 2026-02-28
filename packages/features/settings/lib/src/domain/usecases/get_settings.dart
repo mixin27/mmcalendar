@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../entities/app_settings.dart';
 import '../repositories/settings_repository.dart';

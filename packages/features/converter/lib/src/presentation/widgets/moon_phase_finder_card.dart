@@ -1,9 +1,9 @@
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-import 'package:localizations/localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/converter_injection.dart';
 import '../../domain/entities/moon_phase_result.dart';
@@ -20,7 +20,7 @@ class MoonPhaseFinderCard extends StatefulWidget {
 
 class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
     with SingleTickerProviderStateMixin {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   DateTime _startDate = DateTime.now();
   int _selectedMoonPhase = 1; // Default to Full Moon
 

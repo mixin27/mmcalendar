@@ -1,32 +1,22 @@
 import 'package:bloc/bloc.dart';
-import 'package:core/core.dart';
-import 'package:get_it/get_it.dart';
+import 'package:shared_core/shared_core.dart';
 
+import '../../application/services/event_flow_service.dart';
 import '../../domain/entities/event.dart';
 import '../../domain/entities/event_category.dart';
 import '../../domain/entities/notification_setting.dart';
-import '../../domain/usecases/create_user_event.dart';
+import '../../domain/services/event_validation_service.dart';
 import '../../domain/usecases/get_event_by_id.dart';
-import '../../domain/usecases/update_user_event.dart';
-import '../../services/smart_notification_scheduler.dart';
 import '../../utils/event_creation_diagnostic.dart';
 import 'event_form_event.dart';
 import 'event_form_state.dart';
 
-final getIt = GetIt.instance;
-
 class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
-  final CreateUserEvent createEvent;
-  final UpdateUserEvent updateEvent;
+  final EventFlowService eventFlowService;
   final GetEventById getEventById;
-  final SmartNotificationScheduler smartScheduler;
 
-  EventFormBloc({
-    required this.createEvent,
-    required this.updateEvent,
-    required this.getEventById,
-    required this.smartScheduler,
-  }) : super(EventFormInitial()) {
+  EventFormBloc({required this.eventFlowService, required this.getEventById})
+    : super(EventFormInitial()) {
     on<InitializeNewEvent>(_onInitializeNewEvent);
     on<InitializeEditEvent>(_onInitializeEditEvent);
     on<LoadEventForEdit>(_onLoadEventForEdit);
@@ -54,18 +44,21 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   ) {
     final now = DateTime.now();
     emit(
-      EventFormEditing(
-        title: '',
-        description: '',
-        eventDate: event.initialDate ?? now,
-        eventTime: null,
-        isAllDay: true,
-        category: EventCategory.personal,
-        notifications: [],
-        location: '',
-        priority: EventPriority.normal,
-        tags: [],
-        isValid: false,
+      _validatedState(
+        EventFormEditing(
+          title: '',
+          description: '',
+          eventDate: event.initialDate ?? now,
+          eventTime: null,
+          isAllDay: true,
+          category: EventCategory.personal,
+          notifications: [],
+          location: '',
+          priority: EventPriority.normal,
+          tags: [],
+          createdAt: now,
+          updatedAt: now,
+        ),
       ),
     );
   }
@@ -76,21 +69,24 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   ) {
     final e = event.event;
     emit(
-      EventFormEditing(
-        eventId: e.id,
-        title: e.title,
-        description: e.description ?? '',
-        eventDate: e.eventDate,
-        eventTime: e.eventTime,
-        isAllDay: e.isAllDay,
-        category: e.category,
-        colorCode: e.colorCode,
-        recurrenceRule: e.recurrenceRule,
-        notifications: List.from(e.notifications),
-        location: e.location ?? '',
-        priority: e.priority,
-        tags: List.from(e.tags),
-        isValid: true,
+      _validatedState(
+        EventFormEditing(
+          eventId: e.id,
+          title: e.title,
+          description: e.description ?? '',
+          eventDate: e.eventDate,
+          eventTime: e.eventTime,
+          isAllDay: e.isAllDay,
+          category: e.category,
+          colorCode: e.colorCode,
+          recurrenceRule: e.recurrenceRule,
+          notifications: List.from(e.notifications),
+          location: e.location ?? '',
+          priority: e.priority,
+          tags: List.from(e.tags),
+          createdAt: e.createdAt,
+          updatedAt: e.updatedAt,
+        ),
       ),
     );
   }
@@ -122,15 +118,7 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   ) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-
-    final isValid = event.title.trim().isNotEmpty;
-    emit(
-      currentState.copyWith(
-        title: event.title,
-        isValid: isValid,
-        errorMessage: isValid ? null : 'Title is required',
-      ),
-    );
+    emit(_validatedState(currentState.copyWith(title: event.title)));
   }
 
   void _onUpdateEventDescription(
@@ -139,28 +127,32 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   ) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-    emit(currentState.copyWith(description: event.description));
+    emit(
+      _validatedState(currentState.copyWith(description: event.description)),
+    );
   }
 
   void _onUpdateEventDate(UpdateEventDate event, Emitter<EventFormState> emit) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-    emit(currentState.copyWith(eventDate: event.date));
+    emit(_validatedState(currentState.copyWith(eventDate: event.date)));
   }
 
   void _onUpdateEventTime(UpdateEventTime event, Emitter<EventFormState> emit) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-    emit(currentState.copyWith(eventTime: event.time));
+    emit(_validatedState(currentState.copyWith(eventTime: event.time)));
   }
 
   void _onToggleAllDay(ToggleAllDay event, Emitter<EventFormState> emit) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
     emit(
-      currentState.copyWith(
-        isAllDay: !currentState.isAllDay,
-        eventTime: !currentState.isAllDay ? null : currentState.eventTime,
+      _validatedState(
+        currentState.copyWith(
+          isAllDay: !currentState.isAllDay,
+          eventTime: !currentState.isAllDay ? null : currentState.eventTime,
+        ),
       ),
     );
   }
@@ -171,7 +163,7 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   ) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-    emit(currentState.copyWith(category: event.category));
+    emit(_validatedState(currentState.copyWith(category: event.category)));
   }
 
   void _onUpdateEventColor(
@@ -180,7 +172,7 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   ) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-    emit(currentState.copyWith(colorCode: event.colorCode));
+    emit(_validatedState(currentState.copyWith(colorCode: event.colorCode)));
   }
 
   void _onUpdateEventLocation(
@@ -189,7 +181,7 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   ) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-    emit(currentState.copyWith(location: event.location));
+    emit(_validatedState(currentState.copyWith(location: event.location)));
   }
 
   void _onUpdateEventPriority(
@@ -198,7 +190,7 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   ) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-    emit(currentState.copyWith(priority: event.priority));
+    emit(_validatedState(currentState.copyWith(priority: event.priority)));
   }
 
   void _onUpdateRecurrenceRule(
@@ -207,16 +199,32 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
   ) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-    emit(currentState.copyWith(recurrenceRule: event.rule));
+    emit(_validatedState(currentState.copyWith(recurrenceRule: event.rule)));
   }
 
   void _onAddNotification(AddNotification event, Emitter<EventFormState> emit) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
+
+    final alreadyAdded = currentState.notifications.any(
+      (n) =>
+          n.minutesBefore == event.notification.minutesBefore &&
+          n.channel == event.notification.channel,
+    );
+    if (alreadyAdded) {
+      emit(
+        currentState.copyWith(
+          errorMessage: 'This reminder is already added',
+          isValid: currentState.isValid,
+        ),
+      );
+      return;
+    }
+
     final notifications = List<NotificationSetting>.from(
       currentState.notifications,
     )..add(event.notification);
-    emit(currentState.copyWith(notifications: notifications));
+    emit(_validatedState(currentState.copyWith(notifications: notifications)));
   }
 
   void _onRemoveNotification(
@@ -228,22 +236,29 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
     final notifications = List<NotificationSetting>.from(
       currentState.notifications,
     )..removeAt(event.index);
-    emit(currentState.copyWith(notifications: notifications));
+    emit(_validatedState(currentState.copyWith(notifications: notifications)));
   }
 
   void _onAddTag(AddTag event, Emitter<EventFormState> emit) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
-    if (currentState.tags.contains(event.tag)) return;
-    final tags = List<String>.from(currentState.tags)..add(event.tag);
-    emit(currentState.copyWith(tags: tags));
+    final normalized = event.tag.trim();
+    if (normalized.isEmpty) return;
+
+    final exists = currentState.tags.any(
+      (tag) => tag.toLowerCase() == normalized.toLowerCase(),
+    );
+    if (exists) return;
+
+    final tags = List<String>.from(currentState.tags)..add(normalized);
+    emit(_validatedState(currentState.copyWith(tags: tags)));
   }
 
   void _onRemoveTag(RemoveTag event, Emitter<EventFormState> emit) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
     final tags = List<String>.from(currentState.tags)..remove(event.tag);
-    emit(currentState.copyWith(tags: tags));
+    emit(_validatedState(currentState.copyWith(tags: tags)));
   }
 
   Future<void> _onSubmitEventForm(
@@ -253,61 +268,50 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
 
-    if (!currentState.isValid) {
+    final validatedState = _validatedState(currentState);
+    if (!validatedState.isValid) {
+      emit(validatedState);
       emit(
-        EventFormError(ValidationFailure('Please fill in all required fields')),
+        EventFormError(
+          ValidationFailure(
+            validatedState.errorMessage ?? 'Please fill in required fields',
+          ),
+        ),
       );
-      emit(currentState);
+      emit(validatedState);
       return;
     }
 
     emit(const EventFormSubmitting());
 
-    final eventToSubmit = currentState.toEvent();
+    final eventToSubmit = validatedState.toEvent();
     EventCreationDiagnostic.logBlocCreateStart(eventToSubmit.title);
 
-    if (currentState.eventId == null) {
-      // Create new event
-      final result = await createEvent(CreateUserEventParams(eventToSubmit));
-      if (result.isLeft()) {
-        final failure = result.fold((f) => f, (_) => null)!;
+    final result = await eventFlowService.saveEvent(eventToSubmit);
+    result.fold(
+      (failure) {
         emit(EventFormError(failure));
-        emit(currentState);
-        return;
-      }
+        emit(validatedState);
+      },
+      (flowResult) {
+        if (flowResult.warningMessage != null) {
+          emit(EventFormError(DataFailure(flowResult.warningMessage!)));
+        }
+        emit(EventFormSuccess(flowResult.event, isNew: flowResult.isNew));
+      },
+    );
+  }
 
-      final createdEvent = result.fold(
-        (_) => null,
-        (createdEvent) => createdEvent,
-      )!;
-
-      // Schedule notifications immediately
-      if (createdEvent.hasNotifications) {
-        await smartScheduler.scheduleEventNotification(createdEvent);
-      }
-      emit(EventFormSuccess(createdEvent, isNew: true));
-    } else {
-      // Update existing event
-      final result = await updateEvent(UpdateUserEventParams(eventToSubmit));
-      if (result.isLeft()) {
-        final failure = result.fold((f) => f, (_) => null)!;
-        emit(EventFormError(failure));
-        emit(currentState);
-        return;
-      }
-
-      final updatedEvent = result.fold(
-        (_) => null,
-        (updatedEvent) => updatedEvent,
-      )!;
-
-      // Reschedule notifications
-      await smartScheduler.cancelEventNotifications(updatedEvent.id!);
-      if (updatedEvent.hasNotifications) {
-        await smartScheduler.scheduleEventNotification(updatedEvent);
-      }
-      emit(EventFormSuccess(updatedEvent, isNew: false));
-    }
+  EventFormEditing _validatedState(EventFormEditing state) {
+    final validation = EventValidationService.validateEvent(
+      state.toEvent(),
+      isUpdate: state.eventId != null,
+    );
+    return state.copyWith(
+      isValid: validation.isValid,
+      errorMessage: validation.message,
+      updatedAt: DateTime.now(),
+    );
   }
 
   void _onResetEventForm(ResetEventForm event, Emitter<EventFormState> emit) {

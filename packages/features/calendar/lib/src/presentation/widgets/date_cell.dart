@@ -1,9 +1,8 @@
-import 'package:events/events.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
-
-import 'moon_phase_indicator.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
+    hide CompactMoonPhaseIndicator, MoonPhaseIndicator;
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 class DateCell extends StatefulWidget {
   final CompleteDate dateInfo;
@@ -18,6 +17,7 @@ class DateCell extends StatefulWidget {
   final bool showWesternDates;
   final bool showMyanmarDates;
   final bool showEvents;
+  final List<CalendarEventItem> eventsForDate;
 
   const DateCell({
     super.key,
@@ -33,6 +33,7 @@ class DateCell extends StatefulWidget {
     this.showWesternDates = true,
     this.showMyanmarDates = true,
     this.showEvents = true,
+    this.eventsForDate = const <CalendarEventItem>[],
   });
 
   @override
@@ -264,12 +265,10 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
 
   Widget _buildMyanmarDate(Color textColor, double opacity) {
     if (widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon) {
-      return CustomPaint(
-        size: const Size(12, 12),
-        painter: _MoonPhasePainter(
-          moonPhase: widget.dateInfo.moonPhase,
-          fortnightDay: widget.dateInfo.fortnightDay,
-        ),
+      return CompactMoonPhaseIndicator(
+        moonPhase: widget.dateInfo.moonPhase,
+        fortnightDay: widget.dateInfo.fortnightDay,
+        size: 12,
       );
     }
 
@@ -281,12 +280,11 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        MoonPhaseIconIndicator(
+        CompactMoonPhaseIndicator(
           moonPhase: widget.dateInfo.moonPhase,
-          style: MoonIconStyle.emoji,
           size: 8,
+          fortnightDay: widget.dateInfo.fortnightDay,
         ),
-        // CustomMoonIcon(moonPhase: widget.dateInfo.moonPhase, size: 8),
         const SizedBox(width: 2),
         Text(
           fortnightDay,
@@ -306,38 +304,26 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       return const SizedBox(height: 8);
     }
 
-    return BlocBuilder<UserEventsBloc, UserEventsState>(
-      builder: (context, state) {
-        final events = state is EventsLoaded ? state.events : <Event>[];
+    if (widget.eventsForDate.isEmpty) {
+      return const SizedBox(height: 8);
+    }
 
-        final todayEvents = events
-            .where(
-              (e) =>
-                  _isToday(e.eventDate, widget.dateInfo.western.toDateTime()),
-            )
-            .toList();
-        if (todayEvents.isEmpty) {
-          return const SizedBox(height: 8);
-        }
-
-        return SizedBox(
-          height: 8,
-          child: _buildEventIndicator(textColor, opacity, todayEvents),
-        );
-      },
+    return SizedBox(
+      height: 8,
+      child: _buildEventIndicator(textColor, opacity, widget.eventsForDate),
     );
   }
 
   Widget _buildEventIndicator(
     Color textColor,
     double opacity,
-    List<Event> todayEvents,
+    List<CalendarEventItem> todayEvents,
   ) {
     final eventCount = todayEvents.length;
     final hasHighPriority = todayEvents.any(
       (e) =>
-          e.priority == EventPriority.high ||
-          e.priority == EventPriority.urgent,
+          e.priority == CalendarEventPriority.high ||
+          e.priority == CalendarEventPriority.urgent,
     );
 
     if (todayEvents.isEmpty) {
@@ -455,52 +441,15 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
     }
   }
 
-  Color _getEventColor(Event event) {
+  Color _getEventColor(CalendarEventItem event) {
     // Priority-based colors
-    if (event.priority == EventPriority.urgent) {
+    if (event.priority == CalendarEventPriority.urgent) {
       return Colors.red.shade600;
-    } else if (event.priority == EventPriority.high) {
+    } else if (event.priority == CalendarEventPriority.high) {
       return Colors.orange.shade600;
     }
 
     // Use event's custom color or category color
     return Color(event.effectiveColor);
   }
-
-  bool _isToday(DateTime date, DateTime other) {
-    return date.year == other.year &&
-        date.month == other.month &&
-        date.day == other.day;
-  }
-}
-
-class _MoonPhasePainter extends CustomPainter {
-  final int moonPhase;
-  final int fortnightDay;
-
-  _MoonPhasePainter({required this.moonPhase, required this.fortnightDay});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Colors.grey.shade700;
-
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-
-    if (moonPhase == 1) {
-      // Full Moon - filled circle
-      canvas.drawCircle(center, radius, paint);
-    } else if (moonPhase == 3) {
-      // New Moon - empty circle with border
-      paint
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1;
-      canvas.drawCircle(center, radius, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -19,7 +19,7 @@ class WidgetConfig extends Equatable {
   final bool showAstrology;
   final bool showMyanmarDate;
   final bool showWesternDate;
-  final String language; // 'my' or 'en'
+  final String language; // Mirrors app calendar language code
 
   const WidgetConfig({
     required this.size,
@@ -38,7 +38,7 @@ class WidgetConfig extends Equatable {
       showAstrology = true,
       showMyanmarDate = true,
       showWesternDate = true,
-      language = 'my';
+      language = 'en';
 
   @override
   List<Object?> get props => [

@@ -1,4 +1,4 @@
-import 'package:core/core.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +24,7 @@ void callbackDispatcher() {
       final prefs = await SharedPreferences.getInstance();
       final languageCode =
           prefs.getString(StorageKeys.calendarLanguage) ??
-          Language.myanmar.code;
+          Language.english.code;
 
       // Create data source with prefs
       final dataSource = WidgetLocalDataSource(prefs);
@@ -57,16 +57,6 @@ void callbackDispatcher() {
 
       // Update widget
       await dataSource.updateWidgetWithConfig(widgetData, config);
-
-      // Robust Handoff Pattern:
-      // If this was the initial task triggered by the OneOffTask delay,
-      // now schedule the long-term 24h PeriodicTask.
-      // if (task == initialTask) {
-      //   debugPrint(
-      //     '🎯 Initial update complete, handing off to periodic updates...',
-      //   );
-      //   await dataSource.schedulePeriodicTask();
-      // }
 
       // Calculate execution time
       final duration = DateTime.now().difference(startTime);

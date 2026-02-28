@@ -1,4 +1,4 @@
-import 'package:data/data.dart' as db;
+import 'package:integrations_database/integrations_database.dart' as db;
 import 'package:drift/drift.dart';
 
 import '../../domain/entities/event_category.dart';

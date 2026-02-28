@@ -1,8 +1,7 @@
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:localizations/localizations.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
 
@@ -20,7 +19,7 @@ class SettingsDisplayPreferencesPage extends StatefulWidget {
 
 class _SettingsDisplayPreferencesPageState
     extends State<SettingsDisplayPreferencesPage> {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
 
   @override
   void initState() {
@@ -103,12 +102,14 @@ class _SettingsDisplayPreferencesContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       child: Column(
         children: [
           AnimatedSwitchTile(
-            title: 'Show Holidays',
-            subtitle: 'Display holiday indicators',
+            title: l10n?.showHolidays ?? 'Show Holidays',
+            subtitle:
+                l10n?.displayHolidayIndicators ?? 'Display holiday indicators',
             icon: Icons.public_off,
             iconColor: Colors.red.shade700,
             value: settings.showHolidays,
@@ -119,8 +120,10 @@ class _SettingsDisplayPreferencesContent extends StatelessWidget {
             },
           ),
           AnimatedSwitchTile(
-            title: 'Show Anniversary Days',
-            subtitle: 'Display anniversary days indicators',
+            title: l10n?.showAnniversaryDays ?? 'Show Anniversary Days',
+            subtitle:
+                l10n?.displayAnniversaryDaysIndicators ??
+                'Display anniversary days indicators',
             icon: Icons.celebration,
             iconColor: Colors.teal.shade700,
             value: settings.showAnniversaryDays,
@@ -131,8 +134,9 @@ class _SettingsDisplayPreferencesContent extends StatelessWidget {
             },
           ),
           AnimatedSwitchTile(
-            title: 'Show Sabbath',
-            subtitle: 'Display sabbath indicators',
+            title: l10n?.showSabbath ?? 'Show Sabbath',
+            subtitle:
+                l10n?.displaySabbathIndicators ?? 'Display sabbath indicators',
             icon: Icons.temple_buddhist,
             iconColor: Colors.amber.shade700,
             value: settings.showSabbaths,
@@ -143,8 +147,10 @@ class _SettingsDisplayPreferencesContent extends StatelessWidget {
             },
           ),
           AnimatedSwitchTile(
-            title: 'Show Astrology',
-            subtitle: 'Display astrological indicators',
+            title: l10n?.showAstrology ?? 'Show Astrology',
+            subtitle:
+                l10n?.displayAstrologicalIndicators ??
+                'Display astrological indicators',
             icon: Icons.star,
             iconColor: Colors.deepPurple.shade700,
             value: settings.showAstrology,
@@ -155,8 +161,10 @@ class _SettingsDisplayPreferencesContent extends StatelessWidget {
             },
           ),
           AnimatedSwitchTile(
-            title: 'Show Western Dates',
-            subtitle: 'Display Western calendar dates',
+            title: l10n?.showWesternDates ?? 'Show Western Dates',
+            subtitle:
+                l10n?.displayWesternCalendarDates ??
+                'Display Western calendar dates',
             icon: Icons.event,
             value: settings.showWesternDates,
             useIcon: true,
@@ -167,8 +175,10 @@ class _SettingsDisplayPreferencesContent extends StatelessWidget {
             },
           ),
           AnimatedSwitchTile(
-            title: 'Show Myanmar Dates',
-            subtitle: 'Display Myanmar calendar dates',
+            title: l10n?.showMyanmarDates ?? 'Show Myanmar Dates',
+            subtitle:
+                l10n?.displayMyanmarCalendarDates ??
+                'Display Myanmar calendar dates',
             icon: Icons.calendar_month,
             value: settings.showMyanmarDates,
             useIcon: true,
@@ -179,8 +189,9 @@ class _SettingsDisplayPreferencesContent extends StatelessWidget {
             },
           ),
           AnimatedSwitchTile(
-            title: 'Prefer Shan Year',
+            title: l10n?.preferShanYear ?? 'Prefer Shan Year',
             subtitle:
+                l10n?.preferShanYearDescription ??
                 'Display Shan calendar year instead of Myanmar year in Shan language',
             icon: Icons.calendar_month,
             value: settings.showShanCalendar,

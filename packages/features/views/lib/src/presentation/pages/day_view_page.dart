@@ -1,12 +1,11 @@
-import 'package:core/core.dart';
-import 'package:firebase_analytics_app/firebase_analytics_app.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
     hide MoonPhaseIndicator;
-import 'package:localizations/localizations.dart';
-import 'package:settings/settings.dart';
+import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:views/src/utils/utils.dart';
 
 import '../../di/views_injection.dart';
@@ -25,7 +24,9 @@ class DayViewPage extends StatefulWidget {
 
 class _DayViewPageState extends State<DayViewPage>
     with TickerProviderStateMixin {
-  final AnalyticsService _analyticsService = getIt<AnalyticsService>();
+  final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final DisplayPreferencesPort _displayPreferencesPort =
+      getIt<DisplayPreferencesPort>();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -114,55 +115,57 @@ class _DayViewPageState extends State<DayViewPage>
     final completeDate = dayData.completeDate;
     final date = dayData.date;
 
-    return CustomScrollView(
-      slivers: [
-        // Beautiful App Bar
-        _buildAppBar(date),
+    return StreamBuilder<bool>(
+      stream: _displayPreferencesPort.watchShowShanCalendar(),
+      initialData: true,
+      builder: (context, snapshot) {
+        final showShanCalendar = snapshot.data ?? true;
 
-        // Main Content
-        SliverToBoxAdapter(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    // Hero Date Card
-                    BlocBuilder<SettingsBloc, SettingsState>(
-                      builder: (context, settingsState) {
-                        final showShanCalendar = settingsState is SettingsLoaded
-                            ? settingsState.settings.showShanCalendar
-                            : true;
-                        return _buildHeroDateCard(
+        return CustomScrollView(
+          slivers: [
+            // Beautiful App Bar
+            _buildAppBar(date),
+
+            // Main Content
+            SliverToBoxAdapter(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // Hero Date Card
+                        _buildHeroDateCard(
                           completeDate,
                           date,
                           showShanCalendar,
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Moon Phase Section
+                        _buildMoonPhaseCard(completeDate),
+                        const SizedBox(height: 16),
+
+                        // Holidays Card
+                        if (completeDate.hasHolidays ||
+                            completeDate.hasAnniversaryDays)
+                          _buildHolidaysCard(completeDate),
+                        if (completeDate.hasHolidays)
+                          const SizedBox(height: 16),
+
+                        // Astrology Card
+                        _buildAstrologyCard(completeDate),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-
-                    // Moon Phase Section
-                    _buildMoonPhaseCard(completeDate),
-                    const SizedBox(height: 16),
-
-                    // Holidays Card
-                    if (completeDate.hasHolidays ||
-                        completeDate.hasAnniversaryDays)
-                      _buildHolidaysCard(completeDate),
-                    if (completeDate.hasHolidays) const SizedBox(height: 16),
-
-                    // Astrology Card
-                    _buildAstrologyCard(completeDate),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -291,7 +294,7 @@ class _DayViewPageState extends State<DayViewPage>
                   if (MyanmarCalendar.currentLanguage == Language.shan &&
                       showShanCalendar)
                     Text(
-                      '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${completeDate.formatMyanmar(pattern: "&M &P &ff")} ${TranslationService.translate('Yat')}',
+                      '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${completeDate.formatMyanmar(pattern: "&M &P &ff")}',
                       style: context.textTheme.headlineSmall?.copyWith(
                         color: context.colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -300,7 +303,7 @@ class _DayViewPageState extends State<DayViewPage>
                     )
                   else
                     Text(
-                      "${completeDate.formatMyanmar()} ${TranslationService.translate('Yat')}",
+                      completeDate.formatMyanmar(),
                       style: context.textTheme.headlineSmall?.copyWith(
                         color: context.colorScheme.primary,
                         fontWeight: FontWeight.bold,

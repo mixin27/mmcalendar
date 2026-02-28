@@ -170,6 +170,20 @@ final class ModifyRecurringInstanceEvent extends UserEventsEvent {
   ];
 }
 
+/// Restore (reopen) a recurring instance by removing its exception
+final class RestoreRecurringInstanceEvent extends UserEventsEvent {
+  final int masterEventId;
+  final DateTime occurrenceDate;
+
+  const RestoreRecurringInstanceEvent({
+    required this.masterEventId,
+    required this.occurrenceDate,
+  });
+
+  @override
+  List<Object?> get props => [masterEventId, occurrenceDate];
+}
+
 final class LoadMoreEvents extends UserEventsEvent {
   final DateTime currentEndDate;
   const LoadMoreEvents(this.currentEndDate);

@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart' hide WidgetState;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:home_widgets/src/presentation/widgets/previews/compact_preview_widget.dart';
-import 'package:home_widgets/src/presentation/widgets/previews/full_calendar_preview_widget.dart';
-import 'package:home_widgets/src/presentation/widgets/previews/moon_phase_preview_widget.dart';
-import 'package:home_widgets/src/presentation/widgets/previews/myanmar_month_preview_widget.dart';
 
 import '../../domain/entities/widget_config.dart';
 import '../bloc/widget_bloc.dart';
@@ -11,8 +7,15 @@ import '../bloc/widget_event.dart';
 import '../bloc/widget_state.dart';
 import '../widgets/widget_add_instructions.dart';
 
-class WidgetSettingsPage extends StatelessWidget {
+class WidgetSettingsPage extends StatefulWidget {
   const WidgetSettingsPage({super.key});
+
+  @override
+  State<WidgetSettingsPage> createState() => _WidgetSettingsPageState();
+}
+
+class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
+  WidgetLoaded? _cachedLoadedState;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +28,7 @@ class WidgetSettingsPage extends StatelessWidget {
             onPressed: () {
               context.read<WidgetBloc>().add(const RefreshWidget());
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Widget refreshed!')),
+                const SnackBar(content: Text('Widget refresh started...')),
               );
             },
             tooltip: 'Refresh Widget',
@@ -34,6 +37,10 @@ class WidgetSettingsPage extends StatelessWidget {
       ),
       body: BlocConsumer<WidgetBloc, WidgetState>(
         listener: (context, state) {
+          if (state is WidgetLoaded) {
+            _cachedLoadedState = state;
+          }
+
           if (state is WidgetError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -51,15 +58,19 @@ class WidgetSettingsPage extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          if (state is WidgetLoading) {
+          final loadedState = state is WidgetLoaded
+              ? state
+              : _cachedLoadedState;
+
+          if (loadedState == null && state is WidgetLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state is WidgetLoaded) {
-            return _buildSettingsContent(context, state);
+          if (loadedState == null) {
+            return const SizedBox.shrink();
           }
 
-          return const SizedBox.shrink();
+          return _buildSettingsContent(context, loadedState);
         },
       ),
     );
@@ -70,97 +81,14 @@ class WidgetSettingsPage extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         if (!state.isActive) WidgetAddInstructions(),
-
-        // Widget Preview
-        Text('Widget Preview', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            spacing: 8,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Compact', style: Theme.of(context).textTheme.titleMedium),
-              SizedBox(
-                width: double.infinity,
-                height: 90,
-                child: CompactPreviewWidget(),
-              ),
-
-              Text(
-                'Full calendar',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              SizedBox(
-                width: double.infinity,
-                height: 250,
-                child: FullCalendarPreviewWidget(),
-              ),
-              Text(
-                'Myanmar Month',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              SizedBox(
-                width: double.infinity,
-                height: 400,
-                child: MyanmarMonthPreviewWidget(),
-              ),
-              Text(
-                'Moon Phase',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              SizedBox(
-                width: 220,
-                height: 260,
-                child: MoonPhasePreviewWidget(),
-              ),
-            ],
-          ),
-        ),
-
-        // Card(
-        //   elevation: 4,
-        //   child: Padding(
-        //     padding: const EdgeInsets.all(16),
-        //     child: Column(
-        //       crossAxisAlignment: CrossAxisAlignment.start,
-        //       children: [
-        //         Text(
-        //           'Widget Preview',
-        //           style: Theme.of(context).textTheme.titleLarge,
-        //         ),
-        //         const SizedBox(height: 16),
-        //         WidgetPreview(config: state.config, data: state.currentData),
-        //       ],
-        //     ),
-        //   ),
-        // ),
-        const SizedBox(height: 24),
-
-        // Widget Status
         _buildStatusSection(context, state),
-
         const SizedBox(height: 24),
-
-        // Widget Size
-        // _buildSizeSection(context, state),
-        const SizedBox(height: 24),
-
-        // Widget Theme
         _buildThemeSection(context, state),
-
         const SizedBox(height: 24),
-
-        // Display Options
-        // _buildDisplayOptionsSection(context, state),
+        _buildDisplayOptionsSection(context, state),
         const SizedBox(height: 24),
-
-        // Language
-        _buildLanguageSection(context, state),
-
+        _buildLanguageInfoSection(context, state),
         const SizedBox(height: 24),
-
-        // Actions
         _buildActionsSection(context, state),
       ],
     );
@@ -210,47 +138,6 @@ class WidgetSettingsPage extends StatelessWidget {
     );
   }
 
-  // Widget _buildSizeSection(BuildContext context, WidgetLoaded state) {
-  //   return Card(
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(16),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text('Widget Size', style: Theme.of(context).textTheme.titleMedium),
-  //           const SizedBox(height: 12),
-  //           SegmentedButton<WidgetSize>(
-  //             segments: const [
-  //               ButtonSegment(
-  //                 value: WidgetSize.small,
-  //                 label: Text('Small'),
-  //                 icon: Icon(Icons.crop_square),
-  //               ),
-  //               ButtonSegment(
-  //                 value: WidgetSize.medium,
-  //                 label: Text('Medium'),
-  //                 icon: Icon(Icons.crop_16_9),
-  //               ),
-  //               ButtonSegment(
-  //                 value: WidgetSize.large,
-  //                 label: Text('Large'),
-  //                 icon: Icon(Icons.crop_landscape),
-  //               ),
-  //             ],
-  //             selected: {state.config.size},
-  //             onSelectionChanged: (Set<WidgetSize> newSelection) {
-  //               final newConfig = state.config.copyWith(
-  //                 size: newSelection.first,
-  //               );
-  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-  //             },
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget _buildThemeSection(BuildContext context, WidgetLoaded state) {
     return Card(
       child: Padding(
@@ -287,98 +174,52 @@ class WidgetSettingsPage extends StatelessWidget {
     );
   }
 
-  // Widget _buildDisplayOptionsSection(BuildContext context, WidgetLoaded state) {
-  //   return Card(
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(16),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             'Display Options',
-  //             style: Theme.of(context).textTheme.titleMedium,
-  //           ),
-  //           const SizedBox(height: 8),
-  //           SwitchListTile(
-  //             title: const Text('Show Myanmar Date'),
-  //             subtitle: const Text('Display date in Myanmar calendar'),
-  //             value: state.config.showMyanmarDate,
-  //             onChanged: (bool value) {
-  //               final newConfig = state.config.copyWith(showMyanmarDate: value);
-  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-  //             },
-  //           ),
-  //           SwitchListTile(
-  //             title: const Text('Show Western Date'),
-  //             subtitle: const Text('Display date in Western calendar'),
-  //             value: state.config.showWesternDate,
-  //             onChanged: (bool value) {
-  //               final newConfig = state.config.copyWith(showWesternDate: value);
-  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-  //             },
-  //           ),
-  //           SwitchListTile(
-  //             title: const Text('Show Holidays'),
-  //             subtitle: const Text('Display public and religious holidays'),
-  //             value: state.config.showHolidays,
-  //             onChanged: (bool value) {
-  //               final newConfig = state.config.copyWith(showHolidays: value);
-  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-  //             },
-  //           ),
-  //           SwitchListTile(
-  //             title: const Text('Show Astrology'),
-  //             subtitle: const Text('Display sabbath, yatyaza, and other info'),
-  //             value: state.config.showAstrology,
-  //             onChanged: (bool value) {
-  //               final newConfig = state.config.copyWith(showAstrology: value);
-  //               context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-  //             },
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  Widget _buildLanguageSection(BuildContext context, WidgetLoaded state) {
+  Widget _buildDisplayOptionsSection(BuildContext context, WidgetLoaded state) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: RadioGroup<String>(
-          groupValue: state.config.language,
-          onChanged: (String? value) {
-            if (value != null) {
-              final newConfig = state.config.copyWith(language: value);
-              context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-            }
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Widget Language',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Display Options',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            SwitchListTile(
+              title: const Text('Show Holidays'),
+              subtitle: const Text('Display public and religious holidays'),
+              value: state.config.showHolidays,
+              onChanged: (value) {
+                final newConfig = state.config.copyWith(showHolidays: value);
+                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
+              },
+            ),
+            SwitchListTile(
+              title: const Text('Show Astrological Info'),
+              subtitle: const Text('Display sabbath, yatyaza, and pyathada'),
+              value: state.config.showAstrology,
+              onChanged: (value) {
+                final newConfig = state.config.copyWith(showAstrology: value);
+                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-              RadioListTile<String>(title: const Text('English'), value: 'en'),
-              RadioListTile<String>(
-                title: const Text('Myanmar (ဗမာ)'),
-                value: 'my',
-              ),
-              RadioListTile<String>(
-                title: const Text('Myanmar (Zawgyi)'),
-                value: 'zawgyi',
-              ),
-              RadioListTile<String>(title: const Text('Mon'), value: 'mon'),
-              RadioListTile<String>(
-                title: const Text('Shan (Tai)'),
-                value: 'shan',
-              ),
-              RadioListTile<String>(title: const Text('Karen'), value: 'karen'),
-            ],
-          ),
+  Widget _buildLanguageInfoSection(BuildContext context, WidgetLoaded state) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.language_outlined),
+          title: const Text('Widget Language'),
+          subtitle: const Text('Uses app calendar language automatically'),
+          trailing: Text(_formatLanguageCode(state.config.language)),
         ),
       ),
     );
@@ -393,8 +234,6 @@ class WidgetSettingsPage extends StatelessWidget {
           children: [
             Text('Actions', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
-
-            // Schedule/Cancel Auto Updates Button
             if (!state.isScheduled)
               ElevatedButton.icon(
                 icon: const Icon(Icons.schedule),
@@ -404,7 +243,7 @@ class WidgetSettingsPage extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
-                        'Auto updates enabled! Widget will update daily at 12:01 AM',
+                        'Auto updates enabled! Widgets will refresh automatically every day.',
                       ),
                       backgroundColor: Colors.green,
                       duration: Duration(seconds: 3),
@@ -436,10 +275,7 @@ class WidgetSettingsPage extends StatelessWidget {
                   side: const BorderSide(color: Colors.orange),
                 ),
               ),
-
             const SizedBox(height: 12),
-
-            // Refresh Widget Now Button
             OutlinedButton.icon(
               icon: const Icon(Icons.refresh),
               label: const Text('Refresh Widget Now'),
@@ -450,10 +286,7 @@ class WidgetSettingsPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
               ),
             ),
-
             const SizedBox(height: 12),
-
-            // Check Widget Status Button
             OutlinedButton.icon(
               icon: const Icon(Icons.info_outline),
               label: const Text('Check Widget Status'),
@@ -470,10 +303,7 @@ class WidgetSettingsPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Info Text
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -488,7 +318,7 @@ class WidgetSettingsPage extends StatelessWidget {
                   Expanded(
                     child: Text(
                       state.isScheduled
-                          ? 'Widget updates automatically at 12:01 AM every day'
+                          ? 'Widgets refresh automatically each day'
                           : 'Enable auto updates to keep widget current',
                       style: Theme.of(
                         context,
@@ -502,6 +332,25 @@ class WidgetSettingsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatLanguageCode(String code) {
+    switch (code) {
+      case 'en':
+        return 'English';
+      case 'my':
+        return 'Myanmar';
+      case 'zawgyi':
+        return 'Zawgyi';
+      case 'mon':
+        return 'Mon';
+      case 'shan':
+        return 'Shan';
+      case 'karen':
+        return 'Karen';
+      default:
+        return code.toUpperCase();
+    }
   }
 
   String _getThemeName(WidgetTheme theme) {
