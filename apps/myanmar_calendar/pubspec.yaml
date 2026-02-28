@@ -38,6 +38,8 @@ dependencies:
     path: ../../packages/features/views
   converter:
     path: ../../packages/features/converter
+  calendar_generation:
+    path: ../../packages/features/calendar_generation
   events:
     path: ../../packages/features/events
   home_widgets:
