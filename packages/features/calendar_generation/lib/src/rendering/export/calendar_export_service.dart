@@ -24,7 +24,17 @@ class CalendarExportService {
     required CalendarGenerationRequest request,
     required List<CalendarPageModel> pages,
   }) async {
-    final bytes = await _pdfRenderer.render(request: request, pages: pages);
+    final imageSize = CalendarExportLayout.resolveImageSize(request);
+    final pageImages = await _imageRenderer.renderPages(
+      request: request,
+      pages: pages,
+      width: imageSize.width,
+      height: imageSize.height,
+    );
+    final bytes = await _pdfRenderer.renderFromImages(
+      request: request,
+      pageImages: pageImages,
+    );
     return GenerationArtifact(
       fileName: _buildPdfFileName(request: request, pagesCount: pages.length),
       mimeType: 'application/pdf',
@@ -52,7 +62,7 @@ class CalendarExportService {
           month: model.month,
           includeMonth: pages.length > 1 || request.month == null,
         ),
-        mimeType: 'image/png',
+        mimeType: 'image/jpeg',
         bytes: imageBytes[index],
       );
     }, growable: false);
@@ -107,10 +117,10 @@ class CalendarExportService {
     required bool includeMonth,
   }) {
     if (!includeMonth) {
-      return 'myanmar_calendar_$year.png';
+      return 'myanmar_calendar_$year.jpg';
     }
 
     final monthText = month.toString().padLeft(2, '0');
-    return 'myanmar_calendar_${year}_$monthText.png';
+    return 'myanmar_calendar_${year}_$monthText.jpg';
   }
 }

@@ -2,10 +2,13 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:image/image.dart' as img;
 
 import '../../domain/entities/calendar_generation_request.dart';
+import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_page_model.dart';
-import '../../domain/entities/calendar_preview_theme.dart';
+import '../../presentation/widgets/calendar_generation_preview_page.dart';
 import '../export/background_image_loader.dart';
 
 class CalendarImageRenderer {
@@ -19,342 +22,164 @@ class CalendarImageRenderer {
     int width = 1240,
     int height = 1754,
   }) async {
-    final backgroundImagesByUrl = <String, ui.Image?>{};
-    Future<ui.Image?> resolveBackgroundImage(int month) async {
-      final url = request.theme.backgroundImageUrlForMonth(month);
-      if (url == null || url.isEmpty) {
-        return null;
-      }
-      if (backgroundImagesByUrl.containsKey(url)) {
-        return backgroundImagesByUrl[url];
-      }
-      final imageBytes = await _backgroundImageLoader.loadBytes(url);
-      final image = await _decodeImage(imageBytes);
-      backgroundImagesByUrl[url] = image;
-      return image;
-    }
+    final bytesByBackgroundUrl = <String, Uint8List?>{};
+    final result = <Uint8List>[];
 
-    final generated = <Uint8List>[];
     for (final page in pages) {
-      final backgroundImage = await resolveBackgroundImage(page.month);
-      final bytes = await _renderSinglePage(
+      final backgroundUrl = request.theme.backgroundImageUrlForMonth(
+        page.month,
+      );
+      Uint8List? backgroundBytes;
+      if (backgroundUrl != null && backgroundUrl.trim().isNotEmpty) {
+        if (bytesByBackgroundUrl.containsKey(backgroundUrl)) {
+          backgroundBytes = bytesByBackgroundUrl[backgroundUrl];
+        } else {
+          backgroundBytes = await _backgroundImageLoader.loadBytes(
+            backgroundUrl,
+          );
+          bytesByBackgroundUrl[backgroundUrl] = backgroundBytes;
+        }
+      }
+
+      final renderedImage = await _renderWidgetPage(
         request: request,
         page: page,
         width: width,
         height: height,
-        backgroundImage: backgroundImage,
+        backgroundBytes: backgroundBytes,
       );
-      generated.add(bytes);
+      final encoded = await _encodeRenderedImage(
+        renderedImage,
+        quality: _jpegQualityFor(request.imageQuality),
+      );
+      renderedImage.dispose();
+      result.add(encoded);
     }
 
-    for (final image in backgroundImagesByUrl.values) {
-      image?.dispose();
-    }
-    return generated;
+    return result;
   }
 
-  Future<ui.Image?> _decodeImage(Uint8List? bytes) async {
-    if (bytes == null || bytes.isEmpty) {
-      return null;
-    }
-
-    try {
-      final codec = await ui.instantiateImageCodec(bytes);
-      final frame = await codec.getNextFrame();
-      return frame.image;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<Uint8List> _renderSinglePage({
+  Future<ui.Image> _renderWidgetPage({
     required CalendarGenerationRequest request,
     required CalendarPageModel page,
     required int width,
     required int height,
-    ui.Image? backgroundImage,
+    Uint8List? backgroundBytes,
   }) async {
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-    final size = Size(width.toDouble(), height.toDouble());
-    final rect = Offset.zero & size;
-
-    final backgroundColor = Color(request.theme.backgroundColorValue);
-    final foregroundColor = Color(request.theme.foregroundColorValue);
-    final accentColor = Color(request.theme.accentColorValue);
-
-    canvas.drawRect(rect, Paint()..color = backgroundColor);
-
-    if (backgroundImage != null) {
-      _paintBackgroundImage(
-        canvas: canvas,
-        rect: rect,
-        image: backgroundImage,
-        fit: request.theme.backgroundImageFit,
-        alignment: request.theme.backgroundImageAlignment,
-        opacity: request.theme.backgroundImageOpacity.clamp(0.0, 1.0),
-      );
-    }
-
-    const margin = 52.0;
-    final contentWidth = size.width - (margin * 2);
-    const titleHeight = 64.0;
-    const weekdayHeight = 34.0;
-    const spacing = 12.0;
-
-    _paintCenteredText(
-      canvas,
-      text: page.title,
-      top: margin,
-      maxWidth: contentWidth,
-      style: TextStyle(
-        color: foregroundColor,
-        fontSize: 44,
-        fontWeight: FontWeight.w700,
-      ),
-      left: margin,
+    final exportPixelRatio = _exportPixelRatioFor(request.imageQuality);
+    final logicalSize = Size(
+      width / exportPixelRatio,
+      height / exportPixelRatio,
     );
 
-    const weekdayTop = margin + titleHeight;
-    for (var index = 0; index < page.weekdayLabels.length; index++) {
-      final label = page.weekdayLabels[index];
-      final columnLeft = margin + (index * (contentWidth / 7));
-      _paintCenteredText(
-        canvas,
-        text: label,
-        top: weekdayTop,
-        maxWidth: contentWidth / 7,
-        style: TextStyle(
-          color: foregroundColor.withValues(alpha: 0.9),
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
+    final repaintBoundary = RenderRepaintBoundary();
+    final renderView = RenderView(
+      view: WidgetsBinding.instance.platformDispatcher.views.first,
+      configuration: ViewConfiguration(
+        logicalConstraints: BoxConstraints.tight(logicalSize),
+        physicalConstraints: BoxConstraints.tight(
+          Size(width.toDouble(), height.toDouble()),
         ),
-        left: columnLeft,
-      );
+        devicePixelRatio: exportPixelRatio,
+      ),
+      child: RenderPositionedBox(
+        alignment: Alignment.center,
+        child: repaintBoundary,
+      ),
+    );
+
+    final pipelineOwner = PipelineOwner();
+    pipelineOwner.rootNode = renderView;
+    renderView.prepareInitialFrame();
+
+    final buildOwner = BuildOwner(focusManager: FocusManager());
+    final backgroundProvider = backgroundBytes == null
+        ? null
+        : MemoryImage(backgroundBytes);
+
+    final rootElement = RenderObjectToWidgetAdapter<RenderBox>(
+      container: repaintBoundary,
+      child: _buildExportWidget(
+        request: request,
+        page: page,
+        logicalSize: logicalSize,
+        backgroundProvider: backgroundProvider,
+      ),
+    ).attachToRenderTree(buildOwner);
+
+    buildOwner.buildScope(rootElement);
+    pipelineOwner
+      ..flushLayout()
+      ..flushCompositingBits()
+      ..flushPaint();
+
+    if (backgroundProvider != null) {
+      await precacheImage(backgroundProvider, rootElement);
+      buildOwner.buildScope(rootElement);
+      pipelineOwner
+        ..flushLayout()
+        ..flushCompositingBits()
+        ..flushPaint();
     }
 
-    const gridTop = weekdayTop + weekdayHeight + spacing;
-    final gridHeight = size.height - gridTop - margin;
-    final cellWidth = contentWidth / 7;
-    final cellHeight = gridHeight / 6;
+    final image = await repaintBoundary.toImage(pixelRatio: exportPixelRatio);
+    buildOwner.finalizeTree();
+    return image;
+  }
 
-    for (var index = 0; index < page.dayCells.length; index++) {
-      final day = page.dayCells[index];
-      final row = index ~/ 7;
-      final column = index % 7;
-      final cellLeft = margin + (column * cellWidth) + 1.5;
-      final cellTop = gridTop + (row * cellHeight) + 1.5;
-      final cellRect = Rect.fromLTWH(
-        cellLeft,
-        cellTop,
-        cellWidth - 3,
-        cellHeight - 3,
-      );
-
-      final hasMarker =
-          (request.showHolidays && day.hasHoliday) ||
-          (request.showAstrology && day.hasAstrology);
-      final fillColor = day.isCurrentMonth
-          ? backgroundColor.withValues(alpha: 0.92)
-          : foregroundColor.withValues(alpha: 0.06);
-      final borderColor = day.isToday
-          ? accentColor
-          : foregroundColor.withValues(alpha: 0.15);
-
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(cellRect, const Radius.circular(8)),
-        Paint()..color = fillColor,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(cellRect, const Radius.circular(8)),
-        Paint()
-          ..color = borderColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = day.isToday ? 2.2 : 1.0,
-      );
-
-      if (request.showWesternDates) {
-        _paintText(
-          canvas,
-          text: day.westernDayLabel,
-          left: cellRect.left + 7,
-          top: cellRect.top + 6,
-          maxWidth: cellRect.width - 12,
-          style: TextStyle(
-            color: foregroundColor.withValues(
-              alpha: day.isCurrentMonth ? 0.95 : 0.5,
+  Widget _buildExportWidget({
+    required CalendarGenerationRequest request,
+    required CalendarPageModel page,
+    required Size logicalSize,
+    ImageProvider<Object>? backgroundProvider,
+  }) {
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: MediaQuery(
+        data: MediaQueryData(size: logicalSize, devicePixelRatio: 1),
+        child: Material(
+          type: MaterialType.transparency,
+          child: SizedBox(
+            width: logicalSize.width,
+            height: logicalSize.height,
+            child: CalendarGenerationPreviewPage(
+              model: page,
+              request: request,
+              margin: EdgeInsets.zero,
+              elevation: 0,
+              contentPadding: const EdgeInsets.all(12),
+              compact: false,
+              useCardChrome: false,
+              backgroundImageProvider: backgroundProvider,
             ),
-            fontSize: 19,
-            fontWeight: FontWeight.w700,
           ),
-          textAlign: TextAlign.left,
-        );
-      }
+        ),
+      ),
+    );
+  }
 
-      if (request.showMyanmarDates) {
-        final painter = _layoutText(
-          text: day.myanmarDayLabel,
-          maxWidth: cellRect.width - 12,
-          style: TextStyle(
-            color: foregroundColor.withValues(
-              alpha: day.isCurrentMonth ? 0.78 : 0.45,
-            ),
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: TextAlign.right,
-        );
-        painter.paint(
-          canvas,
-          Offset(
-            cellRect.right - painter.width - 6,
-            cellRect.bottom - painter.height - 6,
-          ),
-        );
-      }
-
-      if (hasMarker) {
-        canvas.drawCircle(
-          Offset(cellRect.right - 8, cellRect.top + 8),
-          4.4,
-          Paint()..color = accentColor,
-        );
-      }
-    }
-
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(width, height);
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    image.dispose();
-    if (byteData == null) {
+  Future<Uint8List> _encodeRenderedImage(
+    ui.Image image, {
+    required int quality,
+  }) async {
+    final pngData = await image.toByteData(format: ui.ImageByteFormat.png);
+    if (pngData == null) {
       throw StateError('Failed to encode rendered calendar image');
     }
-    return byteData.buffer.asUint8List();
-  }
-
-  void _paintCenteredText(
-    Canvas canvas, {
-    required String text,
-    required double left,
-    required double top,
-    required double maxWidth,
-    required TextStyle style,
-  }) {
-    final painter = _layoutText(
-      text: text,
-      style: style,
-      maxWidth: maxWidth,
-      textAlign: TextAlign.center,
-    );
-    painter.paint(canvas, Offset(left + ((maxWidth - painter.width) / 2), top));
-  }
-
-  void _paintText(
-    Canvas canvas, {
-    required String text,
-    required double left,
-    required double top,
-    required double maxWidth,
-    required TextStyle style,
-    TextAlign textAlign = TextAlign.left,
-  }) {
-    final painter = _layoutText(
-      text: text,
-      style: style,
-      maxWidth: maxWidth,
-      textAlign: textAlign,
-    );
-    painter.paint(canvas, Offset(left, top));
-  }
-
-  TextPainter _layoutText({
-    required String text,
-    required TextStyle style,
-    required double maxWidth,
-    required TextAlign textAlign,
-  }) {
-    final painter = TextPainter(
-      text: TextSpan(text: text, style: style),
-      maxLines: 1,
-      textDirection: TextDirection.ltr,
-      textAlign: textAlign,
-      ellipsis: '',
-    )..layout(maxWidth: maxWidth);
-    return painter;
-  }
-
-  void _paintBackgroundImage({
-    required Canvas canvas,
-    required Rect rect,
-    required ui.Image image,
-    required CalendarBackgroundImageFit fit,
-    required CalendarBackgroundImageAlignment alignment,
-    required double opacity,
-  }) {
-    if (opacity <= 0) {
-      return;
+    final pngBytes = pngData.buffer.asUint8List();
+    final decoded = img.decodeImage(pngBytes);
+    if (decoded == null) {
+      return pngBytes;
     }
-
-    final imageRect = Rect.fromLTWH(
-      0,
-      0,
-      image.width.toDouble(),
-      image.height.toDouble(),
-    );
-    final destinationRect = _resolveBackgroundDestinationRect(
-      container: rect,
-      image: imageRect,
-      fit: fit,
-      alignment: alignment,
-    );
-
-    canvas.save();
-    canvas.clipRect(rect);
-    canvas.saveLayer(
-      rect,
-      Paint()..color = Colors.white.withValues(alpha: opacity),
-    );
-    canvas.drawImageRect(
-      image,
-      imageRect,
-      destinationRect,
-      Paint()..filterQuality = FilterQuality.high,
-    );
-    canvas.restore();
-    canvas.restore();
+    final jpegBytes = img.encodeJpg(decoded, quality: quality);
+    return Uint8List.fromList(jpegBytes);
   }
 
-  Rect _resolveBackgroundDestinationRect({
-    required Rect container,
-    required Rect image,
-    required CalendarBackgroundImageFit fit,
-    required CalendarBackgroundImageAlignment alignment,
-  }) {
-    if (fit == CalendarBackgroundImageFit.fill) {
-      return container;
-    }
+  double _exportPixelRatioFor(CalendarImageQuality quality) {
+    return quality == CalendarImageQuality.print ? 3.0 : 2.0;
+  }
 
-    final widthScale = container.width / image.width;
-    final heightScale = container.height / image.height;
-    final scale = switch (fit) {
-      CalendarBackgroundImageFit.cover =>
-        widthScale > heightScale ? widthScale : heightScale,
-      CalendarBackgroundImageFit.contain =>
-        widthScale < heightScale ? widthScale : heightScale,
-      CalendarBackgroundImageFit.fill => 1.0,
-    };
-
-    final targetWidth = image.width * scale;
-    final targetHeight = image.height * scale;
-    final left = container.left + ((container.width - targetWidth) / 2);
-    final top = switch (alignment) {
-      CalendarBackgroundImageAlignment.top => container.top,
-      CalendarBackgroundImageAlignment.center =>
-        container.top + ((container.height - targetHeight) / 2),
-      CalendarBackgroundImageAlignment.bottom =>
-        container.bottom - targetHeight,
-    };
-
-    return Rect.fromLTWH(left, top, targetWidth, targetHeight);
+  int _jpegQualityFor(CalendarImageQuality quality) {
+    return quality == CalendarImageQuality.print ? 88 : 78;
   }
 }
