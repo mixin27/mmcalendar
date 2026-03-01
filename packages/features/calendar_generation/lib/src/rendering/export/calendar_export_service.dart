@@ -1,3 +1,4 @@
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
@@ -68,23 +69,28 @@ class CalendarExportService {
     }, growable: false);
   }
 
-  GenerationArtifact buildImagesZip({
+  Future<GenerationArtifact> buildImagesZip({
     required int year,
     required List<GenerationArtifact> images,
-  }) {
-    final archive = Archive();
-    for (final image in images) {
-      archive.addFile(
-        ArchiveFile(image.fileName, image.bytes.length, image.bytes),
-      );
-    }
+  }) async {
+    final payload = images
+        .map(
+          (image) => <String, Object>{
+            'name': image.fileName,
+            'bytes': TransferableTypedData.fromList([image.bytes]),
+          },
+        )
+        .toList(growable: false);
 
-    final zipBytes = ZipEncoder().encode(archive);
+    final zipTransfer = await Isolate.run<TransferableTypedData>(
+      () => _buildImagesZipBytesInIsolate(payload),
+    );
+    final zipBytes = zipTransfer.materialize().asUint8List();
 
     return GenerationArtifact(
       fileName: 'myanmar_calendar_${year}_images.zip',
       mimeType: 'application/zip',
-      bytes: Uint8List.fromList(zipBytes),
+      bytes: zipBytes,
     );
   }
 
@@ -123,4 +129,20 @@ class CalendarExportService {
     final monthText = month.toString().padLeft(2, '0');
     return 'myanmar_calendar_${year}_$monthText.jpg';
   }
+}
+
+TransferableTypedData _buildImagesZipBytesInIsolate(
+  List<Map<String, Object>> payload,
+) {
+  final archive = Archive();
+  for (final entry in payload) {
+    final name = entry['name'] as String;
+    final bytes = (entry['bytes'] as TransferableTypedData)
+        .materialize()
+        .asUint8List();
+    archive.addFile(ArchiveFile(name, bytes.length, bytes));
+  }
+  final zipBytes = ZipEncoder().encode(archive);
+  final output = Uint8List.fromList(zipBytes);
+  return TransferableTypedData.fromList([output]);
 }

@@ -1363,7 +1363,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
           pages: state.pages,
         );
         if (artifacts.length > 1) {
-          final zip = exportService.buildImagesZip(
+          final zip = await exportService.buildImagesZip(
             year: request.year,
             images: artifacts,
           );
