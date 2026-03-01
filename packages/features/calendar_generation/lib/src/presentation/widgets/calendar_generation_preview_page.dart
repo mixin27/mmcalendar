@@ -30,6 +30,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     this.onOverlayElementEditEnd,
     this.onOverlayElementDoubleTap,
     this.overlayInteractionScale = 1.0,
+    this.restrictTransformToSelected = false,
     super.key,
   });
 
@@ -54,6 +55,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
   final VoidCallback? onOverlayElementEditEnd;
   final ValueChanged<CalendarOverlayElement>? onOverlayElementDoubleTap;
   final double overlayInteractionScale;
+  final bool restrictTransformToSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -249,6 +251,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                     canvasWidth: constraints.maxWidth,
                     canvasHeight: constraints.maxHeight,
                     editMode: editOverlayElements && !compact,
+                    restrictTransformToSelected: restrictTransformToSelected,
                     selectedElementId: selectedOverlayElementId,
                     onSelectedElementChanged: onSelectedOverlayElementChanged,
                     onElementChanged: onOverlayElementChanged,
@@ -740,6 +743,7 @@ class _OverlayElementsLayer extends StatefulWidget {
     required this.canvasWidth,
     required this.canvasHeight,
     required this.editMode,
+    required this.restrictTransformToSelected,
     required this.interactionScale,
     required this.buildElementChild,
     this.selectedElementId,
@@ -753,6 +757,7 @@ class _OverlayElementsLayer extends StatefulWidget {
   final double canvasWidth;
   final double canvasHeight;
   final bool editMode;
+  final bool restrictTransformToSelected;
   final double interactionScale;
   final String? selectedElementId;
   final ValueChanged<String?>? onSelectedElementChanged;
@@ -774,26 +779,39 @@ class _OverlayElementsLayerState extends State<_OverlayElementsLayer> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        ...widget.elements.map(
-          (element) => _EditableOverlayElement(
-            key: ValueKey<String>('overlay_${element.id}'),
-            element: element,
-            canvasWidth: widget.canvasWidth,
-            canvasHeight: widget.canvasHeight,
-            interactionScale: widget.interactionScale,
-            selected: widget.selectedElementId == element.id,
-            editMode: widget.editMode,
-            onSelected: widget.onSelectedElementChanged,
-            onChanged: widget.onElementChanged,
-            onEditEnd: widget.onElementEditEnd,
-            onGuidesChanged: _setGuides,
-            onDoubleTap: widget.onElementDoubleTap,
-            child: widget.buildElementChild(
-              element,
-              widget.selectedElementId == element.id,
+        ...widget.elements.map((element) {
+          final isSelected = widget.selectedElementId == element.id;
+          final hasSelectedElement = widget.selectedElementId != null;
+          final canTransform =
+              !widget.restrictTransformToSelected ||
+              !hasSelectedElement ||
+              isSelected;
+          final shouldIgnorePointer =
+              widget.editMode &&
+              widget.restrictTransformToSelected &&
+              hasSelectedElement &&
+              !isSelected;
+
+          return IgnorePointer(
+            ignoring: shouldIgnorePointer,
+            child: _EditableOverlayElement(
+              key: ValueKey<String>('overlay_${element.id}'),
+              element: element,
+              canvasWidth: widget.canvasWidth,
+              canvasHeight: widget.canvasHeight,
+              interactionScale: widget.interactionScale,
+              selected: isSelected,
+              editMode: widget.editMode,
+              canTransform: canTransform,
+              onSelected: widget.onSelectedElementChanged,
+              onChanged: widget.onElementChanged,
+              onEditEnd: widget.onElementEditEnd,
+              onGuidesChanged: _setGuides,
+              onDoubleTap: widget.onElementDoubleTap,
+              child: widget.buildElementChild(element, isSelected),
             ),
-          ),
-        ),
+          );
+        }),
         if (widget.editMode && (_guideX != null || _guideY != null))
           Positioned.fill(
             child: IgnorePointer(
@@ -825,6 +843,7 @@ class _EditableOverlayElement extends StatefulWidget {
     required this.interactionScale,
     required this.selected,
     required this.editMode,
+    required this.canTransform,
     required this.child,
     this.onSelected,
     this.onChanged,
@@ -840,6 +859,7 @@ class _EditableOverlayElement extends StatefulWidget {
   final double interactionScale;
   final bool selected;
   final bool editMode;
+  final bool canTransform;
   final Widget child;
   final ValueChanged<String?>? onSelected;
   final ValueChanged<CalendarOverlayElement>? onChanged;
@@ -902,7 +922,7 @@ class _EditableOverlayElementState extends State<_EditableOverlayElement> {
           widget.onDoubleTap?.call(element);
         },
         onScaleStart: (_) {
-          if (element.locked) {
+          if (element.locked || !widget.canTransform) {
             return;
           }
           _isInteracting = true;
@@ -912,9 +932,10 @@ class _EditableOverlayElementState extends State<_EditableOverlayElement> {
           _startRotation = element.rotation;
         },
         onScaleUpdate: (details) {
-          if (element.locked) {
+          if (element.locked || !widget.canTransform) {
             return;
           }
+          final currentElement = _workingElement;
           final interactionScale = widget.interactionScale <= 0
               ? 1.0
               : widget.interactionScale;
@@ -927,8 +948,8 @@ class _EditableOverlayElementState extends State<_EditableOverlayElement> {
               : details.focalPointDelta.dy /
                     (widget.canvasHeight * interactionScale);
 
-          var nextX = (element.x + dx).clamp(0.0, 1.0).toDouble();
-          var nextY = (element.y + dy).clamp(0.0, 1.0).toDouble();
+          var nextX = (currentElement.x + dx).clamp(0.0, 1.0).toDouble();
+          var nextY = (currentElement.y + dy).clamp(0.0, 1.0).toDouble();
           final guideX = _snapGuideValue(nextX);
           final guideY = _snapGuideValue(nextY);
           if (guideX != null) {
@@ -938,7 +959,7 @@ class _EditableOverlayElementState extends State<_EditableOverlayElement> {
             nextY = guideY;
           }
 
-          final updated = element.copyWith(
+          final updated = currentElement.copyWith(
             x: nextX,
             y: nextY,
             scale: (_startScale * details.scale).clamp(0.2, 8.0).toDouble(),
@@ -948,6 +969,9 @@ class _EditableOverlayElementState extends State<_EditableOverlayElement> {
           widget.onGuidesChanged?.call(guideX, guideY);
         },
         onScaleEnd: (_) {
+          if (!_isInteracting) {
+            return;
+          }
           _isInteracting = false;
           widget.onGuidesChanged?.call(null, null);
           widget.onChanged?.call(_workingElement);
