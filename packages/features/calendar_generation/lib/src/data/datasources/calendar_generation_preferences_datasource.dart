@@ -306,6 +306,7 @@ class CalendarGenerationPreferencesDataSource {
       'calendarContentOffsetY': theme.calendarContentOffsetY,
       'calendarContentWidthFactor': theme.calendarContentWidthFactor,
       'calendarContentHeightFactor': theme.calendarContentHeightFactor,
+      'calendarContentRotation': theme.calendarContentRotation,
       'monthYearFontScale': theme.monthYearFontScale,
       'weekdayFontScale': theme.weekdayFontScale,
       'gridBorderDesign': theme.gridBorderDesign.name,
@@ -324,6 +325,7 @@ class CalendarGenerationPreferencesDataSource {
               'borderWidth': box.borderWidth,
               'cornerRadius': box.cornerRadius,
               'borderDesign': box.borderDesign.name,
+              'rotation': box.rotation,
               'visible': box.visible,
             },
           )
@@ -590,6 +592,7 @@ class CalendarGenerationPreferencesDataSource {
     }
 
     final freeSpaceBoxes = <CalendarFreeSpaceBox>[];
+    final hasFreeSpaceBoxesField = rawTheme.containsKey('freeSpaceBoxes');
     final rawBoxes = rawTheme['freeSpaceBoxes'];
     if (rawBoxes is List) {
       for (final item in rawBoxes) {
@@ -625,6 +628,7 @@ class CalendarGenerationPreferencesDataSource {
                 .clamp(0.0, 32.0)
                 .toDouble(),
             borderDesign: design ?? CalendarBorderDesign.soft,
+            rotation: (_parseDouble(item['rotation']) ?? 0.0).toDouble(),
             visible: _parseBool(item['visible']) ?? true,
           ),
         );
@@ -657,12 +661,12 @@ class CalendarGenerationPreferencesDataSource {
       calendarContentOffsetX:
           (_parseDouble(rawTheme['calendarContentOffsetX']) ??
                   fallback.calendarContentOffsetX)
-              .clamp(-0.5, 0.5)
+              .clamp(-1.0, 1.0)
               .toDouble(),
       calendarContentOffsetY:
           (_parseDouble(rawTheme['calendarContentOffsetY']) ??
                   fallback.calendarContentOffsetY)
-              .clamp(-0.5, 0.5)
+              .clamp(-1.0, 1.0)
               .toDouble(),
       calendarContentWidthFactor:
           (_parseDouble(rawTheme['calendarContentWidthFactor']) ??
@@ -673,6 +677,10 @@ class CalendarGenerationPreferencesDataSource {
           (_parseDouble(rawTheme['calendarContentHeightFactor']) ??
                   fallback.calendarContentHeightFactor)
               .clamp(0.4, 1.0)
+              .toDouble(),
+      calendarContentRotation:
+          (_parseDouble(rawTheme['calendarContentRotation']) ??
+                  fallback.calendarContentRotation)
               .toDouble(),
       monthYearFontScale:
           (_parseDouble(rawTheme['monthYearFontScale']) ??
@@ -700,9 +708,9 @@ class CalendarGenerationPreferencesDataSource {
                   fallback.gridCornerRadius)
               .clamp(0.0, 20.0)
               .toDouble(),
-      freeSpaceBoxes: freeSpaceBoxes.isEmpty
-          ? fallback.freeSpaceBoxes
-          : freeSpaceBoxes,
+      freeSpaceBoxes: hasFreeSpaceBoxesField
+          ? freeSpaceBoxes
+          : fallback.freeSpaceBoxes,
       backgroundImageUrlsByMonth: monthlyImages,
     );
   }

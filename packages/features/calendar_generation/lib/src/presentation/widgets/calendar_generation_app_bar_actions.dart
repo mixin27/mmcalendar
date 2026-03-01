@@ -12,12 +12,14 @@ class CalendarGenerationAppBarActions extends StatelessWidget {
   const CalendarGenerationAppBarActions({
     required this.isProcessing,
     required this.onOpenOverlayEditor,
+    required this.onOpenLayoutEditor,
     required this.onQuickActionSelected,
     super.key,
   });
 
   final bool isProcessing;
   final VoidCallback onOpenOverlayEditor;
+  final VoidCallback onOpenLayoutEditor;
   final ValueChanged<CalendarGenerationQuickAction> onQuickActionSelected;
 
   @override
@@ -28,7 +30,12 @@ class CalendarGenerationAppBarActions extends StatelessWidget {
         IconButton(
           onPressed: isProcessing ? null : onOpenOverlayEditor,
           icon: const Icon(Icons.edit_outlined),
-          tooltip: 'Edit Overlays',
+          tooltip: 'Overlay Editor',
+        ),
+        IconButton(
+          onPressed: isProcessing ? null : onOpenLayoutEditor,
+          icon: const Icon(Icons.crop_free_outlined),
+          tooltip: 'Layout Editor',
         ),
         PopupMenuButton<CalendarGenerationQuickAction>(
           enabled: !isProcessing,

@@ -168,9 +168,9 @@ class _CalendarLayoutSettingsContentState
               _ExportSliderRow(
                 label: 'Offset X',
                 valueText: theme.calendarContentOffsetX.toStringAsFixed(2),
-                min: -0.45,
-                max: 0.45,
-                divisions: 90,
+                min: -1.0,
+                max: 1.0,
+                divisions: 200,
                 value: theme.calendarContentOffsetX,
                 onChanged: (value) =>
                     _updateTheme(theme.copyWith(calendarContentOffsetX: value)),
@@ -178,9 +178,9 @@ class _CalendarLayoutSettingsContentState
               _ExportSliderRow(
                 label: 'Offset Y',
                 valueText: theme.calendarContentOffsetY.toStringAsFixed(2),
-                min: -0.45,
-                max: 0.45,
-                divisions: 90,
+                min: -1.0,
+                max: 1.0,
+                divisions: 200,
                 value: theme.calendarContentOffsetY,
                 onChanged: (value) =>
                     _updateTheme(theme.copyWith(calendarContentOffsetY: value)),

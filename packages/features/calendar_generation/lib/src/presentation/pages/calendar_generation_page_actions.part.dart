@@ -169,6 +169,59 @@ extension _CalendarGenerationActionsX on _CalendarGenerationViewState {
     }
   }
 
+  Future<void> _openLayoutEditor() async {
+    final state = context.read<CalendarGenerationBloc>().state;
+    if (state is! CalendarGenerationLoaded) {
+      _showSnack('Calendar preview is still loading.');
+      return;
+    }
+    if (state.pages.isEmpty) {
+      _showSnack('No pages available for layout editing.');
+      return;
+    }
+
+    final previewOrientation = _syncPreviewOrientationToExport
+        ? state.request.pageOrientation
+        : (_previewOrientationOverride ?? state.request.pageOrientation);
+    final editorRequest = state.request.copyWith(
+      pageOrientation: previewOrientation,
+    );
+    final editorPages = getIt<BuildCalendarPreviews>()(editorRequest);
+    if (editorPages.isEmpty) {
+      _showSnack('No pages available for layout editing.');
+      return;
+    }
+
+    if (previewOrientation != state.request.pageOrientation) {
+      context.read<CalendarGenerationBloc>().add(
+        ChangePageOrientation(previewOrientation),
+      );
+    }
+
+    final result = await Navigator.of(context).push<CalendarLayoutEditorResult>(
+      MaterialPageRoute<CalendarLayoutEditorResult>(
+        fullscreenDialog: true,
+        builder: (context) => CalendarLayoutEditorPage(
+          request: editorRequest,
+          pages: editorPages,
+          initialPageIndex: _previewPage,
+        ),
+      ),
+    );
+    if (!mounted || result == null) {
+      return;
+    }
+
+    context.read<CalendarGenerationBloc>().add(
+      UpdateCalendarPreviewTheme(result.theme),
+    );
+
+    final targetPage = result.pageIndex.clamp(0, editorPages.length - 1);
+    if (targetPage != _previewPage) {
+      _goToPreviewPage(targetPage);
+    }
+  }
+
   Future<void> _exportPdf() async {
     await _runGenerationAction(
       actionLabel: 'Generating PDF',

@@ -44,6 +44,7 @@ class CalendarFreeSpaceBox extends Equatable {
     this.borderWidth = 1.0,
     this.cornerRadius = 6.0,
     this.borderDesign = CalendarBorderDesign.soft,
+    this.rotation = 0.0,
     this.visible = true,
   });
 
@@ -57,6 +58,7 @@ class CalendarFreeSpaceBox extends Equatable {
   final double borderWidth;
   final double cornerRadius;
   final CalendarBorderDesign borderDesign;
+  final double rotation;
   final bool visible;
 
   CalendarFreeSpaceBox copyWith({
@@ -70,6 +72,7 @@ class CalendarFreeSpaceBox extends Equatable {
     double? borderWidth,
     double? cornerRadius,
     CalendarBorderDesign? borderDesign,
+    double? rotation,
     bool? visible,
   }) {
     return CalendarFreeSpaceBox(
@@ -85,6 +88,7 @@ class CalendarFreeSpaceBox extends Equatable {
           .clamp(0.0, 32.0)
           .toDouble(),
       borderDesign: borderDesign ?? this.borderDesign,
+      rotation: (rotation ?? this.rotation).toDouble(),
       visible: visible ?? this.visible,
     );
   }
@@ -101,6 +105,7 @@ class CalendarFreeSpaceBox extends Equatable {
     borderWidth,
     cornerRadius,
     borderDesign,
+    rotation,
     visible,
   ];
 }
@@ -119,6 +124,7 @@ class CalendarPreviewTheme extends Equatable {
     this.calendarContentOffsetY = 0.0,
     this.calendarContentWidthFactor = 1.0,
     this.calendarContentHeightFactor = 1.0,
+    this.calendarContentRotation = 0.0,
     this.monthYearFontScale = 1.08,
     this.weekdayFontScale = 1.14,
     this.gridBorderDesign = CalendarBorderDesign.soft,
@@ -160,6 +166,7 @@ class CalendarPreviewTheme extends Equatable {
   final double calendarContentOffsetY;
   final double calendarContentWidthFactor;
   final double calendarContentHeightFactor;
+  final double calendarContentRotation;
   final double monthYearFontScale;
   final double weekdayFontScale;
   final CalendarBorderDesign gridBorderDesign;
@@ -193,6 +200,7 @@ class CalendarPreviewTheme extends Equatable {
     double? calendarContentOffsetY,
     double? calendarContentWidthFactor,
     double? calendarContentHeightFactor,
+    double? calendarContentRotation,
     double? monthYearFontScale,
     double? weekdayFontScale,
     CalendarBorderDesign? gridBorderDesign,
@@ -214,11 +222,11 @@ class CalendarPreviewTheme extends Equatable {
           backgroundImageAlignment ?? this.backgroundImageAlignment,
       calendarContentOffsetX:
           (calendarContentOffsetX ?? this.calendarContentOffsetX)
-              .clamp(-0.5, 0.5)
+              .clamp(-1.0, 1.0)
               .toDouble(),
       calendarContentOffsetY:
           (calendarContentOffsetY ?? this.calendarContentOffsetY)
-              .clamp(-0.5, 0.5)
+              .clamp(-1.0, 1.0)
               .toDouble(),
       calendarContentWidthFactor:
           (calendarContentWidthFactor ?? this.calendarContentWidthFactor)
@@ -228,6 +236,8 @@ class CalendarPreviewTheme extends Equatable {
           (calendarContentHeightFactor ?? this.calendarContentHeightFactor)
               .clamp(0.4, 1.0)
               .toDouble(),
+      calendarContentRotation:
+          (calendarContentRotation ?? this.calendarContentRotation).toDouble(),
       monthYearFontScale: (monthYearFontScale ?? this.monthYearFontScale)
           .clamp(0.7, 1.8)
           .toDouble(),
@@ -258,6 +268,7 @@ class CalendarPreviewTheme extends Equatable {
     calendarContentOffsetY,
     calendarContentWidthFactor,
     calendarContentHeightFactor,
+    calendarContentRotation,
     monthYearFontScale,
     weekdayFontScale,
     gridBorderDesign,
