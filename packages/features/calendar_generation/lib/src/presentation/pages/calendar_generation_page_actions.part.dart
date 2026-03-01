@@ -19,6 +19,14 @@ OverlayEditorItem _toOverlayEditorItem(CalendarOverlayElement element) {
     stickerKey: element.stickerKey,
     imageSource: element.imageSource,
     colorValue: element.colorValue,
+    fontWeightValue: element.fontWeightValue,
+    italic: element.italic,
+    letterSpacing: element.letterSpacing,
+    backgroundColorValue: element.backgroundColorValue,
+    shadowColorValue: element.shadowColorValue,
+    shadowBlur: element.shadowBlur,
+    shadowOffsetX: element.shadowOffsetX,
+    shadowOffsetY: element.shadowOffsetY,
     baseSize: element.baseSize,
   );
 }
@@ -42,6 +50,14 @@ CalendarOverlayElement _toCalendarOverlayElement(OverlayEditorItem item) {
     stickerKey: item.stickerKey,
     imageSource: item.imageSource,
     colorValue: item.colorValue,
+    fontWeightValue: item.fontWeightValue,
+    italic: item.italic,
+    letterSpacing: item.letterSpacing,
+    backgroundColorValue: item.backgroundColorValue,
+    shadowColorValue: item.shadowColorValue,
+    shadowBlur: item.shadowBlur,
+    shadowOffsetX: item.shadowOffsetX,
+    shadowOffsetY: item.shadowOffsetY,
     baseSize: item.baseSize,
   );
 }

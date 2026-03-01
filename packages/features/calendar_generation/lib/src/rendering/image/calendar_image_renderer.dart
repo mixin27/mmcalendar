@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image/image.dart' as img;
 
+import '../../domain/entities/calendar_export_tuning.dart';
 import '../../domain/entities/calendar_generation_request.dart';
-import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../presentation/widgets/calendar_generation_preview_page.dart';
 import '../export/background_image_loader.dart';
@@ -52,7 +52,7 @@ class CalendarImageRenderer {
       );
       final encoded = await _encodeRenderedImage(
         renderedImage,
-        imageQuality: request.imageQuality,
+        tuning: request.exportTuning,
       );
       renderedImage.dispose();
       result.add(encoded);
@@ -166,7 +166,7 @@ class CalendarImageRenderer {
 
   Future<Uint8List> _encodeRenderedImage(
     ui.Image image, {
-    required CalendarImageQuality imageQuality,
+    required CalendarExportTuning tuning,
   }) async {
     final pngData = await image.toByteData(format: ui.ImageByteFormat.png);
     if (pngData == null) {
@@ -177,14 +177,18 @@ class CalendarImageRenderer {
       final encodedTransfer = await Isolate.run<TransferableTypedData>(
         () => _encodeRenderedImageInIsolate(<String, Object>{
           'png': TransferableTypedData.fromList([pngBytes]),
-          'isPrint': imageQuality == CalendarImageQuality.print,
+          'jpegQuality': tuning.jpegQuality,
+          'targetSizeKb': tuning.targetSizeKb,
+          'adaptiveCompression': tuning.enableAdaptiveCompression,
         }),
       );
       return encodedTransfer.materialize().asUint8List();
     } catch (_) {
       return _encodeRenderedImageSync(
         pngBytes: pngBytes,
-        isPrintQuality: imageQuality == CalendarImageQuality.print,
+        jpegQuality: tuning.jpegQuality,
+        targetSizeKb: tuning.targetSizeKb,
+        adaptiveCompression: tuning.enableAdaptiveCompression,
       );
     }
   }
@@ -196,33 +200,60 @@ TransferableTypedData _encodeRenderedImageInIsolate(
   final pngBytes = (payload['png'] as TransferableTypedData)
       .materialize()
       .asUint8List();
-  final isPrintQuality = payload['isPrint'] as bool? ?? false;
+  final jpegQuality =
+      (payload['jpegQuality'] as int? ?? CalendarExportTuning.maxJpegQuality)
+          .clamp(
+            CalendarExportTuning.minJpegQuality,
+            CalendarExportTuning.maxJpegQuality,
+          )
+          .toInt();
+  final targetSizeKb = (payload['targetSizeKb'] as int? ?? 2600)
+      .clamp(
+        CalendarExportTuning.minTargetSizeKb,
+        CalendarExportTuning.maxTargetSizeKb,
+      )
+      .toInt();
+  final adaptiveCompression = payload['adaptiveCompression'] as bool? ?? true;
   final encoded = _encodeRenderedImageSync(
     pngBytes: pngBytes,
-    isPrintQuality: isPrintQuality,
+    jpegQuality: jpegQuality,
+    targetSizeKb: targetSizeKb,
+    adaptiveCompression: adaptiveCompression,
   );
   return TransferableTypedData.fromList([encoded]);
 }
 
 Uint8List _encodeRenderedImageSync({
   required Uint8List pngBytes,
-  required bool isPrintQuality,
+  required int jpegQuality,
+  required int targetSizeKb,
+  required bool adaptiveCompression,
 }) {
   final decoded = img.decodeImage(pngBytes);
   if (decoded == null) {
     return pngBytes;
   }
 
-  final baseQuality = isPrintQuality ? 88 : 78;
-  final targetBytes = isPrintQuality ? 2600000 : 900000;
+  final baseQuality = jpegQuality.clamp(
+    CalendarExportTuning.minJpegQuality,
+    CalendarExportTuning.maxJpegQuality,
+  );
+  final targetBytes = (targetSizeKb * 1024).clamp(
+    CalendarExportTuning.minTargetSizeKb * 1024,
+    CalendarExportTuning.maxTargetSizeKb * 1024,
+  );
   var working = decoded;
   var best = img.encodeJpg(working, quality: baseQuality);
 
-  if (best.length <= targetBytes) {
+  if (!adaptiveCompression || best.length <= targetBytes) {
     return Uint8List.fromList(best);
   }
 
-  for (var quality = baseQuality - 6; quality >= 58; quality -= 6) {
+  for (
+    var quality = baseQuality - 6;
+    quality >= CalendarExportTuning.minJpegQuality;
+    quality -= 6
+  ) {
     final compressed = img.encodeJpg(working, quality: quality);
     best = compressed;
     if (compressed.length <= targetBytes) {
@@ -245,7 +276,12 @@ Uint8List _encodeRenderedImageSync({
     );
     final compressed = img.encodeJpg(
       working,
-      quality: (baseQuality - 8).clamp(58, 90).toInt(),
+      quality: (baseQuality - 8)
+          .clamp(
+            CalendarExportTuning.minJpegQuality,
+            CalendarExportTuning.maxJpegQuality,
+          )
+          .toInt(),
     );
     best = compressed;
     if (compressed.length <= targetBytes) {

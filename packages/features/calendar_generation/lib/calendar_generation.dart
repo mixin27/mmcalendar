@@ -10,6 +10,7 @@ export 'src/domain/entities/generation_artifact.dart';
 export 'src/domain/entities/calendar_paper_size.dart';
 export 'src/domain/entities/calendar_page_orientation.dart';
 export 'src/domain/entities/calendar_image_quality.dart';
+export 'src/domain/entities/calendar_export_tuning.dart';
 export 'src/domain/repositories/calendar_generation_repository.dart';
 export 'src/domain/usecases/build_calendar_previews.dart';
 

@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_generation_template.dart';
+import '../../domain/entities/calendar_export_tuning.dart';
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
 import '../../domain/entities/calendar_overlay_element.dart';
@@ -113,6 +114,7 @@ class CalendarGenerationPreferencesDataSource {
       pageOrientation: request.pageOrientation,
       landscapeDecorationAreaSide: request.landscapeDecorationAreaSide,
       imageQuality: request.imageQuality,
+      exportTuning: request.exportTuning,
       theme: request.theme,
       updatedAt: now,
     );
@@ -184,6 +186,7 @@ class CalendarGenerationPreferencesDataSource {
       pageOrientation: target.pageOrientation,
       landscapeDecorationAreaSide: target.landscapeDecorationAreaSide,
       imageQuality: target.imageQuality,
+      exportTuning: target.exportTuning,
       theme: target.theme,
       updatedAt: DateTime.now(),
     );
@@ -208,6 +211,7 @@ class CalendarGenerationPreferencesDataSource {
       pageOrientation: template.pageOrientation,
       landscapeDecorationAreaSide: template.landscapeDecorationAreaSide,
       imageQuality: template.imageQuality,
+      exportTuning: template.exportTuning,
       theme: template.theme,
     );
   }
@@ -247,6 +251,7 @@ class CalendarGenerationPreferencesDataSource {
       'pageOrientation': template.pageOrientation.name,
       'landscapeDecorationAreaSide': template.landscapeDecorationAreaSide.name,
       'imageQuality': template.imageQuality.name,
+      'exportTuning': _encodeExportTuning(template.exportTuning),
       'theme': _encodeTheme(template.theme),
     };
   }
@@ -271,10 +276,20 @@ class CalendarGenerationPreferencesDataSource {
       'pageOrientation': request.pageOrientation.name,
       'landscapeDecorationAreaSide': request.landscapeDecorationAreaSide.name,
       'imageQuality': request.imageQuality.name,
+      'exportTuning': _encodeExportTuning(request.exportTuning),
       'overlayElementsByMonth': _encodeOverlayElementsByMonth(
         request.overlayElementsByMonth,
       ),
       'theme': _encodeTheme(request.theme),
+    };
+  }
+
+  Map<String, dynamic> _encodeExportTuning(CalendarExportTuning tuning) {
+    return <String, dynamic>{
+      'dpi': tuning.dpi,
+      'jpegQuality': tuning.jpegQuality,
+      'targetSizeKb': tuning.targetSizeKb,
+      'enableAdaptiveCompression': tuning.enableAdaptiveCompression,
     };
   }
 
@@ -325,6 +340,7 @@ class CalendarGenerationPreferencesDataSource {
       pageOrientation: parsedRequest.pageOrientation,
       landscapeDecorationAreaSide: parsedRequest.landscapeDecorationAreaSide,
       imageQuality: parsedRequest.imageQuality,
+      exportTuning: parsedRequest.exportTuning,
       theme: parsedRequest.theme,
       updatedAt:
           DateTime.tryParse(map['updatedAt']?.toString() ?? '') ??
@@ -350,6 +366,12 @@ class CalendarGenerationPreferencesDataSource {
       pageOrientation: CalendarPageOrientation.portrait,
       landscapeDecorationAreaSide: CalendarLandscapeDecorationAreaSide.right,
       imageQuality: CalendarImageQuality.print,
+      exportTuning: CalendarExportTuning(
+        dpi: CalendarImageQuality.print.defaultDpi,
+        jpegQuality: CalendarImageQuality.print.defaultJpegQuality,
+        targetSizeKb: CalendarImageQuality.print.defaultTargetSizeKb,
+        enableAdaptiveCompression: true,
+      ),
     );
   }
 
@@ -370,6 +392,8 @@ class CalendarGenerationPreferencesDataSource {
         fallback.landscapeDecorationAreaSide;
     final quality =
         _parseImageQuality(map['imageQuality']) ?? fallback.imageQuality;
+    final exportTuning =
+        _parseExportTuning(map['exportTuning']) ?? fallback.exportTuning;
     final overlayElementsByMonth = _parseOverlayElementsByMonth(
       map['overlayElementsByMonth'],
     );
@@ -392,6 +416,7 @@ class CalendarGenerationPreferencesDataSource {
       pageOrientation: orientation,
       landscapeDecorationAreaSide: landscapeDecorationAreaSide,
       imageQuality: quality,
+      exportTuning: exportTuning,
       overlayElementsByMonth: overlayElementsByMonth,
       theme: theme,
     );
@@ -416,6 +441,14 @@ class CalendarGenerationPreferencesDataSource {
                 'stickerKey': element.stickerKey,
                 'imageSource': element.imageSource,
                 'colorValue': element.colorValue,
+                'fontWeightValue': element.fontWeightValue,
+                'italic': element.italic,
+                'letterSpacing': element.letterSpacing,
+                'backgroundColorValue': element.backgroundColorValue,
+                'shadowColorValue': element.shadowColorValue,
+                'shadowBlur': element.shadowBlur,
+                'shadowOffsetX': element.shadowOffsetX,
+                'shadowOffsetY': element.shadowOffsetY,
                 'baseSize': element.baseSize,
                 'opacity': element.opacity,
                 'locked': element.locked,
@@ -482,6 +515,24 @@ class CalendarGenerationPreferencesDataSource {
       stickerKey: raw['stickerKey']?.toString(),
       imageSource: raw['imageSource']?.toString(),
       colorValue: _parseInt(raw['colorValue']) ?? 0xFF1F2937,
+      fontWeightValue: (_parseInt(raw['fontWeightValue']) ?? 700)
+          .clamp(100, 900)
+          .toInt(),
+      italic: _parseBool(raw['italic']) ?? false,
+      letterSpacing: (_parseDouble(raw['letterSpacing']) ?? 0.0)
+          .clamp(-2.0, 8.0)
+          .toDouble(),
+      backgroundColorValue: _parseInt(raw['backgroundColorValue']),
+      shadowColorValue: _parseInt(raw['shadowColorValue']),
+      shadowBlur: (_parseDouble(raw['shadowBlur']) ?? 0.0)
+          .clamp(0.0, 32.0)
+          .toDouble(),
+      shadowOffsetX: (_parseDouble(raw['shadowOffsetX']) ?? 0.0)
+          .clamp(-40.0, 40.0)
+          .toDouble(),
+      shadowOffsetY: (_parseDouble(raw['shadowOffsetY']) ?? 0.0)
+          .clamp(-40.0, 40.0)
+          .toDouble(),
       baseSize: (_parseDouble(raw['baseSize']) ?? 28).clamp(8, 360).toDouble(),
       opacity: (_parseDouble(raw['opacity']) ?? 1).clamp(0.0, 1.0).toDouble(),
       locked: _parseBool(raw['locked']) ?? false,
@@ -545,6 +596,23 @@ class CalendarGenerationPreferencesDataSource {
       '_',
     );
     return '${normalizedName}_${now.microsecondsSinceEpoch}';
+  }
+
+  CalendarExportTuning? _parseExportTuning(Object? raw) {
+    if (raw is! Map<String, dynamic>) {
+      return null;
+    }
+    return CalendarExportTuning(
+      dpi: _parseInt(raw['dpi']) ?? CalendarImageQuality.print.defaultDpi,
+      jpegQuality:
+          _parseInt(raw['jpegQuality']) ??
+          CalendarImageQuality.print.defaultJpegQuality,
+      targetSizeKb:
+          _parseInt(raw['targetSizeKb']) ??
+          CalendarImageQuality.print.defaultTargetSizeKb,
+      enableAdaptiveCompression:
+          _parseBool(raw['enableAdaptiveCompression']) ?? true,
+    );
   }
 
   CalendarGenerationMode? _parseMode(Object? raw) {

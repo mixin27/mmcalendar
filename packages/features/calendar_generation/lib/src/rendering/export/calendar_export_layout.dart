@@ -1,7 +1,7 @@
 import 'package:pdf/pdf.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
-import '../../domain/entities/calendar_image_quality.dart';
+import '../../domain/entities/calendar_export_tuning.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
 
@@ -26,10 +26,10 @@ class CalendarExportLayout {
       CalendarPaperSize.letter => (8.50, 11.00),
     };
 
-    final dpi = switch (request.imageQuality) {
-      CalendarImageQuality.screen => 150,
-      CalendarImageQuality.print => 300,
-    };
+    final dpi = request.exportTuning.dpi.clamp(
+      CalendarExportTuning.minDpi,
+      CalendarExportTuning.maxDpi,
+    );
 
     var width = (baseWidth * dpi).round();
     var height = (baseHeight * dpi).round();
@@ -46,9 +46,7 @@ class CalendarExportLayout {
     CalendarGenerationRequest request,
   ) {
     final imageSize = resolveImageSize(request);
-    final divisor = request.imageQuality == CalendarImageQuality.print
-        ? 4.0
-        : 2.0;
+    final divisor = (request.exportTuning.dpi / 80).clamp(2.0, 5.0);
     return (
       width: imageSize.width / divisor,
       height: imageSize.height / divisor,

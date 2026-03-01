@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
+import 'calendar_export_tuning.dart';
 import 'calendar_image_quality.dart';
 import 'calendar_generation_mode.dart';
 import 'calendar_landscape_decoration_area_side.dart';
@@ -25,6 +26,7 @@ class CalendarGenerationRequest extends Equatable {
     required this.paperSize,
     required this.pageOrientation,
     required this.imageQuality,
+    required this.exportTuning,
     this.landscapeDecorationAreaSide =
         CalendarLandscapeDecorationAreaSide.right,
     this.overlayElementsByMonth = const <int, List<CalendarOverlayElement>>{},
@@ -47,6 +49,7 @@ class CalendarGenerationRequest extends Equatable {
   final CalendarPageOrientation pageOrientation;
   final CalendarLandscapeDecorationAreaSide landscapeDecorationAreaSide;
   final CalendarImageQuality imageQuality;
+  final CalendarExportTuning exportTuning;
   final Map<int, List<CalendarOverlayElement>> overlayElementsByMonth;
 
   CalendarGenerationRequest copyWith({
@@ -66,6 +69,7 @@ class CalendarGenerationRequest extends Equatable {
     CalendarPageOrientation? pageOrientation,
     CalendarLandscapeDecorationAreaSide? landscapeDecorationAreaSide,
     CalendarImageQuality? imageQuality,
+    CalendarExportTuning? exportTuning,
     Map<int, List<CalendarOverlayElement>>? overlayElementsByMonth,
   }) {
     return CalendarGenerationRequest(
@@ -86,6 +90,7 @@ class CalendarGenerationRequest extends Equatable {
       landscapeDecorationAreaSide:
           landscapeDecorationAreaSide ?? this.landscapeDecorationAreaSide,
       imageQuality: imageQuality ?? this.imageQuality,
+      exportTuning: exportTuning ?? this.exportTuning,
       overlayElementsByMonth:
           overlayElementsByMonth ?? this.overlayElementsByMonth,
     );
@@ -109,6 +114,7 @@ class CalendarGenerationRequest extends Equatable {
     pageOrientation,
     landscapeDecorationAreaSide,
     imageQuality,
+    exportTuning,
     _overlayElementsSignature,
   ];
 

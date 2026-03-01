@@ -16,6 +16,14 @@ class OverlayEditorItem extends Equatable {
     this.stickerKey,
     this.imageSource,
     this.colorValue = 0xFF1F2937,
+    this.fontWeightValue = 700,
+    this.italic = false,
+    this.letterSpacing = 0,
+    this.backgroundColorValue,
+    this.shadowColorValue,
+    this.shadowBlur = 0,
+    this.shadowOffsetX = 0,
+    this.shadowOffsetY = 0,
   });
 
   final String id;
@@ -30,6 +38,14 @@ class OverlayEditorItem extends Equatable {
   final String? stickerKey;
   final String? imageSource;
   final int colorValue;
+  final int fontWeightValue;
+  final bool italic;
+  final double letterSpacing;
+  final int? backgroundColorValue;
+  final int? shadowColorValue;
+  final double shadowBlur;
+  final double shadowOffsetX;
+  final double shadowOffsetY;
   final double baseSize;
 
   OverlayEditorItem copyWith({
@@ -44,7 +60,15 @@ class OverlayEditorItem extends Equatable {
     Object? text = _sentinel,
     Object? stickerKey = _sentinel,
     Object? imageSource = _sentinel,
+    Object? backgroundColorValue = _sentinel,
+    Object? shadowColorValue = _sentinel,
     int? colorValue,
+    int? fontWeightValue,
+    bool? italic,
+    double? letterSpacing,
+    double? shadowBlur,
+    double? shadowOffsetX,
+    double? shadowOffsetY,
     double? baseSize,
   }) {
     return OverlayEditorItem(
@@ -63,7 +87,19 @@ class OverlayEditorItem extends Equatable {
       imageSource: imageSource == _sentinel
           ? this.imageSource
           : imageSource as String?,
+      backgroundColorValue: backgroundColorValue == _sentinel
+          ? this.backgroundColorValue
+          : backgroundColorValue as int?,
+      shadowColorValue: shadowColorValue == _sentinel
+          ? this.shadowColorValue
+          : shadowColorValue as int?,
       colorValue: colorValue ?? this.colorValue,
+      fontWeightValue: fontWeightValue ?? this.fontWeightValue,
+      italic: italic ?? this.italic,
+      letterSpacing: letterSpacing ?? this.letterSpacing,
+      shadowBlur: shadowBlur ?? this.shadowBlur,
+      shadowOffsetX: shadowOffsetX ?? this.shadowOffsetX,
+      shadowOffsetY: shadowOffsetY ?? this.shadowOffsetY,
       baseSize: baseSize ?? this.baseSize,
     );
   }
@@ -84,6 +120,14 @@ class OverlayEditorItem extends Equatable {
     stickerKey,
     imageSource,
     colorValue,
+    fontWeightValue,
+    italic,
+    letterSpacing,
+    backgroundColorValue,
+    shadowColorValue,
+    shadowBlur,
+    shadowOffsetX,
+    shadowOffsetY,
     baseSize,
   ];
 }

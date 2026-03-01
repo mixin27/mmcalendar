@@ -201,6 +201,42 @@ final class ChangeImageQuality extends CalendarGenerationEvent {
   List<Object?> get props => [quality];
 }
 
+final class ChangeExportDpi extends CalendarGenerationEvent {
+  const ChangeExportDpi(this.dpi);
+
+  final int dpi;
+
+  @override
+  List<Object?> get props => [dpi];
+}
+
+final class ChangeExportJpegQuality extends CalendarGenerationEvent {
+  const ChangeExportJpegQuality(this.jpegQuality);
+
+  final int jpegQuality;
+
+  @override
+  List<Object?> get props => [jpegQuality];
+}
+
+final class ChangeExportTargetSizeKb extends CalendarGenerationEvent {
+  const ChangeExportTargetSizeKb(this.targetSizeKb);
+
+  final int targetSizeKb;
+
+  @override
+  List<Object?> get props => [targetSizeKb];
+}
+
+final class ToggleAdaptiveImageCompression extends CalendarGenerationEvent {
+  const ToggleAdaptiveImageCompression(this.value);
+
+  final bool value;
+
+  @override
+  List<Object?> get props => [value];
+}
+
 final class ReplaceOverlayElementsByMonth extends CalendarGenerationEvent {
   const ReplaceOverlayElementsByMonth(this.overlayElementsByMonth);
 

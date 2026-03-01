@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
+import 'calendar_export_tuning.dart';
 import 'calendar_generation_mode.dart';
 import 'calendar_image_quality.dart';
 import 'calendar_landscape_decoration_area_side.dart';
@@ -23,6 +24,7 @@ class CalendarGenerationTemplate extends Equatable {
     required this.pageOrientation,
     required this.landscapeDecorationAreaSide,
     required this.imageQuality,
+    required this.exportTuning,
     required this.theme,
     required this.updatedAt,
   });
@@ -40,6 +42,7 @@ class CalendarGenerationTemplate extends Equatable {
   final CalendarPageOrientation pageOrientation;
   final CalendarLandscapeDecorationAreaSide landscapeDecorationAreaSide;
   final CalendarImageQuality imageQuality;
+  final CalendarExportTuning exportTuning;
   final CalendarPreviewTheme theme;
   final DateTime updatedAt;
 
@@ -58,6 +61,7 @@ class CalendarGenerationTemplate extends Equatable {
     pageOrientation,
     landscapeDecorationAreaSide,
     imageQuality,
+    exportTuning,
     theme,
     updatedAt,
   ];

@@ -7,6 +7,7 @@ import 'package:shared_core/shared_core.dart';
 
 import '../../data/datasources/calendar_generation_preferences_datasource.dart';
 import '../../domain/entities/calendar_image_quality.dart';
+import '../../domain/entities/calendar_export_tuning.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
 import '../../domain/entities/calendar_overlay_element.dart';
@@ -52,6 +53,10 @@ class CalendarGenerationBloc
     on<ChangePageOrientation>(_onChangePageOrientation);
     on<ChangeLandscapeDecorationAreaSide>(_onChangeLandscapeDecorationAreaSide);
     on<ChangeImageQuality>(_onChangeImageQuality);
+    on<ChangeExportDpi>(_onChangeExportDpi);
+    on<ChangeExportJpegQuality>(_onChangeExportJpegQuality);
+    on<ChangeExportTargetSizeKb>(_onChangeExportTargetSizeKb);
+    on<ToggleAdaptiveImageCompression>(_onToggleAdaptiveImageCompression);
     on<ReplaceOverlayElementsByMonth>(_onReplaceOverlayElementsByMonth);
     on<SaveGenerationTemplate>(_onSaveGenerationTemplate);
     on<ApplyGenerationTemplate>(_onApplyGenerationTemplate);
@@ -101,6 +106,12 @@ class CalendarGenerationBloc
         pageOrientation: CalendarPageOrientation.portrait,
         landscapeDecorationAreaSide: CalendarLandscapeDecorationAreaSide.right,
         imageQuality: CalendarImageQuality.print,
+        exportTuning: CalendarExportTuning(
+          dpi: CalendarImageQuality.print.defaultDpi,
+          jpegQuality: CalendarImageQuality.print.defaultJpegQuality,
+          targetSizeKb: CalendarImageQuality.print.defaultTargetSizeKb,
+          enableAdaptiveCompression: true,
+        ),
       );
 
       var restoredRequest = _preferencesDataSource.restoreRequest(request);
@@ -350,9 +361,72 @@ class CalendarGenerationBloc
     ChangeImageQuality event,
     Emitter<CalendarGenerationState> emit,
   ) {
+    final tuned = CalendarExportTuning(
+      dpi: event.quality.defaultDpi,
+      jpegQuality: event.quality.defaultJpegQuality,
+      targetSizeKb: event.quality.defaultTargetSizeKb,
+      enableAdaptiveCompression: true,
+    );
     _regenerateIfLoaded(
       emit,
-      (loaded) => loaded.request.copyWith(imageQuality: event.quality),
+      (loaded) => loaded.request.copyWith(
+        imageQuality: event.quality,
+        exportTuning: tuned,
+      ),
+    );
+  }
+
+  void _onChangeExportDpi(
+    ChangeExportDpi event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(
+        exportTuning: loaded.request.exportTuning.copyWith(dpi: event.dpi),
+      ),
+    );
+  }
+
+  void _onChangeExportJpegQuality(
+    ChangeExportJpegQuality event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(
+        exportTuning: loaded.request.exportTuning.copyWith(
+          jpegQuality: event.jpegQuality,
+        ),
+      ),
+    );
+  }
+
+  void _onChangeExportTargetSizeKb(
+    ChangeExportTargetSizeKb event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(
+        exportTuning: loaded.request.exportTuning.copyWith(
+          targetSizeKb: event.targetSizeKb,
+        ),
+      ),
+    );
+  }
+
+  void _onToggleAdaptiveImageCompression(
+    ToggleAdaptiveImageCompression event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(
+        exportTuning: loaded.request.exportTuning.copyWith(
+          enableAdaptiveCompression: event.value,
+        ),
+      ),
     );
   }
 

@@ -284,26 +284,36 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     required Color foregroundColor,
     required bool isSelected,
   }) {
+    final textShadows = _overlayTextShadows(element);
+    final textBackgroundColor = element.backgroundColorValue == null
+        ? null
+        : Color(element.backgroundColorValue!);
+    final textStyle = TextStyle(
+      color: Color(element.colorValue),
+      fontSize: element.baseSize,
+      fontWeight: _fontWeightFromValue(element.fontWeightValue),
+      fontStyle: element.italic ? FontStyle.italic : FontStyle.normal,
+      letterSpacing: element.letterSpacing,
+      height: 1.0,
+      shadows: textShadows,
+      backgroundColor: textBackgroundColor,
+    );
     final content = switch (element.type) {
       CalendarOverlayElementType.text => Text(
         element.text?.trim().isNotEmpty == true ? element.text!.trim() : 'Text',
         textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Color(element.colorValue),
-          fontSize: element.baseSize,
-          fontWeight: FontWeight.w700,
-          height: 1.0,
-        ),
+        style: textStyle,
       ),
       CalendarOverlayElementType.emoji => Text(
         element.text?.trim().isNotEmpty == true ? element.text!.trim() : '🙂',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: element.baseSize, height: 1.0),
+        style: textStyle.copyWith(color: null),
       ),
       CalendarOverlayElementType.sticker => Icon(
         _resolveStickerIcon(element.stickerKey),
         size: element.baseSize,
         color: Color(element.colorValue),
+        shadows: textShadows,
       ),
       CalendarOverlayElementType.image => _buildOverlayImage(element),
     };
@@ -359,6 +369,24 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
 
   IconData _resolveStickerIcon(String? key) {
     return switch (key) {
+      'sparkles' => Icons.auto_awesome_rounded,
+      'crown' => Icons.workspace_premium_rounded,
+      'balloon' => Icons.celebration_rounded,
+      'gift' => Icons.card_giftcard_rounded,
+      'sun' => Icons.wb_sunny_rounded,
+      'moon' => Icons.nightlight_round,
+      'rainbow' => Icons.gradient_rounded,
+      'camera' => Icons.camera_alt_rounded,
+      'music' => Icons.music_note_rounded,
+      'travel' => Icons.flight_takeoff_rounded,
+      'home' => Icons.home_rounded,
+      'food' => Icons.restaurant_rounded,
+      'coffee' => Icons.coffee_rounded,
+      'message' => Icons.chat_bubble_rounded,
+      'ring' => Icons.diamond_rounded,
+      'leaf' => Icons.eco_rounded,
+      'paw' => Icons.pets_rounded,
+      'trophy' => Icons.emoji_events_rounded,
       'star' => Icons.star_rounded,
       'heart' => Icons.favorite_rounded,
       'flower' => Icons.local_florist_rounded,
@@ -367,6 +395,25 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
       'flag' => Icons.flag_rounded,
       _ => Icons.auto_awesome_rounded,
     };
+  }
+
+  List<Shadow>? _overlayTextShadows(CalendarOverlayElement element) {
+    final colorValue = element.shadowColorValue;
+    if (colorValue == null || element.shadowBlur <= 0) {
+      return null;
+    }
+    return <Shadow>[
+      Shadow(
+        color: Color(colorValue),
+        blurRadius: element.shadowBlur,
+        offset: Offset(element.shadowOffsetX, element.shadowOffsetY),
+      ),
+    ];
+  }
+
+  FontWeight _fontWeightFromValue(int value) {
+    final clamped = value.clamp(100, 900);
+    return FontWeight.values[(clamped ~/ 100) - 1];
   }
 
   Widget _buildCellMetaText({required CalendarDayCellModel day}) {
