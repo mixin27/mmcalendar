@@ -203,13 +203,13 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
             child: Column(
               children: [
-                _buildSettingsAndSummaryPanel(
+                _buildMobileControlsBar(
                   request: request,
                   pages: pages,
                   previewOrientation: previewOrientation,
                   activePage: activePage,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Expanded(
                   child: CalendarGenerationPreviewWorkspace(
                     pages: pages,
@@ -291,6 +291,163 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
               _onSyncPreviewOrientationChanged(value, request),
         ),
       ],
+    );
+  }
+
+  Widget _buildMobileControlsBar({
+    required CalendarGenerationRequest request,
+    required List<CalendarPageModel> pages,
+    required CalendarPageOrientation previewOrientation,
+    required CalendarPageModel? activePage,
+  }) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _openMobileConfigSheet,
+                icon: const Icon(Icons.tune),
+                label: const Text('Settings'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => _openMobileInfoSheet(
+                  request: request,
+                  pages: pages,
+                  previewOrientation: previewOrientation,
+                  activePage: activePage,
+                ),
+                icon: const Icon(Icons.info_outline),
+                label: const Text('Info'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openMobileConfigSheet() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        Future<void> openAndClose(Future<void> Function() openSheet) async {
+          Navigator.of(sheetContext).pop();
+          await Future<void>.delayed(const Duration(milliseconds: 120));
+          if (!mounted) {
+            return;
+          }
+          await openSheet();
+        }
+
+        return FractionallySizedBox(
+          heightFactor: 0.42,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: CalendarGenerationSettingsLauncherCard(
+              onGeneralTap: () => openAndClose(_openGeneralSettingsSheet),
+              onLayoutTap: () => openAndClose(_openLayoutSettingsSheet),
+              onVisibilityTap: () => openAndClose(_openVisibilitySettingsSheet),
+              onThemeTap: () => openAndClose(_openThemeSettingsSheet),
+              onBackgroundTap: () => openAndClose(_openBackgroundSettingsSheet),
+              onTemplateTap: () => openAndClose(_openTemplateSettingsSheet),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _openMobileInfoSheet({
+    required CalendarGenerationRequest request,
+    required List<CalendarPageModel> pages,
+    required CalendarPageOrientation previewOrientation,
+    required CalendarPageModel? activePage,
+  }) async {
+    final bloc = context.read<CalendarGenerationBloc>();
+    var localPreviewOrientation = previewOrientation;
+    var localSyncPreviewOrientationToExport = _syncPreviewOrientationToExport;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return FractionallySizedBox(
+          heightFactor: 0.8,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: StatefulBuilder(
+              builder: (context, setModalState) {
+                return BlocBuilder<
+                  CalendarGenerationBloc,
+                  CalendarGenerationState
+                >(
+                  bloc: bloc,
+                  builder: (context, state) {
+                    CalendarGenerationLoaded? loaded;
+                    if (state is CalendarGenerationLoaded) {
+                      loaded = state;
+                    }
+                    final currentRequest = loaded?.request ?? request;
+                    final currentPages = loaded?.pages ?? pages;
+                    final safePreviewPage = _previewPage.clamp(
+                      0,
+                      (currentPages.length - 1).clamp(0, 9999),
+                    );
+                    final currentActivePage = currentPages.isEmpty
+                        ? activePage
+                        : currentPages[safePreviewPage];
+
+                    if (localSyncPreviewOrientationToExport) {
+                      localPreviewOrientation = currentRequest.pageOrientation;
+                    }
+
+                    return SingleChildScrollView(
+                      child: CalendarGenerationPreviewSummaryCard(
+                        request: currentRequest,
+                        pages: currentPages,
+                        previewOrientation: localPreviewOrientation,
+                        activePage: currentActivePage,
+                        syncPreviewOrientationToExport:
+                            localSyncPreviewOrientationToExport,
+                        onPreviewOrientationChanged: (selected) {
+                          _onPreviewOrientationChanged(selected);
+                          setModalState(() {
+                            localPreviewOrientation = selected;
+                          });
+                        },
+                        onSyncPreviewOrientationChanged: (value) {
+                          _onSyncPreviewOrientationChanged(
+                            value,
+                            currentRequest,
+                          );
+                          setModalState(() {
+                            localSyncPreviewOrientationToExport = value;
+                            if (value) {
+                              localPreviewOrientation =
+                                  currentRequest.pageOrientation;
+                            }
+                          });
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 

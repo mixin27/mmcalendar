@@ -285,6 +285,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     required bool isSelected,
   }) {
     final textShadows = _overlayTextShadows(element);
+    final emojiStyle = _emojiOverlayTextStyle(element);
     final textBackgroundColor = element.backgroundColorValue == null
         ? null
         : Color(element.backgroundColorValue!);
@@ -307,13 +308,13 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
       CalendarOverlayElementType.emoji => Text(
         element.text?.trim().isNotEmpty == true ? element.text!.trim() : '🙂',
         textAlign: TextAlign.center,
-        style: textStyle.copyWith(color: null),
+        style: emojiStyle,
       ),
-      CalendarOverlayElementType.sticker => Icon(
-        _resolveStickerIcon(element.stickerKey),
-        size: element.baseSize,
-        color: Color(element.colorValue),
-        shadows: textShadows,
+      CalendarOverlayElementType.sticker => _buildStickerOverlayVisual(
+        element: element,
+        textStyle: textStyle,
+        emojiStyle: emojiStyle,
+        textShadows: textShadows,
       ),
       CalendarOverlayElementType.image => _buildOverlayImage(element),
     };
@@ -397,6 +398,35 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     };
   }
 
+  Widget _buildStickerOverlayVisual({
+    required CalendarOverlayElement element,
+    required TextStyle textStyle,
+    required TextStyle emojiStyle,
+    required List<Shadow>? textShadows,
+  }) {
+    final emoji = _stickerEmojiFromKey(element.stickerKey);
+    if (emoji != null) {
+      return Text(emoji, textAlign: TextAlign.center, style: emojiStyle);
+    }
+    return Icon(
+      _resolveStickerIcon(element.stickerKey),
+      size: element.baseSize,
+      color: Color(element.colorValue),
+      shadows: textShadows,
+    );
+  }
+
+  String? _stickerEmojiFromKey(String? key) {
+    if (key == null || !key.startsWith('emoji:')) {
+      return null;
+    }
+    final value = key.substring('emoji:'.length).trim();
+    if (value.isEmpty) {
+      return null;
+    }
+    return value;
+  }
+
   List<Shadow>? _overlayTextShadows(CalendarOverlayElement element) {
     final colorValue = element.shadowColorValue;
     if (colorValue == null || element.shadowBlur <= 0) {
@@ -414,6 +444,14 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
   FontWeight _fontWeightFromValue(int value) {
     final clamped = value.clamp(100, 900);
     return FontWeight.values[(clamped ~/ 100) - 1];
+  }
+
+  TextStyle _emojiOverlayTextStyle(CalendarOverlayElement element) {
+    return TextStyle(
+      fontSize: element.baseSize,
+      height: 1.0,
+      shadows: _overlayTextShadows(element),
+    );
   }
 
   Widget _buildCellMetaText({required CalendarDayCellModel day}) {

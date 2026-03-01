@@ -190,6 +190,9 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
             onRotateRight: selectedItem == null
                 ? null
                 : () => _rotateSelected(page.pageKey, 0.08),
+            onStyle: selectedItem == null
+                ? null
+                : () => _openStyleSheet(page.pageKey),
             onLayers: () => _openLayersSheet(page.pageKey),
           ),
         ),
@@ -203,15 +206,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
           width: 306,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-            child: Column(
-              children: [
-                Expanded(child: _buildLayersPanel(page.pageKey)),
-                if (selectedItem != null) ...[
-                  const SizedBox(height: 8),
-                  _buildStylePanel(page.pageKey, selectedItem),
-                ],
-              ],
-            ),
+            child: _buildLayersPanel(page.pageKey),
           ),
         ),
       ],
@@ -230,11 +225,6 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
             child: _buildCanvasCard(page: page),
           ),
         ),
-        if (selectedItem != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
-            child: _buildStylePanel(page.pageKey, selectedItem, compact: true),
-          ),
         Padding(
           padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
           child: Card(
@@ -269,6 +259,13 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
                       icon: Icons.layers_outlined,
                       label: 'Layers',
                       onTap: () => _openLayersSheet(page.pageKey),
+                    ),
+                    _SmallActionButton(
+                      icon: Icons.tune_rounded,
+                      label: 'Style',
+                      onTap: selectedItem == null
+                          ? null
+                          : () => _openStyleSheet(page.pageKey),
                     ),
                     _SmallActionButton(
                       icon: Icons.rotate_left,
@@ -500,6 +497,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
     required bool selected,
   }) {
     final textStyle = _baseTextStyle(item);
+    final emojiStyle = _emojiTextStyle(item);
     final iconShadows = _overlayShadows(item);
     final content = switch (item.type) {
       OverlayEditorItemType.text => Text(
@@ -510,13 +508,13 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
       OverlayEditorItemType.emoji => Text(
         item.text?.trim().isNotEmpty == true ? item.text!.trim() : '🙂',
         textAlign: TextAlign.center,
-        style: textStyle.copyWith(color: null),
+        style: emojiStyle,
       ),
-      OverlayEditorItemType.sticker => Icon(
-        _stickerIcon(item.stickerKey),
-        size: item.baseSize,
-        color: Color(item.colorValue),
-        shadows: iconShadows,
+      OverlayEditorItemType.sticker => _buildStickerContent(
+        item: item,
+        textStyle: textStyle,
+        emojiStyle: emojiStyle,
+        iconShadows: iconShadows,
       ),
       OverlayEditorItemType.image => _buildImage(item),
     };
@@ -538,7 +536,9 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
             : null,
         child: Transform.rotate(
           angle: item.rotation,
-          child: FittedBox(fit: BoxFit.contain, child: content),
+          child: SizedBox.expand(
+            child: FittedBox(fit: BoxFit.contain, child: content),
+          ),
         ),
       ),
     );
@@ -567,6 +567,28 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
         height: size,
         fit: BoxFit.cover,
       ),
+    );
+  }
+
+  Widget _buildStickerContent({
+    required OverlayEditorItem item,
+    required TextStyle textStyle,
+    required TextStyle emojiStyle,
+    required List<Shadow>? iconShadows,
+  }) {
+    final emoji = _stickerEmojiFromKey(item.stickerKey);
+    if (emoji != null) {
+      return Text(
+        emoji,
+        textAlign: TextAlign.center,
+        style: emojiStyle.copyWith(fontSize: item.baseSize),
+      );
+    }
+    return Icon(
+      _stickerIcon(item.stickerKey),
+      size: item.baseSize,
+      color: Color(item.colorValue),
+      shadows: iconShadows,
     );
   }
 
@@ -680,8 +702,13 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
   Widget _buildStylePanel(
     int pageKey,
     OverlayEditorItem item, {
-    bool compact = false,
+    VoidCallback? onChanged,
   }) {
+    void applyStyle(OverlayEditorItem Function(OverlayEditorItem item) update) {
+      _updateSelectedItem(pageKey, update);
+      onChanged?.call();
+    }
+
     final supportsColor =
         item.type == OverlayEditorItemType.text ||
         item.type == OverlayEditorItemType.sticker;
@@ -708,10 +735,8 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
           max: 220,
           divisions: 104,
           valueText: item.baseSize.toStringAsFixed(0),
-          onChanged: (value) => _updateSelectedItem(
-            pageKey,
-            (selected) => selected.copyWith(baseSize: value),
-          ),
+          onChanged: (value) =>
+              applyStyle((selected) => selected.copyWith(baseSize: value)),
         ),
         const SizedBox(height: 8),
         _StyleSliderRow(
@@ -721,10 +746,8 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
           max: 1.0,
           divisions: 19,
           valueText: '${(item.opacity * 100).round()}%',
-          onChanged: (value) => _updateSelectedItem(
-            pageKey,
-            (selected) => selected.copyWith(opacity: value),
-          ),
+          onChanged: (value) =>
+              applyStyle((selected) => selected.copyWith(opacity: value)),
         ),
         if (supportsColor) ...[
           const SizedBox(height: 10),
@@ -738,8 +761,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
                   (color) => _ColorDot(
                     color: color,
                     selected: item.colorValue == color.toARGB32(),
-                    onTap: () => _updateSelectedItem(
-                      pageKey,
+                    onTap: () => applyStyle(
                       (selected) =>
                           selected.copyWith(colorValue: color.toARGB32()),
                     ),
@@ -765,8 +787,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
               if (selection.isEmpty) {
                 return;
               }
-              _updateSelectedItem(
-                pageKey,
+              applyStyle(
                 (selected) =>
                     selected.copyWith(fontWeightValue: selection.first),
               );
@@ -778,10 +799,8 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
             contentPadding: EdgeInsets.zero,
             value: item.italic,
             title: const Text('Italic'),
-            onChanged: (value) => _updateSelectedItem(
-              pageKey,
-              (selected) => selected.copyWith(italic: value),
-            ),
+            onChanged: (value) =>
+                applyStyle((selected) => selected.copyWith(italic: value)),
           ),
           _StyleSliderRow(
             label: 'Letter Spacing',
@@ -790,8 +809,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
             max: 8.0,
             divisions: 40,
             valueText: item.letterSpacing.toStringAsFixed(1),
-            onChanged: (value) => _updateSelectedItem(
-              pageKey,
+            onChanged: (value) => applyStyle(
               (selected) => selected.copyWith(letterSpacing: value),
             ),
           ),
@@ -801,7 +819,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
             contentPadding: EdgeInsets.zero,
             value: hasBackground,
             title: const Text('Text Background'),
-            onChanged: (value) => _updateSelectedItem(pageKey, (selected) {
+            onChanged: (value) => applyStyle((selected) {
               return selected.copyWith(
                 backgroundColorValue: value ? 0x1A111827 : null,
               );
@@ -816,8 +834,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
                     (color) => _ColorDot(
                       color: color,
                       selected: item.backgroundColorValue == color.toARGB32(),
-                      onTap: () => _updateSelectedItem(
-                        pageKey,
+                      onTap: () => applyStyle(
                         (selected) => selected.copyWith(
                           backgroundColorValue: color.toARGB32(),
                         ),
@@ -833,7 +850,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
           contentPadding: EdgeInsets.zero,
           value: hasShadow,
           title: const Text('Shadow'),
-          onChanged: (value) => _updateSelectedItem(pageKey, (selected) {
+          onChanged: (value) => applyStyle((selected) {
             if (!value) {
               return selected.copyWith(shadowColorValue: null, shadowBlur: 0);
             }
@@ -855,8 +872,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
                   (color) => _ColorDot(
                     color: color,
                     selected: item.shadowColorValue == color.toARGB32(),
-                    onTap: () => _updateSelectedItem(
-                      pageKey,
+                    onTap: () => applyStyle(
                       (selected) =>
                           selected.copyWith(shadowColorValue: color.toARGB32()),
                     ),
@@ -872,10 +888,8 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
             max: 32,
             divisions: 32,
             valueText: item.shadowBlur.toStringAsFixed(1),
-            onChanged: (value) => _updateSelectedItem(
-              pageKey,
-              (selected) => selected.copyWith(shadowBlur: value),
-            ),
+            onChanged: (value) =>
+                applyStyle((selected) => selected.copyWith(shadowBlur: value)),
           ),
           _StyleSliderRow(
             label: 'Shadow Offset X',
@@ -884,8 +898,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
             max: 20,
             divisions: 40,
             valueText: item.shadowOffsetX.toStringAsFixed(1),
-            onChanged: (value) => _updateSelectedItem(
-              pageKey,
+            onChanged: (value) => applyStyle(
               (selected) => selected.copyWith(shadowOffsetX: value),
             ),
           ),
@@ -896,8 +909,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
             max: 20,
             divisions: 40,
             valueText: item.shadowOffsetY.toStringAsFixed(1),
-            onChanged: (value) => _updateSelectedItem(
-              pageKey,
+            onChanged: (value) => applyStyle(
               (selected) => selected.copyWith(shadowOffsetY: value),
             ),
           ),
@@ -909,12 +921,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
       margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: compact
-            ? SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(width: 620, child: panelContent),
-              )
-            : SingleChildScrollView(child: panelContent),
+        child: SingleChildScrollView(child: panelContent),
       ),
     );
   }
@@ -1059,6 +1066,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
   Size _naturalSize(OverlayEditorItem item) {
     final baseSize = item.baseSize.clamp(12, 420).toDouble();
     final style = _baseTextStyle(item);
+    final emojiStyle = _emojiTextStyle(item);
     return switch (item.type) {
       OverlayEditorItemType.text => _measureText(
         text: item.text?.trim().isNotEmpty == true ? item.text!.trim() : 'Text',
@@ -1066,13 +1074,16 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
         minWidth: 44,
         minHeight: 26,
       ),
-      OverlayEditorItemType.emoji => _measureText(
-        text: item.text?.trim().isNotEmpty == true ? item.text!.trim() : '🙂',
-        style: style.copyWith(fontSize: baseSize, color: null),
-        minWidth: 28,
-        minHeight: 28,
-      ),
-      OverlayEditorItemType.sticker => Size(baseSize, baseSize),
+      OverlayEditorItemType.emoji => Size(baseSize, baseSize),
+      OverlayEditorItemType.sticker =>
+        _stickerEmojiFromKey(item.stickerKey) != null
+            ? _measureText(
+                text: _stickerEmojiFromKey(item.stickerKey)!,
+                style: emojiStyle.copyWith(fontSize: baseSize),
+                minWidth: baseSize,
+                minHeight: baseSize,
+              )
+            : Size(baseSize, baseSize),
       OverlayEditorItemType.image => Size(baseSize, baseSize),
     };
   }
@@ -1106,6 +1117,14 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
       letterSpacing: item.letterSpacing,
       height: 1.0,
       backgroundColor: backgroundColor,
+      shadows: _overlayShadows(item),
+    );
+  }
+
+  TextStyle _emojiTextStyle(OverlayEditorItem item) {
+    return TextStyle(
+      fontSize: item.baseSize,
+      height: 1.0,
       shadows: _overlayShadows(item),
     );
   }
@@ -1212,7 +1231,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => _OverlayEmojiPackSheet(
+      builder: (sheetContext) => _OverlayEmojiPickerSheet(
         packs: _defaultEmojiPacks,
         onSelected: (emoji) => Navigator.of(sheetContext).pop(emoji),
       ),
@@ -1389,6 +1408,64 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
     );
   }
 
+  Future<void> _openStyleSheet(int pageKey) async {
+    if (_selectedItem(pageKey) == null) {
+      return;
+    }
+    await showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (sheetContext, setModalState) {
+          final selected = _selectedItem(pageKey);
+          return FractionallySizedBox(
+            heightFactor: 0.84,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Layer Style',
+                        style: Theme.of(sheetContext).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      const Spacer(),
+                      FilledButton.icon(
+                        onPressed: () => Navigator.of(sheetContext).pop(),
+                        icon: const Icon(Icons.check),
+                        label: const Text('Done'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: selected == null
+                        ? Center(
+                            child: Text(
+                              'No selected layer.',
+                              style: Theme.of(
+                                sheetContext,
+                              ).textTheme.bodyMedium,
+                            ),
+                          )
+                        : _buildStylePanel(
+                            pageKey,
+                            selected,
+                            onChanged: () => setModalState(() {}),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   void _onCanvasTransformChanged() {
     final scale = _canvasController.value.getMaxScaleOnAxis();
     if ((scale - _canvasScale).abs() < 0.01 || !mounted) {
@@ -1498,7 +1575,9 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
       OverlayEditorItemType.emoji =>
         'Emoji: ${(item.text ?? '').trim().isEmpty ? '🙂' : item.text!.trim()}',
       OverlayEditorItemType.sticker =>
-        'Sticker: ${_titleCase(item.stickerKey ?? 'default')}',
+        _stickerEmojiFromKey(item.stickerKey) != null
+            ? 'Sticker: ${_stickerEmojiFromKey(item.stickerKey)!}'
+            : 'Sticker: ${_titleCase(item.stickerKey ?? 'default')}',
       OverlayEditorItemType.image => 'Image',
     };
   }
@@ -1511,6 +1590,17 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
   }
 
   String _newId() => 'overlay_${DateTime.now().microsecondsSinceEpoch}';
+
+  String? _stickerEmojiFromKey(String? key) {
+    if (key == null || !key.startsWith('emoji:')) {
+      return null;
+    }
+    final emoji = key.substring('emoji:'.length).trim();
+    if (emoji.isEmpty) {
+      return null;
+    }
+    return emoji;
+  }
 
   IconData _stickerIcon(String? key) {
     return switch (key) {
@@ -1826,6 +1916,180 @@ const List<_OverlayStickerPack> _defaultStickerPacks = <_OverlayStickerPack>[
       ),
     ],
   ),
+  _OverlayStickerPack(
+    id: 'social',
+    label: 'Social',
+    stickers: <_OverlayStickerOption>[
+      _OverlayStickerOption(
+        'message',
+        'Message',
+        Icons.chat_bubble_rounded,
+        0xFF0EA5E9,
+      ),
+      _OverlayStickerOption(
+        'camera',
+        'Camera',
+        Icons.camera_alt_rounded,
+        0xFF0EA5E9,
+      ),
+      _OverlayStickerOption(
+        'music',
+        'Music',
+        Icons.music_note_rounded,
+        0xFF9333EA,
+      ),
+      _OverlayStickerOption('ring', 'Ring', Icons.diamond_rounded, 0xFF6366F1),
+      _OverlayStickerOption(
+        'travel',
+        'Travel',
+        Icons.flight_takeoff_rounded,
+        0xFF2563EB,
+      ),
+      _OverlayStickerOption('home', 'Home', Icons.home_rounded, 0xFF475569),
+      _OverlayStickerOption(
+        'coffee',
+        'Coffee',
+        Icons.coffee_rounded,
+        0xFF92400E,
+      ),
+      _OverlayStickerOption(
+        'food',
+        'Food',
+        Icons.restaurant_rounded,
+        0xFFEA580C,
+      ),
+      _OverlayStickerOption('flag', 'Flag', Icons.flag_rounded, 0xFF2563EB),
+      _OverlayStickerOption(
+        'location',
+        'Location',
+        Icons.place_rounded,
+        0xFFDC2626,
+      ),
+      _OverlayStickerOption(
+        'sparkles',
+        'Sparkles',
+        Icons.auto_awesome_rounded,
+        0xFFF59E0B,
+      ),
+      _OverlayStickerOption(
+        'trophy',
+        'Trophy',
+        Icons.emoji_events_rounded,
+        0xFFF59E0B,
+      ),
+    ],
+  ),
+  _OverlayStickerPack(
+    id: 'emoji',
+    label: 'Emoji',
+    stickers: <_OverlayStickerOption>[
+      _OverlayStickerOption(
+        'emoji:❤️',
+        'Love',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '❤️',
+      ),
+      _OverlayStickerOption(
+        'emoji:🔥',
+        'Fire',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '🔥',
+      ),
+      _OverlayStickerOption(
+        'emoji:✨',
+        'Sparkle',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '✨',
+      ),
+      _OverlayStickerOption(
+        'emoji:🎉',
+        'Party',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '🎉',
+      ),
+      _OverlayStickerOption(
+        'emoji:🥳',
+        'Celebrate',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '🥳',
+      ),
+      _OverlayStickerOption(
+        'emoji:😍',
+        'Heart Eyes',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '😍',
+      ),
+      _OverlayStickerOption(
+        'emoji:😎',
+        'Cool',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '😎',
+      ),
+      _OverlayStickerOption(
+        'emoji:🌙',
+        'Moon',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '🌙',
+      ),
+      _OverlayStickerOption(
+        'emoji:☀️',
+        'Sun',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '☀️',
+      ),
+      _OverlayStickerOption(
+        'emoji:🌈',
+        'Rainbow',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '🌈',
+      ),
+      _OverlayStickerOption(
+        'emoji:🙏',
+        'Pray',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '🙏',
+      ),
+      _OverlayStickerOption(
+        'emoji:💬',
+        'Talk',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '💬',
+      ),
+      _OverlayStickerOption(
+        'emoji:🎵',
+        'Music',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '🎵',
+      ),
+      _OverlayStickerOption(
+        'emoji:📸',
+        'Photo',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '📸',
+      ),
+      _OverlayStickerOption(
+        'emoji:📍',
+        'Pin',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: '📍',
+      ),
+    ],
+  ),
 ];
 
 class _OverlayEmojiPack {
@@ -1853,26 +2117,44 @@ class _OverlayStickerPack {
 }
 
 class _OverlayStickerOption {
-  const _OverlayStickerOption(this.key, this.label, this.icon, this.colorValue);
+  const _OverlayStickerOption(
+    this.key,
+    this.label,
+    this.icon,
+    this.colorValue, {
+    this.emojiGlyph,
+  });
 
   final String key;
   final String label;
   final IconData icon;
   final int colorValue;
+  final String? emojiGlyph;
 }
 
-class _OverlayEmojiPackSheet extends StatefulWidget {
-  const _OverlayEmojiPackSheet({required this.packs, required this.onSelected});
+class _OverlayEmojiPickerSheet extends StatefulWidget {
+  const _OverlayEmojiPickerSheet({
+    required this.packs,
+    required this.onSelected,
+  });
 
   final List<_OverlayEmojiPack> packs;
   final ValueChanged<String> onSelected;
 
   @override
-  State<_OverlayEmojiPackSheet> createState() => _OverlayEmojiPackSheetState();
+  State<_OverlayEmojiPickerSheet> createState() =>
+      _OverlayEmojiPickerSheetState();
 }
 
-class _OverlayEmojiPackSheetState extends State<_OverlayEmojiPackSheet> {
+class _OverlayEmojiPickerSheetState extends State<_OverlayEmojiPickerSheet> {
   int _packIndex = 0;
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1886,10 +2168,55 @@ class _OverlayEmojiPackSheetState extends State<_OverlayEmojiPackSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Emoji Packs',
+              'Emoji Picker',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 10),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Use your keyboard for full emoji set',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            autofocus: true,
+                            textInputAction: TextInputAction.done,
+                            decoration: const InputDecoration(
+                              hintText: 'Type/paste any emoji',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            onSubmitted: (_) => _submitFromKeyboard(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton.icon(
+                          onPressed: _submitFromKeyboard,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             SingleChildScrollView(
@@ -1909,6 +2236,8 @@ class _OverlayEmojiPackSheetState extends State<_OverlayEmojiPackSheet> {
               ),
             ),
             const SizedBox(height: 10),
+            Text('Quick Picks', style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: 6),
             Expanded(
               child: GridView.builder(
                 itemCount: pack.emojis.length,
@@ -1937,6 +2266,14 @@ class _OverlayEmojiPackSheetState extends State<_OverlayEmojiPackSheet> {
       ),
     );
   }
+
+  void _submitFromKeyboard() {
+    final emoji = _controller.text.trim();
+    if (emoji.isEmpty) {
+      return;
+    }
+    widget.onSelected(emoji);
+  }
 }
 
 class _OverlayStickerPackSheet extends StatefulWidget {
@@ -1955,6 +2292,13 @@ class _OverlayStickerPackSheet extends StatefulWidget {
 
 class _OverlayStickerPackSheetState extends State<_OverlayStickerPackSheet> {
   int _packIndex = 0;
+  final TextEditingController _emojiStickerController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emojiStickerController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1972,6 +2316,50 @@ class _OverlayStickerPackSheetState extends State<_OverlayStickerPackSheet> {
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 10),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Add any emoji sticker (keyboard)',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _emojiStickerController,
+                            textInputAction: TextInputAction.done,
+                            decoration: const InputDecoration(
+                              hintText: 'Type/paste emoji',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            onSubmitted: (_) => _submitEmojiSticker(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton.icon(
+                          onPressed: _submitEmojiSticker,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             SingleChildScrollView(
@@ -2004,7 +2392,12 @@ class _OverlayStickerPackSheetState extends State<_OverlayStickerPackSheet> {
                   final sticker = pack.stickers[index];
                   return OutlinedButton.icon(
                     onPressed: () => widget.onSelected(sticker),
-                    icon: Icon(sticker.icon, color: Color(sticker.colorValue)),
+                    icon: sticker.emojiGlyph == null
+                        ? Icon(sticker.icon, color: Color(sticker.colorValue))
+                        : Text(
+                            sticker.emojiGlyph!,
+                            style: const TextStyle(fontSize: 22, height: 1),
+                          ),
                     label: Text(sticker.label),
                   );
                 },
@@ -2012,6 +2405,22 @@ class _OverlayStickerPackSheetState extends State<_OverlayStickerPackSheet> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _submitEmojiSticker() {
+    final emoji = _emojiStickerController.text.trim();
+    if (emoji.isEmpty) {
+      return;
+    }
+    widget.onSelected(
+      _OverlayStickerOption(
+        'emoji:$emoji',
+        'Emoji',
+        Icons.emoji_emotions_outlined,
+        0xFF111827,
+        emojiGlyph: emoji,
       ),
     );
   }
@@ -2104,6 +2513,7 @@ class _EditorVerticalToolbar extends StatelessWidget {
     required this.onDelete,
     required this.onRotateLeft,
     required this.onRotateRight,
+    required this.onStyle,
     required this.onLayers,
   });
 
@@ -2116,6 +2526,7 @@ class _EditorVerticalToolbar extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onRotateLeft;
   final VoidCallback? onRotateRight;
+  final VoidCallback? onStyle;
   final VoidCallback onLayers;
 
   @override
@@ -2151,6 +2562,11 @@ class _EditorVerticalToolbar extends StatelessWidget {
               icon: Icons.layers_outlined,
               tooltip: 'Layers',
               onTap: onLayers,
+            ),
+            _ToolbarIconButton(
+              icon: Icons.tune_rounded,
+              tooltip: 'Style',
+              onTap: onStyle,
             ),
             _ToolbarIconButton(
               icon: Icons.rotate_left,
