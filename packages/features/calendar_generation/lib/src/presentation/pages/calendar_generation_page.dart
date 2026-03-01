@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:overlay_editor/overlay_editor.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_core/shared_core.dart';
@@ -12,13 +11,9 @@ import '../../di/calendar_generation_injection.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_generation_template.dart';
-import '../../domain/entities/calendar_image_quality.dart';
-import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
 import '../../domain/entities/calendar_overlay_element.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
-import '../../domain/entities/calendar_paper_size.dart';
-import '../../domain/entities/calendar_preview_theme.dart';
 import '../../domain/entities/generation_artifact.dart';
 import '../../domain/usecases/build_calendar_previews.dart';
 import '../../rendering/export/calendar_export_layout.dart';
@@ -28,6 +23,7 @@ import '../bloc/calendar_generation_event.dart';
 import '../bloc/calendar_generation_state.dart';
 import '../widgets/calendar_generation_layout_panels.dart';
 import '../widgets/calendar_generation_preview_page.dart';
+import '../widgets/calendar_generation_settings_content.dart';
 import '../widgets/calendar_generation_template_grid.dart';
 import '../widgets/calendar_generation_ui_sections.dart';
 
@@ -481,386 +477,34 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   Future<void> _openGeneralSettingsSheet() async {
     await _showSettingsSheet(
       title: 'General Settings',
-      contentBuilder: (context, state) {
-        final request = state.request;
-        final now = DateTime.now();
-        final years = List<int>.generate(12, (index) => now.year - 5 + index);
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SettingsSection(
-              title: 'Generation Scope',
-              description:
-                  'Choose whether to generate a single month or full year.',
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SegmentedButton<CalendarGenerationMode>(
-                  showSelectedIcon: false,
-                  segments: const [
-                    ButtonSegment<CalendarGenerationMode>(
-                      value: CalendarGenerationMode.month,
-                      label: Text('Month'),
-                      icon: Icon(Icons.calendar_view_month),
-                    ),
-                    ButtonSegment<CalendarGenerationMode>(
-                      value: CalendarGenerationMode.year,
-                      label: Text('Year'),
-                      icon: Icon(Icons.calendar_view_day),
-                    ),
-                  ],
-                  selected: <CalendarGenerationMode>{request.mode},
-                  onSelectionChanged: (selection) {
-                    context.read<CalendarGenerationBloc>().add(
-                      ChangeGenerationMode(selection.first),
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SettingsSection(
-              title: 'Calendar & Period',
-              description: 'Set calendar language and target month/year.',
-              child: Column(
-                children: [
-                  DropdownButtonFormField<Language>(
-                    initialValue: request.language,
-                    decoration: const InputDecoration(
-                      labelText: 'Calendar Language',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: Language.values
-                        .map(
-                          (language) => DropdownMenuItem<Language>(
-                            value: language,
-                            child: Text(language.name.capitalize),
-                          ),
-                        )
-                        .toList(growable: false),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-                      context.read<CalendarGenerationBloc>().add(
-                        ChangeGenerationLanguage(value),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  DropdownButtonFormField<int>(
-                    initialValue: request.year,
-                    decoration: const InputDecoration(
-                      labelText: 'Year',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: years
-                        .map(
-                          (year) => DropdownMenuItem<int>(
-                            value: year,
-                            child: Text('$year'),
-                          ),
-                        )
-                        .toList(growable: false),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-                      context.read<CalendarGenerationBloc>().add(
-                        ChangeGenerationYear(value),
-                      );
-                    },
-                  ),
-                  if (request.mode == CalendarGenerationMode.month) ...[
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<int>(
-                      initialValue: request.month,
-                      decoration: const InputDecoration(
-                        labelText: 'Month',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: List<int>.generate(12, (index) => index + 1)
-                          .map(
-                            (month) => DropdownMenuItem<int>(
-                              value: month,
-                              child: Text('$month'),
-                            ),
-                          )
-                          .toList(growable: false),
-                      onChanged: (value) {
-                        if (value == null) {
-                          return;
-                        }
-                        context.read<CalendarGenerationBloc>().add(
-                          ChangeGenerationMonth(value),
-                        );
-                      },
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+      contentBuilder: (context, state) =>
+          CalendarGeneralSettingsContent(request: state.request),
     );
   }
 
   Future<void> _openLayoutSettingsSheet() async {
     await _showSettingsSheet(
       title: 'Layout Settings',
-      contentBuilder: (context, state) {
-        final request = state.request;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SettingsSection(
-              title: 'Page Setup',
-              description: 'Configure canvas size and orientation.',
-              child: Column(
-                children: [
-                  DropdownButtonFormField<CalendarPaperSize>(
-                    initialValue: request.paperSize,
-                    decoration: const InputDecoration(
-                      labelText: 'Paper Size',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: CalendarPaperSize.values
-                        .map(
-                          (paperSize) => DropdownMenuItem<CalendarPaperSize>(
-                            value: paperSize,
-                            child: Text(paperSize.label),
-                          ),
-                        )
-                        .toList(growable: false),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-                      context.read<CalendarGenerationBloc>().add(
-                        ChangePaperSize(value),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SegmentedButton<CalendarPageOrientation>(
-                      showSelectedIcon: false,
-                      segments: const [
-                        ButtonSegment<CalendarPageOrientation>(
-                          value: CalendarPageOrientation.portrait,
-                          label: Text('Portrait'),
-                          icon: Icon(Icons.stay_current_portrait),
-                        ),
-                        ButtonSegment<CalendarPageOrientation>(
-                          value: CalendarPageOrientation.landscape,
-                          label: Text('Landscape'),
-                          icon: Icon(Icons.stay_current_landscape),
-                        ),
-                      ],
-                      selected: <CalendarPageOrientation>{
-                        request.pageOrientation,
-                      },
-                      onSelectionChanged: (selection) {
-                        context.read<CalendarGenerationBloc>().add(
-                          ChangePageOrientation(selection.first),
-                        );
-                      },
-                    ),
-                  ),
-                  if (request.pageOrientation ==
-                      CalendarPageOrientation.landscape) ...[
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Landscape custom area side',
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child:
-                          SegmentedButton<CalendarLandscapeDecorationAreaSide>(
-                            showSelectedIcon: false,
-                            segments: CalendarLandscapeDecorationAreaSide.values
-                                .map(
-                                  (side) =>
-                                      ButtonSegment<
-                                        CalendarLandscapeDecorationAreaSide
-                                      >(value: side, label: Text(side.label)),
-                                )
-                                .toList(growable: false),
-                            selected: <CalendarLandscapeDecorationAreaSide>{
-                              request.landscapeDecorationAreaSide,
-                            },
-                            onSelectionChanged: (selection) {
-                              if (selection.isEmpty) {
-                                return;
-                              }
-                              context.read<CalendarGenerationBloc>().add(
-                                ChangeLandscapeDecorationAreaSide(
-                                  selection.first,
-                                ),
-                              );
-                            },
-                          ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            SettingsSection(
-              title: 'Output Quality',
-              description:
-                  'Higher quality gives sharper exports with larger size.',
-              child: DropdownButtonFormField<CalendarImageQuality>(
-                initialValue: request.imageQuality,
-                decoration: const InputDecoration(
-                  labelText: 'Image Quality',
-                  border: OutlineInputBorder(),
-                ),
-                items: CalendarImageQuality.values
-                    .map(
-                      (quality) => DropdownMenuItem<CalendarImageQuality>(
-                        value: quality,
-                        child: Text(quality.label),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  context.read<CalendarGenerationBloc>().add(
-                    ChangeImageQuality(value),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-      },
+      contentBuilder: (context, state) =>
+          CalendarLayoutSettingsContent(request: state.request),
     );
   }
 
   Future<void> _openVisibilitySettingsSheet() async {
     await _showSettingsSheet(
       title: 'Visibility Settings',
-      contentBuilder: (context, state) {
-        final request = state.request;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SettingsSection(
-              title: 'Date Cell Visibility',
-              description: 'Choose which date details to display in cells.',
-              child: Column(
-                children: [
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Show Holidays'),
-                    value: request.showHolidays,
-                    onChanged: (value) {
-                      context.read<CalendarGenerationBloc>().add(
-                        ToggleGenerationHolidays(value),
-                      );
-                    },
-                  ),
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Show Astrology'),
-                    value: request.showAstrology,
-                    onChanged: (value) {
-                      context.read<CalendarGenerationBloc>().add(
-                        ToggleGenerationAstrology(value),
-                      );
-                    },
-                  ),
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Show Western Dates'),
-                    value: request.showWesternDates,
-                    onChanged: (value) {
-                      context.read<CalendarGenerationBloc>().add(
-                        ToggleGenerationWesternDates(value),
-                      );
-                    },
-                  ),
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Show Myanmar Dates'),
-                    value: request.showMyanmarDates,
-                    onChanged: (value) {
-                      context.read<CalendarGenerationBloc>().add(
-                        ToggleGenerationMyanmarDates(value),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+      contentBuilder: (context, state) =>
+          CalendarVisibilitySettingsContent(request: state.request),
     );
   }
 
   Future<void> _openThemeSettingsSheet() async {
     await _showSettingsSheet(
       title: 'Theme Settings',
-      contentBuilder: (context, state) {
-        final request = state.request;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SettingsSection(
-              title: 'Color Theme',
-              description: 'Define your calendar palette for text and accents.',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ColorSelector(
-                    label: 'Background',
-                    colors: _presetColors,
-                    selectedValue: request.theme.backgroundColorValue,
-                    onColorSelected: (color) {
-                      context.read<CalendarGenerationBloc>().add(
-                        ChangeBackgroundColor(color.toARGB32()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  ColorSelector(
-                    label: 'Foreground',
-                    colors: _presetColors,
-                    selectedValue: request.theme.foregroundColorValue,
-                    onColorSelected: (color) {
-                      context.read<CalendarGenerationBloc>().add(
-                        ChangeForegroundColor(color.toARGB32()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  ColorSelector(
-                    label: 'Accent',
-                    colors: _presetColors,
-                    selectedValue: request.theme.accentColorValue,
-                    onColorSelected: (color) {
-                      context.read<CalendarGenerationBloc>().add(
-                        ChangeAccentColor(color.toARGB32()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+      contentBuilder: (context, state) => CalendarThemeSettingsContent(
+        request: state.request,
+        presetColors: _presetColors,
+      ),
     );
   }
 
@@ -919,267 +563,37 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                               const SizedBox(height: 8),
                               Expanded(
                                 child: SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SettingsSection(
-                                        title: 'Scope',
-                                        description:
-                                            'Choose whether image applies to all months or one month.',
-                                        child: DropdownButtonFormField<int?>(
-                                          initialValue: selectedMonth,
-                                          decoration: const InputDecoration(
-                                            labelText: 'Image Scope',
-                                            border: OutlineInputBorder(),
-                                          ),
-                                          items: <DropdownMenuItem<int?>>[
-                                            const DropdownMenuItem<int?>(
-                                              value: null,
-                                              child: Text(
-                                                'Default (All months)',
-                                              ),
-                                            ),
-                                            ...List<
-                                              DropdownMenuItem<int?>
-                                            >.generate(
-                                              12,
-                                              (index) => DropdownMenuItem<int?>(
-                                                value: index + 1,
-                                                child: Text(
-                                                  'Month ${index + 1}',
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                          onChanged: (value) {
-                                            setModalState(() {
-                                              selectedMonth = value;
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      SettingsSection(
-                                        title: 'Placement',
-                                        description:
-                                            'Control image fit, alignment, and opacity.',
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            DropdownButtonFormField<
-                                              CalendarBackgroundImageFit
-                                            >(
-                                              initialValue: state
-                                                  .request
-                                                  .theme
-                                                  .backgroundImageFit,
-                                              decoration: const InputDecoration(
-                                                labelText: 'Image Fit',
-                                                border: OutlineInputBorder(),
-                                              ),
-                                              items: CalendarBackgroundImageFit
-                                                  .values
-                                                  .map(
-                                                    (fit) =>
-                                                        DropdownMenuItem<
-                                                          CalendarBackgroundImageFit
-                                                        >(
-                                                          value: fit,
-                                                          child: Text(
-                                                            fit.label,
-                                                          ),
-                                                        ),
-                                                  )
-                                                  .toList(growable: false),
-                                              onChanged: (value) {
-                                                if (value == null) {
-                                                  return;
-                                                }
-                                                context
-                                                    .read<
-                                                      CalendarGenerationBloc
-                                                    >()
-                                                    .add(
-                                                      ChangeBackgroundImageFit(
-                                                        value,
-                                                      ),
-                                                    );
-                                              },
-                                            ),
-                                            const SizedBox(height: 10),
-                                            SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child:
-                                                  SegmentedButton<
-                                                    CalendarBackgroundImageAlignment
-                                                  >(
-                                                    showSelectedIcon: false,
-                                                    segments: const [
-                                                      ButtonSegment<
-                                                        CalendarBackgroundImageAlignment
-                                                      >(
-                                                        value:
-                                                            CalendarBackgroundImageAlignment
-                                                                .top,
-                                                        label: Text('Top'),
-                                                      ),
-                                                      ButtonSegment<
-                                                        CalendarBackgroundImageAlignment
-                                                      >(
-                                                        value:
-                                                            CalendarBackgroundImageAlignment
-                                                                .center,
-                                                        label: Text('Center'),
-                                                      ),
-                                                      ButtonSegment<
-                                                        CalendarBackgroundImageAlignment
-                                                      >(
-                                                        value:
-                                                            CalendarBackgroundImageAlignment
-                                                                .bottom,
-                                                        label: Text('Bottom'),
-                                                      ),
-                                                    ],
-                                                    selected:
-                                                        <
-                                                          CalendarBackgroundImageAlignment
-                                                        >{
-                                                          state
-                                                              .request
-                                                              .theme
-                                                              .backgroundImageAlignment,
-                                                        },
-                                                    onSelectionChanged: (selection) {
-                                                      context
-                                                          .read<
-                                                            CalendarGenerationBloc
-                                                          >()
-                                                          .add(
-                                                            ChangeBackgroundImageAlignment(
-                                                              selection.first,
-                                                            ),
-                                                          );
-                                                    },
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              'Image Opacity (${(state.request.theme.backgroundImageOpacity * 100).round()}%)',
-                                            ),
-                                            Slider(
-                                              value: state
-                                                  .request
-                                                  .theme
-                                                  .backgroundImageOpacity
-                                                  .clamp(0.0, 1.0),
-                                              min: 0,
-                                              max: 1,
-                                              divisions: 20,
-                                              onChanged: (value) {
-                                                context
-                                                    .read<
-                                                      CalendarGenerationBloc
-                                                    >()
-                                                    .add(
-                                                      ChangeBackgroundImageOpacity(
-                                                        value,
-                                                      ),
-                                                    );
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      SettingsSection(
-                                        title: 'Image Source',
-                                        description:
-                                            'Use device picker or provide image URL/path.',
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            TextField(
-                                              controller: _imageUrlController,
-                                              focusNode: _imageUrlFocusNode,
-                                              decoration: InputDecoration(
-                                                labelText: selectedMonth == null
-                                                    ? 'Background Image URL (optional)'
-                                                    : 'Month ${selectedMonth!} Image URL (optional)',
-                                                border:
-                                                    const OutlineInputBorder(),
-                                              ),
-                                              onSubmitted: (value) {
-                                                _applyBackgroundImageUrl(
-                                                  value.trim(),
-                                                  monthOverride: selectedMonth,
-                                                );
-                                              },
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Wrap(
-                                              spacing: 8,
-                                              runSpacing: 8,
-                                              children: [
-                                                FilledButton.icon(
-                                                  onPressed: () =>
-                                                      _pickBackgroundImage(
-                                                        monthOverride:
-                                                            selectedMonth,
-                                                      ),
-                                                  icon: const Icon(
-                                                    Icons
-                                                        .photo_library_outlined,
-                                                  ),
-                                                  label: const Text(
-                                                    'Pick Image',
-                                                  ),
-                                                ),
-                                                OutlinedButton.icon(
-                                                  onPressed: () =>
-                                                      _applyBackgroundImageUrl(
-                                                        '',
-                                                        monthOverride:
-                                                            selectedMonth,
-                                                      ),
-                                                  icon: const Icon(
-                                                    Icons.delete_outline,
-                                                  ),
-                                                  label: const Text('Clear'),
-                                                ),
-                                                OutlinedButton.icon(
-                                                  onPressed: () =>
-                                                      _applyBackgroundImageUrl(
-                                                        _imageUrlController.text
-                                                            .trim(),
-                                                        monthOverride:
-                                                            selectedMonth,
-                                                      ),
-                                                  icon: const Icon(Icons.check),
-                                                  label: const Text(
-                                                    'Apply URL',
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            if (_isDataImageUri(selectedImage))
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  top: 8,
-                                                ),
-                                                child: Text(
-                                                  'Using picked image from device for this scope.',
-                                                  style: Theme.of(
-                                                    context,
-                                                  ).textTheme.bodySmall,
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                                  child: CalendarBackgroundSettingsContent(
+                                    request: state.request,
+                                    selectedMonth: selectedMonth,
+                                    selectedImage: selectedImage,
+                                    imageUrlController: _imageUrlController,
+                                    imageUrlFocusNode: _imageUrlFocusNode,
+                                    onMonthChanged: (value) {
+                                      setModalState(() {
+                                        selectedMonth = value;
+                                      });
+                                    },
+                                    onSubmittedUrl: (value) {
+                                      _applyBackgroundImageUrl(
+                                        value.trim(),
+                                        monthOverride: selectedMonth,
+                                      );
+                                    },
+                                    onPickImage: () => _pickBackgroundImage(
+                                      monthOverride: selectedMonth,
+                                    ),
+                                    onClear: () => _applyBackgroundImageUrl(
+                                      '',
+                                      monthOverride: selectedMonth,
+                                    ),
+                                    onApplyUrl: () => _applyBackgroundImageUrl(
+                                      _imageUrlController.text.trim(),
+                                      monthOverride: selectedMonth,
+                                    ),
+                                    showPickedImageHint: _isDataImageUri(
+                                      selectedImage,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1211,82 +625,15 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         final templates = state.templates;
         final templatePreviewById = _templatePreviewsFor(state);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SettingsSection(
-              title: 'Save Current Configuration',
-              description: 'Store current settings as a reusable template.',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: _templateNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Template Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    onSubmitted: (_) => _saveTemplateWithProtection(templates),
-                  ),
-                  const SizedBox(height: 8),
-                  FilledButton.icon(
-                    onPressed: () => _saveTemplateWithProtection(templates),
-                    icon: const Icon(Icons.bookmark_add_outlined),
-                    label: const Text('Save Current As Template'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            SettingsSection(
-              title: 'Saved Templates',
-              description: 'Apply, rename, or delete existing templates.',
-              child: templates.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Text('No saved templates yet.'),
-                    )
-                  : LayoutBuilder(
-                      builder: (context, constraints) {
-                        const spacing = 10.0;
-                        final crossAxisCount = (constraints.maxWidth / 176)
-                            .floor()
-                            .clamp(1, 4)
-                            .toInt();
-                        final tileWidth =
-                            (constraints.maxWidth -
-                                ((crossAxisCount - 1) * spacing)) /
-                            crossAxisCount;
-                        final tileHeight = tileWidth * 1.42;
-
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: templates.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                mainAxisSpacing: spacing,
-                                crossAxisSpacing: spacing,
-                                childAspectRatio: tileWidth / tileHeight,
-                              ),
-                          itemBuilder: (context, index) {
-                            final template = templates[index];
-                            return CalendarTemplateGridCard(
-                              template: template,
-                              preview: templatePreviewById[template.id],
-                              isSelected: _selectedTemplateId == template.id,
-                              onApply: () => _applyTemplate(template),
-                              onRename: () =>
-                                  _renameTemplate(template, templates),
-                              onDelete: () => _deleteTemplate(template),
-                            );
-                          },
-                        );
-                      },
-                    ),
-            ),
-          ],
+        return CalendarTemplateSettingsContent(
+          templates: templates,
+          templatePreviewById: templatePreviewById,
+          selectedTemplateId: _selectedTemplateId,
+          templateNameController: _templateNameController,
+          onSaveTemplate: () => _saveTemplateWithProtection(templates),
+          onApplyTemplate: _applyTemplate,
+          onRenameTemplate: (template) => _renameTemplate(template, templates),
+          onDeleteTemplate: _deleteTemplate,
         );
       },
     );
