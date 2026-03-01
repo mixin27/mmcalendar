@@ -73,7 +73,7 @@ dependencies:
   equatable: ^2.0.7
   url_launcher: ^6.3.2
   home_widget: ^0.8.0
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.4
   workmanager: ^0.8.0
   flutter_svg: ^2.2.1
 
