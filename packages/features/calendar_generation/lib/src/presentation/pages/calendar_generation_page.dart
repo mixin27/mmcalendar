@@ -145,30 +145,76 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
             icon: const Icon(Icons.edit_outlined),
             tooltip: 'Edit Overlays',
           ),
-          IconButton(
-            onPressed: _isProcessingAction ? null : _exportPdf,
-            icon: const Icon(Icons.picture_as_pdf),
-            tooltip: 'Export PDF',
-          ),
-          IconButton(
-            onPressed: _isProcessingAction ? null : _savePdfToDevice,
-            icon: const Icon(Icons.save_alt_outlined),
-            tooltip: 'Save PDF to folder',
-          ),
-          IconButton(
-            onPressed: _isProcessingAction ? null : _exportImages,
-            icon: const Icon(Icons.image_outlined),
-            tooltip: 'Export Image',
-          ),
-          IconButton(
-            onPressed: _isProcessingAction ? null : _saveImagesToDevice,
-            icon: const Icon(Icons.folder_copy_outlined),
-            tooltip: 'Save image(s) to folder',
-          ),
-          IconButton(
-            onPressed: _isProcessingAction ? null : _printPdf,
-            icon: const Icon(Icons.print_outlined),
-            tooltip: 'Print',
+          PopupMenuButton<_QuickExportAction>(
+            enabled: !_isProcessingAction,
+            tooltip: 'Export actions',
+            icon: const Icon(Icons.ios_share_outlined),
+            onSelected: (action) {
+              switch (action) {
+                case _QuickExportAction.sharePdf:
+                  _exportPdf();
+                  break;
+                case _QuickExportAction.savePdf:
+                  _savePdfToDevice();
+                  break;
+                case _QuickExportAction.shareImages:
+                  _exportImages();
+                  break;
+                case _QuickExportAction.saveImages:
+                  _saveImagesToDevice();
+                  break;
+                case _QuickExportAction.printPdf:
+                  _printPdf();
+                  break;
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem<_QuickExportAction>(
+                value: _QuickExportAction.sharePdf,
+                child: ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.picture_as_pdf),
+                  title: Text('Share PDF'),
+                ),
+              ),
+              PopupMenuItem<_QuickExportAction>(
+                value: _QuickExportAction.savePdf,
+                child: ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.save_alt_outlined),
+                  title: Text('Save PDF to folder'),
+                ),
+              ),
+              PopupMenuItem<_QuickExportAction>(
+                value: _QuickExportAction.shareImages,
+                child: ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.image_outlined),
+                  title: Text('Share images'),
+                ),
+              ),
+              PopupMenuItem<_QuickExportAction>(
+                value: _QuickExportAction.saveImages,
+                child: ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.folder_copy_outlined),
+                  title: Text('Save images to folder'),
+                ),
+              ),
+              PopupMenuItem<_QuickExportAction>(
+                value: _QuickExportAction.printPdf,
+                child: ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.print_outlined),
+                  title: Text('Print PDF'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -252,143 +298,230 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     );
     final previewCanvasSize = _resolvePreviewCanvasSize(previewRequest);
     final pages = state.pages;
+    if (pages.isEmpty) {
+      return const Center(child: Text('No preview pages available.'));
+    }
+    final safePreviewPage = _previewPage.clamp(
+      0,
+      (pages.length - 1).clamp(0, 9999),
+    );
+    final activePage = pages.isEmpty ? null : pages[safePreviewPage];
 
-    return Column(
-      children: [
-        _buildSettingsLauncherRow(),
-        const Divider(height: 1),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  request.mode == CalendarGenerationMode.month
-                      ? 'Month Preview'
-                      : 'Year Preview (${pages.length} pages)',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              Text('Lang: ${request.language.name.capitalize}'),
-            ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+      child: Column(
+        children: [
+          _buildSettingsLauncherRow(),
+          const SizedBox(height: 10),
+          _buildPreviewSummaryCard(
+            request: request,
+            pages: pages,
+            previewOrientation: previewOrientation,
+            activePage: activePage,
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Preview: ${previewOrientation.label}',
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: Card(
+              margin: EdgeInsets.zero,
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _previewPageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: pages.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _previewPage = index;
+                        });
+                      },
+                      itemBuilder: (context, index) => _buildPreviewCanvasCard(
+                        pages: pages,
+                        index: index,
+                        previewRequest: previewRequest,
+                        previewCanvasSize: previewCanvasSize,
+                      ),
+                    ),
+                  ),
+                  if (pages.length > 1)
+                    _buildPreviewPageNavigation(pages: pages),
+                ],
               ),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SegmentedButton<CalendarPageOrientation>(
-                  showSelectedIcon: false,
-                  segments: CalendarPageOrientation.values
-                      .map(
-                        (orientation) => ButtonSegment<CalendarPageOrientation>(
-                          value: orientation,
-                          label: Text(orientation.label),
-                        ),
-                      )
-                      .toList(growable: false),
-                  selected: <CalendarPageOrientation>{previewOrientation},
-                  onSelectionChanged: (selection) {
-                    if (selection.isEmpty) {
-                      return;
-                    }
-                    final selected = selection.first;
-                    if (_syncPreviewOrientationToExport) {
-                      context.read<CalendarGenerationBloc>().add(
-                        ChangePageOrientation(selected),
-                      );
-                      return;
-                    }
-                    setState(() => _previewOrientationOverride = selected);
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Sync preview orientation to export setting',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-              Switch.adaptive(
-                value: _syncPreviewOrientationToExport,
-                onChanged: (value) {
-                  setState(() => _syncPreviewOrientationToExport = value);
-                  if (!value) {
-                    return;
-                  }
-                  final orientation =
-                      _previewOrientationOverride ?? request.pageOrientation;
-                  _previewOrientationOverride = null;
-                  context.read<CalendarGenerationBloc>().add(
-                    ChangePageOrientation(orientation),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: PageView.builder(
-            controller: _previewPageController,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: pages.length,
-            onPageChanged: (index) {
-              setState(() {
-                _previewPage = index;
-              });
-            },
-            itemBuilder: (context, index) => _buildPreviewCanvasCard(
-              pages: pages,
-              index: index,
-              previewRequest: previewRequest,
-              previewCanvasSize: previewCanvasSize,
             ),
           ),
-        ),
-        if (pages.length > 1)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: Row(
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreviewSummaryCard({
+    required CalendarGenerationRequest request,
+    required List<CalendarPageModel> pages,
+    required CalendarPageOrientation previewOrientation,
+    required CalendarPageModel? activePage,
+  }) {
+    final isYearMode = request.mode == CalendarGenerationMode.year;
+    final sectionTitle = isYearMode
+        ? 'Year Preview (${pages.length} pages)'
+        : 'Month Preview';
+
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                FilledButton.tonalIcon(
-                  onPressed: _previewPage > 0
-                      ? () => _goToPreviewPage(_previewPage - 1)
-                      : null,
-                  icon: const Icon(Icons.chevron_left),
-                  label: const Text('Previous'),
-                ),
                 Expanded(
-                  child: Center(
-                    child: Text('Page ${_previewPage + 1} / ${pages.length}'),
+                  child: Text(
+                    sectionTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                FilledButton.tonalIcon(
-                  onPressed: _previewPage < pages.length - 1
-                      ? () => _goToPreviewPage(_previewPage + 1)
-                      : null,
-                  icon: const Icon(Icons.chevron_right),
-                  label: const Text('Next'),
-                  iconAlignment: IconAlignment.end,
+                _PreviewMetaChip(
+                  icon: Icons.language_outlined,
+                  text: request.language.name.capitalize,
+                ),
+                const SizedBox(width: 8),
+                _PreviewMetaChip(
+                  icon: Icons.view_day_outlined,
+                  text: switch (request.mode) {
+                    CalendarGenerationMode.month => 'Month',
+                    CalendarGenerationMode.year => 'Year',
+                  },
                 ),
               ],
             ),
+            if (activePage != null && isYearMode) ...[
+              const SizedBox(height: 6),
+              Text(
+                activePage.westernTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            const SizedBox(height: 12),
+            Text(
+              'Preview Orientation',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: 6),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SegmentedButton<CalendarPageOrientation>(
+                showSelectedIcon: false,
+                segments: CalendarPageOrientation.values
+                    .map(
+                      (orientation) => ButtonSegment<CalendarPageOrientation>(
+                        value: orientation,
+                        label: Text(orientation.label),
+                      ),
+                    )
+                    .toList(growable: false),
+                selected: <CalendarPageOrientation>{previewOrientation},
+                onSelectionChanged: (selection) {
+                  if (selection.isEmpty) {
+                    return;
+                  }
+                  final selected = selection.first;
+                  if (_syncPreviewOrientationToExport) {
+                    context.read<CalendarGenerationBloc>().add(
+                      ChangePageOrientation(selected),
+                    );
+                    return;
+                  }
+                  setState(() => _previewOrientationOverride = selected);
+                },
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Sync preview orientation with export setting',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+                Switch.adaptive(
+                  value: _syncPreviewOrientationToExport,
+                  onChanged: (value) {
+                    setState(() => _syncPreviewOrientationToExport = value);
+                    if (!value) {
+                      return;
+                    }
+                    final orientation =
+                        _previewOrientationOverride ?? request.pageOrientation;
+                    _previewOrientationOverride = null;
+                    context.read<CalendarGenerationBloc>().add(
+                      ChangePageOrientation(orientation),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPreviewPageNavigation({required List<CalendarPageModel> pages}) {
+    final safePage = _previewPage.clamp(0, pages.length - 1);
+    final currentTitle = pages[safePage].westernTitle;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+        ),
+      ),
+      child: Row(
+        children: [
+          FilledButton.tonalIcon(
+            onPressed: _previewPage > 0
+                ? () => _goToPreviewPage(_previewPage - 1)
+                : null,
+            icon: const Icon(Icons.chevron_left),
+            label: const Text('Previous'),
           ),
-      ],
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Page ${safePage + 1} / ${pages.length}',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  Text(
+                    currentTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          FilledButton.tonalIcon(
+            onPressed: _previewPage < pages.length - 1
+                ? () => _goToPreviewPage(_previewPage + 1)
+                : null,
+            icon: const Icon(Icons.chevron_right),
+            label: const Text('Next'),
+            iconAlignment: IconAlignment.end,
+          ),
+        ],
+      ),
     );
   }
 
@@ -463,41 +596,55 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   }
 
   Widget _buildSettingsLauncherRow() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SettingsGroupButton(
-              icon: Icons.tune,
-              label: 'General',
-              onTap: _openGeneralSettingsSheet,
+            Text(
+              'Setting Groups',
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
-            _SettingsGroupButton(
-              icon: Icons.aspect_ratio,
-              label: 'Layout',
-              onTap: _openLayoutSettingsSheet,
-            ),
-            _SettingsGroupButton(
-              icon: Icons.visibility_outlined,
-              label: 'Visibility',
-              onTap: _openVisibilitySettingsSheet,
-            ),
-            _SettingsGroupButton(
-              icon: Icons.palette_outlined,
-              label: 'Theme',
-              onTap: _openThemeSettingsSheet,
-            ),
-            _SettingsGroupButton(
-              icon: Icons.image_outlined,
-              label: 'Background',
-              onTap: _openBackgroundSettingsSheet,
-            ),
-            _SettingsGroupButton(
-              icon: Icons.bookmarks_outlined,
-              label: 'Templates',
-              onTap: _openTemplateSettingsSheet,
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _SettingsGroupButton(
+                  icon: Icons.tune,
+                  label: 'General',
+                  onTap: _openGeneralSettingsSheet,
+                ),
+                _SettingsGroupButton(
+                  icon: Icons.aspect_ratio,
+                  label: 'Layout',
+                  onTap: _openLayoutSettingsSheet,
+                ),
+                _SettingsGroupButton(
+                  icon: Icons.visibility_outlined,
+                  label: 'Visibility',
+                  onTap: _openVisibilitySettingsSheet,
+                ),
+                _SettingsGroupButton(
+                  icon: Icons.palette_outlined,
+                  label: 'Theme',
+                  onTap: _openThemeSettingsSheet,
+                ),
+                _SettingsGroupButton(
+                  icon: Icons.image_outlined,
+                  label: 'Background',
+                  onTap: _openBackgroundSettingsSheet,
+                ),
+                _SettingsGroupButton(
+                  icon: Icons.bookmarks_outlined,
+                  label: 'Templates',
+                  onTap: _openTemplateSettingsSheet,
+                ),
+              ],
             ),
           ],
         ),
@@ -1942,8 +2089,10 @@ class _TemplateGridCard extends StatelessWidget {
                       switch (action) {
                         case _TemplateAction.rename:
                           onRename();
+                          break;
                         case _TemplateAction.delete:
                           onDelete();
+                          break;
                       }
                     },
                     itemBuilder: (context) => const [
@@ -2015,6 +2164,42 @@ class _TemplatePreviewCanvas extends StatelessWidget {
             contentPadding: const EdgeInsets.all(6),
             compact: true,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PreviewMetaChip extends StatelessWidget {
+  const _PreviewMetaChip({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: colorScheme.onSurfaceVariant),
+            const SizedBox(width: 6),
+            Text(
+              text,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -2133,3 +2318,5 @@ class _SettingsSheetHeader extends StatelessWidget {
 }
 
 enum _TemplateAction { rename, delete }
+
+enum _QuickExportAction { sharePdf, savePdf, shareImages, saveImages, printPdf }
