@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bounding_box/bounding_box.dart';
+import 'package:bounding_box/bounding_box_controller.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_core/shared_core.dart';
@@ -13,6 +13,7 @@ import '../../domain/entities/calendar_page_model.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../rendering/export/calendar_export_layout.dart';
 import '../widgets/calendar_generation_preview_page.dart';
+import '../widgets/fixed_bounding_box_overlay.dart';
 
 class CalendarOverlayEditorResult {
   const CalendarOverlayEditorResult({
@@ -100,13 +101,6 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
       overlayElementsByMonth: _overlayElementsByMonth,
     );
     final canvasSize = _resolvePreviewCanvasSize(request);
-
-    _syncActiveControllers(
-      month: month,
-      canvasSize: canvasSize,
-      selectedElementId: _selectedElementId,
-      selectedElementLocked: selectedElement?.locked == true,
-    );
 
     return PopScope<void>(
       canPop: !_hasChanges,
@@ -413,6 +407,13 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     required int month,
     required Size canvasSize,
   }) {
+    final selectedElement = _selectedOverlayElementForMonth(month);
+    _syncActiveControllers(
+      month: month,
+      canvasSize: canvasSize,
+      selectedElementId: _selectedElementId,
+      selectedElementLocked: selectedElement?.locked ?? false,
+    );
     final elements = _elementsForMonth(month);
 
     return Stack(
@@ -457,7 +458,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
                 ),
                 IgnorePointer(
                   ignoring: !isSelected,
-                  child: BoundingBoxOverlay(
+                  child: FixedBoundingBoxOverlay(
                     key: ValueKey<String>('bbox_${month}_${element.id}'),
                     controller: controller,
                     onTap: () => _selectLayer(element.id),
@@ -514,6 +515,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
       ),
       CalendarOverlayElementType.image => _buildOverlayImage(
         element.imageSource,
+        element.baseSize,
       ),
     };
 
@@ -526,15 +528,18 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
         decoration: isSelected
             ? BoxDecoration(borderRadius: BorderRadius.circular(4))
             : const BoxDecoration(),
-        child: Center(child: content),
+        child: FittedBox(fit: BoxFit.contain, child: content),
       ),
     );
   }
 
-  Widget _buildOverlayImage(String? source) {
+  Widget _buildOverlayImage(String? source, double baseSize) {
     final provider = _parseImageProvider(source);
+    final size = baseSize.clamp(16, 520).toDouble();
     if (provider == null) {
       return Container(
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.85),
           border: Border.all(color: const Color(0xFF9CA3AF)),
@@ -545,7 +550,12 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
-      child: Image(image: provider, fit: BoxFit.cover),
+      child: Image(
+        image: provider,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+      ),
     );
   }
 
@@ -971,7 +981,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
       return;
     }
 
-    _updateOverlayElementForMonth(month: month, element: updated);
+    _storeOverlayElementForMonth(month: month, element: updated);
   }
 
   _ControllerSpec _controllerSpecFromElement(
@@ -1087,6 +1097,14 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     required int month,
     required CalendarOverlayElement element,
   }) {
+    _storeOverlayElementForMonth(month: month, element: element, repaint: true);
+  }
+
+  void _storeOverlayElementForMonth({
+    required int month,
+    required CalendarOverlayElement element,
+    bool repaint = false,
+  }) {
     final list = _elementsForMonth(month).toList(growable: true);
     final index = list.indexWhere((item) => item.id == element.id);
     if (index < 0) {
@@ -1094,11 +1112,12 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     }
 
     list[index] = element;
-    setState(() {
-      _hasChanges = true;
-      _overlayElementsByMonth[month] =
-          List<CalendarOverlayElement>.unmodifiable(list);
-    });
+    _hasChanges = true;
+    _overlayElementsByMonth[month] =
+        List<CalendarOverlayElement>.unmodifiable(list);
+    if (repaint) {
+      setState(() {});
+    }
   }
 
   Future<void> _addTextOverlayElement(int month) async {
