@@ -26,7 +26,10 @@ import '../../rendering/export/calendar_export_service.dart';
 import '../bloc/calendar_generation_bloc.dart';
 import '../bloc/calendar_generation_event.dart';
 import '../bloc/calendar_generation_state.dart';
+import '../widgets/calendar_generation_layout_panels.dart';
 import '../widgets/calendar_generation_preview_page.dart';
+import '../widgets/calendar_generation_template_grid.dart';
+import '../widgets/calendar_generation_ui_sections.dart';
 
 OverlayEditorItem _toOverlayEditorItem(CalendarOverlayElement element) {
   return OverlayEditorItem(
@@ -110,8 +113,8 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   int? _templatePreviewCacheKey;
   CalendarPageOrientation? _previewOrientationOverride;
   bool _syncPreviewOrientationToExport = false;
-  final Map<String, _TemplatePreviewData> _templatePreviewCache =
-      <String, _TemplatePreviewData>{};
+  final Map<String, CalendarTemplatePreviewData> _templatePreviewCache =
+      <String, CalendarTemplatePreviewData>{};
 
   static const List<Color> _presetColors = <Color>[
     Color(0xFFFFFFFF),
@@ -315,20 +318,58 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
             child: Column(
               children: [
-                _buildSettingsLauncherRow(),
+                CalendarGenerationSettingsLauncherCard(
+                  onGeneralTap: _openGeneralSettingsSheet,
+                  onLayoutTap: _openLayoutSettingsSheet,
+                  onVisibilityTap: _openVisibilitySettingsSheet,
+                  onThemeTap: _openThemeSettingsSheet,
+                  onBackgroundTap: _openBackgroundSettingsSheet,
+                  onTemplateTap: _openTemplateSettingsSheet,
+                ),
                 const SizedBox(height: 10),
-                _buildPreviewSummaryCard(
+                CalendarGenerationPreviewSummaryCard(
                   request: request,
                   pages: pages,
                   previewOrientation: previewOrientation,
                   activePage: activePage,
+                  syncPreviewOrientationToExport:
+                      _syncPreviewOrientationToExport,
+                  onPreviewOrientationChanged: (selected) {
+                    if (_syncPreviewOrientationToExport) {
+                      context.read<CalendarGenerationBloc>().add(
+                        ChangePageOrientation(selected),
+                      );
+                      return;
+                    }
+                    setState(() => _previewOrientationOverride = selected);
+                  },
+                  onSyncPreviewOrientationChanged: (value) {
+                    setState(() => _syncPreviewOrientationToExport = value);
+                    if (!value) {
+                      return;
+                    }
+                    final orientation =
+                        _previewOrientationOverride ?? request.pageOrientation;
+                    _previewOrientationOverride = null;
+                    context.read<CalendarGenerationBloc>().add(
+                      ChangePageOrientation(orientation),
+                    );
+                  },
                 ),
                 const SizedBox(height: 10),
                 Expanded(
-                  child: _buildPreviewWorkspace(
+                  child: CalendarGenerationPreviewWorkspace(
                     pages: pages,
+                    previewPage: _previewPage,
+                    previewPageController: _previewPageController,
                     previewRequest: previewRequest,
                     previewCanvasSize: previewCanvasSize,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _previewPage = index;
+                      });
+                    },
+                    onGoToPage: _goToPreviewPage,
                   ),
                 ),
               ],
@@ -348,13 +389,48 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Column(
                     children: [
-                      _buildSettingsLauncherRow(),
+                      CalendarGenerationSettingsLauncherCard(
+                        onGeneralTap: _openGeneralSettingsSheet,
+                        onLayoutTap: _openLayoutSettingsSheet,
+                        onVisibilityTap: _openVisibilitySettingsSheet,
+                        onThemeTap: _openThemeSettingsSheet,
+                        onBackgroundTap: _openBackgroundSettingsSheet,
+                        onTemplateTap: _openTemplateSettingsSheet,
+                      ),
                       const SizedBox(height: 10),
-                      _buildPreviewSummaryCard(
+                      CalendarGenerationPreviewSummaryCard(
                         request: request,
                         pages: pages,
                         previewOrientation: previewOrientation,
                         activePage: activePage,
+                        syncPreviewOrientationToExport:
+                            _syncPreviewOrientationToExport,
+                        onPreviewOrientationChanged: (selected) {
+                          if (_syncPreviewOrientationToExport) {
+                            context.read<CalendarGenerationBloc>().add(
+                              ChangePageOrientation(selected),
+                            );
+                            return;
+                          }
+                          setState(
+                            () => _previewOrientationOverride = selected,
+                          );
+                        },
+                        onSyncPreviewOrientationChanged: (value) {
+                          setState(
+                            () => _syncPreviewOrientationToExport = value,
+                          );
+                          if (!value) {
+                            return;
+                          }
+                          final orientation =
+                              _previewOrientationOverride ??
+                              request.pageOrientation;
+                          _previewOrientationOverride = null;
+                          context.read<CalendarGenerationBloc>().add(
+                            ChangePageOrientation(orientation),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -362,225 +438,24 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildPreviewWorkspace(
+                child: CalendarGenerationPreviewWorkspace(
                   pages: pages,
+                  previewPage: _previewPage,
+                  previewPageController: _previewPageController,
                   previewRequest: previewRequest,
                   previewCanvasSize: previewCanvasSize,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _previewPage = index;
+                    });
+                  },
+                  onGoToPage: _goToPreviewPage,
                 ),
               ),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildPreviewWorkspace({
-    required List<CalendarPageModel> pages,
-    required CalendarGenerationRequest previewRequest,
-    required Size previewCanvasSize,
-  }) {
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _previewPageController,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: pages.length,
-              onPageChanged: (index) {
-                setState(() {
-                  _previewPage = index;
-                });
-              },
-              itemBuilder: (context, index) => _buildPreviewCanvasCard(
-                pages: pages,
-                index: index,
-                previewRequest: previewRequest,
-                previewCanvasSize: previewCanvasSize,
-              ),
-            ),
-          ),
-          if (pages.length > 1) _buildPreviewPageNavigation(pages: pages),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPreviewSummaryCard({
-    required CalendarGenerationRequest request,
-    required List<CalendarPageModel> pages,
-    required CalendarPageOrientation previewOrientation,
-    required CalendarPageModel? activePage,
-  }) {
-    final isYearMode = request.mode == CalendarGenerationMode.year;
-    final sectionTitle = isYearMode
-        ? 'Year Preview (${pages.length} pages)'
-        : 'Month Preview';
-
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              sectionTitle,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _PreviewMetaChip(
-                  icon: Icons.language_outlined,
-                  text: request.language.name.capitalize,
-                ),
-                _PreviewMetaChip(
-                  icon: Icons.view_day_outlined,
-                  text: switch (request.mode) {
-                    CalendarGenerationMode.month => 'Month',
-                    CalendarGenerationMode.year => 'Year',
-                  },
-                ),
-              ],
-            ),
-            if (activePage != null && isYearMode) ...[
-              const SizedBox(height: 6),
-              Text(
-                activePage.westernTitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-            const SizedBox(height: 12),
-            Divider(
-              height: 1,
-              color: Theme.of(context).colorScheme.outlineVariant,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Preview Orientation',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: 6),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SegmentedButton<CalendarPageOrientation>(
-                showSelectedIcon: false,
-                segments: CalendarPageOrientation.values
-                    .map(
-                      (orientation) => ButtonSegment<CalendarPageOrientation>(
-                        value: orientation,
-                        label: Text(orientation.label),
-                      ),
-                    )
-                    .toList(growable: false),
-                selected: <CalendarPageOrientation>{previewOrientation},
-                onSelectionChanged: (selection) {
-                  if (selection.isEmpty) {
-                    return;
-                  }
-                  final selected = selection.first;
-                  if (_syncPreviewOrientationToExport) {
-                    context.read<CalendarGenerationBloc>().add(
-                      ChangePageOrientation(selected),
-                    );
-                    return;
-                  }
-                  setState(() => _previewOrientationOverride = selected);
-                },
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Sync preview orientation with export setting',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-                Switch.adaptive(
-                  value: _syncPreviewOrientationToExport,
-                  onChanged: (value) {
-                    setState(() => _syncPreviewOrientationToExport = value);
-                    if (!value) {
-                      return;
-                    }
-                    final orientation =
-                        _previewOrientationOverride ?? request.pageOrientation;
-                    _previewOrientationOverride = null;
-                    context.read<CalendarGenerationBloc>().add(
-                      ChangePageOrientation(orientation),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPreviewPageNavigation({required List<CalendarPageModel> pages}) {
-    final safePage = _previewPage.clamp(0, pages.length - 1);
-    final currentTitle = pages[safePage].westernTitle;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-        ),
-      ),
-      child: Row(
-        children: [
-          FilledButton.tonalIcon(
-            onPressed: _previewPage > 0
-                ? () => _goToPreviewPage(_previewPage - 1)
-                : null,
-            icon: const Icon(Icons.chevron_left),
-            label: const Text('Previous'),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Page ${safePage + 1} / ${pages.length}',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                  Text(
-                    currentTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          FilledButton.tonalIcon(
-            onPressed: _previewPage < pages.length - 1
-                ? () => _goToPreviewPage(_previewPage + 1)
-                : null,
-            icon: const Icon(Icons.chevron_right),
-            label: const Text('Next'),
-            iconAlignment: IconAlignment.end,
-          ),
-        ],
-      ),
     );
   }
 
@@ -598,122 +473,9 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     );
   }
 
-  Widget _buildPreviewCanvasCard({
-    required List<CalendarPageModel> pages,
-    required int index,
-    required CalendarGenerationRequest previewRequest,
-    required Size previewCanvasSize,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.7),
-            width: 1,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: InteractiveViewer(
-            constrained: true,
-            boundaryMargin: const EdgeInsets.all(80),
-            minScale: 1.0,
-            maxScale: 4.0,
-            panEnabled: true,
-            scaleEnabled: true,
-            child: SizedBox.expand(
-              child: FittedBox(
-                fit: BoxFit.contain,
-                alignment: Alignment.center,
-                child: SizedBox(
-                  width: previewCanvasSize.width,
-                  height: previewCanvasSize.height,
-                  child: CalendarGenerationPreviewPage(
-                    model: pages[index],
-                    request: previewRequest,
-                    margin: EdgeInsets.zero,
-                    elevation: 0,
-                    contentPadding: const EdgeInsets.all(12),
-                    useCardChrome: false,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Size _resolvePreviewCanvasSize(CalendarGenerationRequest request) {
     final previewSize = CalendarExportLayout.resolvePreviewCanvasSize(request);
     return Size(previewSize.width, previewSize.height);
-  }
-
-  Widget _buildSettingsLauncherRow() {
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Settings',
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'Open a group to edit calendar generation options.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _SettingsGroupButton(
-                  icon: Icons.tune,
-                  label: 'General',
-                  onTap: _openGeneralSettingsSheet,
-                ),
-                _SettingsGroupButton(
-                  icon: Icons.aspect_ratio,
-                  label: 'Layout',
-                  onTap: _openLayoutSettingsSheet,
-                ),
-                _SettingsGroupButton(
-                  icon: Icons.visibility_outlined,
-                  label: 'Visibility',
-                  onTap: _openVisibilitySettingsSheet,
-                ),
-                _SettingsGroupButton(
-                  icon: Icons.palette_outlined,
-                  label: 'Theme',
-                  onTap: _openThemeSettingsSheet,
-                ),
-                _SettingsGroupButton(
-                  icon: Icons.image_outlined,
-                  label: 'Background',
-                  onTap: _openBackgroundSettingsSheet,
-                ),
-                _SettingsGroupButton(
-                  icon: Icons.bookmarks_outlined,
-                  label: 'Templates',
-                  onTap: _openTemplateSettingsSheet,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Future<void> _openGeneralSettingsSheet() async {
@@ -727,7 +489,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SettingsSection(
+            SettingsSection(
               title: 'Generation Scope',
               description:
                   'Choose whether to generate a single month or full year.',
@@ -757,7 +519,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
               ),
             ),
             const SizedBox(height: 10),
-            _SettingsSection(
+            SettingsSection(
               title: 'Calendar & Period',
               description: 'Set calendar language and target month/year.',
               child: Column(
@@ -852,7 +614,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SettingsSection(
+            SettingsSection(
               title: 'Page Setup',
               description: 'Configure canvas size and orientation.',
               child: Column(
@@ -951,7 +713,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
               ),
             ),
             const SizedBox(height: 10),
-            _SettingsSection(
+            SettingsSection(
               title: 'Output Quality',
               description:
                   'Higher quality gives sharper exports with larger size.',
@@ -993,7 +755,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SettingsSection(
+            SettingsSection(
               title: 'Date Cell Visibility',
               description: 'Choose which date details to display in cells.',
               child: Column(
@@ -1055,13 +817,13 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SettingsSection(
+            SettingsSection(
               title: 'Color Theme',
               description: 'Define your calendar palette for text and accents.',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ColorSelector(
+                  ColorSelector(
                     label: 'Background',
                     colors: _presetColors,
                     selectedValue: request.theme.backgroundColorValue,
@@ -1072,7 +834,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                     },
                   ),
                   const SizedBox(height: 10),
-                  _ColorSelector(
+                  ColorSelector(
                     label: 'Foreground',
                     colors: _presetColors,
                     selectedValue: request.theme.foregroundColorValue,
@@ -1083,7 +845,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                     },
                   ),
                   const SizedBox(height: 10),
-                  _ColorSelector(
+                  ColorSelector(
                     label: 'Accent',
                     colors: _presetColors,
                     selectedValue: request.theme.accentColorValue,
@@ -1151,7 +913,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const _SettingsSheetHeader(
+                              const SettingsSheetHeader(
                                 title: 'Background Settings',
                               ),
                               const SizedBox(height: 8),
@@ -1161,7 +923,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      _SettingsSection(
+                                      SettingsSection(
                                         title: 'Scope',
                                         description:
                                             'Choose whether image applies to all months or one month.',
@@ -1198,7 +960,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                                         ),
                                       ),
                                       const SizedBox(height: 10),
-                                      _SettingsSection(
+                                      SettingsSection(
                                         title: 'Placement',
                                         description:
                                             'Control image fit, alignment, and opacity.',
@@ -1331,7 +1093,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                                         ),
                                       ),
                                       const SizedBox(height: 10),
-                                      _SettingsSection(
+                                      SettingsSection(
                                         title: 'Image Source',
                                         description:
                                             'Use device picker or provide image URL/path.',
@@ -1452,7 +1214,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SettingsSection(
+            SettingsSection(
               title: 'Save Current Configuration',
               description: 'Store current settings as a reusable template.',
               child: Column(
@@ -1476,7 +1238,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
               ),
             ),
             const SizedBox(height: 10),
-            _SettingsSection(
+            SettingsSection(
               title: 'Saved Templates',
               description: 'Apply, rename, or delete existing templates.',
               child: templates.isEmpty
@@ -1510,7 +1272,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                               ),
                           itemBuilder: (context, index) {
                             final template = templates[index];
-                            return _TemplateGridCard(
+                            return CalendarTemplateGridCard(
                               template: template,
                               preview: templatePreviewById[template.id],
                               isSelected: _selectedTemplateId == template.id,
@@ -1571,7 +1333,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _SettingsSheetHeader(title: title),
+                              SettingsSheetHeader(title: title),
                               const SizedBox(height: 8),
                               Expanded(
                                 child: SingleChildScrollView(
@@ -2087,7 +1849,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Map<String, _TemplatePreviewData> _templatePreviewsFor(
+  Map<String, CalendarTemplatePreviewData> _templatePreviewsFor(
     CalendarGenerationLoaded state,
   ) {
     final nextCacheKey = Object.hash(
@@ -2103,7 +1865,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
 
     final builder = getIt<BuildCalendarPreviews>();
     final preferredMonth = state.request.month ?? DateTime.now().month;
-    final nextPreviews = <String, _TemplatePreviewData>{};
+    final nextPreviews = <String, CalendarTemplatePreviewData>{};
 
     for (final template in state.templates) {
       final request = _requestForTemplate(state.request, template);
@@ -2112,7 +1874,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         continue;
       }
 
-      nextPreviews[template.id] = _TemplatePreviewData(
+      nextPreviews[template.id] = CalendarTemplatePreviewData(
         request: request,
         model: _pickTemplatePreviewPage(
           pages,
@@ -2204,361 +1966,5 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     return RegExp(r'^[a-zA-Z]:[\\\/]').hasMatch(value);
   }
 }
-
-class _TemplatePreviewData {
-  const _TemplatePreviewData({required this.request, required this.model});
-
-  final CalendarGenerationRequest request;
-  final CalendarPageModel model;
-}
-
-class _TemplateGridCard extends StatelessWidget {
-  const _TemplateGridCard({
-    required this.template,
-    required this.preview,
-    required this.isSelected,
-    required this.onApply,
-    required this.onRename,
-    required this.onDelete,
-  });
-
-  final CalendarGenerationTemplate template;
-  final _TemplatePreviewData? preview;
-  final bool isSelected;
-  final VoidCallback onApply;
-  final VoidCallback onRename;
-  final VoidCallback onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final borderColor = isSelected
-        ? colorScheme.primary
-        : colorScheme.outlineVariant;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onApply,
-        borderRadius: BorderRadius.circular(12),
-        child: Ink(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: borderColor, width: isSelected ? 1.6 : 1),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _TemplatePreviewCanvas(preview: preview)),
-              const SizedBox(height: 8),
-              Text(
-                template.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '${template.language.name.capitalize} • ${_modeLabel(template.mode)}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: onApply,
-                      child: const Text('Apply'),
-                    ),
-                  ),
-                  PopupMenuButton<_TemplateAction>(
-                    tooltip: 'Template actions',
-                    onSelected: (action) {
-                      switch (action) {
-                        case _TemplateAction.rename:
-                          onRename();
-                          break;
-                        case _TemplateAction.delete:
-                          onDelete();
-                          break;
-                      }
-                    },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem<_TemplateAction>(
-                        value: _TemplateAction.rename,
-                        child: Text('Rename'),
-                      ),
-                      PopupMenuItem<_TemplateAction>(
-                        value: _TemplateAction.delete,
-                        child: Text('Delete'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _modeLabel(CalendarGenerationMode mode) {
-    return switch (mode) {
-      CalendarGenerationMode.month => 'Month',
-      CalendarGenerationMode.year => 'Year',
-    };
-  }
-}
-
-class _TemplatePreviewCanvas extends StatelessWidget {
-  const _TemplatePreviewCanvas({required this.preview});
-
-  final _TemplatePreviewData? preview;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    if (preview == null) {
-      return Container(
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(
-          Icons.calendar_view_month,
-          color: colorScheme.onSurfaceVariant,
-          size: 28,
-        ),
-      );
-    }
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.7),
-          width: 1,
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: AbsorbPointer(
-          child: CalendarGenerationPreviewPage(
-            model: preview!.model,
-            request: preview!.request,
-            margin: EdgeInsets.zero,
-            elevation: 0,
-            contentPadding: const EdgeInsets.all(6),
-            compact: true,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PreviewMetaChip extends StatelessWidget {
-  const _PreviewMetaChip({required this.icon, required this.text});
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: colorScheme.onSurfaceVariant),
-            const SizedBox(width: 6),
-            Text(
-              text,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ColorSelector extends StatelessWidget {
-  const _ColorSelector({
-    required this.label,
-    required this.colors,
-    required this.selectedValue,
-    required this.onColorSelected,
-  });
-
-  final String label;
-  final List<Color> colors;
-  final int selectedValue;
-  final ValueChanged<Color> onColorSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: colors
-              .map((color) {
-                final selected = color.toARGB32() == selectedValue;
-                final borderColor = selected
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.transparent;
-
-                return InkWell(
-                  onTap: () => onColorSelected(color),
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: borderColor, width: 2),
-                    ),
-                    child: selected
-                        ? Icon(
-                            Icons.check,
-                            size: 16,
-                            color: color.computeLuminance() > 0.5
-                                ? Colors.black
-                                : Colors.white,
-                          )
-                        : null,
-                  ),
-                );
-              })
-              .toList(growable: false),
-        ),
-      ],
-    );
-  }
-}
-
-class _SettingsSection extends StatelessWidget {
-  const _SettingsSection({
-    required this.title,
-    required this.child,
-    this.description,
-  });
-
-  final String title;
-  final String? description;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.8),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          if (description != null) ...[
-            const SizedBox(height: 2),
-            Text(description!, style: Theme.of(context).textTheme.bodySmall),
-          ],
-          const SizedBox(height: 10),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-class _SettingsGroupButton extends StatelessWidget {
-  const _SettingsGroupButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      style: OutlinedButton.styleFrom(
-        visualDensity: VisualDensity.compact,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      ),
-      onPressed: onTap,
-      icon: Icon(icon, size: 18),
-      label: Text(label),
-    );
-  }
-}
-
-class _SettingsSheetHeader extends StatelessWidget {
-  const _SettingsSheetHeader({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ),
-        IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.close),
-          tooltip: 'Close',
-        ),
-      ],
-    );
-  }
-}
-
-enum _TemplateAction { rename, delete }
 
 enum _QuickExportAction { sharePdf, savePdf, shareImages, saveImages, printPdf }
