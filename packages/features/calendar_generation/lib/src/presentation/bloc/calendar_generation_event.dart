@@ -3,6 +3,7 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
+import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
@@ -179,6 +180,15 @@ final class ChangePageOrientation extends CalendarGenerationEvent {
 
   @override
   List<Object?> get props => [orientation];
+}
+
+final class ChangeLandscapeDecorationAreaSide extends CalendarGenerationEvent {
+  const ChangeLandscapeDecorationAreaSide(this.side);
+
+  final CalendarLandscapeDecorationAreaSide side;
+
+  @override
+  List<Object?> get props => [side];
 }
 
 final class ChangeImageQuality extends CalendarGenerationEvent {

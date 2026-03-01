@@ -3,6 +3,7 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 import 'calendar_image_quality.dart';
 import 'calendar_generation_mode.dart';
+import 'calendar_landscape_decoration_area_side.dart';
 import 'calendar_page_orientation.dart';
 import 'calendar_paper_size.dart';
 import 'calendar_preview_theme.dart';
@@ -23,6 +24,8 @@ class CalendarGenerationRequest extends Equatable {
     required this.paperSize,
     required this.pageOrientation,
     required this.imageQuality,
+    this.landscapeDecorationAreaSide =
+        CalendarLandscapeDecorationAreaSide.right,
     this.month,
   });
 
@@ -40,6 +43,7 @@ class CalendarGenerationRequest extends Equatable {
   final CalendarPreviewTheme theme;
   final CalendarPaperSize paperSize;
   final CalendarPageOrientation pageOrientation;
+  final CalendarLandscapeDecorationAreaSide landscapeDecorationAreaSide;
   final CalendarImageQuality imageQuality;
 
   CalendarGenerationRequest copyWith({
@@ -57,6 +61,7 @@ class CalendarGenerationRequest extends Equatable {
     CalendarPreviewTheme? theme,
     CalendarPaperSize? paperSize,
     CalendarPageOrientation? pageOrientation,
+    CalendarLandscapeDecorationAreaSide? landscapeDecorationAreaSide,
     CalendarImageQuality? imageQuality,
   }) {
     return CalendarGenerationRequest(
@@ -74,6 +79,8 @@ class CalendarGenerationRequest extends Equatable {
       theme: theme ?? this.theme,
       paperSize: paperSize ?? this.paperSize,
       pageOrientation: pageOrientation ?? this.pageOrientation,
+      landscapeDecorationAreaSide:
+          landscapeDecorationAreaSide ?? this.landscapeDecorationAreaSide,
       imageQuality: imageQuality ?? this.imageQuality,
     );
   }
@@ -94,6 +101,7 @@ class CalendarGenerationRequest extends Equatable {
     theme,
     paperSize,
     pageOrientation,
+    landscapeDecorationAreaSide,
     imageQuality,
   ];
 }

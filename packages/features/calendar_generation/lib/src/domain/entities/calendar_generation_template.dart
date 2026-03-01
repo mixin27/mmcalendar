@@ -3,6 +3,7 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 import 'calendar_generation_mode.dart';
 import 'calendar_image_quality.dart';
+import 'calendar_landscape_decoration_area_side.dart';
 import 'calendar_page_orientation.dart';
 import 'calendar_paper_size.dart';
 import 'calendar_preview_theme.dart';
@@ -20,6 +21,7 @@ class CalendarGenerationTemplate extends Equatable {
     required this.firstDayOfWeek,
     required this.paperSize,
     required this.pageOrientation,
+    required this.landscapeDecorationAreaSide,
     required this.imageQuality,
     required this.theme,
     required this.updatedAt,
@@ -36,6 +38,7 @@ class CalendarGenerationTemplate extends Equatable {
   final int firstDayOfWeek;
   final CalendarPaperSize paperSize;
   final CalendarPageOrientation pageOrientation;
+  final CalendarLandscapeDecorationAreaSide landscapeDecorationAreaSide;
   final CalendarImageQuality imageQuality;
   final CalendarPreviewTheme theme;
   final DateTime updatedAt;
@@ -53,6 +56,7 @@ class CalendarGenerationTemplate extends Equatable {
     firstDayOfWeek,
     paperSize,
     pageOrientation,
+    landscapeDecorationAreaSide,
     imageQuality,
     theme,
     updatedAt,

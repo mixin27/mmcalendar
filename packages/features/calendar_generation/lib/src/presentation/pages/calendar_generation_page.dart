@@ -10,6 +10,7 @@ import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_generation_template.dart';
 import '../../domain/entities/calendar_image_quality.dart';
+import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
@@ -612,6 +613,38 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                 );
               },
             ),
+            if (request.pageOrientation ==
+                CalendarPageOrientation.landscape) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Landscape custom area side',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
+              SegmentedButton<CalendarLandscapeDecorationAreaSide>(
+                showSelectedIcon: false,
+                segments: CalendarLandscapeDecorationAreaSide.values
+                    .map(
+                      (side) =>
+                          ButtonSegment<CalendarLandscapeDecorationAreaSide>(
+                            value: side,
+                            label: Text(side.label),
+                          ),
+                    )
+                    .toList(growable: false),
+                selected: <CalendarLandscapeDecorationAreaSide>{
+                  request.landscapeDecorationAreaSide,
+                },
+                onSelectionChanged: (selection) {
+                  if (selection.isEmpty) {
+                    return;
+                  }
+                  context.read<CalendarGenerationBloc>().add(
+                    ChangeLandscapeDecorationAreaSide(selection.first),
+                  );
+                },
+              ),
+            ],
           ],
         );
       },
@@ -1521,6 +1554,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
       firstDayOfWeek: template.firstDayOfWeek,
       paperSize: template.paperSize,
       pageOrientation: template.pageOrientation,
+      landscapeDecorationAreaSide: template.landscapeDecorationAreaSide,
       imageQuality: template.imageQuality,
       theme: template.theme,
     );

@@ -8,6 +8,7 @@ import 'package:shared_core/shared_core.dart';
 import '../../data/datasources/calendar_generation_preferences_datasource.dart';
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
+import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/calendar_generation_request.dart';
@@ -48,6 +49,7 @@ class CalendarGenerationBloc
     on<ToggleGenerationMyanmarDates>(_onToggleMyanmarDates);
     on<ChangePaperSize>(_onChangePaperSize);
     on<ChangePageOrientation>(_onChangePageOrientation);
+    on<ChangeLandscapeDecorationAreaSide>(_onChangeLandscapeDecorationAreaSide);
     on<ChangeImageQuality>(_onChangeImageQuality);
     on<SaveGenerationTemplate>(_onSaveGenerationTemplate);
     on<ApplyGenerationTemplate>(_onApplyGenerationTemplate);
@@ -95,6 +97,7 @@ class CalendarGenerationBloc
         theme: CalendarPreviewTheme.defaults(),
         paperSize: CalendarPaperSize.a4,
         pageOrientation: CalendarPageOrientation.portrait,
+        landscapeDecorationAreaSide: CalendarLandscapeDecorationAreaSide.right,
         imageQuality: CalendarImageQuality.print,
       );
 
@@ -327,6 +330,17 @@ class CalendarGenerationBloc
     _regenerateIfLoaded(
       emit,
       (loaded) => loaded.request.copyWith(pageOrientation: event.orientation),
+    );
+  }
+
+  void _onChangeLandscapeDecorationAreaSide(
+    ChangeLandscapeDecorationAreaSide event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) =>
+          loaded.request.copyWith(landscapeDecorationAreaSide: event.side),
     );
   }
 

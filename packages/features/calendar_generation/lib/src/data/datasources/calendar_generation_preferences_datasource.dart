@@ -8,6 +8,7 @@ import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_generation_template.dart';
 import '../../domain/entities/calendar_image_quality.dart';
+import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
@@ -109,6 +110,7 @@ class CalendarGenerationPreferencesDataSource {
       firstDayOfWeek: request.firstDayOfWeek,
       paperSize: request.paperSize,
       pageOrientation: request.pageOrientation,
+      landscapeDecorationAreaSide: request.landscapeDecorationAreaSide,
       imageQuality: request.imageQuality,
       theme: request.theme,
       updatedAt: now,
@@ -179,6 +181,7 @@ class CalendarGenerationPreferencesDataSource {
       firstDayOfWeek: target.firstDayOfWeek,
       paperSize: target.paperSize,
       pageOrientation: target.pageOrientation,
+      landscapeDecorationAreaSide: target.landscapeDecorationAreaSide,
       imageQuality: target.imageQuality,
       theme: target.theme,
       updatedAt: DateTime.now(),
@@ -202,6 +205,7 @@ class CalendarGenerationPreferencesDataSource {
       firstDayOfWeek: template.firstDayOfWeek,
       paperSize: template.paperSize,
       pageOrientation: template.pageOrientation,
+      landscapeDecorationAreaSide: template.landscapeDecorationAreaSide,
       imageQuality: template.imageQuality,
       theme: template.theme,
     );
@@ -240,6 +244,7 @@ class CalendarGenerationPreferencesDataSource {
       'firstDayOfWeek': template.firstDayOfWeek,
       'paperSize': template.paperSize.name,
       'pageOrientation': template.pageOrientation.name,
+      'landscapeDecorationAreaSide': template.landscapeDecorationAreaSide.name,
       'imageQuality': template.imageQuality.name,
       'theme': _encodeTheme(template.theme),
     };
@@ -263,6 +268,7 @@ class CalendarGenerationPreferencesDataSource {
       'firstDayOfWeek': request.firstDayOfWeek,
       'paperSize': request.paperSize.name,
       'pageOrientation': request.pageOrientation.name,
+      'landscapeDecorationAreaSide': request.landscapeDecorationAreaSide.name,
       'imageQuality': request.imageQuality.name,
       'theme': _encodeTheme(request.theme),
     };
@@ -313,6 +319,7 @@ class CalendarGenerationPreferencesDataSource {
       firstDayOfWeek: parsedRequest.firstDayOfWeek,
       paperSize: parsedRequest.paperSize,
       pageOrientation: parsedRequest.pageOrientation,
+      landscapeDecorationAreaSide: parsedRequest.landscapeDecorationAreaSide,
       imageQuality: parsedRequest.imageQuality,
       theme: parsedRequest.theme,
       updatedAt:
@@ -337,6 +344,7 @@ class CalendarGenerationPreferencesDataSource {
       theme: CalendarPreviewTheme.defaults(),
       paperSize: CalendarPaperSize.a4,
       pageOrientation: CalendarPageOrientation.portrait,
+      landscapeDecorationAreaSide: CalendarLandscapeDecorationAreaSide.right,
       imageQuality: CalendarImageQuality.print,
     );
   }
@@ -353,6 +361,9 @@ class CalendarGenerationPreferencesDataSource {
     final paperSize = _parsePaperSize(map['paperSize']) ?? fallback.paperSize;
     final orientation =
         _parseOrientation(map['pageOrientation']) ?? fallback.pageOrientation;
+    final landscapeDecorationAreaSide =
+        _parseLandscapeDecorationAreaSide(map['landscapeDecorationAreaSide']) ??
+        fallback.landscapeDecorationAreaSide;
     final quality =
         _parseImageQuality(map['imageQuality']) ?? fallback.imageQuality;
     final theme = _parseTheme(map['theme'], fallback.theme);
@@ -372,6 +383,7 @@ class CalendarGenerationPreferencesDataSource {
           _parseInt(map['firstDayOfWeek']) ?? fallback.firstDayOfWeek,
       paperSize: paperSize,
       pageOrientation: orientation,
+      landscapeDecorationAreaSide: landscapeDecorationAreaSide,
       imageQuality: quality,
       theme: theme,
     );
@@ -472,6 +484,16 @@ class CalendarGenerationPreferencesDataSource {
     final name = raw?.toString();
     return _firstWhereOrNull<CalendarImageQuality>(
       CalendarImageQuality.values,
+      (value) => value.name == name,
+    );
+  }
+
+  CalendarLandscapeDecorationAreaSide? _parseLandscapeDecorationAreaSide(
+    Object? raw,
+  ) {
+    final name = raw?.toString();
+    return _firstWhereOrNull<CalendarLandscapeDecorationAreaSide>(
+      CalendarLandscapeDecorationAreaSide.values,
       (value) => value.name == name,
     );
   }

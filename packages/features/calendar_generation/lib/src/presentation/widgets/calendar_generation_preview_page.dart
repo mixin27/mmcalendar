@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
+import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
@@ -62,6 +63,9 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     final visibleCellCount = visibleRows * 7;
     final isLandscape =
         request.pageOrientation == CalendarPageOrientation.landscape;
+    final isDecorationOnLeft =
+        request.landscapeDecorationAreaSide ==
+        CalendarLandscapeDecorationAreaSide.left;
     final portraitCalendarFlex = compact ? 80 : 72;
     final portraitDecorationFlex = 100 - portraitCalendarFlex;
     final landscapeCalendarFlex = compact ? 80 : 76;
@@ -116,6 +120,16 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                     ? Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          if (isDecorationOnLeft)
+                            Expanded(
+                              flex: landscapeDecorationFlex,
+                              child: _buildCustomDecorationArea(
+                                backgroundColor: backgroundColor,
+                                foregroundColor: foregroundColor,
+                              ),
+                            ),
+                          if (isDecorationOnLeft)
+                            SizedBox(width: compact ? 4 : 8),
                           Expanded(
                             flex: landscapeCalendarFlex,
                             child: Column(
@@ -147,14 +161,16 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                               ],
                             ),
                           ),
-                          SizedBox(width: compact ? 4 : 8),
-                          Expanded(
-                            flex: landscapeDecorationFlex,
-                            child: _buildCustomDecorationArea(
-                              backgroundColor: backgroundColor,
-                              foregroundColor: foregroundColor,
+                          if (!isDecorationOnLeft)
+                            SizedBox(width: compact ? 4 : 8),
+                          if (!isDecorationOnLeft)
+                            Expanded(
+                              flex: landscapeDecorationFlex,
+                              child: _buildCustomDecorationArea(
+                                backgroundColor: backgroundColor,
+                                foregroundColor: foregroundColor,
+                              ),
                             ),
-                          ),
                         ],
                       )
                     : Column(
