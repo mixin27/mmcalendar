@@ -17,7 +17,7 @@ dependencies:
   shared_ui_kit:
     path: ../../shared/ui_kit
 
-  myanmar_calendar_dart: ^2.0.0
+  myanmar_calendar_dart: ^2.0.1
   bloc: ^9.2.0
   flutter_bloc: ^9.1.1
   equatable: ^2.0.7

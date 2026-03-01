@@ -615,10 +615,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_mmcalendar
-      sha256: "77ad802f47333d0b4d9d1748710d89fdb2629764684504e9d4bf9679061381f9"
+      sha256: "2cdec20a09cd3ffcbc1bb5d7122db920c7eaa14dc6df4a10210014392614db75"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "3.3.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -913,10 +913,10 @@ packages:
     dependency: transitive
     description:
       name: myanmar_calendar_dart
-      sha256: bb035abcf25fd1529350f1081aede2f544b475cc11d87633ffe4d8d471e31062
+      sha256: "6f00f3010dd697288187544bbaa31cc54c7db95b4b38a68db1b638c566e774d9"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -1193,10 +1193,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: cbc40be9be1c5af4dab4d6e0de4d5d3729e6f3d65b89d21e1815d57705644a6f
+      sha256: "8374d6200ab33ac99031a852eba4c8eb2170c4bf20778b3e2c9eccb45384fb41"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.20"
+    version: "2.4.21"
   shared_preferences_foundation:
     dependency: transitive
     description:
