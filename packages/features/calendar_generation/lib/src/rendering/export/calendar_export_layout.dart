@@ -42,6 +42,19 @@ class CalendarExportLayout {
     return (width: width, height: height);
   }
 
+  static ({double width, double height}) resolvePreviewCanvasSize(
+    CalendarGenerationRequest request,
+  ) {
+    final imageSize = resolveImageSize(request);
+    final divisor = request.imageQuality == CalendarImageQuality.print
+        ? 4.0
+        : 2.0;
+    return (
+      width: imageSize.width / divisor,
+      height: imageSize.height / divisor,
+    );
+  }
+
   static double previewAspectRatio(CalendarGenerationRequest request) {
     final (width, height) = switch (request.paperSize) {
       CalendarPaperSize.a4 => (1.0, 1.414),

@@ -458,11 +458,8 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   }
 
   Size _resolvePreviewCanvasSize(CalendarGenerationRequest request) {
-    final imageSize = CalendarExportLayout.resolveImageSize(request);
-    final divisor = request.imageQuality == CalendarImageQuality.print
-        ? 4.0
-        : 2.0;
-    return Size(imageSize.width / divisor, imageSize.height / divisor);
+    final previewSize = CalendarExportLayout.resolvePreviewCanvasSize(request);
+    return Size(previewSize.width, previewSize.height);
   }
 
   Widget _buildSettingsLauncherRow() {
@@ -1288,6 +1285,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
             title: page.westernTitle,
             subtitle: page.myanmarTitle,
             canvasSize: previewCanvasSize,
+            overlayPadding: const EdgeInsets.all(12),
             items:
                 (state.request.overlayElementsByMonth[page.month] ??
                         const <CalendarOverlayElement>[])

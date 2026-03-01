@@ -10,6 +10,7 @@ import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../presentation/widgets/calendar_generation_preview_page.dart';
 import '../export/background_image_loader.dart';
+import '../export/calendar_export_layout.dart';
 
 class CalendarImageRenderer {
   CalendarImageRenderer(this._backgroundImageLoader);
@@ -66,11 +67,15 @@ class CalendarImageRenderer {
     required int height,
     Uint8List? backgroundBytes,
   }) async {
-    final exportPixelRatio = _exportPixelRatioFor(request.imageQuality);
-    final logicalSize = Size(
-      width / exportPixelRatio,
-      height / exportPixelRatio,
+    final previewCanvasSize = CalendarExportLayout.resolvePreviewCanvasSize(
+      request,
     );
+    final logicalSize = Size(previewCanvasSize.width, previewCanvasSize.height);
+    final pixelRatioByWidth = width / logicalSize.width;
+    final pixelRatioByHeight = height / logicalSize.height;
+    final exportPixelRatio = pixelRatioByWidth < pixelRatioByHeight
+        ? pixelRatioByWidth
+        : pixelRatioByHeight;
 
     final repaintBoundary = RenderRepaintBoundary();
     final renderView = RenderView(
@@ -213,10 +218,6 @@ class CalendarImageRenderer {
     }
 
     return Uint8List.fromList(best);
-  }
-
-  double _exportPixelRatioFor(CalendarImageQuality quality) {
-    return quality == CalendarImageQuality.print ? 3.0 : 2.0;
   }
 
   int _jpegQualityFor(CalendarImageQuality quality) {

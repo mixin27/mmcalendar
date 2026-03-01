@@ -357,17 +357,46 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
 
   Widget _buildCanvasScene(OverlayEditorPageData page) {
     final items = _items(page.pageKey);
+    final overlayRect = Rect.fromLTWH(
+      page.overlayPadding.left,
+      page.overlayPadding.top,
+      (page.canvasSize.width - page.overlayPadding.horizontal).clamp(
+        0.0,
+        page.canvasSize.width,
+      ),
+      (page.canvasSize.height - page.overlayPadding.vertical).clamp(
+        0.0,
+        page.canvasSize.height,
+      ),
+    );
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Positioned.fill(child: page.preview),
-        for (final item in items) _buildOverlayItem(page, item),
+        Positioned.fromRect(
+          rect: overlayRect,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              for (final item in items)
+                _buildOverlayItem(
+                  pageKey: page.pageKey,
+                  item: item,
+                  overlayCanvasSize: overlayRect.size,
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildOverlayItem(OverlayEditorPageData page, OverlayEditorItem item) {
+  Widget _buildOverlayItem({
+    required int pageKey,
+    required OverlayEditorItem item,
+    required Size overlayCanvasSize,
+  }) {
     final isSelected = _selectedItemId == item.id;
     final natural = _naturalSize(item);
     final controller = _activeControllers[item.id];
@@ -393,17 +422,16 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
     }
 
     return TransformableBox(
-      key: ValueKey<String>('box_${page.pageKey}_${item.id}'),
+      key: ValueKey<String>('box_${pageKey}_${item.id}'),
       controller: controller,
       allowFlippingWhileResizing: false,
       resizable: !item.locked,
       draggable: !item.locked,
       onTap: () => _select(item.id),
       onDragStart: (_) => _interactingItemId = item.id,
-      onResizeStart: (_, _) =>
-          _interactingItemId = item.id,
+      onResizeStart: (_, _) => _interactingItemId = item.id,
       onChanged: (result, _) {
-        _storeFromRect(page.pageKey, item, result.rect, natural);
+        _storeFromRect(pageKey, item, result.rect, natural, overlayCanvasSize);
       },
       onDragEnd: (_) {
         _interactingItemId = null;
@@ -641,15 +669,26 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
       _selectedItemId = null;
     }
 
+    final overlayCanvasSize = Size(
+      (page.canvasSize.width - page.overlayPadding.horizontal).clamp(
+        0.0,
+        page.canvasSize.width,
+      ),
+      (page.canvasSize.height - page.overlayPadding.vertical).clamp(
+        0.0,
+        page.canvasSize.height,
+      ),
+    );
+
     final clampRect = Rect.fromLTWH(
       0,
       0,
-      page.canvasSize.width,
-      page.canvasSize.height,
+      overlayCanvasSize.width,
+      overlayCanvasSize.height,
     );
 
     for (final item in items) {
-      final rect = _rectFromItem(item, page.canvasSize);
+      final rect = _rectFromItem(item, overlayCanvasSize);
       final existing = _activeControllers[item.id];
       if (existing == null) {
         _activeControllers[item.id] = TransformableBoxController(
@@ -658,8 +697,8 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
           constraints: BoxConstraints(
             minWidth: 24,
             minHeight: 24,
-            maxWidth: page.canvasSize.width,
-            maxHeight: page.canvasSize.height,
+            maxWidth: overlayCanvasSize.width,
+            maxHeight: overlayCanvasSize.height,
           ),
           allowFlippingWhileResizing: false,
         );
@@ -678,8 +717,8 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
           BoxConstraints(
             minWidth: 24,
             minHeight: 24,
-            maxWidth: page.canvasSize.width,
-            maxHeight: page.canvasSize.height,
+            maxWidth: overlayCanvasSize.width,
+            maxHeight: overlayCanvasSize.height,
           ),
           notify: false,
         );
@@ -693,9 +732,11 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
     final natural = _naturalSize(item);
     final width = (natural.width * item.scale).clamp(24.0, 2000.0);
     final height = (natural.height * item.scale).clamp(24.0, 2000.0);
+    final xRange = (canvasSize.width - natural.width).clamp(0.0, 2000.0);
+    final yRange = (canvasSize.height - natural.height).clamp(0.0, 2000.0);
     final center = Offset(
-      item.x.clamp(0.0, 1.0) * canvasSize.width,
-      item.y.clamp(0.0, 1.0) * canvasSize.height,
+      (item.x.clamp(0.0, 1.0) * xRange.toDouble()) + (natural.width / 2),
+      (item.y.clamp(0.0, 1.0) * yRange.toDouble()) + (natural.height / 2),
     );
     return Rect.fromCenter(
       center: center,
@@ -709,14 +750,18 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
     OverlayEditorItem original,
     Rect rect,
     Size natural,
+    Size overlayCanvasSize,
   ) {
     if (_updatingControllers) {
       return;
     }
-    final page = _currentPage;
+    final xRange = overlayCanvasSize.width - natural.width;
+    final yRange = overlayCanvasSize.height - natural.height;
+    final safeXRange = xRange.abs() < _epsilon ? 1.0 : xRange;
+    final safeYRange = yRange.abs() < _epsilon ? 1.0 : yRange;
     final next = original.copyWith(
-      x: (rect.center.dx / page.canvasSize.width).clamp(0.0, 1.0),
-      y: (rect.center.dy / page.canvasSize.height).clamp(0.0, 1.0),
+      x: ((rect.center.dx - (natural.width / 2)) / safeXRange).clamp(0.0, 1.0),
+      y: ((rect.center.dy - (natural.height / 2)) / safeYRange).clamp(0.0, 1.0),
       scale:
           ((((rect.width / natural.width) + (rect.height / natural.height)) / 2)
                   .clamp(0.4, 12.0))

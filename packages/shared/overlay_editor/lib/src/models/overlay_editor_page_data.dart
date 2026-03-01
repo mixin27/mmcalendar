@@ -8,6 +8,7 @@ class OverlayEditorPageData {
     required this.title,
     required this.preview,
     required this.canvasSize,
+    this.overlayPadding = EdgeInsets.zero,
     this.subtitle,
     this.items = const <OverlayEditorItem>[],
   });
@@ -17,5 +18,6 @@ class OverlayEditorPageData {
   final String? subtitle;
   final Widget preview;
   final Size canvasSize;
+  final EdgeInsets overlayPadding;
   final List<OverlayEditorItem> items;
 }
