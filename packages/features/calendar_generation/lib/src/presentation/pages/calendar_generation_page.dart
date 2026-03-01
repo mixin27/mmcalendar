@@ -11,6 +11,7 @@ import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_generation_template.dart';
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
+import '../../domain/entities/calendar_overlay_element.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
@@ -60,6 +61,10 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   int? _templatePreviewCacheKey;
   CalendarPageOrientation? _previewOrientationOverride;
   bool _syncPreviewOrientationToExport = false;
+  bool _isEditorMode = false;
+  String? _selectedOverlayElementId;
+  Map<int, List<CalendarOverlayElement>> _editorOverlayElementsByMonth =
+      <int, List<CalendarOverlayElement>>{};
   final Map<String, _TemplatePreviewData> _templatePreviewCache =
       <String, _TemplatePreviewData>{};
 
@@ -90,6 +95,11 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
       appBar: AppBar(
         title: const Text('Calendar Generation'),
         actions: [
+          IconButton(
+            onPressed: _isProcessingAction ? null : _toggleEditorMode,
+            icon: Icon(_isEditorMode ? Icons.edit_off : Icons.edit_outlined),
+            tooltip: _isEditorMode ? 'Exit Editor' : 'Edit Overlays',
+          ),
           IconButton(
             onPressed: _isProcessingAction ? null : _exportPdf,
             icon: const Icon(Icons.picture_as_pdf),
@@ -179,11 +189,15 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
 
   Widget _buildLoadedBody(CalendarGenerationLoaded state) {
     final request = state.request;
+    final effectiveOverlayElementsByMonth = _isEditorMode
+        ? _editorOverlayElementsByMonth
+        : request.overlayElementsByMonth;
     final previewOrientation = _syncPreviewOrientationToExport
         ? request.pageOrientation
         : (_previewOrientationOverride ?? request.pageOrientation);
     final previewRequest = request.copyWith(
       pageOrientation: previewOrientation,
+      overlayElementsByMonth: effectiveOverlayElementsByMonth,
     );
     final previewCanvasSize = _resolvePreviewCanvasSize(previewRequest);
     final pages = state.pages;
@@ -192,6 +206,18 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
       children: [
         _buildSettingsLauncherRow(),
         const Divider(height: 1),
+        if (_isEditorMode)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            color: Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: 0.36),
+            child: Text(
+              'Editor Mode: drag to move, pinch to scale/rotate',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Row(
@@ -283,7 +309,10 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: pages.length,
             onPageChanged: (index) {
-              setState(() => _previewPage = index);
+              setState(() {
+                _previewPage = index;
+                _selectedOverlayElementId = null;
+              });
             },
             itemBuilder: (context, index) {
               final colorScheme = Theme.of(context).colorScheme;
@@ -304,7 +333,9 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                       constrained: true,
                       boundaryMargin: const EdgeInsets.all(80),
                       minScale: 1.0,
-                      maxScale: 4.0,
+                      maxScale: _isEditorMode ? 1.0 : 4.0,
+                      panEnabled: !_isEditorMode,
+                      scaleEnabled: !_isEditorMode,
                       child: SizedBox.expand(
                         child: FittedBox(
                           fit: BoxFit.contain,
@@ -319,6 +350,31 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                               elevation: 0,
                               contentPadding: const EdgeInsets.all(12),
                               useCardChrome: false,
+                              editOverlayElements:
+                                  _isEditorMode && index == _previewPage,
+                              selectedOverlayElementId:
+                                  _selectedOverlayElementId,
+                              onSelectedOverlayElementChanged:
+                                  _isEditorMode && index == _previewPage
+                                  ? (id) {
+                                      setState(
+                                        () => _selectedOverlayElementId = id,
+                                      );
+                                    }
+                                  : null,
+                              onOverlayElementChanged:
+                                  _isEditorMode && index == _previewPage
+                                  ? (updated) {
+                                      _updateOverlayElementForMonth(
+                                        month: pages[index].month,
+                                        element: updated,
+                                      );
+                                    }
+                                  : null,
+                              onOverlayElementEditEnd:
+                                  _isEditorMode && index == _previewPage
+                                  ? _commitEditorOverlayElements
+                                  : null,
                             ),
                           ),
                         ),
@@ -330,6 +386,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
             },
           ),
         ),
+        if (_isEditorMode) _buildEditorToolbar(pages),
         if (pages.length > 1)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -379,6 +436,417 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
         ? 4.0
         : 2.0;
     return Size(imageSize.width / divisor, imageSize.height / divisor);
+  }
+
+  Widget _buildEditorToolbar(List<CalendarPageModel> pages) {
+    final month = _activePreviewMonth(pages);
+    final selectedElement = _selectedOverlayElementForMonth(month);
+    final selectedLabel = selectedElement == null
+        ? 'No element selected'
+        : 'Selected: ${selectedElement.type.name.capitalize}';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Editor • Month $month',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 2),
+              Text(selectedLabel, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _EditorToolButton(
+                      icon: Icons.text_fields,
+                      label: 'Text',
+                      onTap: () => _addTextOverlayElement(month),
+                    ),
+                    _EditorToolButton(
+                      icon: Icons.emoji_emotions_outlined,
+                      label: 'Emoji',
+                      onTap: () => _addEmojiOverlayElement(month),
+                    ),
+                    _EditorToolButton(
+                      icon: Icons.auto_awesome_outlined,
+                      label: 'Sticker',
+                      onTap: () => _addStickerOverlayElement(month),
+                    ),
+                    _EditorToolButton(
+                      icon: Icons.image_outlined,
+                      label: 'Image',
+                      onTap: () => _addImageOverlayElement(month),
+                    ),
+                    _EditorToolButton(
+                      icon: selectedElement?.locked == true
+                          ? Icons.lock_open_outlined
+                          : Icons.lock_outline,
+                      label: selectedElement?.locked == true
+                          ? 'Unlock'
+                          : 'Lock',
+                      onTap: selectedElement == null
+                          ? null
+                          : () => _toggleSelectedOverlayElementLock(month),
+                    ),
+                    _EditorToolButton(
+                      icon: Icons.delete_outline,
+                      label: 'Delete',
+                      onTap: selectedElement == null
+                          ? null
+                          : () => _deleteSelectedOverlayElement(month),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _toggleEditorMode() {
+    final currentState = context.read<CalendarGenerationBloc>().state;
+    if (currentState is! CalendarGenerationLoaded) {
+      return;
+    }
+    if (!_isEditorMode) {
+      setState(() {
+        _isEditorMode = true;
+        _selectedOverlayElementId = null;
+        _editorOverlayElementsByMonth = _cloneOverlayElementsByMonth(
+          currentState.request.overlayElementsByMonth,
+        );
+      });
+      return;
+    }
+
+    _commitEditorOverlayElements();
+    setState(() {
+      _isEditorMode = false;
+      _selectedOverlayElementId = null;
+      _editorOverlayElementsByMonth = <int, List<CalendarOverlayElement>>{};
+    });
+  }
+
+  void _commitEditorOverlayElements() {
+    if (!_isEditorMode) {
+      return;
+    }
+    context.read<CalendarGenerationBloc>().add(
+      ReplaceOverlayElementsByMonth(
+        _cloneOverlayElementsByMonth(_editorOverlayElementsByMonth),
+      ),
+    );
+  }
+
+  int _activePreviewMonth(List<CalendarPageModel> pages) {
+    if (pages.isEmpty) {
+      return 1;
+    }
+    final safeIndex = _previewPage.clamp(0, pages.length - 1);
+    return pages[safeIndex].month;
+  }
+
+  List<CalendarOverlayElement> _elementsForMonth(int month) {
+    return _editorOverlayElementsByMonth[month] ??
+        const <CalendarOverlayElement>[];
+  }
+
+  CalendarOverlayElement? _selectedOverlayElementForMonth(int month) {
+    final selectedId = _selectedOverlayElementId;
+    if (selectedId == null) {
+      return null;
+    }
+    for (final element in _elementsForMonth(month)) {
+      if (element.id == selectedId) {
+        return element;
+      }
+    }
+    return null;
+  }
+
+  void _updateOverlayElementForMonth({
+    required int month,
+    required CalendarOverlayElement element,
+  }) {
+    final list = _elementsForMonth(month).toList(growable: true);
+    final index = list.indexWhere((item) => item.id == element.id);
+    if (index < 0) {
+      return;
+    }
+    list[index] = element;
+    setState(() {
+      _editorOverlayElementsByMonth[month] =
+          List<CalendarOverlayElement>.unmodifiable(list);
+    });
+  }
+
+  Future<void> _addTextOverlayElement(int month) async {
+    String inputText = '';
+    final text = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Add Text'),
+        content: TextField(
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Text',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) => inputText = value,
+          onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(inputText),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+    final normalized = text?.trim() ?? '';
+    if (normalized.isEmpty) {
+      return;
+    }
+    _appendOverlayElement(
+      month,
+      CalendarOverlayElement(
+        id: _newOverlayElementId(),
+        type: CalendarOverlayElementType.text,
+        x: 0.5,
+        y: 0.5,
+        scale: 1.0,
+        rotation: 0.0,
+        text: normalized,
+        colorValue: 0xFF1F2937,
+        baseSize: 28,
+      ),
+    );
+  }
+
+  Future<void> _addEmojiOverlayElement(int month) async {
+    const emojis = <String>[
+      '😀',
+      '🙂',
+      '😎',
+      '😍',
+      '🎉',
+      '🔥',
+      '🌙',
+      '⭐',
+      '🙏',
+      '📌',
+      '🧧',
+      '🎁',
+    ];
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      useSafeArea: true,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+        child: GridView.count(
+          crossAxisCount: 6,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          children: emojis
+              .map(
+                (emoji) => InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => Navigator.of(sheetContext).pop(emoji),
+                  child: Center(
+                    child: Text(
+                      emoji,
+                      style: const TextStyle(fontSize: 30, height: 1.0),
+                    ),
+                  ),
+                ),
+              )
+              .toList(growable: false),
+        ),
+      ),
+    );
+    if (selected == null || selected.trim().isEmpty) {
+      return;
+    }
+    _appendOverlayElement(
+      month,
+      CalendarOverlayElement(
+        id: _newOverlayElementId(),
+        type: CalendarOverlayElementType.emoji,
+        x: 0.5,
+        y: 0.5,
+        scale: 1.0,
+        rotation: 0.0,
+        text: selected,
+        baseSize: 34,
+      ),
+    );
+  }
+
+  Future<void> _addStickerOverlayElement(int month) async {
+    const stickerKeys = <String>[
+      'star',
+      'heart',
+      'flower',
+      'celebration',
+      'location',
+      'flag',
+    ];
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      useSafeArea: true,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+        child: GridView.count(
+          crossAxisCount: 3,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 1.6,
+          children: stickerKeys
+              .map(
+                (key) => OutlinedButton.icon(
+                  onPressed: () => Navigator.of(sheetContext).pop(key),
+                  icon: Icon(_stickerIconForKey(key)),
+                  label: Text(key.capitalize),
+                ),
+              )
+              .toList(growable: false),
+        ),
+      ),
+    );
+    if (selected == null || selected.trim().isEmpty) {
+      return;
+    }
+    _appendOverlayElement(
+      month,
+      CalendarOverlayElement(
+        id: _newOverlayElementId(),
+        type: CalendarOverlayElementType.sticker,
+        x: 0.5,
+        y: 0.5,
+        scale: 1.0,
+        rotation: 0.0,
+        stickerKey: selected,
+        colorValue: 0xFF2563EB,
+        baseSize: 42,
+      ),
+    );
+  }
+
+  Future<void> _addImageOverlayElement(int month) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+    final path = result.files.first.path?.trim();
+    if (path == null || path.isEmpty) {
+      return;
+    }
+    final source = _normalizeBackgroundImageUrl(path);
+    _appendOverlayElement(
+      month,
+      CalendarOverlayElement(
+        id: _newOverlayElementId(),
+        type: CalendarOverlayElementType.image,
+        x: 0.5,
+        y: 0.5,
+        scale: 1.0,
+        rotation: 0.0,
+        imageSource: source,
+        baseSize: 120,
+      ),
+    );
+  }
+
+  void _appendOverlayElement(int month, CalendarOverlayElement element) {
+    final list = _elementsForMonth(month).toList(growable: true);
+    final offset = (list.length % 4) * 0.05;
+    final centered = element.copyWith(
+      x: (0.45 + offset).clamp(0.1, 0.9).toDouble(),
+      y: (0.42 + offset).clamp(0.1, 0.9).toDouble(),
+    );
+    list.add(centered);
+    setState(() {
+      _selectedOverlayElementId = centered.id;
+      _editorOverlayElementsByMonth[month] =
+          List<CalendarOverlayElement>.unmodifiable(list);
+    });
+    _commitEditorOverlayElements();
+  }
+
+  void _toggleSelectedOverlayElementLock(int month) {
+    final selected = _selectedOverlayElementForMonth(month);
+    if (selected == null) {
+      return;
+    }
+    _updateOverlayElementForMonth(
+      month: month,
+      element: selected.copyWith(locked: !selected.locked),
+    );
+    _commitEditorOverlayElements();
+  }
+
+  void _deleteSelectedOverlayElement(int month) {
+    final selectedId = _selectedOverlayElementId;
+    if (selectedId == null) {
+      return;
+    }
+    final list = _elementsForMonth(
+      month,
+    ).where((element) => element.id != selectedId).toList(growable: false);
+    setState(() {
+      _selectedOverlayElementId = null;
+      if (list.isEmpty) {
+        _editorOverlayElementsByMonth.remove(month);
+      } else {
+        _editorOverlayElementsByMonth[month] = list;
+      }
+    });
+    _commitEditorOverlayElements();
+  }
+
+  String _newOverlayElementId() {
+    return 'overlay_${DateTime.now().microsecondsSinceEpoch}';
+  }
+
+  IconData _stickerIconForKey(String key) {
+    return switch (key) {
+      'star' => Icons.star_rounded,
+      'heart' => Icons.favorite_rounded,
+      'flower' => Icons.local_florist_rounded,
+      'celebration' => Icons.celebration_rounded,
+      'location' => Icons.place_rounded,
+      'flag' => Icons.flag_rounded,
+      _ => Icons.auto_awesome_rounded,
+    };
+  }
+
+  Map<int, List<CalendarOverlayElement>> _cloneOverlayElementsByMonth(
+    Map<int, List<CalendarOverlayElement>> source,
+  ) {
+    final copied = <int, List<CalendarOverlayElement>>{};
+    for (final entry in source.entries) {
+      copied[entry.key] = List<CalendarOverlayElement>.from(entry.value);
+    }
+    return copied;
   }
 
   Widget _buildSettingsLauncherRow() {
@@ -1171,8 +1639,9 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     await _runGenerationAction(
       actionLabel: 'Generating PDF',
       onRun: (state) async {
+        final request = _resolvedRequestForGeneration(state.request);
         final artifact = await getIt<CalendarExportService>().buildPdf(
-          request: state.request,
+          request: request,
           pages: state.pages,
         );
         await _shareArtifacts([artifact], title: 'Calendar PDF');
@@ -1188,14 +1657,15 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     await _runGenerationAction(
       actionLabel: 'Generating images',
       onRun: (state) async {
+        final request = _resolvedRequestForGeneration(state.request);
         final exportService = getIt<CalendarExportService>();
         final artifacts = await exportService.buildImages(
-          request: state.request,
+          request: request,
           pages: state.pages,
         );
         if (artifacts.length > 1) {
           final zip = exportService.buildImagesZip(
-            year: state.request.year,
+            year: request.year,
             images: artifacts,
           );
           await _shareArtifacts([zip], title: 'Calendar Images ZIP');
@@ -1220,11 +1690,25 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     await _runGenerationAction(
       actionLabel: 'Preparing print',
       onRun: (state) async {
+        final request = _resolvedRequestForGeneration(state.request);
         await getIt<CalendarExportService>().print(
-          request: state.request,
+          request: request,
           pages: state.pages,
         );
       },
+    );
+  }
+
+  CalendarGenerationRequest _resolvedRequestForGeneration(
+    CalendarGenerationRequest request,
+  ) {
+    if (!_isEditorMode) {
+      return request;
+    }
+    return request.copyWith(
+      overlayElementsByMonth: _cloneOverlayElementsByMonth(
+        _editorOverlayElementsByMonth,
+      ),
     );
   }
 
@@ -1831,6 +2315,30 @@ class _ColorSelector extends StatelessWidget {
               .toList(growable: false),
         ),
       ],
+    );
+  }
+}
+
+class _EditorToolButton extends StatelessWidget {
+  const _EditorToolButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: OutlinedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, size: 18),
+        label: Text(label),
+      ),
     );
   }
 }

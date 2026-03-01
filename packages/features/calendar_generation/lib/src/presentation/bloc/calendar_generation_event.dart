@@ -4,6 +4,7 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
+import '../../domain/entities/calendar_overlay_element.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
@@ -198,6 +199,15 @@ final class ChangeImageQuality extends CalendarGenerationEvent {
 
   @override
   List<Object?> get props => [quality];
+}
+
+final class ReplaceOverlayElementsByMonth extends CalendarGenerationEvent {
+  const ReplaceOverlayElementsByMonth(this.overlayElementsByMonth);
+
+  final Map<int, List<CalendarOverlayElement>> overlayElementsByMonth;
+
+  @override
+  List<Object?> get props => [overlayElementsByMonth];
 }
 
 final class SaveGenerationTemplate extends CalendarGenerationEvent {

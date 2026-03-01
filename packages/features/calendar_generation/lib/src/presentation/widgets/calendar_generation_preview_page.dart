@@ -6,6 +6,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
+import '../../domain/entities/calendar_overlay_element.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
@@ -21,6 +22,12 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     this.compact = false,
     this.useCardChrome = true,
     this.backgroundImageProvider,
+    this.showOverlayElements = true,
+    this.editOverlayElements = false,
+    this.selectedOverlayElementId,
+    this.onSelectedOverlayElementChanged,
+    this.onOverlayElementChanged,
+    this.onOverlayElementEditEnd,
     super.key,
   });
 
@@ -37,6 +44,12 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
   final bool compact;
   final bool useCardChrome;
   final ImageProvider<Object>? backgroundImageProvider;
+  final bool showOverlayElements;
+  final bool editOverlayElements;
+  final String? selectedOverlayElementId;
+  final ValueChanged<String?>? onSelectedOverlayElementChanged;
+  final ValueChanged<CalendarOverlayElement>? onOverlayElementChanged;
+  final VoidCallback? onOverlayElementEditEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +83,9 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     final portraitDecorationFlex = 100 - portraitCalendarFlex;
     final landscapeCalendarFlex = compact ? 80 : 76;
     final landscapeDecorationFlex = 100 - landscapeCalendarFlex;
+    final overlayElements =
+        request.overlayElementsByMonth[model.month] ??
+        const <CalendarOverlayElement>[];
 
     final previewBody = AspectRatio(
       aspectRatio: aspectRatio,
@@ -89,128 +105,160 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
         ),
         child: Padding(
           padding: contentPadding,
-          child: Column(
-            children: [
-              Text(
-                model.westernTitle,
-                style: TextStyle(
-                  color: foregroundColor,
-                  fontSize: titleFontSize,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              if (!compact &&
-                  request.showMyanmarDates &&
-                  model.myanmarTitle.trim().isNotEmpty) ...[
-                const SizedBox(height: 2),
-                Text(
-                  model.myanmarTitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: foregroundColor.withValues(alpha: 0.82),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final pageContent = Column(
+                children: [
+                  Text(
+                    model.westernTitle,
+                    style: TextStyle(
+                      color: foregroundColor,
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
-              SizedBox(height: compact ? 4 : 8),
-              Expanded(
-                child: isLandscape
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (isDecorationOnLeft)
-                            Expanded(
-                              flex: landscapeDecorationFlex,
-                              child: _buildCustomDecorationArea(
-                                backgroundColor: backgroundColor,
-                                foregroundColor: foregroundColor,
-                              ),
-                            ),
-                          if (isDecorationOnLeft)
-                            SizedBox(width: compact ? 4 : 8),
-                          Expanded(
-                            flex: landscapeCalendarFlex,
-                            child: Column(
-                              children: [
-                                _WeekdayHeader(
-                                  labels: model.weekdayLabels,
-                                  foregroundColor: foregroundColor,
-                                  fontSize: weekdayFontSize,
-                                ),
-                                SizedBox(height: compact ? 3 : 6),
+                  if (!compact &&
+                      request.showMyanmarDates &&
+                      model.myanmarTitle.trim().isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      model.myanmarTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: foregroundColor.withValues(alpha: 0.82),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: compact ? 4 : 8),
+                  Expanded(
+                    child: isLandscape
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (isDecorationOnLeft)
                                 Expanded(
-                                  child: _buildCalendarGrid(
+                                  flex: landscapeDecorationFlex,
+                                  child: _buildCustomDecorationArea(
                                     backgroundColor: backgroundColor,
                                     foregroundColor: foregroundColor,
-                                    holidayColor: holidayColor,
-                                    fullMoonColor: fullMoonColor,
-                                    newMoonColor: newMoonColor,
-                                    dayRadius: dayRadius,
-                                    dayPadding: dayPadding,
-                                    gridSpacing: gridSpacing,
-                                    gridAspectRatioFallback:
-                                        gridAspectRatioFallback,
-                                    visibleRows: visibleRows,
-                                    visibleCellCount: visibleCellCount,
-                                    westernDayFontSize: westernDayFontSize,
-                                    myanmarDayFontSize: myanmarDayFontSize,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          if (!isDecorationOnLeft)
-                            SizedBox(width: compact ? 4 : 8),
-                          if (!isDecorationOnLeft)
-                            Expanded(
-                              flex: landscapeDecorationFlex,
-                              child: _buildCustomDecorationArea(
-                                backgroundColor: backgroundColor,
-                                foregroundColor: foregroundColor,
+                              if (isDecorationOnLeft)
+                                SizedBox(width: compact ? 4 : 8),
+                              Expanded(
+                                flex: landscapeCalendarFlex,
+                                child: Column(
+                                  children: [
+                                    _WeekdayHeader(
+                                      labels: model.weekdayLabels,
+                                      foregroundColor: foregroundColor,
+                                      fontSize: weekdayFontSize,
+                                    ),
+                                    SizedBox(height: compact ? 3 : 6),
+                                    Expanded(
+                                      child: _buildCalendarGrid(
+                                        backgroundColor: backgroundColor,
+                                        foregroundColor: foregroundColor,
+                                        holidayColor: holidayColor,
+                                        fullMoonColor: fullMoonColor,
+                                        newMoonColor: newMoonColor,
+                                        dayRadius: dayRadius,
+                                        dayPadding: dayPadding,
+                                        gridSpacing: gridSpacing,
+                                        gridAspectRatioFallback:
+                                            gridAspectRatioFallback,
+                                        visibleRows: visibleRows,
+                                        visibleCellCount: visibleCellCount,
+                                        westernDayFontSize: westernDayFontSize,
+                                        myanmarDayFontSize: myanmarDayFontSize,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          _WeekdayHeader(
-                            labels: model.weekdayLabels,
-                            foregroundColor: foregroundColor,
-                            fontSize: weekdayFontSize,
+                              if (!isDecorationOnLeft)
+                                SizedBox(width: compact ? 4 : 8),
+                              if (!isDecorationOnLeft)
+                                Expanded(
+                                  flex: landscapeDecorationFlex,
+                                  child: _buildCustomDecorationArea(
+                                    backgroundColor: backgroundColor,
+                                    foregroundColor: foregroundColor,
+                                  ),
+                                ),
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              _WeekdayHeader(
+                                labels: model.weekdayLabels,
+                                foregroundColor: foregroundColor,
+                                fontSize: weekdayFontSize,
+                              ),
+                              SizedBox(height: compact ? 3 : 6),
+                              Expanded(
+                                flex: portraitCalendarFlex,
+                                child: _buildCalendarGrid(
+                                  backgroundColor: backgroundColor,
+                                  foregroundColor: foregroundColor,
+                                  holidayColor: holidayColor,
+                                  fullMoonColor: fullMoonColor,
+                                  newMoonColor: newMoonColor,
+                                  dayRadius: dayRadius,
+                                  dayPadding: dayPadding,
+                                  gridSpacing: gridSpacing,
+                                  gridAspectRatioFallback:
+                                      gridAspectRatioFallback,
+                                  visibleRows: visibleRows,
+                                  visibleCellCount: visibleCellCount,
+                                  westernDayFontSize: westernDayFontSize,
+                                  myanmarDayFontSize: myanmarDayFontSize,
+                                ),
+                              ),
+                              SizedBox(height: compact ? 4 : 8),
+                              Expanded(
+                                flex: portraitDecorationFlex,
+                                child: _buildCustomDecorationArea(
+                                  backgroundColor: backgroundColor,
+                                  foregroundColor: foregroundColor,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: compact ? 3 : 6),
-                          Expanded(
-                            flex: portraitCalendarFlex,
-                            child: _buildCalendarGrid(
-                              backgroundColor: backgroundColor,
-                              foregroundColor: foregroundColor,
-                              holidayColor: holidayColor,
-                              fullMoonColor: fullMoonColor,
-                              newMoonColor: newMoonColor,
-                              dayRadius: dayRadius,
-                              dayPadding: dayPadding,
-                              gridSpacing: gridSpacing,
-                              gridAspectRatioFallback: gridAspectRatioFallback,
-                              visibleRows: visibleRows,
-                              visibleCellCount: visibleCellCount,
-                              westernDayFontSize: westernDayFontSize,
-                              myanmarDayFontSize: myanmarDayFontSize,
-                            ),
-                          ),
-                          SizedBox(height: compact ? 4 : 8),
-                          Expanded(
-                            flex: portraitDecorationFlex,
-                            child: _buildCustomDecorationArea(
-                              backgroundColor: backgroundColor,
-                              foregroundColor: foregroundColor,
-                            ),
-                          ),
-                        ],
-                      ),
-              ),
-            ],
+                  ),
+                ],
+              );
+
+              if (!showOverlayElements || overlayElements.isEmpty) {
+                return pageContent;
+              }
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  pageContent,
+                  _OverlayElementsLayer(
+                    elements: overlayElements,
+                    canvasWidth: constraints.maxWidth,
+                    canvasHeight: constraints.maxHeight,
+                    editMode: editOverlayElements && !compact,
+                    selectedElementId: selectedOverlayElementId,
+                    onSelectedElementChanged: onSelectedOverlayElementChanged,
+                    onElementChanged: onOverlayElementChanged,
+                    onElementEditEnd: onOverlayElementEditEnd,
+                    buildElementChild: (element, isSelected) =>
+                        _buildOverlayElementVisual(
+                          element,
+                          foregroundColor: foregroundColor,
+                          isSelected: isSelected,
+                        ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -220,6 +268,96 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
       return previewBody;
     }
     return Card(margin: margin, elevation: elevation, child: previewBody);
+  }
+
+  Widget _buildOverlayElementVisual(
+    CalendarOverlayElement element, {
+    required Color foregroundColor,
+    required bool isSelected,
+  }) {
+    final content = switch (element.type) {
+      CalendarOverlayElementType.text => Text(
+        element.text?.trim().isNotEmpty == true ? element.text!.trim() : 'Text',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Color(element.colorValue),
+          fontSize: element.baseSize,
+          fontWeight: FontWeight.w700,
+          height: 1.0,
+        ),
+      ),
+      CalendarOverlayElementType.emoji => Text(
+        element.text?.trim().isNotEmpty == true ? element.text!.trim() : '🙂',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: element.baseSize, height: 1.0),
+      ),
+      CalendarOverlayElementType.sticker => Icon(
+        _resolveStickerIcon(element.stickerKey),
+        size: element.baseSize,
+        color: Color(element.colorValue),
+      ),
+      CalendarOverlayElementType.image => _buildOverlayImage(element),
+    };
+
+    return Opacity(
+      opacity: element.opacity.clamp(0.0, 1.0),
+      child: DecoratedBox(
+        decoration: isSelected
+            ? BoxDecoration(
+                border: Border.all(
+                  color: foregroundColor.withValues(alpha: 0.75),
+                  width: 1.0,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              )
+            : const BoxDecoration(),
+        child: Padding(
+          padding: isSelected
+              ? const EdgeInsets.symmetric(horizontal: 3, vertical: 2)
+              : EdgeInsets.zero,
+          child: content,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOverlayImage(CalendarOverlayElement element) {
+    final provider = _parseImageProvider(element.imageSource);
+    final size = element.baseSize.clamp(16, 520).toDouble();
+    if (provider == null) {
+      return Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFF9CA3AF)),
+          borderRadius: BorderRadius.circular(6),
+          color: Colors.white.withValues(alpha: 0.82),
+        ),
+        child: const Icon(Icons.broken_image_outlined, size: 18),
+      );
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: Image(
+        image: provider,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  IconData _resolveStickerIcon(String? key) {
+    return switch (key) {
+      'star' => Icons.star_rounded,
+      'heart' => Icons.favorite_rounded,
+      'flower' => Icons.local_florist_rounded,
+      'celebration' => Icons.celebration_rounded,
+      'location' => Icons.place_rounded,
+      'flag' => Icons.flag_rounded,
+      _ => Icons.auto_awesome_rounded,
+    };
   }
 
   Widget _buildCellMetaText({required CalendarDayCellModel day}) {
@@ -587,6 +725,172 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
       CalendarBackgroundImageAlignment.center => Alignment.center,
       CalendarBackgroundImageAlignment.bottom => Alignment.bottomCenter,
     };
+  }
+}
+
+class _OverlayElementsLayer extends StatelessWidget {
+  const _OverlayElementsLayer({
+    required this.elements,
+    required this.canvasWidth,
+    required this.canvasHeight,
+    required this.editMode,
+    required this.buildElementChild,
+    this.selectedElementId,
+    this.onSelectedElementChanged,
+    this.onElementChanged,
+    this.onElementEditEnd,
+  });
+
+  final List<CalendarOverlayElement> elements;
+  final double canvasWidth;
+  final double canvasHeight;
+  final bool editMode;
+  final String? selectedElementId;
+  final ValueChanged<String?>? onSelectedElementChanged;
+  final ValueChanged<CalendarOverlayElement>? onElementChanged;
+  final VoidCallback? onElementEditEnd;
+  final Widget Function(CalendarOverlayElement element, bool isSelected)
+  buildElementChild;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: elements
+          .map(
+            (element) => _EditableOverlayElement(
+              key: ValueKey<String>('overlay_${element.id}'),
+              element: element,
+              canvasWidth: canvasWidth,
+              canvasHeight: canvasHeight,
+              selected: selectedElementId == element.id,
+              editMode: editMode,
+              onSelected: onSelectedElementChanged,
+              onChanged: onElementChanged,
+              onEditEnd: onElementEditEnd,
+              child: buildElementChild(
+                element,
+                selectedElementId == element.id,
+              ),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+}
+
+class _EditableOverlayElement extends StatefulWidget {
+  const _EditableOverlayElement({
+    required this.element,
+    required this.canvasWidth,
+    required this.canvasHeight,
+    required this.selected,
+    required this.editMode,
+    required this.child,
+    this.onSelected,
+    this.onChanged,
+    this.onEditEnd,
+    super.key,
+  });
+
+  final CalendarOverlayElement element;
+  final double canvasWidth;
+  final double canvasHeight;
+  final bool selected;
+  final bool editMode;
+  final Widget child;
+  final ValueChanged<String?>? onSelected;
+  final ValueChanged<CalendarOverlayElement>? onChanged;
+  final VoidCallback? onEditEnd;
+
+  @override
+  State<_EditableOverlayElement> createState() =>
+      _EditableOverlayElementState();
+}
+
+class _EditableOverlayElementState extends State<_EditableOverlayElement> {
+  double _startScale = 1.0;
+  double _startRotation = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final element = widget.element;
+    final alignment = Alignment(
+      (element.x * 2.0) - 1.0,
+      (element.y * 2.0) - 1.0,
+    );
+    final content = Transform.rotate(
+      angle: element.rotation,
+      child: Transform.scale(scale: element.scale, child: widget.child),
+    );
+
+    if (!widget.editMode) {
+      return Align(alignment: alignment, child: content);
+    }
+
+    return Align(
+      alignment: alignment,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => widget.onSelected?.call(element.id),
+        onScaleStart: (details) {
+          if (element.locked) {
+            return;
+          }
+          widget.onSelected?.call(element.id);
+          _startScale = element.scale;
+          _startRotation = element.rotation;
+        },
+        onScaleUpdate: (details) {
+          if (element.locked) {
+            return;
+          }
+          final dx = widget.canvasWidth <= 0
+              ? 0.0
+              : details.focalPointDelta.dx / widget.canvasWidth;
+          final dy = widget.canvasHeight <= 0
+              ? 0.0
+              : details.focalPointDelta.dy / widget.canvasHeight;
+          final updated = element.copyWith(
+            x: (element.x + dx).clamp(0.0, 1.0).toDouble(),
+            y: (element.y + dy).clamp(0.0, 1.0).toDouble(),
+            scale: (_startScale * details.scale).clamp(0.2, 8.0).toDouble(),
+            rotation: _startRotation + details.rotation,
+          );
+          widget.onChanged?.call(updated);
+        },
+        onScaleEnd: (_) => widget.onEditEnd?.call(),
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            content,
+            if (widget.selected)
+              Positioned(
+                bottom: -16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1.5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.65),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    element.locked ? 'Locked' : 'Drag/Pinch/Rotate',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

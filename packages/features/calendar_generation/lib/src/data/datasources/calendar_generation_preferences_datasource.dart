@@ -9,6 +9,7 @@ import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_generation_template.dart';
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
+import '../../domain/entities/calendar_overlay_element.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/calendar_preview_theme.dart';
@@ -270,6 +271,9 @@ class CalendarGenerationPreferencesDataSource {
       'pageOrientation': request.pageOrientation.name,
       'landscapeDecorationAreaSide': request.landscapeDecorationAreaSide.name,
       'imageQuality': request.imageQuality.name,
+      'overlayElementsByMonth': _encodeOverlayElementsByMonth(
+        request.overlayElementsByMonth,
+      ),
       'theme': _encodeTheme(request.theme),
     };
   }
@@ -366,6 +370,9 @@ class CalendarGenerationPreferencesDataSource {
         fallback.landscapeDecorationAreaSide;
     final quality =
         _parseImageQuality(map['imageQuality']) ?? fallback.imageQuality;
+    final overlayElementsByMonth = _parseOverlayElementsByMonth(
+      map['overlayElementsByMonth'],
+    );
     final theme = _parseTheme(map['theme'], fallback.theme);
 
     return fallback.copyWith(
@@ -385,7 +392,99 @@ class CalendarGenerationPreferencesDataSource {
       pageOrientation: orientation,
       landscapeDecorationAreaSide: landscapeDecorationAreaSide,
       imageQuality: quality,
+      overlayElementsByMonth: overlayElementsByMonth,
       theme: theme,
+    );
+  }
+
+  Map<String, dynamic> _encodeOverlayElementsByMonth(
+    Map<int, List<CalendarOverlayElement>> source,
+  ) {
+    return source.map(
+      (month, elements) => MapEntry(
+        '$month',
+        elements
+            .map(
+              (element) => <String, dynamic>{
+                'id': element.id,
+                'type': element.type.name,
+                'x': element.x,
+                'y': element.y,
+                'scale': element.scale,
+                'rotation': element.rotation,
+                'text': element.text,
+                'stickerKey': element.stickerKey,
+                'imageSource': element.imageSource,
+                'colorValue': element.colorValue,
+                'baseSize': element.baseSize,
+                'opacity': element.opacity,
+                'locked': element.locked,
+              },
+            )
+            .toList(growable: false),
+      ),
+    );
+  }
+
+  Map<int, List<CalendarOverlayElement>> _parseOverlayElementsByMonth(
+    Object? raw,
+  ) {
+    if (raw is! Map<String, dynamic>) {
+      return const <int, List<CalendarOverlayElement>>{};
+    }
+
+    final parsed = <int, List<CalendarOverlayElement>>{};
+    for (final entry in raw.entries) {
+      final month = int.tryParse(entry.key);
+      final value = entry.value;
+      if (month == null || month < 1 || month > 12 || value is! List) {
+        continue;
+      }
+
+      final elements = <CalendarOverlayElement>[];
+      for (final item in value) {
+        if (item is! Map<String, dynamic>) {
+          continue;
+        }
+        final element = _parseOverlayElement(item);
+        if (element != null) {
+          elements.add(element);
+        }
+      }
+      if (elements.isNotEmpty) {
+        parsed[month] = elements;
+      }
+    }
+    return parsed;
+  }
+
+  CalendarOverlayElement? _parseOverlayElement(Map<String, dynamic> raw) {
+    final id = raw['id']?.toString().trim();
+    final typeName = raw['type']?.toString();
+    final type = _firstWhereOrNull<CalendarOverlayElementType>(
+      CalendarOverlayElementType.values,
+      (value) => value.name == typeName,
+    );
+    final x = _parseDouble(raw['x']);
+    final y = _parseDouble(raw['y']);
+    if (id == null || id.isEmpty || type == null || x == null || y == null) {
+      return null;
+    }
+
+    return CalendarOverlayElement(
+      id: id,
+      type: type,
+      x: x.clamp(0.0, 1.0),
+      y: y.clamp(0.0, 1.0),
+      scale: (_parseDouble(raw['scale']) ?? 1.0).clamp(0.2, 8.0),
+      rotation: _parseDouble(raw['rotation']) ?? 0.0,
+      text: raw['text']?.toString(),
+      stickerKey: raw['stickerKey']?.toString(),
+      imageSource: raw['imageSource']?.toString(),
+      colorValue: _parseInt(raw['colorValue']) ?? 0xFF1F2937,
+      baseSize: (_parseDouble(raw['baseSize']) ?? 28).clamp(8, 360).toDouble(),
+      opacity: (_parseDouble(raw['opacity']) ?? 1).clamp(0.0, 1.0).toDouble(),
+      locked: _parseBool(raw['locked']) ?? false,
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'calendar_image_quality.dart';
 import 'calendar_generation_mode.dart';
 import 'calendar_landscape_decoration_area_side.dart';
+import 'calendar_overlay_element.dart';
 import 'calendar_page_orientation.dart';
 import 'calendar_paper_size.dart';
 import 'calendar_preview_theme.dart';
@@ -26,6 +27,7 @@ class CalendarGenerationRequest extends Equatable {
     required this.imageQuality,
     this.landscapeDecorationAreaSide =
         CalendarLandscapeDecorationAreaSide.right,
+    this.overlayElementsByMonth = const <int, List<CalendarOverlayElement>>{},
     this.month,
   });
 
@@ -45,6 +47,7 @@ class CalendarGenerationRequest extends Equatable {
   final CalendarPageOrientation pageOrientation;
   final CalendarLandscapeDecorationAreaSide landscapeDecorationAreaSide;
   final CalendarImageQuality imageQuality;
+  final Map<int, List<CalendarOverlayElement>> overlayElementsByMonth;
 
   CalendarGenerationRequest copyWith({
     CalendarGenerationMode? mode,
@@ -63,6 +66,7 @@ class CalendarGenerationRequest extends Equatable {
     CalendarPageOrientation? pageOrientation,
     CalendarLandscapeDecorationAreaSide? landscapeDecorationAreaSide,
     CalendarImageQuality? imageQuality,
+    Map<int, List<CalendarOverlayElement>>? overlayElementsByMonth,
   }) {
     return CalendarGenerationRequest(
       mode: mode ?? this.mode,
@@ -82,6 +86,8 @@ class CalendarGenerationRequest extends Equatable {
       landscapeDecorationAreaSide:
           landscapeDecorationAreaSide ?? this.landscapeDecorationAreaSide,
       imageQuality: imageQuality ?? this.imageQuality,
+      overlayElementsByMonth:
+          overlayElementsByMonth ?? this.overlayElementsByMonth,
     );
   }
 
@@ -103,5 +109,17 @@ class CalendarGenerationRequest extends Equatable {
     pageOrientation,
     landscapeDecorationAreaSide,
     imageQuality,
+    _overlayElementsSignature,
   ];
+
+  Object? get _overlayElementsSignature {
+    final entries = overlayElementsByMonth.entries.toList(growable: false)
+      ..sort((left, right) => left.key.compareTo(right.key));
+    final signatures = <Object>[];
+    for (final entry in entries) {
+      signatures.add(entry.key);
+      signatures.add(Object.hashAll(entry.value));
+    }
+    return signatures;
+  }
 }

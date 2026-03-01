@@ -9,6 +9,7 @@ import '../../data/datasources/calendar_generation_preferences_datasource.dart';
 import '../../domain/entities/calendar_image_quality.dart';
 import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
+import '../../domain/entities/calendar_overlay_element.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
 import '../../domain/entities/calendar_paper_size.dart';
 import '../../domain/entities/calendar_generation_request.dart';
@@ -51,6 +52,7 @@ class CalendarGenerationBloc
     on<ChangePageOrientation>(_onChangePageOrientation);
     on<ChangeLandscapeDecorationAreaSide>(_onChangeLandscapeDecorationAreaSide);
     on<ChangeImageQuality>(_onChangeImageQuality);
+    on<ReplaceOverlayElementsByMonth>(_onReplaceOverlayElementsByMonth);
     on<SaveGenerationTemplate>(_onSaveGenerationTemplate);
     on<ApplyGenerationTemplate>(_onApplyGenerationTemplate);
     on<DeleteGenerationTemplate>(_onDeleteGenerationTemplate);
@@ -354,6 +356,22 @@ class CalendarGenerationBloc
     );
   }
 
+  void _onReplaceOverlayElementsByMonth(
+    ReplaceOverlayElementsByMonth event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    final currentState = state;
+    if (currentState is! CalendarGenerationLoaded) {
+      return;
+    }
+    final copied = _copyOverlayElementsByMonth(event.overlayElementsByMonth);
+    final nextRequest = currentState.request.copyWith(
+      overlayElementsByMonth: copied,
+    );
+    emit(currentState.copyWith(request: nextRequest));
+    _queueRequestPersistence(nextRequest);
+  }
+
   Future<void> _onSaveGenerationTemplate(
     SaveGenerationTemplate event,
     Emitter<CalendarGenerationState> emit,
@@ -572,5 +590,17 @@ class CalendarGenerationBloc
       }
     }
     return null;
+  }
+
+  Map<int, List<CalendarOverlayElement>> _copyOverlayElementsByMonth(
+    Map<int, List<CalendarOverlayElement>> source,
+  ) {
+    final copied = <int, List<CalendarOverlayElement>>{};
+    for (final entry in source.entries) {
+      copied[entry.key] = List<CalendarOverlayElement>.unmodifiable(
+        entry.value,
+      );
+    }
+    return Map<int, List<CalendarOverlayElement>>.unmodifiable(copied);
   }
 }
