@@ -441,32 +441,35 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
             controller.size,
           );
 
-          return Stack(
-            children: [
-              Positioned(
-                left: selectorRect.left,
-                top: selectorRect.top,
-                width: selectorRect.width,
-                height: selectorRect.height,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () => _selectLayer(element.id),
-                ),
-              ),
-              IgnorePointer(
-                ignoring: !isSelected,
-                child: BoundingBoxOverlay(
-                  key: ValueKey<String>('bbox_${month}_${element.id}'),
-                  controller: controller,
-                  onTap: () => _selectLayer(element.id),
-                  builder: (size, position, rotation) => _buildOverlayVisual(
-                    element: element,
-                    size: size,
-                    isSelected: isSelected,
+          return KeyedSubtree(
+            key: ValueKey<String>('layer_${month}_${element.id}'),
+            child: Stack(
+              children: [
+                Positioned(
+                  left: selectorRect.left,
+                  top: selectorRect.top,
+                  width: selectorRect.width,
+                  height: selectorRect.height,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => _selectLayer(element.id),
                   ),
                 ),
-              ),
-            ],
+                IgnorePointer(
+                  ignoring: !isSelected,
+                  child: BoundingBoxOverlay(
+                    key: ValueKey<String>('bbox_${month}_${element.id}'),
+                    controller: controller,
+                    onTap: () => _selectLayer(element.id),
+                    builder: (size, position, rotation) => _buildOverlayVisual(
+                      element: element,
+                      size: size,
+                      isSelected: isSelected,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         }),
       ],
@@ -489,36 +492,25 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     required bool isSelected,
   }) {
     final content = switch (element.type) {
-      CalendarOverlayElementType.text => FittedBox(
-        fit: BoxFit.contain,
-        child: Text(
-          element.text?.trim().isNotEmpty == true
-              ? element.text!.trim()
-              : 'Text',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Color(element.colorValue),
-            fontSize: element.baseSize,
-            fontWeight: FontWeight.w700,
-            height: 1.0,
-          ),
-        ),
-      ),
-      CalendarOverlayElementType.emoji => FittedBox(
-        fit: BoxFit.contain,
-        child: Text(
-          element.text?.trim().isNotEmpty == true ? element.text!.trim() : '🙂',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: element.baseSize, height: 1.0),
-        ),
-      ),
-      CalendarOverlayElementType.sticker => FittedBox(
-        fit: BoxFit.contain,
-        child: Icon(
-          _stickerIconForKey(element.stickerKey ?? ''),
-          size: element.baseSize,
+      CalendarOverlayElementType.text => Text(
+        element.text?.trim().isNotEmpty == true ? element.text!.trim() : 'Text',
+        textAlign: TextAlign.center,
+        style: TextStyle(
           color: Color(element.colorValue),
+          fontSize: element.baseSize,
+          fontWeight: FontWeight.w700,
+          height: 1.0,
         ),
+      ),
+      CalendarOverlayElementType.emoji => Text(
+        element.text?.trim().isNotEmpty == true ? element.text!.trim() : '🙂',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: element.baseSize, height: 1.0),
+      ),
+      CalendarOverlayElementType.sticker => Icon(
+        _stickerIconForKey(element.stickerKey ?? ''),
+        size: element.baseSize,
+        color: Color(element.colorValue),
       ),
       CalendarOverlayElementType.image => _buildOverlayImage(
         element.imageSource,
@@ -534,7 +526,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
         decoration: isSelected
             ? BoxDecoration(borderRadius: BorderRadius.circular(4))
             : const BoxDecoration(),
-        child: content,
+        child: Center(child: content),
       ),
     );
   }
@@ -873,46 +865,79 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
 
       final existing = _activeControllers[element.id];
       if (existing == null) {
-        final created = BoundingBoxController(
+        _activeControllers[element.id] = _createController(
+          month: month,
+          elementId: element.id,
+          canvasSize: canvasSize,
           position: spec.position,
           size: spec.size,
           rotation: element.rotation,
-          enable: enableTransform,
-          enableMove: enableTransform,
-          enableRotate: enableTransform,
-          actionSize: 18,
-          strokeColor: const Color(0xFF2563EB),
-          strokeWidth: 1.2,
-          handleResizeBackgroundColor: Colors.white,
-          handleResizeStrokeColor: const Color(0xFF2563EB),
-          handleRotateBackgroundColor: const Color(0xFFEEF2FF),
-          handleRotateStrokeColor: const Color(0xFF2563EB),
-          handleMoveBackgroundColor: const Color(0xFFE0E7FF),
-          handleMoveStrokeColor: const Color(0xFF2563EB),
+          enableTransform: enableTransform,
         );
-
-        created.addListener(() {
-          _onControllerChanged(
+      } else {
+        try {
+          _isSyncingControllers = true;
+          existing.update(
+            newPosition: spec.position,
+            newSize: spec.size,
+            newRotation: element.rotation,
+            newEnable: enableTransform,
+            newEnableMove: enableTransform,
+            newEnableRotate: enableTransform,
+          );
+        } catch (_) {
+          _activeControllers[element.id] = _createController(
             month: month,
             elementId: element.id,
             canvasSize: canvasSize,
+            position: spec.position,
+            size: spec.size,
+            rotation: element.rotation,
+            enableTransform: enableTransform,
           );
-        });
-
-        _activeControllers[element.id] = created;
-      } else {
-        _isSyncingControllers = true;
-        existing.update(
-          newPosition: spec.position,
-          newSize: spec.size,
-          newRotation: element.rotation,
-          newEnable: enableTransform,
-          newEnableMove: enableTransform,
-          newEnableRotate: enableTransform,
-        );
-        _isSyncingControllers = false;
+        } finally {
+          _isSyncingControllers = false;
+        }
       }
     }
+  }
+
+  BoundingBoxController _createController({
+    required int month,
+    required String elementId,
+    required Size canvasSize,
+    required Offset position,
+    required Size size,
+    required double rotation,
+    required bool enableTransform,
+  }) {
+    final controller = BoundingBoxController(
+      position: position,
+      size: size,
+      rotation: rotation,
+      enable: enableTransform,
+      enableMove: enableTransform,
+      enableRotate: enableTransform,
+      actionSize: 18,
+      strokeColor: const Color(0xFF2563EB),
+      strokeWidth: 1.2,
+      handleResizeBackgroundColor: Colors.white,
+      handleResizeStrokeColor: const Color(0xFF2563EB),
+      handleRotateBackgroundColor: const Color(0xFFEEF2FF),
+      handleRotateStrokeColor: const Color(0xFF2563EB),
+      handleMoveBackgroundColor: const Color(0xFFE0E7FF),
+      handleMoveStrokeColor: const Color(0xFF2563EB),
+    );
+
+    controller.addListener(() {
+      _onControllerChanged(
+        month: month,
+        elementId: elementId,
+        canvasSize: canvasSize,
+      );
+    });
+
+    return controller;
   }
 
   void _onControllerChanged({
@@ -999,25 +1024,45 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
   Size _naturalElementSize(CalendarOverlayElement element) {
     final baseSize = element.baseSize.clamp(12, 420).toDouble();
     return switch (element.type) {
-      CalendarOverlayElementType.text => _textNaturalSize(
-        text: element.text,
-        baseSize: baseSize,
+      CalendarOverlayElementType.text => _measureTextSize(
+        text: element.text?.trim().isNotEmpty == true
+            ? element.text!.trim()
+            : 'Text',
+        style: TextStyle(
+          fontSize: baseSize,
+          fontWeight: FontWeight.w700,
+          height: 1.0,
+        ),
+        minWidth: 44,
+        minHeight: 26,
       ),
-      CalendarOverlayElementType.emoji => Size(baseSize * 1.5, baseSize * 1.5),
-      CalendarOverlayElementType.sticker => Size(
-        baseSize * 1.8,
-        baseSize * 1.8,
+      CalendarOverlayElementType.emoji => _measureTextSize(
+        text: element.text?.trim().isNotEmpty == true
+            ? element.text!.trim()
+            : '🙂',
+        style: TextStyle(fontSize: baseSize, height: 1.0),
+        minWidth: 28,
+        minHeight: 28,
       ),
+      CalendarOverlayElementType.sticker => Size(baseSize, baseSize),
       CalendarOverlayElementType.image => Size(baseSize, baseSize),
     };
   }
 
-  Size _textNaturalSize({required String? text, required double baseSize}) {
-    final length = (text?.trim().isNotEmpty ?? false) ? text!.trim().length : 4;
-    final width = ((length.clamp(1, 32)) * baseSize * 0.62 + 28)
-        .clamp(88.0, 760.0)
-        .toDouble();
-    final height = (baseSize * 1.75).clamp(42.0, 260.0).toDouble();
+  Size _measureTextSize({
+    required String text,
+    required TextStyle style,
+    required double minWidth,
+    required double minHeight,
+  }) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+      maxLines: 1,
+    )..layout(minWidth: 0, maxWidth: double.infinity);
+    final width = painter.width.clamp(minWidth, 1400).toDouble();
+    final height = painter.height.clamp(minHeight, 600).toDouble();
     return Size(width, height);
   }
 

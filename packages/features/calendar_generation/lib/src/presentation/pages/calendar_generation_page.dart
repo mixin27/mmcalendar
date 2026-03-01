@@ -1209,6 +1209,17 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     final editorRequest = state.request.copyWith(
       pageOrientation: previewOrientation,
     );
+    final editorPages = getIt<BuildCalendarPreviews>()(editorRequest);
+    if (editorPages.isEmpty) {
+      _showSnack('No pages available for editing.');
+      return;
+    }
+
+    if (previewOrientation != state.request.pageOrientation) {
+      context.read<CalendarGenerationBloc>().add(
+        ChangePageOrientation(previewOrientation),
+      );
+    }
 
     final result = await Navigator.of(context)
         .push<CalendarOverlayEditorResult>(
@@ -1216,7 +1227,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
             fullscreenDialog: true,
             builder: (context) => CalendarOverlayEditorPage(
               request: editorRequest,
-              pages: state.pages,
+              pages: editorPages,
               initialPageIndex: _previewPage,
             ),
           ),
@@ -1229,7 +1240,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
       ReplaceOverlayElementsByMonth(result.overlayElementsByMonth),
     );
 
-    final targetPage = result.pageIndex.clamp(0, state.pages.length - 1);
+    final targetPage = result.pageIndex.clamp(0, editorPages.length - 1);
     if (targetPage != _previewPage) {
       _goToPreviewPage(targetPage);
     }
