@@ -1203,12 +1203,19 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
       return;
     }
 
+    final previewOrientation = _syncPreviewOrientationToExport
+        ? state.request.pageOrientation
+        : (_previewOrientationOverride ?? state.request.pageOrientation);
+    final editorRequest = state.request.copyWith(
+      pageOrientation: previewOrientation,
+    );
+
     final result = await Navigator.of(context)
         .push<CalendarOverlayEditorResult>(
           MaterialPageRoute<CalendarOverlayEditorResult>(
             fullscreenDialog: true,
             builder: (context) => CalendarOverlayEditorPage(
-              request: state.request,
+              request: editorRequest,
               pages: state.pages,
               initialPageIndex: _previewPage,
             ),

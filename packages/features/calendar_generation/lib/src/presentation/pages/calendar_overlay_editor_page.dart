@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:bounding_box/bounding_box.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_core/shared_core.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
@@ -38,11 +43,27 @@ class CalendarOverlayEditorPage extends StatefulWidget {
 }
 
 class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
+  static const double _epsilon = 0.0001;
+  static const double _minCanvasScale = 0.6;
+  static const double _maxCanvasScale = 4.0;
+
+  static final Map<String, ImageProvider<Object>> _imageProviderCache =
+      <String, ImageProvider<Object>>{};
+  static final List<String> _imageProviderCacheOrder = <String>[];
+  static const int _maxImageProviderCacheSize = 24;
+
   late Map<int, List<CalendarOverlayElement>> _overlayElementsByMonth;
   late int _pageIndex;
   String? _selectedElementId;
   bool _hasChanges = false;
-  double _viewerScale = 1.0;
+
+  final TransformationController _canvasController = TransformationController();
+  double _canvasScale = 1.0;
+
+  final Map<String, BoundingBoxController> _activeControllers =
+      <String, BoundingBoxController>{};
+  int? _activeControllerMonth;
+  bool _isSyncingControllers = false;
 
   @override
   void initState() {
@@ -54,10 +75,15 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
       0,
       (widget.pages.length - 1).clamp(0, 9999),
     );
+    _canvasController.addListener(_onCanvasTransformChanged);
+    _lockLandscapeOrientation();
   }
 
   @override
   void dispose() {
+    _restoreAppOrientation();
+    _canvasController.removeListener(_onCanvasTransformChanged);
+    _canvasController.dispose();
     super.dispose();
   }
 
@@ -78,6 +104,13 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     );
     final canvasSize = _resolvePreviewCanvasSize(request);
 
+    _syncActiveControllers(
+      month: month,
+      canvasSize: canvasSize,
+      selectedElementId: _selectedElementId,
+      selectedElementLocked: selectedElement?.locked == true,
+    );
+
     return PopScope<void>(
       canPop: !_hasChanges,
       onPopInvokedWithResult: (didPop, _) async {
@@ -97,10 +130,12 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
             if (selectedElement != null)
               IconButton(
                 onPressed: () {
-                  setState(() => _selectedElementId = null);
+                  setState(() {
+                    _selectedElementId = null;
+                  });
                 },
                 icon: const Icon(Icons.deselect_outlined),
-                tooltip: 'Deselect element',
+                tooltip: 'Deselect layer',
               ),
             IconButton(
               onPressed: _zoomOutCanvas,
@@ -108,7 +143,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
               tooltip: 'Zoom out canvas',
             ),
             Text(
-              '${(_viewerScale * 100).round()}%',
+              '${(_canvasScale * 100).round()}%',
               style: Theme.of(context).textTheme.labelLarge,
             ),
             IconButton(
@@ -119,7 +154,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
             IconButton(
               onPressed: _resetCanvasTransform,
               icon: const Icon(Icons.center_focus_strong_outlined),
-              tooltip: 'Reset canvas transform',
+              tooltip: 'Reset canvas view',
             ),
             const SizedBox(width: 8),
             FilledButton.icon(
@@ -167,7 +202,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     return Row(
       children: [
         SizedBox(
-          width: 100,
+          width: 94,
           child: _EditorVerticalToolbar(
             selectedElement: selectedElement,
             onAddText: () => _addTextOverlayElement(month),
@@ -191,7 +226,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-            child: _buildEditorCanvas(
+            child: _buildCanvasCard(
               request: request,
               page: page,
               month: month,
@@ -200,10 +235,10 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
           ),
         ),
         SizedBox(
-          width: 300,
+          width: 304,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-            child: _buildLayerPanel(month),
+            child: _buildLayersPanel(month),
           ),
         ),
       ],
@@ -222,7 +257,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-            child: _buildEditorCanvas(
+            child: _buildCanvasCard(
               request: request,
               page: page,
               month: month,
@@ -293,13 +328,14 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     );
   }
 
-  Widget _buildEditorCanvas({
+  Widget _buildCanvasCard({
     required CalendarGenerationRequest request,
     required CalendarPageModel page,
     required int month,
     required Size canvasSize,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
+    final interactiveCanvas = _selectedElementId == null;
 
     return Card(
       margin: EdgeInsets.zero,
@@ -310,8 +346,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
             _buildPageHeader(page: page),
             const SizedBox(height: 8),
             Expanded(
-              child: Container(
-                width: double.infinity,
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(12),
@@ -321,89 +356,30 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final fitScale = _resolveFitScale(
-                        canvasWidth: canvasSize.width,
-                        canvasHeight: canvasSize.height,
-                        viewportWidth: constraints.maxWidth,
-                        viewportHeight: constraints.maxHeight,
-                      );
-                      final displayScale = (fitScale * _viewerScale)
-                          .clamp(0.1, 8.0)
-                          .toDouble();
-                      final displayWidth = canvasSize.width * displayScale;
-                      final displayHeight = canvasSize.height * displayScale;
-                      final canScrollCanvas = _selectedElementId == null;
-                      final scrollPhysics = canScrollCanvas
-                          ? const BouncingScrollPhysics()
-                          : const NeverScrollableScrollPhysics();
-
-                      final previewCanvas = SizedBox(
-                        width: canvasSize.width,
-                        height: canvasSize.height,
-                        child: CalendarGenerationPreviewPage(
-                          model: page,
-                          request: request,
-                          margin: EdgeInsets.zero,
-                          elevation: 0,
-                          useCardChrome: false,
-                          contentPadding: const EdgeInsets.all(12),
-                          editOverlayElements: true,
-                          restrictTransformToSelected: true,
-                          selectedOverlayElementId: _selectedElementId,
-                          onSelectedOverlayElementChanged: (id) {
-                            setState(() {
-                              _selectedElementId = id;
-                            });
-                          },
-                          onOverlayElementChanged: (updated) {
-                            _updateOverlayElementForMonth(
-                              month: month,
-                              element: updated,
-                            );
-                          },
-                          onOverlayElementEditEnd: () {
-                            setState(() {
-                              _hasChanges = true;
-                            });
-                          },
-                          onOverlayElementDoubleTap: (element) {
-                            _handleOverlayElementDoubleTap(
-                              month: month,
-                              element: element,
-                            );
-                          },
-                          overlayInteractionScale: displayScale,
-                        ),
-                      );
-
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: scrollPhysics,
-                        child: SingleChildScrollView(
-                          physics: scrollPhysics,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minWidth: constraints.maxWidth,
-                              minHeight: constraints.maxHeight,
-                            ),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: SizedBox(
-                                width: displayWidth,
-                                height: displayHeight,
-                                child: Transform.scale(
-                                  scale: displayScale,
-                                  alignment: Alignment.topLeft,
-                                  child: previewCanvas,
-                                ),
-                              ),
-                            ),
+                  child: InteractiveViewer(
+                    transformationController: _canvasController,
+                    constrained: true,
+                    boundaryMargin: const EdgeInsets.all(160),
+                    minScale: _minCanvasScale,
+                    maxScale: _maxCanvasScale,
+                    panEnabled: interactiveCanvas,
+                    scaleEnabled: interactiveCanvas,
+                    child: SizedBox.expand(
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: canvasSize.width,
+                          height: canvasSize.height,
+                          child: _buildCanvasScene(
+                            request: request,
+                            page: page,
+                            month: month,
+                            canvasSize: canvasSize,
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -411,11 +387,18 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
             const SizedBox(height: 6),
             Row(
               children: [
-                const Icon(Icons.gesture_outlined, size: 16),
+                Icon(
+                  interactiveCanvas
+                      ? Icons.pan_tool_alt_outlined
+                      : Icons.gesture_outlined,
+                  size: 16,
+                ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Select an element first, then drag/pinch/rotate. While selected, canvas scrolling is locked to prevent drag conflicts.',
+                    interactiveCanvas
+                        ? 'Canvas mode: drag to pan and pinch to zoom calendar preview. Tap a layer to edit it.'
+                        : 'Layer mode: drag/resize/rotate selected layer. Deselect to pan/zoom canvas.',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -424,6 +407,156 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCanvasScene({
+    required CalendarGenerationRequest request,
+    required CalendarPageModel page,
+    required int month,
+    required Size canvasSize,
+  }) {
+    final elements = _elementsForMonth(month);
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned.fill(
+          child: CalendarGenerationPreviewPage(
+            model: page,
+            request: request,
+            margin: EdgeInsets.zero,
+            elevation: 0,
+            useCardChrome: false,
+            contentPadding: const EdgeInsets.all(12),
+            showOverlayElements: false,
+          ),
+        ),
+        ...elements.map((element) {
+          final controller = _activeControllers[element.id];
+          if (controller == null) {
+            return const SizedBox.shrink();
+          }
+
+          final isSelected = _selectedElementId == element.id;
+          final selectorRect = _selectorRect(
+            controller.position,
+            controller.size,
+          );
+
+          return Stack(
+            children: [
+              Positioned(
+                left: selectorRect.left,
+                top: selectorRect.top,
+                width: selectorRect.width,
+                height: selectorRect.height,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => _selectLayer(element.id),
+                ),
+              ),
+              IgnorePointer(
+                ignoring: !isSelected,
+                child: BoundingBoxOverlay(
+                  key: ValueKey<String>('bbox_${month}_${element.id}'),
+                  controller: controller,
+                  onTap: () => _selectLayer(element.id),
+                  builder: (size, position, rotation) => _buildOverlayVisual(
+                    element: element,
+                    size: size,
+                    isSelected: isSelected,
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ],
+    );
+  }
+
+  Rect _selectorRect(Offset position, Size size) {
+    const inset = 14.0;
+    return Rect.fromLTWH(
+      position.dx - inset,
+      position.dy - inset,
+      size.width + (inset * 2),
+      size.height + (inset * 2),
+    );
+  }
+
+  Widget _buildOverlayVisual({
+    required CalendarOverlayElement element,
+    required Size size,
+    required bool isSelected,
+  }) {
+    final content = switch (element.type) {
+      CalendarOverlayElementType.text => FittedBox(
+        fit: BoxFit.contain,
+        child: Text(
+          element.text?.trim().isNotEmpty == true
+              ? element.text!.trim()
+              : 'Text',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Color(element.colorValue),
+            fontSize: element.baseSize,
+            fontWeight: FontWeight.w700,
+            height: 1.0,
+          ),
+        ),
+      ),
+      CalendarOverlayElementType.emoji => FittedBox(
+        fit: BoxFit.contain,
+        child: Text(
+          element.text?.trim().isNotEmpty == true ? element.text!.trim() : '🙂',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: element.baseSize, height: 1.0),
+        ),
+      ),
+      CalendarOverlayElementType.sticker => FittedBox(
+        fit: BoxFit.contain,
+        child: Icon(
+          _stickerIconForKey(element.stickerKey ?? ''),
+          size: element.baseSize,
+          color: Color(element.colorValue),
+        ),
+      ),
+      CalendarOverlayElementType.image => _buildOverlayImage(
+        element.imageSource,
+      ),
+    };
+
+    return Opacity(
+      opacity: element.opacity.clamp(0.0, 1.0),
+      child: Container(
+        width: size.width,
+        height: size.height,
+        alignment: Alignment.center,
+        decoration: isSelected
+            ? BoxDecoration(borderRadius: BorderRadius.circular(4))
+            : const BoxDecoration(),
+        child: content,
+      ),
+    );
+  }
+
+  Widget _buildOverlayImage(String? source) {
+    final provider = _parseImageProvider(source);
+    if (provider == null) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.85),
+          border: Border.all(color: const Color(0xFF9CA3AF)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Center(child: Icon(Icons.broken_image_outlined, size: 18)),
+      );
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image(image: provider, fit: BoxFit.cover),
     );
   }
 
@@ -459,8 +592,9 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     );
   }
 
-  Widget _buildLayerPanel(int month) {
+  Widget _buildLayersPanel(int month) {
     final elements = _elementsForMonth(month);
+
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -478,15 +612,12 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
                     ),
                   ),
                 ),
-                Text(
-                  '${elements.length}',
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
+                Text('${elements.length}'),
               ],
             ),
             const SizedBox(height: 4),
             Text(
-              'Top layer is at the bottom of this list.',
+              'Top layer is at bottom of this list.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
@@ -494,7 +625,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
               Expanded(
                 child: Center(
                   child: Text(
-                    'No elements yet.',
+                    'No overlays yet.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
@@ -514,16 +645,12 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
                     final element = elements[index];
                     final isSelected = _selectedElementId == element.id;
                     return Card(
-                      key: ValueKey<String>('editor_layer_${element.id}'),
+                      key: ValueKey<String>('layer_${element.id}'),
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         dense: true,
                         selected: isSelected,
-                        onTap: () {
-                          setState(() {
-                            _selectedElementId = element.id;
-                          });
-                        },
+                        onTap: () => _selectLayer(element.id),
                         leading: Icon(_overlayTypeIcon(element.type)),
                         title: Text(
                           _overlayElementLabel(element),
@@ -531,7 +658,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Text(
-                          'x:${element.x.toStringAsFixed(2)}  y:${element.y.toStringAsFixed(2)}  s:${element.scale.toStringAsFixed(2)}',
+                          'x:${element.x.toStringAsFixed(2)} • y:${element.y.toStringAsFixed(2)} • s:${element.scale.toStringAsFixed(2)}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -584,6 +711,10 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     setState(() {
       _pageIndex = (_safePageIndex - 1).clamp(0, widget.pages.length - 1);
       _selectedElementId = null;
+      _activeControllerMonth = null;
+      _activeControllers.clear();
+      _canvasController.value = Matrix4.identity();
+      _canvasScale = 1.0;
     });
   }
 
@@ -591,56 +722,103 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     setState(() {
       _pageIndex = (_safePageIndex + 1).clamp(0, widget.pages.length - 1);
       _selectedElementId = null;
+      _activeControllerMonth = null;
+      _activeControllers.clear();
+      _canvasController.value = Matrix4.identity();
+      _canvasScale = 1.0;
     });
   }
 
-  void _resetCanvasTransform() {
+  void _onCanvasTransformChanged() {
+    final scale = _canvasController.value.getMaxScaleOnAxis();
+    if ((scale - _canvasScale).abs() < 0.01 || !mounted) {
+      return;
+    }
     setState(() {
-      _viewerScale = 1.0;
+      _canvasScale = scale;
     });
   }
 
   void _zoomInCanvas() {
-    _setCanvasZoom(_viewerScale + 0.15);
+    _setCanvasScale(_canvasScale + 0.2);
   }
 
   void _zoomOutCanvas() {
-    _setCanvasZoom(_viewerScale - 0.15);
+    _setCanvasScale(_canvasScale - 0.2);
   }
 
-  void _setCanvasZoom(double zoom) {
-    final clamped = zoom.clamp(0.5, 3.2).toDouble();
+  void _setCanvasScale(double target) {
+    final clamped = target.clamp(_minCanvasScale, _maxCanvasScale).toDouble();
+    final tx = _canvasController.value.storage[12];
+    final ty = _canvasController.value.storage[13];
+    _canvasController.value = Matrix4.identity()
+      ..setEntry(0, 0, clamped)
+      ..setEntry(1, 1, clamped)
+      ..setEntry(2, 2, 1)
+      ..setEntry(0, 3, tx)
+      ..setEntry(1, 3, ty);
     setState(() {
-      _viewerScale = clamped;
+      _canvasScale = clamped;
     });
   }
 
-  double _resolveFitScale({
-    required double canvasWidth,
-    required double canvasHeight,
-    required double viewportWidth,
-    required double viewportHeight,
-  }) {
-    if (canvasWidth <= 0 ||
-        canvasHeight <= 0 ||
-        viewportWidth <= 0 ||
-        viewportHeight <= 0) {
-      return 1.0;
+  void _resetCanvasTransform() {
+    _canvasController.value = Matrix4.identity();
+    setState(() {
+      _canvasScale = 1.0;
+    });
+  }
+
+  void _selectLayer(String id) {
+    if (_selectedElementId == id) {
+      return;
     }
-    final scaleX = viewportWidth / canvasWidth;
-    final scaleY = viewportHeight / canvasHeight;
-    return scaleX < scaleY ? scaleX : scaleY;
+    setState(() {
+      _selectedElementId = id;
+    });
   }
 
   void _finishEditing() {
+    final flushedOverlayElementsByMonth = _flushActiveControllerState();
     Navigator.of(context).pop(
       CalendarOverlayEditorResult(
-        overlayElementsByMonth: _cloneOverlayElementsByMonth(
-          _overlayElementsByMonth,
-        ),
+        overlayElementsByMonth: flushedOverlayElementsByMonth,
         pageIndex: _safePageIndex,
       ),
     );
+  }
+
+  Map<int, List<CalendarOverlayElement>> _flushActiveControllerState() {
+    final copied = _cloneOverlayElementsByMonth(_overlayElementsByMonth);
+    final month = _activeControllerMonth;
+    if (month == null) {
+      return copied;
+    }
+
+    final monthElements = copied[month];
+    if (monthElements == null || monthElements.isEmpty) {
+      return copied;
+    }
+
+    final request = widget.request.copyWith(overlayElementsByMonth: copied);
+    final canvasSize = _resolvePreviewCanvasSize(request);
+    final updated = List<CalendarOverlayElement>.from(monthElements);
+
+    for (final entry in _activeControllers.entries) {
+      final index = updated.indexWhere((element) => element.id == entry.key);
+      if (index < 0) {
+        continue;
+      }
+      updated[index] = _elementFromController(
+        element: updated[index],
+        controller: entry.value,
+        canvasSize: canvasSize,
+      );
+    }
+
+    copied[month] = List<CalendarOverlayElement>.unmodifiable(updated);
+    _overlayElementsByMonth = copied;
+    return copied;
   }
 
   Future<bool> _confirmDiscardChanges() async {
@@ -666,6 +844,184 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
       },
     );
     return confirmed == true;
+  }
+
+  void _syncActiveControllers({
+    required int month,
+    required Size canvasSize,
+    required String? selectedElementId,
+    required bool selectedElementLocked,
+  }) {
+    if (_activeControllerMonth != month) {
+      _activeControllers.clear();
+      _activeControllerMonth = month;
+    }
+
+    final elements = _elementsForMonth(month);
+    final ids = elements.map((e) => e.id).toSet();
+
+    _activeControllers.removeWhere((id, _) => !ids.contains(id));
+
+    if (_selectedElementId != null && !ids.contains(_selectedElementId)) {
+      _selectedElementId = null;
+    }
+
+    final canTransformSelected =
+        selectedElementId != null && selectedElementLocked == false;
+
+    for (final element in elements) {
+      final spec = _controllerSpecFromElement(element, canvasSize);
+      final isSelected = selectedElementId == element.id;
+      final enableTransform = isSelected && canTransformSelected;
+
+      final existing = _activeControllers[element.id];
+      if (existing == null) {
+        final created = BoundingBoxController(
+          position: spec.position,
+          size: spec.size,
+          rotation: element.rotation,
+          enable: enableTransform,
+          enableMove: enableTransform,
+          enableRotate: enableTransform,
+          actionSize: 18,
+          strokeColor: const Color(0xFF2563EB),
+          strokeWidth: 1.2,
+          handleResizeBackgroundColor: Colors.white,
+          handleResizeStrokeColor: const Color(0xFF2563EB),
+          handleRotateBackgroundColor: const Color(0xFFEEF2FF),
+          handleRotateStrokeColor: const Color(0xFF2563EB),
+          handleMoveBackgroundColor: const Color(0xFFE0E7FF),
+          handleMoveStrokeColor: const Color(0xFF2563EB),
+        );
+
+        created.addListener(() {
+          _onControllerChanged(
+            month: month,
+            elementId: element.id,
+            canvasSize: canvasSize,
+          );
+        });
+
+        _activeControllers[element.id] = created;
+      } else {
+        _isSyncingControllers = true;
+        existing.update(
+          newPosition: spec.position,
+          newSize: spec.size,
+          newRotation: element.rotation,
+          newEnable: enableTransform,
+          newEnableMove: enableTransform,
+          newEnableRotate: enableTransform,
+        );
+        _isSyncingControllers = false;
+      }
+    }
+  }
+
+  void _onControllerChanged({
+    required int month,
+    required String elementId,
+    required Size canvasSize,
+  }) {
+    if (!mounted || _isSyncingControllers) {
+      return;
+    }
+
+    final controller = _activeControllers[elementId];
+    if (controller == null) {
+      return;
+    }
+
+    final current = _elementsForMonth(month);
+    final index = current.indexWhere((element) => element.id == elementId);
+    if (index < 0) {
+      return;
+    }
+
+    final original = current[index];
+    final updated = _elementFromController(
+      element: original,
+      controller: controller,
+      canvasSize: canvasSize,
+    );
+
+    if (_isSameTransform(original, updated)) {
+      return;
+    }
+
+    _updateOverlayElementForMonth(month: month, element: updated);
+  }
+
+  _ControllerSpec _controllerSpecFromElement(
+    CalendarOverlayElement element,
+    Size canvasSize,
+  ) {
+    final natural = _naturalElementSize(element);
+    final width = (natural.width * element.scale).clamp(24.0, 1800.0);
+    final height = (natural.height * element.scale).clamp(24.0, 1800.0);
+    final centerX = element.x.clamp(0.0, 1.0) * canvasSize.width;
+    final centerY = element.y.clamp(0.0, 1.0) * canvasSize.height;
+
+    return _ControllerSpec(
+      position: Offset(centerX - (width / 2), centerY - (height / 2)),
+      size: Size(width, height),
+    );
+  }
+
+  CalendarOverlayElement _elementFromController({
+    required CalendarOverlayElement element,
+    required BoundingBoxController controller,
+    required Size canvasSize,
+  }) {
+    final natural = _naturalElementSize(element);
+    final scaleW = controller.size.width / natural.width;
+    final scaleH = controller.size.height / natural.height;
+    final nextScale = ((scaleW + scaleH) / 2).clamp(0.2, 8.0).toDouble();
+
+    final centerX = controller.position.dx + (controller.size.width / 2);
+    final centerY = controller.position.dy + (controller.size.height / 2);
+
+    return element.copyWith(
+      x: (centerX / canvasSize.width).clamp(0.0, 1.0).toDouble(),
+      y: (centerY / canvasSize.height).clamp(0.0, 1.0).toDouble(),
+      scale: nextScale,
+      rotation: controller.rotation,
+    );
+  }
+
+  bool _isSameTransform(
+    CalendarOverlayElement left,
+    CalendarOverlayElement right,
+  ) {
+    return (left.x - right.x).abs() < _epsilon &&
+        (left.y - right.y).abs() < _epsilon &&
+        (left.scale - right.scale).abs() < _epsilon &&
+        (left.rotation - right.rotation).abs() < _epsilon;
+  }
+
+  Size _naturalElementSize(CalendarOverlayElement element) {
+    final baseSize = element.baseSize.clamp(12, 420).toDouble();
+    return switch (element.type) {
+      CalendarOverlayElementType.text => _textNaturalSize(
+        text: element.text,
+        baseSize: baseSize,
+      ),
+      CalendarOverlayElementType.emoji => Size(baseSize * 1.5, baseSize * 1.5),
+      CalendarOverlayElementType.sticker => Size(
+        baseSize * 1.8,
+        baseSize * 1.8,
+      ),
+      CalendarOverlayElementType.image => Size(baseSize, baseSize),
+    };
+  }
+
+  Size _textNaturalSize({required String? text, required double baseSize}) {
+    final length = (text?.trim().isNotEmpty ?? false) ? text!.trim().length : 4;
+    final width = ((length.clamp(1, 32)) * baseSize * 0.62 + 28)
+        .clamp(88.0, 760.0)
+        .toDouble();
+    final height = (baseSize * 1.75).clamp(42.0, 260.0).toDouble();
+    return Size(width, height);
   }
 
   List<CalendarOverlayElement> _elementsForMonth(int month) {
@@ -694,6 +1050,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     if (index < 0) {
       return;
     }
+
     list[index] = element;
     setState(() {
       _hasChanges = true;
@@ -729,10 +1086,12 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
         ],
       ),
     );
+
     final normalized = text?.trim() ?? '';
     if (normalized.isEmpty) {
       return;
     }
+
     _appendOverlayElement(
       month,
       CalendarOverlayElement(
@@ -764,6 +1123,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
       '🧧',
       '🎁',
     ];
+
     final selected = await showModalBottomSheet<String>(
       context: context,
       useSafeArea: true,
@@ -790,9 +1150,11 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
         ),
       ),
     );
+
     if (selected == null || selected.trim().isEmpty) {
       return;
     }
+
     _appendOverlayElement(
       month,
       CalendarOverlayElement(
@@ -817,6 +1179,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
       'location',
       'flag',
     ];
+
     final selected = await showModalBottomSheet<String>(
       context: context,
       useSafeArea: true,
@@ -839,9 +1202,11 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
         ),
       ),
     );
+
     if (selected == null || selected.trim().isEmpty) {
       return;
     }
+
     _appendOverlayElement(
       month,
       CalendarOverlayElement(
@@ -866,6 +1231,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     if (result == null || result.files.isEmpty) {
       return;
     }
+
     final path = result.files.first.path?.trim();
     if (path == null || path.isEmpty) {
       return;
@@ -888,17 +1254,20 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
 
   void _appendOverlayElement(int month, CalendarOverlayElement element) {
     final list = _elementsForMonth(month).toList(growable: true);
-    final offset = (list.length % 4) * 0.05;
+    final offset = (list.length % 4) * 0.08;
     final centered = element.copyWith(
-      x: (0.45 + offset).clamp(0.1, 0.9).toDouble(),
-      y: (0.42 + offset).clamp(0.1, 0.9).toDouble(),
+      x: (0.42 + offset).clamp(0.1, 0.9).toDouble(),
+      y: (0.38 + offset).clamp(0.1, 0.9).toDouble(),
     );
+
     list.add(centered);
     setState(() {
       _hasChanges = true;
       _selectedElementId = centered.id;
       _overlayElementsByMonth[month] =
           List<CalendarOverlayElement>.unmodifiable(list);
+      _activeControllerMonth = null;
+      _activeControllers.clear();
     });
   }
 
@@ -907,6 +1276,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     if (selected == null) {
       return;
     }
+
     _updateOverlayElementForMonth(
       month: month,
       element: selected.copyWith(locked: !selected.locked),
@@ -918,12 +1288,15 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     if (selectedId == null) {
       return;
     }
+
     final list = _elementsForMonth(
       month,
     ).where((element) => element.id != selectedId).toList(growable: false);
+
     setState(() {
       _hasChanges = true;
-      _selectedElementId = null;
+      _selectedElementId = list.isEmpty ? null : list.last.id;
+      _activeControllers.remove(selectedId);
       if (list.isEmpty) {
         _overlayElementsByMonth.remove(month);
       } else {
@@ -932,76 +1305,17 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     });
   }
 
-  void _handleOverlayElementDoubleTap({
-    required int month,
-    required CalendarOverlayElement element,
-  }) {
-    switch (element.type) {
-      case CalendarOverlayElementType.text:
-      case CalendarOverlayElementType.emoji:
-        _editOverlayElementText(month: month, element: element);
-      case CalendarOverlayElementType.sticker:
-      case CalendarOverlayElementType.image:
-        return;
-    }
-  }
-
-  Future<void> _editOverlayElementText({
-    required int month,
-    required CalendarOverlayElement element,
-  }) async {
-    String inputText = element.text ?? '';
-    final result = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(
-          element.type == CalendarOverlayElementType.emoji
-              ? 'Edit Emoji'
-              : 'Edit Text',
-        ),
-        content: TextFormField(
-          initialValue: inputText,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Value',
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) => inputText = value,
-          onFieldSubmitted: (value) => Navigator.of(dialogContext).pop(value),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(inputText),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    final normalized = result?.trim() ?? '';
-    if (normalized.isEmpty) {
-      return;
-    }
-    _updateOverlayElementForMonth(
-      month: month,
-      element: element.copyWith(text: normalized),
-    );
-  }
-
   Future<void> _openLayersBottomSheet(int month) async {
     await showModalBottomSheet<void>(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (context) {
+      builder: (sheetContext) {
         return FractionallySizedBox(
-          heightFactor: 0.78,
+          heightFactor: 0.8,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-            child: _buildLayerPanel(month),
+            child: _buildLayersPanel(month),
           ),
         );
       },
@@ -1033,12 +1347,13 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     if (index < 0 || index == list.length - 1) {
       return;
     }
-    final element = list.removeAt(index);
-    list.add(element);
+
+    final moved = list.removeAt(index);
+    list.add(moved);
     _applyMonthOverlayElements(
       month: month,
       elements: list,
-      selectedId: elementId,
+      selectedId: moved.id,
     );
   }
 
@@ -1051,12 +1366,13 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     if (index <= 0) {
       return;
     }
-    final element = list.removeAt(index);
-    list.insert(0, element);
+
+    final moved = list.removeAt(index);
+    list.insert(0, moved);
     _applyMonthOverlayElements(
       month: month,
       elements: list,
-      selectedId: elementId,
+      selectedId: moved.id,
     );
   }
 
@@ -1069,6 +1385,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     if (index < 0 || index >= list.length - 1) {
       return;
     }
+
     final current = list[index];
     list[index] = list[index + 1];
     list[index + 1] = current;
@@ -1088,6 +1405,7 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     if (index <= 0) {
       return;
     }
+
     final current = list[index];
     list[index] = list[index - 1];
     list[index - 1] = current;
@@ -1110,12 +1428,14 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
         newIndex > list.length) {
       return;
     }
-    var targetIndex = newIndex;
-    if (targetIndex > oldIndex) {
-      targetIndex -= 1;
+
+    var target = newIndex;
+    if (target > oldIndex) {
+      target -= 1;
     }
+
     final moved = list.removeAt(oldIndex);
-    list.insert(targetIndex, moved);
+    list.insert(target, moved);
     _applyMonthOverlayElements(
       month: month,
       elements: list,
@@ -1131,6 +1451,8 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     setState(() {
       _hasChanges = true;
       _selectedElementId = selectedId ?? _selectedElementId;
+      _activeControllerMonth = null;
+      _activeControllers.clear();
       if (elements.isEmpty) {
         _overlayElementsByMonth.remove(month);
       } else {
@@ -1213,12 +1535,103 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
     return normalized;
   }
 
+  ImageProvider<Object>? _parseImageProvider(String? source) {
+    final normalized = source?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    final cached = _imageProviderCache[normalized];
+    if (cached != null) {
+      return cached;
+    }
+
+    if (normalized.startsWith('data:image/') &&
+        normalized.contains(';base64,')) {
+      final start = normalized.indexOf('base64,');
+      if (start < 0) {
+        return null;
+      }
+      try {
+        final bytes = base64Decode(normalized.substring(start + 7));
+        final provider = MemoryImage(bytes);
+        _rememberProvider(normalized, provider);
+        return provider;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    final uri = Uri.tryParse(normalized);
+    if (uri != null && uri.scheme == 'file') {
+      try {
+        final provider = FileImage(File(uri.toFilePath()));
+        _rememberProvider(normalized, provider);
+        return provider;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    if (_looksLikeAbsoluteLocalPath(normalized)) {
+      final provider = FileImage(File(normalized));
+      _rememberProvider(normalized, provider);
+      return provider;
+    }
+
+    if (uri != null &&
+        uri.hasScheme &&
+        uri.scheme != 'http' &&
+        uri.scheme != 'https') {
+      return null;
+    }
+
+    final provider = NetworkImage(normalized);
+    _rememberProvider(normalized, provider);
+    return provider;
+  }
+
+  void _rememberProvider(String source, ImageProvider<Object> provider) {
+    if (_imageProviderCache.containsKey(source)) {
+      _imageProviderCache[source] = provider;
+      return;
+    }
+
+    _imageProviderCache[source] = provider;
+    _imageProviderCacheOrder.add(source);
+    if (_imageProviderCacheOrder.length > _maxImageProviderCacheSize) {
+      final evictedKey = _imageProviderCacheOrder.removeAt(0);
+      _imageProviderCache.remove(evictedKey);
+    }
+  }
+
   bool _looksLikeAbsoluteLocalPath(String value) {
     if (value.startsWith('/')) {
       return true;
     }
     return RegExp(r'^[a-zA-Z]:[\\\/]').hasMatch(value);
   }
+
+  void _lockLandscapeOrientation() {
+    SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  void _restoreAppOrientation() {
+    SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+}
+
+class _ControllerSpec {
+  const _ControllerSpec({required this.position, required this.size});
+
+  final Offset position;
+  final Size size;
 }
 
 class _EditorVerticalToolbar extends StatelessWidget {
