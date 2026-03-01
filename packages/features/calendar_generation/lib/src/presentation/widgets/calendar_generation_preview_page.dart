@@ -28,6 +28,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     this.onSelectedOverlayElementChanged,
     this.onOverlayElementChanged,
     this.onOverlayElementEditEnd,
+    this.onOverlayElementDoubleTap,
     super.key,
   });
 
@@ -50,6 +51,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
   final ValueChanged<String?>? onSelectedOverlayElementChanged;
   final ValueChanged<CalendarOverlayElement>? onOverlayElementChanged;
   final VoidCallback? onOverlayElementEditEnd;
+  final ValueChanged<CalendarOverlayElement>? onOverlayElementDoubleTap;
 
   @override
   Widget build(BuildContext context) {
@@ -249,6 +251,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                     onSelectedElementChanged: onSelectedOverlayElementChanged,
                     onElementChanged: onOverlayElementChanged,
                     onElementEditEnd: onOverlayElementEditEnd,
+                    onElementDoubleTap: onOverlayElementDoubleTap,
                     buildElementChild: (element, isSelected) =>
                         _buildOverlayElementVisual(
                           element,
@@ -728,7 +731,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
   }
 }
 
-class _OverlayElementsLayer extends StatelessWidget {
+class _OverlayElementsLayer extends StatefulWidget {
   const _OverlayElementsLayer({
     required this.elements,
     required this.canvasWidth,
@@ -739,6 +742,7 @@ class _OverlayElementsLayer extends StatelessWidget {
     this.onSelectedElementChanged,
     this.onElementChanged,
     this.onElementEditEnd,
+    this.onElementDoubleTap,
   });
 
   final List<CalendarOverlayElement> elements;
@@ -749,32 +753,61 @@ class _OverlayElementsLayer extends StatelessWidget {
   final ValueChanged<String?>? onSelectedElementChanged;
   final ValueChanged<CalendarOverlayElement>? onElementChanged;
   final VoidCallback? onElementEditEnd;
+  final ValueChanged<CalendarOverlayElement>? onElementDoubleTap;
   final Widget Function(CalendarOverlayElement element, bool isSelected)
   buildElementChild;
 
   @override
+  State<_OverlayElementsLayer> createState() => _OverlayElementsLayerState();
+}
+
+class _OverlayElementsLayerState extends State<_OverlayElementsLayer> {
+  double? _guideX;
+  double? _guideY;
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
-      children: elements
-          .map(
-            (element) => _EditableOverlayElement(
-              key: ValueKey<String>('overlay_${element.id}'),
-              element: element,
-              canvasWidth: canvasWidth,
-              canvasHeight: canvasHeight,
-              selected: selectedElementId == element.id,
-              editMode: editMode,
-              onSelected: onSelectedElementChanged,
-              onChanged: onElementChanged,
-              onEditEnd: onElementEditEnd,
-              child: buildElementChild(
-                element,
-                selectedElementId == element.id,
+      children: [
+        ...widget.elements.map(
+          (element) => _EditableOverlayElement(
+            key: ValueKey<String>('overlay_${element.id}'),
+            element: element,
+            canvasWidth: widget.canvasWidth,
+            canvasHeight: widget.canvasHeight,
+            selected: widget.selectedElementId == element.id,
+            editMode: widget.editMode,
+            onSelected: widget.onSelectedElementChanged,
+            onChanged: widget.onElementChanged,
+            onEditEnd: widget.onElementEditEnd,
+            onGuidesChanged: _setGuides,
+            onDoubleTap: widget.onElementDoubleTap,
+            child: widget.buildElementChild(
+              element,
+              widget.selectedElementId == element.id,
+            ),
+          ),
+        ),
+        if (widget.editMode && (_guideX != null || _guideY != null))
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: _SnapGuidePainter(guideX: _guideX, guideY: _guideY),
               ),
             ),
-          )
-          .toList(growable: false),
+          ),
+      ],
     );
+  }
+
+  void _setGuides(double? guideX, double? guideY) {
+    if (_guideX == guideX && _guideY == guideY) {
+      return;
+    }
+    setState(() {
+      _guideX = guideX;
+      _guideY = guideY;
+    });
   }
 }
 
@@ -789,6 +822,8 @@ class _EditableOverlayElement extends StatefulWidget {
     this.onSelected,
     this.onChanged,
     this.onEditEnd,
+    this.onGuidesChanged,
+    this.onDoubleTap,
     super.key,
   });
 
@@ -801,6 +836,8 @@ class _EditableOverlayElement extends StatefulWidget {
   final ValueChanged<String?>? onSelected;
   final ValueChanged<CalendarOverlayElement>? onChanged;
   final VoidCallback? onEditEnd;
+  final void Function(double? guideX, double? guideY)? onGuidesChanged;
+  final ValueChanged<CalendarOverlayElement>? onDoubleTap;
 
   @override
   State<_EditableOverlayElement> createState() =>
@@ -808,6 +845,9 @@ class _EditableOverlayElement extends StatefulWidget {
 }
 
 class _EditableOverlayElementState extends State<_EditableOverlayElement> {
+  static const double _snapThreshold = 0.015;
+  static const double _edgeSnapInset = 0.08;
+
   double _startScale = 1.0;
   double _startRotation = 0.0;
 
@@ -832,11 +872,16 @@ class _EditableOverlayElementState extends State<_EditableOverlayElement> {
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => widget.onSelected?.call(element.id),
-        onScaleStart: (details) {
+        onDoubleTap: () {
+          widget.onSelected?.call(element.id);
+          widget.onDoubleTap?.call(element);
+        },
+        onScaleStart: (_) {
           if (element.locked) {
             return;
           }
           widget.onSelected?.call(element.id);
+          widget.onGuidesChanged?.call(null, null);
           _startScale = element.scale;
           _startRotation = element.rotation;
         },
@@ -850,15 +895,31 @@ class _EditableOverlayElementState extends State<_EditableOverlayElement> {
           final dy = widget.canvasHeight <= 0
               ? 0.0
               : details.focalPointDelta.dy / widget.canvasHeight;
+
+          var nextX = (element.x + dx).clamp(0.0, 1.0).toDouble();
+          var nextY = (element.y + dy).clamp(0.0, 1.0).toDouble();
+          final guideX = _snapGuideValue(nextX);
+          final guideY = _snapGuideValue(nextY);
+          if (guideX != null) {
+            nextX = guideX;
+          }
+          if (guideY != null) {
+            nextY = guideY;
+          }
+
           final updated = element.copyWith(
-            x: (element.x + dx).clamp(0.0, 1.0).toDouble(),
-            y: (element.y + dy).clamp(0.0, 1.0).toDouble(),
+            x: nextX,
+            y: nextY,
             scale: (_startScale * details.scale).clamp(0.2, 8.0).toDouble(),
             rotation: _startRotation + details.rotation,
           );
           widget.onChanged?.call(updated);
+          widget.onGuidesChanged?.call(guideX, guideY);
         },
-        onScaleEnd: (_) => widget.onEditEnd?.call(),
+        onScaleEnd: (_) {
+          widget.onGuidesChanged?.call(null, null);
+          widget.onEditEnd?.call();
+        },
         child: Stack(
           clipBehavior: Clip.none,
           alignment: Alignment.center,
@@ -877,7 +938,9 @@ class _EditableOverlayElementState extends State<_EditableOverlayElement> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    element.locked ? 'Locked' : 'Drag/Pinch/Rotate',
+                    element.locked
+                        ? 'Locked'
+                        : 'Drag/Pinch/Rotate • Double tap to edit',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 9,
@@ -891,6 +954,45 @@ class _EditableOverlayElementState extends State<_EditableOverlayElement> {
         ),
       ),
     );
+  }
+
+  double? _snapGuideValue(double value) {
+    const targets = <double>[0.5, _edgeSnapInset, 1 - _edgeSnapInset];
+    for (final target in targets) {
+      if ((value - target).abs() <= _snapThreshold) {
+        return target;
+      }
+    }
+    return null;
+  }
+}
+
+class _SnapGuidePainter extends CustomPainter {
+  const _SnapGuidePainter({this.guideX, this.guideY});
+
+  final double? guideX;
+  final double? guideY;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF0EA5E9).withValues(alpha: 0.85)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    if (guideX != null) {
+      final x = (guideX!.clamp(0.0, 1.0) * size.width).toDouble();
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    if (guideY != null) {
+      final y = (guideY!.clamp(0.0, 1.0) * size.height).toDouble();
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SnapGuidePainter oldDelegate) {
+    return oldDelegate.guideX != guideX || oldDelegate.guideY != guideY;
   }
 }
 

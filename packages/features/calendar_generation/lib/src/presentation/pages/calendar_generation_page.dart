@@ -375,6 +375,13 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                                   _isEditorMode && index == _previewPage
                                   ? _commitEditorOverlayElements
                                   : null,
+                              onOverlayElementDoubleTap:
+                                  _isEditorMode && index == _previewPage
+                                  ? (element) => _handleOverlayElementDoubleTap(
+                                      month: pages[index].month,
+                                      element: element,
+                                    )
+                                  : null,
                             ),
                           ),
                         ),
@@ -486,6 +493,25 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                       icon: Icons.image_outlined,
                       label: 'Image',
                       onTap: () => _addImageOverlayElement(month),
+                    ),
+                    _EditorToolButton(
+                      icon: Icons.layers_outlined,
+                      label: 'Layers',
+                      onTap: () => _openLayersPanel(month),
+                    ),
+                    _EditorToolButton(
+                      icon: Icons.vertical_align_top,
+                      label: 'Front',
+                      onTap: selectedElement == null
+                          ? null
+                          : () => _bringSelectedOverlayElementToFront(month),
+                    ),
+                    _EditorToolButton(
+                      icon: Icons.vertical_align_bottom,
+                      label: 'Back',
+                      onTap: selectedElement == null
+                          ? null
+                          : () => _sendSelectedOverlayElementToBack(month),
                     ),
                     _EditorToolButton(
                       icon: selectedElement?.locked == true
@@ -821,6 +847,357 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
       }
     });
     _commitEditorOverlayElements();
+  }
+
+  void _handleOverlayElementDoubleTap({
+    required int month,
+    required CalendarOverlayElement element,
+  }) {
+    switch (element.type) {
+      case CalendarOverlayElementType.text:
+      case CalendarOverlayElementType.emoji:
+        _editOverlayElementText(month: month, element: element);
+      case CalendarOverlayElementType.sticker:
+      case CalendarOverlayElementType.image:
+        return;
+    }
+  }
+
+  Future<void> _editOverlayElementText({
+    required int month,
+    required CalendarOverlayElement element,
+  }) async {
+    String inputText = element.text ?? '';
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          element.type == CalendarOverlayElementType.emoji
+              ? 'Edit Emoji'
+              : 'Edit Text',
+        ),
+        content: TextFormField(
+          initialValue: inputText,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Value',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) => inputText = value,
+          onFieldSubmitted: (value) => Navigator.of(dialogContext).pop(value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(inputText),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    final normalized = result?.trim() ?? '';
+    if (normalized.isEmpty) {
+      return;
+    }
+    _updateOverlayElementForMonth(
+      month: month,
+      element: element.copyWith(text: normalized),
+    );
+    _commitEditorOverlayElements();
+  }
+
+  Future<void> _openLayersPanel(int month) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return FractionallySizedBox(
+          heightFactor: 0.78,
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              final elements = _elementsForMonth(month);
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Layers • Month $month',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(sheetContext).pop(),
+                          icon: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (elements.isEmpty)
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'No elements yet',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: ReorderableListView.builder(
+                          buildDefaultDragHandles: false,
+                          itemCount: elements.length,
+                          onReorder: (oldIndex, newIndex) {
+                            _reorderOverlayElements(
+                              month: month,
+                              oldIndex: oldIndex,
+                              newIndex: newIndex,
+                            );
+                            setModalState(() {});
+                          },
+                          itemBuilder: (context, index) {
+                            final element = elements[index];
+                            final isSelected =
+                                _selectedOverlayElementId == element.id;
+                            return Card(
+                              key: ValueKey<String>('layer_${element.id}'),
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                selected: isSelected,
+                                onTap: () {
+                                  setState(
+                                    () =>
+                                        _selectedOverlayElementId = element.id,
+                                  );
+                                  setModalState(() {});
+                                },
+                                leading: Icon(
+                                  _overlayTypeIcon(element.type),
+                                  color: element.locked
+                                      ? Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant
+                                      : null,
+                                ),
+                                title: Text(_overlayElementLabel(element)),
+                                subtitle: Text(
+                                  'x:${element.x.toStringAsFixed(2)} • y:${element.y.toStringAsFixed(2)} • s:${element.scale.toStringAsFixed(2)}',
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      tooltip: 'Move backward',
+                                      onPressed: index > 0
+                                          ? () {
+                                              _sendOverlayElementBackward(
+                                                month: month,
+                                                elementId: element.id,
+                                              );
+                                              setModalState(() {});
+                                            }
+                                          : null,
+                                      icon: const Icon(
+                                        Icons.arrow_downward_rounded,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Move forward',
+                                      onPressed: index < elements.length - 1
+                                          ? () {
+                                              _bringOverlayElementForward(
+                                                month: month,
+                                                elementId: element.id,
+                                              );
+                                              setModalState(() {});
+                                            }
+                                          : null,
+                                      icon: const Icon(
+                                        Icons.arrow_upward_rounded,
+                                      ),
+                                    ),
+                                    ReorderableDragStartListener(
+                                      index: index,
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Icon(Icons.drag_handle),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _bringSelectedOverlayElementToFront(int month) {
+    final selectedId = _selectedOverlayElementId;
+    if (selectedId == null) {
+      return;
+    }
+    _moveOverlayElementToFront(month: month, elementId: selectedId);
+  }
+
+  void _sendSelectedOverlayElementToBack(int month) {
+    final selectedId = _selectedOverlayElementId;
+    if (selectedId == null) {
+      return;
+    }
+    _moveOverlayElementToBack(month: month, elementId: selectedId);
+  }
+
+  void _moveOverlayElementToFront({
+    required int month,
+    required String elementId,
+  }) {
+    final list = _elementsForMonth(month).toList(growable: true);
+    final index = list.indexWhere((item) => item.id == elementId);
+    if (index < 0 || index == list.length - 1) {
+      return;
+    }
+    final element = list.removeAt(index);
+    list.add(element);
+    _applyMonthOverlayElements(
+      month: month,
+      elements: list,
+      selectedId: elementId,
+    );
+  }
+
+  void _moveOverlayElementToBack({
+    required int month,
+    required String elementId,
+  }) {
+    final list = _elementsForMonth(month).toList(growable: true);
+    final index = list.indexWhere((item) => item.id == elementId);
+    if (index <= 0) {
+      return;
+    }
+    final element = list.removeAt(index);
+    list.insert(0, element);
+    _applyMonthOverlayElements(
+      month: month,
+      elements: list,
+      selectedId: elementId,
+    );
+  }
+
+  void _bringOverlayElementForward({
+    required int month,
+    required String elementId,
+  }) {
+    final list = _elementsForMonth(month).toList(growable: true);
+    final index = list.indexWhere((item) => item.id == elementId);
+    if (index < 0 || index >= list.length - 1) {
+      return;
+    }
+    final current = list[index];
+    list[index] = list[index + 1];
+    list[index + 1] = current;
+    _applyMonthOverlayElements(
+      month: month,
+      elements: list,
+      selectedId: elementId,
+    );
+  }
+
+  void _sendOverlayElementBackward({
+    required int month,
+    required String elementId,
+  }) {
+    final list = _elementsForMonth(month).toList(growable: true);
+    final index = list.indexWhere((item) => item.id == elementId);
+    if (index <= 0) {
+      return;
+    }
+    final current = list[index];
+    list[index] = list[index - 1];
+    list[index - 1] = current;
+    _applyMonthOverlayElements(
+      month: month,
+      elements: list,
+      selectedId: elementId,
+    );
+  }
+
+  void _reorderOverlayElements({
+    required int month,
+    required int oldIndex,
+    required int newIndex,
+  }) {
+    final list = _elementsForMonth(month).toList(growable: true);
+    if (oldIndex < 0 ||
+        oldIndex >= list.length ||
+        newIndex < 0 ||
+        newIndex > list.length) {
+      return;
+    }
+    var targetIndex = newIndex;
+    if (targetIndex > oldIndex) {
+      targetIndex -= 1;
+    }
+    final moved = list.removeAt(oldIndex);
+    list.insert(targetIndex, moved);
+    _applyMonthOverlayElements(
+      month: month,
+      elements: list,
+      selectedId: moved.id,
+    );
+  }
+
+  void _applyMonthOverlayElements({
+    required int month,
+    required List<CalendarOverlayElement> elements,
+    String? selectedId,
+  }) {
+    setState(() {
+      _selectedOverlayElementId = selectedId ?? _selectedOverlayElementId;
+      if (elements.isEmpty) {
+        _editorOverlayElementsByMonth.remove(month);
+      } else {
+        _editorOverlayElementsByMonth[month] =
+            List<CalendarOverlayElement>.unmodifiable(elements);
+      }
+    });
+    _commitEditorOverlayElements();
+  }
+
+  IconData _overlayTypeIcon(CalendarOverlayElementType type) {
+    return switch (type) {
+      CalendarOverlayElementType.text => Icons.text_fields,
+      CalendarOverlayElementType.emoji => Icons.emoji_emotions_outlined,
+      CalendarOverlayElementType.sticker => Icons.auto_awesome_outlined,
+      CalendarOverlayElementType.image => Icons.image_outlined,
+    };
+  }
+
+  String _overlayElementLabel(CalendarOverlayElement element) {
+    return switch (element.type) {
+      CalendarOverlayElementType.text =>
+        'Text: ${(element.text ?? '').trim().isEmpty ? '(empty)' : element.text!.trim()}',
+      CalendarOverlayElementType.emoji =>
+        'Emoji: ${(element.text ?? '').trim().isEmpty ? '🙂' : element.text!.trim()}',
+      CalendarOverlayElementType.sticker =>
+        'Sticker: ${(element.stickerKey ?? 'default').capitalize}',
+      CalendarOverlayElementType.image => 'Image',
+    };
   }
 
   String _newOverlayElementId() {
