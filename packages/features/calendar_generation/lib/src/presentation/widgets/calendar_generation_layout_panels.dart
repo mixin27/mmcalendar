@@ -5,6 +5,7 @@ import '../../domain/entities/calendar_generation_mode.dart';
 import '../../domain/entities/calendar_generation_request.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
+import '../../domain/entities/calendar_preview_theme.dart';
 import 'calendar_generation_preview_page.dart';
 import 'calendar_generation_ui_sections.dart';
 
@@ -218,8 +219,14 @@ class CalendarGenerationPreviewWorkspace extends StatelessWidget {
     required this.previewPageController,
     required this.previewRequest,
     required this.previewCanvasSize,
+    required this.layoutEditMode,
+    required this.selectedLayoutElementId,
     required this.onPageChanged,
     required this.onGoToPage,
+    required this.onLayoutEditModeChanged,
+    required this.onSelectedLayoutElementChanged,
+    required this.onLayoutThemeChanged,
+    required this.onLayoutElementEditEnd,
     super.key,
   });
 
@@ -228,16 +235,61 @@ class CalendarGenerationPreviewWorkspace extends StatelessWidget {
   final PageController previewPageController;
   final CalendarGenerationRequest previewRequest;
   final Size previewCanvasSize;
+  final bool layoutEditMode;
+  final String? selectedLayoutElementId;
   final ValueChanged<int> onPageChanged;
   final ValueChanged<int> onGoToPage;
+  final ValueChanged<bool> onLayoutEditModeChanged;
+  final ValueChanged<String?> onSelectedLayoutElementChanged;
+  final ValueChanged<CalendarPreviewTheme> onLayoutThemeChanged;
+  final VoidCallback onLayoutElementEditEnd;
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: colorScheme.outlineVariant),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  layoutEditMode
+                      ? Icons.open_with_rounded
+                      : Icons.preview_outlined,
+                  size: 18,
+                  color: layoutEditMode
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    layoutEditMode
+                        ? 'Layout Edit Mode: Select, drag, pinch to resize'
+                        : 'Preview Mode: Pan and zoom canvas',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Switch.adaptive(
+                  value: layoutEditMode,
+                  onChanged: onLayoutEditModeChanged,
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: PageView.builder(
               controller: previewPageController,
@@ -249,6 +301,11 @@ class CalendarGenerationPreviewWorkspace extends StatelessWidget {
                 index: index,
                 previewRequest: previewRequest,
                 previewCanvasSize: previewCanvasSize,
+                layoutEditMode: layoutEditMode,
+                selectedLayoutElementId: selectedLayoutElementId,
+                onSelectedLayoutElementChanged: onSelectedLayoutElementChanged,
+                onLayoutThemeChanged: onLayoutThemeChanged,
+                onLayoutElementEditEnd: onLayoutElementEditEnd,
               ),
             ),
           ),
@@ -336,12 +393,22 @@ class _PreviewCanvasCard extends StatelessWidget {
     required this.index,
     required this.previewRequest,
     required this.previewCanvasSize,
+    required this.layoutEditMode,
+    required this.selectedLayoutElementId,
+    required this.onSelectedLayoutElementChanged,
+    required this.onLayoutThemeChanged,
+    required this.onLayoutElementEditEnd,
   });
 
   final List<CalendarPageModel> pages;
   final int index;
   final CalendarGenerationRequest previewRequest;
   final Size previewCanvasSize;
+  final bool layoutEditMode;
+  final String? selectedLayoutElementId;
+  final ValueChanged<String?> onSelectedLayoutElementChanged;
+  final ValueChanged<CalendarPreviewTheme> onLayoutThemeChanged;
+  final VoidCallback onLayoutElementEditEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -364,8 +431,8 @@ class _PreviewCanvasCard extends StatelessWidget {
             boundaryMargin: const EdgeInsets.all(80),
             minScale: 1.0,
             maxScale: 4.0,
-            panEnabled: true,
-            scaleEnabled: true,
+            panEnabled: !layoutEditMode,
+            scaleEnabled: !layoutEditMode,
             child: SizedBox.expand(
               child: FittedBox(
                 fit: BoxFit.contain,
@@ -380,6 +447,12 @@ class _PreviewCanvasCard extends StatelessWidget {
                     elevation: 0,
                     contentPadding: const EdgeInsets.all(12),
                     useCardChrome: false,
+                    editLayoutElements: layoutEditMode,
+                    selectedLayoutElementId: selectedLayoutElementId,
+                    onSelectedLayoutElementChanged:
+                        onSelectedLayoutElementChanged,
+                    onLayoutThemeChanged: onLayoutThemeChanged,
+                    onLayoutElementEditEnd: onLayoutElementEditEnd,
                   ),
                 ),
               ),

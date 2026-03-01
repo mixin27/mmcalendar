@@ -304,6 +304,8 @@ class CalendarGenerationPreferencesDataSource {
       'backgroundImageAlignment': theme.backgroundImageAlignment.name,
       'calendarContentOffsetX': theme.calendarContentOffsetX,
       'calendarContentOffsetY': theme.calendarContentOffsetY,
+      'calendarContentWidthFactor': theme.calendarContentWidthFactor,
+      'calendarContentHeightFactor': theme.calendarContentHeightFactor,
       'monthYearFontScale': theme.monthYearFontScale,
       'weekdayFontScale': theme.weekdayFontScale,
       'gridBorderDesign': theme.gridBorderDesign.name,
@@ -661,6 +663,16 @@ class CalendarGenerationPreferencesDataSource {
           (_parseDouble(rawTheme['calendarContentOffsetY']) ??
                   fallback.calendarContentOffsetY)
               .clamp(-0.5, 0.5)
+              .toDouble(),
+      calendarContentWidthFactor:
+          (_parseDouble(rawTheme['calendarContentWidthFactor']) ??
+                  fallback.calendarContentWidthFactor)
+              .clamp(0.4, 1.0)
+              .toDouble(),
+      calendarContentHeightFactor:
+          (_parseDouble(rawTheme['calendarContentHeightFactor']) ??
+                  fallback.calendarContentHeightFactor)
+              .clamp(0.4, 1.0)
               .toDouble(),
       monthYearFontScale:
           (_parseDouble(rawTheme['monthYearFontScale']) ??

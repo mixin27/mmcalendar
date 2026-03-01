@@ -117,6 +117,8 @@ class CalendarPreviewTheme extends Equatable {
     this.backgroundImageAlignment = CalendarBackgroundImageAlignment.center,
     this.calendarContentOffsetX = 0.0,
     this.calendarContentOffsetY = 0.0,
+    this.calendarContentWidthFactor = 1.0,
+    this.calendarContentHeightFactor = 1.0,
     this.monthYearFontScale = 1.08,
     this.weekdayFontScale = 1.14,
     this.gridBorderDesign = CalendarBorderDesign.soft,
@@ -156,6 +158,8 @@ class CalendarPreviewTheme extends Equatable {
   final CalendarBackgroundImageAlignment backgroundImageAlignment;
   final double calendarContentOffsetX;
   final double calendarContentOffsetY;
+  final double calendarContentWidthFactor;
+  final double calendarContentHeightFactor;
   final double monthYearFontScale;
   final double weekdayFontScale;
   final CalendarBorderDesign gridBorderDesign;
@@ -187,6 +191,8 @@ class CalendarPreviewTheme extends Equatable {
     CalendarBackgroundImageAlignment? backgroundImageAlignment,
     double? calendarContentOffsetX,
     double? calendarContentOffsetY,
+    double? calendarContentWidthFactor,
+    double? calendarContentHeightFactor,
     double? monthYearFontScale,
     double? weekdayFontScale,
     CalendarBorderDesign? gridBorderDesign,
@@ -213,6 +219,14 @@ class CalendarPreviewTheme extends Equatable {
       calendarContentOffsetY:
           (calendarContentOffsetY ?? this.calendarContentOffsetY)
               .clamp(-0.5, 0.5)
+              .toDouble(),
+      calendarContentWidthFactor:
+          (calendarContentWidthFactor ?? this.calendarContentWidthFactor)
+              .clamp(0.4, 1.0)
+              .toDouble(),
+      calendarContentHeightFactor:
+          (calendarContentHeightFactor ?? this.calendarContentHeightFactor)
+              .clamp(0.4, 1.0)
               .toDouble(),
       monthYearFontScale: (monthYearFontScale ?? this.monthYearFontScale)
           .clamp(0.7, 1.8)
@@ -242,6 +256,8 @@ class CalendarPreviewTheme extends Equatable {
     backgroundImageAlignment,
     calendarContentOffsetX,
     calendarContentOffsetY,
+    calendarContentWidthFactor,
+    calendarContentHeightFactor,
     monthYearFontScale,
     weekdayFontScale,
     gridBorderDesign,

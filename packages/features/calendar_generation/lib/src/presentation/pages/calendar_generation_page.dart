@@ -14,6 +14,7 @@ import '../../domain/entities/calendar_generation_template.dart';
 import '../../domain/entities/calendar_overlay_element.dart';
 import '../../domain/entities/calendar_page_model.dart';
 import '../../domain/entities/calendar_page_orientation.dart';
+import '../../domain/entities/calendar_preview_theme.dart';
 import '../../domain/entities/generation_artifact.dart';
 import '../../domain/usecases/build_calendar_previews.dart';
 import '../../rendering/export/calendar_export_layout.dart';
@@ -69,6 +70,8 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   int? _templatePreviewCacheKey;
   CalendarPageOrientation? _previewOrientationOverride;
   bool _syncPreviewOrientationToExport = false;
+  bool _layoutEditMode = false;
+  String? _selectedLayoutElementId;
   final Map<String, CalendarTemplatePreviewData> _templatePreviewCache =
       <String, CalendarTemplatePreviewData>{};
 
@@ -217,8 +220,15 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                     previewPageController: _previewPageController,
                     previewRequest: previewRequest,
                     previewCanvasSize: previewCanvasSize,
+                    layoutEditMode: _layoutEditMode,
+                    selectedLayoutElementId: _selectedLayoutElementId,
                     onPageChanged: _onPreviewPageChanged,
                     onGoToPage: _goToPreviewPage,
+                    onLayoutEditModeChanged: _onLayoutEditModeChanged,
+                    onSelectedLayoutElementChanged:
+                        _onSelectedLayoutElementChanged,
+                    onLayoutThemeChanged: _onLayoutThemeChanged,
+                    onLayoutElementEditEnd: _onLayoutElementEditEnd,
                   ),
                 ),
               ],
@@ -252,8 +262,15 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
                   previewPageController: _previewPageController,
                   previewRequest: previewRequest,
                   previewCanvasSize: previewCanvasSize,
+                  layoutEditMode: _layoutEditMode,
+                  selectedLayoutElementId: _selectedLayoutElementId,
                   onPageChanged: _onPreviewPageChanged,
                   onGoToPage: _goToPreviewPage,
+                  onLayoutEditModeChanged: _onLayoutEditModeChanged,
+                  onSelectedLayoutElementChanged:
+                      _onSelectedLayoutElementChanged,
+                  onLayoutThemeChanged: _onLayoutThemeChanged,
+                  onLayoutElementEditEnd: _onLayoutElementEditEnd,
                 ),
               ),
             ],
@@ -485,6 +502,30 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
       ChangePageOrientation(orientation),
     );
   }
+
+  void _onLayoutEditModeChanged(bool value) {
+    _updateViewState(() {
+      _layoutEditMode = value;
+      _selectedLayoutElementId = null;
+    });
+  }
+
+  void _onSelectedLayoutElementChanged(String? id) {
+    if (_selectedLayoutElementId == id) {
+      return;
+    }
+    _updateViewState(() {
+      _selectedLayoutElementId = id;
+    });
+  }
+
+  void _onLayoutThemeChanged(CalendarPreviewTheme theme) {
+    context.read<CalendarGenerationBloc>().add(
+      UpdateCalendarPreviewTheme(theme),
+    );
+  }
+
+  void _onLayoutElementEditEnd() {}
 
   void _goToPreviewPage(int page) {
     if (!_previewPageController.hasClients) {

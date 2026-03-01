@@ -185,6 +185,30 @@ class _CalendarLayoutSettingsContentState
                 onChanged: (value) =>
                     _updateTheme(theme.copyWith(calendarContentOffsetY: value)),
               ),
+              _ExportSliderRow(
+                label: 'Content Width',
+                valueText:
+                    '${(theme.calendarContentWidthFactor * 100).round()}%',
+                min: 0.4,
+                max: 1.0,
+                divisions: 60,
+                value: theme.calendarContentWidthFactor,
+                onChanged: (value) => _updateTheme(
+                  theme.copyWith(calendarContentWidthFactor: value),
+                ),
+              ),
+              _ExportSliderRow(
+                label: 'Content Height',
+                valueText:
+                    '${(theme.calendarContentHeightFactor * 100).round()}%',
+                min: 0.4,
+                max: 1.0,
+                divisions: 60,
+                value: theme.calendarContentHeightFactor,
+                onChanged: (value) => _updateTheme(
+                  theme.copyWith(calendarContentHeightFactor: value),
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
                 'Typography Scale',

@@ -31,6 +31,11 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     this.onOverlayElementDoubleTap,
     this.overlayInteractionScale = 1.0,
     this.restrictTransformToSelected = false,
+    this.editLayoutElements = false,
+    this.selectedLayoutElementId,
+    this.onSelectedLayoutElementChanged,
+    this.onLayoutThemeChanged,
+    this.onLayoutElementEditEnd,
     super.key,
   });
 
@@ -56,6 +61,11 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
   final ValueChanged<CalendarOverlayElement>? onOverlayElementDoubleTap;
   final double overlayInteractionScale;
   final bool restrictTransformToSelected;
+  final bool editLayoutElements;
+  final String? selectedLayoutElementId;
+  final ValueChanged<String?>? onSelectedLayoutElementChanged;
+  final ValueChanged<CalendarPreviewTheme>? onLayoutThemeChanged;
+  final VoidCallback? onLayoutElementEditEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +162,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                                 Expanded(
                                   flex: landscapeDecorationFlex,
                                   child: _buildCustomDecorationArea(
+                                    theme: theme,
                                     backgroundColor: backgroundColor,
                                     foregroundColor: foregroundColor,
                                   ),
@@ -161,8 +172,8 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                               Expanded(
                                 flex: landscapeCalendarFlex,
                                 child: _buildPositionedCalendarPanel(
-                                  offsetX: theme.calendarContentOffsetX,
-                                  offsetY: theme.calendarContentOffsetY,
+                                  theme: theme,
+                                  foregroundColor: foregroundColor,
                                   child: Column(
                                     children: [
                                       _WeekdayHeader(
@@ -203,6 +214,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                                 Expanded(
                                   flex: landscapeDecorationFlex,
                                   child: _buildCustomDecorationArea(
+                                    theme: theme,
                                     backgroundColor: backgroundColor,
                                     foregroundColor: foregroundColor,
                                   ),
@@ -220,8 +232,8 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                               Expanded(
                                 flex: portraitCalendarFlex,
                                 child: _buildPositionedCalendarPanel(
-                                  offsetX: theme.calendarContentOffsetX,
-                                  offsetY: theme.calendarContentOffsetY,
+                                  theme: theme,
+                                  foregroundColor: foregroundColor,
                                   child: _buildCalendarGrid(
                                     backgroundColor: backgroundColor,
                                     foregroundColor: foregroundColor,
@@ -246,6 +258,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                               Expanded(
                                 flex: portraitDecorationFlex,
                                 child: _buildCustomDecorationArea(
+                                  theme: theme,
                                   backgroundColor: backgroundColor,
                                   foregroundColor: foregroundColor,
                                 ),
@@ -685,10 +698,11 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
   }
 
   Widget _buildCustomDecorationArea({
+    required CalendarPreviewTheme theme,
     required Color backgroundColor,
     required Color foregroundColor,
   }) {
-    final boxes = request.theme.freeSpaceBoxes
+    final boxes = theme.freeSpaceBoxes
         .where((box) => box.visible)
         .toList(growable: false);
     if (boxes.isEmpty) {
@@ -696,71 +710,178 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     }
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Stack(
-          children: boxes
-              .map((box) {
-                final left = (box.x * constraints.maxWidth).clamp(
-                  0.0,
-                  constraints.maxWidth,
-                );
-                final top = (box.y * constraints.maxHeight).clamp(
-                  0.0,
-                  constraints.maxHeight,
-                );
-                final width = (box.width * constraints.maxWidth).clamp(
-                  1.0,
-                  constraints.maxWidth,
-                );
-                final height = (box.height * constraints.maxHeight).clamp(
-                  1.0,
-                  constraints.maxHeight,
-                );
-                final borderColor = Color(box.borderColorValue);
-                final fillColor = Color(box.fillColorValue);
-                final borderWidth = _gridBorderWidth(
-                  design: box.borderDesign,
-                  baseWidth: box.borderWidth,
-                );
+        final children = <Widget>[
+          ...boxes.map((box) {
+            final left = (box.x * constraints.maxWidth).clamp(
+              0.0,
+              constraints.maxWidth,
+            );
+            final top = (box.y * constraints.maxHeight).clamp(
+              0.0,
+              constraints.maxHeight,
+            );
+            final width = (box.width * constraints.maxWidth).clamp(
+              1.0,
+              constraints.maxWidth,
+            );
+            final height = (box.height * constraints.maxHeight).clamp(
+              1.0,
+              constraints.maxHeight,
+            );
+            final borderColor = Color(box.borderColorValue);
+            final fillColor = Color(box.fillColorValue);
+            final borderWidth = _gridBorderWidth(
+              design: box.borderDesign,
+              baseWidth: box.borderWidth,
+            );
 
-                return Positioned(
-                  left: left,
-                  top: top,
-                  width: width,
-                  height: height,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: fillColor,
-                      border: Border.all(
-                        color: _gridBorderColor(
-                          design: box.borderDesign,
-                          baseColor: borderColor,
-                        ),
-                        width: borderWidth,
-                      ),
-                      borderRadius: BorderRadius.circular(box.cornerRadius),
+            return Positioned(
+              left: left,
+              top: top,
+              width: width,
+              height: height,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: fillColor,
+                  border: Border.all(
+                    color: _gridBorderColor(
+                      design: box.borderDesign,
+                      baseColor: borderColor,
                     ),
+                    width: borderWidth,
                   ),
-                );
-              })
-              .toList(growable: false),
-        );
+                  borderRadius: BorderRadius.circular(box.cornerRadius),
+                ),
+              ),
+            );
+          }),
+        ];
+
+        if (editLayoutElements) {
+          for (final box in boxes) {
+            final editId = 'free_box:${box.id}';
+            children.add(
+              _EditableLayoutRect(
+                id: editId,
+                selected: selectedLayoutElementId == editId,
+                rect: _NormalizedRect(
+                  x: box.x,
+                  y: box.y,
+                  width: box.width,
+                  height: box.height,
+                ),
+                canvasWidth: constraints.maxWidth,
+                canvasHeight: constraints.maxHeight,
+                minWidth: 0.05,
+                minHeight: 0.05,
+                borderColor: foregroundColor,
+                onSelected: onSelectedLayoutElementChanged,
+                onChanged: (nextRect) {
+                  final nextBoxes = theme.freeSpaceBoxes
+                      .map(
+                        (candidate) => candidate.id == box.id
+                            ? candidate.copyWith(
+                                x: nextRect.x,
+                                y: nextRect.y,
+                                width: nextRect.width,
+                                height: nextRect.height,
+                              )
+                            : candidate,
+                      )
+                      .toList(growable: false);
+                  onLayoutThemeChanged?.call(
+                    theme.copyWith(freeSpaceBoxes: nextBoxes),
+                  );
+                },
+                onEditEnd: onLayoutElementEditEnd,
+              ),
+            );
+          }
+        }
+
+        return Stack(clipBehavior: Clip.none, children: children);
       },
     );
   }
 
   Widget _buildPositionedCalendarPanel({
-    required double offsetX,
-    required double offsetY,
+    required CalendarPreviewTheme theme,
+    required Color foregroundColor,
     required Widget child,
   }) {
-    final normalizedX = offsetX.clamp(-0.5, 0.5);
-    final normalizedY = offsetY.clamp(-0.5, 0.5);
+    final normalizedX = theme.calendarContentOffsetX.clamp(-0.5, 0.5);
+    final normalizedY = theme.calendarContentOffsetY.clamp(-0.5, 0.5);
+    final widthFactor = theme.calendarContentWidthFactor.clamp(0.4, 1.0);
+    final heightFactor = theme.calendarContentHeightFactor.clamp(0.4, 1.0);
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final dx = constraints.maxWidth * normalizedX;
-        final dy = constraints.maxHeight * normalizedY;
+        final centerX = ((normalizedX + 1) / 2).clamp(0.0, 1.0);
+        final centerY = ((normalizedY + 1) / 2).clamp(0.0, 1.0);
+        final left = (centerX - (widthFactor / 2)).clamp(
+          0.0,
+          1.0 - widthFactor,
+        );
+        final top = (centerY - (heightFactor / 2)).clamp(
+          0.0,
+          1.0 - heightFactor,
+        );
+        final alignedCenterX = left + (widthFactor / 2);
+        final alignedCenterY = top + (heightFactor / 2);
+        final alignment = Alignment(
+          (alignedCenterX * 2) - 1,
+          (alignedCenterY * 2) - 1,
+        );
+
+        final panel = Align(
+          alignment: alignment,
+          child: FractionallySizedBox(
+            widthFactor: widthFactor,
+            heightFactor: heightFactor,
+            child: child,
+          ),
+        );
+
+        if (!editLayoutElements) {
+          return ClipRect(child: panel);
+        }
+
         return ClipRect(
-          child: Transform.translate(offset: Offset(dx, dy), child: child),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              panel,
+              _EditableLayoutRect(
+                id: 'calendar_panel',
+                selected: selectedLayoutElementId == 'calendar_panel',
+                rect: _NormalizedRect(
+                  x: left,
+                  y: top,
+                  width: widthFactor,
+                  height: heightFactor,
+                ),
+                canvasWidth: constraints.maxWidth,
+                canvasHeight: constraints.maxHeight,
+                minWidth: 0.4,
+                minHeight: 0.4,
+                borderColor: foregroundColor,
+                onSelected: onSelectedLayoutElementChanged,
+                onChanged: (nextRect) {
+                  final centerX = nextRect.x + (nextRect.width / 2);
+                  final centerY = nextRect.y + (nextRect.height / 2);
+                  onLayoutThemeChanged?.call(
+                    theme.copyWith(
+                      calendarContentOffsetX: (centerX * 2) - 1,
+                      calendarContentOffsetY: (centerY * 2) - 1,
+                      calendarContentWidthFactor: nextRect.width,
+                      calendarContentHeightFactor: nextRect.height,
+                    ),
+                  );
+                },
+                onEditEnd: onLayoutElementEditEnd,
+              ),
+            ],
+          ),
         );
       },
     );
@@ -952,6 +1073,216 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
       CalendarBackgroundImageAlignment.center => Alignment.center,
       CalendarBackgroundImageAlignment.bottom => Alignment.bottomCenter,
     };
+  }
+}
+
+class _NormalizedRect {
+  const _NormalizedRect({
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+  });
+
+  final double x;
+  final double y;
+  final double width;
+  final double height;
+
+  _NormalizedRect copyWith({
+    double? x,
+    double? y,
+    double? width,
+    double? height,
+  }) {
+    return _NormalizedRect(
+      x: x ?? this.x,
+      y: y ?? this.y,
+      width: width ?? this.width,
+      height: height ?? this.height,
+    );
+  }
+}
+
+class _EditableLayoutRect extends StatefulWidget {
+  const _EditableLayoutRect({
+    required this.id,
+    required this.selected,
+    required this.rect,
+    required this.canvasWidth,
+    required this.canvasHeight,
+    required this.minWidth,
+    required this.minHeight,
+    required this.borderColor,
+    this.onSelected,
+    this.onChanged,
+    this.onEditEnd,
+  });
+
+  final String id;
+  final bool selected;
+  final _NormalizedRect rect;
+  final double canvasWidth;
+  final double canvasHeight;
+  final double minWidth;
+  final double minHeight;
+  final Color borderColor;
+  final ValueChanged<String?>? onSelected;
+  final ValueChanged<_NormalizedRect>? onChanged;
+  final VoidCallback? onEditEnd;
+
+  @override
+  State<_EditableLayoutRect> createState() => _EditableLayoutRectState();
+}
+
+class _EditableLayoutRectState extends State<_EditableLayoutRect> {
+  static const double _epsilon = 0.00001;
+
+  late _NormalizedRect _workingRect;
+  late _NormalizedRect _startRect;
+  bool _interacting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _workingRect = widget.rect;
+    _startRect = widget.rect;
+  }
+
+  @override
+  void didUpdateWidget(covariant _EditableLayoutRect oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_interacting) {
+      _workingRect = widget.rect;
+      _startRect = widget.rect;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final left = (_workingRect.x * widget.canvasWidth).clamp(
+      0.0,
+      widget.canvasWidth,
+    );
+    final top = (_workingRect.y * widget.canvasHeight).clamp(
+      0.0,
+      widget.canvasHeight,
+    );
+    final width = (_workingRect.width * widget.canvasWidth).clamp(
+      1.0,
+      widget.canvasWidth,
+    );
+    final height = (_workingRect.height * widget.canvasHeight).clamp(
+      1.0,
+      widget.canvasHeight,
+    );
+
+    return Positioned(
+      left: left,
+      top: top,
+      width: width,
+      height: height,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => widget.onSelected?.call(widget.id),
+        onScaleStart: (_) {
+          if (!widget.selected) {
+            widget.onSelected?.call(widget.id);
+          }
+          _interacting = true;
+          _startRect = _workingRect;
+        },
+        onScaleUpdate: (details) {
+          final canvasWidth = widget.canvasWidth <= 0
+              ? 1.0
+              : widget.canvasWidth;
+          final canvasHeight = widget.canvasHeight <= 0
+              ? 1.0
+              : widget.canvasHeight;
+
+          final dx = details.focalPointDelta.dx / canvasWidth;
+          final dy = details.focalPointDelta.dy / canvasHeight;
+          final scaledWidth = (_startRect.width * details.scale)
+              .clamp(widget.minWidth, 1.0)
+              .toDouble();
+          final scaledHeight = (_startRect.height * details.scale)
+              .clamp(widget.minHeight, 1.0)
+              .toDouble();
+
+          final nextX = (_workingRect.x + dx).clamp(0.0, 1.0 - scaledWidth);
+          final nextY = (_workingRect.y + dy).clamp(0.0, 1.0 - scaledHeight);
+          final next = _NormalizedRect(
+            x: nextX.toDouble(),
+            y: nextY.toDouble(),
+            width: scaledWidth,
+            height: scaledHeight,
+          );
+
+          if ((next.x - _workingRect.x).abs() < _epsilon &&
+              (next.y - _workingRect.y).abs() < _epsilon &&
+              (next.width - _workingRect.width).abs() < _epsilon &&
+              (next.height - _workingRect.height).abs() < _epsilon) {
+            return;
+          }
+
+          setState(() => _workingRect = next);
+          widget.onChanged?.call(next);
+        },
+        onScaleEnd: (_) {
+          _interacting = false;
+          widget.onEditEnd?.call();
+        },
+        child: IgnorePointer(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            decoration: BoxDecoration(
+              color: widget.selected
+                  ? widget.borderColor.withValues(alpha: 0.06)
+                  : Colors.transparent,
+              border: Border.all(
+                color: widget.selected
+                    ? widget.borderColor.withValues(alpha: 0.9)
+                    : widget.borderColor.withValues(alpha: 0.3),
+                width: widget.selected ? 1.6 : 1.0,
+              ),
+              borderRadius: BorderRadius.circular(widget.selected ? 6 : 4),
+            ),
+            child: widget.selected
+                ? const Stack(
+                    children: [
+                      _CornerHandle(alignment: Alignment.topLeft),
+                      _CornerHandle(alignment: Alignment.topRight),
+                      _CornerHandle(alignment: Alignment.bottomLeft),
+                      _CornerHandle(alignment: Alignment.bottomRight),
+                    ],
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CornerHandle extends StatelessWidget {
+  const _CornerHandle({required this.alignment});
+
+  final Alignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment,
+      child: Container(
+        width: 8,
+        height: 8,
+        margin: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    );
   }
 }
 
