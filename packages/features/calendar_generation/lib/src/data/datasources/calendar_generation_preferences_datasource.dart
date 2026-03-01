@@ -302,6 +302,30 @@ class CalendarGenerationPreferencesDataSource {
       'backgroundImageOpacity': theme.backgroundImageOpacity,
       'backgroundImageFit': theme.backgroundImageFit.name,
       'backgroundImageAlignment': theme.backgroundImageAlignment.name,
+      'calendarContentOffsetX': theme.calendarContentOffsetX,
+      'calendarContentOffsetY': theme.calendarContentOffsetY,
+      'monthYearFontScale': theme.monthYearFontScale,
+      'weekdayFontScale': theme.weekdayFontScale,
+      'gridBorderDesign': theme.gridBorderDesign.name,
+      'gridBorderWidth': theme.gridBorderWidth,
+      'gridCornerRadius': theme.gridCornerRadius,
+      'freeSpaceBoxes': theme.freeSpaceBoxes
+          .map(
+            (box) => <String, dynamic>{
+              'id': box.id,
+              'x': box.x,
+              'y': box.y,
+              'width': box.width,
+              'height': box.height,
+              'fillColorValue': box.fillColorValue,
+              'borderColorValue': box.borderColorValue,
+              'borderWidth': box.borderWidth,
+              'cornerRadius': box.cornerRadius,
+              'borderDesign': box.borderDesign.name,
+              'visible': box.visible,
+            },
+          )
+          .toList(growable: false),
       'backgroundImageUrlsByMonth': theme.backgroundImageUrlsByMonth.map(
         (key, value) => MapEntry('$key', value),
       ),
@@ -563,6 +587,48 @@ class CalendarGenerationPreferencesDataSource {
       }
     }
 
+    final freeSpaceBoxes = <CalendarFreeSpaceBox>[];
+    final rawBoxes = rawTheme['freeSpaceBoxes'];
+    if (rawBoxes is List) {
+      for (final item in rawBoxes) {
+        if (item is! Map<String, dynamic>) {
+          continue;
+        }
+        final id = item['id']?.toString().trim();
+        if (id == null || id.isEmpty) {
+          continue;
+        }
+        final designName = item['borderDesign']?.toString();
+        final design = _firstWhereOrNull<CalendarBorderDesign>(
+          CalendarBorderDesign.values,
+          (value) => value.name == designName,
+        );
+        freeSpaceBoxes.add(
+          CalendarFreeSpaceBox(
+            id: id,
+            x: (_parseDouble(item['x']) ?? 0.0).clamp(0.0, 1.0).toDouble(),
+            y: (_parseDouble(item['y']) ?? 0.0).clamp(0.0, 1.0).toDouble(),
+            width: (_parseDouble(item['width']) ?? 1.0)
+                .clamp(0.05, 1.0)
+                .toDouble(),
+            height: (_parseDouble(item['height']) ?? 1.0)
+                .clamp(0.05, 1.0)
+                .toDouble(),
+            fillColorValue: _parseInt(item['fillColorValue']) ?? 0x00FFFFFF,
+            borderColorValue: _parseInt(item['borderColorValue']) ?? 0x4D1E293B,
+            borderWidth: (_parseDouble(item['borderWidth']) ?? 1.0)
+                .clamp(0.0, 6.0)
+                .toDouble(),
+            cornerRadius: (_parseDouble(item['cornerRadius']) ?? 6.0)
+                .clamp(0.0, 32.0)
+                .toDouble(),
+            borderDesign: design ?? CalendarBorderDesign.soft,
+            visible: _parseBool(item['visible']) ?? true,
+          ),
+        );
+      }
+    }
+
     return fallback.copyWith(
       backgroundColorValue:
           _parseInt(rawTheme['backgroundColorValue']) ??
@@ -586,6 +652,45 @@ class CalendarGenerationPreferencesDataSource {
             rawTheme['backgroundImageAlignment'],
           ) ??
           fallback.backgroundImageAlignment,
+      calendarContentOffsetX:
+          (_parseDouble(rawTheme['calendarContentOffsetX']) ??
+                  fallback.calendarContentOffsetX)
+              .clamp(-0.5, 0.5)
+              .toDouble(),
+      calendarContentOffsetY:
+          (_parseDouble(rawTheme['calendarContentOffsetY']) ??
+                  fallback.calendarContentOffsetY)
+              .clamp(-0.5, 0.5)
+              .toDouble(),
+      monthYearFontScale:
+          (_parseDouble(rawTheme['monthYearFontScale']) ??
+                  fallback.monthYearFontScale)
+              .clamp(0.7, 1.8)
+              .toDouble(),
+      weekdayFontScale:
+          (_parseDouble(rawTheme['weekdayFontScale']) ??
+                  fallback.weekdayFontScale)
+              .clamp(0.7, 1.8)
+              .toDouble(),
+      gridBorderDesign:
+          _firstWhereOrNull<CalendarBorderDesign>(
+            CalendarBorderDesign.values,
+            (value) => value.name == rawTheme['gridBorderDesign']?.toString(),
+          ) ??
+          fallback.gridBorderDesign,
+      gridBorderWidth:
+          (_parseDouble(rawTheme['gridBorderWidth']) ??
+                  fallback.gridBorderWidth)
+              .clamp(0.0, 4.0)
+              .toDouble(),
+      gridCornerRadius:
+          (_parseDouble(rawTheme['gridCornerRadius']) ??
+                  fallback.gridCornerRadius)
+              .clamp(0.0, 20.0)
+              .toDouble(),
+      freeSpaceBoxes: freeSpaceBoxes.isEmpty
+          ? fallback.freeSpaceBoxes
+          : freeSpaceBoxes,
       backgroundImageUrlsByMonth: monthlyImages,
     );
   }

@@ -44,6 +44,7 @@ class CalendarGenerationBloc
     on<ChangeBackgroundImageOpacity>(_onChangeBackgroundImageOpacity);
     on<ChangeBackgroundImageFit>(_onChangeBackgroundImageFit);
     on<ChangeBackgroundImageAlignment>(_onChangeBackgroundImageAlignment);
+    on<UpdateCalendarPreviewTheme>(_onUpdateTheme);
     on<ChangeMonthBackgroundImageUrl>(_onChangeMonthBackgroundImageUrl);
     on<ToggleGenerationHolidays>(_onToggleHolidays);
     on<ToggleGenerationAstrology>(_onToggleAstrology);
@@ -284,6 +285,16 @@ class CalendarGenerationBloc
         ),
       );
     });
+  }
+
+  void _onUpdateTheme(
+    UpdateCalendarPreviewTheme event,
+    Emitter<CalendarGenerationState> emit,
+  ) {
+    _regenerateIfLoaded(
+      emit,
+      (loaded) => loaded.request.copyWith(theme: event.theme),
+    );
   }
 
   void _onToggleHolidays(

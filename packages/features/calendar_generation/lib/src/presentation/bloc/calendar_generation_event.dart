@@ -119,6 +119,15 @@ final class ChangeBackgroundImageAlignment extends CalendarGenerationEvent {
   List<Object?> get props => [alignment];
 }
 
+final class UpdateCalendarPreviewTheme extends CalendarGenerationEvent {
+  const UpdateCalendarPreviewTheme(this.theme);
+
+  final CalendarPreviewTheme theme;
+
+  @override
+  List<Object?> get props => [theme];
+}
+
 final class ChangeMonthBackgroundImageUrl extends CalendarGenerationEvent {
   const ChangeMonthBackgroundImageUrl({required this.month, required this.url});
 

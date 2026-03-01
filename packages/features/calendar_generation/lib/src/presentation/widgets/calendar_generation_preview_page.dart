@@ -70,12 +70,16 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     final imageProvider =
         backgroundImageProvider ?? _parseImageProvider(pageBackgroundImage);
 
-    final titleFontSize = compact ? 13.0 : 20.0;
-    final weekdayFontSize = compact ? 9.0 : 13.0;
+    final monthYearScale = theme.monthYearFontScale.clamp(0.7, 1.8);
+    final weekdayScale = theme.weekdayFontScale.clamp(0.7, 1.8);
+    final titleFontSize = (compact ? 13.0 : 20.0) * monthYearScale;
+    final weekdayFontSize = (compact ? 9.0 : 13.0) * weekdayScale;
     final westernDayFontSize = compact ? 20.0 : 34.0;
     final myanmarDayFontSize = compact ? 7.0 : 11.5;
     final dayPadding = compact ? 2.0 : 4.0;
-    final dayRadius = compact ? 3.0 : 4.0;
+    final dayRadius = theme.gridCornerRadius.clamp(0.0, 20.0);
+    final gridBorderWidth = theme.gridBorderWidth.clamp(0.0, 4.0);
+    final gridBorderDesign = theme.gridBorderDesign;
     final gridSpacing = compact ? 1.5 : 2.0;
     final gridAspectRatioFallback = compact ? 0.8 : 0.86;
     final visibleRows = _visibleRowCount(model.dayCells);
@@ -133,7 +137,7 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: foregroundColor.withValues(alpha: 0.82),
-                        fontSize: 11,
+                        fontSize: 11 * monthYearScale,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -156,33 +160,41 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                                 SizedBox(width: compact ? 4 : 8),
                               Expanded(
                                 flex: landscapeCalendarFlex,
-                                child: Column(
-                                  children: [
-                                    _WeekdayHeader(
-                                      labels: model.weekdayLabels,
-                                      foregroundColor: foregroundColor,
-                                      fontSize: weekdayFontSize,
-                                    ),
-                                    SizedBox(height: compact ? 3 : 6),
-                                    Expanded(
-                                      child: _buildCalendarGrid(
-                                        backgroundColor: backgroundColor,
+                                child: _buildPositionedCalendarPanel(
+                                  offsetX: theme.calendarContentOffsetX,
+                                  offsetY: theme.calendarContentOffsetY,
+                                  child: Column(
+                                    children: [
+                                      _WeekdayHeader(
+                                        labels: model.weekdayLabels,
                                         foregroundColor: foregroundColor,
-                                        holidayColor: holidayColor,
-                                        fullMoonColor: fullMoonColor,
-                                        newMoonColor: newMoonColor,
-                                        dayRadius: dayRadius,
-                                        dayPadding: dayPadding,
-                                        gridSpacing: gridSpacing,
-                                        gridAspectRatioFallback:
-                                            gridAspectRatioFallback,
-                                        visibleRows: visibleRows,
-                                        visibleCellCount: visibleCellCount,
-                                        westernDayFontSize: westernDayFontSize,
-                                        myanmarDayFontSize: myanmarDayFontSize,
+                                        fontSize: weekdayFontSize,
                                       ),
-                                    ),
-                                  ],
+                                      SizedBox(height: compact ? 3 : 6),
+                                      Expanded(
+                                        child: _buildCalendarGrid(
+                                          backgroundColor: backgroundColor,
+                                          foregroundColor: foregroundColor,
+                                          holidayColor: holidayColor,
+                                          fullMoonColor: fullMoonColor,
+                                          newMoonColor: newMoonColor,
+                                          dayRadius: dayRadius,
+                                          dayPadding: dayPadding,
+                                          gridSpacing: gridSpacing,
+                                          gridAspectRatioFallback:
+                                              gridAspectRatioFallback,
+                                          visibleRows: visibleRows,
+                                          visibleCellCount: visibleCellCount,
+                                          westernDayFontSize:
+                                              westernDayFontSize,
+                                          myanmarDayFontSize:
+                                              myanmarDayFontSize,
+                                          gridBorderWidth: gridBorderWidth,
+                                          gridBorderDesign: gridBorderDesign,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               if (!isDecorationOnLeft)
@@ -207,21 +219,27 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                               SizedBox(height: compact ? 3 : 6),
                               Expanded(
                                 flex: portraitCalendarFlex,
-                                child: _buildCalendarGrid(
-                                  backgroundColor: backgroundColor,
-                                  foregroundColor: foregroundColor,
-                                  holidayColor: holidayColor,
-                                  fullMoonColor: fullMoonColor,
-                                  newMoonColor: newMoonColor,
-                                  dayRadius: dayRadius,
-                                  dayPadding: dayPadding,
-                                  gridSpacing: gridSpacing,
-                                  gridAspectRatioFallback:
-                                      gridAspectRatioFallback,
-                                  visibleRows: visibleRows,
-                                  visibleCellCount: visibleCellCount,
-                                  westernDayFontSize: westernDayFontSize,
-                                  myanmarDayFontSize: myanmarDayFontSize,
+                                child: _buildPositionedCalendarPanel(
+                                  offsetX: theme.calendarContentOffsetX,
+                                  offsetY: theme.calendarContentOffsetY,
+                                  child: _buildCalendarGrid(
+                                    backgroundColor: backgroundColor,
+                                    foregroundColor: foregroundColor,
+                                    holidayColor: holidayColor,
+                                    fullMoonColor: fullMoonColor,
+                                    newMoonColor: newMoonColor,
+                                    dayRadius: dayRadius,
+                                    dayPadding: dayPadding,
+                                    gridSpacing: gridSpacing,
+                                    gridAspectRatioFallback:
+                                        gridAspectRatioFallback,
+                                    visibleRows: visibleRows,
+                                    visibleCellCount: visibleCellCount,
+                                    westernDayFontSize: westernDayFontSize,
+                                    myanmarDayFontSize: myanmarDayFontSize,
+                                    gridBorderWidth: gridBorderWidth,
+                                    gridBorderDesign: gridBorderDesign,
+                                  ),
                                 ),
                               ),
                               SizedBox(height: compact ? 4 : 8),
@@ -550,6 +568,8 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     required int visibleCellCount,
     required double westernDayFontSize,
     required double myanmarDayFontSize,
+    required double gridBorderWidth,
+    required CalendarBorderDesign gridBorderDesign,
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -577,6 +597,8 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
                 backgroundColor: backgroundColor,
                 foregroundColor: foregroundColor,
                 dayRadius: dayRadius,
+                gridBorderWidth: gridBorderWidth,
+                gridBorderDesign: gridBorderDesign,
               );
             }
             final dayTextColor = (day.hasPublicHoliday || day.isWeekend == true)
@@ -594,8 +616,14 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: backgroundColor.withValues(alpha: 0.96),
                 border: Border.all(
-                  color: foregroundColor.withValues(alpha: 0.22),
-                  width: 0.6,
+                  color: _gridBorderColor(
+                    design: gridBorderDesign,
+                    baseColor: foregroundColor,
+                  ),
+                  width: _gridBorderWidth(
+                    design: gridBorderDesign,
+                    baseWidth: gridBorderWidth,
+                  ),
                 ),
                 borderRadius: BorderRadius.circular(dayRadius),
               ),
@@ -660,12 +688,81 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     required Color backgroundColor,
     required Color foregroundColor,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: backgroundColor.withValues(alpha: 0.56),
-        border: Border.all(color: foregroundColor.withValues(alpha: 0.22)),
-        borderRadius: BorderRadius.circular(compact ? 4 : 6),
-      ),
+    final boxes = request.theme.freeSpaceBoxes
+        .where((box) => box.visible)
+        .toList(growable: false);
+    if (boxes.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: boxes
+              .map((box) {
+                final left = (box.x * constraints.maxWidth).clamp(
+                  0.0,
+                  constraints.maxWidth,
+                );
+                final top = (box.y * constraints.maxHeight).clamp(
+                  0.0,
+                  constraints.maxHeight,
+                );
+                final width = (box.width * constraints.maxWidth).clamp(
+                  1.0,
+                  constraints.maxWidth,
+                );
+                final height = (box.height * constraints.maxHeight).clamp(
+                  1.0,
+                  constraints.maxHeight,
+                );
+                final borderColor = Color(box.borderColorValue);
+                final fillColor = Color(box.fillColorValue);
+                final borderWidth = _gridBorderWidth(
+                  design: box.borderDesign,
+                  baseWidth: box.borderWidth,
+                );
+
+                return Positioned(
+                  left: left,
+                  top: top,
+                  width: width,
+                  height: height,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: fillColor,
+                      border: Border.all(
+                        color: _gridBorderColor(
+                          design: box.borderDesign,
+                          baseColor: borderColor,
+                        ),
+                        width: borderWidth,
+                      ),
+                      borderRadius: BorderRadius.circular(box.cornerRadius),
+                    ),
+                  ),
+                );
+              })
+              .toList(growable: false),
+        );
+      },
+    );
+  }
+
+  Widget _buildPositionedCalendarPanel({
+    required double offsetX,
+    required double offsetY,
+    required Widget child,
+  }) {
+    final normalizedX = offsetX.clamp(-0.5, 0.5);
+    final normalizedY = offsetY.clamp(-0.5, 0.5);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dx = constraints.maxWidth * normalizedX;
+        final dy = constraints.maxHeight * normalizedY;
+        return ClipRect(
+          child: Transform.translate(offset: Offset(dx, dy), child: child),
+        );
+      },
     );
   }
 
@@ -673,11 +770,22 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
     required Color backgroundColor,
     required Color foregroundColor,
     required double dayRadius,
+    required double gridBorderWidth,
+    required CalendarBorderDesign gridBorderDesign,
   }) {
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor.withValues(alpha: 0.90),
-        border: Border.all(color: foregroundColor.withValues(alpha: 0.14)),
+        border: Border.all(
+          color: _gridBorderColor(
+            design: gridBorderDesign,
+            baseColor: foregroundColor,
+          ),
+          width: _gridBorderWidth(
+            design: gridBorderDesign,
+            baseWidth: gridBorderWidth,
+          ),
+        ),
         borderRadius: BorderRadius.circular(dayRadius),
       ),
     );
@@ -718,6 +826,31 @@ class CalendarGenerationPreviewPage extends StatelessWidget {
       return fallback;
     }
     return cellWidth / cellHeight;
+  }
+
+  Color _gridBorderColor({
+    required CalendarBorderDesign design,
+    required Color baseColor,
+  }) {
+    return switch (design) {
+      CalendarBorderDesign.soft => baseColor.withValues(alpha: 0.16),
+      CalendarBorderDesign.solid => baseColor.withValues(alpha: 0.24),
+      CalendarBorderDesign.bold => baseColor.withValues(alpha: 0.34),
+      CalendarBorderDesign.doubleLine => baseColor.withValues(alpha: 0.28),
+    };
+  }
+
+  double _gridBorderWidth({
+    required CalendarBorderDesign design,
+    required double baseWidth,
+  }) {
+    final width = baseWidth <= 0 ? 0.6 : baseWidth;
+    return switch (design) {
+      CalendarBorderDesign.soft => width * 0.9,
+      CalendarBorderDesign.solid => width,
+      CalendarBorderDesign.bold => width * 1.45,
+      CalendarBorderDesign.doubleLine => width * 1.2,
+    };
   }
 
   Widget _buildMoonPhaseVisual({required CalendarDayCellModel day}) {
