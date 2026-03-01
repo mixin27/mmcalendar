@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:bounding_box/bounding_box.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_core/shared_core.dart';
 
 import '../../domain/entities/calendar_generation_request.dart';
@@ -76,12 +75,10 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
       (widget.pages.length - 1).clamp(0, 9999),
     );
     _canvasController.addListener(_onCanvasTransformChanged);
-    _lockLandscapeOrientation();
   }
 
   @override
   void dispose() {
-    _restoreAppOrientation();
     _canvasController.removeListener(_onCanvasTransformChanged);
     _canvasController.dispose();
     super.dispose();
@@ -1610,20 +1607,6 @@ class _CalendarOverlayEditorPageState extends State<CalendarOverlayEditorPage> {
       return true;
     }
     return RegExp(r'^[a-zA-Z]:[\\\/]').hasMatch(value);
-  }
-
-  void _lockLandscapeOrientation() {
-    SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-  }
-
-  void _restoreAppOrientation() {
-    SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
   }
 }
 
