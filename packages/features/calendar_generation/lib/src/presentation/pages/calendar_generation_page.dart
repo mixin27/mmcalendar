@@ -23,6 +23,7 @@ import '../../rendering/export/calendar_export_service.dart';
 import '../bloc/calendar_generation_bloc.dart';
 import '../bloc/calendar_generation_event.dart';
 import '../bloc/calendar_generation_state.dart';
+import '../widgets/calendar_generation_editor_toolbar.dart';
 import '../widgets/calendar_generation_preview_page.dart';
 
 class CalendarGenerationPage extends StatelessWidget {
@@ -62,6 +63,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   CalendarPageOrientation? _previewOrientationOverride;
   bool _syncPreviewOrientationToExport = false;
   bool _isEditorMode = false;
+  double _editorPreviewZoom = 1.0;
   String? _selectedOverlayElementId;
   Map<int, List<CalendarOverlayElement>> _editorOverlayElementsByMonth =
       <int, List<CalendarOverlayElement>>{};
@@ -304,94 +306,32 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
           ),
         ),
         Expanded(
-          child: PageView.builder(
-            controller: _previewPageController,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: pages.length,
-            onPageChanged: (index) {
-              setState(() {
-                _previewPage = index;
-                _selectedOverlayElementId = null;
-              });
-            },
-            itemBuilder: (context, index) {
-              final colorScheme = Theme.of(context).colorScheme;
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerLowest,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: colorScheme.outlineVariant.withValues(alpha: 0.7),
-                      width: 1,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: InteractiveViewer(
-                      constrained: true,
-                      boundaryMargin: const EdgeInsets.all(80),
-                      minScale: 1.0,
-                      maxScale: _isEditorMode ? 1.0 : 4.0,
-                      panEnabled: !_isEditorMode,
-                      scaleEnabled: !_isEditorMode,
-                      child: SizedBox.expand(
-                        child: FittedBox(
-                          fit: BoxFit.contain,
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: previewCanvasSize.width,
-                            height: previewCanvasSize.height,
-                            child: CalendarGenerationPreviewPage(
-                              model: pages[index],
-                              request: previewRequest,
-                              margin: EdgeInsets.zero,
-                              elevation: 0,
-                              contentPadding: const EdgeInsets.all(12),
-                              useCardChrome: false,
-                              editOverlayElements:
-                                  _isEditorMode && index == _previewPage,
-                              selectedOverlayElementId:
-                                  _selectedOverlayElementId,
-                              onSelectedOverlayElementChanged:
-                                  _isEditorMode && index == _previewPage
-                                  ? (id) {
-                                      setState(
-                                        () => _selectedOverlayElementId = id,
-                                      );
-                                    }
-                                  : null,
-                              onOverlayElementChanged:
-                                  _isEditorMode && index == _previewPage
-                                  ? (updated) {
-                                      _updateOverlayElementForMonth(
-                                        month: pages[index].month,
-                                        element: updated,
-                                      );
-                                    }
-                                  : null,
-                              onOverlayElementEditEnd:
-                                  _isEditorMode && index == _previewPage
-                                  ? _commitEditorOverlayElements
-                                  : null,
-                              onOverlayElementDoubleTap:
-                                  _isEditorMode && index == _previewPage
-                                  ? (element) => _handleOverlayElementDoubleTap(
-                                      month: pages[index].month,
-                                      element: element,
-                                    )
-                                  : null,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+          child: _isEditorMode
+              ? _buildPreviewCanvasCard(
+                  pages: pages,
+                  index: _previewPage.clamp(0, pages.length - 1).toInt(),
+                  previewRequest: previewRequest,
+                  previewCanvasSize: previewCanvasSize,
+                  editorMode: true,
+                )
+              : PageView.builder(
+                  controller: _previewPageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: pages.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _previewPage = index;
+                      _selectedOverlayElementId = null;
+                    });
+                  },
+                  itemBuilder: (context, index) => _buildPreviewCanvasCard(
+                    pages: pages,
+                    index: index,
+                    previewRequest: previewRequest,
+                    previewCanvasSize: previewCanvasSize,
+                    editorMode: false,
                   ),
                 ),
-              );
-            },
-          ),
         ),
         if (_isEditorMode) _buildEditorToolbar(pages),
         if (pages.length > 1)
@@ -427,13 +367,100 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   }
 
   void _goToPreviewPage(int page) {
-    if (!_previewPageController.hasClients) {
+    if (_isEditorMode || !_previewPageController.hasClients) {
+      setState(() {
+        _previewPage = page;
+        _selectedOverlayElementId = null;
+      });
       return;
     }
     _previewPageController.animateToPage(
       page,
       duration: const Duration(milliseconds: 240),
       curve: Curves.easeOutCubic,
+    );
+  }
+
+  Widget _buildPreviewCanvasCard({
+    required List<CalendarPageModel> pages,
+    required int index,
+    required CalendarGenerationRequest previewRequest,
+    required Size previewCanvasSize,
+    required bool editorMode,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: InteractiveViewer(
+            constrained: true,
+            boundaryMargin: const EdgeInsets.all(80),
+            minScale: 1.0,
+            maxScale: editorMode ? 1.0 : 4.0,
+            panEnabled: !editorMode,
+            scaleEnabled: !editorMode,
+            child: SizedBox.expand(
+              child: FittedBox(
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+                child: Transform.scale(
+                  scale: editorMode ? _editorPreviewZoom : 1.0,
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: previewCanvasSize.width,
+                    height: previewCanvasSize.height,
+                    child: CalendarGenerationPreviewPage(
+                      model: pages[index],
+                      request: previewRequest,
+                      margin: EdgeInsets.zero,
+                      elevation: 0,
+                      contentPadding: const EdgeInsets.all(12),
+                      useCardChrome: false,
+                      editOverlayElements: editorMode,
+                      overlayInteractionScale: editorMode
+                          ? _editorPreviewZoom
+                          : 1.0,
+                      selectedOverlayElementId: _selectedOverlayElementId,
+                      onSelectedOverlayElementChanged: editorMode
+                          ? (id) {
+                              setState(() => _selectedOverlayElementId = id);
+                            }
+                          : null,
+                      onOverlayElementChanged: editorMode
+                          ? (updated) {
+                              _updateOverlayElementForMonth(
+                                month: pages[index].month,
+                                element: updated,
+                              );
+                            }
+                          : null,
+                      onOverlayElementEditEnd: editorMode
+                          ? _commitEditorOverlayElements
+                          : null,
+                      onOverlayElementDoubleTap: editorMode
+                          ? (element) => _handleOverlayElementDoubleTap(
+                              month: pages[index].month,
+                              element: element,
+                            )
+                          : null,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -448,96 +475,30 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
   Widget _buildEditorToolbar(List<CalendarPageModel> pages) {
     final month = _activePreviewMonth(pages);
     final selectedElement = _selectedOverlayElementForMonth(month);
-    final selectedLabel = selectedElement == null
-        ? 'No element selected'
-        : 'Selected: ${selectedElement.type.name.capitalize}';
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Editor • Month $month',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 2),
-              Text(selectedLabel, style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _EditorToolButton(
-                      icon: Icons.text_fields,
-                      label: 'Text',
-                      onTap: () => _addTextOverlayElement(month),
-                    ),
-                    _EditorToolButton(
-                      icon: Icons.emoji_emotions_outlined,
-                      label: 'Emoji',
-                      onTap: () => _addEmojiOverlayElement(month),
-                    ),
-                    _EditorToolButton(
-                      icon: Icons.auto_awesome_outlined,
-                      label: 'Sticker',
-                      onTap: () => _addStickerOverlayElement(month),
-                    ),
-                    _EditorToolButton(
-                      icon: Icons.image_outlined,
-                      label: 'Image',
-                      onTap: () => _addImageOverlayElement(month),
-                    ),
-                    _EditorToolButton(
-                      icon: Icons.layers_outlined,
-                      label: 'Layers',
-                      onTap: () => _openLayersPanel(month),
-                    ),
-                    _EditorToolButton(
-                      icon: Icons.vertical_align_top,
-                      label: 'Front',
-                      onTap: selectedElement == null
-                          ? null
-                          : () => _bringSelectedOverlayElementToFront(month),
-                    ),
-                    _EditorToolButton(
-                      icon: Icons.vertical_align_bottom,
-                      label: 'Back',
-                      onTap: selectedElement == null
-                          ? null
-                          : () => _sendSelectedOverlayElementToBack(month),
-                    ),
-                    _EditorToolButton(
-                      icon: selectedElement?.locked == true
-                          ? Icons.lock_open_outlined
-                          : Icons.lock_outline,
-                      label: selectedElement?.locked == true
-                          ? 'Unlock'
-                          : 'Lock',
-                      onTap: selectedElement == null
-                          ? null
-                          : () => _toggleSelectedOverlayElementLock(month),
-                    ),
-                    _EditorToolButton(
-                      icon: Icons.delete_outline,
-                      label: 'Delete',
-                      onTap: selectedElement == null
-                          ? null
-                          : () => _deleteSelectedOverlayElement(month),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return CalendarGenerationEditorToolbar(
+      month: month,
+      previewZoom: _editorPreviewZoom,
+      selectedElement: selectedElement,
+      onResetZoom: _resetEditorPreviewZoom,
+      onZoomOut: () => _changeEditorPreviewZoom(-0.15),
+      onZoomIn: () => _changeEditorPreviewZoom(0.15),
+      onAddText: () => _addTextOverlayElement(month),
+      onAddEmoji: () => _addEmojiOverlayElement(month),
+      onAddSticker: () => _addStickerOverlayElement(month),
+      onAddImage: () => _addImageOverlayElement(month),
+      onOpenLayers: () => _openLayersPanel(month),
+      onBringToFront: selectedElement == null
+          ? null
+          : () => _bringSelectedOverlayElementToFront(month),
+      onSendToBack: selectedElement == null
+          ? null
+          : () => _sendSelectedOverlayElementToBack(month),
+      onToggleLock: selectedElement == null
+          ? null
+          : () => _toggleSelectedOverlayElementLock(month),
+      onDelete: selectedElement == null
+          ? null
+          : () => _deleteSelectedOverlayElement(month),
     );
   }
 
@@ -550,6 +511,7 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
       setState(() {
         _isEditorMode = true;
         _selectedOverlayElementId = null;
+        _editorPreviewZoom = 1.0;
         _editorOverlayElementsByMonth = _cloneOverlayElementsByMonth(
           currentState.request.overlayElementsByMonth,
         );
@@ -561,8 +523,19 @@ class _CalendarGenerationViewState extends State<_CalendarGenerationView> {
     setState(() {
       _isEditorMode = false;
       _selectedOverlayElementId = null;
+      _editorPreviewZoom = 1.0;
       _editorOverlayElementsByMonth = <int, List<CalendarOverlayElement>>{};
     });
+  }
+
+  void _changeEditorPreviewZoom(double delta) {
+    setState(() {
+      _editorPreviewZoom = (_editorPreviewZoom + delta).clamp(0.7, 3.0);
+    });
+  }
+
+  void _resetEditorPreviewZoom() {
+    setState(() => _editorPreviewZoom = 1.0);
   }
 
   void _commitEditorOverlayElements() {
@@ -2692,30 +2665,6 @@ class _ColorSelector extends StatelessWidget {
               .toList(growable: false),
         ),
       ],
-    );
-  }
-}
-
-class _EditorToolButton extends StatelessWidget {
-  const _EditorToolButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: OutlinedButton.icon(
-        onPressed: onTap,
-        icon: Icon(icon, size: 18),
-        label: Text(label),
-      ),
     );
   }
 }
