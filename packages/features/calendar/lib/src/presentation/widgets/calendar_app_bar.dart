@@ -1,6 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:share_plus/share_plus.dart';
@@ -146,12 +146,12 @@ class CalendarAppBar extends StatelessWidget {
     final myanmarDateTime = MyanmarCalendar.today();
 
     if (showShanCalendar && language == Language.shan) {
-      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")}';
+      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &f &Yat")}';
     } else {
-      return myanmarDateTime.formatMyanmar(null, language);
+      return myanmarDateTime.formatMyanmar('&y &M &P &f &Yat', language);
     }
 
-    // final s = TranslationService.translate('Sasana Year');
+    // final s = TranslationService.translateTo('Sasana Year', MyanmarCalendar.currentLanguage);
     // final sv = TranslationService.translate(myanmarDate.sasanaYear.toString());
     // final formatted = "$s $sv, ${myanmarDate.formatMyanmar()}";
 
@@ -198,10 +198,10 @@ class CalendarAppBar extends StatelessWidget {
 
     // Moon Phase & Weekday
     buffer.writeln(
-      '🌙 ${l10n?.moon_phase ?? "Moon Phase"}: ${TranslationService.getMoonPhaseName(completeDate.moonPhase)}',
+      '🌙 ${l10n?.moon_phase ?? "Moon Phase"}: ${TranslationService.getMoonPhaseName(completeDate.moonPhase, MyanmarCalendar.currentLanguage)}',
     );
     buffer.writeln(
-      '🗓️ ${l10n?.weekday ?? "Weekday"}: ${TranslationService.getWeekdayName(completeDate.weekday)}',
+      '🗓️ ${l10n?.weekday ?? "Weekday"}: ${TranslationService.getWeekdayName(completeDate.weekday, MyanmarCalendar.currentLanguage)}',
     );
     buffer.writeln('');
 
@@ -211,34 +211,36 @@ class CalendarAppBar extends StatelessWidget {
     );
     if (completeDate.sabbath.isNotEmpty) {
       buffer.writeln(
-        '• Sabbath: ${TranslationService.translate(completeDate.sabbath)}',
+        '• Sabbath: ${TranslationService.translateTo(completeDate.sabbath, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.yatyaza.isNotEmpty) {
       buffer.writeln(
-        '• Yatyaza: ${TranslationService.translate(completeDate.yatyaza)}',
+        '• Yatyaza: ${TranslationService.translateTo(completeDate.yatyaza, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.pyathada.isNotEmpty) {
       buffer.writeln(
-        '• Pyathada: ${TranslationService.translate(completeDate.pyathada)}',
+        '• Pyathada: ${TranslationService.translateTo(completeDate.pyathada, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.nagahle.isNotEmpty) {
       buffer.writeln(
-        '• ${l10n?.nagahle ?? "Nagahle"}: ${TranslationService.translate(completeDate.nagahle)}',
+        '• ${l10n?.nagahle ?? "Nagahle"}: ${TranslationService.translateTo(completeDate.nagahle, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.mahabote.isNotEmpty) {
       buffer.writeln(
-        '• Mahabote: ${TranslationService.translate(completeDate.mahabote)}',
+        '• Mahabote: ${TranslationService.translateTo(completeDate.mahabote, MyanmarCalendar.currentLanguage)}',
       );
     }
 
     if (completeDate.astrologicalDays.isNotEmpty) {
       buffer.writeln('🌟 ${l10n?.special_days ?? "Special Days"}:');
       for (final day in completeDate.astrologicalDays) {
-        buffer.writeln('• ${TranslationService.translate(day)}');
+        buffer.writeln(
+          '• ${TranslationService.translateTo(day, MyanmarCalendar.currentLanguage)}',
+        );
       }
     }
 

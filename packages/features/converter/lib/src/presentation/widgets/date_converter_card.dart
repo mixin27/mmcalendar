@@ -2,7 +2,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../di/converter_injection.dart';
@@ -243,7 +243,7 @@ class _DateConverterCardState extends State<DateConverterCard>
 
     return InkWell(
       onTap: () async {
-        final date = await showDatePicker(
+        final date = await showAppMyanmarDatePicker(
           context: context,
           initialDate: _selectedWesternDate,
           firstDate: DateTime(1900),
@@ -667,7 +667,10 @@ class _DateConverterCardState extends State<DateConverterCard>
                 Text('•  ', style: TextStyle(color: color)),
                 Expanded(
                   child: Text(
-                    TranslationService.translate(item),
+                    TranslationService.translateTo(
+                      item,
+                      MyanmarCalendar.currentLanguage,
+                    ),
                     style: theme.textTheme.bodyMedium,
                   ),
                 ),
@@ -680,7 +683,10 @@ class _DateConverterCardState extends State<DateConverterCard>
   }
 
   String _getMoonPhaseName(int moonPhase) {
-    return TranslationService.getMoonPhaseName(moonPhase);
+    return TranslationService.getMoonPhaseName(
+      moonPhase,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 
   Color _getMoonPhaseColor(int moonPhase) {
@@ -689,6 +695,9 @@ class _DateConverterCardState extends State<DateConverterCard>
   }
 
   String _getWeekdayName(int weekday) {
-    return TranslationService.getWeekdayName(weekday);
+    return TranslationService.getWeekdayName(
+      weekday,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 }

@@ -2,7 +2,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 import '../../di/converter_injection.dart';
 import '../../domain/entities/date_arithmetic_result.dart';
@@ -227,7 +227,7 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
 
     return InkWell(
       onTap: () async {
-        final date = await showDatePicker(
+        final date = await showAppMyanmarDatePicker(
           context: context,
           initialDate: _startDate,
           firstDate: DateTime(1900),
@@ -584,7 +584,10 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
   }
 
   String _getMoonPhaseName(int moonPhase) {
-    return TranslationService.getMoonPhaseName(moonPhase);
+    return TranslationService.getMoonPhaseName(
+      moonPhase,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 
   Color _getMoonPhaseColor(int moonPhase) {
@@ -593,6 +596,9 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
   }
 
   String _getWeekdayName(int weekday) {
-    return TranslationService.getWeekdayName(weekday);
+    return TranslationService.getWeekdayName(
+      weekday,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 }

@@ -1,19 +1,18 @@
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
-String translateNumbers(String text) {
-  final currentLang = TranslationService.currentLanguage;
+String translateNumbers(String text, {Language? language}) {
+  final currentLang = language ?? MyanmarCalendar.currentLanguage;
 
-  // Only translate numbers for Myanmar languages
-  if (currentLang == Language.myanmar || currentLang == Language.zawgyi) {
-    var result = text;
-    for (int i = 0; i <= 9; i++) {
-      result = result.replaceAll(
-        i.toString(),
-        TranslationService.translate(i.toString()),
-      );
-    }
-    return result;
+  if (!TranslationService.shouldTranslateDigits(currentLang)) {
+    return text;
   }
 
-  return text;
+  var result = text;
+  for (int i = 0; i <= 9; i++) {
+    result = result.replaceAll(
+      i.toString(),
+      TranslationService.translateTo(i.toString(), currentLang),
+    );
+  }
+  return result;
 }

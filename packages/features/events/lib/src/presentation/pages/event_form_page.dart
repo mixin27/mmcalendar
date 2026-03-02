@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_core/shared_core.dart' show showAppMyanmarDatePicker;
 import '../../domain/entities/event.dart';
 import '../../domain/entities/notification_setting.dart';
 import '../../domain/entities/recurrence_rule.dart';
@@ -516,7 +517,7 @@ class _EventFormPageState extends State<EventFormPage> {
   }
 
   Future<void> _selectDate(BuildContext context, DateTime currentDate) async {
-    final picked = await showDatePicker(
+    final picked = await showAppMyanmarDatePicker(
       context: context,
       initialDate: currentDate,
       firstDate: DateTime(2000),

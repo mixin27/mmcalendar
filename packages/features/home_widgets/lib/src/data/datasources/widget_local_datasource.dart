@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:home_widgets/src/domain/entities/widget_data.dart';
 import 'package:shared_core/shared_core.dart';
@@ -42,13 +42,7 @@ class WidgetLocalDataSource {
     String languageCode,
   ) async {
     try {
-      // Temporarily set language
-      final currentLanguage = MyanmarCalendar.currentLanguage;
       final targetLanguage = Language.fromCode(languageCode);
-
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(targetLanguage);
-      }
 
       // Get Myanmar calendar date info
       final myanmarDateTime = MyanmarCalendar.fromWestern(
@@ -58,10 +52,14 @@ class WidgetLocalDataSource {
       );
 
       // Format dates with correct language
-      final yat = TranslationService.translate('Yat');
-      final myanmarDate =
-          '${myanmarDateTime.formatMyanmar('&y &M &P &f')} $yat';
-      final westernDate = myanmarDateTime.formatWestern('%d %M %yyyy');
+      final myanmarDate = myanmarDateTime.formatMyanmar(
+        '&y &M &P &f &Yat',
+        targetLanguage,
+      );
+      final westernDate = myanmarDateTime.formatWestern(
+        '%d %M %yyyy',
+        targetLanguage,
+      );
 
       // Get moon phase
       final moonPhase = _getMoonPhaseName(
@@ -107,11 +105,6 @@ class WidgetLocalDataSource {
           myanmarDateTime.pyathada,
           targetLanguage,
         );
-      }
-
-      // Restore original language
-      if (currentLanguage != targetLanguage) {
-        MyanmarCalendar.setLanguage(currentLanguage);
       }
 
       final weekdayNames = _getWeekdayNames(targetLanguage);

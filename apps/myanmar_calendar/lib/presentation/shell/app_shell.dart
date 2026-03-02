@@ -145,37 +145,42 @@ class ScaffoldWithNavigationRail extends StatelessWidget {
                 : NavigationRailLabelType.all,
             extended: extended,
             // Add leading widget for app icon/logo
-            leading: Column(
-              children: [
-                const SizedBox(height: 8),
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(10),
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/logo.png'),
-                      fit: BoxFit.cover,
+            leading: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/logo.png'),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                if (extended) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n?.myanmarCalendar ?? 'Myanmar Calendar',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  if (extended) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n?.myanmarCalendar ?? 'Myanmar Calendar',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  // FloatingActionButton(
+                  //   elevation: 0,
+                  //   onPressed: () {}, // Can be used for a primary action
+                  //   child: const Icon(Icons.add),
+                  // ),
+                  const SizedBox(height: 16),
                 ],
-                // FloatingActionButton(
-                //   elevation: 0,
-                //   onPressed: () {}, // Can be used for a primary action
-                //   child: const Icon(Icons.add),
-                // ),
-                const SizedBox(height: 16),
-              ],
+              ),
             ),
             destinations: <NavigationRailDestination>[
               NavigationRailDestination(

@@ -1,7 +1,7 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
@@ -186,7 +186,7 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
 
     return InkWell(
       onTap: () async {
-        final date = await showDatePicker(
+        final date = await showAppMyanmarDatePicker(
           context: context,
           initialDate: _startDate,
           firstDate: DateTime(1900),
@@ -248,25 +248,37 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
       children: [
         _buildMoonPhaseOption(
           0,
-          TranslationService.translate('Waxing'),
+          TranslationService.translateTo(
+            'Waxing',
+            MyanmarCalendar.currentLanguage,
+          ),
           Icons.brightness_2,
           Colors.amber,
         ),
         _buildMoonPhaseOption(
           1,
-          TranslationService.translate('Full Moon'),
+          TranslationService.translateTo(
+            'Full Moon',
+            MyanmarCalendar.currentLanguage,
+          ),
           Icons.brightness_1,
           Colors.orange,
         ),
         _buildMoonPhaseOption(
           2,
-          TranslationService.translate('Waning'),
+          TranslationService.translateTo(
+            'Waning',
+            MyanmarCalendar.currentLanguage,
+          ),
           Icons.brightness_3,
           Colors.blue,
         ),
         _buildMoonPhaseOption(
           3,
-          TranslationService.translate('New Moon'),
+          TranslationService.translateTo(
+            'New Moon',
+            MyanmarCalendar.currentLanguage,
+          ),
           Icons.brightness_4,
           Colors.indigo,
         ),
@@ -638,7 +650,10 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                 ),
                 Expanded(
                   child: Text(
-                    TranslationService.translate(item),
+                    TranslationService.translateTo(
+                      item,
+                      MyanmarCalendar.currentLanguage,
+                    ),
                     style: theme.textTheme.bodyMedium,
                   ),
                 ),
@@ -666,6 +681,9 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
   }
 
   String _getWeekdayName(int weekday) {
-    return TranslationService.getWeekdayName(weekday);
+    return TranslationService.getWeekdayName(
+      weekday,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 }

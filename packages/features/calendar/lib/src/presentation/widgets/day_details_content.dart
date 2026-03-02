@@ -1,7 +1,7 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
@@ -161,7 +161,8 @@ class DayDetailsContent extends StatelessWidget {
                   if (MyanmarCalendar.currentLanguage == Language.shan &&
                       showShanCalendar)
                     Text(
-                      '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${completeDate.formatMyanmar(pattern: "&M &P &ff")}',
+                      '${translateNumbers(year.toString(), language: Language.shan)} '
+                      '${MyanmarCalendar.formatMyanmar(completeDate.myanmar, pattern: "&M &P &f &Yat")}',
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
@@ -171,7 +172,10 @@ class DayDetailsContent extends StatelessWidget {
                     )
                   else
                     Text(
-                      completeDate.formatMyanmar(),
+                      MyanmarCalendar.formatMyanmar(
+                        completeDate.myanmar,
+                        pattern: '&y &M &P &f &Yat',
+                      ),
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
@@ -206,6 +210,7 @@ class DayDetailsContent extends StatelessWidget {
                     TranslationService.getMonthName(
                       completeDate.myanmarMonth,
                       completeDate.yearType,
+                      MyanmarCalendar.currentLanguage,
                     ),
                     Theme.of(context).colorScheme.secondary,
                   ),
@@ -285,7 +290,10 @@ class DayDetailsContent extends StatelessWidget {
   }
 
   String _getYearTypeName(int yearType) {
-    return TranslationService.getYearTypeName(yearType);
+    return TranslationService.getYearTypeName(
+      yearType,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 
   Widget _buildBuddhistCalendarCard(BuildContext context) {
@@ -406,9 +414,13 @@ class DayDetailsContent extends StatelessWidget {
             Semantics(
               label: TranslationService.getMoonPhaseName(
                 completeDate.moonPhase,
+                MyanmarCalendar.currentLanguage,
               ),
               child: Text(
-                TranslationService.getMoonPhaseName(completeDate.moonPhase),
+                TranslationService.getMoonPhaseName(
+                  completeDate.moonPhase,
+                  MyanmarCalendar.currentLanguage,
+                ),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -428,7 +440,10 @@ class DayDetailsContent extends StatelessWidget {
   }
 
   Widget _buildWeekdayCard(BuildContext context) {
-    final weekdayName = TranslationService.getWeekdayName(completeDate.weekday);
+    final weekdayName = TranslationService.getWeekdayName(
+      completeDate.weekday,
+      MyanmarCalendar.currentLanguage,
+    );
 
     return Card(
       elevation: 0,
@@ -572,7 +587,10 @@ class DayDetailsContent extends StatelessWidget {
             _buildAstroDetail(
               context,
               'Sabbath',
-              TranslationService.translate(completeDate.sabbath),
+              TranslationService.translateTo(
+                completeDate.sabbath,
+                MyanmarCalendar.currentLanguage,
+              ),
               Icons.brightness_2,
               Colors.orange,
             ),
@@ -580,7 +598,10 @@ class DayDetailsContent extends StatelessWidget {
             _buildAstroDetail(
               context,
               'Yatyaza',
-              TranslationService.translate(completeDate.yatyaza),
+              TranslationService.translateTo(
+                completeDate.yatyaza,
+                MyanmarCalendar.currentLanguage,
+              ),
               Icons.warning_amber,
               Colors.red,
             ),
@@ -588,7 +609,10 @@ class DayDetailsContent extends StatelessWidget {
             _buildAstroDetail(
               context,
               'Pyathada',
-              TranslationService.translate(completeDate.pyathada),
+              TranslationService.translateTo(
+                completeDate.pyathada,
+                MyanmarCalendar.currentLanguage,
+              ),
               Icons.info_outline,
               Colors.blue,
             ),
@@ -596,7 +620,10 @@ class DayDetailsContent extends StatelessWidget {
             _buildAstroDetail(
               context,
               AppLocalizations.of(context)?.nagahle ?? 'Nagahle',
-              TranslationService.translate(completeDate.nagahle),
+              TranslationService.translateTo(
+                completeDate.nagahle,
+                MyanmarCalendar.currentLanguage,
+              ),
               Icons.explore,
               Colors.green,
             ),
@@ -604,7 +631,10 @@ class DayDetailsContent extends StatelessWidget {
             _buildAstroDetail(
               context,
               'Mahabote',
-              TranslationService.translate(completeDate.mahabote),
+              TranslationService.translateTo(
+                completeDate.mahabote,
+                MyanmarCalendar.currentLanguage,
+              ),
               Icons.star,
               Colors.purple,
             ),
@@ -612,7 +642,10 @@ class DayDetailsContent extends StatelessWidget {
             _buildAstroDetail(
               context,
               AppLocalizations.of(context)?.nakhat ?? 'Nakhat',
-              TranslationService.translate(completeDate.nakhat),
+              TranslationService.translateTo(
+                completeDate.nakhat,
+                MyanmarCalendar.currentLanguage,
+              ),
               Icons.castle,
               Colors.indigo,
             ),
@@ -620,7 +653,10 @@ class DayDetailsContent extends StatelessWidget {
             _buildAstroDetail(
               context,
               AppLocalizations.of(context)?.year_name ?? 'Year Name',
-              TranslationService.translate(completeDate.yearName),
+              TranslationService.translateTo(
+                completeDate.yearName,
+                MyanmarCalendar.currentLanguage,
+              ),
               Icons.pets,
               Colors.teal,
             ),
@@ -642,7 +678,12 @@ class DayDetailsContent extends StatelessWidget {
               runSpacing: 8,
               children: completeDate.astrologicalDays.map((day) {
                 return Chip(
-                  label: Text(TranslationService.translate(day)),
+                  label: Text(
+                    TranslationService.translateTo(
+                      day,
+                      MyanmarCalendar.currentLanguage,
+                    ),
+                  ),
                   labelStyle: Theme.of(
                     context,
                   ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),

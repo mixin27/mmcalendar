@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/app_settings.dart';
@@ -68,8 +68,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (settings) {
         // Apply both config AND language
-        _applyCalendarConfiguration(settings.calendarConfig);
-        MyanmarCalendar.setLanguage(settings.calendarLanguage);
+        _applyCalendarConfiguration(
+          config: settings.calendarConfig,
+          language: settings.calendarLanguage,
+          useDeviceTimezone: settings.useDeviceTimezone,
+        );
 
         emit(SettingsLoaded(settings));
       },
@@ -189,8 +192,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           languageCode: event.language.code,
           languageName: event.language.name,
         );
-
-        MyanmarCalendar.setLanguage(event.language);
+        _applyCalendarConfiguration(
+          config: currentState.settings.calendarConfig,
+          language: event.language,
+          useDeviceTimezone: currentState.settings.useDeviceTimezone,
+        );
 
         final updatedSettings = currentState.settings.copyWith(
           calendarLanguage: event.language,
@@ -222,7 +228,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
       (_) {
-        _applyCalendarConfiguration(event.config);
+        _applyCalendarConfiguration(
+          config: event.config,
+          language: currentState.settings.calendarLanguage,
+          useDeviceTimezone: currentState.settings.useDeviceTimezone,
+        );
 
         final updatedSettings = currentState.settings.copyWith(
           calendarConfig: event.config,
@@ -256,6 +266,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           event.key,
           event.value,
         );
+        if (event.key == StorageKeys.useDeviceTimezone) {
+          _applyCalendarConfiguration(
+            config: updatedSettings.calendarConfig,
+            language: updatedSettings.calendarLanguage,
+            useDeviceTimezone: updatedSettings.useDeviceTimezone,
+          );
+        }
         emit(SettingsLoaded(updatedSettings));
       },
     );
@@ -278,7 +295,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           buttonLocation: 'settings_page',
         );
 
-        _applyCalendarConfiguration(null);
+        _applyCalendarConfiguration(
+          config: const CalendarConfig(),
+          language: Language.english,
+          useDeviceTimezone: true,
+        );
 
         // Reload settings after reset
         add(const LoadSettings());
@@ -423,6 +444,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return settings.copyWith(showMyanmarDates: value);
       case StorageKeys.showShanCalendar:
         return settings.copyWith(showShanCalendar: value);
+      case StorageKeys.useDeviceTimezone:
+        return settings.copyWith(useDeviceTimezone: value);
       default:
         return settings;
     }
@@ -440,30 +463,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   }
 
   // Helper method to apply calendar configuration
-  void _applyCalendarConfiguration(CalendarConfig? config) {
-    if (config == null) {
-      MyanmarCalendar.configure();
-      MyanmarCalendar.clearCache();
-      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
-    } else {
-      MyanmarCalendar.configure(
-        language: Language.fromCode(config.defaultLanguage),
-        timezoneOffset: config.timezoneOffset,
-        sasanaYearType: config.sasanaYearType,
-        calendarType: config.calendarType,
-        gregorianStart: config.gregorianStart,
-        customHolidays: [
-          ...config.customHolidays,
-          ...holidayOverridesPort.getCustomHolidays(),
-        ],
-        disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
-        disabledHolidaysByYear: holidayOverridesPort
-            .getDisabledHolidaysByYear(),
-        disabledHolidaysByDate: holidayOverridesPort
-            .getDisabledHolidaysByDate(),
-      );
-      MyanmarCalendar.clearCache();
-      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
-    }
+  void _applyCalendarConfiguration({
+    required CalendarConfig config,
+    required Language language,
+    required bool useDeviceTimezone,
+  }) {
+    applyMyanmarCalendarRuntimeConfig(
+      baseConfig: config,
+      language: language,
+      useDeviceTimezone: useDeviceTimezone,
+      customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
+      disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
+      disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
+      disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
+      cacheProfile: MyanmarCalendarCacheProfile.memoryEfficient,
+    );
   }
 }

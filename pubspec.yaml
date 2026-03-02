@@ -13,10 +13,12 @@ environment:
 workspace:
   - packages/shared/core
   - packages/shared/ui_kit
+  - packages/shared/overlay_editor
   - packages/shared/localizations
   - packages/features/calendar
   - packages/features/views
   - packages/features/converter
+  - packages/features/calendar_generation
   - packages/features/settings
   - packages/features/notes
   - packages/features/events

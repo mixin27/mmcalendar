@@ -120,20 +120,33 @@ class _SettingsPageState extends State<SettingsPage> {
                         ? state.settings
                         : null;
 
-                    final timezoneOffset =
-                        settings?.calendarConfig.timezoneOffset ?? 6.5;
+                    final useDeviceTimezone =
+                        settings?.useDeviceTimezone ?? true;
+                    final timezoneOffset = useDeviceTimezone
+                        ? getDeviceTimezoneOffsetHours()
+                        : kMyanmarTimezoneOffset;
+                    final timezoneSource = useDeviceTimezone ? 'device' : 'MMT';
 
                     return SettingsListTile(
                       title:
                           l10n?.calendar_configuration ??
                           'Calendar Configuration',
-                      trailing: 'tz: $timezoneOffset',
+                      trailing:
+                          'tz: ${timezoneOffset.toStringAsFixed(1)} ($timezoneSource)',
                       icon: Icons.edit_calendar,
                       onTap: () => GoRouter.of(
                         context,
                       ).go('/settings/${RoutePaths.calendarConfig}'),
                     );
                   },
+                ),
+                SettingsListTile(
+                  title: 'Calendar Generation',
+                  trailing: 'preview/export',
+                  icon: Icons.auto_stories_outlined,
+                  onTap: () => GoRouter.of(
+                    context,
+                  ).go('/settings/${RoutePaths.calendarGeneration}'),
                 ),
                 SettingsListTile(
                   title: l10n?.display_preferences ?? 'Display Preferences',

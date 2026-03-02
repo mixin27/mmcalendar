@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:integrations_database/integrations_database.dart';
@@ -155,51 +155,44 @@ Future<void> _initializeMyanmarCalendar() async {
   try {
     final database = app_di.getIt<AppDatabase>();
     final settingsDao = database.settingsDao;
+    final calendarSettings = await database.calendarDao.getOrCreateSettings();
 
     final holidayOverridesPort = app_di.getIt<HolidayOverridesPort>();
 
-    // Load calendar configuration from database in parallel.
-    final settings = await Future.wait<String?>([
-      settingsDao.getSetting('sasana_year_type'),
-      settingsDao.getSetting('calendar_type'),
-      settingsDao.getSetting('timezone_offset'),
-      settingsDao.getSetting('gregorian_start'),
-      settingsDao.getSetting('calendar_language'),
-    ]);
-    final sasanaYearType = settings[0];
-    final calendarType = settings[1];
-    final timezoneOffset = settings[2];
-    final gregorianStart = settings[3];
-    final calendarLanguage = settings[4];
+    final calendarLanguage = await settingsDao.getSetting(
+      StorageKeys.calendarLanguage,
+    );
+    final useDeviceTimezone =
+        await settingsDao.getBoolSetting(StorageKeys.useDeviceTimezone) ?? true;
 
     // Configure Myanmar Calendar with saved settings
-    MyanmarCalendar.configure(
-      language: Language.fromCode(calendarLanguage ?? 'en'),
-      timezoneOffset: double.tryParse(timezoneOffset ?? '6.5') ?? 6.5,
-      sasanaYearType: int.tryParse(sasanaYearType ?? '0') ?? 0,
-      calendarType: int.tryParse(calendarType ?? '0') ?? 0,
-      gregorianStart: int.tryParse(gregorianStart ?? '2361222') ?? 2361222,
-      customHolidays: holidayOverridesPort.getCustomHolidays(),
+    applyMyanmarCalendarRuntimeConfig(
+      baseConfig: CalendarConfig(
+        timezoneOffset: calendarSettings.timezoneOffset,
+        sasanaYearType: calendarSettings.sasanaYearType,
+        calendarType: calendarSettings.calendarType,
+        gregorianStart: calendarSettings.gregorianStart,
+        defaultLanguage: calendarSettings.defaultLanguage.isEmpty
+            ? Language.english.code
+            : calendarSettings.defaultLanguage,
+      ),
+      language: Language.fromCode(calendarLanguage ?? Language.english.code),
+      useDeviceTimezone: useDeviceTimezone,
+      customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
       disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
       disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
       disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
+      cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
     );
-
-    MyanmarCalendar.clearCache();
-    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
 
     debugPrint('✅ Myanmar Calendar initialized with saved settings');
   } catch (e) {
     // If loading fails, use defaults
-    MyanmarCalendar.configure(
+    applyMyanmarCalendarRuntimeConfig(
+      baseConfig: const CalendarConfig(),
       language: Language.english,
-      timezoneOffset: 6.5,
-      sasanaYearType: 0,
-      calendarType: 0,
-      gregorianStart: 2361222,
+      cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
     );
-    MyanmarCalendar.clearCache();
-    MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
     debugPrint('⚠️ Myanmar Calendar initialized with defaults: $e');
   }
 }

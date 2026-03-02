@@ -1,0 +1,39 @@
+name: calendar_generation
+description: "Calendar generation feature (preview/export scaffolding)"
+version: 0.0.1
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.11.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  shared_core:
+    path: ../../shared/core
+  shared_ui_kit:
+    path: ../../shared/ui_kit
+  overlay_editor:
+    path: ../../shared/overlay_editor
+
+  myanmar_calendar_dart: ^2.0.1
+  bloc: ^9.2.0
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.7
+  get_it: ^8.2.0
+  pdf: ^3.11.3
+  printing: ^5.14.2
+  share_plus: ^12.0.0
+  archive: ^4.0.7
+  shared_preferences: ^2.5.4
+  file_picker: ^10.3.2
+  image: ^4.5.4
+  flutter_box_transform: ^0.4.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

@@ -1,0 +1,21 @@
+name: overlay_editor
+description: Reusable overlay editor package for draggable/scalable/rotatable layers.
+version: 0.0.1
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.11.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  equatable: ^2.0.7
+  file_picker: ^10.3.2
+  flutter_box_transform: ^0.4.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

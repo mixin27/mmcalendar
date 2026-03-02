@@ -3,7 +3,8 @@ import 'dart:developer';
 import 'package:shared_core/shared_core.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:drift/drift.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
+    hide CacheException;
 
 // Local data source for calendar operations
 abstract class CalendarLocalDataSource {
@@ -28,12 +29,12 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
       final firstDay = DateTime(month.year, month.month, 1);
       final lastDay = DateTime(month.year, month.month + 1, 0);
 
-      final dates = await BatchOptimizer.processBatch<DateTime, CompleteDate>(
-        List.generate(
-          lastDay.day - firstDay.day + 1,
-          (i) => DateTime(month.year, month.month, firstDay.day + i),
+      final dates = List<CompleteDate>.generate(
+        lastDay.day - firstDay.day + 1,
+        (i) => MyanmarCalendar.getCompleteDate(
+          DateTime(month.year, month.month, firstDay.day + i),
         ),
-        (date) => MyanmarCalendar.getCompleteDate(date),
+        growable: false,
       );
 
       return dates;
@@ -51,11 +52,9 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
         firstDayOfWeek: 1, // Sunday in Myanmar weekday system
       );
 
-      final completeDates =
-          await BatchOptimizer.processBatch<DateTime, CompleteDate>(
-            gridDates,
-            (date) => MyanmarCalendar.getCompleteDate(date),
-          );
+      final completeDates = gridDates
+          .map(MyanmarCalendar.getCompleteDate)
+          .toList(growable: false);
 
       return completeDates;
     } catch (e) {
@@ -81,7 +80,7 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
 
       return CalendarConfig(
         sasanaYearType: settings.sasanaYearType,
-        calendarType: settings.calendarType,
+        calendarType: 0,
         gregorianStart: settings.gregorianStart,
         timezoneOffset: settings.timezoneOffset,
         defaultLanguage: settings.defaultLanguage,
@@ -97,40 +96,38 @@ class CalendarLocalDataSourceImpl implements CalendarLocalDataSource {
       await database.calendarDao.updateSettings(
         CalendarSettingsCompanion(
           sasanaYearType: Value(config.sasanaYearType),
-          calendarType: Value(config.calendarType),
+          calendarType: const Value(0),
           gregorianStart: Value(config.gregorianStart),
           timezoneOffset: Value(config.timezoneOffset),
           defaultLanguage: Value(config.defaultLanguage),
           updatedAt: Value(DateTime.now()),
         ),
       );
+      final useDeviceTimezone =
+          await database.settingsDao.getBoolSetting(
+            StorageKeys.useDeviceTimezone,
+          ) ??
+          true;
 
       // Apply to Myanmar Calendar package
       log(
-        'CustomHolidays: ${holidayOverridesPort.getCustomHolidays().toString()}',
+        'CustomHolidayRules: ${holidayOverridesPort.getCustomHolidayRules().toString()}',
       );
       log(
         'DisabledHolidays: ${holidayOverridesPort.getDisabledHolidays().toString()}',
       );
-      MyanmarCalendar.configure(
+      applyMyanmarCalendarRuntimeConfig(
+        baseConfig: config,
         language: Language.fromCode(config.defaultLanguage),
-        timezoneOffset: config.timezoneOffset,
-        sasanaYearType: config.sasanaYearType,
-        calendarType: config.calendarType,
-        gregorianStart: config.gregorianStart,
-        customHolidays: [
-          ...config.customHolidays,
-          ...holidayOverridesPort.getCustomHolidays(),
-        ],
+        useDeviceTimezone: useDeviceTimezone,
+        customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
         disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
         disabledHolidaysByYear: holidayOverridesPort
             .getDisabledHolidaysByYear(),
         disabledHolidaysByDate: holidayOverridesPort
             .getDisabledHolidaysByDate(),
+        cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
       );
-
-      MyanmarCalendar.clearCache();
-      MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
     } catch (e) {
       throw CacheException('Failed to update calendar config: ${e.toString()}');
     }

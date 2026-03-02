@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  archive:
+    dependency: transitive
+    description:
+      name: archive
+      sha256: a96e8b390886ee8abb49b7bd3ac8df6f451c621619f52a26e815fdcf568959ff
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.9"
   args:
     dependency: transitive
     description:
@@ -105,6 +113,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.1"
+  barcode:
+    dependency: transitive
+    description:
+      name: barcode
+      sha256: "7b6729c37e3b7f34233e2318d866e8c48ddb46c1f7ad01ff7bb2a8de1da2b9f4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.9"
+  bidi:
+    dependency: transitive
+    description:
+      name: bidi
+      sha256: "77f475165e94b261745cf1032c751e2032b8ed92ccb2bf5716036db79320637d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.13"
   bloc:
     dependency: transitive
     description:
@@ -121,6 +145,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  box_transform:
+    dependency: transitive
+    description:
+      name: box_transform
+      sha256: "99744e5f5edb2056128d3846894bfa6d4a02b5a4ef42657cf957a345731cff2c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.4"
   build:
     dependency: transitive
     description:
@@ -401,6 +433,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
+  file_picker:
+    dependency: transitive
+    description:
+      name: file_picker
+      sha256: "57d9a1dd5063f85fa3107fb42d1faffda52fdc948cefd5fe5ea85267a5fc7343"
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.3.10"
   firebase_analytics:
     dependency: transitive
     description:
@@ -510,6 +550,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.1.1"
+  flutter_box_transform:
+    dependency: transitive
+    description:
+      name: flutter_box_transform
+      sha256: "48bbda84b0d24ef8695d43925610374560b76bd149b4b2f2e3ae1cad27ddd168"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.7"
   flutter_cache_manager:
     dependency: transitive
     description:
@@ -583,10 +631,18 @@ packages:
     dependency: transitive
     description:
       name: flutter_mmcalendar
-      sha256: "98fd91e4aaf7d584e88dc0daba9ec5b25824e380081a563fe02582604a5d9414"
+      sha256: "2cdec20a09cd3ffcbc1bb5d7122db920c7eaa14dc6df4a10210014392614db75"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.8"
+    version: "3.3.1"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: ee8068e0e1cd16c4a82714119918efdeed33b3ba7772c54b5d094ab53f9b7fd1
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.33"
   flutter_svg:
     dependency: transitive
     description:
@@ -717,6 +773,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  image:
+    dependency: transitive
+    description:
+      name: image
+      sha256: "4e973fcf4caae1a4be2fa0a13157aa38a8f9cb049db6529aa00b4d71abc4d928"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.4"
   injectable:
     dependency: transitive
     description:
@@ -865,10 +929,10 @@ packages:
     dependency: transitive
     description:
       name: myanmar_calendar_dart
-      sha256: "52f825438d87aefcbf0140f0e03da2866cc8aa8e214bb7a4c32becbc8c324e0d"
+      sha256: "6f00f3010dd697288187544bbaa31cc54c7db95b4b38a68db1b638c566e774d9"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.5"
+    version: "2.0.1"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -989,6 +1053,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
+  pdf:
+    dependency: transitive
+    description:
+      name: pdf
+      sha256: "28eacad99bffcce2e05bba24e50153890ad0255294f4dd78a17075a2ba5c8416"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.11.3"
+  pdf_widget_wrapper:
+    dependency: transitive
+    description:
+      name: pdf_widget_wrapper
+      sha256: c930860d987213a3d58c7ec3b7ecf8085c3897f773e8dc23da9cae60a5d6d0f5
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   petitparser:
     dependency: transitive
     description:
@@ -1021,6 +1101,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.2"
+  posix:
+    dependency: transitive
+    description:
+      name: posix
+      sha256: "185ef7606574f789b40f289c233efa52e96dead518aed988e040a10737febb07"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.5.0"
+  printing:
+    dependency: transitive
+    description:
+      name: printing
+      sha256: "482cd5a5196008f984bb43ed0e47cbfdca7373490b62f3b27b3299275bf22a93"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.14.2"
   promo_carousel:
     dependency: transitive
     description:
@@ -1053,6 +1149,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
+  qr:
+    dependency: transitive
+    description:
+      name: qr
+      sha256: "5a1d2586170e172b8a8c8470bbbffd5eb0cd38a66c0d77155ea138d3af3a4445"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   recase:
     dependency: transitive
     description:
@@ -1105,10 +1209,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: cbc40be9be1c5af4dab4d6e0de4d5d3729e6f3d65b89d21e1815d57705644a6f
+      sha256: "8374d6200ab33ac99031a852eba4c8eb2170c4bf20778b3e2c9eccb45384fb41"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.20"
+    version: "2.4.21"
   shared_preferences_foundation:
     dependency: transitive
     description:

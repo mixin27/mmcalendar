@@ -14,6 +14,7 @@ class StorageKeys {
   static const String calendarType = 'calendar_type';
   static const String gregorianStart = 'gregorian_start';
   static const String timezoneOffset = 'timezone_offset';
+  static const String useDeviceTimezone = 'use_device_timezone';
 
   // Display Preferences
   static const String firstDayOfWeek = 'first_day_of_week';
@@ -30,6 +31,10 @@ class StorageKeys {
   static const String calendarView = 'calendar_view'; // month, year, week, day
   static const String lastViewedDate = 'last_viewed_date';
   static const String astrologyCardExpanded = 'astrology_card_expanded';
+  static const String calendarGenerationSettings =
+      'calendar_generation_settings';
+  static const String calendarGenerationTemplates =
+      'calendar_generation_templates';
 
   // Onboarding
   static const String isFirstLaunch = 'is_first_launch';

@@ -1,7 +1,7 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:integrations_database/integrations_database.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 import '../../domain/entities/conversion_result.dart';
 import '../../domain/entities/date_arithmetic_result.dart';
@@ -17,7 +17,9 @@ class ConverterRepositoryImpl extends BaseRepository
       final myanmarDateTime = MyanmarCalendar.fromDateTime(date);
       final completeDate = myanmarDateTime.completeDate;
 
-      final formattedMyanmar = myanmarDateTime.formatMyanmar('&y &M &P &ff');
+      final formattedMyanmar = myanmarDateTime.formatMyanmar(
+        '&y &M &P &f &Yat',
+      );
       final formattedWestern = myanmarDateTime.formatWestern('%dd %M %yyyy');
 
       return Right(

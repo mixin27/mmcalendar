@@ -1,7 +1,7 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../di/calendar_injection.dart';
@@ -319,23 +319,20 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   Future<void> _showDatePicker(BuildContext context) async {
-    final isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
-    final selectedDate = await showMyanmarDatePicker(
+    final selectedWesternDate = await showAppMyanmarDatePicker(
       context: context,
       initialDate: _currentDate,
-      theme: MyanmarCalendarTheme.fromColor(
-        Theme.of(context).colorScheme.primary,
-        isDark: isDark,
-      ),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
     );
 
-    if (selectedDate != null) {
+    if (selectedWesternDate != null) {
       _analyticsService.logDateSelection(
-        selectedDate: selectedDate.western.toDateTime().toString(),
+        selectedDate: selectedWesternDate.toString(),
         calendarType: 'myanmar',
         dateFormat: 'from_date_picker',
       );
-      _navigateToDay(selectedDate.western.toDateTime());
+      _navigateToDay(selectedWesternDate);
     }
   }
 
@@ -416,10 +413,10 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     buffer.writeln('');
 
     buffer.writeln(
-      '🌙 ${l10n?.moon_phase ?? "Moon Phase"}: ${TranslationService.getMoonPhaseName(completeDate.moonPhase)}',
+      '🌙 ${l10n?.moon_phase ?? "Moon Phase"}: ${TranslationService.getMoonPhaseName(completeDate.moonPhase, MyanmarCalendar.currentLanguage)}',
     );
     buffer.writeln(
-      '🗓️ ${l10n?.weekday ?? "Weekday"}: ${TranslationService.getWeekdayName(completeDate.weekday)}',
+      '🗓️ ${l10n?.weekday ?? "Weekday"}: ${TranslationService.getWeekdayName(completeDate.weekday, MyanmarCalendar.currentLanguage)}',
     );
     buffer.writeln('');
 
@@ -428,34 +425,36 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     );
     if (completeDate.sabbath.isNotEmpty) {
       buffer.writeln(
-        '• Sabbath: ${TranslationService.translate(completeDate.sabbath)}',
+        '• Sabbath: ${TranslationService.translateTo(completeDate.sabbath, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.yatyaza.isNotEmpty) {
       buffer.writeln(
-        '• Yatyaza: ${TranslationService.translate(completeDate.yatyaza)}',
+        '• Yatyaza: ${TranslationService.translateTo(completeDate.yatyaza, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.pyathada.isNotEmpty) {
       buffer.writeln(
-        '• Pyathada: ${TranslationService.translate(completeDate.pyathada)}',
+        '• Pyathada: ${TranslationService.translateTo(completeDate.pyathada, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.nagahle.isNotEmpty) {
       buffer.writeln(
-        '• ${l10n?.nagahle ?? "Nagahle"}: ${TranslationService.translate(completeDate.nagahle)}',
+        '• ${l10n?.nagahle ?? "Nagahle"}: ${TranslationService.translateTo(completeDate.nagahle, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.mahabote.isNotEmpty) {
       buffer.writeln(
-        '• Mahabote: ${TranslationService.translate(completeDate.mahabote)}',
+        '• Mahabote: ${TranslationService.translateTo(completeDate.mahabote, MyanmarCalendar.currentLanguage)}',
       );
     }
 
     if (completeDate.astrologicalDays.isNotEmpty) {
       buffer.writeln('🌟 ${l10n?.special_days ?? "Special Days"}:');
       for (final day in completeDate.astrologicalDays) {
-        buffer.writeln('• ${TranslationService.translate(day)}');
+        buffer.writeln(
+          '• ${TranslationService.translateTo(day, MyanmarCalendar.currentLanguage)}',
+        );
       }
     }
 
@@ -471,7 +470,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     final myanmarDateTime = MyanmarCalendar.today();
 
     if (showShanCalendar && MyanmarCalendar.currentLanguage == Language.shan) {
-      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &ff")}';
+      return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &f &Yat")}';
     }
 
     return myanmarDateTime.formatMyanmar();

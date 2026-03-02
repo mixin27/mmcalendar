@@ -22,7 +22,8 @@ dependencies:
     path: ../../shared/localizations
 
   # Myanmar Calendar Package
-  flutter_mmcalendar: ^3.2.8
+  myanmar_calendar_dart: ^2.0.1
+  flutter_mmcalendar: ^3.3.1
 
   # State Management
   bloc: ^9.2.0

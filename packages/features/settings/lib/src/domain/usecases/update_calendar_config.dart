@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:shared_core/shared_core.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 import '../repositories/settings_repository.dart';
 

@@ -1,4 +1,5 @@
-import 'package:shared_core/shared_core.dart' show RoutePaths;
+import 'package:shared_core/shared_core.dart'
+    show RoutePaths, showAppMyanmarDatePicker;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -440,7 +441,7 @@ class _EventsListPageState extends State<EventsListPage>
   }
 
   Future<void> _pickDate(BuildContext context) async {
-    final picked = await showDatePicker(
+    final picked = await showAppMyanmarDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2000),

@@ -1,7 +1,8 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:telegram_web/telegram_web.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
@@ -258,11 +259,17 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   void _handleDisplayConfigUpdate(CalendarDisplayConfig currentConfig) {
     final previousConfig = _lastDisplayConfig;
-    if (previousConfig == null ||
-        previousConfig.calendarLanguage != currentConfig.calendarLanguage) {
-      MyanmarCalendar.setLanguage(currentConfig.calendarLanguage);
-      MyanmarCalendar.clearCache();
-      MyanmarCalendar.configureCache(const CacheConfig.highPerformance());
+    final requiresRefresh =
+        previousConfig == null ||
+        currentConfig.requiresCalendarRefreshComparedTo(previousConfig);
+
+    if (requiresRefresh) {
+      applyMyanmarCalendarRuntimeConfig(
+        baseConfig: currentConfig.calendarConfig,
+        language: currentConfig.calendarLanguage,
+        useDeviceTimezone: currentConfig.useDeviceTimezone,
+        cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
+      );
     }
 
     if (previousConfig == null) {
@@ -271,7 +278,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     }
 
     _lastDisplayConfig = currentConfig;
-    if (!currentConfig.requiresCalendarRefreshComparedTo(previousConfig)) {
+    if (!requiresRefresh) {
       return;
     }
 
@@ -286,6 +293,46 @@ class _CalendarHomePageState extends State<CalendarHomePage>
         context.read<CalendarBloc>().add(const RefreshCalendar());
       }
     });
+  }
+
+  KeyEventResult _handleGridKeyEvent({
+    required KeyEvent event,
+    required DateTime selectedDate,
+    required VoidCallback onActivate,
+  }) {
+    if (event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.arrowUp) {
+      _moveSelection(context, selectedDate.subtract(const Duration(days: 7)));
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowDown) {
+      _moveSelection(context, selectedDate.add(const Duration(days: 7)));
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowLeft) {
+      _moveSelection(context, selectedDate.subtract(const Duration(days: 1)));
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowRight) {
+      _moveSelection(context, selectedDate.add(const Duration(days: 1)));
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter ||
+        key == LogicalKeyboardKey.space) {
+      onActivate();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.home) {
+      context.read<CalendarBloc>().add(const NavigateToToday());
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
   }
 
   Stream<Map<DateTime, List<CalendarEventItem>>> _eventsStreamForMonth(
@@ -441,29 +488,10 @@ class _CalendarHomePageState extends State<CalendarHomePage>
           autofocus: true,
           onKeyEvent: (node, event) {
             final selectedDate = state.selectedDate?.date ?? state.today;
-            return CalendarKeyboardHandler.handleKeyEvent(
-              node,
-              event,
-              onArrowUp: () => _moveSelection(
-                context,
-                selectedDate.subtract(const Duration(days: 7)),
-              ),
-              onArrowDown: () => _moveSelection(
-                context,
-                selectedDate.add(const Duration(days: 7)),
-              ),
-              onArrowLeft: () => _moveSelection(
-                context,
-                selectedDate.subtract(const Duration(days: 1)),
-              ),
-              onArrowRight: () => _moveSelection(
-                context,
-                selectedDate.add(const Duration(days: 1)),
-              ),
-              onEnter: () => _navigateToDayDetails(context, selectedDate),
-              onSpace: () => _navigateToDayDetails(context, selectedDate),
-              onHome: () =>
-                  context.read<CalendarBloc>().add(const NavigateToToday()),
+            return _handleGridKeyEvent(
+              event: event,
+              selectedDate: selectedDate,
+              onActivate: () => _navigateToDayDetails(context, selectedDate),
             );
           },
           child: AnimatedSwitcher(
@@ -588,33 +616,11 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                 autofocus: true,
                 onKeyEvent: (node, event) {
                   final selectedDate = state.selectedDate?.date ?? state.today;
-                  return CalendarKeyboardHandler.handleKeyEvent(
-                    node,
-                    event,
-                    onArrowUp: () => _moveSelection(
-                      context,
-                      selectedDate.subtract(const Duration(days: 7)),
-                    ),
-                    onArrowDown: () => _moveSelection(
-                      context,
-                      selectedDate.add(const Duration(days: 7)),
-                    ),
-                    onArrowLeft: () => _moveSelection(
-                      context,
-                      selectedDate.subtract(const Duration(days: 1)),
-                    ),
-                    onArrowRight: () => _moveSelection(
-                      context,
-                      selectedDate.add(const Duration(days: 1)),
-                    ),
-                    onEnter: () => context.read<CalendarBloc>().add(
+                  return _handleGridKeyEvent(
+                    event: event,
+                    selectedDate: selectedDate,
+                    onActivate: () => context.read<CalendarBloc>().add(
                       SelectDateEvent(selectedDate),
-                    ),
-                    onSpace: () => context.read<CalendarBloc>().add(
-                      SelectDateEvent(selectedDate),
-                    ),
-                    onHome: () => context.read<CalendarBloc>().add(
-                      const NavigateToToday(),
                     ),
                   );
                 },
@@ -1119,6 +1125,9 @@ class _MonthYearPickerBottomSheetState
   }
 
   String _getMonthName(int month) {
-    return TranslationService.getShortWesternMonthName(month - 1);
+    return TranslationService.getShortWesternMonthName(
+      month - 1,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 }

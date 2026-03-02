@@ -1,7 +1,7 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 import '../../di/converter_injection.dart';
 import '../../domain/entities/date_calculation_result.dart';
@@ -225,7 +225,7 @@ class _DateCalculatorCardState extends State<DateCalculatorCard>
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
-            final selectedDate = await showDatePicker(
+            final selectedDate = await showAppMyanmarDatePicker(
               context: context,
               initialDate: date,
               firstDate: DateTime(1900),
@@ -568,6 +568,9 @@ class _DateCalculatorCardState extends State<DateCalculatorCard>
     // But our TranslationService.getWeekdayName start from Saturday
     // So we need to adjust the weekday
     weekday = (weekday + 1) % 7;
-    return TranslationService.getWeekdayName(weekday);
+    return TranslationService.getWeekdayName(
+      weekday,
+      MyanmarCalendar.currentLanguage,
+    );
   }
 }

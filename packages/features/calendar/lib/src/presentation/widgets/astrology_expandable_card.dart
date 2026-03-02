@@ -1,6 +1,6 @@
 import 'package:calendar/src/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 class AstrologyExpandableCard extends StatefulWidget {
@@ -174,7 +174,12 @@ class _AstrologyExpandableCardState extends State<AstrologyExpandableCard>
             runSpacing: 8,
             children: widget.dateInfo.astrologicalDays.map((day) {
               return Chip(
-                label: Text(TranslationService.translate(day)),
+                label: Text(
+                  TranslationService.translateTo(
+                    day,
+                    MyanmarCalendar.currentLanguage,
+                  ),
+                ),
                 labelStyle: context.textTheme.bodySmall,
                 backgroundColor: context.colorScheme.secondaryContainer,
                 side: BorderSide.none,

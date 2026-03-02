@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:calendar/calendar.dart';
+import 'package:calendar_generation/calendar_generation.dart';
 import 'package:converter/converter.dart';
 import 'package:events/events.dart';
 import 'package:flutter/foundation.dart';
@@ -77,6 +78,7 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   await initSettingsDependencies();
   await initViewsDependencies();
   await initConverterDependencies();
+  await initCalendarGenerationDependencies();
   await initEventsDependencies();
   await initHomeWidgetsDependencies();
   await initializePromoDependencies();

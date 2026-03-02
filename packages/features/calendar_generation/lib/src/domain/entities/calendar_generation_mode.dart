@@ -1,0 +1,1 @@
+enum CalendarGenerationMode { month, year }

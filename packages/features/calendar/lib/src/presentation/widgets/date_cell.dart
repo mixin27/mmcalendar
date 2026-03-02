@@ -1,7 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
-    hide CompactMoonPhaseIndicator, MoonPhaseIndicator;
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 class DateCell extends StatefulWidget {
@@ -112,12 +111,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
             ? () => _scaleController.reverse()
             : null,
         child: Semantics(
-          label: CalendarAccessibility.generateDateLabel(
-            widget.dateInfo,
-            language: MyanmarCalendar.currentLanguage,
-            isSelected: widget.isSelected,
-            isToday: widget.isToday,
-          ),
+          label: _buildDateSemanticsLabel(),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
@@ -175,6 +169,39 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  String _buildDateSemanticsLabel() {
+    final language = MyanmarCalendar.currentLanguage;
+    final segments = <String>[
+      if (widget.isToday) TranslationService.translateTo('Today', language),
+      if (widget.isSelected)
+        TranslationService.translateTo('Selected', language),
+      '${TranslationService.getWeekdayName(widget.dateInfo.weekday, language)}, '
+          '${TranslationService.getWesternMonthName(widget.dateInfo.westernMonth, language)} '
+          '${widget.dateInfo.westernDay}, ${widget.dateInfo.westernYear}',
+      MyanmarCalendar.formatMyanmar(
+        widget.dateInfo.myanmar,
+        language: language,
+      ),
+    ];
+
+    if (widget.dateInfo.allHolidays.isNotEmpty) {
+      segments.add(
+        widget.dateInfo.allHolidays
+            .map((holiday) => TranslationService.translateTo(holiday, language))
+            .join(', '),
+      );
+    }
+    if (widget.dateInfo.allAnniversaryDays.isNotEmpty) {
+      segments.add(
+        widget.dateInfo.allAnniversaryDays
+            .map((day) => TranslationService.translateTo(day, language))
+            .join(', '),
+      );
+    }
+
+    return segments.where((segment) => segment.isNotEmpty).join('. ');
   }
 
   Widget _buildTopIndicators(Color textColor, double opacity) {
@@ -272,7 +299,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       );
     }
 
-    final fortnightDay = FormatService().translateNumbers(
+    final fortnightDay = translateNumbers(
       widget.dateInfo.fortnightDay.toString(),
     );
 

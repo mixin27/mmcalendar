@@ -1,5 +1,6 @@
 import 'package:shared_core/shared_core.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
+    hide CacheException;
 
 abstract class ViewsLocalDataSource {
   Future<List<CompleteDate>> getYearDates(int year);

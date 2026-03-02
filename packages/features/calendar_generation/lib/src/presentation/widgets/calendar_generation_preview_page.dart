@@ -1,0 +1,1804 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
+
+import '../../domain/entities/calendar_generation_request.dart';
+import '../../domain/entities/calendar_landscape_decoration_area_side.dart';
+import '../../domain/entities/calendar_overlay_element.dart';
+import '../../domain/entities/calendar_page_model.dart';
+import '../../domain/entities/calendar_page_orientation.dart';
+import '../../domain/entities/calendar_preview_theme.dart';
+import '../../rendering/export/calendar_export_layout.dart';
+
+class CalendarGenerationPreviewPage extends StatelessWidget {
+  const CalendarGenerationPreviewPage({
+    required this.model,
+    required this.request,
+    this.margin = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.elevation = 2,
+    this.contentPadding = const EdgeInsets.all(12),
+    this.compact = false,
+    this.useCardChrome = true,
+    this.backgroundImageProvider,
+    this.showOverlayElements = true,
+    this.editOverlayElements = false,
+    this.selectedOverlayElementId,
+    this.onSelectedOverlayElementChanged,
+    this.onOverlayElementChanged,
+    this.onOverlayElementEditEnd,
+    this.onOverlayElementDoubleTap,
+    this.overlayInteractionScale = 1.0,
+    this.restrictTransformToSelected = false,
+    this.editLayoutElements = false,
+    this.selectedLayoutElementId,
+    this.onSelectedLayoutElementChanged,
+    this.onLayoutThemeChanged,
+    this.onLayoutElementEditEnd,
+    super.key,
+  });
+
+  static final Map<String, ImageProvider<Object>> _imageProviderCache =
+      <String, ImageProvider<Object>>{};
+  static final List<String> _imageProviderCacheOrder = <String>[];
+  static const int _maxImageProviderCacheSize = 24;
+
+  final CalendarPageModel model;
+  final CalendarGenerationRequest request;
+  final EdgeInsetsGeometry margin;
+  final double elevation;
+  final EdgeInsetsGeometry contentPadding;
+  final bool compact;
+  final bool useCardChrome;
+  final ImageProvider<Object>? backgroundImageProvider;
+  final bool showOverlayElements;
+  final bool editOverlayElements;
+  final String? selectedOverlayElementId;
+  final ValueChanged<String?>? onSelectedOverlayElementChanged;
+  final ValueChanged<CalendarOverlayElement>? onOverlayElementChanged;
+  final VoidCallback? onOverlayElementEditEnd;
+  final ValueChanged<CalendarOverlayElement>? onOverlayElementDoubleTap;
+  final double overlayInteractionScale;
+  final bool restrictTransformToSelected;
+  final bool editLayoutElements;
+  final String? selectedLayoutElementId;
+  final ValueChanged<String?>? onSelectedLayoutElementChanged;
+  final ValueChanged<CalendarPreviewTheme>? onLayoutThemeChanged;
+  final VoidCallback? onLayoutElementEditEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = request.theme;
+    final backgroundColor = Color(theme.backgroundColorValue);
+    final foregroundColor = Color(theme.foregroundColorValue);
+    const holidayColor = Color(0xFFC62828);
+    const fullMoonColor = Color(0xFFB45309);
+    const newMoonColor = Color(0xFF4338CA);
+    final aspectRatio = CalendarExportLayout.previewAspectRatio(request);
+    final pageBackgroundImage = theme.backgroundImageUrlForMonth(model.month);
+    final imageProvider =
+        backgroundImageProvider ?? _parseImageProvider(pageBackgroundImage);
+
+    final monthYearScale = theme.monthYearFontScale.clamp(0.7, 1.8);
+    final weekdayScale = theme.weekdayFontScale.clamp(0.7, 1.8);
+    final titleFontSize = (compact ? 13.0 : 20.0) * monthYearScale;
+    final weekdayFontSize = (compact ? 9.0 : 13.0) * weekdayScale;
+    final westernDayFontSize = compact ? 20.0 : 34.0;
+    final myanmarDayFontSize = compact ? 7.0 : 11.5;
+    final dayPadding = compact ? 2.0 : 4.0;
+    final dayRadius = theme.gridCornerRadius.clamp(0.0, 20.0);
+    final gridBorderWidth = theme.gridBorderWidth.clamp(0.0, 4.0);
+    final gridBorderDesign = theme.gridBorderDesign;
+    final gridSpacing = compact ? 1.5 : 2.0;
+    final gridAspectRatioFallback = compact ? 0.8 : 0.86;
+    final visibleRows = _visibleRowCount(model.dayCells);
+    final visibleCellCount = visibleRows * 7;
+    final isLandscape =
+        request.pageOrientation == CalendarPageOrientation.landscape;
+    final isDecorationOnLeft =
+        request.landscapeDecorationAreaSide ==
+        CalendarLandscapeDecorationAreaSide.left;
+    final portraitCalendarFlex = compact ? 80 : 72;
+    final portraitDecorationFlex = 100 - portraitCalendarFlex;
+    final landscapeCalendarFlex = compact ? 80 : 76;
+    final landscapeDecorationFlex = 100 - landscapeCalendarFlex;
+    final overlayElements =
+        request.overlayElementsByMonth[model.month] ??
+        const <CalendarOverlayElement>[];
+
+    final calendarPanelContent = _buildCalendarPanelContent(
+      foregroundColor: foregroundColor,
+      backgroundColor: backgroundColor,
+      holidayColor: holidayColor,
+      fullMoonColor: fullMoonColor,
+      newMoonColor: newMoonColor,
+      titleFontSize: titleFontSize,
+      monthYearScale: monthYearScale,
+      weekdayFontSize: weekdayFontSize,
+      dayRadius: dayRadius,
+      dayPadding: dayPadding,
+      gridSpacing: gridSpacing,
+      gridAspectRatioFallback: gridAspectRatioFallback,
+      visibleRows: visibleRows,
+      visibleCellCount: visibleCellCount,
+      westernDayFontSize: westernDayFontSize,
+      myanmarDayFontSize: myanmarDayFontSize,
+      gridBorderWidth: gridBorderWidth,
+      gridBorderDesign: gridBorderDesign,
+    );
+
+    final previewBody = AspectRatio(
+      aspectRatio: aspectRatio,
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          image: imageProvider == null
+              ? null
+              : DecorationImage(
+                  image: imageProvider,
+                  fit: _toFlutterFit(theme.backgroundImageFit),
+                  alignment: _toFlutterAlignment(
+                    theme.backgroundImageAlignment,
+                  ),
+                  opacity: theme.backgroundImageOpacity.clamp(0.0, 1.0),
+                ),
+        ),
+        child: Padding(
+          padding: contentPadding,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final pageContent = Column(
+                children: [
+                  Expanded(
+                    child: _buildCalendarAndDecorationLayout(
+                      isLandscape: isLandscape,
+                      isDecorationOnLeft: isDecorationOnLeft,
+                      theme: theme,
+                      backgroundColor: backgroundColor,
+                      foregroundColor: foregroundColor,
+                      portraitCalendarFlex: portraitCalendarFlex,
+                      portraitDecorationFlex: portraitDecorationFlex,
+                      landscapeCalendarFlex: landscapeCalendarFlex,
+                      landscapeDecorationFlex: landscapeDecorationFlex,
+                      calendarPanelContent: calendarPanelContent,
+                    ),
+                  ),
+                ],
+              );
+
+              if (!showOverlayElements || overlayElements.isEmpty) {
+                return pageContent;
+              }
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  pageContent,
+                  _OverlayElementsLayer(
+                    elements: overlayElements,
+                    canvasWidth: constraints.maxWidth,
+                    canvasHeight: constraints.maxHeight,
+                    editMode: editOverlayElements && !compact,
+                    restrictTransformToSelected: restrictTransformToSelected,
+                    selectedElementId: selectedOverlayElementId,
+                    onSelectedElementChanged: onSelectedOverlayElementChanged,
+                    onElementChanged: onOverlayElementChanged,
+                    onElementEditEnd: onOverlayElementEditEnd,
+                    onElementDoubleTap: onOverlayElementDoubleTap,
+                    interactionScale: overlayInteractionScale,
+                    buildElementChild: (element, isSelected) =>
+                        _buildOverlayElementVisual(
+                          element,
+                          foregroundColor: foregroundColor,
+                          isSelected: isSelected,
+                        ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    if (!useCardChrome) {
+      return previewBody;
+    }
+    return Card(margin: margin, elevation: elevation, child: previewBody);
+  }
+
+  Widget _buildOverlayElementVisual(
+    CalendarOverlayElement element, {
+    required Color foregroundColor,
+    required bool isSelected,
+  }) {
+    final textShadows = _overlayTextShadows(element);
+    final emojiStyle = _emojiOverlayTextStyle(element);
+    final textBackgroundColor = element.backgroundColorValue == null
+        ? null
+        : Color(element.backgroundColorValue!);
+    final textStyle = TextStyle(
+      color: Color(element.colorValue),
+      fontSize: element.baseSize,
+      fontWeight: _fontWeightFromValue(element.fontWeightValue),
+      fontStyle: element.italic ? FontStyle.italic : FontStyle.normal,
+      letterSpacing: element.letterSpacing,
+      height: 1.0,
+      shadows: textShadows,
+      backgroundColor: textBackgroundColor,
+    );
+    final content = switch (element.type) {
+      CalendarOverlayElementType.text => Text(
+        element.text?.trim().isNotEmpty == true ? element.text!.trim() : 'Text',
+        textAlign: TextAlign.center,
+        style: textStyle,
+      ),
+      CalendarOverlayElementType.emoji => Text(
+        element.text?.trim().isNotEmpty == true ? element.text!.trim() : '🙂',
+        textAlign: TextAlign.center,
+        style: emojiStyle,
+      ),
+      CalendarOverlayElementType.sticker => _buildStickerOverlayVisual(
+        element: element,
+        textStyle: textStyle,
+        emojiStyle: emojiStyle,
+        textShadows: textShadows,
+      ),
+      CalendarOverlayElementType.image => _buildOverlayImage(element),
+    };
+
+    return Opacity(
+      opacity: element.opacity.clamp(0.0, 1.0),
+      child: DecoratedBox(
+        decoration: isSelected
+            ? BoxDecoration(
+                border: Border.all(
+                  color: foregroundColor.withValues(alpha: 0.75),
+                  width: 1.0,
+                ),
+                borderRadius: BorderRadius.circular(4),
+              )
+            : const BoxDecoration(),
+        child: Padding(
+          padding: isSelected
+              ? const EdgeInsets.symmetric(horizontal: 3, vertical: 2)
+              : EdgeInsets.zero,
+          child: content,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOverlayImage(CalendarOverlayElement element) {
+    final provider = _parseImageProvider(element.imageSource);
+    final size = element.baseSize.clamp(16, 520).toDouble();
+    if (provider == null) {
+      return Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFF9CA3AF)),
+          borderRadius: BorderRadius.circular(6),
+          color: Colors.white.withValues(alpha: 0.82),
+        ),
+        child: const Icon(Icons.broken_image_outlined, size: 18),
+      );
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: Image(
+        image: provider,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  IconData _resolveStickerIcon(String? key) {
+    return switch (key) {
+      'sparkles' => Icons.auto_awesome_rounded,
+      'crown' => Icons.workspace_premium_rounded,
+      'balloon' => Icons.celebration_rounded,
+      'gift' => Icons.card_giftcard_rounded,
+      'sun' => Icons.wb_sunny_rounded,
+      'moon' => Icons.nightlight_round,
+      'rainbow' => Icons.gradient_rounded,
+      'camera' => Icons.camera_alt_rounded,
+      'music' => Icons.music_note_rounded,
+      'travel' => Icons.flight_takeoff_rounded,
+      'home' => Icons.home_rounded,
+      'food' => Icons.restaurant_rounded,
+      'coffee' => Icons.coffee_rounded,
+      'message' => Icons.chat_bubble_rounded,
+      'ring' => Icons.diamond_rounded,
+      'leaf' => Icons.eco_rounded,
+      'paw' => Icons.pets_rounded,
+      'trophy' => Icons.emoji_events_rounded,
+      'star' => Icons.star_rounded,
+      'heart' => Icons.favorite_rounded,
+      'flower' => Icons.local_florist_rounded,
+      'celebration' => Icons.celebration_rounded,
+      'location' => Icons.place_rounded,
+      'flag' => Icons.flag_rounded,
+      _ => Icons.auto_awesome_rounded,
+    };
+  }
+
+  Widget _buildStickerOverlayVisual({
+    required CalendarOverlayElement element,
+    required TextStyle textStyle,
+    required TextStyle emojiStyle,
+    required List<Shadow>? textShadows,
+  }) {
+    final emoji = _stickerEmojiFromKey(element.stickerKey);
+    if (emoji != null) {
+      return Text(emoji, textAlign: TextAlign.center, style: emojiStyle);
+    }
+    return Icon(
+      _resolveStickerIcon(element.stickerKey),
+      size: element.baseSize,
+      color: Color(element.colorValue),
+      shadows: textShadows,
+    );
+  }
+
+  String? _stickerEmojiFromKey(String? key) {
+    if (key == null || !key.startsWith('emoji:')) {
+      return null;
+    }
+    final value = key.substring('emoji:'.length).trim();
+    if (value.isEmpty) {
+      return null;
+    }
+    return value;
+  }
+
+  List<Shadow>? _overlayTextShadows(CalendarOverlayElement element) {
+    final colorValue = element.shadowColorValue;
+    if (colorValue == null || element.shadowBlur <= 0) {
+      return null;
+    }
+    return <Shadow>[
+      Shadow(
+        color: Color(colorValue),
+        blurRadius: element.shadowBlur,
+        offset: Offset(element.shadowOffsetX, element.shadowOffsetY),
+      ),
+    ];
+  }
+
+  FontWeight _fontWeightFromValue(int value) {
+    final clamped = value.clamp(100, 900);
+    return FontWeight.values[(clamped ~/ 100) - 1];
+  }
+
+  TextStyle _emojiOverlayTextStyle(CalendarOverlayElement element) {
+    return TextStyle(
+      fontSize: element.baseSize,
+      height: 1.0,
+      shadows: _overlayTextShadows(element),
+    );
+  }
+
+  Widget _buildCellMetaText({required CalendarDayCellModel day}) {
+    final holidayText = request.showHolidays
+        ? day.publicHolidayLabel?.trim()
+        : null;
+    final astroTexts = <String>[
+      if (day.sabbathLabel?.trim().isNotEmpty ?? false)
+        day.sabbathLabel!.trim(),
+      if (day.sabbathEveLabel?.trim().isNotEmpty ?? false)
+        day.sabbathEveLabel!.trim(),
+      if (day.yatyazaLabel?.trim().isNotEmpty ?? false)
+        day.yatyazaLabel!.trim(),
+      if (day.pyathadaLabel?.trim().isNotEmpty ?? false)
+        day.pyathadaLabel!.trim(),
+      if (day.afternoonPyathadaLabel?.trim().isNotEmpty ?? false)
+        day.afternoonPyathadaLabel!.trim(),
+      if (day.otherAstrologyLabel?.trim().isNotEmpty ?? false)
+        day.otherAstrologyLabel!.trim(),
+    ];
+    final astroText = request.showAstrology && astroTexts.isNotEmpty
+        ? astroTexts.join(' • ')
+        : null;
+
+    if ((holidayText == null || holidayText.isEmpty) &&
+        (astroText == null || astroText.isEmpty)) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 0, 2, 2),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (holidayText != null && holidayText.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1.2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFC62828).withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Text(
+                holidayText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0xFFC62828).withValues(alpha: 0.95),
+                  fontSize: compact ? 5.0 : 6.0,
+                  fontWeight: FontWeight.w700,
+                  height: 1.0,
+                ),
+              ),
+            ),
+          if (astroText != null && astroText.isNotEmpty) ...[
+            if (holidayText != null && holidayText.isNotEmpty)
+              const SizedBox(height: 1),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1.2),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.62),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Text(
+                astroText,
+                maxLines: compact ? 1 : (holidayText == null ? 2 : 1),
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0xFF334155).withValues(alpha: 0.95),
+                  fontSize: compact ? 5.0 : 6.0,
+                  fontWeight: FontWeight.w600,
+                  height: 1.0,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalendarPanelContent({
+    required Color foregroundColor,
+    required Color backgroundColor,
+    required Color holidayColor,
+    required Color fullMoonColor,
+    required Color newMoonColor,
+    required double titleFontSize,
+    required double monthYearScale,
+    required double weekdayFontSize,
+    required double dayRadius,
+    required double dayPadding,
+    required double gridSpacing,
+    required double gridAspectRatioFallback,
+    required int visibleRows,
+    required int visibleCellCount,
+    required double westernDayFontSize,
+    required double myanmarDayFontSize,
+    required double gridBorderWidth,
+    required CalendarBorderDesign gridBorderDesign,
+  }) {
+    return Column(
+      children: [
+        Text(
+          model.westernTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: foregroundColor,
+            fontSize: titleFontSize,
+            fontWeight: FontWeight.w700,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        if (!compact &&
+            request.showMyanmarDates &&
+            model.myanmarTitle.trim().isNotEmpty) ...[
+          const SizedBox(height: 2),
+          Text(
+            model.myanmarTitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: foregroundColor.withValues(alpha: 0.82),
+              fontSize: 11 * monthYearScale,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+        SizedBox(height: compact ? 3 : 6),
+        _WeekdayHeader(
+          labels: model.weekdayLabels,
+          foregroundColor: foregroundColor,
+          fontSize: weekdayFontSize,
+        ),
+        SizedBox(height: compact ? 3 : 6),
+        Expanded(
+          child: _buildCalendarGrid(
+            backgroundColor: backgroundColor,
+            foregroundColor: foregroundColor,
+            holidayColor: holidayColor,
+            fullMoonColor: fullMoonColor,
+            newMoonColor: newMoonColor,
+            dayRadius: dayRadius,
+            dayPadding: dayPadding,
+            gridSpacing: gridSpacing,
+            gridAspectRatioFallback: gridAspectRatioFallback,
+            visibleRows: visibleRows,
+            visibleCellCount: visibleCellCount,
+            westernDayFontSize: westernDayFontSize,
+            myanmarDayFontSize: myanmarDayFontSize,
+            gridBorderWidth: gridBorderWidth,
+            gridBorderDesign: gridBorderDesign,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCalendarAndDecorationLayout({
+    required bool isLandscape,
+    required bool isDecorationOnLeft,
+    required CalendarPreviewTheme theme,
+    required Color backgroundColor,
+    required Color foregroundColor,
+    required int portraitCalendarFlex,
+    required int portraitDecorationFlex,
+    required int landscapeCalendarFlex,
+    required int landscapeDecorationFlex,
+    required Widget calendarPanelContent,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final height = constraints.maxHeight;
+        final gap = compact ? 4.0 : 8.0;
+
+        Rect calendarRect;
+        Rect decorationRect;
+        if (isLandscape) {
+          final availableWidth = (width - gap).clamp(0.0, width).toDouble();
+          final calendarWidth =
+              availableWidth * (landscapeCalendarFlex / 100.0);
+          final decorationWidth =
+              availableWidth * (landscapeDecorationFlex / 100.0);
+          if (isDecorationOnLeft) {
+            decorationRect = Rect.fromLTWH(0, 0, decorationWidth, height);
+            calendarRect = Rect.fromLTWH(
+              decorationWidth + gap,
+              0,
+              calendarWidth,
+              height,
+            );
+          } else {
+            calendarRect = Rect.fromLTWH(0, 0, calendarWidth, height);
+            decorationRect = Rect.fromLTWH(
+              calendarWidth + gap,
+              0,
+              decorationWidth,
+              height,
+            );
+          }
+        } else {
+          final availableHeight = (height - gap).clamp(0.0, height).toDouble();
+          final calendarHeight = availableHeight * (portraitCalendarFlex / 100);
+          final decorationHeight =
+              availableHeight * (portraitDecorationFlex / 100);
+          calendarRect = Rect.fromLTWH(0, 0, width, calendarHeight);
+          decorationRect = Rect.fromLTWH(
+            0,
+            calendarHeight + gap,
+            width,
+            decorationHeight,
+          );
+        }
+
+        return Stack(
+          clipBehavior: Clip.hardEdge,
+          children: [
+            Positioned.fromRect(
+              rect: decorationRect,
+              child: _buildCustomDecorationArea(
+                theme: theme,
+                backgroundColor: backgroundColor,
+                foregroundColor: foregroundColor,
+              ),
+            ),
+            Positioned.fromRect(
+              rect: calendarRect,
+              child: _buildPositionedCalendarPanel(
+                theme: theme,
+                foregroundColor: foregroundColor,
+                child: calendarPanelContent,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCalendarGrid({
+    required Color backgroundColor,
+    required Color foregroundColor,
+    required Color holidayColor,
+    required Color fullMoonColor,
+    required Color newMoonColor,
+    required double dayRadius,
+    required double dayPadding,
+    required double gridSpacing,
+    required double gridAspectRatioFallback,
+    required int visibleRows,
+    required int visibleCellCount,
+    required double westernDayFontSize,
+    required double myanmarDayFontSize,
+    required double gridBorderWidth,
+    required CalendarBorderDesign gridBorderDesign,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final gridAspectRatio = _resolveGridAspectRatio(
+          maxWidth: constraints.maxWidth,
+          maxHeight: constraints.maxHeight,
+          rows: visibleRows,
+          columns: 7,
+          spacing: gridSpacing,
+          fallback: gridAspectRatioFallback,
+        );
+        return GridView.builder(
+          itemCount: visibleCellCount,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            childAspectRatio: gridAspectRatio,
+            crossAxisSpacing: gridSpacing,
+            mainAxisSpacing: gridSpacing,
+          ),
+          itemBuilder: (context, index) {
+            final day = model.dayCells[index];
+            if (day.isPlaceholder) {
+              return _buildPlaceholderCell(
+                backgroundColor: backgroundColor,
+                foregroundColor: foregroundColor,
+                dayRadius: dayRadius,
+                gridBorderWidth: gridBorderWidth,
+                gridBorderDesign: gridBorderDesign,
+              );
+            }
+            final dayTextColor = (day.hasPublicHoliday || day.isWeekend == true)
+                ? holidayColor
+                : foregroundColor;
+            final moonPhaseColor = day.hasPublicHoliday
+                ? holidayColor
+                : day.isFullMoon
+                ? fullMoonColor
+                : day.isNewMoon
+                ? newMoonColor
+                : dayTextColor;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: backgroundColor.withValues(alpha: 0.96),
+                border: Border.all(
+                  color: _gridBorderColor(
+                    design: gridBorderDesign,
+                    baseColor: foregroundColor,
+                  ),
+                  width: _gridBorderWidth(
+                    design: gridBorderDesign,
+                    baseWidth: gridBorderWidth,
+                  ),
+                ),
+                borderRadius: BorderRadius.circular(dayRadius),
+              ),
+              padding: EdgeInsets.all(dayPadding),
+              child: Stack(
+                children: [
+                  if (request.showWesternDates)
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        day.westernDayLabel,
+                        style: TextStyle(
+                          color: dayTextColor.withValues(
+                            alpha: day.isCurrentMonth ? 0.97 : 0.6,
+                          ),
+                          fontSize: westernDayFontSize,
+                          fontWeight: FontWeight.w800,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  if (request.showMyanmarDates)
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 1, left: 1),
+                        child: _buildMoonPhaseVisual(day: day),
+                      ),
+                    ),
+                  if (request.showMyanmarDates)
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Text(
+                        day.myanmarDayLabel,
+                        style: TextStyle(
+                          color: moonPhaseColor.withValues(
+                            alpha: day.isCurrentMonth ? 0.78 : 0.45,
+                          ),
+                          fontSize: myanmarDayFontSize,
+                          fontWeight: day.isFullMoon || day.isNewMoon
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  if (request.showAstrology || request.showHolidays)
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: _buildCellMetaText(day: day),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildCustomDecorationArea({
+    required CalendarPreviewTheme theme,
+    required Color backgroundColor,
+    required Color foregroundColor,
+  }) {
+    final boxes = theme.freeSpaceBoxes
+        .where((box) => box.visible)
+        .toList(growable: false);
+    if (boxes.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final children = <Widget>[
+          ...boxes.map((box) {
+            final left = (box.x * constraints.maxWidth).clamp(
+              0.0,
+              constraints.maxWidth,
+            );
+            final top = (box.y * constraints.maxHeight).clamp(
+              0.0,
+              constraints.maxHeight,
+            );
+            final width = (box.width * constraints.maxWidth).clamp(
+              1.0,
+              constraints.maxWidth,
+            );
+            final height = (box.height * constraints.maxHeight).clamp(
+              1.0,
+              constraints.maxHeight,
+            );
+            final borderColor = Color(box.borderColorValue);
+            final fillColor = Color(box.fillColorValue);
+            final borderWidth = _gridBorderWidth(
+              design: box.borderDesign,
+              baseWidth: box.borderWidth,
+            );
+
+            return Positioned(
+              left: left,
+              top: top,
+              width: width,
+              height: height,
+              child: Transform.rotate(
+                angle: box.rotation,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: fillColor,
+                    border: Border.all(
+                      color: _gridBorderColor(
+                        design: box.borderDesign,
+                        baseColor: borderColor,
+                      ),
+                      width: borderWidth,
+                    ),
+                    borderRadius: BorderRadius.circular(box.cornerRadius),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ];
+
+        if (editLayoutElements) {
+          for (final box in boxes) {
+            final editId = 'free_box:${box.id}';
+            children.add(
+              _EditableLayoutRect(
+                id: editId,
+                selected: selectedLayoutElementId == editId,
+                rect: _NormalizedRect(
+                  x: box.x,
+                  y: box.y,
+                  width: box.width,
+                  height: box.height,
+                ),
+                canvasWidth: constraints.maxWidth,
+                canvasHeight: constraints.maxHeight,
+                minWidth: 0.05,
+                minHeight: 0.05,
+                borderColor: foregroundColor,
+                onSelected: onSelectedLayoutElementChanged,
+                onChanged: (nextRect) {
+                  final nextBoxes = theme.freeSpaceBoxes
+                      .map(
+                        (candidate) => candidate.id == box.id
+                            ? candidate.copyWith(
+                                x: nextRect.x,
+                                y: nextRect.y,
+                                width: nextRect.width,
+                                height: nextRect.height,
+                              )
+                            : candidate,
+                      )
+                      .toList(growable: false);
+                  onLayoutThemeChanged?.call(
+                    theme.copyWith(freeSpaceBoxes: nextBoxes),
+                  );
+                },
+                onEditEnd: onLayoutElementEditEnd,
+              ),
+            );
+          }
+        }
+
+        return Stack(clipBehavior: Clip.none, children: children);
+      },
+    );
+  }
+
+  Widget _buildPositionedCalendarPanel({
+    required CalendarPreviewTheme theme,
+    required Color foregroundColor,
+    required Widget child,
+  }) {
+    final normalizedX = theme.calendarContentOffsetX.clamp(-1.0, 1.0);
+    final normalizedY = theme.calendarContentOffsetY.clamp(-1.0, 1.0);
+    final widthFactor = theme.calendarContentWidthFactor.clamp(0.4, 1.0);
+    final heightFactor = theme.calendarContentHeightFactor.clamp(0.4, 1.0);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final centerX = ((normalizedX + 1) / 2).clamp(0.0, 1.0);
+        final centerY = ((normalizedY + 1) / 2).clamp(0.0, 1.0);
+        final left = centerX - (widthFactor / 2);
+        final top = centerY - (heightFactor / 2);
+        final panel = Positioned(
+          left: left * constraints.maxWidth,
+          top: top * constraints.maxHeight,
+          width: constraints.maxWidth * widthFactor,
+          height: constraints.maxHeight * heightFactor,
+          child: Transform.rotate(
+            angle: theme.calendarContentRotation,
+            child: child,
+          ),
+        );
+
+        if (!editLayoutElements) {
+          return Stack(clipBehavior: Clip.none, children: [panel]);
+        }
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            panel,
+            _EditableLayoutRect(
+              id: 'calendar_panel',
+              selected: selectedLayoutElementId == 'calendar_panel',
+              rect: _NormalizedRect(
+                x: left,
+                y: top,
+                width: widthFactor,
+                height: heightFactor,
+              ),
+              canvasWidth: constraints.maxWidth,
+              canvasHeight: constraints.maxHeight,
+              minWidth: 0.4,
+              minHeight: 0.4,
+              borderColor: foregroundColor,
+              onSelected: onSelectedLayoutElementChanged,
+              onChanged: (nextRect) {
+                final centerX = nextRect.x + (nextRect.width / 2);
+                final centerY = nextRect.y + (nextRect.height / 2);
+                onLayoutThemeChanged?.call(
+                  theme.copyWith(
+                    calendarContentOffsetX: (centerX * 2) - 1,
+                    calendarContentOffsetY: (centerY * 2) - 1,
+                    calendarContentWidthFactor: nextRect.width,
+                    calendarContentHeightFactor: nextRect.height,
+                  ),
+                );
+              },
+              onEditEnd: onLayoutElementEditEnd,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPlaceholderCell({
+    required Color backgroundColor,
+    required Color foregroundColor,
+    required double dayRadius,
+    required double gridBorderWidth,
+    required CalendarBorderDesign gridBorderDesign,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor.withValues(alpha: 0.90),
+        border: Border.all(
+          color: _gridBorderColor(
+            design: gridBorderDesign,
+            baseColor: foregroundColor,
+          ),
+          width: _gridBorderWidth(
+            design: gridBorderDesign,
+            baseWidth: gridBorderWidth,
+          ),
+        ),
+        borderRadius: BorderRadius.circular(dayRadius),
+      ),
+    );
+  }
+
+  int _visibleRowCount(List<CalendarDayCellModel> dayCells) {
+    var lastRowWithData = -1;
+    for (var row = 0; row < 6; row++) {
+      final start = row * 7;
+      final hasCurrentMonthDay = dayCells
+          .skip(start)
+          .take(7)
+          .any((day) => !day.isPlaceholder);
+      if (hasCurrentMonthDay) {
+        lastRowWithData = row;
+      }
+    }
+    return lastRowWithData < 0 ? 6 : (lastRowWithData + 1);
+  }
+
+  double _resolveGridAspectRatio({
+    required double maxWidth,
+    required double maxHeight,
+    required int rows,
+    required int columns,
+    required double spacing,
+    required double fallback,
+  }) {
+    if (maxWidth <= 0 || maxHeight <= 0 || rows <= 0 || columns <= 0) {
+      return fallback;
+    }
+
+    final totalCrossSpacing = spacing * (columns - 1);
+    final totalMainSpacing = spacing * (rows - 1);
+    final cellWidth = (maxWidth - totalCrossSpacing) / columns;
+    final cellHeight = (maxHeight - totalMainSpacing) / rows;
+    if (cellWidth <= 0 || cellHeight <= 0) {
+      return fallback;
+    }
+    return cellWidth / cellHeight;
+  }
+
+  Color _gridBorderColor({
+    required CalendarBorderDesign design,
+    required Color baseColor,
+  }) {
+    return switch (design) {
+      CalendarBorderDesign.soft => baseColor.withValues(alpha: 0.16),
+      CalendarBorderDesign.solid => baseColor.withValues(alpha: 0.24),
+      CalendarBorderDesign.bold => baseColor.withValues(alpha: 0.34),
+      CalendarBorderDesign.doubleLine => baseColor.withValues(alpha: 0.28),
+    };
+  }
+
+  double _gridBorderWidth({
+    required CalendarBorderDesign design,
+    required double baseWidth,
+  }) {
+    final width = baseWidth <= 0 ? 0.6 : baseWidth;
+    return switch (design) {
+      CalendarBorderDesign.soft => width * 0.9,
+      CalendarBorderDesign.solid => width,
+      CalendarBorderDesign.bold => width * 1.45,
+      CalendarBorderDesign.doubleLine => width * 1.2,
+    };
+  }
+
+  Widget _buildMoonPhaseVisual({required CalendarDayCellModel day}) {
+    return CompactMoonPhaseIndicator(
+      moonPhase: day.moonPhase,
+      fortnightDay: day.fortnightDay ?? 0,
+      size: compact ? 12 : 16,
+    );
+  }
+
+  ImageProvider<Object>? _parseImageProvider(String? source) {
+    final normalized = source?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    final cached = _imageProviderCache[normalized];
+    if (cached != null) {
+      return cached;
+    }
+
+    if (normalized.startsWith('data:image/') &&
+        normalized.contains(';base64,')) {
+      final start = normalized.indexOf('base64,');
+      if (start < 0) {
+        return null;
+      }
+      try {
+        final bytes = base64Decode(normalized.substring(start + 7));
+        final provider = MemoryImage(bytes);
+        _rememberProvider(normalized, provider);
+        return provider;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    final uri = Uri.tryParse(normalized);
+    if (uri != null && uri.scheme == 'file') {
+      try {
+        final provider = FileImage(File(uri.toFilePath()));
+        _rememberProvider(normalized, provider);
+        return provider;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    if (_looksLikeAbsoluteLocalPath(normalized)) {
+      final provider = FileImage(File(normalized));
+      _rememberProvider(normalized, provider);
+      return provider;
+    }
+
+    if (uri != null &&
+        uri.hasScheme &&
+        uri.scheme != 'http' &&
+        uri.scheme != 'https') {
+      return null;
+    }
+
+    final provider = NetworkImage(normalized);
+    _rememberProvider(normalized, provider);
+    return provider;
+  }
+
+  void _rememberProvider(String source, ImageProvider<Object> provider) {
+    if (_imageProviderCache.containsKey(source)) {
+      _imageProviderCache[source] = provider;
+      return;
+    }
+
+    _imageProviderCache[source] = provider;
+    _imageProviderCacheOrder.add(source);
+    if (_imageProviderCacheOrder.length > _maxImageProviderCacheSize) {
+      final evictedKey = _imageProviderCacheOrder.removeAt(0);
+      _imageProviderCache.remove(evictedKey);
+    }
+  }
+
+  bool _looksLikeAbsoluteLocalPath(String value) {
+    if (value.startsWith('/')) {
+      return true;
+    }
+    return RegExp(r'^[a-zA-Z]:[\\\/]').hasMatch(value);
+  }
+
+  BoxFit _toFlutterFit(CalendarBackgroundImageFit fit) {
+    return switch (fit) {
+      CalendarBackgroundImageFit.cover => BoxFit.cover,
+      CalendarBackgroundImageFit.contain => BoxFit.contain,
+      CalendarBackgroundImageFit.fill => BoxFit.fill,
+    };
+  }
+
+  Alignment _toFlutterAlignment(CalendarBackgroundImageAlignment alignment) {
+    return switch (alignment) {
+      CalendarBackgroundImageAlignment.top => Alignment.topCenter,
+      CalendarBackgroundImageAlignment.center => Alignment.center,
+      CalendarBackgroundImageAlignment.bottom => Alignment.bottomCenter,
+    };
+  }
+}
+
+class _NormalizedRect {
+  const _NormalizedRect({
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+  });
+
+  final double x;
+  final double y;
+  final double width;
+  final double height;
+
+  _NormalizedRect copyWith({
+    double? x,
+    double? y,
+    double? width,
+    double? height,
+  }) {
+    return _NormalizedRect(
+      x: x ?? this.x,
+      y: y ?? this.y,
+      width: width ?? this.width,
+      height: height ?? this.height,
+    );
+  }
+}
+
+class _EditableLayoutRect extends StatefulWidget {
+  const _EditableLayoutRect({
+    required this.id,
+    required this.selected,
+    required this.rect,
+    required this.canvasWidth,
+    required this.canvasHeight,
+    required this.minWidth,
+    required this.minHeight,
+    required this.borderColor,
+    this.onSelected,
+    this.onChanged,
+    this.onEditEnd,
+  });
+
+  final String id;
+  final bool selected;
+  final _NormalizedRect rect;
+  final double canvasWidth;
+  final double canvasHeight;
+  final double minWidth;
+  final double minHeight;
+  final Color borderColor;
+  final ValueChanged<String?>? onSelected;
+  final ValueChanged<_NormalizedRect>? onChanged;
+  final VoidCallback? onEditEnd;
+
+  @override
+  State<_EditableLayoutRect> createState() => _EditableLayoutRectState();
+}
+
+class _EditableLayoutRectState extends State<_EditableLayoutRect> {
+  static const double _epsilon = 0.00001;
+
+  late _NormalizedRect _workingRect;
+  bool _interacting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _workingRect = widget.rect;
+  }
+
+  @override
+  void didUpdateWidget(covariant _EditableLayoutRect oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_interacting) {
+      _workingRect = widget.rect;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final left = (_workingRect.x * widget.canvasWidth).clamp(
+      0.0,
+      widget.canvasWidth,
+    );
+    final top = (_workingRect.y * widget.canvasHeight).clamp(
+      0.0,
+      widget.canvasHeight,
+    );
+    final width = (_workingRect.width * widget.canvasWidth).clamp(
+      1.0,
+      widget.canvasWidth,
+    );
+    final height = (_workingRect.height * widget.canvasHeight).clamp(
+      1.0,
+      widget.canvasHeight,
+    );
+
+    return Positioned(
+      left: left,
+      top: top,
+      width: width,
+      height: height,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => widget.onSelected?.call(widget.id),
+              onPanStart: (_) {
+                _beginInteraction();
+              },
+              onPanUpdate: (details) => _updateMove(details.delta),
+              onPanEnd: (_) => _endInteraction(),
+              onPanCancel: _endInteraction,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                decoration: BoxDecoration(
+                  color: widget.selected
+                      ? widget.borderColor.withValues(alpha: 0.06)
+                      : Colors.transparent,
+                  border: Border.all(
+                    color: widget.selected
+                        ? widget.borderColor.withValues(alpha: 0.9)
+                        : widget.borderColor.withValues(alpha: 0.3),
+                    width: widget.selected ? 1.6 : 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(widget.selected ? 6 : 4),
+                ),
+              ),
+            ),
+          ),
+          if (widget.selected) ...[
+            _CornerHandle(
+              alignment: Alignment.topLeft,
+              color: widget.borderColor,
+              onPanStart: (_) => _beginInteraction(),
+              onPanUpdate: (details) =>
+                  _updateResize(details.delta, handle: _ResizeHandle.topLeft),
+              onPanEnd: (_) => _endInteraction(),
+              onPanCancel: _endInteraction,
+            ),
+            _CornerHandle(
+              alignment: Alignment.topRight,
+              color: widget.borderColor,
+              onPanStart: (_) => _beginInteraction(),
+              onPanUpdate: (details) =>
+                  _updateResize(details.delta, handle: _ResizeHandle.topRight),
+              onPanEnd: (_) => _endInteraction(),
+              onPanCancel: _endInteraction,
+            ),
+            _CornerHandle(
+              alignment: Alignment.bottomLeft,
+              color: widget.borderColor,
+              onPanStart: (_) => _beginInteraction(),
+              onPanUpdate: (details) => _updateResize(
+                details.delta,
+                handle: _ResizeHandle.bottomLeft,
+              ),
+              onPanEnd: (_) => _endInteraction(),
+              onPanCancel: _endInteraction,
+            ),
+            _CornerHandle(
+              alignment: Alignment.bottomRight,
+              color: widget.borderColor,
+              onPanStart: (_) => _beginInteraction(),
+              onPanUpdate: (details) => _updateResize(
+                details.delta,
+                handle: _ResizeHandle.bottomRight,
+              ),
+              onPanEnd: (_) => _endInteraction(),
+              onPanCancel: _endInteraction,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _beginInteraction() {
+    if (!widget.selected) {
+      widget.onSelected?.call(widget.id);
+    }
+    _interacting = true;
+  }
+
+  void _endInteraction() {
+    if (!_interacting) {
+      return;
+    }
+    _interacting = false;
+    widget.onEditEnd?.call();
+  }
+
+  void _updateMove(Offset delta) {
+    final canvasWidth = widget.canvasWidth <= 0 ? 1.0 : widget.canvasWidth;
+    final canvasHeight = widget.canvasHeight <= 0 ? 1.0 : widget.canvasHeight;
+    final nextX = (_workingRect.x + (delta.dx / canvasWidth)).clamp(
+      0.0,
+      1.0 - _workingRect.width,
+    );
+    final nextY = (_workingRect.y + (delta.dy / canvasHeight)).clamp(
+      0.0,
+      1.0 - _workingRect.height,
+    );
+    _applyRect(
+      _NormalizedRect(
+        x: nextX.toDouble(),
+        y: nextY.toDouble(),
+        width: _workingRect.width,
+        height: _workingRect.height,
+      ),
+    );
+  }
+
+  void _updateResize(Offset delta, {required _ResizeHandle handle}) {
+    final canvasWidth = widget.canvasWidth <= 0 ? 1.0 : widget.canvasWidth;
+    final canvasHeight = widget.canvasHeight <= 0 ? 1.0 : widget.canvasHeight;
+    final dx = delta.dx / canvasWidth;
+    final dy = delta.dy / canvasHeight;
+
+    var left = _workingRect.x;
+    var top = _workingRect.y;
+    var right = _workingRect.x + _workingRect.width;
+    var bottom = _workingRect.y + _workingRect.height;
+
+    switch (handle) {
+      case _ResizeHandle.topLeft:
+        left += dx;
+        top += dy;
+      case _ResizeHandle.topRight:
+        right += dx;
+        top += dy;
+      case _ResizeHandle.bottomLeft:
+        left += dx;
+        bottom += dy;
+      case _ResizeHandle.bottomRight:
+        right += dx;
+        bottom += dy;
+    }
+
+    if (handle == _ResizeHandle.topLeft || handle == _ResizeHandle.bottomLeft) {
+      left = left.clamp(0.0, right - widget.minWidth);
+    } else {
+      right = right.clamp(left + widget.minWidth, 1.0);
+    }
+
+    if (handle == _ResizeHandle.topLeft || handle == _ResizeHandle.topRight) {
+      top = top.clamp(0.0, bottom - widget.minHeight);
+    } else {
+      bottom = bottom.clamp(top + widget.minHeight, 1.0);
+    }
+
+    _applyRect(
+      _NormalizedRect(
+        x: left,
+        y: top,
+        width: (right - left).clamp(widget.minWidth, 1.0),
+        height: (bottom - top).clamp(widget.minHeight, 1.0),
+      ),
+    );
+  }
+
+  void _applyRect(_NormalizedRect next) {
+    if ((next.x - _workingRect.x).abs() < _epsilon &&
+        (next.y - _workingRect.y).abs() < _epsilon &&
+        (next.width - _workingRect.width).abs() < _epsilon &&
+        (next.height - _workingRect.height).abs() < _epsilon) {
+      return;
+    }
+    setState(() => _workingRect = next);
+    widget.onChanged?.call(next);
+  }
+}
+
+class _CornerHandle extends StatelessWidget {
+  const _CornerHandle({
+    required this.alignment,
+    required this.color,
+    required this.onPanStart,
+    required this.onPanUpdate,
+    required this.onPanEnd,
+    required this.onPanCancel,
+  });
+
+  final Alignment alignment;
+  final Color color;
+  final GestureDragStartCallback onPanStart;
+  final GestureDragUpdateCallback onPanUpdate;
+  final GestureDragEndCallback onPanEnd;
+  final VoidCallback onPanCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onPanStart: onPanStart,
+        onPanUpdate: onPanUpdate,
+        onPanEnd: onPanEnd,
+        onPanCancel: onPanCancel,
+        child: Container(
+          width: 22,
+          height: 22,
+          alignment: alignment,
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(3),
+              border: Border.all(color: Colors.white, width: 1),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+enum _ResizeHandle { topLeft, topRight, bottomLeft, bottomRight }
+
+class _OverlayElementsLayer extends StatefulWidget {
+  const _OverlayElementsLayer({
+    required this.elements,
+    required this.canvasWidth,
+    required this.canvasHeight,
+    required this.editMode,
+    required this.restrictTransformToSelected,
+    required this.interactionScale,
+    required this.buildElementChild,
+    this.selectedElementId,
+    this.onSelectedElementChanged,
+    this.onElementChanged,
+    this.onElementEditEnd,
+    this.onElementDoubleTap,
+  });
+
+  final List<CalendarOverlayElement> elements;
+  final double canvasWidth;
+  final double canvasHeight;
+  final bool editMode;
+  final bool restrictTransformToSelected;
+  final double interactionScale;
+  final String? selectedElementId;
+  final ValueChanged<String?>? onSelectedElementChanged;
+  final ValueChanged<CalendarOverlayElement>? onElementChanged;
+  final VoidCallback? onElementEditEnd;
+  final ValueChanged<CalendarOverlayElement>? onElementDoubleTap;
+  final Widget Function(CalendarOverlayElement element, bool isSelected)
+  buildElementChild;
+
+  @override
+  State<_OverlayElementsLayer> createState() => _OverlayElementsLayerState();
+}
+
+class _OverlayElementsLayerState extends State<_OverlayElementsLayer> {
+  double? _guideX;
+  double? _guideY;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        ...widget.elements.map((element) {
+          final isSelected = widget.selectedElementId == element.id;
+          final hasSelectedElement = widget.selectedElementId != null;
+          final canTransform =
+              !widget.restrictTransformToSelected ||
+              !hasSelectedElement ||
+              isSelected;
+          final shouldIgnorePointer =
+              widget.editMode &&
+              widget.restrictTransformToSelected &&
+              hasSelectedElement &&
+              !isSelected;
+
+          return IgnorePointer(
+            ignoring: shouldIgnorePointer,
+            child: _EditableOverlayElement(
+              key: ValueKey<String>('overlay_${element.id}'),
+              element: element,
+              canvasWidth: widget.canvasWidth,
+              canvasHeight: widget.canvasHeight,
+              interactionScale: widget.interactionScale,
+              selected: isSelected,
+              editMode: widget.editMode,
+              canTransform: canTransform,
+              onSelected: widget.onSelectedElementChanged,
+              onChanged: widget.onElementChanged,
+              onEditEnd: widget.onElementEditEnd,
+              onGuidesChanged: _setGuides,
+              onDoubleTap: widget.onElementDoubleTap,
+              child: widget.buildElementChild(element, isSelected),
+            ),
+          );
+        }),
+        if (widget.editMode && (_guideX != null || _guideY != null))
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: _SnapGuidePainter(guideX: _guideX, guideY: _guideY),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  void _setGuides(double? guideX, double? guideY) {
+    if (_guideX == guideX && _guideY == guideY) {
+      return;
+    }
+    setState(() {
+      _guideX = guideX;
+      _guideY = guideY;
+    });
+  }
+}
+
+class _EditableOverlayElement extends StatefulWidget {
+  const _EditableOverlayElement({
+    required this.element,
+    required this.canvasWidth,
+    required this.canvasHeight,
+    required this.interactionScale,
+    required this.selected,
+    required this.editMode,
+    required this.canTransform,
+    required this.child,
+    this.onSelected,
+    this.onChanged,
+    this.onEditEnd,
+    this.onGuidesChanged,
+    this.onDoubleTap,
+    super.key,
+  });
+
+  final CalendarOverlayElement element;
+  final double canvasWidth;
+  final double canvasHeight;
+  final double interactionScale;
+  final bool selected;
+  final bool editMode;
+  final bool canTransform;
+  final Widget child;
+  final ValueChanged<String?>? onSelected;
+  final ValueChanged<CalendarOverlayElement>? onChanged;
+  final VoidCallback? onEditEnd;
+  final void Function(double? guideX, double? guideY)? onGuidesChanged;
+  final ValueChanged<CalendarOverlayElement>? onDoubleTap;
+
+  @override
+  State<_EditableOverlayElement> createState() =>
+      _EditableOverlayElementState();
+}
+
+class _EditableOverlayElementState extends State<_EditableOverlayElement> {
+  static const double _snapThreshold = 0.015;
+  static const double _edgeSnapInset = 0.08;
+
+  late CalendarOverlayElement _workingElement;
+  bool _isInteracting = false;
+  double _startScale = 1.0;
+  double _startRotation = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _workingElement = widget.element;
+  }
+
+  @override
+  void didUpdateWidget(covariant _EditableOverlayElement oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final elementIdChanged = oldWidget.element.id != widget.element.id;
+    if (elementIdChanged || !_isInteracting) {
+      _workingElement = widget.element;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final element = _workingElement;
+    final alignment = Alignment(
+      (element.x * 2.0) - 1.0,
+      (element.y * 2.0) - 1.0,
+    );
+    final content = Transform.rotate(
+      angle: element.rotation,
+      child: Transform.scale(scale: element.scale, child: widget.child),
+    );
+
+    if (!widget.editMode) {
+      return Align(alignment: alignment, child: content);
+    }
+
+    return Align(
+      alignment: alignment,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => widget.onSelected?.call(element.id),
+        onDoubleTap: () {
+          widget.onSelected?.call(element.id);
+          widget.onDoubleTap?.call(element);
+        },
+        onScaleStart: (_) {
+          if (element.locked || !widget.canTransform) {
+            return;
+          }
+          _isInteracting = true;
+          widget.onSelected?.call(element.id);
+          widget.onGuidesChanged?.call(null, null);
+          _startScale = element.scale;
+          _startRotation = element.rotation;
+        },
+        onScaleUpdate: (details) {
+          if (element.locked || !widget.canTransform) {
+            return;
+          }
+          final currentElement = _workingElement;
+          final interactionScale = widget.interactionScale <= 0
+              ? 1.0
+              : widget.interactionScale;
+          final dx = widget.canvasWidth <= 0
+              ? 0.0
+              : details.focalPointDelta.dx /
+                    (widget.canvasWidth * interactionScale);
+          final dy = widget.canvasHeight <= 0
+              ? 0.0
+              : details.focalPointDelta.dy /
+                    (widget.canvasHeight * interactionScale);
+
+          var nextX = (currentElement.x + dx).clamp(0.0, 1.0).toDouble();
+          var nextY = (currentElement.y + dy).clamp(0.0, 1.0).toDouble();
+          final guideX = _snapGuideValue(nextX);
+          final guideY = _snapGuideValue(nextY);
+          if (guideX != null) {
+            nextX = guideX;
+          }
+          if (guideY != null) {
+            nextY = guideY;
+          }
+
+          final updated = currentElement.copyWith(
+            x: nextX,
+            y: nextY,
+            scale: (_startScale * details.scale).clamp(0.2, 8.0).toDouble(),
+            rotation: _startRotation + details.rotation,
+          );
+          setState(() => _workingElement = updated);
+          widget.onGuidesChanged?.call(guideX, guideY);
+        },
+        onScaleEnd: (_) {
+          if (!_isInteracting) {
+            return;
+          }
+          _isInteracting = false;
+          widget.onGuidesChanged?.call(null, null);
+          widget.onChanged?.call(_workingElement);
+          widget.onEditEnd?.call();
+        },
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 56, minHeight: 56),
+                child: Center(child: content),
+              ),
+            ),
+            if (widget.selected)
+              Positioned(
+                bottom: -16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1.5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.65),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    element.locked
+                        ? 'Locked'
+                        : 'Drag/Pinch/Rotate • Double tap to edit',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  double? _snapGuideValue(double value) {
+    const targets = <double>[0.5, _edgeSnapInset, 1 - _edgeSnapInset];
+    for (final target in targets) {
+      if ((value - target).abs() <= _snapThreshold) {
+        return target;
+      }
+    }
+    return null;
+  }
+}
+
+class _SnapGuidePainter extends CustomPainter {
+  const _SnapGuidePainter({this.guideX, this.guideY});
+
+  final double? guideX;
+  final double? guideY;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF0EA5E9).withValues(alpha: 0.85)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    if (guideX != null) {
+      final x = (guideX!.clamp(0.0, 1.0) * size.width).toDouble();
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    if (guideY != null) {
+      final y = (guideY!.clamp(0.0, 1.0) * size.height).toDouble();
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SnapGuidePainter oldDelegate) {
+    return oldDelegate.guideX != guideX || oldDelegate.guideY != guideY;
+  }
+}
+
+class _WeekdayHeader extends StatelessWidget {
+  const _WeekdayHeader({
+    required this.labels,
+    required this.foregroundColor,
+    required this.fontSize,
+  });
+
+  final List<String> labels;
+  final Color foregroundColor;
+  final double fontSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: labels
+          .map(
+            (label) => Expanded(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: foregroundColor.withValues(alpha: 0.9),
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+}

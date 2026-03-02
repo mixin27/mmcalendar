@@ -1,6 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -25,22 +25,20 @@ void callbackDispatcher() {
       final languageCode =
           prefs.getString(StorageKeys.calendarLanguage) ??
           Language.english.code;
+      final useDeviceTimezone =
+          prefs.getBool(StorageKeys.useDeviceTimezone) ?? true;
 
       // Create data source with prefs
       final dataSource = WidgetLocalDataSource(prefs);
 
-      // Configure Myanmar Calendar with defaults
-      // Note: We can't access database in background isolate
-      MyanmarCalendar.configure(
+      // Configure Myanmar Calendar with isolate-safe defaults.
+      // Note: we avoid DB reads in background isolate.
+      applyMyanmarCalendarRuntimeConfig(
+        baseConfig: const CalendarConfig(),
         language: Language.fromCode(languageCode),
-        timezoneOffset: 6.5,
-        sasanaYearType: 0,
-        calendarType: 0,
-        gregorianStart: 2361222,
+        useDeviceTimezone: useDeviceTimezone,
+        cacheProfile: MyanmarCalendarCacheProfile.memoryEfficient,
       );
-
-      MyanmarCalendar.clearCache();
-      MyanmarCalendar.configureCache(const CacheConfig.memoryEfficient());
 
       debugPrint('Myanmar Calendar configured in background');
 

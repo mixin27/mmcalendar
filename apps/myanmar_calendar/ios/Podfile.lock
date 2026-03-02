@@ -2,12 +2,15 @@ PODS:
   - Flutter (1.0.0)
   - home_widget (0.0.1):
     - Flutter
+  - printing (1.0.0):
+    - Flutter
   - workmanager_apple (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - home_widget (from `.symlinks/plugins/home_widget/ios`)
+  - printing (from `.symlinks/plugins/printing/ios`)
   - workmanager_apple (from `.symlinks/plugins/workmanager_apple/ios`)
 
 EXTERNAL SOURCES:
@@ -15,12 +18,15 @@ EXTERNAL SOURCES:
     :path: Flutter
   home_widget:
     :path: ".symlinks/plugins/home_widget/ios"
+  printing:
+    :path: ".symlinks/plugins/printing/ios"
   workmanager_apple:
     :path: ".symlinks/plugins/workmanager_apple/ios"
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   home_widget: f169fc41fd807b4d46ab6615dc44d62adbf9f64f
+  printing: 54ff03f28fe9ba3aa93358afb80a8595a071dd07
   workmanager_apple: f540d652595dfe5c8b8200c4c85ba622d6fb5c5b
 
 PODFILE CHECKSUM: 53a6aebc29ccee84c41f92f409fc20cd4ca011f1

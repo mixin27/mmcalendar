@@ -23,7 +23,7 @@ dependencies:
   equatable: ^2.0.7
 
   # Storage
-  shared_preferences: ^2.3.4
+  shared_preferences: ^2.5.4
 
   # Utilities
   package_info_plus: ^9.0.0

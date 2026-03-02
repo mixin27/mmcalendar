@@ -2,8 +2,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart'
-    hide MoonPhaseIndicator, CompactMoonPhaseIndicator;
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
@@ -319,14 +318,18 @@ class _WeekViewPageState extends State<WeekViewPage>
                         if (MyanmarCalendar.currentLanguage == Language.shan &&
                             showShanCalendar)
                           Text(
-                            '${FormatService().translateNumbers(year.toString(), language: Language.shan)} ${dayInfo.formatMyanmar(pattern: "&M &P &ff")}',
+                            '${translateNumbers(year.toString(), language: Language.shan)} '
+                            '${MyanmarCalendar.formatMyanmar(dayInfo.myanmar, pattern: "&M &P &f &Yat")}',
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: context.colorScheme.primary,
                             ),
                           )
                         else
                           Text(
-                            dayInfo.formatMyanmar(),
+                            MyanmarCalendar.formatMyanmar(
+                              dayInfo.myanmar,
+                              pattern: '&M &P &f &Yat',
+                            ),
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: context.colorScheme.primary,
                             ),
@@ -345,8 +348,14 @@ class _WeekViewPageState extends State<WeekViewPage>
                               const SizedBox(width: 8),
                               Text(
                                 dayInfo.isFullMoon
-                                    ? TranslationService.translate("Full Moon")
-                                    : TranslationService.translate('New Moon'),
+                                    ? TranslationService.translateTo(
+                                        "Full Moon",
+                                        MyanmarCalendar.currentLanguage,
+                                      )
+                                    : TranslationService.translateTo(
+                                        'New Moon',
+                                        MyanmarCalendar.currentLanguage,
+                                      ),
                                 style: context.textTheme.bodySmall?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),

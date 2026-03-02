@@ -6,7 +6,8 @@ import 'package:dartz/dartz.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' hide CacheException;
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
+    hide CacheException;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
@@ -42,12 +43,15 @@ class SettingsRepositoryImpl extends BaseRepository
       final calendarLanguageStr =
           settings[StorageKeys.calendarLanguage] ?? 'en';
       final calendarLanguage = Language.fromCode(calendarLanguageStr);
+      final useDeviceTimezone = _parseBool(
+        settings[StorageKeys.useDeviceTimezone] ?? 'true',
+      );
 
       // Get calendar config from database
       final calendarSettings = await database.calendarDao.getOrCreateSettings();
       final calendarConfig = CalendarConfig(
         sasanaYearType: calendarSettings.sasanaYearType,
-        calendarType: calendarSettings.calendarType,
+        calendarType: 0,
         gregorianStart: calendarSettings.gregorianStart,
         timezoneOffset: calendarSettings.timezoneOffset,
         defaultLanguage: calendarSettings.defaultLanguage,
@@ -127,6 +131,7 @@ class SettingsRepositoryImpl extends BaseRepository
           enableCrashlytics: enableCrashlytics,
           hasShownConsentDialog: hasShownConsentDialog,
           showShanCalendar: showShanCalendar,
+          useDeviceTimezone: useDeviceTimezone,
         ),
       );
     } on CacheException catch (e) {
@@ -224,7 +229,7 @@ class SettingsRepositoryImpl extends BaseRepository
       await database.calendarDao.updateSettings(
         CalendarSettingsCompanion(
           sasanaYearType: Value(config.sasanaYearType),
-          calendarType: Value(config.calendarType),
+          calendarType: const Value(0),
           gregorianStart: Value(config.gregorianStart),
           timezoneOffset: Value(config.timezoneOffset),
           defaultLanguage: Value(config.defaultLanguage),
@@ -247,6 +252,10 @@ class SettingsRepositoryImpl extends BaseRepository
   ) async {
     try {
       await localDataSource.setSetting(key, value.toString());
+      if (key == StorageKeys.useDeviceTimezone) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(StorageKeys.useDeviceTimezone, value);
+      }
 
       return const Right(null);
     } on CacheException catch (e) {
@@ -260,6 +269,8 @@ class SettingsRepositoryImpl extends BaseRepository
   Future<Either<Failure, void>> resetSettings() async {
     try {
       await localDataSource.clearAllSettings();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(StorageKeys.useDeviceTimezone, true);
 
       // Reset calendar settings to default
       await database.calendarDao.updateSettings(

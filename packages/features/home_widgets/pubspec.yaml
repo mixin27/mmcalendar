@@ -21,7 +21,8 @@ dependencies:
     path: ../../integrations/database
 
   # Myanmar calendar
-  flutter_mmcalendar: ^3.2.8
+  myanmar_calendar_dart: ^2.0.1
+  flutter_mmcalendar: ^3.3.1
 
   # State management
   bloc: ^9.2.0
@@ -36,7 +37,7 @@ dependencies:
 
   # Widget packages
   home_widget: ^0.8.0
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.4
   workmanager: ^0.8.0
 
   # Dependency injection

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mmcalendar/flutter_mmcalendar.dart';
+import 'package:shared_core/shared_core.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 enum _WeekdayLabelDensity { short, narrow, numeric }
@@ -161,6 +162,6 @@ class WeekdayHeader extends StatelessWidget {
 
   String _getWeekdayNumberLabel(int weekdayIndex) {
     final value = weekdayIndex == 0 ? 7 : weekdayIndex;
-    return FormatService().translateNumbers('$value', language: language);
+    return translateNumbers('$value', language: language);
   }
 }
