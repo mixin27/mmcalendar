@@ -4,91 +4,108 @@
 
 ![Myanmar Calendar Logo](screenshots/myanmar-calendar-featured-graphic.png)
 
-**A comprehensive Myanmar Calendar application with astrological information, date conversion, and beautiful UI**
+**A modern Myanmar calendar app with calendar views, astrology, events, conversion tools, and printable calendar generation.**
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue.svg)](https://flutter.dev/)
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-blue.svg)](https://flutter.dev/)
+[![Dart](https://img.shields.io/badge/Dart-3.11%2B-blue.svg)](https://dart.dev/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey.svg)](https://flutter.dev/)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-lightgrey.svg)](https://flutter.dev/)
 
-[Features](#-features) • [Screenshots](#-screenshots) • [Installation](#-installation) • [Architecture](#-architecture) • [Contributing](#-contributing)
+[Features](#-features) • [Screenshots](#-screenshots) • [Quick Start](#-quick-start) • [Remote Config](#-remote-config) • [Architecture](#-architecture) • [Contributing](#-contributing)
 
 </div>
 
 ---
 
-## 📱 About
+## 📱 Overview
 
-Myanmar Calendar App is a modern, feature-rich calendar application that seamlessly integrates Myanmar (Burmese) calendar with the Gregorian calendar. It provides comprehensive astrological information, holiday tracking, and date conversion utilities - all wrapped in a beautiful, intuitive interface.
+Myanmar Calendar App combines Myanmar calendar data and Western dates in one app experience:
 
-Perfect for:
+- Home month calendar with rich date details
+- Year, week, and day calendar views
+- Date conversion and calendar utilities
+- Events with recurring support
+- Calendar generation (preview/beta) for image/PDF export
+- Remote-configurable holiday overrides
 
-- 🇲🇲 Myanmar users who need traditional calendar information
-- 📅 Anyone interested in Myanmar culture and astrology
-- 🌏 Travelers and expatriates in Myanmar
-- 📚 Researchers studying Myanmar calendar systems
+Core calculation runtime is powered by [`myanmar_calendar_dart`](https://pub.dev/packages/myanmar_calendar_dart), with app-level settings for language, timezone behavior, and display options.
 
 ---
 
 ## ✨ Features
 
-### 🗓️ Calendar Views
+### 🗓️ Core Calendar
 
-- **Month View**: Full month calendar with Myanmar and Western dates
-- **Year View**: Overview of all 12 months with quick navigation
-- **Week View**: Detailed 7-day view with comprehensive information
-- **Day View**: In-depth information for any selected date
+- Myanmar and Western date rendering in month grid
+- Day details with moon phase, sabbath, holidays, and astrological data
+- Multiple calendar views:
+  - Month (home)
+  - Year view
+  - Week view
+  - Day view
+- Fast runtime config updates (language, timezone source, holiday overrides)
 
-### 🌙 Myanmar Calendar Information
+### 🌙 Myanmar Date & Astrology
 
-- Complete Myanmar date display (Year, Month, Day)
-- Buddhist Era (BE) and Sasana Year
-- Moon phases and fortnight days
-- Watat (intercalary) year information
-- Myanmar weekday system
+- Myanmar month/day/year and Sasana year
+- Fortnight day and moon phase information
+- Astrological indicators including:
+  - Sabbath / Sabbath Eve
+  - Yatyaza
+  - Pyatthada / Afternoon Pyatthada
+  - Mahabote / Nakhat / Nagahle related outputs
 
-### ⭐ Astrological Information
+### 🔄 Converter Tools
 
-- Sabbath days (ဉပုသ်)
-- Yatyaza (ရက်ရာဇာ) information
-- Pyathada (ပြဿဒါး) calculations
-- Nagahle (နဂါးခေါင်း) direction
-- Mahabote (မဟာဘုတ်) values
-- Nakhat (နက္ခတ်) information
-- Year names from 12-year cycle
-- Special astrological days
-
-### 🎉 Holidays & Special Days
-
-- Myanmar public holidays
-- Religious holidays
-- Cultural celebrations
-- Customizable holiday display
-
-### 🔄 Date Converter
-
-- Western ↔ Myanmar date conversion
+- Myanmar ↔ Western date conversion
 - Date difference calculator
-- Date arithmetic (add/subtract days, months)
+- Date arithmetic tools
 - Moon phase finder
-- Julian Day Number support
 
-### 🎨 Customization
+### 📌 Events
 
-- Light and Dark themes
-- Multiple theme presets (Modern, Traditional, Ocean, Forest)
-- Custom color picker for personalized themes
-- Multi-language support (Myanmar, English, Zawgyi, Mon, Shan, Karen)
-- Adjustable text sizes
-- Customizable calendar settings
+- Create, edit, and delete events
+- Recurring event support
+- Day-based event timeline and quick navigation
+- Event categories and priority support
 
-### ⚙️ Advanced Features
+### 🖨️ Calendar Generation (Preview/Beta)
 
-- Offline functionality (no internet required)
-- Fast and responsive performance
-- Clean, modern Material Design 3 UI
-- Smooth animations and transitions
-- Haptic feedback
-- Share date information
+- Generate by selected month or full year
+- In-app page preview and export flow
+- PDF/image export and save/share actions
+- Theme/background customization
+- Overlay editor support for:
+  - Text
+  - Emoji
+  - Sticker
+  - User image
+- Layout tools for portrait/landscape and printable formats
+
+> Calendar Generation is currently **preview/beta** and still under active refinement.
+
+### 🎨 Personalization
+
+- Light/dark theme modes
+- Multiple theme presets + custom colors
+- App language and calendar language controls
+- Display toggles (holidays, astrology, Myanmar/Western date visibility, etc.)
+- Timezone behavior:
+  - Use device timezone (recommended default)
+  - Or fixed Myanmar timezone fallback
+
+### ☁️ Remote Config + Onboarding
+
+- Firebase Remote Config driven holiday overrides
+- App update prompts from remote config (optional/required update support)
+- First-run consent flow for analytics/crash reporting
+- Promo carousel for onboarding and new feature announcements
+
+### 📲 Integrations
+
+- Android home widgets (configurable theme/options)
+- Telegram web integration hooks
+- Local-first storage using SQLite (drift)
 
 ---
 
@@ -96,188 +113,235 @@ Perfect for:
 
 <div align="center">
 
-| Month View | Year View | Day Details |
-|------------|-----------|-------------|
-| ![Month](screenshots/month_view.jpg) | ![Year](screenshots/year_view.jpg) | ![Day](screenshots/day_details.jpg) |
+| Home Month | Day Details | Year View |
+|------------|-------------|-----------|
+| ![Home Month](screenshots/placeholders/01_home_month.png) | ![Day Details](screenshots/placeholders/02_home_day_details.png) | ![Year View](screenshots/placeholders/03_views_year.png) |
 
-| Date Converter | Settings | Theme Presets |
-|----------------|----------|---------------------|
-| ![Converter](screenshots/converter.jpg) | ![Settings](screenshots/settings.jpg) | ![Theme](screenshots/theme.jpg) |
+| Week View | Day View | Converter |
+|-----------|----------|-----------|
+| ![Week View](screenshots/placeholders/04_views_week.png) | ![Day View](screenshots/placeholders/05_views_day.png) | ![Convert](screenshots/placeholders/06_converter_convert.png) |
+
+| Calculator | Arithmetic | Moon Phase |
+|------------|------------|------------|
+| ![Calculate](screenshots/placeholders/07_converter_calculate.png) | ![Arithmetic](screenshots/placeholders/08_converter_arithmetic.png) | ![Moon Phase](screenshots/placeholders/09_converter_moon_phase.png) |
+
+| Events List | Event Form | Settings |
+|-------------|------------|----------|
+| ![Events List](screenshots/placeholders/10_events_list.png) | ![Event Form](screenshots/placeholders/11_events_form.png) | ![Settings](screenshots/placeholders/12_settings_overview.png) |
+
+| Generation Preview | Generation Editor | Export Result |
+|--------------------|-------------------|---------------|
+| ![Generation Preview](screenshots/placeholders/13_generation_preview.png) | ![Generation Editor](screenshots/placeholders/14_generation_editor.png) | ![Export Result](screenshots/placeholders/15_generation_export_result.png) |
+
+| Widget Settings |
+|-----------------|
+| ![Widget Settings](screenshots/placeholders/16_widget_settings_android.png) |
 
 </div>
 
 ---
 
-## 🚀 Installation
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Flutter SDK (3.0 or higher)
-- Dart SDK (3.0 or higher)
-- Android Studio / VS Code with Flutter extensions
-- iOS: Xcode 14+ (for iOS development)
-- Android: SDK 21+ (Android 5.0 Lollipop)
+- Flutter SDK 3.x
+- Dart SDK 3.11+
+- Android Studio or VS Code with Flutter tooling
+- iOS builds require Xcode (macOS)
 
-### Clone the Repository
+### Run Locally
 
 ```bash
-# Clone the repository
-git clone https://github.com/mixin27/mmcalendar.git myanmar_calendar_app
+# Clone
+git clone https://github.com/mixin27/mmcalendar.git
+cd mmcalendar
 
-# Navigate to the project directory
-cd myanmar_calendar_app
-
-# Get dependencies
+# Install workspace dependencies
 flutter pub get
 
-# Run the app
+# Run mobile app package
+cd apps/myanmar_calendar
+flutter pub get
 flutter run
 ```
 
-### Build for Production
+### Run on Chrome (Web)
 
 ```bash
-# Build Android APK
-flutter build apk --release
-
-# Build Android App Bundle (for Play Store)
-flutter build appbundle --release
-
-# Build iOS (requires Mac)
-flutter build ios --release
+cd apps/myanmar_calendar
+flutter run -d chrome
 ```
 
-### Firebase Remote Config
+### Production Builds
 
-**Key:** - `holidays_config_v2`
+```bash
+cd apps/myanmar_calendar
 
-**Value:** - JSON string
+# Android
+flutter build apk --release
+flutter build appbundle --release
 
-Sample
+# iOS (macOS only)
+flutter build ios --release
+
+# Web
+flutter build web --release
+```
+
+---
+
+## ☁️ Remote Config
+
+### Holidays Config (required for holiday override feature)
+
+- **Key**: `holidays_config_v2`
+- **Type**: JSON string
+
+Sample payload:
+
 ```json
 {
-    "customHolidays": [
-        {
-            "id": "my_anniversary",
-            "name": "My Anniversary",
-            "type": "otherAnniversary",
-            "rule": {
-                "type": "western",
-                "month": 12,
-                "day": 25
-            }
-        },
-        {
-            "id": "my_anniversary_2",
-            "name": "My Anniversary 2",
-            "type": "otherAnniversary",
-            "rule": {
-                "type": "myanmar",
-                "month": 4,
-                "day": 13
-            }
-        }
-    ],
-    "disabledHolidays": ["aprilFoolsDay", "halloween"],
-    "disabledHolidaysByYear": {
-        "2027": [
-            "valentinesDay"
-        ]
+  "customHolidayRules": [
+    {
+      "id": "team_founding_day",
+      "name": "Team Founding Day",
+      "type": "other",
+      "localizedNames": {
+        "my": "အသင်းတည်ထောင်နေ့",
+        "en": "Team Founding Day"
+      },
+      "rule": {
+        "kind": "westernDate",
+        "month": 9,
+        "day": 1
+      },
+      "cacheKey": "team_founding_day",
+      "cacheVersion": 1
+    },
+    {
+      "id": "thingyan_special",
+      "name": "Thingyan Special",
+      "type": "other",
+      "rule": {
+        "kind": "myanmarDate",
+        "month": 1,
+        "day": 1
+      }
     }
+  ],
+  "disabledHolidays": ["halloween"],
+  "disabledHolidaysByYear": {
+    "2027": ["valentinesDay"]
+  },
+  "disabledHolidaysByDate": {
+    "2026-10-31": ["halloween"]
+  }
 }
 ```
 
-Please see [Holiday IDs](https://github.com/mixin27/myanmar_calendar_dart/blob/main/lib/src/models/holiday_id.dart)
+Reference:
+- Holiday IDs: [holiday_id.dart](https://github.com/mixin27/myanmar_calendar_dart/blob/main/lib/src/models/holiday_id.dart)
+
+### App Update Config (optional)
+
+If you enable remote-config update checks, these keys are used:
+
+- `app_update_enabled` (`bool`)
+- `app_update_latest_build_number` (`int`)
+- `app_update_latest_version` (`string`)
+- `app_update_min_supported_build_number` (`int`)
+- `app_update_force_title` (`string`)
+- `app_update_force_message` (`string`)
+- `app_update_optional_title` (`string`)
+- `app_update_optional_message` (`string`)
+- `app_update_release_notes` (`string`)
+- `app_update_android_url` (`string`)
+- `app_update_ios_url` (`string`)
+- `app_update_web_url` (`string`)
 
 ---
 
 ## 🏗️ Architecture
 
-The app follows **Clean Architecture** principles with a modular, feature-based structure:
+This repository is a Flutter workspace with feature packages and shared layers.
 
-```
-myanmar_calendar_app/
+```text
+mmcalendar/
+├── apps/
+│   └── myanmar_calendar/          # Main app
 ├── packages/
-│   ├── shared/            # Shared facades (core, ui_kit, localizations)
-│   ├── integrations/      # Platform/service adapters (firebase, database, telegram_web)
-│   └── features/
-│       ├── calendar/      # Calendar feature module
-│       ├── views/         # Year/Week/Day views
-│       ├── converter/     # Date conversion tools
-│       ├── settings/      # App settings
-│       └── events/        # Events
-└── apps/
-    └── myanmar_calendar/  # Main application
+│   ├── shared/
+│   │   ├── core/                  # Contracts, ports, constants, runtime utils
+│   │   ├── localizations/         # i18n resources
+│   │   ├── ui_kit/                # Shared UI building blocks
+│   │   └── overlay_editor/        # Overlay editing package
+│   ├── features/
+│   │   ├── calendar/
+│   │   ├── views/
+│   │   ├── converter/
+│   │   ├── events/
+│   │   ├── settings/
+│   │   ├── calendar_generation/
+│   │   ├── promo/
+│   │   ├── holidays/
+│   │   └── home_widgets/
+│   └── integrations/
+│       ├── database/              # Drift/SQLite
+│       ├── firebase/              # Remote config + analytics/crash adapters
+│       ├── app_update/
+│       └── telegram_web/
+└── scripts/
 ```
 
-### Technology Stack
+### Stack
 
-- **Framework**: Flutter 3.x
-- **State Management**: flutter_bloc
-- **Navigation**: go_router
-- **Database**: drift (SQLite)
-- **Dependency Injection**: get_it + injectable
-- **Calendar Engine**: myanmar_calendar_dart
-
-### Key Patterns
-
-- ✅ Clean Architecture (Domain, Data, Presentation)
-- ✅ BLoC Pattern for state management
-- ✅ Repository Pattern for data access
-- ✅ Explicit feature orchestration (no global event bus)
-- ✅ Modular, feature-based structure
-- ✅ Dependency-boundary guardrails (`dart run tool/check_dependency_boundaries.dart`)
+- Flutter + Dart
+- `flutter_bloc` (state management)
+- `go_router` (navigation)
+- `drift` (local database)
+- `get_it` + `injectable` (dependency injection)
+- `myanmar_calendar_dart` (calendar engine)
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-### How to Contribute
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### Development Setup
+### Development Commands
 
 ```bash
-# Install dependencies
+# Workspace dependencies
 flutter pub get
 
-# Run code generation
-flutter pub run build_runner build --delete-conflicting-outputs
+# Codegen (from workspace root)
+dart run build_runner build --delete-conflicting-outputs
 
-# Run the app in debug mode
-flutter run
+# Analyze
+flutter analyze
 ```
 
 ---
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
 
 ---
 
 ## 🙏 Acknowledgments
 
-- Myanmar Calendar calculations based on [Yan Naing Aye's algorithm](http://cool-emerald.blogspot.com/2013/06/algorithm-program-and-calculation-of.html)
-- Astrological calculations from traditional Myanmar calendar systems
-- Icons from Material Design Icons
-- Community feedback and contributions
+- Myanmar calendar calculations based on [Yan Naing Aye's algorithm](http://cool-emerald.blogspot.com/2013/06/algorithm-program-and-calculation-of.html)
+- Traditional Myanmar astrology sources and community feedback
+- Flutter and open-source ecosystem contributors
 
 ---
 
 ## 📞 Support
 
-- 📧 Email: [kyawzayartun.contact@gmail.com](kyawzayartun.contact@gmail.com)
-- 🐛 Issues: [GitHub Issues](https://github.com/mixin27/mmcalendar/issues)
-<!-- - 💬 Discussions: [GitHub Discussions](https://github.com/mixin27/mmcalendar/discussions) -->
-<!-- - 📱 Facebook: [Your Facebook Page](https://facebook.com/yourpage) -->
+- Email: [kyawzayartun.contact@gmail.com](mailto:kyawzayartun.contact@gmail.com)
+- Issues: [GitHub Issues](https://github.com/mixin27/mmcalendar/issues)
 
 ---
 
@@ -289,7 +353,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Made with ❤️ for the Myanmar community**
+**Made for the Myanmar calendar community**
 
 [⬆ Back to Top](#-myanmar-calendar-app)
 
