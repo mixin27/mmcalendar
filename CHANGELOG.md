@@ -1,3 +1,23 @@
+## [2.2.0+220] - 2026-03-02
+
+- Migrated core Myanmar calendar logic and app configuration to `myanmar_calendar_dart` APIs.
+- Updated Myanmar calendar settings flow for newer core config behavior (formatting/configuration/translation support alignment).
+- Improved custom holiday support flow and remote-config driven holiday handling.
+- Added calendar generation/export improvements:
+  - Better preview/export consistency and positioning behavior.
+  - Calendar layout controls (position/size) and free-space box controls.
+  - Dedicated full-screen Layout Editor with larger transform handles.
+  - Overlay editor workflow refinements and export save/share actions.
+- Improved generated calendar cell details (holiday/astrology/moon-phase related rendering refinements).
+- Fixed multiple generation preview/editor issues:
+  - Provider and controller lifecycle errors in editor flows.
+  - Preview clipping/overflow issues in portrait/landscape modes.
+  - Rotation/position mismatch and persistence edge cases.
+  - Free-space box persistence after restart.
+- General UI polish for generation settings, bottom-sheet grouping, and preview interaction.
+
+> Note: Calendar Generation is still in preview/beta quality and is not fully production-grade yet.
+
 ## [2.1.6+216] - 2026-02-27
 
 - Events UX refresh: redesigned day-based event list items with timeline style and quicker actions.

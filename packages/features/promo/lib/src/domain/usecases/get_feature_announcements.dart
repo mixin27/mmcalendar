@@ -64,11 +64,53 @@ class GetFeatureAnnouncements {
       ];
     }
 
-    // Add more version-specific announcements here
-    // Example for future version:
-    // if (version == '2.2.0') {
-    //   return [...];
-    // }
+    // Version 2.2.0 announcements
+    if (version == '2.2.0') {
+      return [
+        PromoSlide(
+          id: 'v2_2_0_calendar_generation',
+          title: 'Calendar Generation',
+          subtitle:
+              'Create monthly or yearly printable calendars with live preview.',
+          visualType: PromoVisualType.featureHighlight,
+          cta: PromoCTA(
+            text: 'Open Generator',
+            action: PromoAction.navigate,
+            target: '/settings/calendar-generation',
+          ),
+          rules: PromoRules(showOnce: kReleaseMode, minAppVersion: '2.2.0'),
+          semanticLabel: 'Calendar generation feature announcement',
+        ),
+        PromoSlide(
+          id: 'v2_2_0_calendar_editor',
+          title: 'Design Editor',
+          subtitle:
+              'Add text, emoji, stickers, and photos with interactive placement.',
+          visualType: PromoVisualType.animation,
+          cta: PromoCTA(
+            text: 'Try Editor',
+            action: PromoAction.navigate,
+            target: '/settings/calendar-generation',
+          ),
+          rules: PromoRules(showOnce: kReleaseMode, minAppVersion: '2.2.0'),
+          semanticLabel: 'Calendar design editor feature announcement',
+        ),
+        PromoSlide(
+          id: 'v2_2_0_export_tools',
+          title: 'Image and PDF Export',
+          subtitle:
+              'Export your calendar pages and save them to your device folders.',
+          visualType: PromoVisualType.featureHighlight,
+          cta: PromoCTA(
+            text: 'Start Exporting',
+            action: PromoAction.navigate,
+            target: '/settings/calendar-generation',
+          ),
+          rules: PromoRules(showOnce: kReleaseMode, minAppVersion: '2.2.0'),
+          semanticLabel: 'Calendar export tools feature announcement',
+        ),
+      ];
+    }
 
     return [];
   }

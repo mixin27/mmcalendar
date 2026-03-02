@@ -1,6 +1,8 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:promo/promo.dart';
+import 'package:settings/settings.dart';
 
 import '../../config/di_setup.dart';
 
@@ -15,19 +17,12 @@ class PromoInitializer extends StatefulWidget {
 }
 
 class _PromoInitializerState extends State<PromoInitializer> {
-  bool _promosShown = false;
+  bool _promosQueued = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    // Show promos only once after the first build
-    if (!_promosShown) {
-      _promosShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showPromos();
-      });
-    }
+    _queuePromosIfReady(context.read<SettingsBloc>().state);
   }
 
   Future<void> _showPromos() async {
@@ -51,8 +46,23 @@ class _PromoInitializerState extends State<PromoInitializer> {
     }
   }
 
+  void _queuePromosIfReady(SettingsState state) {
+    if (_promosQueued) return;
+    if (state is! SettingsLoaded) return;
+    if (!state.settings.hasShownConsentDialog) return;
+
+    _promosQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showPromos();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return widget.child;
+    return BlocListener<SettingsBloc, SettingsState>(
+      listenWhen: (_, state) => state is SettingsLoaded,
+      listener: (context, state) => _queuePromosIfReady(state),
+      child: widget.child,
+    );
   }
 }
