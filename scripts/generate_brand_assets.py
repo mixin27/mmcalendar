@@ -22,6 +22,14 @@ from dataclasses import dataclass
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
+ANDROID_MIPMAP_SIZES = {
+    "mdpi": 48,
+    "hdpi": 72,
+    "xhdpi": 96,
+    "xxhdpi": 144,
+    "xxxhdpi": 192,
+}
+
 
 def _clamp(value: float, lo: float = 0.0, hi: float = 1.0) -> float:
     return lo if value < lo else hi if value > hi else value
@@ -340,9 +348,122 @@ def write_png(raster: Raster, output_path: str) -> None:
             os.remove(ppm_path)
 
 
+def run(cmd: list[str]) -> None:
+    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def resize_png(src: str, size: int, out_path: str) -> None:
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    run(["sips", "-z", str(size), str(size), src, "--out", out_path])
+
+
+def resize_to_webp(src: str, size: int, out_path: str) -> None:
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+        tmp_png = tmp.name
+    try:
+        resize_png(src, size, tmp_png)
+        run(["cwebp", "-q", "92", tmp_png, "-o", out_path])
+    finally:
+        if os.path.exists(tmp_png):
+            os.remove(tmp_png)
+
+
+def write_text(path: str, content: str) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+
+def propagate_android_icons(src_icon_1024: str) -> None:
+    base_res = os.path.join(
+        ROOT, "apps", "myanmar_calendar", "android", "app", "src", "main", "res"
+    )
+    for density, size in ANDROID_MIPMAP_SIZES.items():
+        mipmap_dir = os.path.join(base_res, f"mipmap-{density}")
+        resize_to_webp(src_icon_1024, size, os.path.join(mipmap_dir, "ic_launcher.webp"))
+        resize_to_webp(src_icon_1024, size, os.path.join(mipmap_dir, "ic_launcher_round.webp"))
+
+    # Use generated mipmap icons directly for adaptive icon foreground layers.
+    adaptive_xml = """<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@android:color/transparent"/>
+    <foreground android:drawable="@mipmap/ic_launcher"/>
+</adaptive-icon>
+"""
+    adaptive_round_xml = """<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@android:color/transparent"/>
+    <foreground android:drawable="@mipmap/ic_launcher_round"/>
+</adaptive-icon>
+"""
+    write_text(
+        os.path.join(base_res, "mipmap-anydpi-v26", "ic_launcher.xml"),
+        adaptive_xml,
+    )
+    write_text(
+        os.path.join(base_res, "mipmap-anydpi-v26", "ic_launcher_round.xml"),
+        adaptive_round_xml,
+    )
+
+
+def propagate_ios_macos_icons(src_icon_1024: str) -> None:
+    appicon_dirs = [
+        os.path.join(
+            ROOT,
+            "apps",
+            "myanmar_calendar",
+            "ios",
+            "Runner",
+            "Assets.xcassets",
+            "AppIcon.appiconset",
+        ),
+        os.path.join(
+            ROOT,
+            "apps",
+            "myanmar_calendar",
+            "macos",
+            "Runner",
+            "Assets.xcassets",
+            "AppIcon.appiconset",
+        ),
+    ]
+    for icon_dir in appicon_dirs:
+        for name in os.listdir(icon_dir):
+            if not name.endswith(".png"):
+                continue
+            stem = name[:-4]
+            if not stem.isdigit():
+                continue
+            size = int(stem)
+            resize_png(src_icon_1024, size, os.path.join(icon_dir, name))
+
+
+def propagate_web_icons(src_icon_1024: str) -> None:
+    web_dir = os.path.join(ROOT, "apps", "myanmar_calendar", "web")
+    icons_dir = os.path.join(web_dir, "icons")
+    resize_png(src_icon_1024, 192, os.path.join(icons_dir, "android-chrome-192x192.png"))
+    resize_png(src_icon_1024, 512, os.path.join(icons_dir, "android-chrome-512x512.png"))
+    resize_png(src_icon_1024, 180, os.path.join(icons_dir, "apple-touch-icon.png"))
+    resize_png(src_icon_1024, 16, os.path.join(icons_dir, "favicon-16x16.png"))
+    resize_png(src_icon_1024, 32, os.path.join(icons_dir, "favicon-32x32.png"))
+
+    # Root favicon.ico
+    run(
+        [
+            "ffmpeg",
+            "-y",
+            "-i",
+            src_icon_1024,
+            "-vf",
+            "scale=32:32",
+            os.path.join(web_dir, "favicon.ico"),
+        ]
+    )
+
+
 def main() -> None:
     icon_1024 = render_icon(1024)
-    icon_512 = render_icon(512)
     feature = render_feature_graphic(1024, 500)
 
     icon_master_path = os.path.join(
@@ -375,11 +496,14 @@ def main() -> None:
     )
 
     write_png(icon_1024, icon_master_path)
-    write_png(icon_512, logo_app_path)
-    write_png(icon_512, logo_root_path)
-    write_png(icon_512, play_store_icon_path)
+    resize_png(icon_master_path, 512, logo_app_path)
+    resize_png(icon_master_path, 512, logo_root_path)
+    resize_png(icon_master_path, 512, play_store_icon_path)
     write_png(feature, feature_path)
     write_png(feature, screenshot_feature_path)
+    propagate_android_icons(icon_master_path)
+    propagate_ios_macos_icons(icon_master_path)
+    propagate_web_icons(icon_master_path)
 
     print("Generated brand assets:")
     print(f"- {icon_master_path}")
@@ -388,6 +512,9 @@ def main() -> None:
     print(f"- {logo_root_path}")
     print(f"- {play_store_icon_path}")
     print(f"- {screenshot_feature_path}")
+    print("- Android mipmap icons (mdpi..xxxhdpi) + adaptive xml")
+    print("- iOS/macOS AppIcon appiconset PNG files")
+    print("- Web icons + favicon.ico")
 
 
 if __name__ == "__main__":
