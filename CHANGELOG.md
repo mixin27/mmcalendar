@@ -1,3 +1,7 @@
+## [2.2.1+221] - 2026-03-03
+
+- Change brand assets, logo and icons
+
 ## [2.2.0+220] - 2026-03-02
 
 - Migrated core Myanmar calendar logic and app configuration to `myanmar_calendar_dart` APIs.
