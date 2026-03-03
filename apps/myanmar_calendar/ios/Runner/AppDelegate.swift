@@ -4,6 +4,8 @@ import flutter_local_notifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+  private let appIconChannelName = "dev.mixin27.mmcalendar/app_icon"
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -11,7 +13,9 @@ import flutter_local_notifications
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    let didFinish = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    configureAppIconChannel()
+    return didFinish
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
@@ -37,5 +41,96 @@ import flutter_local_notifications
           binaryMessenger: controller.binaryMessenger)
 
       channel.invokeMethod("showNotificationSettings", arguments: nil)
+  }
+
+  private func configureAppIconChannel() {
+    guard let registrar = self.registrar(forPlugin: "AppIconMethodChannel") else {
+      return
+    }
+    let channel = FlutterMethodChannel(
+      name: appIconChannelName,
+      binaryMessenger: registrar.messenger()
+    )
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self = self else {
+        result(false)
+        return
+      }
+
+      switch call.method {
+      case "isSupported":
+        if #available(iOS 10.3, *) {
+          result(UIApplication.shared.supportsAlternateIcons)
+        } else {
+          result(false)
+        }
+
+      case "getCurrentIcon":
+        if #available(iOS 10.3, *) {
+          result(self.currentIconId())
+        } else {
+          result("default")
+        }
+
+      case "setAppIcon":
+        guard #available(iOS 10.3, *) else {
+          result(false)
+          return
+        }
+        guard
+          let arguments = call.arguments as? [String: Any],
+          let iconId = arguments["iconId"] as? String
+        else {
+          result(false)
+          return
+        }
+        self.setAppIcon(iconId: iconId, result: result)
+
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  @available(iOS 10.3, *)
+  private func setAppIcon(iconId: String, result: @escaping FlutterResult) {
+    guard UIApplication.shared.supportsAlternateIcons else {
+      result(false)
+      return
+    }
+
+    let alternateIconName: String?
+    switch iconId {
+    case "default":
+      alternateIconName = nil
+    case "moon":
+      alternateIconName = "AppIconMoon"
+    case "forest":
+      alternateIconName = "AppIconForest"
+    default:
+      result(false)
+      return
+    }
+
+    UIApplication.shared.setAlternateIconName(alternateIconName) { error in
+      if let error = error {
+        NSLog("Failed to switch app icon: \(error.localizedDescription)")
+        result(false)
+      } else {
+        result(true)
+      }
+    }
+  }
+
+  @available(iOS 10.3, *)
+  private func currentIconId() -> String {
+    switch UIApplication.shared.alternateIconName {
+    case "AppIconMoon":
+      return "moon"
+    case "AppIconForest":
+      return "forest"
+    default:
+      return "default"
+    }
   }
 }

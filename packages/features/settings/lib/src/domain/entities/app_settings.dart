@@ -5,6 +5,7 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 class AppSettingsEntity extends Equatable {
   final ThemeMode themeMode;
   final String themePreset;
+  final String appIcon;
   final ColorScheme? customColors;
   final String appLanguage;
   final Language calendarLanguage;
@@ -25,6 +26,7 @@ class AppSettingsEntity extends Equatable {
   const AppSettingsEntity({
     required this.themeMode,
     required this.themePreset,
+    this.appIcon = 'default',
     this.customColors,
     required this.appLanguage,
     required this.calendarLanguage,
@@ -46,6 +48,7 @@ class AppSettingsEntity extends Equatable {
   AppSettingsEntity copyWith({
     ThemeMode? themeMode,
     String? themePreset,
+    String? appIcon,
     ColorScheme? customColors,
     String? appLanguage,
     Language? calendarLanguage,
@@ -66,6 +69,7 @@ class AppSettingsEntity extends Equatable {
     return AppSettingsEntity(
       themeMode: themeMode ?? this.themeMode,
       themePreset: themePreset ?? this.themePreset,
+      appIcon: appIcon ?? this.appIcon,
       customColors: customColors ?? this.customColors,
       appLanguage: appLanguage ?? this.appLanguage,
       calendarLanguage: calendarLanguage ?? this.calendarLanguage,
@@ -91,6 +95,7 @@ class AppSettingsEntity extends Equatable {
     themeMode.index,
     themeMode,
     themePreset,
+    appIcon,
     customColors,
     appLanguage,
     calendarLanguage,

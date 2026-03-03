@@ -18,6 +18,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telegram_web/telegram_web.dart';
 import 'package:views/views.dart';
 
+import 'services/method_channel_app_icon_port.dart';
+
 final getIt = GetIt.instance;
 
 /// Initialize all app dependencies
@@ -29,6 +31,11 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   // Initialize SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerSingleton<SharedPreferences>(sharedPreferences);
+
+  // App icon switch support (Android/iOS method-channel implementation).
+  getIt.registerSingleton<AppIconPort>(
+    kIsWeb ? NoopAppIconPort() : MethodChannelAppIconPort(),
+  );
 
   // Initialize Telegram Service (always registered, uses stub on non-web)
   final telegramService = TelegramServiceImpl();

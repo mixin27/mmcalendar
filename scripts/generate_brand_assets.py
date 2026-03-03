@@ -3,6 +3,8 @@
 
 Outputs:
 - apps/myanmar_calendar/assets/branding/app_icon_1024.png
+- apps/myanmar_calendar/assets/branding/app_icon_moon_1024.png
+- apps/myanmar_calendar/assets/branding/app_icon_forest_1024.png
 - apps/myanmar_calendar/assets/branding/feature_graphic_1024x500.png
 - apps/myanmar_calendar/assets/images/logo.png
 - assets/logo.png
@@ -28,6 +30,12 @@ ANDROID_MIPMAP_SIZES = {
     "xhdpi": 96,
     "xxhdpi": 144,
     "xxxhdpi": 192,
+}
+
+ICON_RESOURCE_NAMES = {
+    "default": "ic_launcher",
+    "moon": "ic_launcher_moon",
+    "forest": "ic_launcher_forest",
 }
 
 
@@ -81,6 +89,68 @@ class Raster:
         with open(path, "wb") as f:
             f.write(f"P6\n{self.width} {self.height}\n255\n".encode("ascii"))
             f.write(self.data)
+
+
+@dataclass(frozen=True)
+class IconPalette:
+    gradient_tl: tuple[int, int, int]
+    gradient_br: tuple[int, int, int]
+    light_a: tuple[int, int, int]
+    light_a_alpha: float
+    light_b: tuple[int, int, int]
+    light_b_alpha: float
+    ring_outer: tuple[int, int, int]
+    ring_inner: tuple[int, int, int]
+    top_strip_primary: tuple[int, int, int]
+    top_strip_secondary: tuple[int, int, int]
+    moon_color: tuple[int, int, int]
+    star_color: tuple[int, int, int]
+
+
+ICON_PALETTES = {
+    "default": IconPalette(
+        gradient_tl=(11, 27, 47),
+        gradient_br=(15, 118, 110),
+        light_a=(56, 189, 248),
+        light_a_alpha=0.24,
+        light_b=(16, 185, 129),
+        light_b_alpha=0.16,
+        ring_outer=(236, 253, 245),
+        ring_inner=(9, 19, 33),
+        top_strip_primary=(18, 176, 183),
+        top_strip_secondary=(13, 148, 171),
+        moon_color=(22, 163, 184),
+        star_color=(245, 196, 86),
+    ),
+    "moon": IconPalette(
+        gradient_tl=(15, 24, 64),
+        gradient_br=(84, 78, 166),
+        light_a=(147, 197, 253),
+        light_a_alpha=0.25,
+        light_b=(196, 181, 253),
+        light_b_alpha=0.14,
+        ring_outer=(237, 233, 254),
+        ring_inner=(18, 19, 46),
+        top_strip_primary=(124, 113, 255),
+        top_strip_secondary=(99, 102, 241),
+        moon_color=(129, 140, 248),
+        star_color=(250, 204, 21),
+    ),
+    "forest": IconPalette(
+        gradient_tl=(11, 54, 43),
+        gradient_br=(34, 107, 65),
+        light_a=(134, 239, 172),
+        light_a_alpha=0.18,
+        light_b=(74, 222, 128),
+        light_b_alpha=0.20,
+        ring_outer=(220, 252, 231),
+        ring_inner=(20, 38, 30),
+        top_strip_primary=(22, 163, 74),
+        top_strip_secondary=(21, 128, 61),
+        moon_color=(34, 197, 94),
+        star_color=(253, 224, 71),
+    ),
+}
 
 
 def draw_linear_gradient(
@@ -188,7 +258,17 @@ def draw_vline(img: Raster, x: float, y0: float, y1: float, thickness: float, co
     draw_rounded_rect(img, x - thickness / 2.0, y0, thickness, y1 - y0, thickness / 2.0, color, alpha)
 
 
-def draw_calendar_mark(img: Raster, cx: float, cy: float, size: float) -> None:
+def draw_calendar_mark(
+    img: Raster,
+    cx: float,
+    cy: float,
+    size: float,
+    *,
+    top_strip_primary: tuple[int, int, int],
+    top_strip_secondary: tuple[int, int, int],
+    moon_color: tuple[int, int, int],
+    star_color: tuple[int, int, int],
+) -> None:
     card_w = size * 0.70
     card_h = size * 0.78
     x = cx - card_w / 2.0
@@ -212,8 +292,17 @@ def draw_calendar_mark(img: Raster, cx: float, cy: float, size: float) -> None:
 
     # Top strip
     top_h = card_h * 0.24
-    draw_rounded_rect(img, x, y, card_w, top_h, radius, (18, 176, 183), 1.0)
-    draw_rounded_rect(img, x, y + top_h * 0.55, card_w, top_h * 0.45, radius * 0.6, (13, 148, 171), 0.55)
+    draw_rounded_rect(img, x, y, card_w, top_h, radius, top_strip_primary, 1.0)
+    draw_rounded_rect(
+        img,
+        x,
+        y + top_h * 0.55,
+        card_w,
+        top_h * 0.45,
+        radius * 0.6,
+        top_strip_secondary,
+        0.55,
+    )
 
     # Binder rings
     ring_y = y + top_h * 0.52
@@ -238,12 +327,19 @@ def draw_calendar_mark(img: Raster, cx: float, cy: float, size: float) -> None:
     moon_cx = cx
     moon_cy = body_y + body_h * 0.56
     moon_r = size * 0.11
-    draw_circle(img, moon_cx, moon_cy, moon_r, (22, 163, 184), 1.0)
+    draw_circle(img, moon_cx, moon_cy, moon_r, moon_color, 1.0)
     draw_circle(img, moon_cx + moon_r * 0.45, moon_cy - moon_r * 0.08, moon_r * 0.95, (246, 250, 255), 1.0)
 
     # Accent star
-    star_c = (245, 196, 86)
-    draw_circle(img, moon_cx + moon_r * 1.15, moon_cy - moon_r * 0.95, size * 0.022, star_c, 1.0)
+    star_c = star_color
+    draw_circle(
+        img,
+        moon_cx + moon_r * 1.15,
+        moon_cy - moon_r * 0.95,
+        size * 0.022,
+        star_c,
+        1.0,
+    )
     draw_hline(
         img,
         moon_cx + moon_r * 1.15 - size * 0.028,
@@ -264,17 +360,40 @@ def draw_calendar_mark(img: Raster, cx: float, cy: float, size: float) -> None:
     )
 
 
-def render_icon(size: int) -> Raster:
+def render_icon(size: int, palette: IconPalette) -> Raster:
     img = Raster(size, size)
-    draw_linear_gradient(img, (11, 27, 47), (15, 118, 110))
-    draw_radial_light(img, size * 0.26, size * 0.2, size * 0.62, (56, 189, 248), 0.24)
-    draw_radial_light(img, size * 0.78, size * 0.82, size * 0.7, (16, 185, 129), 0.16)
+    draw_linear_gradient(img, palette.gradient_tl, palette.gradient_br)
+    draw_radial_light(
+        img,
+        size * 0.26,
+        size * 0.2,
+        size * 0.62,
+        palette.light_a,
+        palette.light_a_alpha,
+    )
+    draw_radial_light(
+        img,
+        size * 0.78,
+        size * 0.82,
+        size * 0.7,
+        palette.light_b,
+        palette.light_b_alpha,
+    )
 
     # Soft ring for depth
-    draw_circle(img, size * 0.5, size * 0.5, size * 0.39, (236, 253, 245), 0.10)
-    draw_circle(img, size * 0.5, size * 0.5, size * 0.36, (9, 19, 33), 0.14)
+    draw_circle(img, size * 0.5, size * 0.5, size * 0.39, palette.ring_outer, 0.10)
+    draw_circle(img, size * 0.5, size * 0.5, size * 0.36, palette.ring_inner, 0.14)
 
-    draw_calendar_mark(img, size * 0.5, size * 0.5, size * 0.88)
+    draw_calendar_mark(
+        img,
+        size * 0.5,
+        size * 0.5,
+        size * 0.88,
+        top_strip_primary=palette.top_strip_primary,
+        top_strip_secondary=palette.top_strip_secondary,
+        moon_color=palette.moon_color,
+        star_color=palette.star_color,
+    )
     return img
 
 
@@ -302,7 +421,16 @@ def render_feature_graphic(width: int, height: int) -> Raster:
     )
 
     # Left hero mark
-    draw_calendar_mark(img, width * 0.30, height * 0.50, min(width, height) * 0.88)
+    draw_calendar_mark(
+        img,
+        width * 0.30,
+        height * 0.50,
+        min(width, height) * 0.88,
+        top_strip_primary=ICON_PALETTES["default"].top_strip_primary,
+        top_strip_secondary=ICON_PALETTES["default"].top_strip_secondary,
+        moon_color=ICON_PALETTES["default"].moon_color,
+        star_color=ICON_PALETTES["default"].star_color,
+    )
 
     # Minimal chips on right panel
     chip_color = (245, 250, 255)
@@ -375,14 +503,24 @@ def write_text(path: str, content: str) -> None:
         f.write(content)
 
 
-def propagate_android_icons(src_icon_1024: str) -> None:
+def propagate_android_icons(icon_sources: dict[str, str]) -> None:
     base_res = os.path.join(
         ROOT, "apps", "myanmar_calendar", "android", "app", "src", "main", "res"
     )
     for density, size in ANDROID_MIPMAP_SIZES.items():
         mipmap_dir = os.path.join(base_res, f"mipmap-{density}")
-        resize_to_webp(src_icon_1024, size, os.path.join(mipmap_dir, "ic_launcher.webp"))
-        resize_to_webp(src_icon_1024, size, os.path.join(mipmap_dir, "ic_launcher_round.webp"))
+        for key, src_icon in icon_sources.items():
+            resource_name = ICON_RESOURCE_NAMES[key]
+            resize_to_webp(
+                src_icon,
+                size,
+                os.path.join(mipmap_dir, f"{resource_name}.webp"),
+            )
+            resize_to_webp(
+                src_icon,
+                size,
+                os.path.join(mipmap_dir, f"{resource_name}_round.webp"),
+            )
 
     # Use generated mipmap icons directly for adaptive icon foreground layers.
     adaptive_xml = """<?xml version="1.0" encoding="utf-8"?>
@@ -407,36 +545,64 @@ def propagate_android_icons(src_icon_1024: str) -> None:
     )
 
 
-def propagate_ios_macos_icons(src_icon_1024: str) -> None:
-    appicon_dirs = [
-        os.path.join(
-            ROOT,
-            "apps",
-            "myanmar_calendar",
-            "ios",
-            "Runner",
-            "Assets.xcassets",
-            "AppIcon.appiconset",
-        ),
-        os.path.join(
-            ROOT,
-            "apps",
-            "myanmar_calendar",
-            "macos",
-            "Runner",
-            "Assets.xcassets",
-            "AppIcon.appiconset",
-        ),
-    ]
-    for icon_dir in appicon_dirs:
-        for name in os.listdir(icon_dir):
-            if not name.endswith(".png"):
-                continue
-            stem = name[:-4]
-            if not stem.isdigit():
-                continue
-            size = int(stem)
-            resize_png(src_icon_1024, size, os.path.join(icon_dir, name))
+def populate_iconset_from_reference(
+    *,
+    source_icon_1024: str,
+    reference_iconset_dir: str,
+    target_iconset_dir: str,
+) -> None:
+    os.makedirs(target_iconset_dir, exist_ok=True)
+    src_contents = os.path.join(reference_iconset_dir, "Contents.json")
+    dst_contents = os.path.join(target_iconset_dir, "Contents.json")
+    if os.path.abspath(src_contents) != os.path.abspath(dst_contents):
+        shutil.copy2(src_contents, dst_contents)
+    for name in os.listdir(reference_iconset_dir):
+        if not name.endswith(".png"):
+            continue
+        stem = name[:-4]
+        if not stem.isdigit():
+            continue
+        size = int(stem)
+        resize_png(source_icon_1024, size, os.path.join(target_iconset_dir, name))
+
+
+def propagate_ios_macos_icons(icon_sources: dict[str, str]) -> None:
+    ios_assets = os.path.join(
+        ROOT, "apps", "myanmar_calendar", "ios", "Runner", "Assets.xcassets"
+    )
+    ios_primary_iconset = os.path.join(ios_assets, "AppIcon.appiconset")
+    macos_primary_iconset = os.path.join(
+        ROOT,
+        "apps",
+        "myanmar_calendar",
+        "macos",
+        "Runner",
+        "Assets.xcassets",
+        "AppIcon.appiconset",
+    )
+
+    populate_iconset_from_reference(
+        source_icon_1024=icon_sources["default"],
+        reference_iconset_dir=ios_primary_iconset,
+        target_iconset_dir=ios_primary_iconset,
+    )
+    populate_iconset_from_reference(
+        source_icon_1024=icon_sources["default"],
+        reference_iconset_dir=macos_primary_iconset,
+        target_iconset_dir=macos_primary_iconset,
+    )
+
+    # iOS alternate launcher icons.
+    populate_iconset_from_reference(
+        source_icon_1024=icon_sources["moon"],
+        reference_iconset_dir=ios_primary_iconset,
+        target_iconset_dir=os.path.join(ios_assets, "AppIconMoon.appiconset"),
+    )
+    populate_iconset_from_reference(
+        source_icon_1024=icon_sources["forest"],
+        reference_iconset_dir=ios_primary_iconset,
+        target_iconset_dir=os.path.join(ios_assets, "AppIconForest.appiconset"),
+    )
 
 
 def propagate_web_icons(src_icon_1024: str) -> None:
@@ -463,11 +629,29 @@ def propagate_web_icons(src_icon_1024: str) -> None:
 
 
 def main() -> None:
-    icon_1024 = render_icon(1024)
+    icon_1024 = render_icon(1024, ICON_PALETTES["default"])
+    icon_moon_1024 = render_icon(1024, ICON_PALETTES["moon"])
+    icon_forest_1024 = render_icon(1024, ICON_PALETTES["forest"])
     feature = render_feature_graphic(1024, 500)
 
     icon_master_path = os.path.join(
         ROOT, "apps", "myanmar_calendar", "assets", "branding", "app_icon_1024.png"
+    )
+    icon_moon_master_path = os.path.join(
+        ROOT,
+        "apps",
+        "myanmar_calendar",
+        "assets",
+        "branding",
+        "app_icon_moon_1024.png",
+    )
+    icon_forest_master_path = os.path.join(
+        ROOT,
+        "apps",
+        "myanmar_calendar",
+        "assets",
+        "branding",
+        "app_icon_forest_1024.png",
     )
     feature_path = os.path.join(
         ROOT,
@@ -496,17 +680,33 @@ def main() -> None:
     )
 
     write_png(icon_1024, icon_master_path)
+    write_png(icon_moon_1024, icon_moon_master_path)
+    write_png(icon_forest_1024, icon_forest_master_path)
     resize_png(icon_master_path, 512, logo_app_path)
     resize_png(icon_master_path, 512, logo_root_path)
     resize_png(icon_master_path, 512, play_store_icon_path)
     write_png(feature, feature_path)
     write_png(feature, screenshot_feature_path)
-    propagate_android_icons(icon_master_path)
-    propagate_ios_macos_icons(icon_master_path)
+    propagate_android_icons(
+        {
+            "default": icon_master_path,
+            "moon": icon_moon_master_path,
+            "forest": icon_forest_master_path,
+        }
+    )
+    propagate_ios_macos_icons(
+        {
+            "default": icon_master_path,
+            "moon": icon_moon_master_path,
+            "forest": icon_forest_master_path,
+        }
+    )
     propagate_web_icons(icon_master_path)
 
     print("Generated brand assets:")
     print(f"- {icon_master_path}")
+    print(f"- {icon_moon_master_path}")
+    print(f"- {icon_forest_master_path}")
     print(f"- {feature_path}")
     print(f"- {logo_app_path}")
     print(f"- {logo_root_path}")

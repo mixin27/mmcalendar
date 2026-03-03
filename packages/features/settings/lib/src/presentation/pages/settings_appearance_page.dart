@@ -19,6 +19,7 @@ class SettingsAppearancePage extends StatefulWidget {
 
 class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
+  final AppIconPort _appIconPort = getIt<AppIconPort>();
 
   @override
   void initState() {
@@ -109,6 +110,12 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
             subtitle: _getThemePresetName(settings.themePreset),
             leading: const Icon(Icons.color_lens),
             onTap: () => _showThemePresetDialog(context, settings),
+          ),
+          SettingsTile(
+            title: 'App Icon',
+            subtitle: _getAppIconName(settings.appIcon),
+            leading: const Icon(Icons.apps_rounded),
+            onTap: () => _showAppIconDialog(context, settings),
           ),
         ],
       ),
@@ -215,6 +222,78 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
     );
   }
 
+  Future<void> _showAppIconDialog(
+    BuildContext context,
+    AppSettingsEntity settings,
+  ) async {
+    final supported = await _appIconPort.isSupported();
+    if (!context.mounted) return;
+    if (!supported) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('App icon switching is not supported here.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final currentIconFromPlatform = await _appIconPort.getCurrentIcon();
+    if (!context.mounted) return;
+    final availableIconIds = _appIconPort.availableIcons
+        .map((option) => option.id)
+        .toSet();
+    final currentIconId = availableIconIds.contains(currentIconFromPlatform)
+        ? currentIconFromPlatform
+        : 'default';
+
+    if (currentIconId != settings.appIcon) {
+      context.read<SettingsBloc>().add(ChangeAppIcon(currentIconId));
+    }
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => EnhancedDialog(
+        title: 'App Icon',
+        icon: Icons.apps_rounded,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _appIconPort.availableIcons
+                .map(
+                  (option) => RadioOption<String>(
+                    title: option.label,
+                    subtitle: option.id == 'default'
+                        ? 'Use standard app icon'
+                        : 'Switch launcher icon',
+                    icon: Icons.image_outlined,
+                    value: option.id,
+                    groupValue: currentIconId,
+                    onChanged: (value) async {
+                      final iconId = value ?? 'default';
+                      Navigator.pop(dialogContext);
+
+                      final applied = await _appIconPort.setIcon(iconId);
+                      if (!context.mounted) return;
+                      if (!applied) {
+                        showErrorSnackBar(
+                          context,
+                          'Failed to switch app icon.',
+                        );
+                        return;
+                      }
+
+                      context.read<SettingsBloc>().add(ChangeAppIcon(iconId));
+                    },
+                  ),
+                )
+                .toList(growable: false),
+          ),
+        ),
+      ),
+    );
+  }
+
   // Helper methods
   String _getThemeModeText(ThemeMode mode) {
     final l10n = AppLocalizations.of(context);
@@ -231,5 +310,14 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
   String _getThemePresetName(String presetId) {
     if (presetId == "custom") return presetId.capitalize;
     return ThemePresets.getPreset(presetId).name;
+  }
+
+  String _getAppIconName(String iconId) {
+    for (final option in _appIconPort.availableIcons) {
+      if (option.id == iconId) {
+        return option.label;
+      }
+    }
+    return 'Default';
   }
 }

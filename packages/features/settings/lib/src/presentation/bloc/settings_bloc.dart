@@ -11,6 +11,7 @@ import '../../domain/usecases/mark_as_consent_dialog_shown.dart';
 import '../../domain/usecases/reset_settings.dart';
 import '../../domain/usecases/update_calendar_config.dart';
 import '../../domain/usecases/update_display_preferences.dart';
+import '../../domain/usecases/update_app_icon.dart';
 import '../../domain/usecases/update_language.dart';
 import '../../domain/usecases/update_theme.dart';
 import 'settings_event.dart';
@@ -22,6 +23,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final UpdateLanguage updateLanguage;
   final UpdateCalendarConfig updateCalendarConfig;
   final UpdateDisplayPreferences updateDisplayPreferences;
+  final UpdateAppIcon updateAppIcon;
   final ResetSettings resetSettings;
   final MarkAsConsentDialogShown markAsConsentDialogShown;
   final WidgetRepository widgetRepository;
@@ -35,6 +37,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required this.updateLanguage,
     required this.updateCalendarConfig,
     required this.updateDisplayPreferences,
+    required this.updateAppIcon,
     required this.resetSettings,
     required this.markAsConsentDialogShown,
     required this.widgetRepository,
@@ -45,6 +48,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<LoadSettings>(_onLoadSettings);
     on<ChangeThemeMode>(_onChangeThemeMode);
     on<ChangeThemePreset>(_onChangeThemePreset);
+    on<ChangeAppIcon>(_onChangeAppIcon);
     on<ChangeAppLanguage>(_onChangeAppLanguage);
     on<ChangeCalendarLanguage>(_onChangeCalendarLanguage);
     on<UpdateCalendarConfiguration>(_onUpdateCalendarConfiguration);
@@ -169,6 +173,35 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           appLanguage: event.languageCode,
         );
         emit(SettingsLoaded(updatedSettings));
+      },
+    );
+  }
+
+  Future<void> _onChangeAppIcon(
+    ChangeAppIcon event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state is! SettingsLoaded) return;
+
+    final currentState = state as SettingsLoaded;
+    if (event.appIconId == currentState.settings.appIcon) {
+      return;
+    }
+
+    final result = await updateAppIcon(event.appIconId);
+    result.fold(
+      (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
+      (_) {
+        analyticsService.logSettingsChange(
+          settingName: 'app_icon',
+          oldValue: currentState.settings.appIcon,
+          newValue: event.appIconId,
+        );
+        emit(
+          SettingsLoaded(
+            currentState.settings.copyWith(appIcon: event.appIconId),
+          ),
+        );
       },
     );
   }
