@@ -20,6 +20,7 @@ class SettingsAppearancePage extends StatefulWidget {
 class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   final AppIconPort _appIconPort = getIt<AppIconPort>();
+  bool _isApplyingAppIcon = false;
 
   @override
   void initState() {
@@ -226,6 +227,11 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
     BuildContext context,
     AppSettingsEntity settings,
   ) async {
+    if (_isApplyingAppIcon) {
+      showErrorSnackBar(context, 'Please wait, applying app icon...');
+      return;
+    }
+
     final supported = await _appIconPort.isSupported();
     if (!context.mounted) return;
     if (!supported) {
@@ -270,11 +276,26 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
                     value: option.id,
                     groupValue: currentIconId,
                     onChanged: (value) async {
+                      if (_isApplyingAppIcon) return;
                       final iconId = value ?? 'default';
                       Navigator.pop(dialogContext);
 
+                      if (mounted) {
+                        setState(() {
+                          _isApplyingAppIcon = true;
+                        });
+                      }
+                      // Let modal dismissal complete before requesting iOS icon switch.
+                      await Future<void>.delayed(
+                        const Duration(milliseconds: 320),
+                      );
                       final applied = await _appIconPort.setIcon(iconId);
                       if (!context.mounted) return;
+                      if (mounted) {
+                        setState(() {
+                          _isApplyingAppIcon = false;
+                        });
+                      }
                       if (!applied) {
                         showErrorSnackBar(
                           context,

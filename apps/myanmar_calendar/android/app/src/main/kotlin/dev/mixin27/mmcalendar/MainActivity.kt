@@ -13,9 +13,12 @@ class MainActivity : FlutterActivity() {
     private val APP_ICON_CHANNEL = "dev.mixin27.mmcalendar/app_icon"
     private var intentExtras: Map<String, Any>? = null
     private val launcherAliases = mapOf(
-        "default" to "dev.mixin27.mmcalendar.MainActivityDefault",
+        "default" to "dev.mixin27.mmcalendar.MainActivity",
         "moon" to "dev.mixin27.mmcalendar.MainActivityMoon",
         "forest" to "dev.mixin27.mmcalendar.MainActivityForest",
+        "minimal_flat" to "dev.mixin27.mmcalendar.MainActivityMinimalFlat",
+        "premium_dark" to "dev.mixin27.mmcalendar.MainActivityPremiumDark",
+        "traditional_myanmar" to "dev.mixin27.mmcalendar.MainActivityTraditionalMyanmar",
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

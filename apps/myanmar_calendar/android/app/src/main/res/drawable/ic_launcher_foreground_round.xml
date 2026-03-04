@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="16%">
+    <bitmap
+        android:gravity="center"
+        android:src="@mipmap/ic_launcher_legacy_round" />
+</inset>

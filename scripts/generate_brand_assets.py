@@ -5,6 +5,9 @@ Outputs:
 - apps/myanmar_calendar/assets/branding/app_icon_1024.png
 - apps/myanmar_calendar/assets/branding/app_icon_moon_1024.png
 - apps/myanmar_calendar/assets/branding/app_icon_forest_1024.png
+- apps/myanmar_calendar/assets/branding/app_icon_minimal_flat_1024.png
+- apps/myanmar_calendar/assets/branding/app_icon_premium_dark_1024.png
+- apps/myanmar_calendar/assets/branding/app_icon_traditional_myanmar_1024.png
 - apps/myanmar_calendar/assets/branding/feature_graphic_1024x500.png
 - apps/myanmar_calendar/assets/images/logo.png
 - assets/logo.png
@@ -15,6 +18,7 @@ Outputs:
 from __future__ import annotations
 
 import math
+import json
 import os
 import shutil
 import subprocess
@@ -36,7 +40,37 @@ ICON_RESOURCE_NAMES = {
     "default": "ic_launcher",
     "moon": "ic_launcher_moon",
     "forest": "ic_launcher_forest",
+    "minimal_flat": "ic_launcher_minimal_flat",
+    "premium_dark": "ic_launcher_premium_dark",
+    "traditional_myanmar": "ic_launcher_traditional_myanmar",
 }
+
+ICON_MASTER_FILENAMES = {
+    "default": "app_icon_1024.png",
+    "moon": "app_icon_moon_1024.png",
+    "forest": "app_icon_forest_1024.png",
+    "minimal_flat": "app_icon_minimal_flat_1024.png",
+    "premium_dark": "app_icon_premium_dark_1024.png",
+    "traditional_myanmar": "app_icon_traditional_myanmar_1024.png",
+}
+
+IOS_ALT_ICONSET_NAMES = {
+    "moon": "AppIconMoon",
+    "forest": "AppIconForest",
+    "minimal_flat": "AppIconMinimalFlat",
+    "premium_dark": "AppIconPremiumDark",
+    "traditional_myanmar": "AppIconTraditionalMyanmar",
+}
+
+_IOS_ICONSET_ALLOWED_KEYS = (
+    "idiom",
+    "size",
+    "scale",
+    "role",
+    "subtype",
+    "platform",
+    "filename",
+)
 
 
 def _clamp(value: float, lo: float = 0.0, hi: float = 1.0) -> float:
@@ -109,46 +143,88 @@ class IconPalette:
 
 ICON_PALETTES = {
     "default": IconPalette(
-        gradient_tl=(11, 27, 47),
-        gradient_br=(15, 118, 110),
-        light_a=(56, 189, 248),
-        light_a_alpha=0.24,
-        light_b=(16, 185, 129),
-        light_b_alpha=0.16,
-        ring_outer=(236, 253, 245),
-        ring_inner=(9, 19, 33),
-        top_strip_primary=(18, 176, 183),
-        top_strip_secondary=(13, 148, 171),
-        moon_color=(22, 163, 184),
-        star_color=(245, 196, 86),
+        gradient_tl=(16, 30, 66),
+        gradient_br=(42, 89, 155),
+        light_a=(152, 190, 255),
+        light_a_alpha=0.16,
+        light_b=(79, 132, 228),
+        light_b_alpha=0.22,
+        ring_outer=(242, 245, 255),
+        ring_inner=(142, 166, 212),
+        top_strip_primary=(39, 78, 146),
+        top_strip_secondary=(19, 42, 95),
+        moon_color=(123, 181, 255),
+        star_color=(255, 213, 122),
     ),
     "moon": IconPalette(
-        gradient_tl=(15, 24, 64),
-        gradient_br=(84, 78, 166),
-        light_a=(147, 197, 253),
-        light_a_alpha=0.25,
-        light_b=(196, 181, 253),
-        light_b_alpha=0.14,
-        ring_outer=(237, 233, 254),
-        ring_inner=(18, 19, 46),
-        top_strip_primary=(124, 113, 255),
-        top_strip_secondary=(99, 102, 241),
-        moon_color=(129, 140, 248),
-        star_color=(250, 204, 21),
+        gradient_tl=(28, 22, 74),
+        gradient_br=(79, 67, 160),
+        light_a=(190, 174, 255),
+        light_a_alpha=0.16,
+        light_b=(120, 103, 220),
+        light_b_alpha=0.20,
+        ring_outer=(242, 236, 255),
+        ring_inner=(168, 152, 222),
+        top_strip_primary=(71, 61, 142),
+        top_strip_secondary=(36, 30, 90),
+        moon_color=(170, 160, 255),
+        star_color=(255, 216, 124),
     ),
     "forest": IconPalette(
-        gradient_tl=(11, 54, 43),
-        gradient_br=(34, 107, 65),
-        light_a=(134, 239, 172),
-        light_a_alpha=0.18,
-        light_b=(74, 222, 128),
-        light_b_alpha=0.20,
-        ring_outer=(220, 252, 231),
-        ring_inner=(20, 38, 30),
-        top_strip_primary=(22, 163, 74),
-        top_strip_secondary=(21, 128, 61),
-        moon_color=(34, 197, 94),
-        star_color=(253, 224, 71),
+        gradient_tl=(13, 43, 54),
+        gradient_br=(29, 107, 116),
+        light_a=(156, 236, 218),
+        light_a_alpha=0.14,
+        light_b=(74, 177, 164),
+        light_b_alpha=0.18,
+        ring_outer=(226, 250, 245),
+        ring_inner=(120, 187, 177),
+        top_strip_primary=(21, 91, 92),
+        top_strip_secondary=(9, 52, 60),
+        moon_color=(154, 235, 220),
+        star_color=(255, 215, 129),
+    ),
+    "minimal_flat": IconPalette(
+        gradient_tl=(41, 54, 78),
+        gradient_br=(83, 104, 139),
+        light_a=(201, 213, 235),
+        light_a_alpha=0.10,
+        light_b=(133, 157, 194),
+        light_b_alpha=0.14,
+        ring_outer=(237, 242, 252),
+        ring_inner=(160, 173, 200),
+        top_strip_primary=(65, 82, 112),
+        top_strip_secondary=(36, 49, 74),
+        moon_color=(205, 219, 242),
+        star_color=(252, 205, 116),
+    ),
+    "premium_dark": IconPalette(
+        gradient_tl=(8, 13, 26),
+        gradient_br=(26, 45, 86),
+        light_a=(122, 165, 255),
+        light_a_alpha=0.14,
+        light_b=(58, 103, 203),
+        light_b_alpha=0.18,
+        ring_outer=(235, 241, 255),
+        ring_inner=(122, 146, 196),
+        top_strip_primary=(24, 54, 118),
+        top_strip_secondary=(10, 23, 58),
+        moon_color=(176, 208, 255),
+        star_color=(255, 214, 120),
+    ),
+    "traditional_myanmar": IconPalette(
+        gradient_tl=(39, 23, 56),
+        gradient_br=(111, 62, 141),
+        light_a=(244, 202, 166),
+        light_a_alpha=0.15,
+        light_b=(170, 104, 202),
+        light_b_alpha=0.18,
+        ring_outer=(255, 241, 225),
+        ring_inner=(220, 170, 140),
+        top_strip_primary=(98, 48, 115),
+        top_strip_secondary=(56, 27, 75),
+        moon_color=(255, 223, 183),
+        star_color=(255, 198, 102),
     ),
 }
 
@@ -258,106 +334,155 @@ def draw_vline(img: Raster, x: float, y0: float, y1: float, thickness: float, co
     draw_rounded_rect(img, x - thickness / 2.0, y0, thickness, y1 - y0, thickness / 2.0, color, alpha)
 
 
-def draw_calendar_mark(
+def draw_line(
+    img: Raster,
+    x0: float,
+    y0: float,
+    x1: float,
+    y1: float,
+    thickness: float,
+    color: tuple[int, int, int],
+    alpha: float = 1.0,
+) -> None:
+    dx = x1 - x0
+    dy = y1 - y0
+    steps = max(1, int(max(abs(dx), abs(dy)) * 1.1))
+    radius = max(0.8, thickness * 0.5)
+    for i in range(steps + 1):
+        t = i / steps
+        draw_circle(img, x0 + dx * t, y0 + dy * t, radius, color, alpha)
+
+
+def draw_feature_corner_glyph(
     img: Raster,
     cx: float,
     cy: float,
     size: float,
     *,
+    kind: str,
+    stroke: tuple[int, int, int],
+    accent: tuple[int, int, int],
+) -> None:
+    t = size * 0.10
+    if kind == "grid":
+        draw_rounded_rect(img, cx - size * 0.24, cy - size * 0.19, size * 0.48, size * 0.38, size * 0.06, stroke, 0.20)
+        draw_hline(img, cx - size * 0.24, cx + size * 0.24, cy - size * 0.05, t, stroke, 0.94)
+        draw_vline(img, cx, cy - size * 0.19, cy + size * 0.19, t, stroke, 0.94)
+    elif kind == "event":
+        draw_hline(img, cx - size * 0.22, cx + size * 0.22, cy - size * 0.09, t, stroke, 0.94)
+        draw_hline(img, cx - size * 0.20, cx + size * 0.12, cy + size * 0.05, t, stroke, 0.78)
+        draw_circle(img, cx + size * 0.18, cy + size * 0.10, size * 0.08, accent, 0.98)
+    elif kind == "swap":
+        draw_hline(img, cx - size * 0.24, cx + size * 0.12, cy - size * 0.08, t, stroke, 0.94)
+        draw_line(img, cx + size * 0.12, cy - size * 0.08, cx + size * 0.03, cy - size * 0.16, t * 0.9, stroke, 0.94)
+        draw_line(img, cx + size * 0.12, cy - size * 0.08, cx + size * 0.03, cy + size * 0.00, t * 0.9, stroke, 0.94)
+        draw_hline(img, cx - size * 0.12, cx + size * 0.24, cy + size * 0.10, t, stroke, 0.94)
+        draw_line(img, cx - size * 0.12, cy + size * 0.10, cx - size * 0.02, cy + size * 0.18, t * 0.9, stroke, 0.94)
+        draw_line(img, cx - size * 0.12, cy + size * 0.10, cx - size * 0.02, cy + size * 0.02, t * 0.9, stroke, 0.94)
+    else:  # "spark"
+        draw_circle(img, cx, cy, size * 0.08, accent, 0.98)
+        draw_hline(img, cx - size * 0.24, cx + size * 0.24, cy, t * 0.9, stroke, 0.94)
+        draw_vline(img, cx, cy - size * 0.24, cy + size * 0.24, t * 0.9, stroke, 0.94)
+        draw_line(img, cx - size * 0.16, cy - size * 0.16, cx + size * 0.16, cy + size * 0.16, t * 0.75, stroke, 0.78)
+        draw_line(img, cx - size * 0.16, cy + size * 0.16, cx + size * 0.16, cy - size * 0.16, t * 0.75, stroke, 0.78)
+
+
+def draw_orbit_mark(
+    img: Raster,
+    cx: float,
+    cy: float,
+    size: float,
+    *,
+    ring_outer: tuple[int, int, int],
+    ring_inner: tuple[int, int, int],
     top_strip_primary: tuple[int, int, int],
     top_strip_secondary: tuple[int, int, int],
     moon_color: tuple[int, int, int],
     star_color: tuple[int, int, int],
 ) -> None:
-    card_w = size * 0.70
-    card_h = size * 0.78
-    x = cx - card_w / 2.0
-    y = cy - card_h / 2.0
-    radius = size * 0.12
+    panel = size * 0.86
+    x = cx - panel / 2.0
+    y = cy - panel / 2.0
+    radius = size * 0.19
 
-    # Shadow
+    # Night-sky card container.
+    draw_rounded_rect(img, x + size * 0.014, y + size * 0.020, panel, panel, radius, (5, 10, 22), 0.55)
+    draw_rounded_rect(img, x, y, panel, panel, radius, top_strip_secondary, 1.0)
     draw_rounded_rect(
         img,
-        x + size * 0.016,
-        y + size * 0.02,
-        card_w,
-        card_h,
-        radius,
-        (10, 25, 40),
-        0.30,
+        x + size * 0.010,
+        y + size * 0.010,
+        panel - size * 0.020,
+        panel - size * 0.020,
+        radius * 0.88,
+        top_strip_primary,
+        0.70,
     )
 
-    # Card
-    draw_rounded_rect(img, x, y, card_w, card_h, radius, (246, 250, 255), 0.98)
+    # Moon glow layers.
+    moon_r = size * 0.145
+    draw_circle(img, cx, cy, moon_r * 2.00, moon_color, 0.14)
+    draw_circle(img, cx, cy, moon_r * 1.58, ring_outer, 0.14)
+    draw_circle(img, cx, cy, moon_r * 1.18, moon_color, 0.20)
+    draw_circle(img, cx, cy, moon_r, ring_outer, 0.98)
+    draw_circle(img, cx - moon_r * 0.24, cy + moon_r * 0.22, moon_r * 0.13, ring_inner, 0.56)
+    draw_circle(img, cx + moon_r * 0.08, cy - moon_r * 0.14, moon_r * 0.10, ring_inner, 0.48)
+    draw_circle(img, cx + moon_r * 0.22, cy + moon_r * 0.03, moon_r * 0.07, ring_inner, 0.42)
 
-    # Top strip
-    top_h = card_h * 0.24
-    draw_rounded_rect(img, x, y, card_w, top_h, radius, top_strip_primary, 1.0)
-    draw_rounded_rect(
-        img,
-        x,
-        y + top_h * 0.55,
-        card_w,
-        top_h * 0.45,
-        radius * 0.6,
-        top_strip_secondary,
-        0.55,
-    )
+    # Star field.
+    stars = [
+        (-0.28, -0.30, 0.018, 0.95),
+        (0.24, -0.36, 0.015, 0.92),
+        (-0.34, 0.16, 0.012, 0.88),
+        (0.30, 0.08, 0.013, 0.90),
+        (0.06, -0.44, 0.010, 0.85),
+    ]
+    for dx, dy, sr, sa in stars:
+        sx = cx + size * dx
+        sy = cy + size * dy
+        r = size * sr
+        draw_circle(img, sx, sy, r, star_color, sa)
+        draw_hline(img, sx - r * 1.6, sx + r * 1.6, sy, r * 0.62, star_color, sa * 0.72)
+        draw_vline(img, sx, sy - r * 1.6, sy + r * 1.6, r * 0.62, star_color, sa * 0.72)
 
-    # Binder rings
-    ring_y = y + top_h * 0.52
-    ring_dx = card_w * 0.24
-    for i in (-1, 1):
-        draw_circle(img, cx + ring_dx * i, ring_y, size * 0.020, (235, 250, 255), 1.0)
-        draw_circle(img, cx + ring_dx * i, ring_y, size * 0.010, (12, 74, 110), 1.0)
-
-    body_y = y + top_h + size * 0.018
-    body_h = card_h - top_h - size * 0.05
-    line_c = (206, 216, 230)
-
-    # Grid
-    for k in range(1, 3):
-        gx = x + (card_w / 3.0) * k
-        draw_vline(img, gx, body_y, body_y + body_h, max(1.0, size * 0.0065), line_c, 0.9)
-    for k in range(1, 3):
-        gy = body_y + (body_h / 3.0) * k
-        draw_hline(img, x + size * 0.02, x + card_w - size * 0.02, gy, max(1.0, size * 0.0065), line_c, 0.9)
-
-    # Moon crescent
-    moon_cx = cx
-    moon_cy = body_y + body_h * 0.56
-    moon_r = size * 0.11
-    draw_circle(img, moon_cx, moon_cy, moon_r, moon_color, 1.0)
-    draw_circle(img, moon_cx + moon_r * 0.45, moon_cy - moon_r * 0.08, moon_r * 0.95, (246, 250, 255), 1.0)
-
-    # Accent star
-    star_c = star_color
-    draw_circle(
-        img,
-        moon_cx + moon_r * 1.15,
-        moon_cy - moon_r * 0.95,
-        size * 0.022,
-        star_c,
-        1.0,
-    )
-    draw_hline(
-        img,
-        moon_cx + moon_r * 1.15 - size * 0.028,
-        moon_cx + moon_r * 1.15 + size * 0.028,
-        moon_cy - moon_r * 0.95,
-        size * 0.007,
-        star_c,
-        0.8,
-    )
-    draw_vline(
-        img,
-        moon_cx + moon_r * 1.15,
-        moon_cy - moon_r * 0.95 - size * 0.028,
-        moon_cy - moon_r * 0.95 + size * 0.028,
-        size * 0.007,
-        star_c,
-        0.8,
-    )
+    # Four corner feature chips + feature symbols.
+    chip = size * 0.14
+    chip_r = size * 0.032
+    offset = size * 0.29
+    chip_positions = [(-offset, -offset), (offset, -offset), (-offset, offset), (offset, offset)]
+    chip_kinds = ["grid", "event", "swap", "spark"]
+    for (dx, dy), kind in zip(chip_positions, chip_kinds):
+        ccx = cx + dx
+        ccy = cy + dy
+        draw_rounded_rect(
+            img,
+            ccx - chip / 2.0,
+            ccy - chip / 2.0,
+            chip,
+            chip,
+            chip_r,
+            top_strip_secondary,
+            0.96,
+        )
+        draw_rounded_rect(
+            img,
+            ccx - chip / 2.0 + size * 0.005,
+            ccy - chip / 2.0 + size * 0.005,
+            chip - size * 0.010,
+            chip - size * 0.010,
+            chip_r * 0.86,
+            top_strip_primary,
+            0.72,
+        )
+        draw_feature_corner_glyph(
+            img,
+            ccx,
+            ccy,
+            chip,
+            kind=kind,
+            stroke=ring_outer,
+            accent=star_color,
+        )
 
 
 def render_icon(size: int, palette: IconPalette) -> Raster:
@@ -369,7 +494,7 @@ def render_icon(size: int, palette: IconPalette) -> Raster:
         size * 0.2,
         size * 0.62,
         palette.light_a,
-        palette.light_a_alpha,
+        palette.light_a_alpha * 0.75,
     )
     draw_radial_light(
         img,
@@ -377,18 +502,38 @@ def render_icon(size: int, palette: IconPalette) -> Raster:
         size * 0.82,
         size * 0.7,
         palette.light_b,
-        palette.light_b_alpha,
+        palette.light_b_alpha * 0.70,
     )
 
-    # Soft ring for depth
-    draw_circle(img, size * 0.5, size * 0.5, size * 0.39, palette.ring_outer, 0.10)
-    draw_circle(img, size * 0.5, size * 0.5, size * 0.36, palette.ring_inner, 0.14)
+    # Subtle frame highlight
+    draw_rounded_rect(
+        img,
+        size * 0.055,
+        size * 0.055,
+        size * 0.89,
+        size * 0.89,
+        size * 0.22,
+        palette.ring_outer,
+        0.08,
+    )
+    draw_rounded_rect(
+        img,
+        size * 0.035,
+        size * 0.035,
+        size * 0.93,
+        size * 0.93,
+        size * 0.24,
+        palette.ring_inner,
+        0.10,
+    )
 
-    draw_calendar_mark(
+    draw_orbit_mark(
         img,
         size * 0.5,
         size * 0.5,
         size * 0.88,
+        ring_outer=palette.ring_outer,
+        ring_inner=palette.ring_inner,
         top_strip_primary=palette.top_strip_primary,
         top_strip_secondary=palette.top_strip_secondary,
         moon_color=palette.moon_color,
@@ -399,58 +544,87 @@ def render_icon(size: int, palette: IconPalette) -> Raster:
 
 def render_feature_graphic(width: int, height: int) -> Raster:
     img = Raster(width, height)
-    draw_linear_gradient(img, (10, 18, 34), (13, 92, 112))
-    draw_radial_light(img, width * 0.2, height * 0.15, width * 0.5, (45, 212, 191), 0.20)
-    draw_radial_light(img, width * 0.95, height * 0.8, width * 0.55, (14, 165, 233), 0.18)
+    p = ICON_PALETTES["default"]
+    draw_linear_gradient(img, (8, 14, 33), (28, 56, 112))
+    draw_radial_light(img, width * 0.20, height * 0.12, width * 0.48, p.moon_color, 0.22)
+    draw_radial_light(img, width * 0.92, height * 0.78, width * 0.46, (62, 106, 184), 0.26)
 
-    # Decorative blobs
-    draw_circle(img, width * 0.82, height * 0.22, width * 0.16, (148, 163, 184), 0.09)
-    draw_circle(img, width * 0.73, height * 0.73, width * 0.11, (251, 191, 36), 0.09)
-    draw_circle(img, width * 0.93, height * 0.58, width * 0.10, (56, 189, 248), 0.10)
+    # Ambient stars.
+    sky_stars = [
+        (0.08, 0.12, 0.006, 0.84),
+        (0.16, 0.24, 0.004, 0.72),
+        (0.44, 0.10, 0.005, 0.86),
+        (0.58, 0.18, 0.004, 0.74),
+        (0.74, 0.09, 0.006, 0.84),
+        (0.86, 0.22, 0.005, 0.80),
+        (0.92, 0.14, 0.004, 0.70),
+        (0.68, 0.34, 0.004, 0.66),
+    ]
+    for sx, sy, sr, sa in sky_stars:
+        draw_circle(img, width * sx, height * sy, width * sr, p.ring_outer, sa)
 
-    # Right-side clean panel
-    draw_rounded_rect(
+    # Hero logo.
+    draw_orbit_mark(
         img,
-        width * 0.55,
-        height * 0.08,
-        width * 0.40,
-        height * 0.84,
-        32,
-        (255, 255, 255),
-        0.09,
-    )
-
-    # Left hero mark
-    draw_calendar_mark(
-        img,
-        width * 0.30,
+        width * 0.29,
         height * 0.50,
-        min(width, height) * 0.88,
-        top_strip_primary=ICON_PALETTES["default"].top_strip_primary,
-        top_strip_secondary=ICON_PALETTES["default"].top_strip_secondary,
-        moon_color=ICON_PALETTES["default"].moon_color,
-        star_color=ICON_PALETTES["default"].star_color,
+        min(width, height) * 0.82,
+        ring_outer=p.ring_outer,
+        ring_inner=p.ring_inner,
+        top_strip_primary=p.top_strip_primary,
+        top_strip_secondary=p.top_strip_secondary,
+        moon_color=p.moon_color,
+        star_color=p.star_color,
     )
 
-    # Minimal chips on right panel
-    chip_color = (245, 250, 255)
-    chip_bg = (20, 184, 166)
-    chip_w = width * 0.26
-    chip_h = height * 0.12
-    start_x = width * 0.61
-    ys = [height * 0.24, height * 0.42, height * 0.60]
-    for y in ys:
-        draw_rounded_rect(img, start_x, y, chip_w, chip_h, chip_h * 0.45, chip_bg, 0.28)
-        draw_circle(img, start_x + chip_h * 0.48, y + chip_h * 0.5, chip_h * 0.22, chip_color, 0.85)
+    # Supporting panel.
+    panel_x = width * 0.57
+    panel_y = height * 0.12
+    panel_w = width * 0.36
+    panel_h = height * 0.76
+    draw_rounded_rect(img, panel_x + 3, panel_y + 5, panel_w, panel_h, 30, (4, 8, 18), 0.58)
+    draw_rounded_rect(img, panel_x, panel_y, panel_w, panel_h, 28, p.top_strip_secondary, 0.86)
+    draw_rounded_rect(img, panel_x + 4, panel_y + 4, panel_w - 8, panel_h - 8, 24, p.top_strip_primary, 0.72)
+
+    moon_cx = panel_x + panel_w * 0.50
+    moon_cy = panel_y + panel_h * 0.38
+    moon_r = panel_h * 0.13
+    draw_circle(img, moon_cx, moon_cy, moon_r * 1.90, p.moon_color, 0.16)
+    draw_circle(img, moon_cx, moon_cy, moon_r * 1.45, p.ring_outer, 0.16)
+    draw_circle(img, moon_cx, moon_cy, moon_r, p.ring_outer, 0.98)
+    draw_circle(img, moon_cx - moon_r * 0.23, moon_cy + moon_r * 0.20, moon_r * 0.14, p.ring_inner, 0.52)
+    draw_circle(img, moon_cx + moon_r * 0.10, moon_cy - moon_r * 0.13, moon_r * 0.10, p.ring_inner, 0.44)
+
+    # Feature chips row.
+    chip_s = panel_w * 0.16
+    chip_y = panel_y + panel_h * 0.74
+    chip_xs = [
+        panel_x + panel_w * 0.18,
+        panel_x + panel_w * 0.40,
+        panel_x + panel_w * 0.62,
+        panel_x + panel_w * 0.84,
+    ]
+    chip_kinds = ["grid", "event", "swap", "spark"]
+    for ccx, kind in zip(chip_xs, chip_kinds):
+        draw_rounded_rect(img, ccx - chip_s / 2, chip_y - chip_s / 2, chip_s, chip_s, chip_s * 0.22, p.top_strip_secondary, 0.95)
         draw_rounded_rect(
             img,
-            start_x + chip_h * 0.9,
-            y + chip_h * 0.36,
-            chip_w * 0.66,
-            chip_h * 0.24,
-            chip_h * 0.12,
-            chip_color,
-            0.72,
+            ccx - chip_s / 2 + 2,
+            chip_y - chip_s / 2 + 2,
+            chip_s - 4,
+            chip_s - 4,
+            chip_s * 0.20,
+            p.top_strip_primary,
+            0.74,
+        )
+        draw_feature_corner_glyph(
+            img,
+            ccx,
+            chip_y,
+            chip_s,
+            kind=kind,
+            stroke=p.ring_outer,
+            accent=p.star_color,
         )
     return img
 
@@ -507,10 +681,13 @@ def propagate_android_icons(icon_sources: dict[str, str]) -> None:
     base_res = os.path.join(
         ROOT, "apps", "myanmar_calendar", "android", "app", "src", "main", "res"
     )
+    anydpi_v26_dir = os.path.join(base_res, "mipmap-anydpi-v26")
+    drawable_dir = os.path.join(base_res, "drawable")
     for density, size in ANDROID_MIPMAP_SIZES.items():
         mipmap_dir = os.path.join(base_res, f"mipmap-{density}")
         for key, src_icon in icon_sources.items():
             resource_name = ICON_RESOURCE_NAMES[key]
+            legacy_name = f"{resource_name}_legacy"
             resize_to_webp(
                 src_icon,
                 size,
@@ -521,28 +698,69 @@ def propagate_android_icons(icon_sources: dict[str, str]) -> None:
                 size,
                 os.path.join(mipmap_dir, f"{resource_name}_round.webp"),
             )
+            resize_to_webp(
+                src_icon,
+                size,
+                os.path.join(mipmap_dir, f"{legacy_name}.webp"),
+            )
+            resize_to_webp(
+                src_icon,
+                size,
+                os.path.join(mipmap_dir, f"{legacy_name}_round.webp"),
+            )
 
-    # Use generated mipmap icons directly for adaptive icon foreground layers.
-    adaptive_xml = """<?xml version="1.0" encoding="utf-8"?>
+    # Generate adaptive icon xml for each variant to avoid launcher fallback icons.
+    for resource_name in ICON_RESOURCE_NAMES.values():
+        legacy_name = f"{resource_name}_legacy"
+        foreground_name = f"{resource_name}_foreground"
+        foreground_round_name = f"{resource_name}_foreground_round"
+
+        # Inset keeps icon artwork inside adaptive safe-zone and avoids zoomed look.
+        foreground_xml = f"""<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="16%">
+    <bitmap
+        android:gravity="center"
+        android:src="@mipmap/{legacy_name}" />
+</inset>
+"""
+        foreground_round_xml = f"""<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="16%">
+    <bitmap
+        android:gravity="center"
+        android:src="@mipmap/{legacy_name}_round" />
+</inset>
+"""
+        write_text(
+            os.path.join(drawable_dir, f"{foreground_name}.xml"),
+            foreground_xml,
+        )
+        write_text(
+            os.path.join(drawable_dir, f"{foreground_round_name}.xml"),
+            foreground_round_xml,
+        )
+
+        adaptive_xml = f"""<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@android:color/transparent"/>
-    <foreground android:drawable="@mipmap/ic_launcher"/>
+    <background android:drawable="@color/ic_launcher_background"/>
+    <foreground android:drawable="@drawable/{foreground_name}"/>
 </adaptive-icon>
 """
-    adaptive_round_xml = """<?xml version="1.0" encoding="utf-8"?>
+        adaptive_round_xml = f"""<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@android:color/transparent"/>
-    <foreground android:drawable="@mipmap/ic_launcher_round"/>
+    <background android:drawable="@color/ic_launcher_background"/>
+    <foreground android:drawable="@drawable/{foreground_round_name}"/>
 </adaptive-icon>
 """
-    write_text(
-        os.path.join(base_res, "mipmap-anydpi-v26", "ic_launcher.xml"),
-        adaptive_xml,
-    )
-    write_text(
-        os.path.join(base_res, "mipmap-anydpi-v26", "ic_launcher_round.xml"),
-        adaptive_round_xml,
-    )
+        write_text(
+            os.path.join(anydpi_v26_dir, f"{resource_name}.xml"),
+            adaptive_xml,
+        )
+        write_text(
+            os.path.join(anydpi_v26_dir, f"{resource_name}_round.xml"),
+            adaptive_round_xml,
+        )
 
 
 def populate_iconset_from_reference(
@@ -554,8 +772,29 @@ def populate_iconset_from_reference(
     os.makedirs(target_iconset_dir, exist_ok=True)
     src_contents = os.path.join(reference_iconset_dir, "Contents.json")
     dst_contents = os.path.join(target_iconset_dir, "Contents.json")
-    if os.path.abspath(src_contents) != os.path.abspath(dst_contents):
-        shutil.copy2(src_contents, dst_contents)
+    if os.path.exists(src_contents):
+        with open(src_contents, encoding="utf-8") as f:
+            raw_contents = json.load(f)
+        raw_images = raw_contents.get("images", [])
+        sanitized_images: list[dict[str, str]] = []
+        for image in raw_images:
+            if not isinstance(image, dict):
+                continue
+            sanitized = {
+                key: image[key]
+                for key in _IOS_ICONSET_ALLOWED_KEYS
+                if key in image
+            }
+            if "idiom" not in sanitized or "size" not in sanitized:
+                continue
+            sanitized_images.append(sanitized)
+        normalized_contents = {
+            "images": sanitized_images,
+            "info": {"version": 1, "author": "xcode"},
+        }
+        with open(dst_contents, "w", encoding="utf-8") as f:
+            json.dump(normalized_contents, f, ensure_ascii=False, indent=2)
+            f.write("\n")
     for name in os.listdir(reference_iconset_dir):
         if not name.endswith(".png"):
             continue
@@ -593,16 +832,12 @@ def propagate_ios_macos_icons(icon_sources: dict[str, str]) -> None:
     )
 
     # iOS alternate launcher icons.
-    populate_iconset_from_reference(
-        source_icon_1024=icon_sources["moon"],
-        reference_iconset_dir=ios_primary_iconset,
-        target_iconset_dir=os.path.join(ios_assets, "AppIconMoon.appiconset"),
-    )
-    populate_iconset_from_reference(
-        source_icon_1024=icon_sources["forest"],
-        reference_iconset_dir=ios_primary_iconset,
-        target_iconset_dir=os.path.join(ios_assets, "AppIconForest.appiconset"),
-    )
+    for key, iconset_name in IOS_ALT_ICONSET_NAMES.items():
+        populate_iconset_from_reference(
+            source_icon_1024=icon_sources[key],
+            reference_iconset_dir=ios_primary_iconset,
+            target_iconset_dir=os.path.join(ios_assets, f"{iconset_name}.appiconset"),
+        )
 
 
 def propagate_web_icons(src_icon_1024: str) -> None:
@@ -629,30 +864,22 @@ def propagate_web_icons(src_icon_1024: str) -> None:
 
 
 def main() -> None:
-    icon_1024 = render_icon(1024, ICON_PALETTES["default"])
-    icon_moon_1024 = render_icon(1024, ICON_PALETTES["moon"])
-    icon_forest_1024 = render_icon(1024, ICON_PALETTES["forest"])
+    rendered_icons = {
+        key: render_icon(1024, palette) for key, palette in ICON_PALETTES.items()
+    }
     feature = render_feature_graphic(1024, 500)
 
-    icon_master_path = os.path.join(
-        ROOT, "apps", "myanmar_calendar", "assets", "branding", "app_icon_1024.png"
-    )
-    icon_moon_master_path = os.path.join(
-        ROOT,
-        "apps",
-        "myanmar_calendar",
-        "assets",
-        "branding",
-        "app_icon_moon_1024.png",
-    )
-    icon_forest_master_path = os.path.join(
-        ROOT,
-        "apps",
-        "myanmar_calendar",
-        "assets",
-        "branding",
-        "app_icon_forest_1024.png",
-    )
+    icon_master_paths = {
+        key: os.path.join(
+            ROOT,
+            "apps",
+            "myanmar_calendar",
+            "assets",
+            "branding",
+            filename,
+        )
+        for key, filename in ICON_MASTER_FILENAMES.items()
+    }
     feature_path = os.path.join(
         ROOT,
         "apps",
@@ -679,34 +906,20 @@ def main() -> None:
         ROOT, "screenshots", "myanmar-calendar-featured-graphic.png"
     )
 
-    write_png(icon_1024, icon_master_path)
-    write_png(icon_moon_1024, icon_moon_master_path)
-    write_png(icon_forest_1024, icon_forest_master_path)
-    resize_png(icon_master_path, 512, logo_app_path)
-    resize_png(icon_master_path, 512, logo_root_path)
-    resize_png(icon_master_path, 512, play_store_icon_path)
+    for key, raster in rendered_icons.items():
+        write_png(raster, icon_master_paths[key])
+    resize_png(icon_master_paths["default"], 512, logo_app_path)
+    resize_png(icon_master_paths["default"], 512, logo_root_path)
+    resize_png(icon_master_paths["default"], 512, play_store_icon_path)
     write_png(feature, feature_path)
     write_png(feature, screenshot_feature_path)
-    propagate_android_icons(
-        {
-            "default": icon_master_path,
-            "moon": icon_moon_master_path,
-            "forest": icon_forest_master_path,
-        }
-    )
-    propagate_ios_macos_icons(
-        {
-            "default": icon_master_path,
-            "moon": icon_moon_master_path,
-            "forest": icon_forest_master_path,
-        }
-    )
-    propagate_web_icons(icon_master_path)
+    propagate_android_icons(icon_master_paths)
+    propagate_ios_macos_icons(icon_master_paths)
+    propagate_web_icons(icon_master_paths["default"])
 
     print("Generated brand assets:")
-    print(f"- {icon_master_path}")
-    print(f"- {icon_moon_master_path}")
-    print(f"- {icon_forest_master_path}")
+    for key in ICON_MASTER_FILENAMES.keys():
+        print(f"- {icon_master_paths[key]}")
     print(f"- {feature_path}")
     print(f"- {logo_app_path}")
     print(f"- {logo_root_path}")

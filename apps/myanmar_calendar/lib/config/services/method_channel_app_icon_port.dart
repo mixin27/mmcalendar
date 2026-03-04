@@ -11,6 +11,12 @@ class MethodChannelAppIconPort implements AppIconPort {
     AppIconOption(id: 'default', label: 'Default'),
     AppIconOption(id: 'moon', label: 'Moon'),
     AppIconOption(id: 'forest', label: 'Forest'),
+    AppIconOption(id: 'minimal_flat', label: 'Minimal Flat'),
+    AppIconOption(id: 'premium_dark', label: 'Premium Dark'),
+    AppIconOption(
+      id: 'traditional_myanmar',
+      label: 'Traditional Myanmar Motif',
+    ),
   ];
 
   @override
@@ -53,6 +59,12 @@ class NoopAppIconPort implements AppIconPort {
     AppIconOption(id: 'default', label: 'Default'),
     AppIconOption(id: 'moon', label: 'Moon'),
     AppIconOption(id: 'forest', label: 'Forest'),
+    AppIconOption(id: 'minimal_flat', label: 'Minimal Flat'),
+    AppIconOption(id: 'premium_dark', label: 'Premium Dark'),
+    AppIconOption(
+      id: 'traditional_myanmar',
+      label: 'Traditional Myanmar Motif',
+    ),
   ];
 
   @override
