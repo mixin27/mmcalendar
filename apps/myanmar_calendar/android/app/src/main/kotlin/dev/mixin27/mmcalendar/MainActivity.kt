@@ -13,7 +13,7 @@ class MainActivity : FlutterActivity() {
     private val APP_ICON_CHANNEL = "dev.mixin27.mmcalendar/app_icon"
     private var intentExtras: Map<String, Any>? = null
     private val launcherAliases = mapOf(
-        "default" to "dev.mixin27.mmcalendar.MainActivity",
+        "default" to "dev.mixin27.mmcalendar.MainActivityDefault",
         "moon" to "dev.mixin27.mmcalendar.MainActivityMoon",
         "forest" to "dev.mixin27.mmcalendar.MainActivityForest",
         "minimal_flat" to "dev.mixin27.mmcalendar.MainActivityMinimalFlat",
@@ -23,6 +23,7 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ensureMainActivityEnabled()
 
         // Capture intent extras when activity is created
         captureIntentExtras(intent)
@@ -134,6 +135,7 @@ class MainActivity : FlutterActivity() {
     private fun setLauncherIcon(iconId: String): Boolean {
         return try {
             val packageManager = packageManager
+            ensureMainActivityEnabled()
             val targetAlias = launcherAliases[iconId] ?: launcherAliases.getValue("default")
 
             launcherAliases.forEach { (id, aliasClass) ->
@@ -164,6 +166,22 @@ class MainActivity : FlutterActivity() {
         } catch (e: Exception) {
             android.util.Log.e("MainActivity", "Failed to switch app icon", e)
             false
+        }
+    }
+
+    private fun ensureMainActivityEnabled() {
+        val packageManager = packageManager
+        val mainActivityComponent = ComponentName(this, MainActivity::class.java)
+        val currentState = packageManager.getComponentEnabledSetting(mainActivityComponent)
+        if (currentState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED ||
+            currentState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER ||
+            currentState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED
+        ) {
+            packageManager.setComponentEnabledSetting(
+                mainActivityComponent,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP
+            )
         }
     }
 
