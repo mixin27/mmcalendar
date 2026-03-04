@@ -9,6 +9,7 @@ abstract class SettingsRepository {
   Future<Either<Failure, AppSettingsEntity>> getSettings();
   Future<Either<Failure, void>> updateThemeMode(ThemeMode themeMode);
   Future<Either<Failure, void>> updateThemePreset(String presetId);
+  Future<Either<Failure, void>> updateAppIcon(String appIconId);
   Future<Either<Failure, void>> updateCustomColors(ColorScheme colors);
   Future<Either<Failure, void>> updateAppLanguage(String languageCode);
   Future<Either<Failure, void>> updateCalendarLanguage(Language language);

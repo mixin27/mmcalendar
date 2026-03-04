@@ -37,11 +37,12 @@ class SettingsRepositoryImpl extends BaseRepository
 
       // Get theme preset
       final themePreset = settings[StorageKeys.themePreset] ?? 'modern';
+      final appIcon = settings[StorageKeys.appIcon] ?? 'default';
 
       // Get languages
       final appLanguage = settings[StorageKeys.appLanguage] ?? 'en';
       final calendarLanguageStr =
-          settings[StorageKeys.calendarLanguage] ?? 'en';
+          settings[StorageKeys.calendarLanguage] ?? Language.myanmar.code;
       final calendarLanguage = Language.fromCode(calendarLanguageStr);
       final useDeviceTimezone = _parseBool(
         settings[StorageKeys.useDeviceTimezone] ?? 'true',
@@ -116,6 +117,7 @@ class SettingsRepositoryImpl extends BaseRepository
         AppSettingsEntity(
           themeMode: themeMode,
           themePreset: themePreset,
+          appIcon: appIcon,
           customColors: themeColors,
           appLanguage: appLanguage,
           calendarLanguage: calendarLanguage,
@@ -162,6 +164,18 @@ class SettingsRepositoryImpl extends BaseRepository
     try {
       await localDataSource.setSetting(StorageKeys.themePreset, presetId);
 
+      return const Right(null);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message, e.code));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateAppIcon(String appIconId) async {
+    try {
+      await localDataSource.setSetting(StorageKeys.appIcon, appIconId);
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));

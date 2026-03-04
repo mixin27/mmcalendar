@@ -92,4 +92,10 @@ App update (optional):
 
 - Calendar Generation is currently **preview/beta** and still being refined.
 - On first launch, consent flow is shown before onboarding/feature promo carousel.
+- Dynamic app icon switching is supported on Android and iOS (real device).
+- iOS Simulator may not reliably switch alternate icons (`NSPOSIXErrorDomain code=35`); prefer physical iPhone or cloud real-device testing.
+- If Android/iOS platform folders are regenerated, restore native integrations with:
+  - `../../scripts/restore_native_mobile_setup.sh --scope all`
+  - `../../scripts/verify_native_mobile_setup.sh --scope all`
+  - See: `../../docs/architecture/native_mobile_setup.md`
 - App changelog is maintained at workspace root: `../../CHANGELOG.md`.

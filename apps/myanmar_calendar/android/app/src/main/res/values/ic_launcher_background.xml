@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="ic_launcher_background">#132A5F</color>
+    <color name="ic_launcher_moon_background">#241E5A</color>
+    <color name="ic_launcher_forest_background">#09343C</color>
+    <color name="ic_launcher_minimal_flat_background">#24314A</color>
+    <color name="ic_launcher_premium_dark_background">#0A173A</color>
+    <color name="ic_launcher_traditional_myanmar_background">#381B4B</color>
 </resources>

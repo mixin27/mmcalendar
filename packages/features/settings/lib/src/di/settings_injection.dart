@@ -10,6 +10,7 @@ import '../domain/repositories/settings_repository.dart';
 import '../domain/usecases/get_settings.dart';
 import '../domain/usecases/mark_as_consent_dialog_shown.dart';
 import '../domain/usecases/reset_settings.dart';
+import '../domain/usecases/update_app_icon.dart';
 import '../domain/usecases/update_calendar_config.dart';
 import '../domain/usecases/update_display_preferences.dart';
 import '../domain/usecases/update_language.dart';
@@ -65,6 +66,7 @@ Future<void> initSettingsDependencies() async {
   getIt.registerLazySingleton(
     () => UpdateDisplayPreferences(getIt<SettingsRepository>()),
   );
+  getIt.registerLazySingleton(() => UpdateAppIcon(getIt<SettingsRepository>()));
   getIt.registerLazySingleton(() => ResetSettings(getIt<SettingsRepository>()));
   getIt.registerLazySingleton(
     () => MarkAsConsentDialogShown(getIt<SettingsRepository>()),
@@ -78,6 +80,7 @@ Future<void> initSettingsDependencies() async {
       updateLanguage: getIt<UpdateLanguage>(),
       updateCalendarConfig: getIt<UpdateCalendarConfig>(),
       updateDisplayPreferences: getIt<UpdateDisplayPreferences>(),
+      updateAppIcon: getIt<UpdateAppIcon>(),
       resetSettings: getIt<ResetSettings>(),
       markAsConsentDialogShown: getIt<MarkAsConsentDialogShown>(),
       widgetRepository: getIt<WidgetRepository>(),

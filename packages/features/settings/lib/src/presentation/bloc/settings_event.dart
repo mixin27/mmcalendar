@@ -31,6 +31,15 @@ final class ChangeThemePreset extends SettingsEvent {
   List<Object?> get props => [presetId];
 }
 
+final class ChangeAppIcon extends SettingsEvent {
+  final String appIconId;
+
+  const ChangeAppIcon(this.appIconId);
+
+  @override
+  List<Object?> get props => [appIconId];
+}
+
 final class ChangeAppLanguage extends SettingsEvent {
   final String languageCode;
 

@@ -88,6 +88,7 @@ Core calculation runtime is powered by [`myanmar_calendar_dart`](https://pub.dev
 
 - Light/dark theme modes
 - Multiple theme presets + custom colors
+- Dynamic app icon selection (platform dependent)
 - App language and calendar language controls
 - Display toggles (holidays, astrology, Myanmar/Western date visibility, etc.)
 - Timezone behavior:
@@ -188,6 +189,25 @@ flutter build ios --release
 # Web
 flutter build web --release
 ```
+
+### iOS Alternate App Icons (Testing Note)
+
+- Alternate icon switching is supported in the app for iOS.
+- iOS Simulator may fail with LaunchServices resource/token errors (`NSPOSIXErrorDomain code=35`) even when configuration is correct.
+- For reliable verification, test on:
+  - a physical iPhone, or
+  - a cloud real-device testing service (for example BrowserStack App Live).
+
+### Native Setup Recovery (Android Icons/Widgets + iOS Icons)
+
+If platform folders are regenerated and native integrations are lost:
+
+```bash
+./scripts/restore_native_mobile_setup.sh --scope all
+./scripts/verify_native_mobile_setup.sh --scope all
+```
+
+Reference: [`docs/architecture/native_mobile_setup.md`](docs/architecture/native_mobile_setup.md)
 
 ---
 

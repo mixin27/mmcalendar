@@ -1,3 +1,30 @@
+## [2.2.1+221] - 2026-03-04
+
+- Refreshed brand assets and launcher icons:
+  - New night-sky visual direction with glowing full-moon style.
+  - Updated Play Store feature graphic output.
+  - Regenerated Android, iOS/macOS, and web icon assets from branding generator.
+- Expanded selectable app icon variants in settings:
+  - Default
+  - Moon
+  - Forest
+  - Minimal Flat
+  - Premium Dark
+  - Traditional Myanmar
+- Improved dynamic app-icon switching behavior:
+  - Added stronger iOS switching guards and retry handling for transient LaunchServices failures (`NSPOSIXErrorDomain code=35`).
+  - Improved method-channel flow for icon selection and state synchronization.
+  - Added alternate icon metadata compatibility fallback in iOS `Info.plist`.
+- Added native setup recovery tooling for maintainability:
+  - `scripts/restore_native_mobile_setup.sh` to restore Android icons/widgets and iOS icon setup from git.
+  - `scripts/verify_native_mobile_setup.sh` to verify native integration contracts.
+  - Added architecture documentation: `docs/architecture/native_mobile_setup.md`.
+- Fixed first-launch calendar language inconsistency:
+  - Unified fallback defaults so calendar runtime, settings page, reset flow, and home-widget background updates all use Myanmar (`my`) by default.
+- Important platform note:
+  - iOS Simulator may not reliably support alternate icon switching (known LaunchServices limitation).
+  - Validate icon switching on a physical iOS device or cloud real-device environment.
+
 ## [2.2.0+220] - 2026-03-02
 
 - Migrated core Myanmar calendar logic and app configuration to `myanmar_calendar_dart` APIs.
