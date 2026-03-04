@@ -1,6 +1,23 @@
-## [2.2.1+221] - 2026-03-03
+## [2.2.1+221] - 2026-03-04
 
-- Change brand assets, logo and icons
+- Refreshed brand assets and launcher icons:
+  - New night-sky visual direction with glowing full-moon style.
+  - Updated Play Store feature graphic output.
+  - Regenerated Android, iOS/macOS, and web icon assets from branding generator.
+- Expanded selectable app icon variants in settings:
+  - Default
+  - Moon
+  - Forest
+  - Minimal Flat
+  - Premium Dark
+  - Traditional Myanmar
+- Improved dynamic app-icon switching behavior:
+  - Added stronger iOS switching guards and retry handling for transient LaunchServices failures (`NSPOSIXErrorDomain code=35`).
+  - Improved method-channel flow for icon selection and state synchronization.
+  - Added alternate icon metadata compatibility fallback in iOS `Info.plist`.
+- Important platform note:
+  - iOS Simulator may not reliably support alternate icon switching (known LaunchServices limitation).
+  - Validate icon switching on a physical iOS device or cloud real-device environment.
 
 ## [2.2.0+220] - 2026-03-02
 
