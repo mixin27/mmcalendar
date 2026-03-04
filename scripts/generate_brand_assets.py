@@ -683,6 +683,7 @@ def propagate_android_icons(icon_sources: dict[str, str]) -> None:
     )
     anydpi_v26_dir = os.path.join(base_res, "mipmap-anydpi-v26")
     drawable_dir = os.path.join(base_res, "drawable")
+    values_dir = os.path.join(base_res, "values")
     for density, size in ANDROID_MIPMAP_SIZES.items():
         mipmap_dir = os.path.join(base_res, f"mipmap-{density}")
         for key, src_icon in icon_sources.items():
@@ -709,16 +710,38 @@ def propagate_android_icons(icon_sources: dict[str, str]) -> None:
                 os.path.join(mipmap_dir, f"{legacy_name}_round.webp"),
             )
 
+    def to_hex(rgb: tuple[int, int, int]) -> str:
+        return f"#{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
+
+    # Device-agnostic adaptive background colors per icon variant.
+    # Keep this mapping unique by key to avoid duplicate <color> resources.
+    bg_colors: dict[str, str] = {}
+    for key, resource_name in ICON_RESOURCE_NAMES.items():
+        bg_rgb = ICON_PALETTES[key].top_strip_secondary
+        bg_colors[f"{resource_name}_background"] = to_hex(bg_rgb)
+
+    # Keep legacy name for compatibility where xml still references this key.
+    default_bg_hex = to_hex(ICON_PALETTES["default"].top_strip_secondary)
+    bg_colors.setdefault("ic_launcher_background", default_bg_hex)
+
+    colors_xml = ['<?xml version="1.0" encoding="utf-8"?>', "<resources>"]
+    for name, hex_color in bg_colors.items():
+        colors_xml.append(f'    <color name="{name}">{hex_color}</color>')
+    colors_xml.append("</resources>")
+    write_text(os.path.join(values_dir, "ic_launcher_background.xml"), "\n".join(colors_xml) + "\n")
+
     # Generate adaptive icon xml for each variant to avoid launcher fallback icons.
-    for resource_name in ICON_RESOURCE_NAMES.values():
+    for key, resource_name in ICON_RESOURCE_NAMES.items():
         legacy_name = f"{resource_name}_legacy"
         foreground_name = f"{resource_name}_foreground"
         foreground_round_name = f"{resource_name}_foreground_round"
+        bg_name = f"{resource_name}_background"
 
-        # Inset keeps icon artwork inside adaptive safe-zone and avoids zoomed look.
+        # Keep minimal inset so icon fills modern launchers (One UI/Pixel/etc)
+        # while still avoiding hard clipping across mask shapes.
         foreground_xml = f"""<?xml version="1.0" encoding="utf-8"?>
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:inset="16%">
+    android:inset="3%">
     <bitmap
         android:gravity="center"
         android:src="@mipmap/{legacy_name}" />
@@ -726,7 +749,7 @@ def propagate_android_icons(icon_sources: dict[str, str]) -> None:
 """
         foreground_round_xml = f"""<?xml version="1.0" encoding="utf-8"?>
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:inset="16%">
+    android:inset="3%">
     <bitmap
         android:gravity="center"
         android:src="@mipmap/{legacy_name}_round" />
@@ -743,13 +766,13 @@ def propagate_android_icons(icon_sources: dict[str, str]) -> None:
 
         adaptive_xml = f"""<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_launcher_background"/>
+    <background android:drawable="@color/{bg_name}"/>
     <foreground android:drawable="@drawable/{foreground_name}"/>
 </adaptive-icon>
 """
         adaptive_round_xml = f"""<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_launcher_background"/>
+    <background android:drawable="@color/{bg_name}"/>
     <foreground android:drawable="@drawable/{foreground_round_name}"/>
 </adaptive-icon>
 """
