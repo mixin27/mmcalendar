@@ -443,7 +443,7 @@ class WidgetLocalDataSource {
       return configuredLanguage;
     }
 
-    return Language.english.code;
+    return Language.myanmar.code;
   }
 
   // Helper methods

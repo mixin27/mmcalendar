@@ -24,7 +24,7 @@ void callbackDispatcher() {
       final prefs = await SharedPreferences.getInstance();
       final languageCode =
           prefs.getString(StorageKeys.calendarLanguage) ??
-          Language.english.code;
+          Language.myanmar.code;
       final useDeviceTimezone =
           prefs.getBool(StorageKeys.useDeviceTimezone) ?? true;
 

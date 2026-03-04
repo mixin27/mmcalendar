@@ -42,7 +42,7 @@ class SettingsRepositoryImpl extends BaseRepository
       // Get languages
       final appLanguage = settings[StorageKeys.appLanguage] ?? 'en';
       final calendarLanguageStr =
-          settings[StorageKeys.calendarLanguage] ?? 'en';
+          settings[StorageKeys.calendarLanguage] ?? Language.myanmar.code;
       final calendarLanguage = Language.fromCode(calendarLanguageStr);
       final useDeviceTimezone = _parseBool(
         settings[StorageKeys.useDeviceTimezone] ?? 'true',

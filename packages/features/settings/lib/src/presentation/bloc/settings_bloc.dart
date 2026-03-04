@@ -330,7 +330,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
         _applyCalendarConfiguration(
           config: const CalendarConfig(),
-          language: Language.english,
+          language: Language.myanmar,
           useDeviceTimezone: true,
         );
 

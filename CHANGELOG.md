@@ -19,6 +19,8 @@
   - `scripts/restore_native_mobile_setup.sh` to restore Android icons/widgets and iOS icon setup from git.
   - `scripts/verify_native_mobile_setup.sh` to verify native integration contracts.
   - Added architecture documentation: `docs/architecture/native_mobile_setup.md`.
+- Fixed first-launch calendar language inconsistency:
+  - Unified fallback defaults so calendar runtime, settings page, reset flow, and home-widget background updates all use Myanmar (`my`) by default.
 - Important platform note:
   - iOS Simulator may not reliably support alternate icon switching (known LaunchServices limitation).
   - Validate icon switching on a physical iOS device or cloud real-device environment.

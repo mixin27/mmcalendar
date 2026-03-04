@@ -159,9 +159,18 @@ Future<void> _initializeMyanmarCalendar() async {
 
     final holidayOverridesPort = app_di.getIt<HolidayOverridesPort>();
 
-    final calendarLanguage = await settingsDao.getSetting(
+    var calendarLanguage = await settingsDao.getSetting(
       StorageKeys.calendarLanguage,
     );
+    if (calendarLanguage == null || calendarLanguage.isEmpty) {
+      calendarLanguage = Language.myanmar.code;
+      await settingsDao.setSetting(
+        StorageKeys.calendarLanguage,
+        calendarLanguage,
+      );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(StorageKeys.calendarLanguage, calendarLanguage);
+    }
     final useDeviceTimezone =
         await settingsDao.getBoolSetting(StorageKeys.useDeviceTimezone) ?? true;
 
@@ -176,7 +185,7 @@ Future<void> _initializeMyanmarCalendar() async {
             ? Language.english.code
             : calendarSettings.defaultLanguage,
       ),
-      language: Language.fromCode(calendarLanguage ?? Language.english.code),
+      language: Language.fromCode(calendarLanguage),
       useDeviceTimezone: useDeviceTimezone,
       customHolidayRules: holidayOverridesPort.getCustomHolidayRules(),
       disabledHolidays: holidayOverridesPort.getDisabledHolidays(),
@@ -190,7 +199,7 @@ Future<void> _initializeMyanmarCalendar() async {
     // If loading fails, use defaults
     applyMyanmarCalendarRuntimeConfig(
       baseConfig: const CalendarConfig(),
-      language: Language.english,
+      language: Language.myanmar,
       cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
     );
     debugPrint('⚠️ Myanmar Calendar initialized with defaults: $e');
