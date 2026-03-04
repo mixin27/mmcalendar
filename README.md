@@ -198,6 +198,17 @@ flutter build web --release
   - a physical iPhone, or
   - a cloud real-device testing service (for example BrowserStack App Live).
 
+### Native Setup Recovery (Android Icons/Widgets + iOS Icons)
+
+If platform folders are regenerated and native integrations are lost:
+
+```bash
+./scripts/restore_native_mobile_setup.sh --scope all
+./scripts/verify_native_mobile_setup.sh --scope all
+```
+
+Reference: [`docs/architecture/native_mobile_setup.md`](docs/architecture/native_mobile_setup.md)
+
 ---
 
 ## ☁️ Remote Config

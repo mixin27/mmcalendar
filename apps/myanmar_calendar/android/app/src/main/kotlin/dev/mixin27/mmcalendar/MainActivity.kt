@@ -20,9 +20,18 @@ class MainActivity : FlutterActivity() {
         "premium_dark" to "dev.mixin27.mmcalendar.MainActivityPremiumDark",
         "traditional_myanmar" to "dev.mixin27.mmcalendar.MainActivityTraditionalMyanmar",
     )
+    private val manifestEnabledAliasDefaults = mapOf(
+        "default" to true,
+        "moon" to false,
+        "forest" to false,
+        "minimal_flat" to false,
+        "premium_dark" to false,
+        "traditional_myanmar" to false,
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Recover state if MainActivity was disabled by older builds.
         ensureMainActivityEnabled()
 
         // Capture intent extras when activity is created
@@ -136,33 +145,27 @@ class MainActivity : FlutterActivity() {
         return try {
             val packageManager = packageManager
             ensureMainActivityEnabled()
-            val targetAlias = launcherAliases[iconId] ?: launcherAliases.getValue("default")
+            val targetId = if (launcherAliases.containsKey(iconId)) iconId else "default"
+            val targetAlias = launcherAliases.getValue(targetId)
 
             launcherAliases.forEach { (id, aliasClass) ->
                 val componentName = ComponentName(this, aliasClass)
-                val desiredState = if (aliasClass == targetAlias) {
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                } else {
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                }
-
-                val currentState = packageManager.getComponentEnabledSetting(componentName)
-                val normalizedCurrentState = when (currentState) {
-                    PackageManager.COMPONENT_ENABLED_STATE_DEFAULT ->
-                        if (id == "default") PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                        else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                    else -> currentState
-                }
-
-                if (normalizedCurrentState != desiredState) {
+                val shouldEnable = aliasClass == targetAlias
+                if (isAliasEnabled(packageManager, componentName, id) != shouldEnable) {
                     packageManager.setComponentEnabledSetting(
                         componentName,
-                        desiredState,
+                        if (shouldEnable) {
+                            PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                        } else {
+                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                        },
                         PackageManager.DONT_KILL_APP
                     )
                 }
             }
-            true
+
+            // Verify the icon switch result using effective alias state.
+            getCurrentIconId() == targetId
         } catch (e: Exception) {
             android.util.Log.e("MainActivity", "Failed to switch app icon", e)
             false
@@ -189,17 +192,26 @@ class MainActivity : FlutterActivity() {
         return try {
             val packageManager = packageManager
             launcherAliases.entries.firstOrNull { (id, aliasClass) ->
-                val state = packageManager.getComponentEnabledSetting(
-                    ComponentName(this, aliasClass)
-                )
-                when (state) {
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> true
-                    PackageManager.COMPONENT_ENABLED_STATE_DEFAULT -> id == "default"
-                    else -> false
-                }
+                isAliasEnabled(packageManager, ComponentName(this, aliasClass), id)
             }?.key ?: "default"
         } catch (_: Exception) {
             "default"
+        }
+    }
+
+    private fun isAliasEnabled(
+        packageManager: PackageManager,
+        componentName: ComponentName,
+        aliasId: String,
+    ): Boolean {
+        return when (packageManager.getComponentEnabledSetting(componentName)) {
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> true
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED -> false
+            PackageManager.COMPONENT_ENABLED_STATE_DEFAULT ->
+                manifestEnabledAliasDefaults[aliasId] ?: false
+            else -> false
         }
     }
 }

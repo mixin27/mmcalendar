@@ -55,6 +55,17 @@ class GetOnboardingSlides {
         semanticLabel: 'Traditional calendar features',
       ),
       PromoSlide(
+        id: 'app_icon_personalization',
+        title: 'Customize Your App Icon',
+        subtitle:
+            'Pick the launcher icon style you like: default, moon, forest, and more.',
+        visualType: PromoVisualType.image,
+        imageAsset: 'assets/branding/app_icon_moon_1024.png',
+        cta: PromoCTA(text: 'Next', action: PromoAction.next),
+        rules: PromoRules(showOnce: kReleaseMode),
+        semanticLabel: 'App icon personalization feature introduction',
+      ),
+      PromoSlide(
         id: 'privacy',
         title: '100% Privacy & Offline',
         subtitle:

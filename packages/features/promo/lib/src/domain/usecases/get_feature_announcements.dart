@@ -112,6 +112,27 @@ class GetFeatureAnnouncements {
       ];
     }
 
+    // Version 2.2.1/2.2.2 announcements
+    if (version == '2.2.1' || version == '2.2.2') {
+      return [
+        PromoSlide(
+          id: 'v2_2_1_app_icon_personalization',
+          title: 'New: App Icon Themes',
+          subtitle:
+              'Switch between Default, Moon, Forest, Minimal Flat, Premium Dark, and Traditional Myanmar styles.',
+          visualType: PromoVisualType.image,
+          imageAsset: 'assets/branding/app_icon_1024.png',
+          cta: PromoCTA(
+            text: 'Choose Icon',
+            action: PromoAction.navigate,
+            target: '/settings/theme',
+          ),
+          rules: PromoRules(showOnce: kReleaseMode, minAppVersion: '2.2.1'),
+          semanticLabel: 'App icon theme feature announcement',
+        ),
+      ];
+    }
+
     return [];
   }
 }

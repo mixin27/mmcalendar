@@ -15,6 +15,10 @@
   - Added stronger iOS switching guards and retry handling for transient LaunchServices failures (`NSPOSIXErrorDomain code=35`).
   - Improved method-channel flow for icon selection and state synchronization.
   - Added alternate icon metadata compatibility fallback in iOS `Info.plist`.
+- Added native setup recovery tooling for maintainability:
+  - `scripts/restore_native_mobile_setup.sh` to restore Android icons/widgets and iOS icon setup from git.
+  - `scripts/verify_native_mobile_setup.sh` to verify native integration contracts.
+  - Added architecture documentation: `docs/architecture/native_mobile_setup.md`.
 - Important platform note:
   - iOS Simulator may not reliably support alternate icon switching (known LaunchServices limitation).
   - Validate icon switching on a physical iOS device or cloud real-device environment.
