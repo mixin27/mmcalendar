@@ -87,5 +87,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is used to take photos to use in the app's calendar generation feature.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is used to select images to use in the app's calendar generation feature.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Photo library access is used to save images from the app's calendar generation feature.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location access is used when capturing photos to add location metadata.</string>
 </dict>
 </plist>
