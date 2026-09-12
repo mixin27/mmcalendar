@@ -9,12 +9,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 import '../../domain/entities/widget_config.dart';
+import '../../home_widget_configuration.dart';
 import '../services/myanmar_month_widget_service.dart';
 import '../services/widget_update_service.dart';
 
 class WidgetLocalDataSource {
   static const String _configKey = 'widget_config';
-  static const String _periodicTaskName = 'widget_periodic_task';
+  static const String _periodicTaskName = homeWidgetPeriodicTaskId;
   static const String _timelineGeneratedAtKey = 'widget_timeline_generated_at';
   static const String _timelineLanguageKey = 'widget_timeline_language';
   static const String _timelineEndDateKey = 'widget_timeline_end_date';

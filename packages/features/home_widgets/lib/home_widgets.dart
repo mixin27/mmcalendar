@@ -1,6 +1,7 @@
 library;
 
 export 'src/widget_click_handler.dart';
+export 'src/home_widget_configuration.dart';
 
 // Domain
 export 'src/domain/entities/widget_config.dart';

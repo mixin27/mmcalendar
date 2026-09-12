@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:home_widget/home_widget.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
@@ -5,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 import '../datasources/widget_local_datasource.dart';
+import '../../home_widget_configuration.dart';
 
 /// Background service for updating widgets
 /// This runs independently of the Flutter app
@@ -19,6 +23,10 @@ void callbackDispatcher() {
     try {
       // Initialize Flutter binding for background task
       WidgetsFlutterBinding.ensureInitialized();
+
+      if (Platform.isIOS) {
+        await HomeWidget.setAppGroupId(homeWidgetAppGroupId);
+      }
 
       // Initialize shared preferences for background
       final prefs = await SharedPreferences.getInstance();

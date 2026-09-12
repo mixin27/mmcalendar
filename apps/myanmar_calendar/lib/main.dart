@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:home_widget/home_widget.dart' show HomeWidget;
 import 'package:integrations_database/integrations_database.dart';
 import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:promo/promo.dart';
@@ -25,6 +26,10 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
+
+  if (!kIsWeb && Platform.isIOS) {
+    await HomeWidget.setAppGroupId(homeWidgetAppGroupId);
+  }
 
   // Enable debug mode for promo carousel
   PromoCarousel.debugMode = kDebugMode;
@@ -123,8 +128,10 @@ Future<void> _runPostLaunchInitialization() async {
     }
   }
 
-  if (!kIsWeb && Platform.isAndroid) {
-    await _syncBackgroundLogs();
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    if (Platform.isAndroid) {
+      await _syncBackgroundLogs();
+    }
     await _initializeWidgetUpdates();
   }
 }
