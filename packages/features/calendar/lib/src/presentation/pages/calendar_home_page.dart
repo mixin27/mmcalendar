@@ -16,6 +16,8 @@ import '../widgets/calendar_header.dart';
 import '../widgets/weekday_header.dart';
 import '../widgets/calendar_grid.dart';
 import '../widgets/day_details_content.dart';
+import '../../utils/utils.dart';
+
 // import '../widgets/astrology_expandable_card.dart';
 
 class CalendarHomePage extends StatefulWidget {
@@ -1125,9 +1127,6 @@ class _MonthYearPickerBottomSheetState
   }
 
   String _getMonthName(int month) {
-    return TranslationService.getShortWesternMonthName(
-      month - 1,
-      MyanmarCalendar.currentLanguage,
-    );
+    return getShortWesternMonthName(month, MyanmarCalendar.currentLanguage);
   }
 }

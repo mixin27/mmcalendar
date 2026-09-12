@@ -1,5 +1,10 @@
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
+String getShortWesternMonthName(int month, Language language) {
+  RangeError.checkValueInInterval(month, 1, 12, 'month');
+  return TranslationService.getShortWesternMonthName(month, language);
+}
+
 String translateSentence(String sentence) {
   final words = sentence.split(' ');
   if (words.length <= 1) {
