@@ -658,7 +658,7 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
               Expanded(
                 child: ReorderableListView.builder(
                   itemCount: items.length,
-                  onReorder: (oldIndex, newIndex) =>
+                  onReorderItem: (oldIndex, newIndex) =>
                       _reorderItems(pageKey, oldIndex, newIndex),
                   itemBuilder: (context, index) {
                     final item = items[index];
@@ -1378,12 +1378,8 @@ class _OverlayEditorPageState extends State<OverlayEditorPage> {
         newIndex > list.length) {
       return;
     }
-    var target = newIndex;
-    if (target > oldIndex) {
-      target -= 1;
-    }
     final moved = list.removeAt(oldIndex);
-    list.insert(target, moved);
+    list.insert(newIndex, moved);
     setState(() {
       _hasChanges = true;
       _selectedItemId = moved.id;

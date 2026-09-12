@@ -85,7 +85,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
         return created;
       });
 
-      return _hydrateEvent(created, resolvedCategory: resolvedCategory);
+      return await _hydrateEvent(created, resolvedCategory: resolvedCategory);
     } catch (e) {
       throw CacheException('Failed to create event: ${e.toString()}');
     }
@@ -122,7 +122,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
         return updated;
       });
 
-      return _hydrateEvent(updated, resolvedCategory: resolvedCategory);
+      return await _hydrateEvent(updated, resolvedCategory: resolvedCategory);
     } catch (e) {
       throw CacheException('Failed to update event: ${e.toString()}');
     }
@@ -150,7 +150,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
     try {
       final event = await _eventsDao.getEventById(eventId);
       if (event == null) return null;
-      return _hydrateEvent(event);
+      return await _hydrateEvent(event);
     } catch (e) {
       throw CacheException('Failed to get event: ${e.toString()}');
     }
@@ -162,7 +162,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
       final events = includeCompleted
           ? await _eventsDao.getAllEvents()
           : await _eventsDao.getAllIncompleteEvents();
-      return _hydrateEvents(events);
+      return await _hydrateEvents(events);
     } catch (e) {
       throw CacheException('Failed to get all events: ${e.toString()}');
     }
@@ -172,7 +172,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   Future<List<EventModel>> getEventsByDate(DateTime date) async {
     try {
       final events = await _eventsDao.getEventsByDate(date);
-      return _hydrateEvents(events);
+      return await _hydrateEvents(events);
     } catch (e) {
       throw CacheException('Failed to get events by date: ${e.toString()}');
     }
@@ -187,7 +187,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
       // Keep behavior compatible with recurrence expansion in repository:
       // return all master events so virtual instances can be generated.
       final events = await _eventsDao.getAllEvents();
-      return _hydrateEvents(events);
+      return await _hydrateEvents(events);
     } catch (e) {
       throw CacheException(
         'Failed to get events by date range: ${e.toString()}',
@@ -199,7 +199,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
   Future<List<EventModel>> getEventsByCategory(String category) async {
     try {
       final events = await _eventsDao.getEventsByCategoryName(category);
-      return _hydrateEvents(events);
+      return await _hydrateEvents(events);
     } catch (e) {
       throw CacheException('Failed to get events by category: ${e.toString()}');
     }
@@ -215,7 +215,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
             return status == eventStatus;
           })
           .toList(growable: false);
-      return _hydrateEvents(filtered);
+      return await _hydrateEvents(filtered);
     } catch (e) {
       throw CacheException('Failed to get events by status: ${e.toString()}');
     }
@@ -238,7 +238,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
           })
           .toList(growable: false);
 
-      return _hydrateEvents(filtered);
+      return await _hydrateEvents(filtered);
     } catch (e) {
       throw CacheException('Failed to search events: ${e.toString()}');
     }
@@ -262,7 +262,7 @@ class EventsLocalDataSourceImpl implements EventsLocalDataSource {
         throw CacheException('Event not found');
       }
 
-      return _hydrateEvent(updated);
+      return await _hydrateEvent(updated);
     } catch (e) {
       throw CacheException('Failed to toggle completion: ${e.toString()}');
     }

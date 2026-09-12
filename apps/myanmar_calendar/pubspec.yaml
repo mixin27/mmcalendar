@@ -60,22 +60,22 @@ dependencies:
   flutter_bloc: ^9.1.1
 
   # Dependency injection
-  get_it: ^8.2.0
-  injectable: ^2.5.2
+  get_it: ^9.2.1
+  injectable: ^3.0.0
 
   # Navigation
-  go_router: ^16.2.4
+  go_router: ^18.0.1
 
   # Utilites
-  intl: ^0.20.2
-  timezone: ^0.10.1
-  cupertino_icons: ^1.0.8
-  equatable: ^2.0.7
+  intl: ^0.20.3
+  timezone: ^0.11.1
+  cupertino_icons: ^1.0.9
+  equatable: ^2.1.0
   url_launcher: ^6.3.2
-  home_widget: ^0.8.0
-  shared_preferences: ^2.5.4
-  workmanager: ^0.8.0
-  flutter_svg: ^2.2.1
+  home_widget: ^0.9.4
+  shared_preferences: ^2.5.5
+  workmanager: ^0.10.0
+  flutter_svg: ^2.3.0
 
   # Firebase
   firebase_core: ^4.1.1
@@ -84,14 +84,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  build_runner: ^2.8.0
-  injectable_generator: ^2.9.0
+  build_runner:
+  injectable_generator: ^3.1.3
   build_version: ^2.1.3
 
 flutter:
-  config:
-    enable-swift-package-manager: false
-
   uses-material-design: true
 
   assets:

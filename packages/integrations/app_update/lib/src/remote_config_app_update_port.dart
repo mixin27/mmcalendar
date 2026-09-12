@@ -167,7 +167,7 @@ class RemoteConfigAppUpdatePort implements AppUpdatePort {
       if (uri == null) {
         return false;
       }
-      return launchUrl(uri, mode: LaunchMode.externalApplication);
+      return await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (error) {
       debugPrint('Failed to launch update URL: $error');
       return false;

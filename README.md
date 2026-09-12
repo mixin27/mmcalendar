@@ -336,7 +336,7 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 flutter pub get
 
 # Codegen (from workspace root)
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 
 # Analyze
 flutter analyze

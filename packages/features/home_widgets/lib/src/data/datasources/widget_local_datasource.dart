@@ -339,7 +339,7 @@ class WidgetLocalDataSource {
           requiresDeviceIdle: false,
           requiresStorageNotLow: false,
         ),
-        existingWorkPolicy: ExistingWorkPolicy.update,
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
       );
       debugPrint('Periodic widget updates scheduled successfully');
     } catch (e) {
