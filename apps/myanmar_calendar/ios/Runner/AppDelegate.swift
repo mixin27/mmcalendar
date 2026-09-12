@@ -6,8 +6,7 @@ import workmanager_apple
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private let appIconChannelName = "dev.mixin27.mmcalendar/app_icon"
-  private let iconChangeMaxRetryAttempts = 3
-  private let iconChangeRetryDelay: TimeInterval = 2.0
+  private var appIconChannel: FlutterMethodChannel?
   @available(iOS 10.3, *)
   private var isSettingAppIcon = false
 
@@ -22,9 +21,7 @@ import workmanager_apple
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
-    let didFinish = super.application(application, didFinishLaunchingWithOptions: launchOptions)
-    configureAppIconChannel()
-    return didFinish
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
@@ -33,6 +30,9 @@ import workmanager_apple
         GeneratedPluginRegistrant.register(with: registry)
     }
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    configureAppIconChannel(
+      messenger: engineBridge.applicationRegistrar.messenger()
+    )
   }
 
   /// Called when user taps "Configure in App" button in notification's context menu
@@ -52,24 +52,27 @@ import workmanager_apple
       channel.invokeMethod("showNotificationSettings", arguments: nil)
   }
 
-  private func configureAppIconChannel() {
-    guard let registrar = self.registrar(forPlugin: "AppIconMethodChannel") else {
-      return
-    }
+  private func configureAppIconChannel(
+    messenger: FlutterBinaryMessenger
+  ) {
     let channel = FlutterMethodChannel(
       name: appIconChannelName,
-      binaryMessenger: registrar.messenger()
+      binaryMessenger: messenger
     )
     channel.setMethodCallHandler { [weak self] call, result in
       guard let self = self else {
-        result(false)
+        result(FlutterError(
+          code: "channel_unavailable",
+          message: "The app icon channel is no longer available.",
+          details: nil
+        ))
         return
       }
 
       switch call.method {
       case "isSupported":
         if #available(iOS 10.3, *) {
-          result(UIApplication.shared.supportsAlternateIcons && !isRunningOnSimulator())
+          result(UIApplication.shared.supportsAlternateIcons)
         } else {
           result(false)
         }
@@ -83,14 +86,22 @@ import workmanager_apple
 
       case "setAppIcon":
         guard #available(iOS 10.3, *) else {
-          result(false)
+          result(FlutterError(
+            code: "unsupported",
+            message: "Alternate app icons require iOS 10.3 or later.",
+            details: nil
+          ))
           return
         }
         guard
           let arguments = call.arguments as? [String: Any],
           let iconId = arguments["iconId"] as? String
         else {
-          result(false)
+          result(FlutterError(
+            code: "invalid_argument",
+            message: "A valid iconId is required.",
+            details: nil
+          ))
           return
         }
         self.setAppIcon(iconId: iconId, result: result)
@@ -99,12 +110,17 @@ import workmanager_apple
         result(FlutterMethodNotImplemented)
       }
     }
+    appIconChannel = channel
   }
 
   @available(iOS 10.3, *)
   private func setAppIcon(iconId: String, result: @escaping FlutterResult) {
-    guard UIApplication.shared.supportsAlternateIcons && !isRunningOnSimulator() else {
-      result(false)
+    guard UIApplication.shared.supportsAlternateIcons else {
+      result(FlutterError(
+        code: "unsupported",
+        message: "This device does not support alternate app icons.",
+        details: nil
+      ))
       return
     }
 
@@ -123,7 +139,11 @@ import workmanager_apple
     case "traditional_myanmar":
       alternateIconName = "AppIconTraditionalMyanmar"
     default:
-      result(false)
+      result(FlutterError(
+        code: "invalid_icon",
+        message: "The requested app icon is not configured.",
+        details: iconId
+      ))
       return
     }
 
@@ -133,121 +153,64 @@ import workmanager_apple
     }
 
     if isSettingAppIcon {
-      // Avoid overlapping requests (LSIconAlertManager token contention).
-      result(false)
-      return
-    }
-
-    isSettingAppIcon = true
-    performSetAppIcon(
-      alternateIconName: alternateIconName,
-      retryCount: 0,
-      result: result
-    )
-  }
-
-  @available(iOS 10.3, *)
-  private func isReadyForIconChange() -> Bool {
-    guard UIApplication.shared.applicationState == .active else {
-      return false
-    }
-
-    let foregroundScene = UIApplication.shared.connectedScenes
-      .compactMap { $0 as? UIWindowScene }
-      .first { $0.activationState == .foregroundActive }
-    guard let scene = foregroundScene else {
-      return false
-    }
-
-    let keyWindow = scene.windows.first { $0.isKeyWindow } ?? scene.windows.first
-    guard let window = keyWindow else {
-      return false
-    }
-
-    // Any presented controller can interfere with LSIconAlertManager token.
-    return window.rootViewController?.presentedViewController == nil
-  }
-
-  private func isRunningOnSimulator() -> Bool {
-#if targetEnvironment(simulator)
-    return true
-#else
-    return false
-#endif
-  }
-
-  @available(iOS 10.3, *)
-  private func performSetAppIcon(
-    alternateIconName: String?,
-    retryCount: Int,
-    result: @escaping FlutterResult
-  ) {
-    if UIApplication.shared.alternateIconName == alternateIconName {
-      isSettingAppIcon = false
-      result(true)
-      return
-    }
-
-    if !isReadyForIconChange() {
-      if retryCount < iconChangeMaxRetryAttempts {
-        DispatchQueue.main.asyncAfter(deadline: .now() + iconChangeRetryDelay) { [weak self] in
-          self?.performSetAppIcon(
-            alternateIconName: alternateIconName,
-            retryCount: retryCount + 1,
-            result: result
-          )
-        }
-      } else {
-        isSettingAppIcon = false
-        result(false)
-      }
+      result(FlutterError(
+        code: "change_in_progress",
+        message: "Another app icon change is already in progress.",
+        details: nil
+      ))
       return
     }
 
     DispatchQueue.main.async {
+      guard UIApplication.shared.applicationState == .active else {
+        result(FlutterError(
+          code: "app_inactive",
+          message: "Keep the app in the foreground while changing its icon.",
+          details: nil
+        ))
+        return
+      }
+
+      self.isSettingAppIcon = true
       UIApplication.shared.setAlternateIconName(alternateIconName) { [weak self] error in
-        guard let self = self else {
-          result(false)
-          return
-        }
-
-        if let nsError = error as NSError? {
-          // Some iOS versions return transient code 35 even if icon eventually changed.
-          if UIApplication.shared.alternateIconName == alternateIconName {
-            self.isSettingAppIcon = false
-            result(true)
+        // UIKit doesn't guarantee which queue invokes this completion handler.
+        DispatchQueue.main.async {
+          guard let self = self else {
+            result(FlutterError(
+              code: "channel_unavailable",
+              message: "The app icon channel is no longer available.",
+              details: nil
+            ))
             return
           }
 
-          if
-            nsError.domain == NSPOSIXErrorDomain,
-            nsError.code == 35,
-            retryCount < self.iconChangeMaxRetryAttempts
-          {
-            DispatchQueue.main.asyncAfter(deadline: .now() + self.iconChangeRetryDelay) { [weak self] in
-              self?.performSetAppIcon(
-                alternateIconName: alternateIconName,
-                retryCount: retryCount + 1,
-                result: result
-              )
-            }
-            return
-          }
-
-          NSLog(
-            "Failed to switch app icon [domain=%@ code=%ld]: %@ userInfo=%@",
-            nsError.domain,
-            nsError.code,
-            nsError.localizedDescription,
-            nsError.userInfo.description
-          )
           self.isSettingAppIcon = false
-          result(false)
-          return
-        }
+          if let nsError = error as NSError? {
+            NSLog(
+              "Failed to switch app icon [domain=%@ code=%ld]: %@ userInfo=%@",
+              nsError.domain,
+              nsError.code,
+              nsError.localizedDescription,
+              nsError.userInfo.description
+            )
+            result(FlutterError(
+              code: "native_change_failed",
+              message: nsError.localizedDescription,
+              details: ["domain": nsError.domain, "code": nsError.code]
+            ))
+            return
+          }
 
-        self.isSettingAppIcon = false
-        result(true)
+          guard UIApplication.shared.alternateIconName == alternateIconName else {
+            result(FlutterError(
+              code: "change_not_applied",
+              message: "iOS did not apply the selected app icon.",
+              details: nil
+            ))
+            return
+          }
+          result(true)
+        }
       }
     }
   }

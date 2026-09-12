@@ -417,6 +417,16 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
         return;
       }
       context.read<SettingsBloc>().add(ChangeAppIcon(iconId));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('App icon updated.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } on AppIconException catch (error) {
+      if (context.mounted) {
+        showErrorSnackBar(context, error.message);
+      }
     } finally {
       if (mounted) {
         setState(() {

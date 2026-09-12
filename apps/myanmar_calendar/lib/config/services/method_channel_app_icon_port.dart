@@ -46,9 +46,20 @@ class MethodChannelAppIconPort implements AppIconPort {
         'setAppIcon',
         <String, dynamic>{'iconId': iconId},
       );
-      return value ?? false;
-    } catch (_) {
-      return false;
+      if (value != true) {
+        return false;
+      }
+      return await getCurrentIcon() == iconId;
+    } on PlatformException catch (error) {
+      throw AppIconException(
+        code: error.code,
+        message: error.message ?? 'Failed to switch app icon.',
+      );
+    } on MissingPluginException {
+      throw const AppIconException(
+        code: 'channel_unavailable',
+        message: 'App icon switching is unavailable on this platform.',
+      );
     }
   }
 }
