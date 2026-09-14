@@ -187,7 +187,7 @@ void _seedSchemaV1(String path) {
 
     db.execute('PRAGMA user_version = 1');
   } finally {
-    db.dispose();
+    db.close();
   }
 }
 

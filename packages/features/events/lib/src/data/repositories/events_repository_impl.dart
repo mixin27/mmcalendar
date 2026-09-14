@@ -141,7 +141,7 @@ class EventsRepositoryImpl extends data.BaseRepository
       final startOfDay = DateTime(date.year, date.month, date.day);
       final endOfDay = startOfDay.add(const Duration(days: 1));
 
-      return getEventsByDateRange(startOfDay, endOfDay);
+      return await getEventsByDateRange(startOfDay, endOfDay);
     } on AppException catch (e) {
       return Left(handleException(e));
     } catch (e) {
@@ -242,7 +242,7 @@ class EventsRepositoryImpl extends data.BaseRepository
       final endDate = now.add(Duration(days: days));
 
       // Use date range method to get virtual instances
-      return getEventsByDateRange(now, endDate);
+      return await getEventsByDateRange(now, endDate);
     } on AppException catch (e) {
       return Left(handleException(e));
     } catch (e) {

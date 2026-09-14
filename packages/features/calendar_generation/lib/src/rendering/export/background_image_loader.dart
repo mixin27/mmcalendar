@@ -26,7 +26,7 @@ class BackgroundImageLoader {
         if (!await file.exists()) {
           return null;
         }
-        return file.readAsBytes();
+        return await file.readAsBytes();
       }
 
       if (_looksLikeAbsoluteLocalPath(normalizedUrl)) {
@@ -34,7 +34,7 @@ class BackgroundImageLoader {
         if (!await file.exists()) {
           return null;
         }
-        return file.readAsBytes();
+        return await file.readAsBytes();
       }
 
       final uri = Uri.parse(normalizedUrl);

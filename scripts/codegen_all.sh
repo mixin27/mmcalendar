@@ -45,7 +45,7 @@ for target in "${codegen_targets[@]}"; do
   echo "--> ${target}"
   (
     cd "${target}"
-    dart run build_runner build --delete-conflicting-outputs
+    dart run build_runner build
   )
 done
 

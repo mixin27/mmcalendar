@@ -16,6 +16,8 @@ import '../widgets/calendar_header.dart';
 import '../widgets/weekday_header.dart';
 import '../widgets/calendar_grid.dart';
 import '../widgets/day_details_content.dart';
+import '../../utils/utils.dart';
+
 // import '../widgets/astrology_expandable_card.dart';
 
 class CalendarHomePage extends StatefulWidget {
@@ -751,16 +753,12 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     // Add subtle haptic feedback
     getIt<TelegramService>().hapticImpact('light');
 
-    // Check if we're in large screen mode
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    if (screenWidth > 1000) {
-      // In split view, just select the date, don't navigate
-      context.read<CalendarBloc>().add(SelectDateEvent(date));
-    } else {
-      // On small screens, navigate to full-page details
-      final dateStr = date.toIso8601String();
-      GoRouter.of(context).go("/home/${RoutePaths.dayDetails}?date=$dateStr");
-    }
+    // This callback is used by the single-column layout. Whether the detail
+    // pane is visible is decided from the calendar's actual LayoutBuilder
+    // constraints, which can be narrower than MediaQuery on iPad because of
+    // the navigation rail. The split layout handles taps inline instead.
+    final dateStr = date.toIso8601String();
+    GoRouter.of(context).go("/home/${RoutePaths.dayDetails}?date=$dateStr");
   }
 
   void _moveSelection(BuildContext context, DateTime date) {
@@ -1125,9 +1123,6 @@ class _MonthYearPickerBottomSheetState
   }
 
   String _getMonthName(int month) {
-    return TranslationService.getShortWesternMonthName(
-      month - 1,
-      MyanmarCalendar.currentLanguage,
-    );
+    return getShortWesternMonthName(month, MyanmarCalendar.currentLanguage);
   }
 }

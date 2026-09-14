@@ -79,7 +79,7 @@ class ViewsRepositoryImpl extends BaseRepository implements ViewsRepository {
       final completeDate = await localDataSource.getDayDetails(date);
       final weekData = await getWeekData(date);
 
-      return weekData.fold(
+      return weekData.fold<Either<Failure, DayData>>(
         (failure) => Left(failure),
         (week) =>
             Right(DayData(date: date, completeDate: completeDate, week: week)),

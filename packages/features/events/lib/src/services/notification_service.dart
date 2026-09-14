@@ -42,7 +42,7 @@ class NotificationServiceImpl implements NotificationService {
     );
 
     await _notificationsPlugin.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
@@ -125,11 +125,11 @@ class NotificationServiceImpl implements NotificationService {
     );
 
     await _notificationsPlugin.zonedSchedule(
-      notificationId,
-      event.title,
-      _buildNotificationBody(event, setting),
-      _convertToTZDateTime(notificationTime),
-      details,
+      id: notificationId,
+      title: event.title,
+      body: _buildNotificationBody(event, setting),
+      scheduledDate: _convertToTZDateTime(notificationTime),
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: 'event_${event.id}_${event.eventDate.millisecondsSinceEpoch}',
     );
@@ -138,7 +138,7 @@ class NotificationServiceImpl implements NotificationService {
   @override
   Future<void> cancelNotification(int notificationId) async {
     if (!_isInitialized) await initialize();
-    await _notificationsPlugin.cancel(notificationId);
+    await _notificationsPlugin.cancel(id: notificationId);
   }
 
   @override

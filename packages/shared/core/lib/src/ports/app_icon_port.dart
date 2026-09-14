@@ -6,6 +6,17 @@ class AppIconOption {
   const AppIconOption({required this.id, required this.label});
 }
 
+/// A platform-specific failure while applying an alternate app icon.
+class AppIconException implements Exception {
+  final String code;
+  final String message;
+
+  const AppIconException({required this.code, required this.message});
+
+  @override
+  String toString() => message;
+}
+
 /// SDK-agnostic app icon contract.
 ///
 /// Implementations can use platform channels (Android/iOS) or no-op behavior

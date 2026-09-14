@@ -77,8 +77,28 @@ class MainActivity : FlutterActivity() {
                 "isSupported" -> result.success(true)
                 "getCurrentIcon" -> result.success(getCurrentIconId())
                 "setAppIcon" -> {
-                    val iconId = call.argument<String>("iconId") ?: "default"
-                    result.success(setLauncherIcon(iconId))
+                    val iconId = call.argument<String>("iconId")
+                    if (iconId == null) {
+                        result.error(
+                            "invalid_argument",
+                            "A valid iconId is required.",
+                            null,
+                        )
+                    } else if (!launcherAliases.containsKey(iconId)) {
+                        result.error(
+                            "invalid_icon",
+                            "The requested app icon is not configured.",
+                            iconId,
+                        )
+                    } else if (setLauncherIcon(iconId)) {
+                        result.success(true)
+                    } else {
+                        result.error(
+                            "native_change_failed",
+                            "Android did not apply the selected app icon.",
+                            iconId,
+                        )
+                    }
                 }
                 else -> result.notImplemented()
             }
@@ -145,8 +165,7 @@ class MainActivity : FlutterActivity() {
         return try {
             val packageManager = packageManager
             ensureMainActivityEnabled()
-            val targetId = if (launcherAliases.containsKey(iconId)) iconId else "default"
-            val targetAlias = launcherAliases.getValue(targetId)
+            val targetAlias = launcherAliases.getValue(iconId)
 
             launcherAliases.forEach { (id, aliasClass) ->
                 val componentName = ComponentName(this, aliasClass)
@@ -165,7 +184,7 @@ class MainActivity : FlutterActivity() {
             }
 
             // Verify the icon switch result using effective alias state.
-            getCurrentIconId() == targetId
+            getCurrentIconId() == iconId
         } catch (e: Exception) {
             android.util.Log.e("MainActivity", "Failed to switch app icon", e)
             false
