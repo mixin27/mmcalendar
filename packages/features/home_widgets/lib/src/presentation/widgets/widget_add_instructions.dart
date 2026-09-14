@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class WidgetAddInstructions extends StatelessWidget {
@@ -5,6 +6,21 @@ class WidgetAddInstructions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+    final steps = isIOS
+        ? const [
+            ('Long press an empty area of the Home Screen', Icons.touch_app),
+            ('Tap Edit, then Add Widget', Icons.add_box_outlined),
+            ('Search for "Myanmar Calendar"', Icons.search),
+            ('Choose a size and tap Add Widget', Icons.widgets_outlined),
+          ]
+        : const [
+            ('Long press on your home screen', Icons.touch_app),
+            ('Tap on "Widgets"', Icons.widgets_outlined),
+            ('Find "Myanmar Calendar" widget', Icons.search),
+            ('Drag and drop to home screen', Icons.drag_indicator),
+          ];
+
     return Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -29,28 +45,10 @@ class WidgetAddInstructions extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            _buildStep(
-              context,
-              1,
-              'Long press on your home screen',
-              Icons.touch_app,
-            ),
-            const SizedBox(height: 12),
-            _buildStep(context, 2, 'Tap on "Widgets"', Icons.widgets_outlined),
-            const SizedBox(height: 12),
-            _buildStep(
-              context,
-              3,
-              'Find "Myanmar Calendar" widget',
-              Icons.search,
-            ),
-            const SizedBox(height: 12),
-            _buildStep(
-              context,
-              4,
-              'Drag and drop to home screen',
-              Icons.drag_indicator,
-            ),
+            for (final (index, step) in steps.indexed) ...[
+              _buildStep(context, index + 1, step.$1, step.$2),
+              if (index < steps.length - 1) const SizedBox(height: 12),
+            ],
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(12),

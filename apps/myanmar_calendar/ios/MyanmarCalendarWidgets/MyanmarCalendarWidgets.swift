@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import WidgetKit
 
 private enum WidgetConstants {
@@ -14,9 +15,18 @@ struct MyanmarCalendarEntry: TimelineEntry {
     let moonPhase: String
     let moonPhaseEmoji: String
     let fortnightDay: String
+    let fortnightDayText: String
+    let nextMoonPhase: String
+    let moonPhaseImagePath: String
+    let fullMoonPhaseImagePath: String
     let holidays: String
     let sabbathInfo: String
     let astrologicalDays: String
+    let theme: String
+    let showHolidays: Bool
+    let showAstrology: Bool
+    let showMyanmarDate: Bool
+    let showWesternDate: Bool
     let month: MyanmarMonthSnapshot?
     let weekdayNames: [String]
 }
@@ -133,9 +143,18 @@ private enum WidgetDataStore {
             moonPhase: string(data, "moon_phase"),
             moonPhaseEmoji: string(data, "moon_phase_emoji", fallback: "🌙"),
             fortnightDay: string(data, "fortnight_day"),
+            fortnightDayText: string(data, "fortnight_day_text"),
+            nextMoonPhase: string(data, "next_moon_phase"),
+            moonPhaseImagePath: string(data, "moon_phase_image_path"),
+            fullMoonPhaseImagePath: string(data, "full_moon_phase_image_path"),
             holidays: string(data, "holidays"),
             sabbathInfo: string(data, "sabbath_info"),
             astrologicalDays: string(data, "astrological_days"),
+            theme: defaults?.string(forKey: "widget_theme") ?? "auto",
+            showHolidays: bool(forKey: "show_holidays", fallback: true),
+            showAstrology: bool(forKey: "show_astrology", fallback: true),
+            showMyanmarDate: bool(forKey: "show_myanmar_date", fallback: true),
+            showWesternDate: bool(forKey: "show_western_date", fallback: true),
             month: monthSnapshot(for: dateKey, timeline: monthTimeline),
             weekdayNames: weekdayNames()
         )
@@ -146,6 +165,8 @@ private enum WidgetDataStore {
         let keys = [
             "western_date", "myanmar_date", "moon_phase",
             "moon_phase_emoji", "fortnight_day", "holidays",
+            "fortnight_day_text", "next_moon_phase",
+            "moon_phase_image_path", "full_moon_phase_image_path",
             "sabbath_info", "astrological_days",
         ]
         return Dictionary(uniqueKeysWithValues: keys.compactMap { key in
@@ -235,6 +256,13 @@ private enum WidgetDataStore {
         return nil
     }
 
+    private static func bool(forKey key: String, fallback: Bool) -> Bool {
+        guard let defaults, defaults.object(forKey: key) != nil else {
+            return fallback
+        }
+        return defaults.bool(forKey: key)
+    }
+
     private static func date(from key: String) -> Date? {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
@@ -263,46 +291,251 @@ private extension MyanmarCalendarEntry {
             moonPhase: "Moon phase",
             moonPhaseEmoji: "🌕",
             fortnightDay: "15",
+            fortnightDayText: "15 days",
+            nextMoonPhase: "New Moon in 15d",
+            moonPhaseImagePath: "",
+            fullMoonPhaseImagePath: "",
             holidays: "",
             sabbathInfo: "",
             astrologicalDays: "",
+            theme: "auto",
+            showHolidays: true,
+            showAstrology: true,
+            showMyanmarDate: true,
+            showWesternDate: true,
             month: nil,
             weekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
         )
     }
 }
 
+private struct WidgetPalette {
+    let background: [Color]
+    let primary: Color
+    let secondary: Color
+    let accent: Color
+    let highlight: Color
+    let divider: Color
+
+    static func resolve(theme: String, colorScheme: ColorScheme) -> WidgetPalette {
+        switch theme {
+        case "light":
+            return light
+        case "dark":
+            return dark
+        case "traditional":
+            return WidgetPalette(
+                background: [
+                    Color(red: 0.82, green: 0.18, blue: 0.18),
+                    Color(red: 0.72, green: 0.11, blue: 0.11),
+                ],
+                primary: Color(red: 0.98, green: 0.99, blue: 1.0),
+                secondary: Color(red: 0.94, green: 0.89, blue: 0.82),
+                accent: Color(red: 1.0, green: 0.85, blue: 0.44),
+                highlight: Color(red: 1.0, green: 0.88, blue: 0.54),
+                divider: Color.white.opacity(0.22)
+            )
+        case "gradientPurple":
+            return darkGradient(
+                [
+                    Color(red: 0.37, green: 0.17, blue: 0.53),
+                    Color(red: 0.29, green: 0.12, blue: 0.44),
+                ]
+            )
+        case "gradientTeal":
+            return darkGradient(
+                [
+                    Color(red: 0.04, green: 0.52, blue: 0.46),
+                    Color(red: 0.03, green: 0.37, blue: 0.33),
+                ]
+            )
+        case "gradientBlue":
+            return blue
+        default:
+            return colorScheme == .dark ? dark : light
+        }
+    }
+
+    private static let light = WidgetPalette(
+        background: [
+            Color(red: 0.99, green: 0.99, blue: 1.0),
+            Color(red: 0.93, green: 0.95, blue: 0.97),
+        ],
+        primary: Color(red: 0.11, green: 0.14, blue: 0.19),
+        secondary: Color(red: 0.34, green: 0.38, blue: 0.44),
+        accent: Color(red: 0.18, green: 0.50, blue: 0.23),
+        highlight: Color(red: 0.90, green: 0.35, blue: 0.0),
+        divider: Color(red: 0.12, green: 0.18, blue: 0.24).opacity(0.15)
+    )
+
+    private static let dark = WidgetPalette(
+        background: [
+            Color(red: 0.12, green: 0.15, blue: 0.19),
+            Color(red: 0.08, green: 0.11, blue: 0.14),
+        ],
+        primary: Color(red: 0.97, green: 0.98, blue: 1.0),
+        secondary: Color(red: 0.79, green: 0.84, blue: 0.90),
+        accent: Color(red: 1.0, green: 0.85, blue: 0.44),
+        highlight: Color(red: 1.0, green: 0.88, blue: 0.54),
+        divider: Color.white.opacity(0.18)
+    )
+
+    private static let blue = darkGradient(
+        [
+            Color(red: 0.11, green: 0.24, blue: 0.45),
+            Color(red: 0.18, green: 0.39, blue: 0.66),
+        ]
+    )
+
+    private static func darkGradient(_ colors: [Color]) -> WidgetPalette {
+        WidgetPalette(
+            background: colors,
+            primary: Color(red: 0.97, green: 0.98, blue: 1.0),
+            secondary: Color(red: 0.82, green: 0.88, blue: 0.95),
+            accent: Color(red: 1.0, green: 0.85, blue: 0.44),
+            highlight: Color(red: 1.0, green: 0.88, blue: 0.54),
+            divider: Color.white.opacity(0.18)
+        )
+    }
+}
+
+private struct CalendarWidgetBackground: View {
+    let palette: WidgetPalette
+
+    var body: some View {
+        LinearGradient(
+            colors: palette.background,
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+}
+
 private extension View {
     @ViewBuilder
-    func calendarWidgetBackground() -> some View {
+    func calendarWidgetBackground(_ palette: WidgetPalette) -> some View {
         if #available(iOS 17.0, *) {
-            containerBackground(Color(red: 0.95, green: 0.98, blue: 0.93), for: .widget)
+            containerBackground(for: .widget) {
+                CalendarWidgetBackground(palette: palette)
+            }
         } else {
-            background(Color(red: 0.95, green: 0.98, blue: 0.93))
+            background(CalendarWidgetBackground(palette: palette))
         }
+    }
+}
+
+private extension MyanmarCalendarEntry {
+    var westernParts: (day: String, month: String, year: String) {
+        let parts = westernDate.split(separator: " ").map(String.init)
+        return (
+            parts.indices.contains(0) ? parts[0] : "--",
+            parts.indices.contains(1) ? parts[1] : "",
+            parts.indices.contains(2) ? parts[2] : ""
+        )
+    }
+
+    var compactMyanmarDate: String {
+        let parts = myanmarDate.split(separator: " ").map(String.init)
+        guard parts.count > 3 else { return myanmarDate }
+        return parts.dropFirst().joined(separator: " ")
+    }
+}
+
+private struct MoonArtwork: View {
+    let path: String
+    let fallback: String
+    let size: CGFloat
+
+    var body: some View {
+        Group {
+            if !path.isEmpty, let image = UIImage(contentsOfFile: path) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                Text(fallback)
+                    .font(.system(size: size * 0.72))
+            }
+        }
+        .frame(width: size, height: size)
     }
 }
 
 struct CompactDateWidgetView: View {
     let entry: MyanmarCalendarEntry
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(entry.westernDate)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text(entry.myanmarDate)
-                .font(.system(size: 18, weight: .semibold))
-                .minimumScaleFactor(0.65)
-            Spacer(minLength: 0)
-            HStack {
-                Text(entry.moonPhaseEmoji)
-                Text(entry.moonPhase)
-                    .font(.caption2)
-                    .lineLimit(1)
+        let palette = WidgetPalette.resolve(theme: entry.theme, colorScheme: colorScheme)
+        let date = entry.westernParts
+
+        Group {
+            if family == .systemSmall {
+                VStack(alignment: .leading, spacing: 7) {
+                    if entry.showWesternDate {
+                        HStack(alignment: .firstTextBaseline, spacing: 5) {
+                            Text(date.day)
+                                .font(.system(size: 34, weight: .semibold, design: .rounded))
+                            Text(date.month)
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(palette.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    if entry.showMyanmarDate {
+                        Text(entry.myanmarDate)
+                            .font(.system(size: 14, weight: .semibold))
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.72)
+                    }
+                    Spacer(minLength: 0)
+                    HStack(spacing: 5) {
+                        Text(entry.moonPhaseEmoji)
+                        Text(entry.moonPhase)
+                            .font(.caption2.weight(.medium))
+                            .foregroundColor(palette.secondary)
+                            .lineLimit(1)
+                        Spacer(minLength: 0)
+                        Circle()
+                            .fill(palette.accent)
+                            .frame(width: 7, height: 7)
+                    }
+                }
+            } else {
+                HStack(spacing: 12) {
+                    if entry.showWesternDate {
+                        HStack(alignment: .lastTextBaseline, spacing: 5) {
+                            Text(date.day)
+                                .font(.system(size: 32, weight: .semibold, design: .rounded))
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(date.month)
+                                    .font(.caption.weight(.semibold))
+                                    .lineLimit(1)
+                                Text(date.year)
+                                    .font(.caption2)
+                                    .foregroundColor(palette.secondary)
+                            }
+                        }
+                        Rectangle()
+                            .fill(palette.divider)
+                            .frame(width: 1, height: 34)
+                    }
+                    if entry.showMyanmarDate {
+                        Text(entry.myanmarDate)
+                            .font(.system(size: 15, weight: .semibold))
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.72)
+                    }
+                    Spacer(minLength: 0)
+                    Circle()
+                        .fill(palette.accent)
+                        .frame(width: 8, height: 8)
+                }
             }
         }
-        .calendarWidgetBackground()
+        .foregroundColor(palette.primary)
+        .calendarWidgetBackground(palette)
     }
 }
 
@@ -321,23 +554,47 @@ struct CompactDateWidget: Widget {
 
 struct MoonPhaseWidgetView: View {
     let entry: MyanmarCalendarEntry
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        VStack(spacing: 7) {
-            Text(entry.moonPhaseEmoji)
-                .font(.system(size: 48))
+        let palette = WidgetPalette.resolve(theme: entry.theme, colorScheme: colorScheme)
+        let artworkSize: CGFloat = family == .systemSmall ? 68 : 78
+
+        VStack(spacing: family == .systemSmall ? 5 : 7) {
+            if entry.showMyanmarDate {
+                Text(entry.compactMyanmarDate)
+                    .font(.caption2.weight(.medium))
+                    .foregroundColor(palette.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            MoonArtwork(
+                path: entry.fullMoonPhaseImagePath,
+                fallback: entry.moonPhaseEmoji,
+                size: artworkSize
+            )
             Text(entry.moonPhase)
-                .font(.headline)
+                .font(.headline.weight(.semibold))
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.7)
-            if !entry.fortnightDay.isEmpty {
-                Text(entry.fortnightDay)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                .lineLimit(1)
+            if !entry.fortnightDayText.isEmpty {
+                Text(entry.fortnightDayText)
+                    .font(.caption2)
+                    .foregroundColor(palette.secondary)
+                    .lineLimit(1)
+            }
+            if family != .systemSmall, !entry.nextMoonPhase.isEmpty {
+                Text(entry.nextMoonPhase)
+                    .font(.caption2.weight(.medium))
+                    .foregroundColor(palette.accent)
+                    .lineLimit(1)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .calendarWidgetBackground()
+        .foregroundColor(palette.primary)
+        .calendarWidgetBackground(palette)
     }
 }
 
@@ -356,45 +613,96 @@ struct MoonPhaseWidget: Widget {
 
 struct FullCalendarWidgetView: View {
     let entry: MyanmarCalendarEntry
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.widgetFamily) private var family
 
     var body: some View {
+        let palette = WidgetPalette.resolve(theme: entry.theme, colorScheme: colorScheme)
+        let date = entry.westernParts
+
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(entry.westernDate)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(entry.myanmarDate)
-                        .font(.system(size: 18, weight: .bold))
-                        .minimumScaleFactor(0.65)
-                }
+            HStack(spacing: 7) {
+                Image(systemName: "calendar")
+                Text("Myanmar Calendar")
+                    .font(.caption.weight(.semibold))
                 Spacer()
-                Text(entry.moonPhaseEmoji)
-                    .font(.system(size: 34))
+                Text("TODAY")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(Color(red: 0.10, green: 0.15, blue: 0.22))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(palette.accent, in: Capsule())
+            }
+            .foregroundColor(palette.secondary)
+
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 5) {
+                    if entry.showWesternDate {
+                        HStack(alignment: .lastTextBaseline, spacing: 7) {
+                            Text(date.day)
+                                .font(.system(size: 36, weight: .semibold, design: .rounded))
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(date.month)
+                                    .font(.caption.weight(.semibold))
+                                Text(date.year)
+                                    .font(.caption2)
+                                    .foregroundColor(palette.secondary)
+                            }
+                        }
+                    }
+                    Rectangle()
+                        .fill(palette.divider)
+                        .frame(height: 1)
+                    if entry.showMyanmarDate {
+                        Text(entry.myanmarDate)
+                            .font(.system(size: 15, weight: .semibold))
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.7)
+                    }
+                    if entry.showHolidays, !entry.holidays.isEmpty {
+                        Text("🎉 \(entry.holidays)")
+                            .font(.caption2.weight(.medium))
+                            .foregroundColor(palette.highlight)
+                            .lineLimit(1)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                VStack(spacing: 3) {
+                    MoonArtwork(
+                        path: entry.fullMoonPhaseImagePath,
+                        fallback: entry.moonPhaseEmoji,
+                        size: family == .systemLarge ? 94 : 68
+                    )
+                    Text(entry.moonPhase)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(palette.accent)
+                        .lineLimit(1)
+                    if !entry.fortnightDayText.isEmpty {
+                        Text(entry.fortnightDayText)
+                            .font(.caption2)
+                            .foregroundColor(palette.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                .frame(maxWidth: family == .systemLarge ? 130 : 105)
             }
 
-            Divider()
-            Label(entry.moonPhase, systemImage: "moon.stars.fill")
-                .font(.caption)
-            if !entry.holidays.isEmpty {
-                Label(entry.holidays, systemImage: "calendar.badge.exclamationmark")
-                    .font(.caption)
-                    .lineLimit(2)
-            }
-            if !entry.sabbathInfo.isEmpty {
-                Label(entry.sabbathInfo, systemImage: "sparkles")
-                    .font(.caption)
-                    .lineLimit(1)
-            }
-            if !entry.astrologicalDays.isEmpty {
-                Text(entry.astrologicalDays)
+            if family == .systemLarge,
+               entry.showAstrology,
+               (!entry.sabbathInfo.isEmpty || !entry.astrologicalDays.isEmpty) {
+                let details = [entry.sabbathInfo, entry.astrologicalDays]
+                    .filter { !$0.isEmpty }
+                    .joined(separator: " • ")
+                Label(details, systemImage: "sparkles")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(palette.secondary)
                     .lineLimit(2)
             }
             Spacer(minLength: 0)
         }
-        .calendarWidgetBackground()
+        .foregroundColor(palette.primary)
+        .calendarWidgetBackground(palette)
     }
 }
 
@@ -414,8 +722,11 @@ struct FullCalendarWidget: Widget {
 struct MyanmarMonthWidgetView: View {
     let entry: MyanmarCalendarEntry
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 2), count: 7)
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        let palette = WidgetPalette.resolve(theme: entry.theme, colorScheme: colorScheme)
+
         if let month = entry.month {
             VStack(spacing: 5) {
                 HStack(alignment: .firstTextBaseline) {
@@ -425,23 +736,24 @@ struct MyanmarMonthWidgetView: View {
                     Spacer()
                     Text("\(month.westernMonthName) \(month.westernYear)")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(palette.secondary)
                 }
 
                 LazyVGrid(columns: columns, spacing: 3) {
                     ForEach(Array(entry.weekdayNames.enumerated()), id: \.offset) { _, name in
                         Text(String(name.prefix(3)))
                             .font(.system(size: 9, weight: .semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(palette.secondary)
                             .frame(maxWidth: .infinity)
                     }
 
                     ForEach(Array(month.days.prefix(42).enumerated()), id: \.offset) { _, day in
-                        dayCell(day)
+                        dayCell(day, palette: palette)
                     }
                 }
             }
-            .calendarWidgetBackground()
+            .foregroundColor(palette.primary)
+            .calendarWidgetBackground(palette)
         } else {
             VStack(spacing: 8) {
                 Image(systemName: "calendar")
@@ -451,12 +763,13 @@ struct MyanmarMonthWidgetView: View {
                     .multilineTextAlignment(.center)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .calendarWidgetBackground()
+            .foregroundColor(palette.primary)
+            .calendarWidgetBackground(palette)
         }
     }
 
     @ViewBuilder
-    private func dayCell(_ day: MyanmarMonthDay) -> some View {
+    private func dayCell(_ day: MyanmarMonthDay, palette: WidgetPalette) -> some View {
         let isToday = Calendar.autoupdatingCurrent.dateComponents(
             [.year, .month, .day],
             from: entry.date
@@ -468,14 +781,16 @@ struct MyanmarMonthWidgetView: View {
 
         ZStack(alignment: .topTrailing) {
             RoundedRectangle(cornerRadius: 5)
-                .fill(isToday ? Color.green.opacity(0.22) : Color.clear)
+                .fill(isToday ? palette.accent.opacity(0.30) : Color.clear)
             Text("\(day.westernDay)")
                 .font(.system(size: 10, weight: isToday ? .bold : .regular))
-                .foregroundColor(day.isCurrentMonth ? .primary : .secondary.opacity(0.55))
+                .foregroundColor(
+                    day.isCurrentMonth ? palette.primary : palette.secondary.opacity(0.55)
+                )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             if day.hasHoliday {
                 Circle()
-                    .fill(Color.red)
+                    .fill(palette.highlight)
                     .frame(width: 4, height: 4)
                     .padding(2)
             }

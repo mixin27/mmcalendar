@@ -157,10 +157,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ).go('/settings/${RoutePaths.displayPreferences}'),
                 ),
 
-                // todo(mixin27): remove conditional when home_widgets configured
-                // in ios
                 // Home Screen Widget Section
-                if (!kIsWeb && Platform.isAndroid) ...[
+                if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) ...[
                   SectionHeader(title: l10n?.homeWidgets ?? 'Home Widgets'),
                   SettingsListTile(
                     title: l10n?.widgetSettings ?? 'Widget Settings',
