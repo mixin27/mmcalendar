@@ -29,6 +29,8 @@ struct MyanmarCalendarEntry: TimelineEntry {
     let showWesternDate: Bool
     let month: MyanmarMonthSnapshot?
     let weekdayNames: [String]
+    let moonPhaseNames: [String]
+    let language: String
 }
 
 struct MyanmarMonthSnapshot {
@@ -156,7 +158,17 @@ private enum WidgetDataStore {
             showMyanmarDate: bool(forKey: "show_myanmar_date", fallback: true),
             showWesternDate: bool(forKey: "show_western_date", fallback: true),
             month: monthSnapshot(for: dateKey, timeline: monthTimeline),
-            weekdayNames: weekdayNames()
+            weekdayNames: localizedNames(
+                forKey: "weekday_names",
+                fallback: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            ),
+            moonPhaseNames: localizedNames(
+                forKey: "moon_phase_names",
+                fallback: ["Waxing", "Full Moon", "Waning", "New Moon"]
+            ),
+            language: defaults?.string(forKey: "calendar_language")
+                ?? defaults?.string(forKey: "widget_language")
+                ?? "en"
         )
     }
 
@@ -216,17 +228,17 @@ private enum WidgetDataStore {
         )
     }
 
-    private static func weekdayNames() -> [String] {
+    private static func localizedNames(forKey key: String, fallback: [String]) -> [String] {
         guard
-            let raw = defaults?.string(forKey: "weekday_names"),
+            let raw = defaults?.string(forKey: key),
             !raw.isEmpty
         else {
-            return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            return fallback
         }
         let names = raw.split(separator: ",").map {
             String($0).trimmingCharacters(in: .whitespaces)
         }
-        return names.count == 7 ? names : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        return names.count == fallback.count ? names : fallback
     }
 
     private static func jsonDictionary(forKey key: String) -> [String: Any]? {
@@ -304,9 +316,18 @@ private extension MyanmarCalendarEntry {
             showMyanmarDate: true,
             showWesternDate: true,
             month: nil,
-            weekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            weekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            moonPhaseNames: ["Waxing", "Full Moon", "Waning", "New Moon"],
+            language: "en"
         )
     }
+}
+
+private enum WidgetDefaultPalette {
+    case compact
+    case moon
+    case full
+    case month
 }
 
 private struct WidgetPalette {
@@ -317,7 +338,7 @@ private struct WidgetPalette {
     let highlight: Color
     let divider: Color
 
-    static func resolve(theme: String, colorScheme: ColorScheme) -> WidgetPalette {
+    static func resolve(theme: String, defaultPalette: WidgetDefaultPalette) -> WidgetPalette {
         switch theme {
         case "light":
             return light
@@ -327,6 +348,7 @@ private struct WidgetPalette {
             return WidgetPalette(
                 background: [
                     Color(red: 0.82, green: 0.18, blue: 0.18),
+                    Color(red: 0.78, green: 0.16, blue: 0.16),
                     Color(red: 0.72, green: 0.11, blue: 0.11),
                 ],
                 primary: Color(red: 0.98, green: 0.99, blue: 1.0),
@@ -339,27 +361,32 @@ private struct WidgetPalette {
             return darkGradient(
                 [
                     Color(red: 0.37, green: 0.17, blue: 0.53),
+                    Color(red: 0.43, green: 0.18, blue: 0.60),
                     Color(red: 0.29, green: 0.12, blue: 0.44),
                 ]
             )
         case "gradientTeal":
-            return darkGradient(
-                [
-                    Color(red: 0.04, green: 0.52, blue: 0.46),
-                    Color(red: 0.03, green: 0.37, blue: 0.33),
-                ]
-            )
+            return gradientTeal
         case "gradientBlue":
-            return blue
+            return gradientBlue
         default:
-            return colorScheme == .dark ? dark : light
+            switch defaultPalette {
+            case .compact:
+                return compact
+            case .moon:
+                return moon
+            case .full:
+                return gradientBlue
+            case .month:
+                return month
+            }
         }
     }
 
     private static let light = WidgetPalette(
         background: [
-            Color(red: 0.99, green: 0.99, blue: 1.0),
-            Color(red: 0.93, green: 0.95, blue: 0.97),
+            Color(red: 0.973, green: 0.980, blue: 0.988),
+            Color(red: 0.973, green: 0.980, blue: 0.988),
         ],
         primary: Color(red: 0.11, green: 0.14, blue: 0.19),
         secondary: Color(red: 0.34, green: 0.38, blue: 0.44),
@@ -370,8 +397,8 @@ private struct WidgetPalette {
 
     private static let dark = WidgetPalette(
         background: [
-            Color(red: 0.12, green: 0.15, blue: 0.19),
-            Color(red: 0.08, green: 0.11, blue: 0.14),
+            Color(red: 0.118, green: 0.149, blue: 0.188),
+            Color(red: 0.078, green: 0.106, blue: 0.137),
         ],
         primary: Color(red: 0.97, green: 0.98, blue: 1.0),
         secondary: Color(red: 0.79, green: 0.84, blue: 0.90),
@@ -380,10 +407,48 @@ private struct WidgetPalette {
         divider: Color.white.opacity(0.18)
     )
 
-    private static let blue = darkGradient(
+    private static let compact = WidgetPalette(
+        background: [
+            Color(red: 0.988, green: 0.992, blue: 1.0),
+            Color(red: 0.965, green: 0.973, blue: 0.984),
+            Color(red: 0.933, green: 0.949, blue: 0.969),
+        ],
+        primary: Color(red: 0.11, green: 0.14, blue: 0.19),
+        secondary: Color(red: 0.34, green: 0.38, blue: 0.44),
+        accent: Color(red: 0.18, green: 0.50, blue: 0.23),
+        highlight: Color(red: 0.90, green: 0.35, blue: 0.0),
+        divider: Color(red: 0.12, green: 0.18, blue: 0.24).opacity(0.15)
+    )
+
+    private static let moon = darkGradient(
+        [
+            Color(red: 0.039, green: 0.086, blue: 0.153),
+            Color(red: 0.067, green: 0.141, blue: 0.235),
+            Color(red: 0.047, green: 0.102, blue: 0.184),
+        ]
+    )
+
+    private static let month = darkGradient(
+        [
+            Color(red: 0.133, green: 0.200, blue: 0.275),
+            Color(red: 0.176, green: 0.259, blue: 0.345),
+            Color(red: 0.114, green: 0.169, blue: 0.231),
+        ]
+    )
+
+    private static let gradientBlue = darkGradient(
         [
             Color(red: 0.11, green: 0.24, blue: 0.45),
+            Color(red: 0.14, green: 0.31, blue: 0.56),
             Color(red: 0.18, green: 0.39, blue: 0.66),
+        ]
+    )
+
+    private static let gradientTeal = darkGradient(
+        [
+            Color(red: 0.043, green: 0.455, blue: 0.404),
+            Color(red: 0.047, green: 0.522, blue: 0.459),
+            Color(red: 0.027, green: 0.373, blue: 0.329),
         ]
     )
 
@@ -463,11 +528,10 @@ private struct MoonArtwork: View {
 
 struct CompactDateWidgetView: View {
     let entry: MyanmarCalendarEntry
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        let palette = WidgetPalette.resolve(theme: entry.theme, colorScheme: colorScheme)
+        let palette = WidgetPalette.resolve(theme: entry.theme, defaultPalette: .compact)
         let date = entry.westernParts
 
         Group {
@@ -503,28 +567,24 @@ struct CompactDateWidgetView: View {
                     }
                 }
             } else {
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     if entry.showWesternDate {
-                        HStack(alignment: .lastTextBaseline, spacing: 5) {
+                        HStack(alignment: .lastTextBaseline, spacing: 4) {
                             Text(date.day)
-                                .font(.system(size: 32, weight: .semibold, design: .rounded))
-                            VStack(alignment: .leading, spacing: 0) {
-                                Text(date.month)
-                                    .font(.caption.weight(.semibold))
-                                    .lineLimit(1)
-                                Text(date.year)
-                                    .font(.caption2)
-                                    .foregroundColor(palette.secondary)
-                            }
+                                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                            Text(date.month)
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(palette.secondary)
+                                .lineLimit(1)
                         }
                         Rectangle()
                             .fill(palette.divider)
-                            .frame(width: 1, height: 34)
+                            .frame(width: 1, height: 20)
                     }
                     if entry.showMyanmarDate {
                         Text(entry.myanmarDate)
-                            .font(.system(size: 15, weight: .semibold))
-                            .lineLimit(2)
+                            .font(.system(size: 13, weight: .semibold))
+                            .lineLimit(1)
                             .minimumScaleFactor(0.72)
                     }
                     Spacer(minLength: 0)
@@ -554,29 +614,61 @@ struct CompactDateWidget: Widget {
 
 struct MoonPhaseWidgetView: View {
     let entry: MyanmarCalendarEntry
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        let palette = WidgetPalette.resolve(theme: entry.theme, colorScheme: colorScheme)
-        let artworkSize: CGFloat = family == .systemSmall ? 68 : 78
-
-        VStack(spacing: family == .systemSmall ? 5 : 7) {
-            if entry.showMyanmarDate {
-                Text(entry.compactMyanmarDate)
-                    .font(.caption2.weight(.medium))
-                    .foregroundColor(palette.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+        let palette = WidgetPalette.resolve(theme: entry.theme, defaultPalette: .moon)
+        Group {
+            if family == .systemSmall {
+                VStack(spacing: 5) {
+                    if entry.showMyanmarDate {
+                        compactMoonDate(palette: palette)
+                    }
+                    MoonArtwork(
+                        path: entry.fullMoonPhaseImagePath,
+                        fallback: entry.moonPhaseEmoji,
+                        size: 66
+                    )
+                    moonDetails(palette: palette, showNextPhase: false)
+                }
+            } else {
+                HStack(spacing: 18) {
+                    MoonArtwork(
+                        path: entry.fullMoonPhaseImagePath,
+                        fallback: entry.moonPhaseEmoji,
+                        size: 96
+                    )
+                    VStack(alignment: .leading, spacing: 6) {
+                        if entry.showMyanmarDate {
+                            compactMoonDate(palette: palette)
+                        }
+                        moonDetails(palette: palette, showNextPhase: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
-            MoonArtwork(
-                path: entry.fullMoonPhaseImagePath,
-                fallback: entry.moonPhaseEmoji,
-                size: artworkSize
-            )
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundColor(palette.primary)
+        .calendarWidgetBackground(palette)
+    }
+
+    private func compactMoonDate(palette: WidgetPalette) -> some View {
+        Text(entry.compactMyanmarDate)
+            .font(.caption2.weight(.medium))
+            .foregroundColor(palette.secondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+    }
+
+    private func moonDetails(
+        palette: WidgetPalette,
+        showNextPhase: Bool
+    ) -> some View {
+        VStack(alignment: showNextPhase ? .leading : .center, spacing: 3) {
             Text(entry.moonPhase)
                 .font(.headline.weight(.semibold))
-                .multilineTextAlignment(.center)
+                .multilineTextAlignment(showNextPhase ? .leading : .center)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
             if !entry.fortnightDayText.isEmpty {
@@ -585,16 +677,18 @@ struct MoonPhaseWidgetView: View {
                     .foregroundColor(palette.secondary)
                     .lineLimit(1)
             }
-            if family != .systemSmall, !entry.nextMoonPhase.isEmpty {
-                Text(entry.nextMoonPhase)
-                    .font(.caption2.weight(.medium))
-                    .foregroundColor(palette.accent)
-                    .lineLimit(1)
+            if showNextPhase, !entry.nextMoonPhase.isEmpty {
+                HStack(spacing: 4) {
+                    Text("Next:")
+                        .foregroundColor(palette.secondary)
+                    Text(entry.nextMoonPhase)
+                        .foregroundColor(palette.accent)
+                }
+                .font(.caption2.weight(.medium))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .foregroundColor(palette.primary)
-        .calendarWidgetBackground(palette)
     }
 }
 
@@ -613,11 +707,10 @@ struct MoonPhaseWidget: Widget {
 
 struct FullCalendarWidgetView: View {
     let entry: MyanmarCalendarEntry
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        let palette = WidgetPalette.resolve(theme: entry.theme, colorScheme: colorScheme)
+        let palette = WidgetPalette.resolve(theme: entry.theme, defaultPalette: .full)
         let date = entry.westernParts
 
         VStack(alignment: .leading, spacing: 8) {
@@ -722,33 +815,48 @@ struct FullCalendarWidget: Widget {
 struct MyanmarMonthWidgetView: View {
     let entry: MyanmarCalendarEntry
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 2), count: 7)
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        let palette = WidgetPalette.resolve(theme: entry.theme, colorScheme: colorScheme)
+        let palette = WidgetPalette.resolve(theme: entry.theme, defaultPalette: .month)
 
         if let month = entry.month {
-            VStack(spacing: 5) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text("\(month.myanmarYear) \(month.myanmarMonthName)")
-                        .font(.headline)
+            VStack(spacing: family == .systemLarge ? 7 : 4) {
+                VStack(spacing: 1) {
+                    Text(month.myanmarMonthName)
+                        .font(.system(size: 15, weight: .semibold))
+                        .lineLimit(1)
                         .minimumScaleFactor(0.7)
-                    Spacer()
                     Text("\(month.westernMonthName) \(month.westernYear)")
                         .font(.caption2)
                         .foregroundColor(palette.secondary)
+                        .lineLimit(1)
                 }
+                .frame(maxWidth: .infinity)
 
-                LazyVGrid(columns: columns, spacing: 3) {
+                LazyVGrid(columns: columns, spacing: family == .systemLarge ? 4 : 2) {
                     ForEach(Array(entry.weekdayNames.enumerated()), id: \.offset) { _, name in
                         Text(String(name.prefix(3)))
-                            .font(.system(size: 9, weight: .semibold))
+                            .font(.system(size: family == .systemLarge ? 9 : 8, weight: .semibold))
                             .foregroundColor(palette.secondary)
                             .frame(maxWidth: .infinity)
                     }
 
                     ForEach(Array(month.days.prefix(42).enumerated()), id: \.offset) { _, day in
                         dayCell(day, palette: palette)
+                    }
+                }
+
+                if entry.showMyanmarDate, !entry.myanmarDate.isEmpty {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(palette.accent)
+                            .frame(width: 6, height: 6)
+                        Text(entry.myanmarDate)
+                            .font(.system(size: 9.5, weight: .semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.72)
+                        Spacer(minLength: 0)
                     }
                 }
             }
@@ -779,24 +887,59 @@ struct MyanmarMonthWidgetView: View {
             day: day.westernDay
         )
 
-        ZStack(alignment: .topTrailing) {
+        ZStack {
             RoundedRectangle(cornerRadius: 5)
-                .fill(isToday ? palette.accent.opacity(0.30) : Color.clear)
-            Text("\(day.westernDay)")
-                .font(.system(size: 10, weight: isToday ? .bold : .regular))
+                .fill(isToday ? palette.accent : Color.clear)
+            Text(monthDayText(day))
+                .font(.system(
+                    size: family == .systemLarge ? 9 : 7,
+                    weight: isToday ? .bold : .medium
+                ))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.65)
                 .foregroundColor(
-                    day.isCurrentMonth ? palette.primary : palette.secondary.opacity(0.55)
+                    isToday
+                        ? Color(red: 0.10, green: 0.15, blue: 0.22)
+                        : day.isCurrentMonth
+                            ? palette.primary
+                            : palette.secondary.opacity(0.42)
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            if day.moonPhase == 1 || day.moonPhase == 3 {
+                Circle()
+                    .fill(day.moonPhase == 1 ? palette.highlight : palette.secondary)
+                    .frame(width: family == .systemLarge ? 5 : 4, height: family == .systemLarge ? 5 : 4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .padding(2)
+            }
             if day.hasHoliday {
                 Circle()
                     .fill(palette.highlight)
                     .frame(width: 4, height: 4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .padding(2)
             }
         }
-        .frame(height: 17)
-        .accessibilityLabel("\(day.westernDay)")
+        .frame(height: family == .systemLarge ? 30 : 17)
+        .accessibilityLabel(monthDayText(day).replacingOccurrences(of: "\n", with: " "))
+    }
+
+    private func monthDayText(_ day: MyanmarMonthDay) -> String {
+        let phase = entry.moonPhaseNames.indices.contains(day.moonPhase)
+            ? entry.moonPhaseNames[day.moonPhase]
+            : ""
+        return "\(phase)\n\(localizedNumber(day.fortnightDay))"
+    }
+
+    private func localizedNumber(_ number: Int) -> String {
+        guard entry.language != "en" else { return String(number) }
+        let digits = ["၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"]
+        return String(number).map { character in
+            guard let digit = character.wholeNumberValue else { return String(character) }
+            return digits[digit]
+        }.joined()
     }
 }
 

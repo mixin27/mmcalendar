@@ -6,6 +6,7 @@ import workmanager_apple
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private let appIconChannelName = "dev.mixin27.mmcalendar/app_icon"
+  private let widgetPeriodicTaskIdentifier = "dev.mixin27.mmcalendar.periodic_task"
   private var appIconChannel: FlutterMethodChannel?
   @available(iOS 10.3, *)
   private var isSettingAppIcon = false
@@ -17,6 +18,10 @@ import workmanager_apple
     WorkmanagerPlugin.setPluginRegistrantCallback { registry in
       GeneratedPluginRegistrant.register(with: registry)
     }
+    WorkmanagerPlugin.registerPeriodicTask(
+      withIdentifier: widgetPeriodicTaskIdentifier,
+      earliestBeginInSeconds: NSNumber(value: 24 * 60 * 60)
+    )
     WorkmanagerPlugin.registerLaunchHandlers()
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
