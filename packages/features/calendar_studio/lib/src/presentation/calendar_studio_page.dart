@@ -1,4 +1,6 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as image_lib;
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
@@ -152,6 +154,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                       page: project.pages.first,
                       source: project.source,
                       dataProvider: widget.configuration.calendarData,
+                      assetStore: widget.configuration.assets,
                     ),
                   ),
                 ),
@@ -456,9 +459,13 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 page: controller.currentPage,
                 source: project.source,
                 dataProvider: widget.configuration.calendarData,
+                assetStore: widget.configuration.assets,
                 selectedBlockId: controller.selectedBlockId,
                 showSafeArea: safeArea,
                 onSelect: (block) => controller.select(block?.id),
+                onTransform: controller.updateBlockDuringInteraction,
+                onTransformStart: controller.beginBlockInteraction,
+                onTransformEnd: controller.endBlockInteraction,
               ),
             ),
           ),
@@ -479,7 +486,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           ])
             Expanded(
               child: IconButton(
-                onPressed: () => controller.addBlock(type),
+                onPressed: () => type == CalendarStudioBlockType.image
+                    ? _pickAsset(type)
+                    : controller.addBlock(type),
                 icon: Icon(_icon(type)),
                 tooltip: 'Add ${type.name}',
               ),
@@ -562,6 +571,11 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 ),
               ),
               IconButton(
+                onPressed: controller.duplicateSelected,
+                icon: const Icon(Icons.copy_outlined),
+                tooltip: 'Duplicate',
+              ),
+              IconButton(
                 onPressed: controller.deleteSelected,
                 icon: const Icon(Icons.delete_outline),
               ),
@@ -581,6 +595,19 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
               title: Text('Dates come from the app calendar'),
               subtitle: Text('Calendar data is locked to preserve accuracy.'),
             ),
+          if (block.type == CalendarStudioBlockType.image ||
+              block.type == CalendarStudioBlockType.logo)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(block.content['assetName'] as String? ?? 'Image'),
+              subtitle: Text(
+                '${block.content['pixelWidth'] ?? 0} × ${block.content['pixelHeight'] ?? 0} px',
+              ),
+              trailing: OutlinedButton(
+                onPressed: () => _pickAsset(block.type, replace: block),
+                child: const Text('Replace'),
+              ),
+            ),
           SwitchListTile(
             value: block.locked,
             onChanged: (value) =>
@@ -592,6 +619,25 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             onChanged: (value) =>
                 controller.updateBlock(block.copyWith(visible: value)),
             title: const Text('Visible'),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => controller.moveSelectedLayer(-1),
+                  icon: const Icon(Icons.flip_to_back_outlined),
+                  label: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => controller.moveSelectedLayer(1),
+                  icon: const Icon(Icons.flip_to_front_outlined),
+                  label: const Text('Forward'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -613,8 +659,13 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             leading: Icon(_icon(type)),
             title: Text(type.name),
             onTap: () {
-              controller.addBlock(type);
               Navigator.pop(context);
+              if (type == CalendarStudioBlockType.image ||
+                  type == CalendarStudioBlockType.logo) {
+                _pickAsset(type);
+              } else {
+                controller.addBlock(type);
+              }
             },
           ),
       ],
@@ -633,6 +684,52 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       ),
     ),
   );
+
+  Future<void> _pickAsset(
+    CalendarStudioBlockType type, {
+    CalendarStudioBlock? replace,
+  }) async {
+    final store = widget.configuration.assets;
+    if (store == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image storage is not configured.')),
+        );
+      }
+      return;
+    }
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    final file = result?.files.single;
+    final bytes = file?.bytes;
+    if (file == null || bytes == null) return;
+    final decoded = image_lib.decodeImage(bytes);
+    final asset = await store.importAsset(
+      CalendarStudioAssetInput(
+        name: file.name,
+        bytes: bytes,
+        width: decoded?.width ?? 0,
+        height: decoded?.height ?? 0,
+      ),
+    );
+    final id = replace?.id ?? controller.addBlock(type);
+    final block = controller.currentPage.blocks.firstWhere(
+      (value) => value.id == id,
+    );
+    controller.updateBlock(
+      block.copyWith(
+        content: {
+          ...block.content,
+          'assetId': asset.id,
+          'assetName': asset.name,
+          'pixelWidth': asset.width,
+          'pixelHeight': asset.height,
+        },
+      ),
+    );
+  }
 
   Widget _preview(BuildContext context) {
     final project = controller.project!;
@@ -658,6 +755,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                   page: project.pages[index],
                   source: project.source,
                   dataProvider: widget.configuration.calendarData,
+                  assetStore: widget.configuration.assets,
                   showSafeArea: safeArea,
                 ),
               ),
@@ -766,6 +864,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
               if (delivery != null) {
                 final bytes = await CalendarStudioPdfExporter(
                   dataProvider: widget.configuration.calendarData,
+                  assetStore: widget.configuration.assets,
                 ).export(controller.project!);
                 await delivery.deliver(
                   CalendarStudioExportArtifact(

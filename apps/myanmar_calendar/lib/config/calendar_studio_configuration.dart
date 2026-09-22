@@ -6,6 +6,7 @@ import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'di_setup.dart';
+import 'calendar_studio_asset_store.dart';
 
 /// App integration kept deliberately small until the Studio Drift migration.
 /// The package remains reusable; this adapter is the only app-specific seam.
@@ -13,6 +14,7 @@ final CalendarStudioConfiguration calendarStudioConfiguration =
     CalendarStudioConfiguration(
       projects: _StudioProjectStore(getIt<SharedPreferences>()),
       calendarData: const MyanmarCalendarStudioDataProvider(),
+      assets: createCalendarStudioAssetStore(getIt<SharedPreferences>()),
       exportDelivery: const _StudioExportDelivery(),
     );
 

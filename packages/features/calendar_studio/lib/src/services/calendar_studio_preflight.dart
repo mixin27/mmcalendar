@@ -48,6 +48,25 @@ abstract final class CalendarStudioPreflight {
             ),
           );
         }
+        if ((block.type == CalendarStudioBlockType.image ||
+                block.type == CalendarStudioBlockType.logo) &&
+            block.content['assetId'] != null &&
+            page.canvas.width <= 500) {
+          final sourceWidth = block.content['pixelWidth'] as int? ?? 0;
+          final requiredWidth = page.canvas.width * bounds.width / 25.4 * 300;
+          if (sourceWidth > 0 && sourceWidth < requiredWidth * .8) {
+            issues.add(
+              CalendarStudioIssue(
+                severity: CalendarStudioIssueSeverity.warning,
+                title: '${block.name} may look soft in print',
+                detail:
+                    'Use an image at least ${requiredWidth.round()} px wide for 300 dpi output.',
+                pageId: page.id,
+                blockId: block.id,
+              ),
+            );
+          }
+        }
         if (block.type == CalendarStudioBlockType.text &&
             ((block.content['text'] as String?)?.trim().isEmpty ?? true)) {
           issues.add(

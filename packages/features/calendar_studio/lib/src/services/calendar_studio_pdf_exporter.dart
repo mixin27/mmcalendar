@@ -8,9 +8,10 @@ import 'calendar_studio_contracts.dart';
 
 /// Vector PDF renderer for the same normalized document consumed by preview.
 class CalendarStudioPdfExporter {
-  const CalendarStudioPdfExporter({this.dataProvider});
+  const CalendarStudioPdfExporter({this.dataProvider, this.assetStore});
 
   final CalendarStudioDataProvider? dataProvider;
+  final CalendarStudioAssetStore? assetStore;
 
   Future<Uint8List> export(CalendarStudioProject project) async {
     final regular = await _font(
@@ -30,6 +31,19 @@ class CalendarStudioPdfExporter {
         month: page.month,
       );
       final days = await dataProvider?.daysFor(pageSource, month: page.month);
+      final images = <String, pw.MemoryImage>{};
+      for (final block in page.blocks) {
+        final assetId = block.content['assetId'] as String?;
+        if (assetId == null || images.containsKey(assetId)) continue;
+        final bytes = await assetStore?.loadBytes(assetId);
+        if (bytes != null && bytes.isNotEmpty) {
+          try {
+            images[assetId] = pw.MemoryImage(Uint8List.fromList(bytes));
+          } catch (_) {
+            // Preflight will surface unreadable or missing assets.
+          }
+        }
+      }
       final format = _format(page.canvas);
       document.addPage(
         pw.Page(
@@ -47,6 +61,7 @@ class CalendarStudioPdfExporter {
                       block,
                       pageSource,
                       days,
+                      images,
                       format.availableWidth,
                       format.availableHeight,
                     ),
@@ -63,6 +78,7 @@ class CalendarStudioPdfExporter {
     CalendarStudioBlock block,
     CalendarStudioSource source,
     List<CalendarStudioDayData>? days,
+    Map<String, pw.MemoryImage> images,
     double width,
     double height,
   ) {
@@ -74,7 +90,7 @@ class CalendarStudioPdfExporter {
       bottom: (1 - bounds.bottom) * height,
       child: pw.Transform.rotate(
         angle: block.rotation,
-        child: _block(block, source, days),
+        child: _block(block, source, days, images),
       ),
     );
   }
@@ -83,6 +99,7 @@ class CalendarStudioPdfExporter {
     CalendarStudioBlock block,
     CalendarStudioSource source,
     List<CalendarStudioDayData>? days,
+    Map<String, pw.MemoryImage> images,
   ) => switch (block.type) {
     CalendarStudioBlockType.text => pw.Align(
       alignment: _alignment(block.style['align'] as String?),
@@ -102,15 +119,17 @@ class CalendarStudioPdfExporter {
     CalendarStudioBlockType.calendarGrid => _calendarGrid(source, days),
     CalendarStudioBlockType.eventList => pw.Text('My events'),
     CalendarStudioBlockType.holidayLegend => pw.Text('Holiday legend'),
-    CalendarStudioBlockType.image ||
-    CalendarStudioBlockType.logo => pw.Container(
-      decoration: pw.BoxDecoration(
-        color: PdfColor.fromHex('#E1E8E4'),
-        borderRadius: pw.BorderRadius.circular(6),
-      ),
-      alignment: pw.Alignment.center,
-      child: pw.Text(block.name),
-    ),
+    CalendarStudioBlockType.image || CalendarStudioBlockType.logo =>
+      images[block.content['assetId']] == null
+          ? pw.Container(
+              decoration: pw.BoxDecoration(
+                color: PdfColor.fromHex('#E1E8E4'),
+                borderRadius: pw.BorderRadius.circular(6),
+              ),
+              alignment: pw.Alignment.center,
+              child: pw.Text(block.name),
+            )
+          : pw.Image(images[block.content['assetId']]!, fit: pw.BoxFit.cover),
     CalendarStudioBlockType.decoration => pw.Center(child: pw.Text('✦')),
   };
 

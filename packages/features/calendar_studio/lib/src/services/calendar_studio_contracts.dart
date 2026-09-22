@@ -37,6 +37,8 @@ abstract interface class CalendarStudioProjectStore {
 
 abstract interface class CalendarStudioAssetStore {
   Future<CalendarStudioAsset> importAsset(CalendarStudioAssetInput input);
+  Future<List<int>?> loadBytes(String assetId);
+  Future<CalendarStudioAsset?> load(String assetId);
   Future<void> deleteUnusedAssets(Set<String> usedAssetIds);
 }
 
@@ -45,10 +47,14 @@ class CalendarStudioAssetInput {
     required this.name,
     required this.bytes,
     this.mimeType,
+    this.width = 0,
+    this.height = 0,
   });
   final String name;
   final List<int> bytes;
   final String? mimeType;
+  final int width;
+  final int height;
 }
 
 class CalendarStudioAsset {

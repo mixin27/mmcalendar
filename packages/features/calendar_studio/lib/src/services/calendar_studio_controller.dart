@@ -19,6 +19,7 @@ class CalendarStudioController extends ChangeNotifier {
   int pageIndex = 0;
   final List<CalendarStudioProject> _undo = [];
   final List<CalendarStudioProject> _redo = [];
+  CalendarStudioProject? _interactionStart;
   Timer? _saveTimer;
   bool get canUndo => _undo.isNotEmpty;
   bool get canRedo => _redo.isNotEmpty;
@@ -66,6 +67,40 @@ class CalendarStudioController extends ChangeNotifier {
       ],
     ),
   );
+
+  void beginBlockInteraction() {
+    _interactionStart ??= _project;
+  }
+
+  void updateBlockDuringInteraction(CalendarStudioBlock block) {
+    final value = _project;
+    if (value == null) return;
+    final page = currentPage;
+    final updatedPage = page.copyWith(
+      blocks: [
+        for (final current in page.blocks)
+          if (current.id == block.id) block else current,
+      ],
+    );
+    _project = value.copyWith(
+      pages: [
+        for (var i = 0; i < value.pages.length; i++)
+          if (i == pageIndex) updatedPage else value.pages[i],
+      ],
+      updatedAt: configuration.now?.call() ?? DateTime.now(),
+    );
+    notifyListeners();
+  }
+
+  void endBlockInteraction() {
+    final start = _interactionStart;
+    _interactionStart = null;
+    if (start == null || start == _project) return;
+    _undo.add(start);
+    _redo.clear();
+    _scheduleSave();
+  }
+
   void deleteSelected() {
     final id = selectedBlockId;
     if (id == null) return;
@@ -77,7 +112,7 @@ class CalendarStudioController extends ChangeNotifier {
     selectedBlockId = null;
   }
 
-  void addBlock(CalendarStudioBlockType type) {
+  String addBlock(CalendarStudioBlockType type) {
     final id = '${type.name}-${DateTime.now().microsecondsSinceEpoch}';
     _edit(
       (page) => page.copyWith(
@@ -102,6 +137,60 @@ class CalendarStudioController extends ChangeNotifier {
       ),
     );
     selectedBlockId = id;
+    notifyListeners();
+    return id;
+  }
+
+  void duplicateSelected() {
+    final selected = _selectedBlock;
+    if (selected == null) return;
+    final id = '${selected.type.name}-${DateTime.now().microsecondsSinceEpoch}';
+    final bounds = selected.bounds;
+    final copy = CalendarStudioBlock(
+      id: id,
+      type: selected.type,
+      name: '${selected.name} copy',
+      bounds: bounds.copyWith(
+        left: (bounds.left + .02).clamp(0, 1 - bounds.width),
+        top: (bounds.top + .02).clamp(0, 1 - bounds.height),
+      ),
+      rotation: selected.rotation,
+      zIndex: currentPage.blocks.length,
+      visible: selected.visible,
+      locked: false,
+      style: selected.style,
+      content: selected.content,
+    );
+    _edit((page) => page.copyWith(blocks: [...page.blocks, copy]));
+    selectedBlockId = id;
+    notifyListeners();
+  }
+
+  void moveSelectedLayer(int delta) {
+    final selected = _selectedBlock;
+    if (selected == null) return;
+    final ordered = [...currentPage.blocks]
+      ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
+    final from = ordered.indexWhere((block) => block.id == selected.id);
+    final to = (from + delta).clamp(0, ordered.length - 1);
+    if (from == to) return;
+    final moved = ordered.removeAt(from);
+    ordered.insert(to, moved);
+    _edit(
+      (page) => page.copyWith(
+        blocks: [
+          for (var i = 0; i < ordered.length; i++)
+            ordered[i].copyWith(zIndex: i),
+        ],
+      ),
+    );
+  }
+
+  CalendarStudioBlock? get _selectedBlock {
+    final id = selectedBlockId;
+    if (id == null || _project == null) return null;
+    final matches = currentPage.blocks.where((block) => block.id == id);
+    return matches.isEmpty ? null : matches.first;
   }
 
   void undo() {

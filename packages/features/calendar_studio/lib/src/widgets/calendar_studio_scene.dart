@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../models/calendar_studio_document.dart';
@@ -13,6 +15,10 @@ class CalendarStudioScene extends StatelessWidget {
     this.showSafeArea = false,
     this.onSelect,
     this.dataProvider,
+    this.assetStore,
+    this.onTransform,
+    this.onTransformStart,
+    this.onTransformEnd,
     super.key,
   });
   final CalendarStudioPage page;
@@ -21,6 +27,10 @@ class CalendarStudioScene extends StatelessWidget {
   final bool showSafeArea;
   final ValueChanged<CalendarStudioBlock?>? onSelect;
   final CalendarStudioDataProvider? dataProvider;
+  final CalendarStudioAssetStore? assetStore;
+  final ValueChanged<CalendarStudioBlock>? onTransform;
+  final VoidCallback? onTransformStart;
+  final VoidCallback? onTransformEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -75,18 +85,94 @@ class CalendarStudioScene extends StatelessWidget {
       height: rect.height,
       child: GestureDetector(
         onTap: () => onSelect?.call(block),
+        onPanStart: block.locked || onTransform == null
+            ? null
+            : (_) => onTransformStart?.call(),
+        onPanUpdate: block.locked || onTransform == null
+            ? null
+            : (details) {
+                final bounds = block.bounds;
+                onTransform!(
+                  block.copyWith(
+                    bounds: bounds.copyWith(
+                      left: (bounds.left + details.delta.dx / size.width).clamp(
+                        0,
+                        1 - bounds.width,
+                      ),
+                      top: (bounds.top + details.delta.dy / size.height).clamp(
+                        0,
+                        1 - bounds.height,
+                      ),
+                    ),
+                  ),
+                );
+              },
+        onPanEnd: block.locked || onTransform == null
+            ? null
+            : (_) => onTransformEnd?.call(),
+        onPanCancel: block.locked || onTransform == null
+            ? null
+            : onTransformEnd,
         child: Transform.rotate(
           angle: block.rotation,
-          child: DecoratedBox(
-            decoration: selectedBlockId == block.id
-                ? BoxDecoration(
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
+          child: Stack(
+            fit: StackFit.expand,
+            clipBehavior: Clip.none,
+            children: [
+              DecoratedBox(
+                decoration: selectedBlockId == block.id
+                    ? BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2,
+                        ),
+                      )
+                    : const BoxDecoration(),
+                child: _contents(block),
+              ),
+              if (selectedBlockId == block.id &&
+                  !block.locked &&
+                  onTransform != null)
+                Positioned(
+                  right: -8,
+                  bottom: -8,
+                  width: 24,
+                  height: 24,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanStart: (_) => onTransformStart?.call(),
+                    onPanUpdate: (details) {
+                      final bounds = block.bounds;
+                      onTransform!(
+                        block.copyWith(
+                          bounds: bounds.copyWith(
+                            width:
+                                (bounds.width + details.delta.dx / size.width)
+                                    .clamp(.08, 1 - bounds.left),
+                            height:
+                                (bounds.height + details.delta.dy / size.height)
+                                    .clamp(.06, 1 - bounds.top),
+                          ),
+                        ),
+                      );
+                    },
+                    onPanEnd: (_) => onTransformEnd?.call(),
+                    onPanCancel: onTransformEnd,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.open_in_full,
+                        size: 12,
+                        color: Colors.white,
+                      ),
                     ),
-                  )
-                : const BoxDecoration(),
-            child: _contents(block),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
@@ -103,12 +189,9 @@ class CalendarStudioScene extends StatelessWidget {
       color: Color((block.style['color'] as int?) ?? 0xFF0E6B5C),
     ),
     CalendarStudioBlockType.image ||
-    CalendarStudioBlockType.logo => DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFFE1E8E4),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: const Center(child: Icon(Icons.image_outlined)),
+    CalendarStudioBlockType.logo => _AssetImageBlock(
+      assetId: block.content['assetId'] as String?,
+      assetStore: assetStore,
     ),
     CalendarStudioBlockType.eventList => const _ListBlock(
       icon: Icons.event_outlined,
@@ -122,6 +205,36 @@ class CalendarStudioScene extends StatelessWidget {
       child: Icon(Icons.spa_outlined, color: Color(0xFFB98A25)),
     ),
   };
+}
+
+class _AssetImageBlock extends StatelessWidget {
+  const _AssetImageBlock({required this.assetId, required this.assetStore});
+  final String? assetId;
+  final CalendarStudioAssetStore? assetStore;
+
+  @override
+  Widget build(BuildContext context) {
+    if (assetId == null || assetStore == null) return _placeholder();
+    return FutureBuilder<List<int>?>(
+      future: assetStore!.loadBytes(assetId!),
+      builder: (_, snapshot) {
+        final bytes = snapshot.data;
+        if (bytes == null || bytes.isEmpty) return _placeholder();
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(Uint8List.fromList(bytes), fit: BoxFit.cover),
+        );
+      },
+    );
+  }
+
+  Widget _placeholder() => DecoratedBox(
+    decoration: BoxDecoration(
+      color: const Color(0xFFE1E8E4),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: const Center(child: Icon(Icons.image_outlined)),
+  );
 }
 
 class _TextBlock extends StatelessWidget {
