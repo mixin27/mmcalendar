@@ -21,6 +21,10 @@ class CalendarStudioScene extends StatelessWidget {
     this.onTransform,
     this.onTransformStart,
     this.onTransformEnd,
+    this.onDuplicate,
+    this.onToggleLock,
+    this.onToggleVisibility,
+    this.onDelete,
     super.key,
   });
   final CalendarStudioPage page;
@@ -35,57 +39,74 @@ class CalendarStudioScene extends StatelessWidget {
   final ValueChanged<CalendarStudioBlock>? onTransform;
   final VoidCallback? onTransformStart;
   final VoidCallback? onTransformEnd;
+  final VoidCallback? onDuplicate;
+  final VoidCallback? onToggleLock;
+  final VoidCallback? onToggleVisibility;
+  final VoidCallback? onDelete;
+
+  static const double designWidth = 595;
 
   @override
   Widget build(BuildContext context) {
     final blocks = [...page.blocks]
       ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
+    final designSize = Size(designWidth, designWidth / page.canvas.aspectRatio);
     return AspectRatio(
       aspectRatio: page.canvas.aspectRatio,
-      child: LayoutBuilder(
-        builder: (context, constraints) => DecoratedBox(
-          decoration: BoxDecoration(color: Color(page.canvas.backgroundColor)),
-          child: Stack(
-            children: [
-              for (final block in blocks)
-                if (block.visible)
-                  _buildBlock(context, constraints.biggest, block),
-              if (showSafeArea)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: Padding(
-                      padding: EdgeInsets.all(
-                        constraints.maxWidth * page.canvas.safeInset,
-                      ),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: .75),
+      child: FittedBox(
+        fit: BoxFit.fill,
+        child: SizedBox.fromSize(
+          size: designSize,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onSelect == null ? null : () => onSelect!(null),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Color(page.canvas.backgroundColor),
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  for (final block in blocks)
+                    if (block.visible) _buildBlock(context, designSize, block),
+                  if (showSafeArea)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Padding(
+                          padding: EdgeInsets.all(
+                            designSize.width * page.canvas.safeInset,
+                          ),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: .75),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              if (page.canvas.bleed > 0)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: Padding(
-                      padding: const EdgeInsets.all(3),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(0xFFA96300),
-                            width: 1,
+                  if (page.canvas.bleed > 0)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Padding(
+                          padding: const EdgeInsets.all(3),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color(0xFFA96300),
+                                width: 1,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -153,42 +174,21 @@ class CalendarStudioScene extends StatelessWidget {
               if (selectedBlockId == block.id &&
                   !block.locked &&
                   onTransform != null)
+                for (final handle in _ResizeHandle.values)
+                  _resizeHandle(context, size, block, handle),
+              if (selectedBlockId == block.id && onDuplicate != null)
                 Positioned(
-                  right: -8,
-                  bottom: -8,
-                  width: 24,
-                  height: 24,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onPanStart: (_) => onTransformStart?.call(),
-                    onPanUpdate: (details) {
-                      final bounds = block.bounds;
-                      onTransform!(
-                        block.copyWith(
-                          bounds: bounds.copyWith(
-                            width:
-                                (bounds.width + details.delta.dx / size.width)
-                                    .clamp(.08, 1 - bounds.left),
-                            height:
-                                (bounds.height + details.delta.dy / size.height)
-                                    .clamp(.06, 1 - bounds.top),
-                          ),
-                        ),
-                      );
-                    },
-                    onPanEnd: (_) => onTransformEnd?.call(),
-                    onPanCancel: onTransformEnd,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: const Icon(
-                        Icons.open_in_full,
-                        size: 12,
-                        color: Colors.white,
-                      ),
+                  left: 0,
+                  right: 0,
+                  bottom: -48,
+                  child: Center(
+                    child: _SelectionActions(
+                      locked: block.locked,
+                      visible: block.visible,
+                      onDuplicate: onDuplicate!,
+                      onToggleLock: onToggleLock!,
+                      onToggleVisibility: onToggleVisibility!,
+                      onDelete: onDelete!,
                     ),
                   ),
                 ),
@@ -199,8 +199,73 @@ class CalendarStudioScene extends StatelessWidget {
     );
   }
 
+  Widget _resizeHandle(
+    BuildContext context,
+    Size size,
+    CalendarStudioBlock block,
+    _ResizeHandle handle,
+  ) {
+    return Positioned.fill(
+      child: Align(
+        alignment: Alignment((handle.x - .5) * 2, (handle.y - .5) * 2),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onPanStart: (_) => onTransformStart?.call(),
+          onPanUpdate: (details) => onTransform!(
+            block.copyWith(
+              bounds: _resizeBounds(
+                block.bounds,
+                handle,
+                details.delta.dx / size.width,
+                details.delta.dy / size.height,
+              ),
+            ),
+          ),
+          onPanEnd: (_) => onTransformEnd?.call(),
+          onPanCancel: onTransformEnd,
+          child: Container(
+            key: ValueKey('calendar-studio-resize-${handle.name}'),
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  StudioRect _resizeBounds(
+    StudioRect value,
+    _ResizeHandle handle,
+    double dx,
+    double dy,
+  ) {
+    var left = value.left;
+    var top = value.top;
+    var right = value.right;
+    var bottom = value.bottom;
+    if (handle.x == 0) left = (left + dx).clamp(0, right - .06);
+    if (handle.x == 1) right = (right + dx).clamp(left + .06, 1);
+    if (handle.y == 0) top = (top + dy).clamp(0, bottom - .04);
+    if (handle.y == 1) bottom = (bottom + dy).clamp(top + .04, 1);
+    return StudioRect(
+      left: left,
+      top: top,
+      width: right - left,
+      height: bottom - top,
+    );
+  }
+
   Widget _contents(CalendarStudioBlock block) => switch (block.type) {
     CalendarStudioBlockType.calendarGrid => _CalendarGrid(
+      block: block,
       source: source.copyWith(year: page.year, month: page.month),
       dataProvider: dataProvider,
       resolvedDays: resolvedDays,
@@ -314,15 +379,18 @@ class _ListBlock extends StatelessWidget {
 
 class _CalendarGrid extends StatelessWidget {
   const _CalendarGrid({
+    required this.block,
     required this.source,
     this.dataProvider,
     this.resolvedDays,
   });
+  final CalendarStudioBlock block;
   final CalendarStudioSource source;
   final CalendarStudioDataProvider? dataProvider;
   final List<CalendarStudioDayData>? resolvedDays;
   @override
   Widget build(BuildContext context) {
+    final rowHeight = (block.style['rowHeight'] as num?)?.toDouble() ?? 1;
     final date = DateTime(source.year, source.month);
     final first =
         (date.weekday % 7 - (source.weekStartsMonday ? 1 : 0) + 7) % 7;
@@ -332,57 +400,48 @@ class _CalendarGrid extends StatelessWidget {
         : const ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     Widget buildGrid(List<CalendarStudioDayData>? dayData) => Column(
       children: [
-        Expanded(
-          child: GridView.count(
-            crossAxisCount: 7,
-            physics: const NeverScrollableScrollPhysics(),
-            children: headers
-                .map(
-                  (value) => Center(
-                    child: Text(
-                      value,
-                      style: const TextStyle(
-                        fontFamily: 'Noto Sans Myanmar',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 9,
-                      ),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-        Expanded(
-          flex: 5,
-          child: GridView.count(
-            crossAxisCount: 7,
-            physics: const NeverScrollableScrollPhysics(),
-            children: List.generate(first + count, (index) {
-              final day = index - first + 1;
-              if (day < 1) return const SizedBox();
-              return Padding(
-                padding: const EdgeInsets.all(1),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: const Color(0xFF15201D).withValues(alpha: .18),
-                    ),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+        SizedBox(
+          height: 30 / rowHeight.clamp(.75, 1.35),
+          child: Row(
+            children: [
+              for (var index = 0; index < headers.length; index++)
+                Expanded(
                   child: Center(
                     child: Text(
-                      _dayLabel(day, dayData),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      headers[index],
+                      style: TextStyle(
                         fontFamily: 'Noto Sans Myanmar',
-                        fontFamilyFallback: ['Noto Sans Myanmar'],
-                        fontSize: 8,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 10.5,
+                        color: index == 0 && !source.weekStartsMonday
+                            ? const Color(0xFFB8322A)
+                            : const Color(0xFF15201D),
                       ),
                     ),
                   ),
                 ),
-              );
-            }),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              for (var row = 0; row < 6; row++)
+                Expanded(
+                  child: Row(
+                    children: [
+                      for (var column = 0; column < 7; column++)
+                        Expanded(
+                          child: _dayCell(
+                            row * 7 + column - first + 1,
+                            count,
+                            dayData,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ),
       ],
@@ -395,11 +454,75 @@ class _CalendarGrid extends StatelessWidget {
     );
   }
 
-  String _dayLabel(int day, List<CalendarStudioDayData>? values) {
-    if (values == null || day > values.length) return '$day';
+  Widget _dayCell(int day, int count, List<CalendarStudioDayData>? dayData) {
+    if (day < 1 || day > count) return const SizedBox();
+    final sunday = DateTime(source.year, source.month, day).weekday == 7;
+    final data = dayData != null && day <= dayData.length
+        ? dayData[day - 1]
+        : null;
+    final holiday = data?.holidayLabel?.isNotEmpty ?? false;
+    final gridLines = block.style['gridLines'] as String? ?? 'light';
+    final holidayColor = Color(
+      block.style['holidayColor'] as int? ?? 0xFFB8322A,
+    );
+    final numberFont = block.style['numberFont'] as String? ?? 'sans';
+    final rowHeight = (block.style['rowHeight'] as num?)?.toDouble() ?? 1;
+    final borderColor = const Color(0xFF15201D).withValues(alpha: .14);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: switch (gridLines) {
+          'none' => null,
+          'full' => Border.all(color: borderColor),
+          _ => Border(top: BorderSide(color: borderColor)),
+        },
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(5, 5 * rowHeight, 5, 3 * rowHeight),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$day',
+              style: TextStyle(
+                fontFamily: numberFont == 'serif'
+                    ? 'Georgia'
+                    : 'Noto Sans Myanmar',
+                fontFamilyFallback: const ['Noto Sans Myanmar'],
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+                height: 1,
+                color: sunday || holiday
+                    ? holidayColor
+                    : const Color(0xFF15201D),
+              ),
+            ),
+            const Spacer(),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Text(
+                _secondaryDayLabel(day, dayData),
+                textAlign: TextAlign.right,
+                maxLines: 3,
+                overflow: TextOverflow.clip,
+                style: const TextStyle(
+                  fontFamily: 'Noto Sans Myanmar',
+                  fontFamilyFallback: ['Noto Sans Myanmar'],
+                  fontSize: 8.5,
+                  height: 1.3,
+                  color: Color(0xB315201D),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _secondaryDayLabel(int day, List<CalendarStudioDayData>? values) {
+    if (values == null || day > values.length) return '';
     final data = values[day - 1];
     return [
-      data.gregorianLabel,
       if (source.showMyanmarDate && data.myanmarLabel != null)
         data.myanmarLabel!,
       if (source.showMoonPhases && data.moonLabel != null) data.moonLabel!,
@@ -408,6 +531,78 @@ class _CalendarGrid extends StatelessWidget {
           data.astrologyLabel != null &&
           data.astrologyLabel!.isNotEmpty)
         data.astrologyLabel!,
+      if (source.showEvents && data.events.isNotEmpty) ...data.events,
     ].join('\n');
   }
+}
+
+enum _ResizeHandle {
+  topLeft(0, 0),
+  top(.5, 0),
+  topRight(1, 0),
+  left(0, .5),
+  right(1, .5),
+  bottomLeft(0, 1),
+  bottom(.5, 1),
+  bottomRight(1, 1);
+
+  const _ResizeHandle(this.x, this.y);
+  final double x;
+  final double y;
+}
+
+class _SelectionActions extends StatelessWidget {
+  const _SelectionActions({
+    required this.locked,
+    required this.visible,
+    required this.onDuplicate,
+    required this.onToggleLock,
+    required this.onToggleVisibility,
+    required this.onDelete,
+  });
+  final bool locked;
+  final bool visible;
+  final VoidCallback onDuplicate;
+  final VoidCallback onToggleLock;
+  final VoidCallback onToggleVisibility;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    elevation: 4,
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(20),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _button(Icons.copy_outlined, 'Duplicate', onDuplicate),
+        _button(
+          locked ? Icons.lock_outline : Icons.lock_open_outlined,
+          locked ? 'Unlock' : 'Lock',
+          onToggleLock,
+        ),
+        _button(
+          visible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          visible ? 'Hide' : 'Show',
+          onToggleVisibility,
+        ),
+        Container(width: 1, height: 20, color: const Color(0xFFD5DEDA)),
+        _button(Icons.delete_outline, 'Delete', onDelete, destructive: true),
+      ],
+    ),
+  );
+
+  Widget _button(
+    IconData icon,
+    String tooltip,
+    VoidCallback onPressed, {
+    bool destructive = false,
+  }) => IconButton(
+    tooltip: tooltip,
+    visualDensity: VisualDensity.compact,
+    iconSize: 18,
+    color: destructive ? const Color(0xFFC0352B) : const Color(0xFF15201D),
+    onPressed: onPressed,
+    icon: Icon(icon),
+  );
 }

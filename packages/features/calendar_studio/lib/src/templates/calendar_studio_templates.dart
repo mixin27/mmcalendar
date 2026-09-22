@@ -147,7 +147,6 @@ abstract final class CalendarStudioTemplates {
       name: 'Calendar grid',
       bounds: StudioRect(left: .08, top: .42, width: .84, height: .48),
       zIndex: 2,
-      locked: true,
     ),
   ];
   static const _deskBlocks = [
@@ -168,7 +167,6 @@ abstract final class CalendarStudioTemplates {
       type: CalendarStudioBlockType.calendarGrid,
       name: 'Calendar grid',
       bounds: StudioRect(left: .48, top: .08, width: .44, height: .82),
-      locked: true,
     ),
   ];
   static const _annualBlocks = [
@@ -190,7 +188,6 @@ abstract final class CalendarStudioTemplates {
       type: CalendarStudioBlockType.calendarGrid,
       name: 'Year grid',
       bounds: StudioRect(left: .06, top: .16, width: .88, height: .76),
-      locked: true,
     ),
   ];
 }

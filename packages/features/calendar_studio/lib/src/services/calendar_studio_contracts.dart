@@ -1,5 +1,6 @@
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
+import '../theme/calendar_studio_theme.dart';
 
 /// Canonical data supplied by the host. Studio only decides whether to show it.
 class CalendarStudioDayData {
@@ -103,6 +104,9 @@ class CalendarStudioConfiguration {
     this.featureName = 'Calendar Studio',
     this.classicImport,
     this.now,
+    this.appearance = CalendarStudioAppearance.system,
+    this.lightTokens = CalendarStudioTokens.light,
+    this.darkTokens = CalendarStudioTokens.dark,
   });
   final CalendarStudioProjectStore projects;
   final CalendarStudioDataProvider? calendarData;
@@ -111,4 +115,7 @@ class CalendarStudioConfiguration {
   final String featureName;
   final Future<List<CalendarStudioProject>> Function()? classicImport;
   final DateTime Function()? now;
+  final CalendarStudioAppearance appearance;
+  final CalendarStudioTokens lightTokens;
+  final CalendarStudioTokens darkTokens;
 }
