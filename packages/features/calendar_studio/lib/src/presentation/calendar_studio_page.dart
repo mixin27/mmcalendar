@@ -27,6 +27,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   var loading = true;
   var source = CalendarStudioSource(year: DateTime.now().year + 1);
   var safeArea = true;
+  var snapToGrid = true;
   var projectFilter = 'All';
 
   @override
@@ -675,7 +676,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 selectedBlockId: controller.selectedBlockId,
                 showSafeArea: safeArea,
                 onSelect: (block) => controller.select(block?.id),
-                onTransform: controller.updateBlockDuringInteraction,
+                onTransform: _updateBlockTransform,
                 onTransformStart: controller.beginBlockInteraction,
                 onTransformEnd: controller.endBlockInteraction,
               ),
@@ -794,19 +795,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             ],
           ),
           const Divider(),
-          if (block.type == CalendarStudioBlockType.text)
-            TextFormField(
-              initialValue: block.content['text'] as String? ?? '',
-              decoration: const InputDecoration(labelText: 'Text'),
-              onChanged: (value) => controller.updateBlock(
-                block.copyWith(content: {...block.content, 'text': value}),
-              ),
-            ),
+          if (block.type == CalendarStudioBlockType.text) _textInspector(block),
           if (block.type == CalendarStudioBlockType.calendarGrid)
-            const ListTile(
-              title: Text('Dates come from the app calendar'),
-              subtitle: Text('Calendar data is locked to preserve accuracy.'),
-            ),
+            _calendarGridInspector(),
           if (block.type == CalendarStudioBlockType.image ||
               block.type == CalendarStudioBlockType.logo)
             ListTile(
@@ -856,6 +847,159 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     );
   }
 
+  Widget _textInspector(CalendarStudioBlock block) {
+    final size = (block.style['fontSize'] as num?)?.toDouble() ?? 20;
+    final alignment = block.style['align'] as String? ?? 'left';
+    const colors = [0xFF0E6B5C, 0xFF15201D, 0xFFB8322A, 0xFFB98A25, 0xFFFFFFFF];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          initialValue: block.content['text'] as String? ?? '',
+          decoration: const InputDecoration(labelText: 'Text'),
+          onChanged: (value) => controller.updateBlock(
+            block.copyWith(content: {...block.content, 'text': value}),
+          ),
+        ),
+        const SizedBox(height: 12),
+        const Text('Font · Noto Serif Myanmar'),
+        Text(
+          'ကခ Aa · Myanmar supported',
+          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+        ),
+        Row(
+          children: [
+            const Text('Size'),
+            Expanded(
+              child: Slider(
+                value: size.clamp(10, 96),
+                min: 10,
+                max: 96,
+                divisions: 86,
+                label: size.round().toString(),
+                onChanged: (value) => controller.updateBlock(
+                  block.copyWith(style: {...block.style, 'fontSize': value}),
+                ),
+              ),
+            ),
+            Text('${size.round()}'),
+          ],
+        ),
+        SegmentedButton<String>(
+          segments: const [
+            ButtonSegment(value: 'left', icon: Icon(Icons.format_align_left)),
+            ButtonSegment(
+              value: 'center',
+              icon: Icon(Icons.format_align_center),
+            ),
+            ButtonSegment(value: 'right', icon: Icon(Icons.format_align_right)),
+          ],
+          selected: {alignment},
+          onSelectionChanged: (value) => controller.updateBlock(
+            block.copyWith(style: {...block.style, 'align': value.first}),
+          ),
+        ),
+        const SizedBox(height: 12),
+        const Text('Colour'),
+        Wrap(
+          spacing: 10,
+          children: [
+            for (final color in colors)
+              InkWell(
+                onTap: () => controller.updateBlock(
+                  block.copyWith(style: {...block.style, 'color': color}),
+                ),
+                borderRadius: BorderRadius.circular(18),
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: Color(color),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: block.style['color'] == color
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).dividerColor,
+                      width: block.style['color'] == color ? 3 : 1,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _calendarGridInspector() {
+    final current = controller.project!.source;
+    return Column(
+      children: [
+        const ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text('Dates come from the app calendar'),
+          subtitle: Text('Canonical calendar data cannot be edited.'),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: current.showMyanmarDate,
+          onChanged: (value) =>
+              controller.updateSource(current.copyWith(showMyanmarDate: value)),
+          title: const Text('Myanmar date'),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: current.showMoonPhases,
+          onChanged: (value) =>
+              controller.updateSource(current.copyWith(showMoonPhases: value)),
+          title: const Text('Moon phases'),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: current.showHolidays,
+          onChanged: (value) =>
+              controller.updateSource(current.copyWith(showHolidays: value)),
+          title: const Text('Public holidays'),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: current.showAstrology,
+          onChanged: (value) =>
+              controller.updateSource(current.copyWith(showAstrology: value)),
+          title: const Text('Astrology days'),
+        ),
+        SegmentedButton<bool>(
+          segments: const [
+            ButtonSegment(value: false, label: Text('Sun start')),
+            ButtonSegment(value: true, label: Text('Mon start')),
+          ],
+          selected: {current.weekStartsMonday},
+          onSelectionChanged: (value) => controller.updateSource(
+            current.copyWith(weekStartsMonday: value.first),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _updateBlockTransform(CalendarStudioBlock block) {
+    if (!snapToGrid) {
+      controller.updateBlockDuringInteraction(block);
+      return;
+    }
+    double snap(double value) => (value * 100).round() / 100;
+    controller.updateBlockDuringInteraction(
+      block.copyWith(
+        bounds: block.bounds.copyWith(
+          left: snap(block.bounds.left),
+          top: snap(block.bounds.top),
+          width: snap(block.bounds.width),
+          height: snap(block.bounds.height),
+        ),
+      ),
+    );
+  }
+
   void _showLayers(BuildContext context) => showModalBottomSheet<void>(
     context: context,
     builder: (_) => SizedBox(height: 480, child: _layers()),
@@ -885,15 +1029,111 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   );
   void _showPageOptions(BuildContext context) => showModalBottomSheet<void>(
     context: context,
+    isScrollControlled: true,
     builder: (_) => StatefulBuilder(
-      builder: (_, setSheet) => SwitchListTile(
-        value: safeArea,
-        onChanged: (value) {
-          setState(() => safeArea = value);
-          setSheet(() {});
-        },
-        title: const Text('Show safe area'),
-      ),
+      builder: (_, setSheet) {
+        final canvas = controller.currentPage.canvas;
+        const backgrounds = [
+          0xFFFFFFFF,
+          0xFFF3EBD8,
+          0xFFE4F2EE,
+          0xFF151B3F,
+          0xFFF4F7F5,
+        ];
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Page and theme',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Done'),
+                    ),
+                  ],
+                ),
+                Text(
+                  'Page size · ${canvas.width.round()} × ${canvas.height.round()}',
+                ),
+                const SizedBox(height: 14),
+                const Text('Page background'),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 12,
+                  children: [
+                    for (final color in backgrounds)
+                      InkWell(
+                        onTap: () {
+                          controller.updateCurrentCanvas(
+                            canvas.copyWith(backgroundColor: color),
+                          );
+                          setSheet(() {});
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: Color(color),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: canvas.backgroundColor == color
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).dividerColor,
+                              width: canvas.backgroundColor == color ? 3 : 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: safeArea,
+                  onChanged: (value) {
+                    setState(() => safeArea = value);
+                    setSheet(() {});
+                  },
+                  title: const Text('Show safe area'),
+                  subtitle: const Text(
+                    'Keep important content inside the guide',
+                  ),
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: canvas.bleed > 0,
+                  onChanged: (value) {
+                    controller.updateCurrentCanvas(
+                      canvas.copyWith(bleed: value ? 3 : 0),
+                    );
+                    setSheet(() {});
+                  },
+                  title: const Text('Show bleed'),
+                  subtitle: const Text('3 mm extra edge for print'),
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: snapToGrid,
+                  onChanged: (value) {
+                    setState(() => snapToGrid = value);
+                    setSheet(() {});
+                  },
+                  title: const Text('Snap to grid'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     ),
   );
 

@@ -65,6 +65,22 @@ class CalendarStudioScene extends StatelessWidget {
                     ),
                   ),
                 ),
+              if (page.canvas.bleed > 0)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: const Color(0xFFA96300),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -332,9 +348,7 @@ class _CalendarGrid extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      dayData == null || !source.showMyanmarDate
-                          ? '$day'
-                          : '${dayData[day - 1].gregorianLabel}\n${dayData[day - 1].myanmarLabel ?? ''}',
+                      _dayLabel(day, dayData),
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 8),
                     ),
@@ -351,5 +365,21 @@ class _CalendarGrid extends StatelessWidget {
       future: dataProvider!.daysFor(source, month: source.month),
       builder: (_, snapshot) => buildGrid(snapshot.data),
     );
+  }
+
+  String _dayLabel(int day, List<CalendarStudioDayData>? values) {
+    if (values == null || day > values.length) return '$day';
+    final data = values[day - 1];
+    return [
+      data.gregorianLabel,
+      if (source.showMyanmarDate && data.myanmarLabel != null)
+        data.myanmarLabel!,
+      if (source.showMoonPhases && data.moonLabel != null) data.moonLabel!,
+      if (source.showHolidays && data.holidayLabel != null) data.holidayLabel!,
+      if (source.showAstrology &&
+          data.astrologyLabel != null &&
+          data.astrologyLabel!.isNotEmpty)
+        data.astrologyLabel!,
+    ].join('\n');
   }
 }

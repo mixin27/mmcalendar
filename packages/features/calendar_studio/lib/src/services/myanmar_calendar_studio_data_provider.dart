@@ -24,12 +24,12 @@ class MyanmarCalendarStudioDataProvider implements CalendarStudioDataProvider {
         date: date,
         gregorianLabel: '${date.day}',
         myanmarLabel: source.showMyanmarDate
-            ? MyanmarCalendar.formatMyanmar(
-                complete.myanmar,
-                pattern: '&M &P &f',
-              )
+            ? MyanmarCalendar.formatMyanmar(complete.myanmar, pattern: '&M &f')
             : null,
         moonLabel: source.showMoonPhases ? '${complete.moonPhase}' : null,
+        holidayLabel: source.showHolidays && complete.publicHolidays.isNotEmpty
+            ? complete.publicHolidays.first
+            : null,
         astrologyLabel: source.showAstrology ? complete.sabbath : null,
       );
     });

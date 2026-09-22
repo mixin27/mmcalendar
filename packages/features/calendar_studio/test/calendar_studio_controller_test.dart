@@ -34,6 +34,33 @@ void main() {
     );
     controller.dispose();
   });
+
+  test('calendar visibility and page theme updates are undoable', () async {
+    final controller = CalendarStudioController(
+      CalendarStudioConfiguration(projects: _MemoryStore()),
+    );
+    await controller.create(
+      'jade-wall',
+      const CalendarStudioSource(
+        year: 2027,
+        period: CalendarStudioPeriod.month,
+      ),
+    );
+
+    controller.updateSource(
+      controller.project!.source.copyWith(showMoonPhases: false),
+    );
+    expect(controller.project!.source.showMoonPhases, isFalse);
+    controller.updateCurrentCanvas(
+      controller.currentPage.canvas.copyWith(backgroundColor: 0xFFF3EBD8),
+    );
+    expect(controller.currentPage.canvas.backgroundColor, 0xFFF3EBD8);
+    controller.undo();
+    expect(controller.currentPage.canvas.backgroundColor, 0xFFFFFFFF);
+    controller.undo();
+    expect(controller.project!.source.showMoonPhases, isTrue);
+    controller.dispose();
+  });
 }
 
 class _MemoryStore implements CalendarStudioProjectStore {

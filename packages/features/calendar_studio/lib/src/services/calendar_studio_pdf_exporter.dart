@@ -148,9 +148,21 @@ class CalendarStudioPdfExporter {
       final day = index - offset + 1;
       if (day < 1 || day > count) return pw.SizedBox();
       final data = days != null && day <= days.length ? days[day - 1] : null;
-      final label = data == null || !source.showMyanmarDate
+      final label = data == null
           ? '$day'
-          : '${data.gregorianLabel}\n${data.myanmarLabel ?? ''}';
+          : [
+              data.gregorianLabel,
+              if (source.showMyanmarDate && data.myanmarLabel != null)
+                data.myanmarLabel!,
+              if (source.showMoonPhases && data.moonLabel != null)
+                data.moonLabel!,
+              if (source.showHolidays && data.holidayLabel != null)
+                data.holidayLabel!,
+              if (source.showAstrology &&
+                  data.astrologyLabel != null &&
+                  data.astrologyLabel!.isNotEmpty)
+                data.astrologyLabel!,
+            ].join('\n');
       return pw.Container(
         padding: const pw.EdgeInsets.all(2),
         decoration: pw.BoxDecoration(

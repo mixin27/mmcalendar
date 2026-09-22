@@ -59,6 +59,24 @@ class CalendarStudioController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateSource(CalendarStudioSource source) {
+    final value = _project;
+    if (value == null || value.source == source) return;
+    _undo.add(value);
+    _redo.clear();
+    _project = value.copyWith(
+      source: source,
+      updatedAt: configuration.now?.call() ?? DateTime.now(),
+    );
+    notifyListeners();
+    _scheduleSave();
+  }
+
+  void updateCurrentCanvas(StudioCanvas canvas) {
+    if (currentPage.canvas == canvas) return;
+    _edit((page) => page.copyWith(canvas: canvas));
+  }
+
   void updateBlock(CalendarStudioBlock block) => _edit(
     (page) => page.copyWith(
       blocks: [
