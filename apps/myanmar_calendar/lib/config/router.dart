@@ -1,5 +1,6 @@
 import 'package:calendar/calendar.dart';
 import 'package:calendar_generation/calendar_generation.dart';
+import 'package:calendar_studio/calendar_studio.dart';
 import 'package:converter/converter.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:events/events.dart';
@@ -17,6 +18,7 @@ import '../presentation/pages/privacy_policy_page.dart';
 import '../presentation/shell/app_shell.dart';
 import '../presentation/widgets/promo_initializer.dart';
 import 'di_setup.dart';
+import 'calendar_studio_configuration.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: RoutePaths.home,
@@ -25,6 +27,11 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: RoutePaths.consent,
       builder: (context, state) => const ConsentPage(),
+    ),
+    GoRoute(
+      path: RoutePaths.studio,
+      builder: (context, state) =>
+          CalendarStudioWorkspace(configuration: calendarStudioConfiguration),
     ),
 
     // Main App Shell with Bottom Navigation

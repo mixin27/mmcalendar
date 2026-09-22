@@ -144,6 +144,20 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                   showShanCalendar: displayConfig.showShanCalendar,
                 ),
               ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                  child: Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.palette_outlined),
+                      title: const Text('Calendar Studio'),
+                      subtitle: const Text('Design, print and share calendars'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => GoRouter.of(context).push(RoutePaths.studio),
+                    ),
+                  ),
+                ),
+              ),
 
               // Main Calendar Content
               SliverToBoxAdapter(

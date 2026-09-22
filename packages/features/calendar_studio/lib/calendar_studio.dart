@@ -1,0 +1,18 @@
+/// A standalone calendar creation workspace.
+///
+/// The host application supplies canonical calendar data, project persistence,
+/// assets, and export delivery through [CalendarStudioConfiguration]. The
+/// package never calculates or mutates canonical dates itself.
+library;
+
+export 'src/models/calendar_studio_document.dart';
+export 'src/models/calendar_studio_types.dart';
+export 'src/services/calendar_studio_contracts.dart';
+export 'src/services/calendar_studio_controller.dart';
+export 'src/services/calendar_studio_document_codec.dart';
+export 'src/services/calendar_studio_preflight.dart';
+export 'src/services/calendar_studio_pdf_exporter.dart';
+export 'src/services/myanmar_calendar_studio_data_provider.dart';
+export 'src/templates/calendar_studio_templates.dart';
+export 'src/widgets/calendar_studio_scene.dart';
+export 'src/presentation/calendar_studio_page.dart';

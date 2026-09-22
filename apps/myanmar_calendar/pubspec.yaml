@@ -40,6 +40,8 @@ dependencies:
     path: ../../packages/features/converter
   calendar_generation:
     path: ../../packages/features/calendar_generation
+  calendar_studio:
+    path: ../../packages/features/calendar_studio
   events:
     path: ../../packages/features/events
   home_widgets:
@@ -76,6 +78,7 @@ dependencies:
   shared_preferences: ^2.5.5
   workmanager: ^0.10.0
   flutter_svg: ^2.3.0
+  printing: ^5.15.0
 
   # Firebase
   firebase_core: ^4.14.0
