@@ -81,6 +81,8 @@ dependencies:
   printing: ^5.15.0
   path_provider: ^2.1.6
   path: ^1.9.1
+  file_picker: ^10.3.2
+  share_plus: ^12.0.0
 
   # Firebase
   firebase_core: ^4.14.0
@@ -100,3 +102,23 @@ flutter:
     - assets/fonts/google_fonts/
     - assets/images/
     - assets/branding/
+
+  fonts:
+    - family: Noto Sans Myanmar
+      fonts:
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Light.ttf
+          weight: 300
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Black.ttf
+          weight: 900

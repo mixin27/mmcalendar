@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as image_lib;
 
@@ -6,8 +9,9 @@ import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
 import '../services/calendar_studio_contracts.dart';
 import '../services/calendar_studio_controller.dart';
+import '../services/calendar_studio_export_service.dart';
 import '../services/calendar_studio_preflight.dart';
-import '../services/calendar_studio_pdf_exporter.dart';
+import '../services/calendar_studio_raster_renderer.dart';
 import '../templates/calendar_studio_templates.dart';
 import '../widgets/calendar_studio_scene.dart';
 
@@ -348,18 +352,12 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   }
 
   Future<void> _exportProject(CalendarStudioProject project) async {
-    final delivery = widget.configuration.exportDelivery;
-    if (delivery == null) return;
-    final bytes = await CalendarStudioPdfExporter(
-      dataProvider: widget.configuration.calendarData,
-      assetStore: widget.configuration.assets,
-    ).export(project);
-    await delivery.deliver(
-      CalendarStudioExportArtifact(
-        name: '${_safeFileName(project.name)}.pdf',
-        mimeType: 'application/pdf',
-        bytes: bytes,
+    await _runExport(
+      project,
+      project.defaultExportPreset.copyWith(
+        fileName: _safeFileName(project.name),
       ),
+      CalendarStudioExportDestination.save,
     );
   }
 
@@ -862,7 +860,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           ),
         ),
         const SizedBox(height: 12),
-        const Text('Font · Noto Serif Myanmar'),
+        Text(
+          'Font · ${block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar'}',
+        ),
         Text(
           'ကခ Aa · Myanmar supported',
           style: TextStyle(color: Theme.of(context).colorScheme.primary),
@@ -1293,47 +1293,327 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       ],
     ),
   );
-  void _showExport(BuildContext context) => showModalBottomSheet<void>(
-    context: context,
-    builder: (_) => Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('Export', style: Theme.of(context).textTheme.titleLarge),
-          const ListTile(
-            title: Text('A4 print'),
-            subtitle: Text('PDF · 300 dpi'),
-          ),
-          const ListTile(
-            title: Text('Square social'),
-            subtitle: Text('PNG · 144 dpi'),
-          ),
-          FilledButton.icon(
-            onPressed: () async {
-              final delivery = widget.configuration.exportDelivery;
-              if (delivery != null) {
-                final bytes = await CalendarStudioPdfExporter(
-                  dataProvider: widget.configuration.calendarData,
-                  assetStore: widget.configuration.assets,
-                ).export(controller.project!);
-                await delivery.deliver(
-                  CalendarStudioExportArtifact(
-                    name: 'my-calendar.pdf',
-                    mimeType: 'application/pdf',
-                    bytes: bytes,
+  Future<void> _showExport(BuildContext context) async {
+    final project = controller.project!;
+    final request = await showModalBottomSheet<_ExportRequest>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _ExportSheet(
+        initialPreset: project.defaultExportPreset.copyWith(
+          fileName: _safeFileName(project.name),
+        ),
+        pageCount: project.pages.length,
+      ),
+    );
+    if (request != null && mounted) {
+      await _runExport(project, request.preset, request.destination);
+    }
+  }
+
+  Future<void> _runExport(
+    CalendarStudioProject project,
+    CalendarStudioExportPreset preset,
+    CalendarStudioExportDestination destination,
+  ) async {
+    final delivery = widget.configuration.exportDelivery;
+    if (delivery == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No export destination is configured.')),
+      );
+      return;
+    }
+    final token = CalendarStudioExportCancellationToken();
+    final progress = ValueNotifier(
+      CalendarStudioExportProgress(completed: 0, total: project.pages.length),
+    );
+    var dialogOpen = true;
+    unawaited(
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => _ExportProgressDialog(
+          format: preset.format,
+          progress: progress,
+          onCancel: token.cancel,
+        ),
+      ).whenComplete(() => dialogOpen = false),
+    );
+    try {
+      final artifact =
+          await CalendarStudioExportService(
+            renderer: CalendarStudioRasterRenderer(
+              dataProvider: widget.configuration.calendarData,
+              assetStore: widget.configuration.assets,
+            ),
+          ).export(
+            project: project,
+            preset: preset,
+            cancellationToken: token,
+            onProgress: (value) => progress.value = value,
+          );
+      if (dialogOpen && mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      await delivery.deliver(artifact, destination: destination);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('${artifact.name} is ready.')));
+      }
+    } on CalendarStudioExportCancelled {
+      if (dialogOpen && mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+    } catch (error) {
+      if (dialogOpen && mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Export failed: $error')));
+      }
+    } finally {
+      progress.dispose();
+    }
+  }
+}
+
+class _ExportSheet extends StatefulWidget {
+  const _ExportSheet({required this.initialPreset, required this.pageCount});
+  final CalendarStudioExportPreset initialPreset;
+  final int pageCount;
+
+  @override
+  State<_ExportSheet> createState() => _ExportSheetState();
+}
+
+class _ExportSheetState extends State<_ExportSheet> {
+  late CalendarStudioExportPreset preset = widget.initialPreset;
+  var destination = CalendarStudioExportDestination.save;
+  late final TextEditingController nameController = TextEditingController(
+    text: widget.initialPreset.fileName,
+  );
+
+  static const presets = [
+    CalendarStudioExportPreset.screenPng,
+    CalendarStudioExportPreset.a4Pdf,
+    CalendarStudioExportPreset.highQualityPng,
+    CalendarStudioExportPreset.a3Pdf,
+    CalendarStudioExportPreset.squarePng,
+    CalendarStudioExportPreset.storyPng,
+  ];
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final extension = switch (preset.format) {
+      CalendarStudioExportFormat.pdf => '.pdf',
+      CalendarStudioExportFormat.png => widget.pageCount > 1 ? '.zip' : '.png',
+      CalendarStudioExportFormat.jpeg => widget.pageCount > 1 ? '.zip' : '.jpg',
+      CalendarStudioExportFormat.zip => '.zip',
+    };
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          20 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Export',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                   ),
-                );
-              }
-              if (context.mounted) Navigator.pop(context);
-            },
-            icon: const Icon(Icons.download_outlined),
-            label: const Text('Export PDF'),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const Text('Preset'),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 104,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: presets.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (_, index) {
+                    final value = presets[index];
+                    return ChoiceChip(
+                      selected: preset.id == value.id,
+                      onSelected: (_) => setState(
+                        () => preset = value.copyWith(
+                          fileName: nameController.text,
+                        ),
+                      ),
+                      label: SizedBox(
+                        width: 112,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(value.label),
+                            Text(
+                              '${value.width} × ${value.height}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text('Format'),
+              const SizedBox(height: 6),
+              SegmentedButton<CalendarStudioExportFormat>(
+                segments: const [
+                  ButtonSegment(
+                    value: CalendarStudioExportFormat.pdf,
+                    label: Text('PDF'),
+                  ),
+                  ButtonSegment(
+                    value: CalendarStudioExportFormat.png,
+                    label: Text('PNG'),
+                  ),
+                  ButtonSegment(
+                    value: CalendarStudioExportFormat.jpeg,
+                    label: Text('JPEG'),
+                  ),
+                  ButtonSegment(
+                    value: CalendarStudioExportFormat.zip,
+                    label: Text('ZIP'),
+                  ),
+                ],
+                selected: {preset.format},
+                onSelectionChanged: (values) => setState(
+                  () => preset = preset.copyWith(format: values.first),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: 'File name',
+                  suffixText: extension,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '${preset.width} × ${preset.height} px · ${preset.dpi} dpi · '
+                '${widget.pageCount} page${widget.pageCount == 1 ? '' : 's'}\n'
+                'Myanmar text is shaped by Flutter for reliable PDF output.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 16),
+              const Text('After exporting'),
+              const SizedBox(height: 6),
+              SegmentedButton<CalendarStudioExportDestination>(
+                segments: const [
+                  ButtonSegment(
+                    value: CalendarStudioExportDestination.save,
+                    icon: Icon(Icons.save_alt_outlined),
+                    label: Text('Save'),
+                  ),
+                  ButtonSegment(
+                    value: CalendarStudioExportDestination.share,
+                    icon: Icon(Icons.share_outlined),
+                    label: Text('Share'),
+                  ),
+                  ButtonSegment(
+                    value: CalendarStudioExportDestination.print,
+                    icon: Icon(Icons.print_outlined),
+                    label: Text('Print'),
+                  ),
+                ],
+                selected: {destination},
+                onSelectionChanged: (values) => setState(() {
+                  destination = values.first;
+                  if (destination == CalendarStudioExportDestination.print) {
+                    preset = preset.copyWith(
+                      format: CalendarStudioExportFormat.pdf,
+                    );
+                  }
+                }),
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: () => Navigator.pop(
+                  context,
+                  _ExportRequest(
+                    preset: preset.copyWith(fileName: nameController.text),
+                    destination: destination,
+                  ),
+                ),
+                icon: const Icon(Icons.download_outlined),
+                label: Text('Export ${preset.format.name.toUpperCase()}'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExportRequest {
+  const _ExportRequest({required this.preset, required this.destination});
+  final CalendarStudioExportPreset preset;
+  final CalendarStudioExportDestination destination;
+}
+
+class _ExportProgressDialog extends StatelessWidget {
+  const _ExportProgressDialog({
+    required this.format,
+    required this.progress,
+    required this.onCancel,
+  });
+  final CalendarStudioExportFormat format;
+  final ValueListenable<CalendarStudioExportProgress> progress;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: Text('Exporting ${format.name.toUpperCase()}'),
+    content: ValueListenableBuilder<CalendarStudioExportProgress>(
+      valueListenable: progress,
+      builder: (_, value, _) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Rendering page ${value.completed >= value.total ? value.total : value.completed + 1} '
+            'of ${value.total}',
+          ),
+          const SizedBox(height: 12),
+          LinearProgressIndicator(
+            value: value.total == 0 ? 0 : value.completed / value.total,
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Pages are rendered one at a time so long calendars remain responsive.',
           ),
         ],
       ),
     ),
+    actions: [OutlinedButton(onPressed: onCancel, child: const Text('Cancel'))],
   );
 }
 

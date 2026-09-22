@@ -73,8 +73,14 @@ class CalendarStudioAsset {
 }
 
 abstract interface class CalendarStudioExportDelivery {
-  Future<void> deliver(CalendarStudioExportArtifact artifact);
+  Future<void> deliver(
+    CalendarStudioExportArtifact artifact, {
+    CalendarStudioExportDestination destination =
+        CalendarStudioExportDestination.save,
+  });
 }
+
+enum CalendarStudioExportDestination { save, share, print }
 
 class CalendarStudioExportArtifact {
   const CalendarStudioExportArtifact({

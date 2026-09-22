@@ -16,6 +16,8 @@ class CalendarStudioScene extends StatelessWidget {
     this.onSelect,
     this.dataProvider,
     this.assetStore,
+    this.resolvedDays,
+    this.resolvedAssets = const {},
     this.onTransform,
     this.onTransformStart,
     this.onTransformEnd,
@@ -28,6 +30,8 @@ class CalendarStudioScene extends StatelessWidget {
   final ValueChanged<CalendarStudioBlock?>? onSelect;
   final CalendarStudioDataProvider? dataProvider;
   final CalendarStudioAssetStore? assetStore;
+  final List<CalendarStudioDayData>? resolvedDays;
+  final Map<String, Uint8List> resolvedAssets;
   final ValueChanged<CalendarStudioBlock>? onTransform;
   final VoidCallback? onTransformStart;
   final VoidCallback? onTransformEnd;
@@ -199,6 +203,7 @@ class CalendarStudioScene extends StatelessWidget {
     CalendarStudioBlockType.calendarGrid => _CalendarGrid(
       source: source.copyWith(year: page.year, month: page.month),
       dataProvider: dataProvider,
+      resolvedDays: resolvedDays,
     ),
     CalendarStudioBlockType.text => _TextBlock(block: block),
     CalendarStudioBlockType.shape => ColoredBox(
@@ -208,6 +213,7 @@ class CalendarStudioScene extends StatelessWidget {
     CalendarStudioBlockType.logo => _AssetImageBlock(
       assetId: block.content['assetId'] as String?,
       assetStore: assetStore,
+      resolvedBytes: resolvedAssets[block.content['assetId']],
     ),
     CalendarStudioBlockType.eventList => const _ListBlock(
       icon: Icons.event_outlined,
@@ -224,25 +230,35 @@ class CalendarStudioScene extends StatelessWidget {
 }
 
 class _AssetImageBlock extends StatelessWidget {
-  const _AssetImageBlock({required this.assetId, required this.assetStore});
+  const _AssetImageBlock({
+    required this.assetId,
+    required this.assetStore,
+    required this.resolvedBytes,
+  });
   final String? assetId;
   final CalendarStudioAssetStore? assetStore;
+  final Uint8List? resolvedBytes;
 
   @override
   Widget build(BuildContext context) {
+    if (resolvedBytes case final bytes? when bytes.isNotEmpty) {
+      return _image(bytes);
+    }
     if (assetId == null || assetStore == null) return _placeholder();
     return FutureBuilder<List<int>?>(
       future: assetStore!.loadBytes(assetId!),
       builder: (_, snapshot) {
         final bytes = snapshot.data;
         if (bytes == null || bytes.isEmpty) return _placeholder();
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.memory(Uint8List.fromList(bytes), fit: BoxFit.cover),
-        );
+        return _image(Uint8List.fromList(bytes));
       },
     );
   }
+
+  Widget _image(Uint8List bytes) => ClipRRect(
+    borderRadius: BorderRadius.circular(8),
+    child: Image.memory(bytes, fit: BoxFit.cover),
+  );
 
   Widget _placeholder() => DecoratedBox(
     decoration: BoxDecoration(
@@ -272,7 +288,8 @@ class _TextBlock extends StatelessWidget {
         _ => TextAlign.left,
       },
       style: TextStyle(
-        fontFamily: 'Noto Serif Myanmar',
+        fontFamily: block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar',
+        fontFamilyFallback: const ['Noto Sans Myanmar'],
         fontSize: (block.style['fontSize'] as num?)?.toDouble() ?? 20,
         fontWeight: FontWeight.w700,
         color: Color((block.style['color'] as int?) ?? 0xFF15201D),
@@ -296,9 +313,14 @@ class _ListBlock extends StatelessWidget {
 }
 
 class _CalendarGrid extends StatelessWidget {
-  const _CalendarGrid({required this.source, this.dataProvider});
+  const _CalendarGrid({
+    required this.source,
+    this.dataProvider,
+    this.resolvedDays,
+  });
   final CalendarStudioSource source;
   final CalendarStudioDataProvider? dataProvider;
+  final List<CalendarStudioDayData>? resolvedDays;
   @override
   Widget build(BuildContext context) {
     final date = DateTime(source.year, source.month);
@@ -320,6 +342,7 @@ class _CalendarGrid extends StatelessWidget {
                     child: Text(
                       value,
                       style: const TextStyle(
+                        fontFamily: 'Noto Sans Myanmar',
                         fontWeight: FontWeight.w700,
                         fontSize: 9,
                       ),
@@ -350,7 +373,11 @@ class _CalendarGrid extends StatelessWidget {
                     child: Text(
                       _dayLabel(day, dayData),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 8),
+                      style: const TextStyle(
+                        fontFamily: 'Noto Sans Myanmar',
+                        fontFamilyFallback: ['Noto Sans Myanmar'],
+                        fontSize: 8,
+                      ),
                     ),
                   ),
                 ),
@@ -360,6 +387,7 @@ class _CalendarGrid extends StatelessWidget {
         ),
       ],
     );
+    if (resolvedDays != null) return buildGrid(resolvedDays);
     if (dataProvider == null) return buildGrid(null);
     return FutureBuilder<List<CalendarStudioDayData>>(
       future: dataProvider!.daysFor(source, month: source.month),

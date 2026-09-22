@@ -11,6 +11,11 @@ a temporary legacy feature until Calendar Studio has reached release quality.
 Calendar Studio is a creation workspace, not an app preference. It must not be
 reachable only from Settings.
 
+Myanmar text fidelity is an export invariant. Flutter/Skia is the authoritative
+text shaping engine for preview and export. A font merely loading in the `pdf`
+package is not considered sufficient because Myanmar requires OpenType shaping
+for stacked marks and conjuncts.
+
 ## Mockup-aligned delivery contract
 
 The clickable mockup is the Release 1 interaction specification, not merely a
@@ -86,6 +91,8 @@ data are correct.
 - Local custom events selected from the existing Events feature.
 - Autosave and a project version compatible with future migrations.
 - PNG/JPEG, PDF, print, share, and multi-page image ZIP exports.
+- Myanmar Unicode font catalog with bundled open-source families, host-supplied
+  families, and user-imported TTF/OTF files whose licences permit their use.
 
 ### Later releases
 
@@ -138,12 +145,42 @@ Calendar settings + canonical date/holiday data + project document
                               ↓
                         Render scene
                    ↙          ↓          ↘
-          Flutter preview   PDF export   raster export
+          Flutter preview   PDF container   raster export
 ```
 
 The render scene is the only input to preview and export renderers. This is
 required to prevent a preview that looks different from the downloaded or
 printed file.
+
+Flutter's shaped render output is authoritative for Myanmar text. PDF export
+places target-resolution page renders into a correctly sized PDF page by
+default. A vector optimization may be added for primitives or text runs only
+after automated parity tests prove that their shaping and metrics match the
+Flutter render. This trades selectable/searchable PDF text for reliable visual
+output; correctness wins for Release 1.
+
+### Font model
+
+Persist a stable `fontId` on text-bearing block styles instead of a platform
+font-family name. Resolve it through a configurable `CalendarStudioFontCatalog`:
+
+- ship a small, licensed fallback set (Noto Sans Myanmar, Noto Serif Myanmar,
+  and Padauk where their licences are included);
+- allow the host app to register additional font descriptors and bytes;
+- allow users to import valid `.ttf` and `.otf` files into managed asset
+  storage, retaining licence/source metadata supplied by the user;
+- register resolved bytes with Flutter `FontLoader` so preview and export use
+  the same family and shaping engine;
+- validate Myanmar Unicode coverage and representative shaping strings before
+  presenting a font as Myanmar-capable;
+- fall back per text run to Noto Sans Myanmar when a selected font lacks a
+  required glyph, and surface this substitution in preflight.
+
+“All Myanmar Unicode fonts” means all valid fonts bundled by the host or
+imported by the user. Calendar Studio must not enumerate or redistribute
+commercial/system fonts whose files or embedding licences are unavailable.
+Legacy Zawgyi text is not a font mode; optional conversion belongs at text
+import boundaries before the Unicode document is persisted.
 
 ## Core domain model
 
@@ -228,14 +265,19 @@ Create `RenderSceneBuilder` to resolve a project, calendar data, images, font
 metrics, and layout into positioned rendering primitives.
 
 - Flutter renders the scene for interactive preview.
-- The PDF renderer writes vector text/shapes whenever possible and embeds
-  Myanmar-capable fonts. Rasterize only image/effect content that needs it.
+- The default PDF renderer embeds one Flutter/Skia-rendered page image per PDF
+  page at the preset's target DPI. It preserves physical page dimensions and
+  embeds output colour metadata where supported.
+- A later vector renderer may write shapes and proven-safe text runs as an
+  optimization, but must automatically fall back to shaped page regions for
+  Myanmar or unsupported effects.
 - PNG/JPEG renderer produces output from explicit dimensions and DPI.
 - ZIP export streams multi-page image files rather than keeping all pages in
   memory.
 - Preflight produces actionable errors/warnings for missing images, low source
   resolution, text overflow, low contrast, unsafe bounds, unsupported export
-  blocks, and invalid print configuration.
+  blocks, missing font bytes, font substitution, missing Myanmar coverage, and
+  invalid print configuration.
 
 Export presets include screen sharing, high-quality image, A4/A3 print, square
 social, and story. The project preview must display the same safe/bleed areas
@@ -277,7 +319,8 @@ project without losing changes.
 ### Phase 3 — export and preflight
 
 - Implement the shared render scene and preview renderer.
-- Implement PNG/JPEG, vector-first PDF, print/share, and image ZIP export.
+- Implement PNG/JPEG, fidelity-first shaped PDF, print/share, and image ZIP
+  export.
 - Add preflight UI and export progress/cancellation.
 - Add golden and integration tests that compare representative preview and
   exported output.
@@ -326,6 +369,8 @@ by migration and regression tests.
 | --- | --- |
 | Preview/export mismatch | Render through one `RenderScene` contract and golden-test both paths. |
 | Incorrect Myanmar dates | Keep calculations outside editable blocks; test historical and boundary dates. |
+| Broken Myanmar shaping in PDF | Use Flutter/Skia-shaped page renders for the default PDF path; never rely on raw TTF embedding alone. |
+| Font licensing or portability | Bundle only licensed fonts, persist stable font IDs, and copy user fonts into managed storage with source metadata. |
 | Large image memory use | Store managed assets, decode to target size, render/export pages incrementally. |
 | Excessive editor scope | Ship typed blocks and templates before arbitrary freeform features. |
 | Data loss during rewrite | Use versioned documents, autosave, and non-destructive legacy import. |

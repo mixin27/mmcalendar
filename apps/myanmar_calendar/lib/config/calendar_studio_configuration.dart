@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:calendar_studio/calendar_studio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'di_setup.dart';
@@ -72,10 +74,42 @@ class _StudioExportDelivery implements CalendarStudioExportDelivery {
   const _StudioExportDelivery();
 
   @override
-  Future<void> deliver(CalendarStudioExportArtifact artifact) {
-    return Printing.sharePdf(
-      bytes: Uint8List.fromList(artifact.bytes),
-      filename: artifact.name,
-    );
+  Future<void> deliver(
+    CalendarStudioExportArtifact artifact, {
+    CalendarStudioExportDestination destination =
+        CalendarStudioExportDestination.save,
+  }) async {
+    final bytes = Uint8List.fromList(artifact.bytes);
+    switch (destination) {
+      case CalendarStudioExportDestination.save:
+        await FilePicker.platform.saveFile(
+          dialogTitle: 'Save calendar export',
+          fileName: artifact.name,
+          bytes: bytes,
+        );
+      case CalendarStudioExportDestination.share:
+        await SharePlus.instance.share(
+          ShareParams(
+            title: 'Calendar Studio export',
+            subject: artifact.name,
+            files: [
+              XFile.fromData(
+                bytes,
+                mimeType: artifact.mimeType,
+                name: artifact.name,
+              ),
+            ],
+            fileNameOverrides: [artifact.name],
+          ),
+        );
+      case CalendarStudioExportDestination.print:
+        if (artifact.mimeType != 'application/pdf') {
+          throw ArgumentError('Only PDF calendar exports can be printed.');
+        }
+        await Printing.layoutPdf(
+          name: artifact.name,
+          onLayout: (_) async => bytes,
+        );
+    }
   }
 }

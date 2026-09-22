@@ -171,6 +171,31 @@ class CalendarStudioExportPreset extends Equatable {
   final int width;
   final int height;
   final String fileName;
+  CalendarStudioExportPreset copyWith({
+    String? id,
+    String? label,
+    CalendarStudioExportFormat? format,
+    int? dpi,
+    int? width,
+    int? height,
+    String? fileName,
+  }) => CalendarStudioExportPreset(
+    id: id ?? this.id,
+    label: label ?? this.label,
+    format: format ?? this.format,
+    dpi: dpi ?? this.dpi,
+    width: width ?? this.width,
+    height: height ?? this.height,
+    fileName: fileName ?? this.fileName,
+  );
+  static const screenPng = CalendarStudioExportPreset(
+    id: 'screen-png',
+    label: 'Screen sharing',
+    format: CalendarStudioExportFormat.png,
+    dpi: 144,
+    width: 1080,
+    height: 1528,
+  );
   static const a4Pdf = CalendarStudioExportPreset(
     id: 'a4-pdf',
     label: 'A4 print',
@@ -194,6 +219,22 @@ class CalendarStudioExportPreset extends Equatable {
     dpi: 144,
     width: 1080,
     height: 1920,
+  );
+  static const highQualityPng = CalendarStudioExportPreset(
+    id: 'high-quality-png',
+    label: 'High quality',
+    format: CalendarStudioExportFormat.png,
+    dpi: 300,
+    width: 2480,
+    height: 3508,
+  );
+  static const a3Pdf = CalendarStudioExportPreset(
+    id: 'a3-pdf',
+    label: 'A3 print',
+    format: CalendarStudioExportFormat.pdf,
+    dpi: 300,
+    width: 3508,
+    height: 4961,
   );
   @override
   List<Object> get props => [id, label, format, dpi, width, height, fileName];

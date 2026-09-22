@@ -133,7 +133,13 @@ abstract final class CalendarStudioTemplates {
       bounds: StudioRect(left: .08, top: .08, width: .84, height: .13),
       zIndex: 1,
       content: {'text': 'Myanmar Calendar'},
-      style: {'color': 0xFFFFFFFF, 'fontSize': 28.0, 'align': 'center'},
+      style: {
+        'color': 0xFFFFFFFF,
+        'fontSize': 28.0,
+        'align': 'center',
+        'fontId': 'noto-sans-myanmar',
+        'fontFamily': 'Noto Sans Myanmar',
+      },
     ),
     CalendarStudioBlock(
       id: 'grid',
@@ -151,7 +157,11 @@ abstract final class CalendarStudioTemplates {
       name: 'Title',
       bounds: StudioRect(left: .08, top: .08, width: .38, height: .14),
       content: {'text': 'Myanmar Calendar'},
-      style: {'fontSize': 24.0},
+      style: {
+        'fontSize': 24.0,
+        'fontId': 'noto-sans-myanmar',
+        'fontFamily': 'Noto Sans Myanmar',
+      },
     ),
     CalendarStudioBlock(
       id: 'grid',
@@ -168,7 +178,12 @@ abstract final class CalendarStudioTemplates {
       name: 'Title',
       bounds: StudioRect(left: .08, top: .04, width: .84, height: .08),
       content: {'text': 'Myanmar Calendar'},
-      style: {'fontSize': 25.0, 'align': 'center'},
+      style: {
+        'fontSize': 25.0,
+        'align': 'center',
+        'fontId': 'noto-sans-myanmar',
+        'fontFamily': 'Noto Sans Myanmar',
+      },
     ),
     CalendarStudioBlock(
       id: 'grid',
