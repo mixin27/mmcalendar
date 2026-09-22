@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:calendar_studio/calendar_studio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:integrations_database/integrations_database.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,59 +15,98 @@ import 'calendar_studio_asset_store.dart';
 /// The package remains reusable; this adapter is the only app-specific seam.
 final CalendarStudioConfiguration calendarStudioConfiguration =
     CalendarStudioConfiguration(
-      projects: _StudioProjectStore(getIt<SharedPreferences>()),
+      projects: _StudioProjectStore(
+        CalendarStudioProjectDatabase(getIt<AppDatabase>()),
+        getIt<SharedPreferences>(),
+      ),
       calendarData: const MyanmarCalendarStudioDataProvider(),
       assets: createCalendarStudioAssetStore(getIt<SharedPreferences>()),
       exportDelivery: const _StudioExportDelivery(),
     );
 
 class _StudioProjectStore implements CalendarStudioProjectStore {
-  _StudioProjectStore(this._preferences);
+  _StudioProjectStore(this._database, this._preferences);
 
-  static const _key = 'calendar_studio.projects.v1';
+  static const _legacyKey = 'calendar_studio.projects.v1';
+  static const _migrationKey = 'calendar_studio.projects.drift-migrated.v1';
+  final CalendarStudioProjectDatabase _database;
   final SharedPreferences _preferences;
+  Future<void>? _migration;
 
-  Future<Map<String, CalendarStudioProject>> _read() async {
-    final raw = _preferences.getString(_key);
-    if (raw == null || raw.isEmpty) return {};
-    final decoded = jsonDecode(raw) as List;
-    return {
-      for (final item in decoded)
-        (item as Map<String, dynamic>)['id'] as String:
-            CalendarStudioDocumentCodec.decode(item),
-    };
+  Future<void> _ensureMigrated() => _migration ??= _migrateLegacyProjects();
+
+  Future<void> _migrateLegacyProjects() async {
+    if (_preferences.getBool(_migrationKey) ?? false) return;
+    final raw = _preferences.getString(_legacyKey);
+    if (raw == null || raw.isEmpty) {
+      await _preferences.setBool(_migrationKey, true);
+      return;
+    }
+    late final List<dynamic> decoded;
+    try {
+      decoded = jsonDecode(raw) as List;
+    } catch (_) {
+      return;
+    }
+    var everyDocumentWasValid = true;
+    for (final item in decoded) {
+      late final CalendarStudioProject project;
+      try {
+        project = CalendarStudioDocumentCodec.decode(
+          Map<String, dynamic>.from(item as Map),
+        );
+      } catch (_) {
+        everyDocumentWasValid = false;
+        continue;
+      }
+      await _saveToDatabase(project);
+    }
+    if (everyDocumentWasValid) {
+      // Keep the legacy JSON as a non-destructive recovery copy.
+      await _preferences.setBool(_migrationKey, true);
+    }
   }
 
-  Future<void> _write(Map<String, CalendarStudioProject> projects) =>
-      _preferences.setString(
-        _key,
-        jsonEncode(
-          projects.values.map(CalendarStudioDocumentCodec.encode).toList(),
-        ),
+  CalendarStudioProject _decode(String documentJson) =>
+      CalendarStudioDocumentCodec.decode(
+        Map<String, dynamic>.from(jsonDecode(documentJson) as Map),
       );
+
+  Future<void> _saveToDatabase(CalendarStudioProject project) => _database.save(
+    id: project.id,
+    name: project.name,
+    templateId: project.templateId,
+    documentSchemaVersion: project.schemaVersion,
+    documentJson: jsonEncode(CalendarStudioDocumentCodec.encode(project)),
+    createdAt: project.createdAt,
+    updatedAt: project.updatedAt,
+  );
 
   @override
   Future<void> delete(String id) async {
-    final projects = await _read();
-    projects.remove(id);
-    await _write(projects);
+    await _ensureMigrated();
+    await _database.delete(id);
   }
 
   @override
   Future<List<CalendarStudioProject>> list() async {
-    final values = (await _read()).values.toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    return values;
+    await _ensureMigrated();
+    return (await _database.list())
+        .map((row) => _decode(row.documentJson))
+        .toList(growable: false);
   }
 
   @override
-  Future<CalendarStudioProject?> load(String id) async => (await _read())[id];
+  Future<CalendarStudioProject?> load(String id) async {
+    await _ensureMigrated();
+    final row = await _database.load(id);
+    return row == null ? null : _decode(row.documentJson);
+  }
 
   @override
   Future<void> save(CalendarStudioProject project) async {
-    final projects = await _read();
-    projects[project.id] = project;
-    await _write(projects);
+    await _ensureMigrated();
+    await _saveToDatabase(project);
   }
 }
 

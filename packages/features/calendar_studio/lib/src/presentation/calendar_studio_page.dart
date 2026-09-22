@@ -25,7 +25,10 @@ class CalendarStudioWorkspace extends StatefulWidget {
 enum _View { dashboard, templates, editor, preview }
 
 class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
+  static const _minCanvasZoom = .5;
+  static const _maxCanvasZoom = 4.0;
   late final CalendarStudioController controller;
+  late final TransformationController canvasController;
   var view = _View.dashboard;
   var projects = <CalendarStudioProject>[];
   var loading = true;
@@ -33,12 +36,15 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   var safeArea = true;
   var snapToGrid = true;
   var projectFilter = 'All';
+  var canvasZoom = 1.0;
 
   @override
   void initState() {
     super.initState();
     controller = CalendarStudioController(widget.configuration)
       ..addListener(_refresh);
+    canvasController = TransformationController()
+      ..addListener(_onCanvasTransformChanged);
     _load();
   }
 
@@ -72,7 +78,28 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   void dispose() {
     controller.removeListener(_refresh);
     controller.dispose();
+    canvasController
+      ..removeListener(_onCanvasTransformChanged)
+      ..dispose();
     super.dispose();
+  }
+
+  void _onCanvasTransformChanged() {
+    final zoom = canvasController.value.getMaxScaleOnAxis();
+    if (!mounted || (zoom - canvasZoom).abs() < .01) return;
+    setState(() => canvasZoom = zoom);
+  }
+
+  void _setCanvasZoom(double value) {
+    final zoom = value.clamp(_minCanvasZoom, _maxCanvasZoom).toDouble();
+    canvasController.value = Matrix4.diagonal3Values(zoom, zoom, 1);
+  }
+
+  void _fitCanvas() => _setCanvasZoom(1);
+
+  void _changePage(int index) {
+    controller.setPage(index);
+    _fitCanvas();
   }
 
   @override
@@ -640,44 +667,136 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     CalendarStudioProject project,
   ) => Container(
     color: Theme.of(context).colorScheme.surfaceContainerHighest,
-    child: Column(
+    child: Stack(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              onPressed: controller.pageIndex > 0
-                  ? () => controller.setPage(controller.pageIndex - 1)
-                  : null,
-              icon: const Icon(Icons.chevron_left),
-            ),
-            Text(
-              '${controller.currentPage.label} · ${controller.pageIndex + 1}/${project.pages.length}',
-            ),
-            IconButton(
-              onPressed: controller.pageIndex < project.pages.length - 1
-                  ? () => controller.setPage(controller.pageIndex + 1)
-                  : null,
-              icon: const Icon(Icons.chevron_right),
-            ),
-          ],
+        Positioned.fill(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final availableWidth = (constraints.maxWidth - 56).clamp(
+                120.0,
+                double.infinity,
+              );
+              final availableHeight = (constraints.maxHeight - 76).clamp(
+                120.0,
+                double.infinity,
+              );
+              final ratio = controller.currentPage.canvas.aspectRatio;
+              final width = (availableHeight * ratio).clamp(
+                120.0,
+                availableWidth,
+              );
+              final height = width / ratio;
+              return InteractiveViewer(
+                transformationController: canvasController,
+                minScale: _minCanvasZoom,
+                maxScale: _maxCanvasZoom,
+                boundaryMargin: const EdgeInsets.all(240),
+                panEnabled: controller.selectedBlockId == null,
+                scaleEnabled: controller.selectedBlockId == null,
+                trackpadScrollCausesScale: true,
+                child: Center(
+                  child: SizedBox(
+                    width: width,
+                    height: height,
+                    child: Material(
+                      elevation: 8,
+                      shadowColor: Colors.black45,
+                      clipBehavior: Clip.antiAlias,
+                      child: CalendarStudioScene(
+                        page: controller.currentPage,
+                        source: project.source,
+                        dataProvider: widget.configuration.calendarData,
+                        assetStore: widget.configuration.assets,
+                        selectedBlockId: controller.selectedBlockId,
+                        showSafeArea: safeArea,
+                        onSelect: (block) => controller.select(block?.id),
+                        onTransform: _updateBlockTransform,
+                        onTransformStart: controller.beginBlockInteraction,
+                        onTransformEnd: controller.endBlockInteraction,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
-        Expanded(
+        Positioned(
+          top: 10,
+          left: 0,
+          right: 0,
           child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(30),
-              child: CalendarStudioScene(
-                page: controller.currentPage,
-                source: project.source,
-                dataProvider: widget.configuration.calendarData,
-                assetStore: widget.configuration.assets,
-                selectedBlockId: controller.selectedBlockId,
-                showSafeArea: safeArea,
-                onSelect: (block) => controller.select(block?.id),
-                onTransform: _updateBlockTransform,
-                onTransformStart: controller.beginBlockInteraction,
-                onTransformEnd: controller.endBlockInteraction,
+            child: Material(
+              elevation: 3,
+              borderRadius: BorderRadius.circular(18),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    onPressed: controller.pageIndex > 0
+                        ? () => _changePage(controller.pageIndex - 1)
+                        : null,
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Text(
+                    '${controller.currentPage.label} · ${controller.pageIndex + 1}/${project.pages.length}',
+                  ),
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    onPressed: controller.pageIndex < project.pages.length - 1
+                        ? () => _changePage(controller.pageIndex + 1)
+                        : null,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ],
               ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 12,
+          bottom: 12,
+          child: Material(
+            elevation: 3,
+            borderRadius: BorderRadius.circular(20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  tooltip: 'Zoom out',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: canvasZoom <= _minCanvasZoom
+                      ? null
+                      : () => _setCanvasZoom(canvasZoom / 1.2),
+                  icon: const Icon(Icons.remove),
+                ),
+                InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: _fitCanvas,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 7,
+                    ),
+                    child: Text('${(canvasZoom * 100).round()}%'),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Zoom in',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: canvasZoom >= _maxCanvasZoom
+                      ? null
+                      : () => _setCanvasZoom(canvasZoom * 1.2),
+                  icon: const Icon(Icons.add),
+                ),
+                IconButton(
+                  tooltip: 'Fit canvas',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: _fitCanvas,
+                  icon: const Icon(Icons.fit_screen_outlined),
+                ),
+              ],
             ),
           ),
         ),
