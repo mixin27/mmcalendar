@@ -27,6 +27,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   var loading = true;
   var source = CalendarStudioSource(year: DateTime.now().year + 1);
   var safeArea = true;
+  var projectFilter = 'All';
 
   @override
   void initState() {
@@ -55,6 +56,12 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     await _load();
     setState(() => view = _View.editor);
   }
+
+  List<CalendarStudioProject> get _filteredProjects => projectFilter == 'All'
+      ? projects
+      : projects
+            .where((project) => _projectCategory(project) == projectFilter)
+            .toList();
 
   @override
   void dispose() {
@@ -113,6 +120,32 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  _continueCard(context, projects.first),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (final filter in const [
+                          'All',
+                          'Wall',
+                          'Desk',
+                          'Social',
+                          'Print',
+                        ])
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(filter),
+                              selected: projectFilter == filter,
+                              onSelected: (_) =>
+                                  setState(() => projectFilter = filter),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   Text(
                     'Your projects',
                     style: Theme.of(context).textTheme.titleLarge,
@@ -121,7 +154,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: projects.length,
+                    itemCount: _filteredProjects.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: count,
                       childAspectRatio: .72,
@@ -129,12 +162,58 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                       crossAxisSpacing: 12,
                     ),
                     itemBuilder: (_, index) =>
-                        _projectCard(context, projects[index]),
+                        _projectCard(context, _filteredProjects[index]),
                   ),
                 ],
               );
             },
           ),
+  );
+
+  Widget _continueCard(
+    BuildContext context,
+    CalendarStudioProject project,
+  ) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 62,
+            height: 84,
+            child: CalendarStudioScene(
+              page: project.pages.first,
+              source: project.source,
+              dataProvider: widget.configuration.calendarData,
+              assetStore: widget.configuration.assets,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Continue editing',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+                Text(
+                  project.name,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Text(
+                  '${project.pages.length} pages · ${_projectCategory(project)}',
+                ),
+              ],
+            ),
+          ),
+          FilledButton(
+            onPressed: () => _open(project),
+            child: const Text('Resume'),
+          ),
+        ],
+      ),
+    ),
   );
 
   Widget _projectCard(BuildContext context, CalendarStudioProject project) =>
@@ -170,17 +249,17 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
-                    PopupMenuButton(
-                      onSelected: (value) async {
-                        if (value == 'delete') {
-                          await widget.configuration.projects.delete(
-                            project.id,
-                          );
-                          await _load();
-                        }
-                      },
+                    PopupMenuButton<String>(
+                      onSelected: (value) => _projectAction(value, project),
                       itemBuilder: (_) => const [
-                        PopupMenuItem(value: 'delete', child: Text('Delete')),
+                        PopupMenuItem(value: 'rename', child: Text('Rename')),
+                        PopupMenuItem(
+                          value: 'duplicate',
+                          child: Text('Duplicate'),
+                        ),
+                        PopupMenuItem(value: 'export', child: Text('Export…')),
+                        PopupMenuDivider(),
+                        PopupMenuItem(value: 'delete', child: Text('Delete…')),
                       ],
                     ),
                   ],
@@ -196,6 +275,139 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           ),
         ),
       );
+
+  Future<void> _projectAction(
+    String action,
+    CalendarStudioProject project,
+  ) async {
+    switch (action) {
+      case 'rename':
+        await _renameProject(project);
+        return;
+      case 'duplicate':
+        await _duplicateProject(project);
+        return;
+      case 'export':
+        await _exportProject(project);
+        return;
+      case 'delete':
+        await _deleteProject(project);
+        return;
+    }
+  }
+
+  Future<void> _renameProject(CalendarStudioProject project) async {
+    final field = TextEditingController(text: project.name);
+    final name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Rename project'),
+        content: TextField(
+          controller: field,
+          autofocus: true,
+          textInputAction: TextInputAction.done,
+          decoration: const InputDecoration(labelText: 'Project name'),
+          onSubmitted: (value) => Navigator.pop(dialogContext, value.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, field.text.trim()),
+            child: const Text('Rename'),
+          ),
+        ],
+      ),
+    );
+    field.dispose();
+    if (name == null || name.isEmpty || name == project.name) return;
+    await widget.configuration.projects.save(
+      project.copyWith(name: name, updatedAt: DateTime.now()),
+    );
+    await _load();
+  }
+
+  Future<void> _duplicateProject(CalendarStudioProject project) async {
+    final now = DateTime.now();
+    final duplicate = CalendarStudioProject(
+      id: now.microsecondsSinceEpoch.toString(),
+      name: '${project.name} copy',
+      templateId: project.templateId,
+      schemaVersion: project.schemaVersion,
+      source: project.source,
+      pages: project.pages,
+      createdAt: now,
+      updatedAt: now,
+      defaultExportPreset: project.defaultExportPreset,
+    );
+    await widget.configuration.projects.save(duplicate);
+    await _load();
+  }
+
+  Future<void> _exportProject(CalendarStudioProject project) async {
+    final delivery = widget.configuration.exportDelivery;
+    if (delivery == null) return;
+    final bytes = await CalendarStudioPdfExporter(
+      dataProvider: widget.configuration.calendarData,
+      assetStore: widget.configuration.assets,
+    ).export(project);
+    await delivery.deliver(
+      CalendarStudioExportArtifact(
+        name: '${_safeFileName(project.name)}.pdf',
+        mimeType: 'application/pdf',
+        bytes: bytes,
+      ),
+    );
+  }
+
+  Future<void> _deleteProject(CalendarStudioProject project) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Delete “${project.name}”?'),
+        content: Text(
+          'This removes the project and its ${project.pages.length} pages from this device. '
+          'Images used only by this project are removed too. Files you already exported are not affected.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await widget.configuration.projects.delete(project.id);
+    final remaining = await widget.configuration.projects.list();
+    final usedAssets = <String>{
+      for (final item in remaining)
+        for (final page in item.pages)
+          for (final block in page.blocks)
+            if (block.content['assetId'] case final String id) id,
+    };
+    await widget.configuration.assets?.deleteUnusedAssets(usedAssets);
+    await _load();
+  }
+
+  String _projectCategory(CalendarStudioProject project) =>
+      switch (project.templateId) {
+        'jade-wall' => 'Wall',
+        'ledger-desk' => 'Desk',
+        'square' || 'story' => 'Social',
+        _ => 'Print',
+      };
+
+  String _safeFileName(String value) {
+    final normalized = value.trim().replaceAll(RegExp(r'[^A-Za-z0-9_-]+'), '_');
+    return normalized.isEmpty ? 'calendar' : normalized;
+  }
 
   Widget _templates(BuildContext context) => Scaffold(
     appBar: AppBar(
