@@ -873,14 +873,14 @@ class _CalendarStudioPromoCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: SizedBox(
-          height: 218,
+          height: 178,
           child: Stack(
             children: [
               Positioned(
-                right: -18,
-                top: 22,
-                width: 210,
-                height: 174,
+                right: -14,
+                top: 16,
+                width: 162,
+                height: 146,
                 child: IgnorePointer(
                   child: Stack(
                     alignment: Alignment.center,
@@ -888,8 +888,8 @@ class _CalendarStudioPromoCard extends StatelessWidget {
                       Transform.rotate(
                         angle: -.15,
                         child: const _StudioPromoSheet(
-                          width: 92,
-                          height: 130,
+                          width: 72,
+                          height: 106,
                           accent: Color(0xFFFAFAF7),
                         ),
                       ),
@@ -898,19 +898,19 @@ class _CalendarStudioPromoCard extends StatelessWidget {
                         child: Transform.rotate(
                           angle: .14,
                           child: const _StudioPromoSheet(
-                            width: 92,
-                            height: 130,
+                            width: 72,
+                            height: 106,
                             accent: Color(0xFFD9A93A),
                           ),
                         ),
                       ),
                       Transform.translate(
-                        offset: const Offset(18, -8),
+                        offset: const Offset(14, -6),
                         child: Transform.rotate(
                           angle: .05,
                           child: const _StudioPromoSheet(
-                            width: 105,
-                            height: 148,
+                            width: 82,
+                            height: 120,
                             accent: Color(0xFF0E6B5C),
                           ),
                         ),
@@ -921,29 +921,41 @@ class _CalendarStudioPromoCard extends StatelessWidget {
               ),
               Positioned.fill(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 176, 22),
+                  padding: const EdgeInsets.fromLTRB(18, 16, 128, 14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Make your ${DateTime.now().year + 1} calendar',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.w700),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          height: 1.15,
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       Text(
                         'Design a printable wall or desk calendar with Myanmar dates, holidays and your events.',
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: colors.onSurfaceVariant,
-                          height: 1.4,
+                          height: 1.3,
                         ),
                       ),
                       const Spacer(),
                       FilledButton.icon(
                         onPressed: onTap,
-                        icon: const Icon(Icons.calendar_month_outlined),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 38),
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        icon: const Icon(
+                          Icons.calendar_month_outlined,
+                          size: 18,
+                        ),
                         label: const Text('Open Studio'),
                       ),
                     ],
