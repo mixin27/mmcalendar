@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
-import 'package:shared_localizations/shared_localizations.dart';
 
 class CalendarAppBar extends StatelessWidget {
   final Language language;
   final DateTime displayedMonth;
-  final VoidCallback onTodayTap;
+  final VoidCallback onStudioTap;
   final VoidCallback onSearchTap;
   final VoidCallback onCalendarTap;
 
   const CalendarAppBar({
     super.key,
-    required this.onTodayTap,
+    required this.onStudioTap,
     required this.onSearchTap,
     required this.onCalendarTap,
     required this.displayedMonth,
@@ -21,8 +20,6 @@ class CalendarAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-
     final complete = MyanmarCalendar.getCompleteDate(
       DateTime(displayedMonth.year, displayedMonth.month, 1),
     );
@@ -94,9 +91,9 @@ class CalendarAppBar extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               IconButton.filledTonal(
-                icon: const Icon(Icons.event_available_outlined, size: 25),
-                onPressed: onTodayTap,
-                tooltip: l10n?.go_to_today ?? 'Go to Today',
+                icon: const Icon(Icons.edit_calendar_outlined, size: 25),
+                onPressed: onStudioTap,
+                tooltip: 'Open Calendar Studio',
               ),
             ],
           ),
