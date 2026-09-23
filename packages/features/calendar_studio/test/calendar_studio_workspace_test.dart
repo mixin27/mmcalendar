@@ -134,6 +134,7 @@ void main() {
     final grid = page.blocks.firstWhere(
       (block) => block.type == CalendarStudioBlockType.calendarGrid,
     );
+    CalendarStudioBlock? transformed;
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -143,7 +144,7 @@ void main() {
               page: page,
               source: project.source,
               selectedBlockId: grid.id,
-              onTransform: (_) {},
+              onTransform: (block) => transformed = block,
               onDuplicate: () {},
               onToggleLock: () {},
               onToggleVisibility: () {},
@@ -176,6 +177,15 @@ void main() {
     expect(find.byTooltip('Hide'), findsOneWidget);
     expect(find.byTooltip('Move'), findsOneWidget);
     expect(find.byTooltip('Delete'), findsOneWidget);
+
+    await tester.drag(
+      find.byKey(ValueKey('calendar-studio-block-${grid.id}')),
+      const Offset(36, 18),
+    );
+    await tester.pump();
+    expect(transformed, isNotNull);
+    expect(transformed!.bounds.left, greaterThan(grid.bounds.left));
+    expect(transformed!.bounds.top, greaterThan(grid.bounds.top));
   });
 }
 

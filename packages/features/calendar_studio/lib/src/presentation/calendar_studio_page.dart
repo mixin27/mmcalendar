@@ -911,12 +911,14 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                     SizedBox(width: 320, child: _inspector()),
                   ],
                 )
-              : Column(
+              : Stack(
                   children: [
-                    Expanded(child: canvas),
-                    _tools(),
+                    Positioned.fill(child: canvas),
                     if (controller.selectedBlockId != null)
-                      SizedBox(
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
                         height:
                             controller.currentPage.blocks
                                     .where(
@@ -929,10 +931,18 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                                 CalendarStudioBlockType.calendarGrid
                             ? 360
                             : 260,
-                        child: _inspector(),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(28),
+                          ),
+                          child: _inspector(),
+                        ),
                       ),
                   ],
                 ),
+          bottomNavigationBar: wide
+              ? null
+              : SafeArea(top: false, child: _tools()),
         );
       },
     );
@@ -941,8 +951,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   Widget _canvas(
     BuildContext context,
     CalendarStudioProject project,
-  ) => Container(
-    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+  ) => CustomPaint(
+    painter: _EditorBoardPainter(tokens: CalendarStudioTokens.of(context)),
     child: Stack(
       children: [
         Positioned.fill(
@@ -2303,6 +2313,27 @@ class _StudioTool extends StatelessWidget {
       ),
     );
   }
+}
+
+class _EditorBoardPainter extends CustomPainter {
+  const _EditorBoardPainter({required this.tokens});
+  final CalendarStudioTokens tokens;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = tokens.surface3);
+    final dotPaint = Paint()..color = tokens.ink.withValues(alpha: .16);
+    const spacing = 16.0;
+    for (var y = spacing / 2; y < size.height; y += spacing) {
+      for (var x = spacing / 2; x < size.width; x += spacing) {
+        canvas.drawCircle(Offset(x, y), 1, dotPaint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _EditorBoardPainter oldDelegate) =>
+      oldDelegate.tokens != tokens;
 }
 
 class _ExportProgressDialog extends StatelessWidget {

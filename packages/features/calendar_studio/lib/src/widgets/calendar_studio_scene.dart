@@ -137,6 +137,8 @@ class CalendarStudioScene extends StatelessWidget {
       width: rect.width,
       height: rect.height,
       child: GestureDetector(
+        key: ValueKey('calendar-studio-block-${block.id}'),
+        behavior: HitTestBehavior.opaque,
         onTap: () => onSelect?.call(block),
         onPanStart: block.locked || onTransform == null
             ? null
@@ -914,69 +916,202 @@ class _CalendarGrid extends StatelessWidget {
         padding: mini
             ? const EdgeInsets.fromLTRB(1, 1, 1, 0)
             : EdgeInsets.fromLTRB(5, 5 * rowHeight, 5, 3 * rowHeight),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Text(
-              source.language == CalendarStudioLanguage.myanmar
-                  ? _myanmarNumber(day)
-                  : '$day',
-              style: TextStyle(
-                fontFamily: numberFont == 'serif'
-                    ? 'Georgia'
-                    : 'Noto Sans Myanmar',
-                fontFamilyFallback: const ['Noto Sans Myanmar'],
-                fontWeight: FontWeight.w700,
-                fontSize: mini ? 7 : 15,
-                height: 1,
-                color: sunday || holiday ? holidayColor : inkColor,
-              ),
-            ),
-            if (!mini) ...[
-              Expanded(
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.bottomRight,
-                    child: Text(
-                      _secondaryDayLabel(day, dayData),
-                      textAlign: TextAlign.right,
-                      maxLines: 4,
-                      overflow: TextOverflow.clip,
-                      style: TextStyle(
-                        fontFamily: 'Noto Sans Myanmar',
-                        fontFamilyFallback: const ['Noto Sans Myanmar'],
-                        fontSize: 8.5,
-                        height: 1.3,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  source.language == CalendarStudioLanguage.myanmar
+                      ? _myanmarNumber(day)
+                      : '$day',
+                  style: TextStyle(
+                    fontFamily: numberFont == 'serif'
+                        ? 'Georgia'
+                        : 'Noto Sans Myanmar',
+                    fontFamilyFallback: const ['Noto Sans Myanmar'],
+                    fontWeight: FontWeight.w700,
+                    fontSize: mini ? 7 : 15,
+                    height: 1,
+                    color: sunday || holiday ? holidayColor : inkColor,
+                  ),
+                ),
+                if (!mini)
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: _MyanmarDayIndicator(
+                        data: data,
+                        source: source,
                         color: secondaryColor,
                       ),
                     ),
                   ),
+              ],
+            ),
+            if (!mini && data != null)
+              Positioned(
+                right: 0,
+                top: 0,
+                child: _CalendarDayIndicators(
+                  data: data,
+                  source: source,
+                  holidayColor: holidayColor,
                 ),
               ),
-            ],
+            if (!mini &&
+                source.showEvents &&
+                (data?.events.isNotEmpty ?? false))
+              Positioned(
+                left: 0,
+                bottom: 0,
+                child: Container(
+                  width: 14,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0E6B5C),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+}
 
-  String _secondaryDayLabel(int day, List<CalendarStudioDayData>? values) {
-    if (values == null || day > values.length) return '';
-    final data = values[day - 1];
-    return [
-      if (source.showMyanmarDate && data.myanmarLabel != null)
-        data.myanmarLabel!,
-      if (source.showMoonPhases && data.moonLabel != null) data.moonLabel!,
-      if (source.showHolidays && data.holidayLabel != null) data.holidayLabel!,
-      if (source.showAstrology &&
-          data.astrologyLabel != null &&
-          data.astrologyLabel!.isNotEmpty)
-        data.astrologyLabel!,
-      if (source.showEvents && data.events.isNotEmpty) ...data.events,
-    ].join('\n');
+class _CalendarDayIndicators extends StatelessWidget {
+  const _CalendarDayIndicators({
+    required this.data,
+    required this.source,
+    required this.holidayColor,
+  });
+  final CalendarStudioDayData data;
+  final CalendarStudioSource source;
+  final Color holidayColor;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      if (source.showHolidays && (data.holidayLabel?.isNotEmpty ?? false))
+        _dot(holidayColor),
+      if (source.showAstrology && (data.isSabbath || data.isSabbathEve))
+        _dot(const Color(0xFFB98A25)),
+      if (source.showAstrology && data.hasAstrology)
+        _dot(const Color(0xFF6847A8)),
+    ],
+  );
+
+  Widget _dot(Color color) => Container(
+    width: 5,
+    height: 5,
+    margin: const EdgeInsets.only(left: 2),
+    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+  );
+}
+
+class _MyanmarDayIndicator extends StatelessWidget {
+  const _MyanmarDayIndicator({
+    required this.data,
+    required this.source,
+    required this.color,
+  });
+  final CalendarStudioDayData? data;
+  final CalendarStudioSource source;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!source.showMyanmarDate || data == null) return const SizedBox();
+    final fortnightDay = data!.fortnightDay;
+    final moonPhase = data!.moonPhase;
+    if (fortnightDay == null || moonPhase == null) {
+      return Text(
+        data!.myanmarLabel ?? '',
+        style: TextStyle(
+          fontFamily: 'Noto Sans Myanmar',
+          fontSize: 8.5,
+          height: 1.2,
+          color: color,
+        ),
+      );
+    }
+    final isFullOrNew = moonPhase == 1 || moonPhase == 3;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (source.showMoonPhases)
+          CustomPaint(
+            size: Size.square(isFullOrNew ? 10 : 8),
+            painter: _MoonPhasePainter(
+              phase: moonPhase,
+              color: moonPhase == 1 ? const Color(0xFFB98A25) : color,
+            ),
+          ),
+        if (!isFullOrNew || !source.showMoonPhases) ...[
+          const SizedBox(width: 2),
+          Text(
+            _myanmarNumber(fortnightDay),
+            style: TextStyle(
+              fontFamily: 'Noto Sans Myanmar',
+              fontSize: 8.5,
+              fontWeight: FontWeight.w500,
+              height: 1,
+              color: color,
+            ),
+          ),
+        ],
+      ],
+    );
   }
+}
+
+class _MoonPhasePainter extends CustomPainter {
+  const _MoonPhasePainter({required this.phase, required this.color});
+  final int phase;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = size.shortestSide / 2;
+    final paint = Paint()..color = color;
+    if (phase == 1) {
+      canvas.drawCircle(center, radius, paint);
+      return;
+    }
+    if (phase == 3) {
+      canvas.drawCircle(
+        center,
+        radius - .6,
+        paint
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2,
+      );
+      return;
+    }
+    canvas.drawCircle(
+      center,
+      radius - .5,
+      paint
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    );
+    final half = Rect.fromCircle(center: center, radius: radius - 1.4);
+    canvas.drawArc(
+      half,
+      phase == 0 ? -1.5708 : 1.5708,
+      3.14159,
+      true,
+      Paint()..color = color,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _MoonPhasePainter oldDelegate) =>
+      oldDelegate.phase != phase || oldDelegate.color != color;
 }
 
 enum _ResizeHandle {

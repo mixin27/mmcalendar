@@ -13,6 +13,10 @@ void main() {
 
       expect(days, hasLength(31));
       expect(days.first.myanmarLabel, isNotEmpty);
+      expect(days.first.moonPhase, inInclusiveRange(0, 3));
+      expect(days.first.fortnightDay, inInclusiveRange(1, 15));
+      expect(days.where((day) => day.moonLabel == '0'), isEmpty);
+      expect(days.where((day) => day.astrologyLabel == '0'), isEmpty);
     },
   );
 }

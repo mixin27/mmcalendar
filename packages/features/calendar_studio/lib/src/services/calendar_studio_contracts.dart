@@ -12,6 +12,11 @@ class CalendarStudioDayData {
     this.holidayLabel,
     this.astrologyLabel,
     this.events = const [],
+    this.moonPhase,
+    this.fortnightDay,
+    this.isSabbath = false,
+    this.isSabbathEve = false,
+    this.hasAstrology = false,
   });
   final DateTime date;
   final String gregorianLabel;
@@ -20,6 +25,11 @@ class CalendarStudioDayData {
   final String? holidayLabel;
   final String? astrologyLabel;
   final List<String> events;
+  final int? moonPhase;
+  final int? fortnightDay;
+  final bool isSabbath;
+  final bool isSabbathEve;
+  final bool hasAstrology;
 }
 
 abstract interface class CalendarStudioDataProvider {
