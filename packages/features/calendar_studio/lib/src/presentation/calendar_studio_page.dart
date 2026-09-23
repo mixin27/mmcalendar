@@ -35,6 +35,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   var loading = true;
   var source = CalendarStudioSource(year: DateTime.now().year + 1);
   var safeArea = true;
+  var showBleed = false;
+  var showPreviewGrid = false;
   var snapToGrid = true;
   var projectFilter = 'All';
   var canvasZoom = 1.0;
@@ -1129,10 +1131,62 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   Widget _editor(BuildContext context) {
     final project = controller.project!;
+    final saveState = controller.saveState;
+    final saveLabel = switch (saveState) {
+      CalendarStudioSaveState.saved => 'Saved',
+      CalendarStudioSaveState.saving => 'Saving…',
+      CalendarStudioSaveState.failed => 'Not saved',
+    };
+    final saveColor = switch (saveState) {
+      CalendarStudioSaveState.saved => CalendarStudioTokens.of(context).ok,
+      CalendarStudioSaveState.saving => CalendarStudioTokens.of(context).ink3,
+      CalendarStudioSaveState.failed => CalendarStudioTokens.of(context).error,
+    };
+    final saveIcon = switch (saveState) {
+      CalendarStudioSaveState.saved => Icons.check,
+      CalendarStudioSaveState.saving => Icons.sync,
+      CalendarStudioSaveState.failed => Icons.warning_amber_rounded,
+    };
     return LayoutBuilder(
       builder: (context, box) {
         final wide = box.maxWidth >= 900;
         final canvas = _canvas(context, project);
+        final workspace = wide
+            ? Row(
+                children: [
+                  SizedBox(width: 260, child: _layers()),
+                  Expanded(child: canvas),
+                  SizedBox(width: 320, child: _inspector()),
+                ],
+              )
+            : Stack(
+                children: [
+                  Positioned.fill(child: canvas),
+                  if (controller.selectedBlockId != null && _inspectorVisible)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height:
+                          controller.currentPage.blocks
+                                  .where(
+                                    (block) =>
+                                        block.id == controller.selectedBlockId,
+                                  )
+                                  .firstOrNull
+                                  ?.type ==
+                              CalendarStudioBlockType.calendarGrid
+                          ? 360
+                          : 260,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(28),
+                        ),
+                        child: _inspector(),
+                      ),
+                    ),
+                ],
+              );
         return Scaffold(
           appBar: AppBar(
             leading: BackButton(
@@ -1145,27 +1199,42 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(project.name, style: const TextStyle(fontSize: 16)),
-                Text(
-                  controller.saveState.name,
-                  style: const TextStyle(fontSize: 12),
+                InkWell(
+                  onTap: _showProjectSettings,
+                  borderRadius: BorderRadius.circular(6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          project.name,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(width: 3),
+                      const Icon(Icons.tune, size: 14),
+                    ],
+                  ),
+                ),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(saveIcon, size: 14, color: saveColor),
+                      const SizedBox(width: 3),
+                      Text(
+                        saveLabel,
+                        style: TextStyle(fontSize: 12, color: saveColor),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
             actions: [
-              IconButton(
-                onPressed: _showProjectSettings,
-                icon: const Icon(Icons.tune),
-                tooltip: 'Calendar settings',
-              ),
-              TextButton.icon(
-                onPressed:
-                    controller.saveState == CalendarStudioSaveState.saving
-                    ? null
-                    : controller.saveNow,
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Save'),
-              ),
               IconButton(
                 onPressed: controller.canUndo ? controller.undo : null,
                 icon: const Icon(Icons.undo),
@@ -1180,43 +1249,43 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
               ),
             ],
           ),
-          body: wide
-              ? Row(
-                  children: [
-                    SizedBox(width: 260, child: _layers()),
-                    Expanded(child: canvas),
-                    SizedBox(width: 320, child: _inspector()),
-                  ],
-                )
-              : Stack(
-                  children: [
-                    Positioned.fill(child: canvas),
-                    if (controller.selectedBlockId != null && _inspectorVisible)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        height:
-                            controller.currentPage.blocks
-                                    .where(
-                                      (block) =>
-                                          block.id ==
-                                          controller.selectedBlockId,
-                                    )
-                                    .firstOrNull
-                                    ?.type ==
-                                CalendarStudioBlockType.calendarGrid
-                            ? 360
-                            : 260,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(28),
-                          ),
-                          child: _inspector(),
+          body: Column(
+            children: [
+              if (saveState == CalendarStudioSaveState.failed)
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: CalendarStudioTokens.of(context).error.withAlpha(24),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.warning_amber_rounded, color: saveColor),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Couldn’t save your changes',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            Text('Check storage space, then try again.'),
+                          ],
                         ),
                       ),
-                  ],
+                      TextButton(
+                        onPressed: controller.saveNow,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
                 ),
+              Expanded(child: workspace),
+            ],
+          ),
           bottomNavigationBar: wide
               ? null
               : SafeArea(top: false, child: _tools()),
@@ -1307,8 +1376,18 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                         : null,
                     icon: const Icon(Icons.chevron_left),
                   ),
-                  Text(
-                    '${controller.currentPage.label} · ${controller.pageIndex + 1}/${project.pages.length}',
+                  InkWell(
+                    onTap: () => _showPages(context),
+                    borderRadius: BorderRadius.circular(14),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 8,
+                      ),
+                      child: Text(
+                        '${controller.currentPage.label} · ${controller.pageIndex + 1}/${project.pages.length}',
+                      ),
+                    ),
                   ),
                   IconButton(
                     visualDensity: VisualDensity.compact,
@@ -1419,16 +1498,30 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
               tooltip: block.visible ? 'Hide' : 'Show',
             ),
             IconButton(
-              onPressed: () {
-                controller.deleteSelected();
-                setState(() => _inspectorVisible = false);
-              },
+              onPressed: _deleteSelectedWithUndo,
               color: CalendarStudioTokens.of(context).error,
               icon: const Icon(Icons.delete_outline),
               tooltip: 'Delete',
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _deleteSelectedWithUndo() {
+    final block = controller.currentPage.blocks
+        .where((value) => value.id == controller.selectedBlockId)
+        .firstOrNull;
+    if (block == null) return;
+    controller.deleteSelected();
+    setState(() => _inspectorVisible = false);
+    final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text('${block.name} deleted'),
+        action: SnackBarAction(label: 'Undo', onPressed: controller.undo),
       ),
     );
   }
@@ -1466,7 +1559,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           ),
           _StudioTool(
             icon: Icons.view_carousel_outlined,
-            label: 'Pages',
+            label: 'Page',
             onTap: () => _showPageOptions(context),
           ),
         ],
@@ -1485,22 +1578,39 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     if (matches.isNotEmpty) controller.updateBlock(update(matches.first));
   }
 
-  Widget _layers() {
+  Widget _layers({bool modal = false}) {
+    final blocks = controller.currentPage.blocks;
     return Material(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Layers',
-              style: TextStyle(fontWeight: FontWeight.w700),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
+            child: LayoutBuilder(
+              builder: (context, constraints) => Row(
+                children: [
+                  Text('Layers', style: Theme.of(context).textTheme.titleLarge),
+                  const Spacer(),
+                  if (constraints.maxWidth >= 420)
+                    Text(
+                      '${blocks.length} on this page',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  if (modal) ...[
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Done'),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
           Expanded(
             child: ListView(
               children: [
-                for (final block in controller.currentPage.blocks.reversed)
+                for (final block in blocks.reversed)
                   ListTile(
                     selected: controller.selectedBlockId == block.id,
                     leading: Icon(_icon(block.type)),
@@ -1508,19 +1618,61 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                     subtitle: Text(
                       block.locked ? 'Locked to app data' : block.type.name,
                     ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () => controller.updateBlock(
+                            block.copyWith(visible: !block.visible),
+                          ),
+                          icon: Icon(
+                            block.visible
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          tooltip: block.visible ? 'Hide' : 'Show',
+                        ),
+                        IconButton(
+                          onPressed: () => controller.updateBlock(
+                            block.copyWith(locked: !block.locked),
+                          ),
+                          icon: Icon(
+                            block.locked
+                                ? Icons.lock_outline
+                                : Icons.lock_open_outlined,
+                          ),
+                          tooltip: block.locked ? 'Unlock' : 'Lock',
+                        ),
+                      ],
+                    ),
                     onTap: () => controller.select(block.id),
                   ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: FilledButton.icon(
-              onPressed: () => _showAdd(context),
-              icon: const Icon(Icons.add),
-              label: const Text('Add to page'),
+          if (controller.selectedBlockId != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => controller.moveSelectedLayer(1),
+                      icon: const Icon(Icons.arrow_upward),
+                      label: const Text('Forward'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => controller.moveSelectedLayer(-1),
+                      icon: const Icon(Icons.arrow_downward),
+                      label: const Text('Back'),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -1565,6 +1717,18 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 icon: const Icon(Icons.keyboard_arrow_down),
                 tooltip: 'Close inspector',
               ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed:
+                    controller.saveState == CalendarStudioSaveState.saving
+                    ? null
+                    : controller.saveNow,
+                child: const Text('Save'),
+              ),
               IconButton(
                 onPressed: controller.duplicateSelected,
                 icon: const Icon(Icons.copy_outlined),
@@ -1591,7 +1755,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 tooltip: block.visible ? 'Hide' : 'Show',
               ),
               IconButton(
-                onPressed: controller.deleteSelected,
+                onPressed: _deleteSelectedWithUndo,
                 color: CalendarStudioTokens.of(context).error,
                 icon: const Icon(Icons.delete_outline),
                 tooltip: 'Delete',
@@ -1606,17 +1770,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             _calendarGridInspector(block),
           if (block.type == CalendarStudioBlockType.image ||
               block.type == CalendarStudioBlockType.logo)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(block.content['assetName'] as String? ?? 'Image'),
-              subtitle: Text(
-                '${block.content['pixelWidth'] ?? 0} × ${block.content['pixelHeight'] ?? 0} px',
-              ),
-              trailing: OutlinedButton(
-                onPressed: () => _pickAsset(block.type, replace: block),
-                child: const Text('Replace'),
-              ),
-            ),
+            _imageInspector(block),
           if (block.type != CalendarStudioBlockType.calendarGrid) ...[
             SwitchListTile(
               value: block.locked,
@@ -1634,6 +1788,104 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _imageInspector(CalendarStudioBlock block) {
+    final width = (block.content['pixelWidth'] as num?)?.toInt() ?? 0;
+    final height = (block.content['pixelHeight'] as num?)?.toInt() ?? 0;
+    final fit = block.style['imageFit'] as String? ?? 'crop';
+    final opacity = (block.style['opacity'] as num?)?.toDouble() ?? 1;
+    final requiredPixels = (block.bounds.width * 2480).clamp(1, 2480);
+    final dpi = width == 0 ? 0 : (width / requiredPixels * 300).round();
+    final goodQuality = dpi >= 240;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: CalendarStudioTokens.of(context).primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.image_outlined),
+          ),
+          title: Text(block.content['assetName'] as String? ?? 'Image'),
+          subtitle: Text('$width × $height px'),
+          trailing: OutlinedButton(
+            onPressed: () => _pickAsset(block.type, replace: block),
+            child: const Text('Replace'),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: CalendarStudioTokens.of(context).surface2,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Print quality at A4',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Text(
+                width == 0
+                    ? 'Image required'
+                    : goodQuality
+                    ? '✓ Good · $dpi dpi'
+                    : 'Check · $dpi dpi',
+                style: TextStyle(
+                  color: goodQuality
+                      ? CalendarStudioTokens.of(context).ok
+                      : CalendarStudioTokens.of(context).warning,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            const SizedBox(width: 70, child: Text('Fit')),
+            Expanded(
+              child: SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'fill', label: Text('Fill')),
+                  ButtonSegment(value: 'fit', label: Text('Fit')),
+                  ButtonSegment(value: 'crop', label: Text('Crop')),
+                ],
+                selected: {fit},
+                onSelectionChanged: (value) => controller.updateBlock(
+                  block.copyWith(
+                    style: {...block.style, 'imageFit': value.first},
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            const SizedBox(width: 70, child: Text('Opacity')),
+            Expanded(
+              child: Slider(
+                value: opacity.clamp(0, 1),
+                onChanged: (value) => controller.updateBlock(
+                  block.copyWith(style: {...block.style, 'opacity': value}),
+                ),
+              ),
+            ),
+            SizedBox(width: 46, child: Text('${(opacity * 100).round()}%')),
+          ],
+        ),
+      ],
     );
   }
 
@@ -2185,33 +2437,128 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   void _showLayers(BuildContext context) => showModalBottomSheet<void>(
     context: context,
-    builder: (_) => SizedBox(height: 480, child: _layers()),
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (_) =>
+        FractionallySizedBox(heightFactor: .7, child: _layers(modal: true)),
   );
   void _showAdd(BuildContext context) => showModalBottomSheet<void>(
     context: context,
-    builder: (_) => GridView.count(
-      crossAxisCount: 2,
-      padding: const EdgeInsets.all(20),
-      children: [
-        for (final type in CalendarStudioBlockType.values)
-          ListTile(
-            leading: Icon(_icon(type)),
-            title: Text(type.name),
-            onTap: () {
-              Navigator.pop(context);
-              if (type == CalendarStudioBlockType.image ||
-                  type == CalendarStudioBlockType.logo) {
-                _pickAsset(type);
-              } else if (type == CalendarStudioBlockType.shape) {
-                _showElements(context);
-              } else {
-                controller.addBlock(type);
-              }
-            },
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (_) => FractionallySizedBox(
+      heightFactor: .68,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 12, 8),
+            child: Row(
+              children: [
+                Text(
+                  'Add to page',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
           ),
-      ],
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2,
+              childAspectRatio: 1.85,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+              children: [
+                for (final type in CalendarStudioBlockType.values)
+                  _addBlockTile(type),
+              ],
+            ),
+          ),
+        ],
+      ),
     ),
   );
+
+  Widget _addBlockTile(CalendarStudioBlockType type) {
+    final (title, subtitle) = switch (type) {
+      CalendarStudioBlockType.text => ('Text', 'Title, note or quote'),
+      CalendarStudioBlockType.image => ('Image', 'Photo from your gallery'),
+      CalendarStudioBlockType.logo => ('Logo', 'Your brand mark'),
+      CalendarStudioBlockType.calendarGrid => (
+        'Calendar grid',
+        'A month, with Myanmar dates',
+      ),
+      CalendarStudioBlockType.eventList => ('Event list', 'From your Events'),
+      CalendarStudioBlockType.holidayLegend => (
+        'Holiday legend',
+        'Explains marks and colours',
+      ),
+      CalendarStudioBlockType.shape => ('Shape', 'Rectangle, circle, line'),
+      CalendarStudioBlockType.decoration => (
+        'Decoration',
+        'Lotus, borders, motifs',
+      ),
+    };
+    return InkWell(
+      onTap: () {
+        Navigator.pop(context);
+        if (type == CalendarStudioBlockType.image ||
+            type == CalendarStudioBlockType.logo) {
+          _pickAsset(type);
+        } else if (type == CalendarStudioBlockType.shape ||
+            type == CalendarStudioBlockType.decoration) {
+          _showElements(context);
+        } else {
+          controller.addBlock(type);
+        }
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Ink(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: CalendarStudioTokens.of(context).line),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: CalendarStudioTokens.of(context).primaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(_icon(type)),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Future<void> _showElements(BuildContext context) async {
     const shapes = [
@@ -2558,6 +2905,107 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     ),
   );
 
+  void _showPages(BuildContext context) => showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (sheetContext) {
+      final project = controller.project!;
+      return FractionallySizedBox(
+        heightFactor: .72,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 12, 8),
+              child: Row(
+                children: [
+                  Text('Pages', style: Theme.of(context).textTheme.titleLarge),
+                  const Spacer(),
+                  Text(
+                    '${project.pages.length} ${project.pages.length == 1 ? 'page' : 'months'}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () => Navigator.pop(sheetContext),
+                    child: const Text('Done'),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  childAspectRatio: .55,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 12,
+                ),
+                itemCount: project.pages.length,
+                itemBuilder: (_, index) {
+                  final page = project.pages[index];
+                  final selected = index == controller.pageIndex;
+                  return InkWell(
+                    onTap: () {
+                      controller.setPage(index);
+                      Navigator.pop(sheetContext);
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? CalendarStudioTokens.of(context).primary
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x22000000),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: IgnorePointer(
+                              child: CalendarStudioScene(
+                                page: page,
+                                source: project.source,
+                                dataProvider: widget.configuration.calendarData,
+                                assetStore: widget.configuration.assets,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          page.label.length > 3
+                              ? page.label.substring(0, 3)
+                              : page.label,
+                          style: TextStyle(
+                            color: selected
+                                ? CalendarStudioTokens.of(context).primary
+                                : CalendarStudioTokens.of(context).ink3,
+                            fontWeight: selected
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
   Future<void> _pickAsset(
     CalendarStudioBlockType type, {
     CalendarStudioBlock? replace,
@@ -2610,12 +3058,39 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     final errors = issues
         .where((issue) => issue.severity == CalendarStudioIssueSeverity.error)
         .length;
+    final warnings = issues
+        .where((issue) => issue.severity == CalendarStudioIssueSeverity.warning)
+        .length;
+    final tips = issues
+        .where((issue) => issue.severity == CalendarStudioIssueSeverity.tip)
+        .length;
     final preview = Column(
       children: [
-        FilterChip(
-          label: const Text('Safe area'),
-          selected: safeArea,
-          onSelected: (value) => setState(() => safeArea = value),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          child: Wrap(
+            spacing: 8,
+            children: [
+              FilterChip(
+                avatar: const Icon(Icons.crop_free, size: 17),
+                label: const Text('Safe area'),
+                selected: safeArea,
+                onSelected: (value) => setState(() => safeArea = value),
+              ),
+              FilterChip(
+                avatar: const Icon(Icons.straighten, size: 17),
+                label: const Text('Bleed'),
+                selected: showBleed,
+                onSelected: (value) => setState(() => showBleed = value),
+              ),
+              FilterChip(
+                avatar: const Icon(Icons.grid_view, size: 17),
+                label: const Text('Grid'),
+                selected: showPreviewGrid,
+                onSelected: (value) => setState(() => showPreviewGrid = value),
+              ),
+            ],
+          ),
         ),
         Expanded(
           child: PageView.builder(
@@ -2638,6 +3113,76 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         Text(
           '${controller.currentPage.label} · Page ${controller.pageIndex + 1} of ${project.pages.length}',
         ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var index = 0; index < project.pages.length; index++)
+              Container(
+                width: index == controller.pageIndex ? 20 : 7,
+                height: 7,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  color: index == controller.pageIndex
+                      ? CalendarStudioTokens.of(context).primary
+                      : CalendarStudioTokens.of(context).line,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: InkWell(
+            onTap: () => _showPreflight(context, issues, errors),
+            borderRadius: BorderRadius.circular(16),
+            child: Ink(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: CalendarStudioTokens.of(context).surface,
+                border: Border.all(
+                  color: CalendarStudioTokens.of(context).line,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: errors > 0
+                        ? CalendarStudioTokens.of(context).error
+                        : CalendarStudioTokens.of(context).warning,
+                    foregroundColor: Colors.white,
+                    child: Icon(
+                      errors > 0
+                          ? Icons.error_outline
+                          : Icons.warning_amber_rounded,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          errors > 0
+                              ? '$errors ${errors == 1 ? 'error' : 'errors'}, $warnings warnings'
+                              : '$warnings warnings, $tips ${tips == 1 ? 'tip' : 'tips'}',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        Text(
+                          errors > 0
+                              ? 'Fix errors before exporting.'
+                              : 'No errors. You can export now.',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right),
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
     );
     final flight = _preflight(issues, errors);
@@ -2646,11 +3191,21 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         leading: BackButton(
           onPressed: () => setState(() => view = _View.editor),
         ),
-        title: const Text('Preview'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Preview'),
+            Text(
+              '${project.name} · ${project.pages.length} pages',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
         actions: [
-          FilledButton(
-            onPressed: errors > 0 ? null : () => _showExport(context),
-            child: const Text('Export…'),
+          IconButton(
+            onPressed: () => _showPreflight(context, issues, errors),
+            icon: const Icon(Icons.info_outline),
+            tooltip: 'Preflight check',
           ),
         ],
       ),
@@ -2662,23 +3217,69 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                   SizedBox(width: 340, child: flight),
                 ],
               )
-            : Column(
-                children: [
-                  Expanded(child: preview),
-                  SizedBox(height: 220, child: flight),
-                ],
+            : preview,
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => setState(() => view = _View.editor),
+                child: const Text('Back to editing'),
               ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: errors > 0 ? null : () => _showExport(context),
+                icon: const Icon(Icons.download_outlined),
+                label: const Text('Export…'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _preflight(List<CalendarStudioIssue> issues, int errors) => Material(
+  void _showPreflight(
+    BuildContext context,
+    List<CalendarStudioIssue> issues,
+    int errors,
+  ) => showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (_) => FractionallySizedBox(
+      heightFactor: .76,
+      child: _preflight(issues, errors, dismissible: true),
+    ),
+  );
+
+  Widget _preflight(
+    List<CalendarStudioIssue> issues,
+    int errors, {
+    bool dismissible = false,
+  }) => Material(
     child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          'Preflight check',
-          style: TextStyle(fontWeight: FontWeight.w700),
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Preflight check',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19),
+              ),
+            ),
+            if (dismissible)
+              IconButton(
+                onPressed: () => Navigator.maybePop(context),
+                icon: const Icon(Icons.close),
+              ),
+          ],
         ),
         Text(
           '$errors errors · ${issues.where((issue) => issue.severity == CalendarStudioIssueSeverity.warning).length} warnings',

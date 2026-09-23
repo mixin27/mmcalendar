@@ -138,23 +138,27 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             slivers: [
               // Compact App Bar
               SliverToBoxAdapter(
-                child: CalendarAppBar(
-                  onTodayTap: _goToToday,
-                  language: displayConfig.calendarLanguage,
-                  showShanCalendar: displayConfig.showShanCalendar,
+                child: BlocBuilder<CalendarBloc, CalendarState>(
+                  builder: (context, state) {
+                    final displayedMonth = state is CalendarLoaded
+                        ? state.calendarMonth.month
+                        : DateTime.now();
+                    return CalendarAppBar(
+                      displayedMonth: displayedMonth,
+                      onTodayTap: _goToToday,
+                      onSearchTap: _chooseDate,
+                      onCalendarTap: () =>
+                          _showMonthYearPicker(context, displayedMonth),
+                      language: displayConfig.calendarLanguage,
+                    );
+                  },
                 ),
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                  child: Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.palette_outlined),
-                      title: const Text('Calendar Studio'),
-                      subtitle: const Text('Design, print and share calendars'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => GoRouter.of(context).push(RoutePaths.studio),
-                    ),
+                  padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+                  child: _CalendarStudioPromoCard(
+                    onTap: () => GoRouter.of(context).push(RoutePaths.studio),
                   ),
                 ),
               ),
@@ -826,6 +830,24 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
   }
 
+  Future<void> _chooseDate() async {
+    final state = context.read<CalendarBloc>().state;
+    final initial = state is CalendarLoaded
+        ? state.calendarMonth.month
+        : DateTime.now();
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2200),
+      helpText: 'Find a date',
+    );
+    if (selected == null || !mounted) return;
+    context.read<CalendarBloc>()
+      ..add(LoadCalendarMonth(selected))
+      ..add(SelectDateEvent(selected));
+  }
+
   void _goToToday() {
     final today = DateTime.now();
     _analyticsService.logButtonClick(
@@ -835,6 +857,179 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     context.read<CalendarBloc>().add(const NavigateToToday());
     context.read<CalendarBloc>().add(SelectDateEvent(today));
   }
+}
+
+class _CalendarStudioPromoCard extends StatelessWidget {
+  const _CalendarStudioPromoCard({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Material(
+      color: colors.primaryContainer.withValues(alpha: .58),
+      borderRadius: BorderRadius.circular(24),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          height: 218,
+          child: Stack(
+            children: [
+              Positioned(
+                right: -18,
+                top: 22,
+                width: 210,
+                height: 174,
+                child: IgnorePointer(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Transform.rotate(
+                        angle: -.15,
+                        child: const _StudioPromoSheet(
+                          width: 92,
+                          height: 130,
+                          accent: Color(0xFFFAFAF7),
+                        ),
+                      ),
+                      Transform.translate(
+                        offset: const Offset(58, 16),
+                        child: Transform.rotate(
+                          angle: .14,
+                          child: const _StudioPromoSheet(
+                            width: 92,
+                            height: 130,
+                            accent: Color(0xFFD9A93A),
+                          ),
+                        ),
+                      ),
+                      Transform.translate(
+                        offset: const Offset(18, -8),
+                        child: Transform.rotate(
+                          angle: .05,
+                          child: const _StudioPromoSheet(
+                            width: 105,
+                            height: 148,
+                            accent: Color(0xFF0E6B5C),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 176, 22),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Make your ${DateTime.now().year + 1} calendar',
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Design a printable wall or desk calendar with Myanmar dates, holidays and your events.',
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: colors.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                      ),
+                      const Spacer(),
+                      FilledButton.icon(
+                        onPressed: onTap,
+                        icon: const Icon(Icons.calendar_month_outlined),
+                        label: const Text('Open Studio'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StudioPromoSheet extends StatelessWidget {
+  const _StudioPromoSheet({
+    required this.width,
+    required this.height,
+    required this.accent,
+  });
+  final double width;
+  final double height;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(2),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x33000000),
+          blurRadius: 12,
+          offset: Offset(0, 6),
+        ),
+      ],
+    ),
+    child: Column(
+      children: [
+        Expanded(
+          flex: 3,
+          child: ColoredBox(
+            color: accent,
+            child: Center(
+              child: Icon(
+                Icons.temple_buddhist_outlined,
+                color: accent.computeLuminance() < .5
+                    ? Colors.white70
+                    : const Color(0xFF0E6B5C),
+                size: 22,
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 5,
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Column(
+              children: [
+                Container(height: 3, width: width * .52, color: accent),
+                const SizedBox(height: 5),
+                for (var row = 0; row < 5; row++) ...[
+                  Row(
+                    children: [
+                      for (var column = 0; column < 7; column++)
+                        Expanded(
+                          child: Container(
+                            height: 3,
+                            margin: const EdgeInsets.all(1),
+                            color: const Color(0xFFD5DEDA),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _MonthYearPickerBottomSheet extends StatefulWidget {

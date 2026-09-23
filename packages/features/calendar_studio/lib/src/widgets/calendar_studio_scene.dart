@@ -288,6 +288,12 @@ class CalendarStudioScene extends StatelessWidget {
       assetId: block.content['assetId'] as String?,
       assetStore: assetStore,
       resolvedBytes: resolvedAssets[block.content['assetId']],
+      fit: switch (block.style['imageFit'] as String? ?? 'crop') {
+        'fill' => BoxFit.fill,
+        'fit' => BoxFit.contain,
+        _ => BoxFit.cover,
+      },
+      opacity: (block.style['opacity'] as num?)?.toDouble() ?? 1,
     ),
     CalendarStudioBlockType.eventList => const _ListBlock(
       icon: Icons.event_outlined,
@@ -545,10 +551,14 @@ class _AssetImageBlock extends StatefulWidget {
     required this.assetId,
     required this.assetStore,
     required this.resolvedBytes,
+    required this.fit,
+    required this.opacity,
   });
   final String? assetId;
   final CalendarStudioAssetStore? assetStore;
   final Uint8List? resolvedBytes;
+  final BoxFit fit;
+  final double opacity;
 
   @override
   State<_AssetImageBlock> createState() => _AssetImageBlockState();
@@ -596,7 +606,10 @@ class _AssetImageBlockState extends State<_AssetImageBlock> {
 
   Widget _image(Uint8List bytes) => ClipRRect(
     borderRadius: BorderRadius.circular(8),
-    child: Image.memory(bytes, fit: BoxFit.cover),
+    child: Opacity(
+      opacity: widget.opacity.clamp(0, 1),
+      child: Image.memory(bytes, fit: widget.fit),
+    ),
   );
 
   Widget _placeholder() => DecoratedBox(
