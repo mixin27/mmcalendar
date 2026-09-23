@@ -17,6 +17,7 @@ class CalendarStudioScene extends StatelessWidget {
     this.dataProvider,
     this.assetStore,
     this.resolvedDays,
+    this.resolvedDaysByMonth = const {},
     this.resolvedAssets = const {},
     this.onTransform,
     this.onTransformStart,
@@ -24,6 +25,7 @@ class CalendarStudioScene extends StatelessWidget {
     this.onDuplicate,
     this.onToggleLock,
     this.onToggleVisibility,
+    this.onMove,
     this.onDelete,
     super.key,
   });
@@ -35,6 +37,7 @@ class CalendarStudioScene extends StatelessWidget {
   final CalendarStudioDataProvider? dataProvider;
   final CalendarStudioAssetStore? assetStore;
   final List<CalendarStudioDayData>? resolvedDays;
+  final Map<int, List<CalendarStudioDayData>> resolvedDaysByMonth;
   final Map<String, Uint8List> resolvedAssets;
   final ValueChanged<CalendarStudioBlock>? onTransform;
   final VoidCallback? onTransformStart;
@@ -42,15 +45,24 @@ class CalendarStudioScene extends StatelessWidget {
   final VoidCallback? onDuplicate;
   final VoidCallback? onToggleLock;
   final VoidCallback? onToggleVisibility;
+  final VoidCallback? onMove;
   final VoidCallback? onDelete;
 
   static const double designWidth = 595;
+
+  static Size designSizeFor(StudioCanvas canvas) {
+    final ratio = canvas.aspectRatio;
+    if ((ratio - 1).abs() < .01) return const Size(600, 600);
+    if ((ratio - 9 / 16).abs() < .01) return const Size(360, 640);
+    if (ratio > 1) return const Size(842, 595);
+    return const Size(595, 842);
+  }
 
   @override
   Widget build(BuildContext context) {
     final blocks = [...page.blocks]
       ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
-    final designSize = Size(designWidth, designWidth / page.canvas.aspectRatio);
+    final designSize = designSizeFor(page.canvas);
     return AspectRatio(
       aspectRatio: page.canvas.aspectRatio,
       child: FittedBox(
@@ -188,6 +200,7 @@ class CalendarStudioScene extends StatelessWidget {
                       onDuplicate: onDuplicate!,
                       onToggleLock: onToggleLock!,
                       onToggleVisibility: onToggleVisibility!,
+                      onMove: onMove,
                       onDelete: onDelete!,
                     ),
                   ),
@@ -268,7 +281,7 @@ class CalendarStudioScene extends StatelessWidget {
       block: block,
       source: source.copyWith(year: page.year, month: page.month),
       dataProvider: dataProvider,
-      resolvedDays: resolvedDays,
+      resolvedDays: _resolvedDaysFor(block),
     ),
     CalendarStudioBlockType.text => _TextBlock(block: block),
     CalendarStudioBlockType.shape => ColoredBox(
@@ -284,14 +297,15 @@ class CalendarStudioScene extends StatelessWidget {
       icon: Icons.event_outlined,
       label: 'My events',
     ),
-    CalendarStudioBlockType.holidayLegend => const _ListBlock(
-      icon: Icons.local_offer_outlined,
-      label: 'Holiday legend',
-    ),
-    CalendarStudioBlockType.decoration => const Center(
-      child: Icon(Icons.spa_outlined, color: Color(0xFFB98A25)),
-    ),
+    CalendarStudioBlockType.holidayLegend => _TemplateLegend(block: block),
+    CalendarStudioBlockType.decoration => _TemplateDecoration(block: block),
   };
+
+  List<CalendarStudioDayData>? _resolvedDaysFor(CalendarStudioBlock block) {
+    final month = block.content['month'] as int? ?? page.month;
+    return resolvedDaysByMonth[month] ??
+        (month == page.month ? resolvedDays : null);
+  }
 }
 
 class _AssetImageBlock extends StatelessWidget {
@@ -356,12 +370,406 @@ class _TextBlock extends StatelessWidget {
         fontFamily: block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar',
         fontFamilyFallback: const ['Noto Sans Myanmar'],
         fontSize: (block.style['fontSize'] as num?)?.toDouble() ?? 20,
-        fontWeight: FontWeight.w700,
+        fontWeight: _fontWeight(block.style['fontWeight'] as int? ?? 700),
+        letterSpacing: (block.style['letterSpacing'] as num?)?.toDouble(),
         color: Color((block.style['color'] as int?) ?? 0xFF15201D),
       ),
     ),
   );
 }
+
+FontWeight _fontWeight(int value) => switch (value) {
+  <= 100 => FontWeight.w100,
+  <= 200 => FontWeight.w200,
+  <= 300 => FontWeight.w300,
+  <= 400 => FontWeight.w400,
+  <= 500 => FontWeight.w500,
+  <= 600 => FontWeight.w600,
+  <= 700 => FontWeight.w700,
+  <= 800 => FontWeight.w800,
+  _ => FontWeight.w900,
+};
+
+class _TemplateDecoration extends StatelessWidget {
+  const _TemplateDecoration({required this.block});
+  final CalendarStudioBlock block;
+
+  @override
+  Widget build(BuildContext context) => switch (block.content['kind']) {
+    'jadeHero' => const CustomPaint(painter: _JadeHeroPainter()),
+    'jadeLogo' => const CustomPaint(painter: _JadeLogoPainter()),
+    'moonBackdrop' => const CustomPaint(painter: _MoonBackdropPainter()),
+    'lacquerBackdrop' => const CustomPaint(painter: _LacquerBackdropPainter()),
+    'notesDark' => const CustomPaint(
+      painter: _NotesPainter(color: Color(0x38FFFFFF), lines: 6),
+    ),
+    'notesLight' => const CustomPaint(
+      painter: _NotesPainter(color: Color(0x5915201D), lines: 5),
+    ),
+    'goldRule' => const ColoredBox(color: Color(0xFFB98A25)),
+    'inkRule' => const ColoredBox(color: Color(0xFF15201D)),
+    'storyEvents' => const _StoryEvents(),
+    _ => const Center(
+      child: Icon(Icons.spa_outlined, color: Color(0xFFB98A25)),
+    ),
+  };
+}
+
+class _TemplateLegend extends StatelessWidget {
+  const _TemplateLegend({required this.block});
+  final CalendarStudioBlock block;
+
+  @override
+  Widget build(BuildContext context) => const FittedBox(
+    alignment: Alignment.centerLeft,
+    fit: BoxFit.scaleDown,
+    child: Row(
+      children: [
+        _LegendItem(color: Color(0xFFB8322A), label: 'ပိတ်ရက်  Public holiday'),
+        SizedBox(width: 18),
+        _LegendItem(color: Color(0xFFB98A25), label: 'လပြည့်  Full moon'),
+        SizedBox(width: 18),
+        _LegendItem(outlined: true, label: 'လကွယ်  New moon'),
+        SizedBox(width: 18),
+        Text(
+          'ဆန်း ၈  ဥပုသ် Sabbath',
+          style: TextStyle(fontSize: 9, color: Color(0xFF0E6B5C)),
+        ),
+      ],
+    ),
+  );
+}
+
+class _LegendItem extends StatelessWidget {
+  const _LegendItem({required this.label, this.color, this.outlined = false});
+  final String label;
+  final Color? color;
+  final bool outlined;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(
+          color: outlined ? Colors.transparent : color,
+          shape: BoxShape.circle,
+          border: outlined ? Border.all(color: const Color(0xFF74847F)) : null,
+        ),
+      ),
+      const SizedBox(width: 4),
+      Text(label, style: const TextStyle(fontSize: 9)),
+    ],
+  );
+}
+
+class _StoryEvents extends StatelessWidget {
+  const _StoryEvents();
+
+  @override
+  Widget build(BuildContext context) => const Column(
+    children: [
+      _StoryEvent(
+        day: '01',
+        myanmar: 'နှစ်သစ်ကူးနေ့',
+        english: "New Year's Day",
+      ),
+      _StoryEvent(
+        day: '04',
+        myanmar: 'လွတ်လပ်ရေးနေ့',
+        english: 'Independence Day',
+      ),
+      _StoryEvent(
+        day: '23',
+        myanmar: 'ပြာသိုလပြည့်နေ့',
+        english: 'Pyatho full moon',
+      ),
+    ],
+  );
+}
+
+class _StoryEvent extends StatelessWidget {
+  const _StoryEvent({
+    required this.day,
+    required this.myanmar,
+    required this.english,
+  });
+  final String day;
+  final String myanmar;
+  final String english;
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+    child: DecoratedBox(
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: Color(0x47FFFFFF))),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 58,
+            child: Text(
+              day,
+              style: const TextStyle(
+                fontFamily: 'Georgia',
+                fontSize: 40,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFF7D98A),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  myanmar,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  english,
+                  style: const TextStyle(
+                    color: Color(0xCCFFFFFF),
+                    fontSize: 11.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _NotesPainter extends CustomPainter {
+  const _NotesPainter({required this.color, required this.lines});
+  final Color color;
+  final int lines;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1;
+    for (var index = 1; index <= lines; index++) {
+      final y = size.height * index / lines;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _NotesPainter oldDelegate) => false;
+}
+
+class _JadeHeroPainter extends CustomPainter {
+  const _JadeHeroPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.save();
+    canvas.scale(size.width / 595, size.height / 292);
+    final background = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0xFF0A5347), Color(0xFF2E9782), Color(0xFFF1CD70)],
+        stops: [0, .62, 1],
+      ).createShader(const Rect.fromLTWH(0, 0, 595, 292));
+    canvas.drawRect(const Rect.fromLTWH(0, 0, 595, 292), background);
+    canvas.drawCircle(
+      const Offset(446, 170),
+      64,
+      Paint()..color = const Color(0xEDF8DE95),
+    );
+    final hill = Path()
+      ..moveTo(0, 214)
+      ..cubicTo(90, 188, 170, 226, 280, 208)
+      ..cubicTo(390, 190, 470, 186, 595, 216)
+      ..lineTo(595, 292)
+      ..lineTo(0, 292)
+      ..close();
+    canvas.drawPath(hill, Paint()..color = const Color(0x800B5B4E));
+    _paintStupa(canvas, 30, 168, .52, const Color(0xCC0A4A40));
+    _paintStupa(canvas, 238, 150, .66, const Color(0xD90A4A40));
+    _paintStupa(canvas, 520, 176, .44, const Color(0xB30A4A40));
+    _paintStupa(canvas, 112, 104, .92, const Color(0xFF06382F));
+    final foreground = Path()
+      ..moveTo(0, 250)
+      ..cubicTo(120, 238, 240, 258, 360, 247)
+      ..cubicTo(480, 236, 520, 242, 595, 252)
+      ..lineTo(595, 292)
+      ..lineTo(0, 292)
+      ..close();
+    canvas.drawPath(foreground, Paint()..color = const Color(0xFF062F28));
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _JadeHeroPainter oldDelegate) => false;
+}
+
+class _JadeLogoPainter extends CustomPainter {
+  const _JadeLogoPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.save();
+    canvas.scale(size.width / 64, size.height / 64);
+    canvas.drawCircle(const Offset(32, 32), 30, Paint()..color = Colors.white);
+    canvas.drawCircle(
+      const Offset(32, 32),
+      30,
+      Paint()
+        ..color = const Color(0xFFD9A93A)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5,
+    );
+    _paintStupa(canvas, 20, 14, .24, const Color(0xFF0E6B5C));
+    canvas.drawLine(
+      const Offset(18, 50),
+      const Offset(46, 50),
+      Paint()
+        ..color = const Color(0xFFD9A93A)
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _JadeLogoPainter oldDelegate) => false;
+}
+
+class _MoonBackdropPainter extends CustomPainter {
+  const _MoonBackdropPainter();
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF151B3F), Color(0xFF2B2F68)],
+        ).createShader(rect),
+    );
+    const stars = [
+      Offset(.067, .083),
+      Offset(.2, .05),
+      Offset(.35, .117),
+      Offset(.5, .043),
+      Offset(.633, .1),
+      Offset(.783, .057),
+      Offset(.9, .133),
+      Offset(.117, .2),
+      Offset(.933, .25),
+      Offset(.033, .333),
+      Offset(.967, .4),
+      Offset(.85, .033),
+      Offset(.55, .183),
+    ];
+    for (var i = 0; i < stars.length; i++) {
+      canvas.drawCircle(
+        Offset(stars[i].dx * size.width, stars[i].dy * size.height),
+        i % 3 == 0 ? 1.6 : 1,
+        Paint()..color = Colors.white.withValues(alpha: .35 + (i % 4) * .15),
+      );
+    }
+    canvas.drawCircle(
+      Offset(size.width * .853, size.height * .187),
+      size.width * .077,
+      Paint()..color = const Color(0xFFF5D77E),
+    );
+    canvas.drawCircle(
+      Offset(size.width * .883, size.height * .163),
+      size.width * .067,
+      Paint()..color = const Color(0xFF22275A),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _MoonBackdropPainter oldDelegate) => false;
+}
+
+class _LacquerBackdropPainter extends CustomPainter {
+  const _LacquerBackdropPainter();
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF5E0E1A), Color(0xFFA32A33), Color(0xFFE0A84A)],
+          stops: [0, .6, 1],
+        ).createShader(rect),
+    );
+    canvas.save();
+    canvas.scale(size.width / 360, size.height / 640);
+    _paintStupa(canvas, 214, 388, .9, const Color(0x594A0A14));
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _LacquerBackdropPainter oldDelegate) => false;
+}
+
+void _paintStupa(Canvas canvas, double x, double y, double scale, Color color) {
+  canvas.save();
+  canvas.translate(x, y);
+  canvas.scale(scale);
+  final paint = Paint()..color = color;
+  canvas.drawPath(
+    Path()
+      ..moveTo(50, 2)
+      ..lineTo(52.5, 26)
+      ..lineTo(47.5, 26)
+      ..close(),
+    paint,
+  );
+  canvas.drawRRect(
+    RRect.fromRectAndRadius(
+      const Rect.fromLTWH(44, 26, 12, 4),
+      const Radius.circular(1),
+    ),
+    paint,
+  );
+  canvas.drawPath(
+    Path()
+      ..moveTo(40, 31)
+      ..lineTo(60, 31)
+      ..lineTo(56, 50)
+      ..lineTo(44, 50)
+      ..close(),
+    paint,
+  );
+  final dome = Path()
+    ..moveTo(29, 96)
+    ..cubicTo(29, 66, 41, 50, 50, 50)
+    ..cubicTo(59, 50, 71, 66, 71, 96)
+    ..close();
+  canvas.drawPath(dome, paint);
+  canvas.drawRect(const Rect.fromLTWH(23, 96, 54, 8), paint);
+  canvas.drawRect(const Rect.fromLTWH(17, 104, 66, 10), paint);
+  canvas.drawRect(const Rect.fromLTWH(11, 114, 78, 14), paint);
+  canvas.drawRect(const Rect.fromLTWH(5, 128, 90, 32), paint);
+  canvas.restore();
+}
+
+String _myanmarNumber(Object value) => value.toString().replaceAllMapped(
+  RegExp(r'\d'),
+  (match) => '၀၁၂၃၄၅၆၇၈၉'[int.parse(match[0]!)],
+);
 
 class _ListBlock extends StatelessWidget {
   const _ListBlock({required this.icon, required this.label});
@@ -391,31 +799,51 @@ class _CalendarGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rowHeight = (block.style['rowHeight'] as num?)?.toDouble() ?? 1;
-    final date = DateTime(source.year, source.month);
+    final month = block.content['month'] as int? ?? source.month;
+    final effectiveSource = source.copyWith(month: month);
+    final date = DateTime(effectiveSource.year, month);
     final first =
-        (date.weekday % 7 - (source.weekStartsMonday ? 1 : 0) + 7) % 7;
-    final count = DateUtils.getDaysInMonth(source.year, source.month);
-    final headers = source.weekStartsMonday
-        ? const ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-        : const ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+        (date.weekday % 7 - (effectiveSource.weekStartsMonday ? 1 : 0) + 7) % 7;
+    final count = DateUtils.getDaysInMonth(effectiveSource.year, month);
+    const englishHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const myanmarHeaders = ['နွေ', 'လာ', 'ဂါ', 'ဟူး', 'ကြာ', 'သော', 'နေ'];
+    final weekdayOrder = effectiveSource.weekStartsMonday
+        ? const [1, 2, 3, 4, 5, 6, 0]
+        : const [0, 1, 2, 3, 4, 5, 6];
+    final inkColor = Color(block.style['inkColor'] as int? ?? 0xFF15201D);
+    final holidayColor = Color(
+      block.style['holidayColor'] as int? ?? 0xFFB8322A,
+    );
+    final mini = block.content['mini'] as bool? ?? false;
     Widget buildGrid(List<CalendarStudioDayData>? dayData) => Column(
       children: [
         SizedBox(
-          height: 30 / rowHeight.clamp(.75, 1.35),
+          height: (mini ? 14 : 30) / rowHeight.clamp(.75, 1.35),
           child: Row(
             children: [
-              for (var index = 0; index < headers.length; index++)
+              for (var index = 0; index < weekdayOrder.length; index++)
                 Expanded(
                   child: Center(
                     child: Text(
-                      headers[index],
+                      switch (effectiveSource.language) {
+                        CalendarStudioLanguage.myanmar =>
+                          myanmarHeaders[weekdayOrder[index]],
+                        CalendarStudioLanguage.english =>
+                          englishHeaders[weekdayOrder[index]],
+                        CalendarStudioLanguage.both =>
+                          mini
+                              ? myanmarHeaders[weekdayOrder[index]]
+                              : '${myanmarHeaders[weekdayOrder[index]]}\n${englishHeaders[weekdayOrder[index]]}',
+                      },
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Noto Sans Myanmar',
                         fontWeight: FontWeight.w700,
-                        fontSize: 10.5,
-                        color: index == 0 && !source.weekStartsMonday
-                            ? const Color(0xFFB8322A)
-                            : const Color(0xFF15201D),
+                        fontSize: mini ? 6 : 8.5,
+                        height: 1.25,
+                        color: index == 0 && !effectiveSource.weekStartsMonday
+                            ? holidayColor
+                            : inkColor,
                       ),
                     ),
                   ),
@@ -449,14 +877,15 @@ class _CalendarGrid extends StatelessWidget {
     if (resolvedDays != null) return buildGrid(resolvedDays);
     if (dataProvider == null) return buildGrid(null);
     return FutureBuilder<List<CalendarStudioDayData>>(
-      future: dataProvider!.daysFor(source, month: source.month),
+      future: dataProvider!.daysFor(effectiveSource, month: month),
       builder: (_, snapshot) => buildGrid(snapshot.data),
     );
   }
 
   Widget _dayCell(int day, int count, List<CalendarStudioDayData>? dayData) {
     if (day < 1 || day > count) return const SizedBox();
-    final sunday = DateTime(source.year, source.month, day).weekday == 7;
+    final month = block.content['month'] as int? ?? source.month;
+    final sunday = DateTime(source.year, month, day).weekday == 7;
     final data = dayData != null && day <= dayData.length
         ? dayData[day - 1]
         : null;
@@ -465,9 +894,14 @@ class _CalendarGrid extends StatelessWidget {
     final holidayColor = Color(
       block.style['holidayColor'] as int? ?? 0xFFB8322A,
     );
+    final inkColor = Color(block.style['inkColor'] as int? ?? 0xFF15201D);
+    final secondaryColor = Color(
+      block.style['secondaryColor'] as int? ?? 0xB315201D,
+    );
     final numberFont = block.style['numberFont'] as String? ?? 'sans';
     final rowHeight = (block.style['rowHeight'] as num?)?.toDouble() ?? 1;
-    final borderColor = const Color(0xFF15201D).withValues(alpha: .14);
+    final borderColor = Color(block.style['lineColor'] as int? ?? 0x2415201D);
+    final mini = block.content['mini'] as bool? ?? false;
     return DecoratedBox(
       decoration: BoxDecoration(
         border: switch (gridLines) {
@@ -477,42 +911,51 @@ class _CalendarGrid extends StatelessWidget {
         },
       ),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(5, 5 * rowHeight, 5, 3 * rowHeight),
+        padding: mini
+            ? const EdgeInsets.fromLTRB(1, 1, 1, 0)
+            : EdgeInsets.fromLTRB(5, 5 * rowHeight, 5, 3 * rowHeight),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '$day',
+              source.language == CalendarStudioLanguage.myanmar
+                  ? _myanmarNumber(day)
+                  : '$day',
               style: TextStyle(
                 fontFamily: numberFont == 'serif'
                     ? 'Georgia'
                     : 'Noto Sans Myanmar',
                 fontFamilyFallback: const ['Noto Sans Myanmar'],
                 fontWeight: FontWeight.w700,
-                fontSize: 15,
+                fontSize: mini ? 7 : 15,
                 height: 1,
-                color: sunday || holiday
-                    ? holidayColor
-                    : const Color(0xFF15201D),
+                color: sunday || holiday ? holidayColor : inkColor,
               ),
             ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Text(
-                _secondaryDayLabel(day, dayData),
-                textAlign: TextAlign.right,
-                maxLines: 3,
-                overflow: TextOverflow.clip,
-                style: const TextStyle(
-                  fontFamily: 'Noto Sans Myanmar',
-                  fontFamilyFallback: ['Noto Sans Myanmar'],
-                  fontSize: 8.5,
-                  height: 1.3,
-                  color: Color(0xB315201D),
+            if (!mini) ...[
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      _secondaryDayLabel(day, dayData),
+                      textAlign: TextAlign.right,
+                      maxLines: 4,
+                      overflow: TextOverflow.clip,
+                      style: TextStyle(
+                        fontFamily: 'Noto Sans Myanmar',
+                        fontFamilyFallback: const ['Noto Sans Myanmar'],
+                        fontSize: 8.5,
+                        height: 1.3,
+                        color: secondaryColor,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -558,6 +1001,7 @@ class _SelectionActions extends StatelessWidget {
     required this.onDuplicate,
     required this.onToggleLock,
     required this.onToggleVisibility,
+    this.onMove,
     required this.onDelete,
   });
   final bool locked;
@@ -565,6 +1009,7 @@ class _SelectionActions extends StatelessWidget {
   final VoidCallback onDuplicate;
   final VoidCallback onToggleLock;
   final VoidCallback onToggleVisibility;
+  final VoidCallback? onMove;
   final VoidCallback onDelete;
 
   @override
@@ -586,6 +1031,7 @@ class _SelectionActions extends StatelessWidget {
           visible ? 'Hide' : 'Show',
           onToggleVisibility,
         ),
+        if (onMove != null) _button(Icons.open_with_outlined, 'Move', onMove!),
         Container(width: 1, height: 20, color: const Color(0xFFD5DEDA)),
         _button(Icons.delete_outline, 'Delete', onDelete, destructive: true),
       ],

@@ -996,6 +996,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                         onToggleVisibility: () => _updateSelectedBlock(
                           (block) => block.copyWith(visible: !block.visible),
                         ),
+                        onMove: () => setState(() => calendarInspectorTab = 2),
                         onDelete: controller.deleteSelected,
                       ),
                     ),
@@ -1199,9 +1200,19 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
               Icon(_icon(block.type)),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  block.name,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      block.name,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    if (block.type == CalendarStudioBlockType.calendarGrid)
+                      Text(
+                        'Dates come from the app calendar',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                  ],
                 ),
               ),
               IconButton(
@@ -1545,9 +1556,11 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   }
 
   Widget _calendarLayoutInspector(CalendarStudioBlock block) {
-    final canvasWidth = CalendarStudioScene.designWidth;
-    final canvasHeight =
-        canvasWidth / controller.currentPage.canvas.aspectRatio;
+    final designSize = CalendarStudioScene.designSizeFor(
+      controller.currentPage.canvas,
+    );
+    final canvasWidth = designSize.width;
+    final canvasHeight = designSize.height;
     final bounds = block.bounds;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

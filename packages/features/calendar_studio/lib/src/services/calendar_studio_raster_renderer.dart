@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../models/calendar_studio_document.dart';
+import '../models/calendar_studio_types.dart';
 import '../widgets/calendar_studio_scene.dart';
 import 'calendar_studio_contracts.dart';
 
@@ -33,7 +34,19 @@ class CalendarStudioRasterRenderer implements CalendarStudioPageRasterizer {
     required int height,
   }) async {
     final source = project.source.copyWith(year: page.year, month: page.month);
-    final days = await dataProvider?.daysFor(source, month: page.month);
+    final calendarMonths = page.blocks
+        .where((block) => block.type == CalendarStudioBlockType.calendarGrid)
+        .map((block) => block.content['month'] as int? ?? page.month)
+        .toSet();
+    final daysByMonth = <int, List<CalendarStudioDayData>>{};
+    if (dataProvider != null) {
+      for (final month in calendarMonths) {
+        daysByMonth[month] = await dataProvider!.daysFor(
+          source.copyWith(month: month),
+          month: month,
+        );
+      }
+    }
     final assets = <String, Uint8List>{};
     for (final block in page.blocks) {
       final assetId = block.content['assetId'] as String?;
@@ -74,7 +87,7 @@ class CalendarStudioRasterRenderer implements CalendarStudioPageRasterizer {
               child: CalendarStudioScene(
                 page: page,
                 source: project.source,
-                resolvedDays: days,
+                resolvedDaysByMonth: daysByMonth,
                 resolvedAssets: assets,
               ),
             ),

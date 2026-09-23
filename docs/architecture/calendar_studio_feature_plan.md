@@ -2,9 +2,14 @@
 
 ## Status
 
-Proposed. This document defines a new `calendar_studio` feature package. It does
-not refactor `calendar_generation`; the current generator remains available as
-a temporary legacy feature until Calendar Studio has reached release quality.
+In progress on `feature/calendar-studio`. The standalone package, app adapter,
+Drift project persistence, canonical Flutter/Skia render path, PDF/image/ZIP
+exports, public-storage delivery, isolates, editor lifecycle, and mockup-aligned
+canvas controls are implemented. The current checkpoint also includes the six
+mockup preset documents and their original artboard geometry. App entry-point
+integration, the complete font catalog/import UI, and final device/golden QA
+remain before release. The current generator remains available as a temporary
+legacy feature until Calendar Studio has reached release quality.
 
 ## Decision summary
 
@@ -48,6 +53,30 @@ Mockup requirements now explicit in Release 1:
   errors block export; export reports incremental page progress;
 - migration remains non-destructive: Classic data is only left untouched until
   each individual Studio project has saved successfully.
+
+Implemented mockup-fidelity decisions:
+
+- Studio owns an isolated design system rather than inheriting the host M3
+  theme. `CalendarStudioTokens` preserves every light and dark semantic token
+  from the HTML (`primary`, backgrounds/surfaces, ink levels, line, holiday,
+  gold, success, warning, error, scrim, and board colours). Hosts may select
+  system/light/dark appearance or override either token set.
+- The editable scene uses a canonical template artboard (595×842, 842×595,
+  600×600, or 360×640). Preview is a scaled view of that scene and export
+  rasterizes the same widget tree, preventing width-dependent font and grid
+  reflow.
+- Grid rows are fixed to the template rectangle and fit secondary Myanmar,
+  holiday, astrology, and event labels inside their cells. Export resolves all
+  calendar-grid months on a page, including the annual template's 12 grids.
+- Back navigation awaits a save and refreshes the dashboard model. A visible
+  Save action and 650 ms autosave are both supported.
+- Calendar-grid selection provides eight resize handles, contextual duplicate,
+  lock, visibility, move, and delete actions, plus Data/Style/Layout inspector
+  groups matching the mockup.
+- Built-in presets are not aliases of one generic page. Jade wall, Ledger desk,
+  Plain planner, Year at a glance, Moonlight post, and Lacquer story each own
+  their mockup coordinates, palette, graphic layers, typography metadata, and
+  calendar-grid configuration.
 
 ### Entry point and route
 

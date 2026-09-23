@@ -116,6 +116,37 @@ void main() {
     expect(rendered!.width, 80);
     expect(rendered.height, 120);
   });
+
+  testWidgets('every mockup preset renders through the export scene', (
+    tester,
+  ) async {
+    const renderer = CalendarStudioRasterRenderer(
+      dataProvider: MyanmarCalendarStudioDataProvider(),
+    );
+    for (final template in CalendarStudioTemplates.all.where(
+      (value) => value.id != 'blank',
+    )) {
+      final project = template.create(
+        id: 'render-${template.id}',
+        source: const CalendarStudioSource(
+          year: 2027,
+          period: CalendarStudioPeriod.month,
+        ),
+        now: DateTime(2027),
+      );
+      final page = project.pages.single;
+      final size = CalendarStudioScene.designSizeFor(page.canvas);
+      final width = 180;
+      final height = (width * size.height / size.width).round();
+      final bytes = await tester.runAsync(
+        () => renderer.renderPage(project, page, width: width, height: height),
+      );
+      final rendered = img.decodePng(bytes!);
+      expect(rendered, isNotNull, reason: template.id);
+      expect(rendered!.width, width, reason: template.id);
+      expect(rendered.height, height, reason: template.id);
+    }
+  });
 }
 
 class _FakeRasterizer implements CalendarStudioPageRasterizer {

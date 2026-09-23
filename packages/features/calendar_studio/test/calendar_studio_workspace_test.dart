@@ -147,6 +147,7 @@ void main() {
               onDuplicate: () {},
               onToggleLock: () {},
               onToggleVisibility: () {},
+              onMove: () {},
               onDelete: () {},
             ),
           ),
@@ -173,6 +174,7 @@ void main() {
     expect(find.byTooltip('Duplicate'), findsOneWidget);
     expect(find.byTooltip('Lock'), findsOneWidget);
     expect(find.byTooltip('Hide'), findsOneWidget);
+    expect(find.byTooltip('Move'), findsOneWidget);
     expect(find.byTooltip('Delete'), findsOneWidget);
   });
 }
