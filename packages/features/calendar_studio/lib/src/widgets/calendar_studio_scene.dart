@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -136,78 +137,73 @@ class CalendarStudioScene extends StatelessWidget {
       top: rect.top,
       width: rect.width,
       height: rect.height,
-      child: GestureDetector(
+      child: _BlockDragRegion(
         key: ValueKey('calendar-studio-block-${block.id}'),
-        behavior: HitTestBehavior.opaque,
-        onTap: () => onSelect?.call(block),
-        onPanStart: block.locked || onTransform == null
-            ? null
-            : (_) => onTransformStart?.call(),
-        onPanUpdate: block.locked || onTransform == null
-            ? null
-            : (details) {
-                final bounds = block.bounds;
-                onTransform!(
-                  block.copyWith(
-                    bounds: bounds.copyWith(
-                      left: (bounds.left + details.delta.dx / size.width).clamp(
-                        0,
-                        1 - bounds.width,
-                      ),
-                      top: (bounds.top + details.delta.dy / size.height).clamp(
-                        0,
-                        1 - bounds.height,
-                      ),
-                    ),
-                  ),
-                );
-              },
-        onPanEnd: block.locked || onTransform == null
-            ? null
-            : (_) => onTransformEnd?.call(),
-        onPanCancel: block.locked || onTransform == null
-            ? null
-            : onTransformEnd,
-        child: Transform.rotate(
-          angle: block.rotation,
-          child: Stack(
-            fit: StackFit.expand,
-            clipBehavior: Clip.none,
-            children: [
-              DecoratedBox(
-                decoration: selectedBlockId == block.id
-                    ? BoxDecoration(
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 2,
-                        ),
-                      )
-                    : const BoxDecoration(),
-                child: _contents(block),
-              ),
-              if (selectedBlockId == block.id &&
-                  !block.locked &&
-                  onTransform != null)
-                for (final handle in _ResizeHandle.values)
-                  _resizeHandle(context, size, block, handle),
-              if (selectedBlockId == block.id && onDuplicate != null)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: -48,
-                  child: Center(
-                    child: _SelectionActions(
-                      locked: block.locked,
-                      visible: block.visible,
-                      onDuplicate: onDuplicate!,
-                      onToggleLock: onToggleLock!,
-                      onToggleVisibility: onToggleVisibility!,
-                      onMove: onMove,
-                      onDelete: onDelete!,
-                    ),
-                  ),
+        enabled:
+            selectedBlockId == block.id && !block.locked && onTransform != null,
+        onStart: onTransformStart,
+        onUpdate: (delta) {
+          final bounds = block.bounds;
+          onTransform?.call(
+            block.copyWith(
+              bounds: bounds.copyWith(
+                left: (bounds.left + delta.dx / size.width).clamp(
+                  0,
+                  1 - bounds.width,
                 ),
-            ],
+                top: (bounds.top + delta.dy / size.height).clamp(
+                  0,
+                  1 - bounds.height,
+                ),
+              ),
+            ),
+          );
+        },
+        onEnd: onTransformEnd,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => onSelect?.call(block),
+          child: Transform.rotate(
+            angle: block.rotation,
+            child: Stack(
+              fit: StackFit.expand,
+              clipBehavior: Clip.none,
+              children: [
+                DecoratedBox(
+                  decoration: selectedBlockId == block.id
+                      ? BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
+                        )
+                      : const BoxDecoration(),
+                  child: _contents(block),
+                ),
+                if (selectedBlockId == block.id &&
+                    !block.locked &&
+                    onTransform != null)
+                  for (final handle in _ResizeHandle.values)
+                    _resizeHandle(context, size, block, handle),
+                if (selectedBlockId == block.id && onDuplicate != null)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: -48,
+                    child: Center(
+                      child: _SelectionActions(
+                        locked: block.locked,
+                        visible: block.visible,
+                        onDuplicate: onDuplicate!,
+                        onToggleLock: onToggleLock!,
+                        onToggleVisibility: onToggleVisibility!,
+                        onMove: onMove,
+                        onDelete: onDelete!,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -286,9 +282,7 @@ class CalendarStudioScene extends StatelessWidget {
       resolvedDays: _resolvedDaysFor(block),
     ),
     CalendarStudioBlockType.text => _TextBlock(block: block),
-    CalendarStudioBlockType.shape => ColoredBox(
-      color: Color((block.style['color'] as int?) ?? 0xFF0E6B5C),
-    ),
+    CalendarStudioBlockType.shape => _ShapeBlock(block: block),
     CalendarStudioBlockType.image ||
     CalendarStudioBlockType.logo => _AssetImageBlock(
       assetId: block.content['assetId'] as String?,
@@ -310,7 +304,243 @@ class CalendarStudioScene extends StatelessWidget {
   }
 }
 
-class _AssetImageBlock extends StatelessWidget {
+class _BlockDragRegion extends StatefulWidget {
+  const _BlockDragRegion({
+    required this.enabled,
+    required this.onUpdate,
+    required this.child,
+    this.onStart,
+    this.onEnd,
+    super.key,
+  });
+  final bool enabled;
+  final ValueChanged<Offset> onUpdate;
+  final VoidCallback? onStart;
+  final VoidCallback? onEnd;
+  final Widget child;
+
+  @override
+  State<_BlockDragRegion> createState() => _BlockDragRegionState();
+}
+
+class _BlockDragRegionState extends State<_BlockDragRegion> {
+  int? _pointer;
+
+  void _down(PointerDownEvent event) {
+    if (!widget.enabled || _pointer != null) return;
+    _pointer = event.pointer;
+    widget.onStart?.call();
+  }
+
+  void _move(PointerMoveEvent event) {
+    if (event.pointer == _pointer) widget.onUpdate(event.delta);
+  }
+
+  void _finish(PointerEvent event) {
+    if (event.pointer != _pointer) return;
+    _pointer = null;
+    widget.onEnd?.call();
+  }
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    behavior: HitTestBehavior.opaque,
+    onPointerDown: _down,
+    onPointerMove: _move,
+    onPointerUp: _finish,
+    onPointerCancel: _finish,
+    child: widget.child,
+  );
+}
+
+class _ShapeBlock extends StatelessWidget {
+  const _ShapeBlock({required this.block});
+  final CalendarStudioBlock block;
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(
+    painter: _ShapePainter(
+      shape: block.content['shape'] as String? ?? 'rectangle',
+      color: Color((block.style['color'] as int?) ?? 0xFF0E6B5C),
+      strokeColor: Color((block.style['strokeColor'] as int?) ?? 0xFF15201D),
+      strokeWidth: (block.style['strokeWidth'] as num?)?.toDouble() ?? 0,
+      opacity: (block.style['opacity'] as num?)?.toDouble() ?? 1,
+    ),
+  );
+}
+
+class _ShapePainter extends CustomPainter {
+  const _ShapePainter({
+    required this.shape,
+    required this.color,
+    required this.strokeColor,
+    required this.strokeWidth,
+    required this.opacity,
+  });
+  final String shape;
+  final Color color;
+  final Color strokeColor;
+  final double strokeWidth;
+  final double opacity;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final inset = strokeWidth / 2;
+    final rect =
+        Offset(inset, inset) &
+        Size(
+          (size.width - strokeWidth).clamp(0, double.infinity),
+          (size.height - strokeWidth).clamp(0, double.infinity),
+        );
+    final path = switch (shape) {
+      'circle' || 'oval' => Path()..addOval(rect),
+      'rounded' =>
+        Path()..addRRect(
+          RRect.fromRectAndRadius(
+            rect,
+            Radius.circular(size.shortestSide * .18),
+          ),
+        ),
+      'triangle' =>
+        Path()
+          ..moveTo(size.width / 2, inset)
+          ..lineTo(size.width - inset, size.height - inset)
+          ..lineTo(inset, size.height - inset)
+          ..close(),
+      'diamond' =>
+        Path()
+          ..moveTo(size.width / 2, inset)
+          ..lineTo(size.width - inset, size.height / 2)
+          ..lineTo(size.width / 2, size.height - inset)
+          ..lineTo(inset, size.height / 2)
+          ..close(),
+      'pentagon' => _polygonPath(size, inset, 5),
+      'hexagon' =>
+        Path()
+          ..moveTo(size.width * .25, inset)
+          ..lineTo(size.width * .75, inset)
+          ..lineTo(size.width - inset, size.height / 2)
+          ..lineTo(size.width * .75, size.height - inset)
+          ..lineTo(size.width * .25, size.height - inset)
+          ..lineTo(inset, size.height / 2)
+          ..close(),
+      'octagon' => _polygonPath(size, inset, 8),
+      'star' => _starPath(size, inset),
+      'heart' => _heartPath(size, inset),
+      'arrow' => _arrowPath(size, inset),
+      'line' =>
+        Path()
+          ..moveTo(inset, size.height / 2)
+          ..lineTo(size.width - inset, size.height / 2),
+      _ => Path()..addRect(rect),
+    };
+    final fill = Paint()
+      ..color = color.withValues(alpha: opacity.clamp(0, 1))
+      ..style = shape == 'line' ? PaintingStyle.stroke : PaintingStyle.fill
+      ..strokeWidth = shape == 'line' ? (strokeWidth > 0 ? strokeWidth : 4) : 0
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(path, fill);
+    if (strokeWidth > 0 && shape != 'line') {
+      canvas.drawPath(
+        path,
+        Paint()
+          ..color = strokeColor.withValues(alpha: opacity.clamp(0, 1))
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth,
+      );
+    }
+  }
+
+  static Path _starPath(Size size, double inset) {
+    final center = size.center(Offset.zero);
+    final outer = size.shortestSide / 2 - inset;
+    final inner = outer * .45;
+    final path = Path();
+    for (var index = 0; index < 10; index++) {
+      final radius = index.isEven ? outer : inner;
+      final angle = -1.5707963267948966 + index * 0.6283185307179586;
+      final point = center + Offset(radius * cos(angle), radius * sin(angle));
+      if (index == 0) {
+        path.moveTo(point.dx, point.dy);
+      } else {
+        path.lineTo(point.dx, point.dy);
+      }
+    }
+    return path..close();
+  }
+
+  static Path _polygonPath(Size size, double inset, int sides) {
+    final center = size.center(Offset.zero);
+    final radius = size.shortestSide / 2 - inset;
+    final path = Path();
+    for (var index = 0; index < sides; index++) {
+      final angle = -pi / 2 + index * (2 * pi / sides);
+      final point = center + Offset(radius * cos(angle), radius * sin(angle));
+      if (index == 0) {
+        path.moveTo(point.dx, point.dy);
+      } else {
+        path.lineTo(point.dx, point.dy);
+      }
+    }
+    return path..close();
+  }
+
+  static Path _heartPath(Size size, double inset) => Path()
+    ..moveTo(size.width / 2, size.height - inset)
+    ..cubicTo(
+      inset,
+      size.height * .68,
+      inset,
+      size.height * .22,
+      size.width * .28,
+      size.height * .22,
+    )
+    ..cubicTo(
+      size.width * .42,
+      size.height * .22,
+      size.width * .5,
+      size.height * .34,
+      size.width / 2,
+      size.height * .34,
+    )
+    ..cubicTo(
+      size.width * .58,
+      size.height * .22,
+      size.width - inset,
+      size.height * .22,
+      size.width - inset,
+      size.height * .5,
+    )
+    ..cubicTo(
+      size.width - inset,
+      size.height * .68,
+      size.width * .7,
+      size.height * .88,
+      size.width / 2,
+      size.height - inset,
+    )
+    ..close();
+
+  static Path _arrowPath(Size size, double inset) => Path()
+    ..moveTo(inset, size.height * .35)
+    ..lineTo(size.width * .58, size.height * .35)
+    ..lineTo(size.width * .58, inset)
+    ..lineTo(size.width - inset, size.height / 2)
+    ..lineTo(size.width * .58, size.height - inset)
+    ..lineTo(size.width * .58, size.height * .65)
+    ..lineTo(inset, size.height * .65)
+    ..close();
+
+  @override
+  bool shouldRepaint(covariant _ShapePainter oldDelegate) =>
+      shape != oldDelegate.shape ||
+      color != oldDelegate.color ||
+      strokeColor != oldDelegate.strokeColor ||
+      strokeWidth != oldDelegate.strokeWidth ||
+      opacity != oldDelegate.opacity;
+}
+
+class _AssetImageBlock extends StatefulWidget {
   const _AssetImageBlock({
     required this.assetId,
     required this.assetStore,
@@ -321,13 +551,41 @@ class _AssetImageBlock extends StatelessWidget {
   final Uint8List? resolvedBytes;
 
   @override
+  State<_AssetImageBlock> createState() => _AssetImageBlockState();
+}
+
+class _AssetImageBlockState extends State<_AssetImageBlock> {
+  Future<List<int>?>? _load;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareLoad();
+  }
+
+  @override
+  void didUpdateWidget(covariant _AssetImageBlock oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.assetId != widget.assetId ||
+        oldWidget.assetStore != widget.assetStore) {
+      _prepareLoad();
+    }
+  }
+
+  void _prepareLoad() {
+    final id = widget.assetId;
+    final store = widget.assetStore;
+    _load = id == null || store == null ? null : store.loadBytes(id);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (resolvedBytes case final bytes? when bytes.isNotEmpty) {
+    if (widget.resolvedBytes case final bytes? when bytes.isNotEmpty) {
       return _image(bytes);
     }
-    if (assetId == null || assetStore == null) return _placeholder();
+    if (_load == null) return _placeholder();
     return FutureBuilder<List<int>?>(
-      future: assetStore!.loadBytes(assetId!),
+      future: _load,
       builder: (_, snapshot) {
         final bytes = snapshot.data;
         if (bytes == null || bytes.isEmpty) return _placeholder();
@@ -826,27 +1084,12 @@ class _CalendarGrid extends StatelessWidget {
               for (var index = 0; index < weekdayOrder.length; index++)
                 Expanded(
                   child: Center(
-                    child: Text(
-                      switch (effectiveSource.language) {
-                        CalendarStudioLanguage.myanmar =>
-                          myanmarHeaders[weekdayOrder[index]],
-                        CalendarStudioLanguage.english =>
-                          englishHeaders[weekdayOrder[index]],
-                        CalendarStudioLanguage.both =>
-                          mini
-                              ? myanmarHeaders[weekdayOrder[index]]
-                              : '${myanmarHeaders[weekdayOrder[index]]}\n${englishHeaders[weekdayOrder[index]]}',
-                      },
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Noto Sans Myanmar',
-                        fontWeight: FontWeight.w700,
-                        fontSize: mini ? 6 : 8.5,
-                        height: 1.25,
-                        color: index == 0 && !effectiveSource.weekStartsMonday
-                            ? holidayColor
-                            : inkColor,
-                      ),
+                    child: _WeekdayLabel(
+                      myanmar: myanmarHeaders[weekdayOrder[index]],
+                      english: englishHeaders[weekdayOrder[index]],
+                      language: effectiveSource.language,
+                      mini: mini,
+                      color: weekdayOrder[index] == 0 ? holidayColor : inkColor,
                     ),
                   ),
                 ),
@@ -900,12 +1143,17 @@ class _CalendarGrid extends StatelessWidget {
     final secondaryColor = Color(
       block.style['secondaryColor'] as int? ?? 0xB315201D,
     );
-    final numberFont = block.style['numberFont'] as String? ?? 'sans';
+    final numberFont = block.style['numberFont'] as String? ?? 'serif';
     final rowHeight = (block.style['rowHeight'] as num?)?.toDouble() ?? 1;
     final borderColor = Color(block.style['lineColor'] as int? ?? 0x2415201D);
     final mini = block.content['mini'] as bool? ?? false;
+    final calendarStyle =
+        block.content['calendarStyle'] as String? ?? 'standard';
     return DecoratedBox(
       decoration: BoxDecoration(
+        color: source.showHolidays && holiday
+            ? holidayColor.withValues(alpha: .08)
+            : null,
         border: switch (gridLines) {
           'none' => null,
           'full' => Border.all(color: borderColor),
@@ -921,20 +1169,16 @@ class _CalendarGrid extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  source.language == CalendarStudioLanguage.myanmar
+                _CalendarDayNumber(
+                  label: source.language == CalendarStudioLanguage.myanmar
                       ? _myanmarNumber(day)
                       : '$day',
-                  style: TextStyle(
-                    fontFamily: numberFont == 'serif'
-                        ? 'Georgia'
-                        : 'Noto Sans Myanmar',
-                    fontFamilyFallback: const ['Noto Sans Myanmar'],
-                    fontWeight: FontWeight.w700,
-                    fontSize: mini ? 7 : 15,
-                    height: 1,
-                    color: sunday || holiday ? holidayColor : inkColor,
-                  ),
+                  numberFont: numberFont,
+                  mini: mini,
+                  color: sunday || holiday ? holidayColor : inkColor,
+                  calendarStyle: calendarStyle,
+                  moonPhase: data?.moonPhase,
+                  emphasized: sunday || holiday,
                 ),
                 if (!mini)
                   Expanded(
@@ -944,12 +1188,15 @@ class _CalendarGrid extends StatelessWidget {
                         data: data,
                         source: source,
                         color: secondaryColor,
+                        sabbathColor: Color(
+                          block.style['sabbathColor'] as int? ?? 0xFF8A6210,
+                        ),
                       ),
                     ),
                   ),
               ],
             ),
-            if (!mini && data != null)
+            if (!mini && data != null && calendarStyle != 'moonlight')
               Positioned(
                 right: 0,
                 top: 0,
@@ -981,6 +1228,62 @@ class _CalendarGrid extends StatelessWidget {
   }
 }
 
+class _CalendarDayNumber extends StatelessWidget {
+  const _CalendarDayNumber({
+    required this.label,
+    required this.numberFont,
+    required this.mini,
+    required this.color,
+    required this.calendarStyle,
+    required this.moonPhase,
+    required this.emphasized,
+  });
+  final String label;
+  final String numberFont;
+  final bool mini;
+  final Color color;
+  final String calendarStyle;
+  final int? moonPhase;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final isFull = calendarStyle == 'moonlight' && moonPhase == 1;
+    final isNew = calendarStyle == 'moonlight' && moonPhase == 3;
+    final text = Text(
+      label,
+      style: TextStyle(
+        fontFamily: numberFont == 'serif' ? 'Georgia' : 'Noto Sans Myanmar',
+        fontFamilyFallback: const ['Noto Sans Myanmar'],
+        fontWeight: FontWeight.w700,
+        fontSize: mini ? 7 : 15,
+        height: 1,
+        color: isFull ? const Color(0xFF151B3F) : color,
+        decoration: calendarStyle == 'plain' && emphasized
+            ? TextDecoration.underline
+            : null,
+      ),
+    );
+    if (!isFull && !isNew) return text;
+    return Transform.translate(
+      offset: const Offset(-4, -4),
+      child: Container(
+        width: 26,
+        height: 26,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isFull ? const Color(0xFFF5D77E) : null,
+          shape: BoxShape.circle,
+          border: isNew
+              ? Border.all(color: const Color(0x99EEF0FF), width: 1.5)
+              : null,
+        ),
+        child: text,
+      ),
+    );
+  }
+}
+
 class _CalendarDayIndicators extends StatelessWidget {
   const _CalendarDayIndicators({
     required this.data,
@@ -995,10 +1298,16 @@ class _CalendarDayIndicators extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      if (source.showHolidays && (data.holidayLabel?.isNotEmpty ?? false))
-        _dot(holidayColor),
-      if (source.showAstrology && (data.isSabbath || data.isSabbathEve))
-        _dot(const Color(0xFFB98A25)),
+      if (source.showMoonPhases && (data.moonPhase == 1 || data.moonPhase == 3))
+        CustomPaint(
+          size: const Size.square(8),
+          painter: _MoonPhasePainter(
+            phase: data.moonPhase!,
+            color: data.moonPhase == 1
+                ? const Color(0xFFD9A93A)
+                : const Color(0xFF5F6B67),
+          ),
+        ),
       if (source.showAstrology && data.hasAstrology)
         _dot(const Color(0xFF6847A8)),
     ],
@@ -1017,10 +1326,12 @@ class _MyanmarDayIndicator extends StatelessWidget {
     required this.data,
     required this.source,
     required this.color,
+    required this.sabbathColor,
   });
   final CalendarStudioDayData? data;
   final CalendarStudioSource source;
   final Color color;
+  final Color sabbathColor;
 
   @override
   Widget build(BuildContext context) {
@@ -1038,31 +1349,80 @@ class _MyanmarDayIndicator extends StatelessWidget {
         ),
       );
     }
-    final isFullOrNew = moonPhase == 1 || moonPhase == 3;
-    return Row(
+    final label = switch (moonPhase) {
+      1 => 'ပြည့်',
+      3 => 'ကွယ်',
+      2 => 'ဆုတ် ${_myanmarNumber(fortnightDay)}',
+      _ => 'ဆန်း ${_myanmarNumber(fortnightDay)}',
+    };
+    return Text(
+      label,
+      maxLines: 1,
+      overflow: TextOverflow.visible,
+      style: TextStyle(
+        fontFamily: 'Noto Sans Myanmar',
+        fontSize: 8.5,
+        fontWeight: data!.isSabbath || data!.isSabbathEve
+            ? FontWeight.w700
+            : FontWeight.w500,
+        height: 1.5,
+        color: data!.isSabbath || data!.isSabbathEve ? sabbathColor : color,
+      ),
+    );
+  }
+}
+
+class _WeekdayLabel extends StatelessWidget {
+  const _WeekdayLabel({
+    required this.myanmar,
+    required this.english,
+    required this.language,
+    required this.mini,
+    required this.color,
+  });
+  final String myanmar;
+  final String english;
+  final CalendarStudioLanguage language;
+  final bool mini;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    if (language != CalendarStudioLanguage.both || mini) {
+      return Text(
+        language == CalendarStudioLanguage.english ? english : myanmar,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontFamily: 'Noto Sans Myanmar',
+          fontWeight: FontWeight.w700,
+          fontSize: mini ? 6 : 10.5,
+          height: 1.2,
+          color: color,
+        ),
+      );
+    }
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (source.showMoonPhases)
-          CustomPaint(
-            size: Size.square(isFullOrNew ? 10 : 8),
-            painter: _MoonPhasePainter(
-              phase: moonPhase,
-              color: moonPhase == 1 ? const Color(0xFFB98A25) : color,
-            ),
+        Text(
+          myanmar,
+          style: TextStyle(
+            fontFamily: 'Noto Sans Myanmar',
+            fontWeight: FontWeight.w700,
+            fontSize: 10.5,
+            height: 1.05,
+            color: color,
           ),
-        if (!isFullOrNew || !source.showMoonPhases) ...[
-          const SizedBox(width: 2),
-          Text(
-            _myanmarNumber(fortnightDay),
-            style: TextStyle(
-              fontFamily: 'Noto Sans Myanmar',
-              fontSize: 8.5,
-              fontWeight: FontWeight.w500,
-              height: 1,
-              color: color,
-            ),
+        ),
+        Text(
+          english,
+          style: TextStyle(
+            fontSize: 8,
+            fontWeight: FontWeight.w500,
+            height: 1.05,
+            color: color.withValues(alpha: .65),
           ),
-        ],
+        ),
       ],
     );
   }

@@ -72,6 +72,78 @@ class CalendarStudioController extends ChangeNotifier {
     _scheduleSave();
   }
 
+  /// Applies project-level calendar settings and refreshes template-owned
+  /// data without discarding user-added or customized layers.
+  void updateConfiguration(CalendarStudioSource source) {
+    final value = _project;
+    if (value == null || value.source == source) return;
+    final template = CalendarStudioTemplates.byId(value.templateId);
+    final now = configuration.now?.call() ?? DateTime.now();
+    final previousDefaults = template.create(
+      id: value.id,
+      source: value.source,
+      now: value.createdAt,
+    );
+    final refreshed = template.create(
+      id: value.id,
+      source: source,
+      now: value.createdAt,
+    );
+    final pages = <CalendarStudioPage>[];
+    for (var index = 0; index < refreshed.pages.length; index++) {
+      final freshPage = refreshed.pages[index];
+      final oldPage = index < value.pages.length ? value.pages[index] : null;
+      final oldDefaults = index < previousDefaults.pages.length
+          ? previousDefaults.pages[index]
+          : null;
+      if (oldPage == null || oldDefaults == null) {
+        pages.add(freshPage);
+        continue;
+      }
+      final defaultIds = oldDefaults.blocks.map((block) => block.id).toSet();
+      final oldById = {for (final block in oldPage.blocks) block.id: block};
+      final oldDefaultById = {
+        for (final block in oldDefaults.blocks) block.id: block,
+      };
+      final templateBlocks = <CalendarStudioBlock>[
+        for (final freshBlock in freshPage.blocks)
+          if (oldById[freshBlock.id] case final oldBlock?)
+            oldBlock.copyWith(
+              content:
+                  mapEquals(
+                    oldBlock.content,
+                    oldDefaultById[freshBlock.id]?.content,
+                  )
+                  ? freshBlock.content
+                  : oldBlock.content,
+            )
+          else
+            freshBlock,
+      ];
+      pages.add(
+        freshPage.copyWith(
+          canvas: oldPage.canvas,
+          blocks: [
+            ...templateBlocks,
+            ...oldPage.blocks.where((block) => !defaultIds.contains(block.id)),
+          ],
+        ),
+      );
+    }
+    _undo.add(value);
+    _redo.clear();
+    _project = value.copyWith(
+      name: value.name == previousDefaults.name ? refreshed.name : value.name,
+      source: source,
+      pages: pages,
+      updatedAt: now,
+    );
+    pageIndex = pageIndex.clamp(0, pages.length - 1);
+    selectedBlockId = null;
+    notifyListeners();
+    _scheduleSave();
+  }
+
   void updateCurrentCanvas(StudioCanvas canvas) {
     if (currentPage.canvas == canvas) return;
     _edit((page) => page.copyWith(canvas: canvas));
@@ -119,6 +191,14 @@ class CalendarStudioController extends ChangeNotifier {
     _scheduleSave();
   }
 
+  void cancelBlockInteraction() {
+    final start = _interactionStart;
+    _interactionStart = null;
+    if (start == null) return;
+    _project = start;
+    notifyListeners();
+  }
+
   void deleteSelected() {
     final id = selectedBlockId;
     if (id == null) return;
@@ -130,7 +210,13 @@ class CalendarStudioController extends ChangeNotifier {
     selectedBlockId = null;
   }
 
-  String addBlock(CalendarStudioBlockType type) {
+  String addBlock(
+    CalendarStudioBlockType type, {
+    String? name,
+    StudioRect? bounds,
+    Map<String, Object?> content = const {},
+    Map<String, Object?> style = const {},
+  }) {
     final id = '${type.name}-${DateTime.now().microsecondsSinceEpoch}';
     _edit(
       (page) => page.copyWith(
@@ -139,17 +225,15 @@ class CalendarStudioController extends ChangeNotifier {
           CalendarStudioBlock(
             id: id,
             type: type,
-            name: _label(type),
-            bounds: const StudioRect(
-              left: .15,
-              top: .15,
-              width: .7,
-              height: .16,
-            ),
+            name: name ?? _label(type),
+            bounds:
+                bounds ??
+                const StudioRect(left: .15, top: .15, width: .7, height: .16),
             zIndex: page.blocks.length,
-            content: type == CalendarStudioBlockType.text
+            content: type == CalendarStudioBlockType.text && content.isEmpty
                 ? const {'text': 'New text'}
-                : const {},
+                : content,
+            style: style,
           ),
         ],
       ),

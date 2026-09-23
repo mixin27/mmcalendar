@@ -167,7 +167,7 @@ abstract final class CalendarStudioTemplates {
         w,
         h,
         '${_englishMonths[month - 1]} $year',
-        size: 16,
+        size: 19,
         family: 'Georgia',
         spacing: .4,
         z: 2,
@@ -182,7 +182,7 @@ abstract final class CalendarStudioTemplates {
         w,
         h,
         _myanmarNumber(year),
-        size: 30,
+        size: 34,
         align: 'right',
         weight: 700,
         z: 2,
@@ -324,6 +324,7 @@ abstract final class CalendarStudioTemplates {
         w,
         h,
         gridLines: 'full',
+        calendarStyle: 'boxed',
         z: 2,
       ),
     ];
@@ -381,6 +382,8 @@ abstract final class CalendarStudioTemplates {
         w,
         h,
         gridLines: 'full',
+        holidayColor: 0xFF111111,
+        calendarStyle: 'plain',
       ),
       _text(
         'notes-title',
@@ -559,6 +562,7 @@ abstract final class CalendarStudioTemplates {
         secondaryColor: 0xCCFFFFFF,
         lineColor: 0x47FFFFFF,
         holidayColor: 0xFFF2857B,
+        calendarStyle: 'moonlight',
         z: 2,
       ),
       _text(
@@ -723,6 +727,7 @@ abstract final class CalendarStudioTemplates {
     int secondaryColor = 0xB315201D,
     int lineColor = 0x2415201D,
     int holidayColor = 0xFFB8322A,
+    String calendarStyle = 'standard',
     int z = 0,
   }) => CalendarStudioBlock(
     id: id,
@@ -730,14 +735,15 @@ abstract final class CalendarStudioTemplates {
     name: name,
     bounds: _rect(x, y, width, height, designWidth, designHeight),
     zIndex: z,
-    content: _gridContent(month, mini),
+    content: _gridContent(month, mini, calendarStyle),
     style: {
       'gridLines': gridLines,
       'inkColor': inkColor,
       'secondaryColor': secondaryColor,
       'lineColor': lineColor,
       'holidayColor': holidayColor,
-      'numberFont': 'sans',
+      'numberFont': mini ? 'sans' : 'serif',
+      'sabbathColor': 0xFF8A6210,
       'rowHeight': 1.0,
     },
   );
@@ -760,8 +766,15 @@ abstract final class CalendarStudioTemplates {
     style: {'color': color},
   );
 
-  static Map<String, Object?> _gridContent(int? month, bool mini) {
-    final content = <String, Object?>{'mini': mini};
+  static Map<String, Object?> _gridContent(
+    int? month,
+    bool mini,
+    String calendarStyle,
+  ) {
+    final content = <String, Object?>{
+      'mini': mini,
+      'calendarStyle': calendarStyle,
+    };
     if (month != null) content['month'] = month;
     return content;
   }

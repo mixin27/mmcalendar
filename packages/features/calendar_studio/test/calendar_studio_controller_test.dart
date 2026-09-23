@@ -61,6 +61,54 @@ void main() {
     expect(controller.project!.source.showMoonPhases, isTrue);
     controller.dispose();
   });
+
+  test(
+    'project configuration refreshes dates and preserves added layers',
+    () async {
+      final controller = CalendarStudioController(
+        CalendarStudioConfiguration(projects: _MemoryStore()),
+      );
+      await controller.create(
+        'jade-wall',
+        const CalendarStudioSource(
+          year: 2027,
+          period: CalendarStudioPeriod.month,
+        ),
+      );
+      final addedId = controller.addBlock(
+        CalendarStudioBlockType.text,
+        content: const {'text': 'Keep this note'},
+      );
+
+      controller.updateConfiguration(
+        controller.project!.source.copyWith(
+          year: 2028,
+          month: 2,
+          period: CalendarStudioPeriod.year,
+          weekStartsMonday: true,
+        ),
+      );
+
+      expect(controller.project!.name, 'Jade wall 2028');
+      expect(controller.project!.pages, hasLength(12));
+      expect(controller.project!.pages.first.month, 2);
+      expect(controller.project!.pages.first.year, 2028);
+      expect(controller.project!.source.weekStartsMonday, isTrue);
+      expect(
+        controller.project!.pages.first.blocks.any(
+          (block) => block.id == addedId,
+        ),
+        isTrue,
+      );
+      expect(
+        controller.project!.pages.first.blocks
+            .firstWhere((block) => block.id == 'month-en')
+            .content['text'],
+        'February 2028',
+      );
+      controller.dispose();
+    },
+  );
 }
 
 class _MemoryStore implements CalendarStudioProjectStore {

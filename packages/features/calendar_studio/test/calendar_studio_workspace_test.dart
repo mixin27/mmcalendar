@@ -3,6 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('template browser renders each preset outcome', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CalendarStudioWorkspace(
+          configuration: CalendarStudioConfiguration(projects: _MemoryStore()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Browse templates'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CalendarStudioScene), findsNWidgets(7));
+    expect(find.text('Jade wall'), findsOneWidget);
+    expect(find.text('Moonlight post'), findsOneWidget);
+  });
+
   testWidgets('editor canvas exposes zoom and fit controls', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
@@ -77,6 +99,11 @@ void main() {
     await tester.tapAt(const Offset(8, 80));
     await tester.pumpAndSettle();
 
+    expect(find.byTooltip('Edit item'), findsOneWidget);
+    expect(find.widgetWithText(SwitchListTile, 'Myanmar dates'), findsNothing);
+    await tester.tap(find.byTooltip('Edit item'));
+    await tester.pumpAndSettle();
+
     final myanmarDates = find.widgetWithText(SwitchListTile, 'Myanmar dates');
     expect(myanmarDates, findsOneWidget);
     await tester.tap(myanmarDates);
@@ -89,11 +116,72 @@ void main() {
     final moonPhases = find.widgetWithText(SwitchListTile, 'Moon phases');
     await tester.tap(moonPhases);
     await tester.pump();
-    await tester.tap(find.byType(BackButton));
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
     expect(store.values[project.id]!.source.showMoonPhases, isFalse);
     expect(find.text('Resume'), findsOneWidget);
+  });
+
+  testWidgets('pinch zoom does not move the selected block', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final project = CalendarStudioTemplates.byId('jade-wall').create(
+      id: 'pinch-project',
+      source: const CalendarStudioSource(
+        year: 2027,
+        period: CalendarStudioPeriod.month,
+      ),
+      now: DateTime(2027),
+    );
+    final store = _MemoryStore()..values[project.id] = project;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CalendarStudioWorkspace(
+          configuration: CalendarStudioConfiguration(projects: store),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Resume'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Layers'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Calendar grid'));
+    await tester.tapAt(const Offset(8, 80));
+    await tester.pumpAndSettle();
+
+    CalendarStudioScene scene() =>
+        tester.widget<CalendarStudioScene>(find.byType(CalendarStudioScene));
+    final before = scene().page.blocks.firstWhere(
+      (block) => block.id == 'grid',
+    );
+    final center = tester.getCenter(
+      find.byKey(const ValueKey('calendar-studio-block-grid')),
+    );
+    final first = await tester.createGesture(pointer: 1);
+    final second = await tester.createGesture(pointer: 2);
+    await first.down(center - const Offset(12, 0));
+    await second.down(center + const Offset(12, 0));
+    await first.moveBy(const Offset(-35, 0));
+    await second.moveBy(const Offset(35, 0));
+    await tester.pump();
+    await first.up();
+    await second.up();
+    await tester.pumpAndSettle();
+
+    final after = scene().page.blocks.firstWhere((block) => block.id == 'grid');
+    expect(after.bounds, before.bounds);
+    final viewer = tester.widget<InteractiveViewer>(
+      find.byType(InteractiveViewer),
+    );
+    expect(
+      viewer.transformationController!.value.getMaxScaleOnAxis(),
+      greaterThan(1),
+    );
   });
 
   testWidgets('dark appearance uses the exact dark Studio tokens', (
