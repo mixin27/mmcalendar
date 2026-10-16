@@ -68,46 +68,19 @@ class GetFeatureAnnouncements {
     if (version == '2.2.0') {
       return [
         PromoSlide(
-          id: 'v2_2_0_calendar_generation',
-          title: 'Calendar Generation',
+          id: 'v2_2_0_calendar_studio',
+          title: 'Calendar Studio',
           subtitle:
-              'Create monthly or yearly printable calendars with live preview.',
+              'Design wall, desk and social calendars from presets, then '
+              'export print-ready PDFs and images.',
           visualType: PromoVisualType.featureHighlight,
           cta: PromoCTA(
-            text: 'Open Generator',
+            text: 'Open Studio',
             action: PromoAction.navigate,
-            target: '/settings/calendar-generation',
+            target: '/studio',
           ),
           rules: PromoRules(showOnce: kReleaseMode, minAppVersion: '2.2.0'),
-          semanticLabel: 'Calendar generation feature announcement',
-        ),
-        PromoSlide(
-          id: 'v2_2_0_calendar_editor',
-          title: 'Design Editor',
-          subtitle:
-              'Add text, emoji, stickers, and photos with interactive placement.',
-          visualType: PromoVisualType.animation,
-          cta: PromoCTA(
-            text: 'Try Editor',
-            action: PromoAction.navigate,
-            target: '/settings/calendar-generation',
-          ),
-          rules: PromoRules(showOnce: kReleaseMode, minAppVersion: '2.2.0'),
-          semanticLabel: 'Calendar design editor feature announcement',
-        ),
-        PromoSlide(
-          id: 'v2_2_0_export_tools',
-          title: 'Image and PDF Export',
-          subtitle:
-              'Export your calendar pages and save them to your device folders.',
-          visualType: PromoVisualType.featureHighlight,
-          cta: PromoCTA(
-            text: 'Start Exporting',
-            action: PromoAction.navigate,
-            target: '/settings/calendar-generation',
-          ),
-          rules: PromoRules(showOnce: kReleaseMode, minAppVersion: '2.2.0'),
-          semanticLabel: 'Calendar export tools feature announcement',
+          semanticLabel: 'Calendar Studio feature announcement',
         ),
       ];
     }

@@ -228,7 +228,6 @@ class CalendarStudioConfiguration {
     this.ai = const CalendarStudioAiConfiguration(),
     this.pickProjectFile,
     this.featureName = 'Calendar Studio',
-    this.classicImport,
     this.now,
     this.appearance = CalendarStudioAppearance.system,
     this.lightTokens = CalendarStudioTokens.light,
@@ -252,7 +251,6 @@ class CalendarStudioConfiguration {
   /// Defaults to the system file picker.
   final Future<Uint8List?> Function()? pickProjectFile;
   final String featureName;
-  final Future<List<CalendarStudioProject>> Function()? classicImport;
   final DateTime Function()? now;
   final CalendarStudioAppearance appearance;
   final CalendarStudioTokens lightTokens;

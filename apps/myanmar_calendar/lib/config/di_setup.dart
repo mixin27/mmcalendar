@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:calendar/calendar.dart';
-import 'package:calendar_generation/calendar_generation.dart';
 import 'package:converter/converter.dart';
 import 'package:events/events.dart';
 import 'package:flutter/foundation.dart';
@@ -18,6 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telegram_web/telegram_web.dart';
 import 'package:views/views.dart';
 
+import 'legacy_cleanup.dart';
 import 'services/method_channel_app_icon_port.dart';
 
 final getIt = GetIt.instance;
@@ -31,6 +31,7 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   // Initialize SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerSingleton<SharedPreferences>(sharedPreferences);
+  await removeCalendarGenerationData(sharedPreferences);
 
   // App icon switch support (Android/iOS method-channel implementation).
   getIt.registerSingleton<AppIconPort>(
@@ -85,7 +86,6 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   await initSettingsDependencies();
   await initViewsDependencies();
   await initConverterDependencies();
-  await initCalendarGenerationDependencies();
   await initEventsDependencies();
   await initHomeWidgetsDependencies();
   await initializePromoDependencies();

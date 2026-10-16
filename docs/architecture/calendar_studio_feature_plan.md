@@ -89,7 +89,7 @@ Implemented mockup-fidelity decisions:
 - Open Studio as a full-screen workspace with its own AppBar and back button;
   do not add it as a sixth `NavigationBar` destination. The app already has
   five destinations, and a sixth would make the mobile navigation crowded.
-- The legacy route remains `/settings/calendar-generation` during migration.
+- The legacy generator (`/settings/calendar-generation`) has been removed; Settings opens Studio instead. Saved generator data is cleaned up once at startup (`legacy_cleanup.dart`).
   It is labelled **Classic generator** and is removed only in the retirement
   milestone below.
 

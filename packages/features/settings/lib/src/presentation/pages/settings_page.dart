@@ -141,12 +141,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
                 SettingsListTile(
-                  title: 'Calendar Generation',
-                  trailing: 'preview/export',
-                  icon: Icons.auto_stories_outlined,
-                  onTap: () => GoRouter.of(
-                    context,
-                  ).go('/settings/${RoutePaths.calendarGeneration}'),
+                  title: 'Calendar Studio',
+                  trailing: 'Design and print',
+                  icon: Icons.edit_calendar_outlined,
+                  onTap: () => GoRouter.of(context).push(RoutePaths.studio),
                 ),
                 SettingsListTile(
                   title: l10n?.display_preferences ?? 'Display Preferences',

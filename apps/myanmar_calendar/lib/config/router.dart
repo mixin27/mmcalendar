@@ -1,5 +1,4 @@
 import 'package:calendar/calendar.dart';
-import 'package:calendar_generation/calendar_generation.dart';
 import 'package:calendar_studio/calendar_studio.dart';
 import 'package:converter/converter.dart';
 import 'package:shared_core/shared_core.dart';
@@ -226,10 +225,6 @@ final GoRouter router = GoRouter(
                   path: RoutePaths.calendarConfig,
                   builder: (context, state) =>
                       const SettingsCalendarConfigurationPage(),
-                ),
-                GoRoute(
-                  path: RoutePaths.calendarGeneration,
-                  builder: (context, state) => const CalendarGenerationPage(),
                 ),
                 GoRoute(
                   path: RoutePaths.privacyAndData,
