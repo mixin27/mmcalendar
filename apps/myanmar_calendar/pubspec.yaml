@@ -90,6 +90,10 @@ dependencies:
   pro_image_editor: ^14.14.2
   material_ui: ^1.2.0
   firebase_ai: ^4.0.0
+  # Transitive via firebase_ai. Capped below 6.7.0, which pins
+  # firebase-ios-sdk 12.19.0; the other FlutterFire plugins pin 12.18.0
+  # and iOS SPM needs one exact SDK version.
+  firebase_auth: '>=6.6.0 <6.7.0'
 
 dev_dependencies:
   flutter_test:

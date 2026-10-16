@@ -23,7 +23,9 @@ dependencies:
   get_it: ^9.2.1
   integrations_database:
     path: ../database
-  firebase_app_check: ^0.4.8
+  # Capped at 0.4.7: 0.4.8 pins firebase-ios-sdk 12.19.0 while the other
+  # FlutterFire plugins pin 12.18.0, which breaks iOS SPM resolution.
+  firebase_app_check: '>=0.4.7 <0.4.8'
 
 dev_dependencies:
   flutter_test:
