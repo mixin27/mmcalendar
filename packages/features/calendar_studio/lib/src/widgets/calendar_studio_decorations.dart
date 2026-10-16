@@ -411,7 +411,7 @@ class _DecorationPainter extends CustomPainter {
     final unit = size.shortestSide;
     for (var i = 0; i < count; i++) {
       final p = Offset(random.nextDouble(), random.nextDouble());
-      final r = unit * (.005 + random.nextDouble() * .013);
+      final r = (unit * (.003 + random.nextDouble() * .008)).clamp(.6, 3.0);
       final alpha = .35 + random.nextDouble() * .65;
       if (palette.avoid?.contains(p) ?? false) continue;
       final color = i % 9 == 0 ? palette.accent : palette.color;
