@@ -1246,28 +1246,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 children: [
                   Positioned.fill(child: canvas),
                   if (controller.selectedBlockId != null && _inspectorVisible)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      height:
-                          controller.currentPage.blocks
-                                  .where(
-                                    (block) =>
-                                        block.id == controller.selectedBlockId,
-                                  )
-                                  .firstOrNull
-                                  ?.type ==
-                              CalendarStudioBlockType.calendarGrid
-                          ? 360
-                          : 260,
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(28),
-                        ),
-                        child: _inspector(),
-                      ),
-                    ),
+                    Positioned.fill(child: _inspectorSheet()),
                 ],
               );
         return Scaffold(
@@ -1377,6 +1356,28 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     );
   }
 
+  /// Tapping the board around the page clears the selection. Taps close to
+  /// the page edge are ignored so near-misses on edge handles don't deselect;
+  /// taps on the page itself are handled by the scene.
+  Widget _deselectArea({required Size pageSize, required Widget child}) =>
+      LayoutBuilder(
+        builder: (context, constraints) => GestureDetector(
+          key: const ValueKey('calendar-studio-board'),
+          behavior: HitTestBehavior.opaque,
+          onTapUp: (details) {
+            final area = constraints.biggest;
+            final page = Rect.fromCenter(
+              center: area.center(Offset.zero),
+              width: pageSize.width,
+              height: pageSize.height,
+            );
+            if (page.inflate(24).contains(details.localPosition)) return;
+            if (controller.selectedBlockId != null) _selectBlock(null);
+          },
+          child: child,
+        ),
+      );
+
   Widget _canvas(
     BuildContext context,
     CalendarStudioProject project,
@@ -1409,38 +1410,41 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 panEnabled: controller.selectedBlockId == null || _spacePanning,
                 scaleEnabled: true,
                 trackpadScrollCausesScale: true,
-                child: Center(
-                  child: SizedBox(
-                    width: width,
-                    height: height,
-                    child: Material(
-                      elevation: 8,
-                      shadowColor: Colors.black45,
-                      clipBehavior: Clip.antiAlias,
-                      child: Listener(
-                        onPointerDown: _canvasPointerDown,
-                        onPointerUp: _canvasPointerFinished,
-                        onPointerCancel: _canvasPointerFinished,
-                        // Live drags notify only `canvasChanges`, so this is
-                        // the only subtree that rebuilds per pointer move.
-                        child: RepaintBoundary(
-                          child: ListenableBuilder(
-                            listenable: _canvasListenable,
-                            builder: (context, _) => CalendarStudioScene(
-                              page: controller.currentPage,
-                              source: project.source,
-                              dataProvider: _calendarData,
-                              assetStore: _assets,
-                              selectedBlockId: controller.selectedBlockId,
-                              showSafeArea: safeArea,
-                              onSelect: _selectBlock,
-                              onTransform: _spacePanning
-                                  ? null
-                                  : _updateBlockTransform,
-                              onTransformStart:
-                                  controller.beginBlockInteraction,
-                              onTransformEnd: _endBlockTransform,
-                              guides: _guides.value,
+                child: _deselectArea(
+                  pageSize: Size(width, height),
+                  child: Center(
+                    child: SizedBox(
+                      width: width,
+                      height: height,
+                      child: Material(
+                        elevation: 8,
+                        shadowColor: Colors.black45,
+                        clipBehavior: Clip.antiAlias,
+                        child: Listener(
+                          onPointerDown: _canvasPointerDown,
+                          onPointerUp: _canvasPointerFinished,
+                          onPointerCancel: _canvasPointerFinished,
+                          // Live drags notify only `canvasChanges`, so this is
+                          // the only subtree that rebuilds per pointer move.
+                          child: RepaintBoundary(
+                            child: ListenableBuilder(
+                              listenable: _canvasListenable,
+                              builder: (context, _) => CalendarStudioScene(
+                                page: controller.currentPage,
+                                source: project.source,
+                                dataProvider: _calendarData,
+                                assetStore: _assets,
+                                selectedBlockId: controller.selectedBlockId,
+                                showSafeArea: safeArea,
+                                onSelect: _selectBlock,
+                                onTransform: _spacePanning
+                                    ? null
+                                    : _updateBlockTransform,
+                                onTransformStart:
+                                    controller.beginBlockInteraction,
+                                onTransformEnd: _endBlockTransform,
+                                guides: _guides.value,
+                              ),
                             ),
                           ),
                         ),
@@ -1739,7 +1743,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                         ),
                       ],
                     ),
-                    onTap: () => controller.select(block.id),
+                    onTap: () => _selectBlock(block),
                   ),
               ],
             ),
@@ -1772,7 +1776,48 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     );
   }
 
-  Widget _inspector() {
+  /// Phone inspector: a draggable sheet that opens at about half height,
+  /// expands to nearly full screen and scrolls; dragging it down closes it.
+  Widget _inspectorSheet() {
+    final grid =
+        controller.currentPage.blocks
+            .where((block) => block.id == controller.selectedBlockId)
+            .firstOrNull
+            ?.type ==
+        CalendarStudioBlockType.calendarGrid;
+    final initial = grid ? .55 : .45;
+    return NotificationListener<DraggableScrollableNotification>(
+      onNotification: (notification) {
+        if (notification.extent <= notification.minExtent + .01 &&
+            _inspectorVisible) {
+          setState(() => _inspectorVisible = false);
+        }
+        return false;
+      },
+      child: DraggableScrollableSheet(
+        key: ValueKey(
+          'calendar-studio-inspector-${controller.selectedBlockId}',
+        ),
+        initialChildSize: initial,
+        minChildSize: .2,
+        maxChildSize: .92,
+        snap: true,
+        snapSizes: [initial, .92],
+        builder: (context, scrollController) => DecoratedBox(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 16)],
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            child: _inspector(scrollController: scrollController, sheet: true),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _inspector({ScrollController? scrollController, bool sheet = false}) {
     final matches = controller.currentPage.blocks.where(
       (block) => block.id == controller.selectedBlockId,
     );
@@ -1784,8 +1829,21 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     final block = matches.first;
     return Material(
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        controller: scrollController,
+        padding: EdgeInsets.fromLTRB(16, sheet ? 8 : 16, 16, 24),
         children: [
+          if (sheet)
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  color: CalendarStudioTokens.of(context).ink3,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
           Row(
             children: [
               Icon(_icon(block.type)),
@@ -2697,19 +2755,25 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     controller.endBlockInteraction();
   }
 
+  /// Element and page settings sheets open tall so options aren't cramped;
+  /// their content scrolls inside.
+  static const _sheetHeight = .9;
+
   void _showLayers(BuildContext context) => showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
-    builder: (_) =>
-        FractionallySizedBox(heightFactor: .7, child: _layers(modal: true)),
+    builder: (_) => FractionallySizedBox(
+      heightFactor: _sheetHeight,
+      child: _layers(modal: true),
+    ),
   );
   void _showAdd(BuildContext context) => showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (_) => FractionallySizedBox(
-      heightFactor: .68,
+      heightFactor: _sheetHeight,
       child: Column(
         children: [
           Padding(
@@ -2893,7 +2957,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       context: context,
       isScrollControlled: true,
       builder: (sheetContext) => FractionallySizedBox(
-        heightFactor: .72,
+        heightFactor: _sheetHeight,
         child: DefaultTabController(
           length: 2,
           child: Column(
@@ -3060,6 +3124,10 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   void _showPageOptions(BuildContext context) => showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
+    showDragHandle: true,
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.sizeOf(context).height * _sheetHeight,
+    ),
     builder: (_) => StatefulBuilder(
       builder: (_, setSheet) {
         final canvas = controller.currentPage.canvas;
@@ -3071,19 +3139,21 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           0xFFF4F7F5,
         ];
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Text(
-                      'Page and theme',
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Expanded(
+                      child: Text(
+                        'Page and theme',
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                     ),
-                    const Spacer(),
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text('Done'),
@@ -3174,7 +3244,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     builder: (sheetContext) {
       final project = controller.project!;
       return FractionallySizedBox(
-        heightFactor: .72,
+        heightFactor: _sheetHeight,
         child: Column(
           children: [
             Padding(
@@ -3914,7 +3984,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     showDragHandle: true,
     isScrollControlled: true,
     builder: (_) => FractionallySizedBox(
-      heightFactor: .76,
+      heightFactor: _sheetHeight,
       child: _preflight(issues, errors, dismissible: true),
     ),
   );
@@ -4434,7 +4504,7 @@ class _TextSuggestionSheetState extends State<_TextSuggestionSheet> {
           const SizedBox(height: 12),
           ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.sizeOf(context).height * .45,
+              maxHeight: MediaQuery.sizeOf(context).height * .6,
             ),
             child: FutureBuilder<List<String>>(
               future: _suggestions,
