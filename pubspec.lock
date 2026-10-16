@@ -481,6 +481,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.9.3+6"
+  firebase_ai:
+    dependency: transitive
+    description:
+      name: firebase_ai
+      sha256: "2116566d549faf0d1c7108722c1dc6b2d6e86f5b7c83f179f681844378f32040"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   firebase_analytics:
     dependency: transitive
     description:
@@ -505,6 +513,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.1+13"
+  firebase_app_check:
+    dependency: transitive
+    description:
+      name: firebase_app_check
+      sha256: cb69814b369e421e249bd0095705c843c7607502b3f2a41ac99b9addc8b04ffc
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.8"
+  firebase_app_check_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_app_check_platform_interface
+      sha256: "87909de3a8952e69ab0d8b65b89311f3aebf3adb89acbfb0e65c00e57f78eb7e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.2+1"
+  firebase_app_check_web:
+    dependency: transitive
+    description:
+      name: firebase_app_check_web
+      sha256: e1072f46b66c1530820ec617909576924a685e2cf7b78e62acd6af82b50609c4
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.6+1"
+  firebase_auth:
+    dependency: transitive
+    description:
+      name: firebase_auth
+      sha256: "144fa22926b629e797ecc757db5d31b145aeedf6018160296dae945d98a98fb5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.7.0"
+  firebase_auth_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_auth_platform_interface
+      sha256: "9959a6e7338df4f725707a71fd9f727d8dfafd7c46cbaf59fcf7c8e94fb92d11"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.1.0"
+  firebase_auth_web:
+    dependency: transitive
+    description:
+      name: firebase_auth_web
+      sha256: "11861819c667e9f47269fa1e7fca8d0e5229f80d4d3008d44b2108b8c93bfd94"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.0"
   firebase_core:
     dependency: transitive
     description:

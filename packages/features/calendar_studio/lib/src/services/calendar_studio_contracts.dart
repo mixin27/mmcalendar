@@ -136,6 +136,65 @@ abstract interface class CalendarStudioImageEditor {
   });
 }
 
+/// Removes the background from a photo or logo, on device or via a backend
+/// the host controls. Studio never embeds AI keys.
+abstract interface class CalendarStudioBackgroundRemover {
+  /// Whether removal can run right now (platform, OS version, model download,
+  /// feature flags). Studio hides the action when false.
+  Future<bool> isAvailable();
+
+  /// Returns a transparent PNG, or null when no subject was found.
+  Future<Uint8List?> removeBackground(Uint8List image);
+}
+
+enum CalendarStudioTextKind { title, quote, caption }
+
+/// Calendar context for text suggestions. Only canonical, already-visible
+/// data is shared; no user events or personal data are included.
+class CalendarStudioTextSuggestionRequest {
+  const CalendarStudioTextSuggestionRequest({
+    required this.kind,
+    required this.language,
+    required this.year,
+    required this.month,
+    required this.pageLabel,
+    required this.templateName,
+    this.currentText = '',
+    this.holidays = const [],
+    this.sabbathDays = const [],
+  });
+  final CalendarStudioTextKind kind;
+  final CalendarStudioLanguage language;
+  final int year;
+  final int month;
+  final String pageLabel;
+  final String templateName;
+  final String currentText;
+
+  /// Public holiday names on this page's month.
+  final List<String> holidays;
+
+  /// Gregorian days of the month that are Sabbath (ဥပုသ်) days.
+  final List<int> sabbathDays;
+}
+
+abstract interface class CalendarStudioTextSuggester {
+  Future<bool> isAvailable();
+
+  /// Returns short candidates the user may tap to apply.
+  Future<List<String>> suggest(CalendarStudioTextSuggestionRequest request);
+}
+
+/// Optional AI capabilities. Each is shown only when supplied and available.
+class CalendarStudioAiConfiguration {
+  const CalendarStudioAiConfiguration({
+    this.backgroundRemover,
+    this.textSuggester,
+  });
+  final CalendarStudioBackgroundRemover? backgroundRemover;
+  final CalendarStudioTextSuggester? textSuggester;
+}
+
 abstract interface class CalendarStudioExportDelivery {
   Future<void> deliver(
     CalendarStudioExportArtifact artifact, {
@@ -166,6 +225,7 @@ class CalendarStudioConfiguration {
     this.exportDelivery,
     this.imagePicker,
     this.imageEditor,
+    this.ai = const CalendarStudioAiConfiguration(),
     this.featureName = 'Calendar Studio',
     this.classicImport,
     this.now,
@@ -183,6 +243,9 @@ class CalendarStudioConfiguration {
 
   /// Optional; when null the image inspector offers only fit and opacity.
   final CalendarStudioImageEditor? imageEditor;
+
+  /// AI features; all off unless the host supplies providers.
+  final CalendarStudioAiConfiguration ai;
   final String featureName;
   final Future<List<CalendarStudioProject>> Function()? classicImport;
   final DateTime Function()? now;

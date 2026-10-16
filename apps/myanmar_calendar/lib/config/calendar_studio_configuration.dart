@@ -6,9 +6,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'di_setup.dart';
+import 'calendar_studio_ai.dart';
 import 'calendar_studio_asset_store.dart';
 import 'calendar_studio_image_editor.dart';
 import 'calendar_studio_image_picker.dart';
@@ -26,6 +28,10 @@ final CalendarStudioConfiguration calendarStudioConfiguration =
       exportDelivery: const _StudioExportDelivery(),
       imagePicker: AppCalendarStudioImagePicker(),
       imageEditor: const AppCalendarStudioImageEditor(),
+      ai: CalendarStudioAiConfiguration(
+        // Background removal stays off until a backend is chosen.
+        textSuggester: FirebaseStudioTextSuggester(getIt<RemoteConfigPort>()),
+      ),
     );
 
 class _StudioProjectStore implements CalendarStudioProjectStore {

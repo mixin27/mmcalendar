@@ -50,6 +50,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   double? _lastSnappedRotation;
   final _editorFocus = FocusNode(debugLabel: 'Calendar Studio editor');
   var _spacePanning = false;
+  var _canRemoveBackground = false;
+  var _canSuggestText = false;
+  var _textFieldRevision = 0;
   ThemeData? _theme;
   CalendarStudioTokens? _themeTokens;
   Brightness? _themeBrightness;
@@ -78,6 +81,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     canvasController = TransformationController()
       ..addListener(_onCanvasTransformChanged);
     _load();
+    _resolveAi();
   }
 
   Future<void> _load() async {
@@ -554,7 +558,11 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       for (final item in remaining)
         for (final page in item.pages)
           for (final block in page.blocks)
-            for (final key in const ['assetId', 'originalAssetId'])
+            for (final key in const [
+              'assetId',
+              'originalAssetId',
+              'editBaseAssetId',
+            ])
               if (block.content[key] case final String id) id,
     };
     await _assets?.deleteUnusedAssets(usedAssets);
@@ -1906,30 +1914,36 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             child: const Text('Replace'),
           ),
         ),
-        if (widget.configuration.imageEditor != null &&
-            block.content['assetId'] != null)
+        if (block.content['assetId'] != null &&
+            (widget.configuration.imageEditor != null ||
+                _canRemoveBackground ||
+                block.content['originalAssetId'] != null))
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 8,
               children: [
-                Expanded(
-                  child: FilledButton.tonalIcon(
+                if (widget.configuration.imageEditor != null)
+                  FilledButton.tonalIcon(
                     key: const ValueKey('calendar-studio-edit-image'),
                     onPressed: () => _editImage(block),
                     icon: const Icon(Icons.auto_fix_high_outlined),
                     label: const Text('Edit image'),
                   ),
-                ),
-                if (block.content['originalAssetId'] != null) ...[
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _revertImage(block),
-                      icon: const Icon(Icons.restore),
-                      label: const Text('Revert to original'),
-                    ),
+                if (_canRemoveBackground)
+                  FilledButton.tonalIcon(
+                    key: const ValueKey('calendar-studio-remove-background'),
+                    onPressed: () => _removeBackground(block),
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    label: const Text('Remove background'),
                   ),
-                ],
+                if (block.content['originalAssetId'] != null)
+                  OutlinedButton.icon(
+                    onPressed: () => _revertImage(block),
+                    icon: const Icon(Icons.restore),
+                    label: const Text('Revert to original'),
+                  ),
               ],
             ),
           ),
@@ -2012,12 +2026,24 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextFormField(
+          // Re-keyed when a suggestion is applied so the field shows it.
+          key: ValueKey('calendar-studio-text-${block.id}-$_textFieldRevision'),
           initialValue: block.content['text'] as String? ?? '',
           decoration: const InputDecoration(labelText: 'Text'),
           onChanged: (value) => controller.updateBlock(
             block.copyWith(content: {...block.content, 'text': value}),
           ),
         ),
+        if (_canSuggestText)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              key: const ValueKey('calendar-studio-suggest-text'),
+              onPressed: () => _suggestText(block),
+              icon: const Icon(Icons.auto_awesome_outlined),
+              label: const Text('Suggest text'),
+            ),
+          ),
         const SizedBox(height: 12),
         Text(
           'Font · ${block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar'}',
@@ -3388,17 +3414,29 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   }
 
   /// Content keys that tie an image block to an editor session.
-  static const _editKeys = {'originalAssetId', 'editorState'};
+  static const _editKeys = {
+    'originalAssetId',
+    'editBaseAssetId',
+    'editorState',
+  };
 
   Future<void> _editImage(CalendarStudioBlock block) async {
     final editor = widget.configuration.imageEditor;
     final store = _assets;
-    final originalId =
-        block.content['originalAssetId'] as String? ??
-        block.content['assetId'] as String?;
-    if (editor == null || store == null || originalId == null) return;
+    final content = block.content;
+    final currentId = content['assetId'] as String?;
+    // Saved history re-applies to the image it was made on; otherwise edit
+    // what is on the page now (e.g. a background-removed cut-out).
+    final hasHistory = content['editorState'] != null;
+    final baseId = hasHistory
+        ? content['editBaseAssetId'] as String? ??
+              content['originalAssetId'] as String? ??
+              currentId
+        : currentId;
+    final originalId = content['originalAssetId'] as String? ?? currentId;
+    if (editor == null || store == null || baseId == null) return;
     final messenger = ScaffoldMessenger.of(context);
-    final raw = await store.loadBytes(originalId);
+    final raw = await store.loadBytes(baseId);
     if (raw == null || raw.isEmpty) {
       messenger.showSnackBar(
         const SnackBar(content: Text("The original image couldn't be found.")),
@@ -3410,7 +3448,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     final edited = await editor.edit(
       context,
       original: original,
-      editorState: block.content['editorState'] as String?,
+      editorState: hasHistory ? content['editorState'] as String? : null,
       maxDimension: CalendarStudioImageImport.maxDimension,
     );
     if (edited == null) return;
@@ -3419,8 +3457,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       final name = block.content['assetName'] as String? ?? 'image';
       final prepared = await CalendarStudioImageImport.prepare(
         CalendarStudioPickedImage(
-          name: _editedName(
+          name: _derivedName(
             name,
+            'edited',
             CalendarStudioImageImport.mayHaveAlpha(edited.bytes),
           ),
           bytes: edited.bytes,
@@ -3451,7 +3490,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         content: {
           for (final entry in current.content.entries)
             if (!_editKeys.contains(entry.key)) entry.key: entry.value,
-          'originalAssetId': originalId,
+          'originalAssetId': ?originalId,
+          'editBaseAssetId': baseId,
           'assetId': asset.id,
           'pixelWidth': asset.width,
           'pixelHeight': asset.height,
@@ -3485,13 +3525,192 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     );
   }
 
-  static String _editedName(String name, bool png) {
+  static String _derivedName(String name, String suffix, bool png) {
     final dot = name.lastIndexOf('.');
     final base = (dot > 0 ? name.substring(0, dot) : name).replaceFirst(
-      RegExp(r' \(edited\)$'),
+      RegExp(r' \((edited|cutout)\)$'),
       '',
     );
-    return '$base (edited).${png ? 'png' : 'jpg'}';
+    return '$base ($suffix).${png ? 'png' : 'jpg'}';
+  }
+
+  /// AI actions appear only when the host supplied a provider and it reports
+  /// itself available (platform, flags, Firebase); failures count as "no".
+  Future<void> _resolveAi() async {
+    Future<bool> check(Future<bool> Function()? probe) async {
+      if (probe == null) return false;
+      try {
+        return await probe();
+      } catch (_) {
+        return false;
+      }
+    }
+
+    final ai = widget.configuration.ai;
+    final results = await Future.wait([
+      check(ai.backgroundRemover?.isAvailable),
+      check(ai.textSuggester?.isAvailable),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      _canRemoveBackground = results[0];
+      _canSuggestText = results[1];
+    });
+  }
+
+  Future<void> _removeBackground(CalendarStudioBlock block) async {
+    final remover = widget.configuration.ai.backgroundRemover;
+    final store = _assets;
+    final assetId = block.content['assetId'] as String?;
+    if (remover == null || store == null || assetId == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    unawaited(
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const PopScope(
+          canPop: false,
+          child: AlertDialog(
+            content: Row(
+              children: [
+                SizedBox.square(
+                  dimension: 24,
+                  child: CircularProgressIndicator(strokeWidth: 3),
+                ),
+                SizedBox(width: 16),
+                Expanded(child: Text('Removing background…')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    CalendarStudioAsset? asset;
+    String? failure;
+    try {
+      final raw = await store.loadBytes(assetId);
+      if (raw == null || raw.isEmpty) {
+        failure = "The image couldn't be found.";
+      } else {
+        final cutout = await remover.removeBackground(
+          raw is Uint8List ? raw : Uint8List.fromList(raw),
+        );
+        if (cutout == null) {
+          failure = 'No clear subject was found in this image.';
+        } else {
+          final prepared = await CalendarStudioImageImport.prepare(
+            CalendarStudioPickedImage(
+              name: _derivedName(
+                block.content['assetName'] as String? ?? 'image',
+                'cutout',
+                true,
+              ),
+              bytes: cutout,
+            ),
+          );
+          asset = await store.importAsset(
+            CalendarStudioAssetInput(
+              name: prepared.name,
+              bytes: prepared.bytes,
+              width: prepared.width,
+              height: prepared.height,
+            ),
+          );
+        }
+      }
+    } catch (_) {
+      failure = "Couldn't remove the background. Try again.";
+    } finally {
+      navigator.pop();
+    }
+    if (asset == null) {
+      messenger.showSnackBar(SnackBar(content: Text(failure ?? '')));
+      return;
+    }
+    if (!mounted) return;
+    final current = controller.currentPage.blocks
+        .where((value) => value.id == block.id)
+        .firstOrNull;
+    if (current == null) return;
+    // Keeps the first original for "Revert"; the cut-out becomes the base
+    // for any later "Edit image".
+    controller.updateBlock(
+      current.copyWith(
+        content: {
+          for (final entry in current.content.entries)
+            if (!_editKeys.contains(entry.key)) entry.key: entry.value,
+          'originalAssetId':
+              current.content['originalAssetId'] as String? ?? assetId,
+          'assetId': asset.id,
+          'pixelWidth': asset.width,
+          'pixelHeight': asset.height,
+        },
+      ),
+    );
+  }
+
+  Future<void> _suggestText(CalendarStudioBlock block) async {
+    final suggester = widget.configuration.ai.textSuggester;
+    final project = controller.project;
+    if (suggester == null || project == null) return;
+    final page = controller.currentPage;
+    final pageSource = project.source.copyWith(
+      year: page.year,
+      month: page.month,
+    );
+    var days = const <CalendarStudioDayData>[];
+    try {
+      days =
+          await _calendarData?.daysFor(pageSource, month: page.month) ??
+          const [];
+    } catch (_) {
+      // Suggestions still work without holiday context.
+    }
+    final fontSize = (block.style['fontSize'] as num?)?.toDouble() ?? 20;
+    final currentText = block.content['text'] as String? ?? '';
+    final initialKind = fontSize >= 28
+        ? CalendarStudioTextKind.title
+        : currentText.length > 40
+        ? CalendarStudioTextKind.quote
+        : CalendarStudioTextKind.caption;
+    CalendarStudioTextSuggestionRequest request(CalendarStudioTextKind kind) =>
+        CalendarStudioTextSuggestionRequest(
+          kind: kind,
+          language: project.source.language,
+          year: page.year,
+          month: page.month,
+          pageLabel: page.label,
+          templateName: CalendarStudioTemplates.byId(project.templateId).name,
+          currentText: currentText,
+          holidays: [
+            for (final day in days)
+              if (day.holidayLabel case final String label) label,
+          ],
+          sabbathDays: [
+            for (final day in days)
+              if (day.isSabbath) day.date.day,
+          ],
+        );
+    if (!mounted) return;
+    final chosen = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => _TextSuggestionSheet(
+        initialKind: initialKind,
+        load: (kind) => suggester.suggest(request(kind)),
+      ),
+    );
+    if (chosen == null || !mounted) return;
+    final current = controller.currentPage.blocks
+        .where((value) => value.id == block.id)
+        .firstOrNull;
+    if (current == null) return;
+    controller.updateBlock(
+      current.copyWith(content: {...current.content, 'text': chosen}),
+    );
+    setState(() => _textFieldRevision++);
   }
 
   Widget _preview(BuildContext context) {
@@ -4162,3 +4381,112 @@ String _monthName(int month) => const [
   'November',
   'December',
 ][month - 1];
+
+class _TextSuggestionSheet extends StatefulWidget {
+  const _TextSuggestionSheet({required this.initialKind, required this.load});
+  final CalendarStudioTextKind initialKind;
+  final Future<List<String>> Function(CalendarStudioTextKind kind) load;
+
+  @override
+  State<_TextSuggestionSheet> createState() => _TextSuggestionSheetState();
+}
+
+class _TextSuggestionSheetState extends State<_TextSuggestionSheet> {
+  late var _kind = widget.initialKind;
+  late Future<List<String>> _suggestions = widget.load(_kind);
+
+  void _reload([CalendarStudioTextKind? kind]) => setState(() {
+    _kind = kind ?? _kind;
+    _suggestions = widget.load(_kind);
+  });
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Suggest text',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
+          SegmentedButton<CalendarStudioTextKind>(
+            segments: const [
+              ButtonSegment(
+                value: CalendarStudioTextKind.title,
+                label: Text('Title'),
+              ),
+              ButtonSegment(
+                value: CalendarStudioTextKind.quote,
+                label: Text('Quote'),
+              ),
+              ButtonSegment(
+                value: CalendarStudioTextKind.caption,
+                label: Text('Caption'),
+              ),
+            ],
+            selected: {_kind},
+            onSelectionChanged: (value) => _reload(value.single),
+          ),
+          const SizedBox(height: 12),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * .45,
+            ),
+            child: FutureBuilder<List<String>>(
+              future: _suggestions,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                final items = snapshot.data ?? const <String>[];
+                if (snapshot.hasError || items.isEmpty) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Text("Suggestions aren't available right now."),
+                      ),
+                      TextButton(
+                        onPressed: _reload,
+                        child: const Text('Try again'),
+                      ),
+                    ],
+                  );
+                }
+                return ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final item in items)
+                      ListTile(
+                        minTileHeight: 48,
+                        title: Text(item),
+                        trailing: const Icon(Icons.north_west, size: 18),
+                        onTap: () => Navigator.pop(context, item),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Suggestions are written by AI. Check names and dates before '
+            'printing.',
+            style: TextStyle(
+              fontSize: 12,
+              color: CalendarStudioTokens.of(context).ink3,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}

@@ -89,6 +89,7 @@ dependencies:
   image_picker: ^1.2.4
   pro_image_editor: ^14.14.2
   material_ui: ^1.2.0
+  firebase_ai: ^4.0.0
 
 dev_dependencies:
   flutter_test:
