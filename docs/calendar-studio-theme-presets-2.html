@@ -1,0 +1,1474 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar Studio — Theme Preset Library, Vol. 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500;0,600&family=Crimson+Pro:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,700&family=Inter:wght@400;500;600;700&family=Italiana&family=Newsreader:ital,wght@0,500;1,500&family=Nunito+Sans:wght@400;600;700&family=Petrona:wght@500;600&family=Sora:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page-bg:#F7F5F2; --page-ink:#1C1A18; --page-mut:#6B6560;
+  --f-ui:'Inter','Noto Sans Myanmar','Padauk',sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page-bg);color:var(--page-ink);font-family:var(--f-ui);}
+
+/* ---------- document chrome ---------- */
+.wrap{max-width:1280px;margin:0 auto;padding:48px 28px 96px}
+.masthead{max-width:760px;margin-bottom:12px}
+.masthead h1{font-size:34px;line-height:1.15;margin:0 0 10px;font-weight:600;letter-spacing:-.01em}
+.masthead p{font-size:15px;line-height:1.6;color:var(--page-mut);margin:0 0 6px}
+.schema{
+  margin:28px 0 56px;padding:20px 22px;border:1px solid #E3DFD8;border-radius:10px;
+  background:#FFFFFFAA;font-size:13px;line-height:1.7;color:#4A443E;
+}
+.schema b{color:var(--page-ink)}
+.schema code{background:#EFEAE2;padding:1px 6px;border-radius:4px;font-size:12px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.schema .cols{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;margin-top:10px}
+.schema .cols div{padding:3px 0;border-top:1px solid #EAE5DC}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px 32px}
+.preset{display:flex;flex-direction:column;gap:14px}
+.preset-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.preset-head h2{font-size:17px;margin:0;font-weight:600}
+.preset-head span{font-size:11.5px;color:var(--page-mut);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.preset-desc{font-size:12.5px;color:var(--page-mut);line-height:1.55;margin:-6px 0 0}
+
+/* ---------- generic canvas / block primitives ---------- */
+.canvas{position:relative;width:100%;overflow:hidden;background:var(--paper);container-type:inline-size;
+  box-shadow:0 1px 2px rgba(0,0,0,.06),0 10px 28px -14px rgba(0,0,0,.28);border-radius:3px}
+.canvas[data-ar="a4p"]{aspect-ratio:595.28/841.89}
+.canvas[data-ar="a4l"]{aspect-ratio:841.89/595.28}
+.canvas[data-ar="a3p"]{aspect-ratio:841.89/1190.55}
+.canvas[data-ar="sq"]{aspect-ratio:1/1}
+.canvas[data-ar="story"]{aspect-ratio:1080/1920}
+
+.blk{position:absolute}
+.blk-text{display:flex;white-space:pre-line}
+.blk-text.va-top{align-items:flex-start}
+.blk-text.va-center{align-items:center}
+.blk-text.va-bottom{align-items:flex-end}
+.blk-text.ha-start{justify-content:flex-start;text-align:left}
+.blk-text.ha-center{justify-content:center;text-align:center}
+.blk-text.ha-end{justify-content:flex-end;text-align:right}
+.blk-text>span{width:100%}
+
+.legend-row{display:flex;gap:10px;align-items:center}
+.legend-dot{width:7px;height:7px;border-radius:50%;flex:none}
+
+/* ---------- month grid (shared builder; see the grid-builder script at the end) ----------
+   Bilingual by default, matching StudioLanguage.both: Myanmar is the primary line
+   (weekday header, lunar date under each number), English rides along as the
+   smaller/secondary line — never the other way around. */
+.cal-grid{display:grid;grid-template-rows:auto 1fr}
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-head div{display:flex;flex-direction:column;align-items:center;line-height:1.15}
+.cal-head .my{font-weight:600;font-size:var(--head-fs,11px);color:var(--accent)}
+.cal-head .en{font-weight:500;font-size:calc(var(--head-fs,11px)*0.62);color:var(--muted);opacity:.8}
+.cal-body{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr}
+.cal-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:5%;gap:2%}
+.cal-cell b{font-weight:500;font-size:var(--cell-fs,14px);color:var(--ink);line-height:1}
+.cal-cell .my-sub{font-size:var(--cell-sub-fs,8px);color:var(--muted);line-height:1;text-align:center;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:clip;max-width:96%}
+.cal-cell.is-blank{visibility:hidden}
+.cal-cell.is-weekend b{color:var(--weekend)}
+.cal-cell.is-holiday b{color:var(--holiday);font-weight:700}
+.cal-cell.is-sabbath .my-sub{color:var(--sabbath);font-weight:600;opacity:1}
+.cal-cell.is-fullmoon .my-sub,.cal-cell.is-newmoon .my-sub{color:var(--accent);font-weight:600;opacity:1}
+.cal-cell .dot{position:absolute;bottom:4%;width:5%;aspect-ratio:1;border-radius:50%;background:var(--accent)}
+.cal-grid.lined .cal-body>div{border-top:1px solid var(--line)}
+.cal-grid.lined .cal-body>div:nth-child(-n+7){border-top:none}
+.cal-grid.boxed .cal-body>div{border:1px solid var(--line)}
+.cal-grid[data-mini="true"] .cal-cell .my-sub{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <h1>Calendar Studio — Theme Preset Library, Vol. 2</h1>
+    <p>Eight more template directions, picking up where the first library left off (love, family, festival, anime, nature, ghost, ocean, nations). This batch: space, astrology, monsoon, pagoda, minimalist, retro, café, travel.</p>
+    <p>Same schema as volume 1 — every preset is both a rendered mock-up and a machine-readable spec. Three new decoration motifs reuse tricks already in the engine (two overlapping shapes for a crescent, a rotated line for rain or speed-lines, negative bounds for an off-canvas bleed) rather than needing new primitives; five are genuinely new motifs; one preset (pagoda) needs nothing new at all — it’s built entirely from the existing <code>stupa</code> motif.</p>
+  </div>
+
+  <div class="schema">
+    <b>For coding agents implementing these as <code>StudioTemplate</code>s:</b> each <code>&lt;section class="preset"&gt;</code> below carries a <code>&lt;script type="application/json" class="spec"&gt;</code> block with the exact design, in the same shape as the Dart block model — <code>type</code> matches <code>BlockKind</code> (<code>calendarGrid</code>, <code>text</code>, <code>image</code>, <code>logo</code>, <code>eventList</code>, <code>holidayLegend</code>, <code>shape</code>, <code>decoration</code>), <code>bounds</code> is <code>[x,y,w,h]</code> as 0–1 fractions matching <code>NormRect</code>, and colors are either a <code>ThemeRole</code> name (resolved against the preset's own palette, given in <code>theme</code>) or a literal <code>"#RRGGBB"</code>. The rendered card next to it is the same layout at the stated <code>canvas</code> preset, for visual reference — read the JSON for exact numbers, not pixels off the screenshot.
+    <div class="cols">
+      <div><code>canvas.preset</code> → one of <code>a4_portrait</code>, <code>a4_landscape</code>, <code>a3_portrait</code>, <code>square</code>, <code>story</code> (existing <code>CanvasSpec</code> presets)</div>
+      <div><code>theme</code> → new hex values per role; not yet a <code>StudioThemes</code> entry — add one</div>
+      <div><code>blocks[].type: "decoration"</code> with <code>"newMotif": true</code> → motif isn't in <code>DecorationMotif</code> yet; add it + a path builder like <code>stupa_path.dart</code></div>
+      <div><code>blocks[].type: "shape"</code> → maps straight to <code>ShapeBlock</code>, no new enum needed</div>
+      <div><code>category</code> → suggested <code>TemplateCategory</code> (wall/desk/print/annual/social/story)</div>
+      <div><code>referenceMonth</code> → the month shown in the mock-up (September 2026, for apples-to-apples comparison); the template itself is month-agnostic</div>
+    </div>
+  </div>
+
+  <div class="gallery">
+
+    <section class="preset" data-preset="space">
+      <div class="preset-head"><h2>Deep Field</h2><span>space · story</span></div>
+      <p class="preset-desc">A planet caught mid-orbit against a scattered starfield. Dark and spacious rather than busy — the kind of calendar that disappears into a lock screen until you need it.</p>
+      <div class="canvas" data-ar="story" style="--paper:#0A0E27">
+    <div class="blk deco" data-motif="starField" data-new-motif="true" data-block="decoration" data-bounds="0.0000,0.0000,1.0000,1.0000" style="left:0.000%;top:0.000%;width:100.000%;height:100.000%;opacity:0.55;--motif-color:#F2F4FA"><svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><circle cx="90.7" cy="111.7" r="2.45" fill="var(--motif-color)" opacity="0.65"/><circle cx="101.5" cy="117.1" r="0.97" fill="var(--motif-color)" opacity="0.68"/><circle cx="125.5" cy="157.4" r="0.79" fill="var(--motif-color)" opacity="0.55"/><circle cx="19.8" cy="160.7" r="1.99" fill="var(--motif-color)" opacity="0.38"/><circle cx="194.5" cy="191.1" r="1.91" fill="var(--motif-color)" opacity="0.75"/><circle cx="32.9" cy="4.9" r="1.66" fill="var(--motif-color)" opacity="0.39"/><circle cx="39.3" cy="49.4" r="0.66" fill="var(--motif-color)" opacity="0.65"/><circle cx="88.3" cy="167.1" r="1.64" fill="var(--motif-color)" opacity="0.77"/><circle cx="100.0" cy="131.8" r="1.51" fill="var(--motif-color)" opacity="0.53"/><circle cx="197.5" cy="197.2" r="2.28" fill="var(--motif-color)" opacity="0.81"/><circle cx="63.8" cy="47.0" r="1.18" fill="var(--motif-color)" opacity="0.4"/><circle cx="152.2" cy="80.5" r="2.29" fill="var(--motif-color)" opacity="0.6"/><circle cx="189.8" cy="168.1" r="0.6" fill="var(--motif-color)" opacity="0.49"/><circle cx="180.4" cy="94.1" r="2.56" fill="var(--motif-color)" opacity="0.61"/><circle cx="16.3" cy="125.4" r="2.16" fill="var(--motif-color)" opacity="0.53"/><circle cx="19.1" cy="67.2" r="2.53" fill="var(--motif-color)" opacity="0.84"/><circle cx="25.1" cy="50.3" r="0.8" fill="var(--motif-color)" opacity="0.39"/><circle cx="158.2" cy="36.8" r="1.72" fill="var(--motif-color)" opacity="0.64"/><circle cx="39.4" cy="145.5" r="0.86" fill="var(--motif-color)" opacity="0.77"/><circle cx="24.8" cy="84.5" r="1.03" fill="var(--motif-color)" opacity="0.53"/><circle cx="192.3" cy="159.5" r="1.21" fill="var(--motif-color)" opacity="0.93"/><circle cx="43.3" cy="79.3" r="2.31" fill="var(--motif-color)" opacity="0.77"/><circle cx="21.7" cy="195.9" r="1.03" fill="var(--motif-color)" opacity="0.52"/><circle cx="153.4" cy="66.5" r="1.19" fill="var(--motif-color)" opacity="0.4"/><circle cx="19.7" cy="116.2" r="1.09" fill="var(--motif-color)" opacity="0.74"/><circle cx="74.9" cy="90.8" r="2.52" fill="var(--motif-color)" opacity="0.66"/><circle cx="114.6" cy="171.8" r="0.97" fill="var(--motif-color)" opacity="0.45"/><circle cx="180.1" cy="162.3" r="1.1" fill="var(--motif-color)" opacity="0.47"/><circle cx="146.9" cy="186.3" r="0.99" fill="var(--motif-color)" opacity="0.97"/><circle cx="174.9" cy="120.3" r="1.44" fill="var(--motif-color)" opacity="0.42"/><circle cx="9.6" cy="190.7" r="1.08" fill="var(--motif-color)" opacity="0.81"/><circle cx="52.4" cy="163.4" r="1.79" fill="var(--motif-color)" opacity="0.54"/><circle cx="36.4" cy="143.2" r="0.74" fill="var(--motif-color)" opacity="0.5"/><circle cx="111.6" cy="169.1" r="1.83" fill="var(--motif-color)" opacity="0.53"/><circle cx="181.8" cy="42.0" r="0.63" fill="var(--motif-color)" opacity="0.52"/><circle cx="89.4" cy="13.8" r="0.95" fill="var(--motif-color)" opacity="0.59"/><circle cx="114.1" cy="27.8" r="1.32" fill="var(--motif-color)" opacity="0.93"/><circle cx="194.2" cy="130.8" r="1.98" fill="var(--motif-color)" opacity="0.73"/><circle cx="29.5" cy="8.9" r="0.64" fill="var(--motif-color)" opacity="0.94"/><circle cx="139.4" cy="190.7" r="0.64" fill="var(--motif-color)" opacity="0.76"/><circle cx="96.5" cy="145.2" r="1.24" fill="var(--motif-color)" opacity="1.0"/><circle cx="16.8" cy="109.0" r="2.07" fill="var(--motif-color)" opacity="0.94"/></svg></div>
+    <div class="blk" data-block="shape" data-bounds="0.6200,0.0650,0.3000,0.1700" data-shape="ellipse" style="position:absolute;left:62.000%;top:6.500%;width:30.000%;height:17.000%;opacity:0.95;background:#7B5EA7;border-radius:50%;"></div>
+    <div class="blk" data-block="shape" data-bounds="0.5600,0.1250,0.4200,0.0500" data-shape="ellipse" style="position:absolute;left:56.000%;top:12.500%;width:42.000%;height:5.000%;transform:rotate(-8deg);opacity:0.9;background:transparent;border:3px solid #E8936B;box-sizing:border-box;border-radius:50%;"></div>
+    <div class="blk blk-text ha-center va-center" data-binding="monthTitle" data-block="text" data-bounds="0.0800,0.3000,0.8400,0.0900" style="left:8.000%;top:30.000%;width:84.000%;height:9.000%;font-family:'Sora','Inter',sans-serif;font-weight:600;font-style:normal;line-height:1.15;color:#F2F4FA"><span style="display:flex;flex-direction:column"><span style="font-size:calc(7.9630cqw)">စက်တင်ဘာ</span><span style="display:block;font-size:calc(3.0259cqw);font-weight:500;font-style:normal;color:#9098C0;margin-top:0.15em">September</span></span></div>
+    <div class="blk blk-text ha-center va-center" data-binding="yearTitle" data-block="text" data-bounds="0.0800,0.3850,0.8400,0.0450" style="left:8.000%;top:38.500%;width:84.000%;height:4.500%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-weight:500;font-style:normal;line-height:1.15;color:#E8936B"><span style="display:flex;flex-direction:column"><span style="font-size:calc(2.9630cqw)">၂၀၂၆</span><span style="display:block;font-size:calc(1.1259cqw);font-weight:500;font-style:normal;color:#9098C0;margin-top:0.15em">2026</span></span></div>
+    <div class="blk cal-grid minimal" data-cal data-mini="false" data-block="calendarGrid" data-bounds="0.0700,0.4600,0.8600,0.4000" data-year="2026" data-month="9" data-holidays="4,19" data-events="12" style="left:7.000%;top:46.000%;width:86.000%;height:40.000%;--ink:#F2F4FA;--muted:#9098C0;--weekend:#E8936B;--holiday:#E8936B;--sabbath:#7B5EA7;--accent:#7B5EA7;--line:#2A2F55;--cell-fs:calc(3.9314cqw);--head-fs:calc(2.7029cqw);--cell-sub-fs:calc(1.7200cqw);font-family:'Inter','Noto Sans Myanmar',sans-serif"><div class="cal-head"></div><div class="cal-body"></div></div>
+    <div class="blk blk-text ha-center va-center" data-block="holidayLegend" data-bounds="0.0700,0.8750,0.8600,0.0300" style="left:7.000%;top:87.500%;width:86.000%;height:3.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-size:calc(2.0370cqw);font-weight:400;color:#9098C0"><span>အများပြည်သူ ပိတ်ရက် Public holiday   ·   လပြည့် Full moon   ·   လကွယ် New moon   ·   ဥပုသ် Sabbath   ·   Events</span></div>
+    <div class="blk blk-text ha-center va-center" data-binding="custom" data-block="text" data-bounds="0.2000,0.9150,0.6000,0.0450" style="left:20.000%;top:91.500%;width:60.000%;height:4.500%;font-family:'Sora','Inter',sans-serif;font-weight:500;font-style:italic;line-height:1.15;font-size:calc(2.0370cqw);color:#9098C0"><span>light older than memory</span></div>
+      </div>
+      <script type="application/json" class="spec">
+{
+  "id": "space",
+  "name": "Deep Field",
+  "category": "story",
+  "referenceMonth": {
+    "year": 2026,
+    "month": 9
+  },
+  "canvas": {
+    "preset": "story",
+    "width": 1080,
+    "height": 1920
+  },
+  "theme": {
+    "paper": "#0A0E27",
+    "primary": "#7B5EA7",
+    "accent": "#E8936B",
+    "ink": "#F2F4FA",
+    "inkMuted": "#9098C0",
+    "line": "#2A2F55",
+    "holiday": "#E8936B"
+  },
+  "fonts": {
+    "display": "Sora",
+    "ui": "Inter"
+  },
+  "blocks": [
+    {
+      "type": "decoration",
+      "motif": "starField",
+      "newMotif": true,
+      "bounds": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "color": "ink",
+      "opacity": 0.55
+    },
+    {
+      "type": "shape",
+      "shape": "ellipse",
+      "bounds": [
+        0.62,
+        0.065,
+        0.3,
+        0.17
+      ],
+      "fill": "primary",
+      "opacity": 0.95
+    },
+    {
+      "type": "shape",
+      "shape": "ellipse",
+      "bounds": [
+        0.56,
+        0.125,
+        0.42,
+        0.05
+      ],
+      "stroke": "accent",
+      "strokeWidth": 3,
+      "opacity": 0.9,
+      "rotation": -8
+    },
+    {
+      "type": "text",
+      "binding": "monthTitle",
+      "bounds": [
+        0.08,
+        0.3,
+        0.84,
+        0.09
+      ],
+      "style": {
+        "fontFamily": "Sora",
+        "fontSize": 86,
+        "weight": 600,
+        "align": "center",
+        "vAlign": "center",
+        "color": "ink"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "yearTitle",
+      "bounds": [
+        0.08,
+        0.385,
+        0.84,
+        0.045
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 32,
+        "weight": 500,
+        "align": "center",
+        "vAlign": "center",
+        "color": "accent"
+      }
+    },
+    {
+      "type": "calendarGrid",
+      "bounds": [
+        0.07,
+        0.46,
+        0.86,
+        0.4
+      ],
+      "content": {
+        "cellStyle": "minimal"
+      },
+      "style": {
+        "textColor": "ink",
+        "mutedColor": "inkMuted",
+        "weekendColor": "accent",
+        "holidayColor": "accent",
+        "headerColor": "primary",
+        "lineColor": "line"
+      }
+    },
+    {
+      "type": "holidayLegend",
+      "bounds": [
+        0.07,
+        0.875,
+        0.86,
+        0.03
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 22,
+        "color": "inkMuted",
+        "align": "center"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "custom",
+      "text": "light older than memory",
+      "bounds": [
+        0.2,
+        0.915,
+        0.6,
+        0.045
+      ],
+      "style": {
+        "fontFamily": "Sora",
+        "fontSize": 22,
+        "weight": 500,
+        "fontStyle": "italic",
+        "align": "center",
+        "vAlign": "center",
+        "color": "inkMuted"
+      }
+    }
+  ]
+}
+      </script>
+    </section>
+
+    <section class="preset" data-preset="astrology">
+      <div class="preset-head"><h2>Night Chart</h2><span>astrology · square</span></div>
+      <p class="preset-desc">A star-chart dial standing in for a zodiac wheel, built to carry your astrology-day overlay rather than compete with it — the notes list is the point, the dial is just atmosphere.</p>
+      <div class="canvas" data-ar="sq" style="--paper:#241B3D">
+    <div class="blk deco" data-motif="zodiacWheel" data-new-motif="true" data-block="decoration" data-bounds="0.5800,0.0500,0.3800,0.3800" style="left:58.000%;top:5.000%;width:38.000%;height:38.000%;opacity:0.8;--motif-color:#D4AF6A"><svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet"><circle cx="100" cy="100" r="70" fill="none" stroke="var(--motif-color)" stroke-width="1.6"/><line x1="100.0" y1="40.0" x2="100.0" y2="8.0" stroke="var(--motif-color)" stroke-width="2.2"/><line x1="135.0" y1="39.4" x2="139.0" y2="32.5" stroke="var(--motif-color)" stroke-width="1.2"/><line x1="160.6" y1="65.0" x2="167.5" y2="61.0" stroke="var(--motif-color)" stroke-width="1.2"/><line x1="160.0" y1="100.0" x2="192.0" y2="100.0" stroke="var(--motif-color)" stroke-width="2.2"/><line x1="160.6" y1="135.0" x2="167.5" y2="139.0" stroke="var(--motif-color)" stroke-width="1.2"/><line x1="135.0" y1="160.6" x2="139.0" y2="167.5" stroke="var(--motif-color)" stroke-width="1.2"/><line x1="100.0" y1="160.0" x2="100.0" y2="192.0" stroke="var(--motif-color)" stroke-width="2.2"/><line x1="65.0" y1="160.6" x2="61.0" y2="167.5" stroke="var(--motif-color)" stroke-width="1.2"/><line x1="39.4" y1="135.0" x2="32.5" y2="139.0" stroke="var(--motif-color)" stroke-width="1.2"/><line x1="40.0" y1="100.0" x2="8.0" y2="100.0" stroke="var(--motif-color)" stroke-width="2.2"/><line x1="39.4" y1="65.0" x2="32.5" y2="61.0" stroke="var(--motif-color)" stroke-width="1.2"/><line x1="65.0" y1="39.4" x2="61.0" y2="32.5" stroke="var(--motif-color)" stroke-width="1.2"/></svg></div>
+    <div class="blk blk-text ha-start va-center" data-binding="monthTitle" data-block="text" data-bounds="0.0800,0.0900,0.6000,0.1500" style="left:8.000%;top:9.000%;width:60.000%;height:15.000%;font-family:'Italiana',Georgia,serif;font-weight:500;font-style:normal;line-height:1.15;color:#EDE6D6"><span style="display:flex;flex-direction:column"><span style="font-size:calc(5.7407cqw)">စက်တင်ဘာ</span><span style="display:block;font-size:calc(2.1815cqw);font-weight:500;font-style:normal;color:#A79BC9;margin-top:0.15em">September</span></span></div>
+    <div class="blk blk-text ha-start va-center" data-binding="yearTitle" data-block="text" data-bounds="0.0800,0.2350,0.4000,0.0600" style="left:8.000%;top:23.500%;width:40.000%;height:6.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-weight:500;font-style:normal;line-height:1.15;color:#D4AF6A"><span style="display:flex;flex-direction:column"><span style="font-size:calc(2.2222cqw)">၂၀၂၆</span><span style="display:block;font-size:calc(0.8444cqw);font-weight:500;font-style:normal;color:#A79BC9;margin-top:0.15em">2026</span></span></div>
+    <div class="blk" data-block="shape" data-bounds="0.0800,0.3050,0.4600,0.0015" data-shape="line" style="position:absolute;left:8.000%;top:30.500%;width:46.000%;height:0.150%;opacity:1;border-top:1.2px solid #3A3060;height:0;"></div>
+    <div class="blk cal-grid minimal" data-cal data-mini="false" data-block="calendarGrid" data-bounds="0.0800,0.3500,0.8400,0.4600" data-year="2026" data-month="9" data-holidays="4,19" data-events="12" style="left:8.000%;top:35.000%;width:84.000%;height:46.000%;--ink:#EDE6D6;--muted:#A79BC9;--weekend:#8E7CC3;--holiday:#8E7CC3;--sabbath:#D4AF6A;--accent:#D4AF6A;--line:#3A3060;--cell-fs:calc(3.8400cqw);--head-fs:calc(2.6400cqw);--cell-sub-fs:calc(1.6800cqw);font-family:'Inter','Noto Sans Myanmar',sans-serif"><div class="cal-head"></div><div class="cal-body"></div></div>
+    <div class="blk blk-text ha-start va-center" data-block="holidayLegend" data-bounds="0.0800,0.8250,0.8400,0.0400" style="left:8.000%;top:82.500%;width:84.000%;height:4.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-size:calc(0.9259cqw);font-weight:400;color:#A79BC9"><span>အများပြည်သူ ပိတ်ရက် Public holiday   ·   လပြည့် Full moon   ·   လကွယ် New moon   ·   ဥပုသ် Sabbath   ·   Events</span></div>
+    <div class="blk evlist" data-block="eventList" data-bounds="0.0800,0.8750,0.8400,0.0900" style="left:8.000%;top:87.500%;width:84.000%;height:9.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;color:#EDE6D6"><div class="ev-title" style="font-size:calc(1.1574cqw);font-weight:700">Astrology notes</div><div style="font-size:calc(0.9722cqw);line-height:1.7;margin-top:4px"><div class="ev-row">4 — Grandma visits</div><div class="ev-row">12 — Dentist</div><div class="ev-row">19 — Movie night</div></div></div>
+      </div>
+      <script type="application/json" class="spec">
+{
+  "id": "astrology",
+  "name": "Night Chart",
+  "category": "social",
+  "referenceMonth": {
+    "year": 2026,
+    "month": 9
+  },
+  "canvas": {
+    "preset": "square",
+    "width": 1080,
+    "height": 1080
+  },
+  "theme": {
+    "paper": "#241B3D",
+    "primary": "#D4AF6A",
+    "accent": "#8E7CC3",
+    "ink": "#EDE6D6",
+    "inkMuted": "#A79BC9",
+    "line": "#3A3060",
+    "holiday": "#8E7CC3"
+  },
+  "fonts": {
+    "display": "Italiana",
+    "ui": "Inter"
+  },
+  "blocks": [
+    {
+      "type": "decoration",
+      "motif": "zodiacWheel",
+      "newMotif": true,
+      "bounds": [
+        0.58,
+        0.05,
+        0.38,
+        0.38
+      ],
+      "color": "primary",
+      "opacity": 0.8
+    },
+    {
+      "type": "text",
+      "binding": "monthTitle",
+      "bounds": [
+        0.08,
+        0.09,
+        0.6,
+        0.15
+      ],
+      "style": {
+        "fontFamily": "Italiana",
+        "fontSize": 62,
+        "weight": 500,
+        "align": "start",
+        "vAlign": "center",
+        "color": "ink"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "yearTitle",
+      "bounds": [
+        0.08,
+        0.235,
+        0.4,
+        0.06
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 24,
+        "weight": 500,
+        "align": "start",
+        "vAlign": "center",
+        "color": "primary"
+      }
+    },
+    {
+      "type": "shape",
+      "shape": "line",
+      "bounds": [
+        0.08,
+        0.305,
+        0.46,
+        0.0015
+      ],
+      "stroke": "line",
+      "strokeWidth": 1
+    },
+    {
+      "type": "calendarGrid",
+      "bounds": [
+        0.08,
+        0.35,
+        0.84,
+        0.46
+      ],
+      "content": {
+        "cellStyle": "minimal"
+      },
+      "style": {
+        "textColor": "ink",
+        "mutedColor": "inkMuted",
+        "weekendColor": "accent",
+        "holidayColor": "accent",
+        "headerColor": "primary",
+        "lineColor": "line"
+      }
+    },
+    {
+      "type": "holidayLegend",
+      "bounds": [
+        0.08,
+        0.825,
+        0.84,
+        0.04
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 10,
+        "color": "inkMuted",
+        "align": "start"
+      }
+    },
+    {
+      "type": "eventList",
+      "bounds": [
+        0.08,
+        0.875,
+        0.84,
+        0.09
+      ],
+      "title": "Astrology notes",
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 10.5,
+        "color": "ink"
+      }
+    }
+  ]
+}
+      </script>
+    </section>
+
+    <section class="preset" data-preset="monsoon">
+      <div class="preset-head"><h2>Grey Season</h2><span>monsoon · a4_portrait</span></div>
+      <p class="preset-desc">Built for the rainy season rather than apologizing for it: an overcast band, visible rain, a quiet puddle under the grid. Slate and amber instead of the usual storm-cloud grey-on-grey.</p>
+      <div class="canvas" data-ar="a4p" style="--paper:#EDF1F3">
+    <div class="blk" data-block="shape" data-bounds="0.0000,0.0000,1.0000,0.2600" data-shape="rect" style="position:absolute;left:0.000%;top:0.000%;width:100.000%;height:26.000%;opacity:0.92;background:#46586B;"></div>
+    <div class="blk" data-block="shape" data-bounds="0.1500,0.0250,0.1600,0.0120" data-shape="line" style="position:absolute;left:15.000%;top:2.500%;width:16.000%;height:1.200%;transform:rotate(12deg);opacity:0.4;border-top:2px solid #EDF1F3;height:0;"></div>
+    <div class="blk" data-block="shape" data-bounds="0.4200,0.0100,0.1600,0.0120" data-shape="line" style="position:absolute;left:42.000%;top:1.000%;width:16.000%;height:1.200%;transform:rotate(12deg);opacity:0.4;border-top:2px solid #EDF1F3;height:0;"></div>
+    <div class="blk" data-block="shape" data-bounds="0.6600,0.0500,0.1600,0.0120" data-shape="line" style="position:absolute;left:66.000%;top:5.000%;width:16.000%;height:1.200%;transform:rotate(12deg);opacity:0.4;border-top:2px solid #EDF1F3;height:0;"></div>
+    <div class="blk" data-block="shape" data-bounds="0.8500,0.0200,0.1400,0.0120" data-shape="line" style="position:absolute;left:85.000%;top:2.000%;width:14.000%;height:1.200%;transform:rotate(12deg);opacity:0.4;border-top:2px solid #EDF1F3;height:0;"></div>
+    <div class="blk blk-text ha-start va-center" data-binding="monthTitle" data-block="text" data-bounds="0.0800,0.3000,0.6000,0.0900" style="left:8.000%;top:30.000%;width:60.000%;height:9.000%;font-family:'Newsreader',Georgia,serif;font-weight:500;font-style:italic;line-height:1.15;color:#26343F"><span style="display:flex;flex-direction:column"><span style="font-size:calc(5.3756cqw)">စက်တင်ဘာ</span><span style="display:block;font-size:calc(2.0427cqw);font-weight:500;font-style:normal;color:#728494;margin-top:0.15em">September</span></span></div>
+    <div class="blk blk-text ha-end va-center" data-binding="yearTitle" data-block="text" data-bounds="0.6800,0.3000,0.2400,0.0900" style="left:68.000%;top:30.000%;width:24.000%;height:9.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-weight:500;font-style:normal;line-height:1.15;color:#D98B3F"><span style="display:flex;flex-direction:column"><span style="font-size:calc(4.3677cqw)">၂၀၂၆</span><span style="display:block;font-size:calc(1.6597cqw);font-weight:500;font-style:normal;color:#728494;margin-top:0.15em">2026</span></span></div>
+    <div class="blk cal-grid lined" data-cal data-mini="false" data-block="calendarGrid" data-bounds="0.0800,0.4200,0.8400,0.4400" data-year="2026" data-month="9" data-holidays="4,19" data-events="12" style="left:8.000%;top:42.000%;width:84.000%;height:44.000%;--ink:#26343F;--muted:#728494;--weekend:#46586B;--holiday:#D98B3F;--sabbath:#46586B;--accent:#46586B;--line:#CBD7DE;--cell-fs:calc(3.8400cqw);--head-fs:calc(2.6400cqw);--cell-sub-fs:calc(1.6800cqw);font-family:'Inter','Noto Sans Myanmar',sans-serif"><div class="cal-head"></div><div class="cal-body"></div></div>
+    <div class="blk" data-block="shape" data-bounds="0.0800,0.8750,0.2000,0.0250" data-shape="ellipse" style="position:absolute;left:8.000%;top:87.500%;width:20.000%;height:2.500%;opacity:0.18;background:#46586B;border-radius:50%;"></div>
+    <div class="blk blk-text ha-start va-center" data-block="holidayLegend" data-bounds="0.0800,0.9150,0.8400,0.0300" style="left:8.000%;top:91.500%;width:84.000%;height:3.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-size:calc(1.6799cqw);font-weight:400;color:#728494"><span>အများပြည်သူ ပိတ်ရက် Public holiday   ·   လပြည့် Full moon   ·   လကွယ် New moon   ·   ဥပုသ် Sabbath   ·   Events</span></div>
+      </div>
+      <script type="application/json" class="spec">
+{
+  "id": "monsoon",
+  "name": "Grey Season",
+  "category": "wall",
+  "referenceMonth": {
+    "year": 2026,
+    "month": 9
+  },
+  "canvas": {
+    "preset": "a4_portrait",
+    "width": 595.28,
+    "height": 841.89
+  },
+  "theme": {
+    "paper": "#EDF1F3",
+    "primary": "#46586B",
+    "accent": "#D98B3F",
+    "onPrimary": "#EDF1F3",
+    "ink": "#26343F",
+    "inkMuted": "#728494",
+    "line": "#CBD7DE",
+    "holiday": "#D98B3F"
+  },
+  "fonts": {
+    "display": "Newsreader",
+    "ui": "Inter"
+  },
+  "blocks": [
+    {
+      "type": "shape",
+      "shape": "rect",
+      "bounds": [
+        0,
+        0,
+        1,
+        0.26
+      ],
+      "fill": "primary",
+      "opacity": 0.92
+    },
+    {
+      "type": "shape",
+      "shape": "line",
+      "bounds": [
+        0.15,
+        0.025,
+        0.16,
+        0.012
+      ],
+      "stroke": "onPrimary",
+      "strokeWidth": 2,
+      "opacity": 0.4,
+      "rotation": 12
+    },
+    {
+      "type": "shape",
+      "shape": "line",
+      "bounds": [
+        0.42,
+        0.01,
+        0.16,
+        0.012
+      ],
+      "stroke": "onPrimary",
+      "strokeWidth": 2,
+      "opacity": 0.4,
+      "rotation": 12
+    },
+    {
+      "type": "shape",
+      "shape": "line",
+      "bounds": [
+        0.66,
+        0.05,
+        0.16,
+        0.012
+      ],
+      "stroke": "onPrimary",
+      "strokeWidth": 2,
+      "opacity": 0.4,
+      "rotation": 12
+    },
+    {
+      "type": "shape",
+      "shape": "line",
+      "bounds": [
+        0.85,
+        0.02,
+        0.14,
+        0.012
+      ],
+      "stroke": "onPrimary",
+      "strokeWidth": 2,
+      "opacity": 0.4,
+      "rotation": 12
+    },
+    {
+      "type": "text",
+      "binding": "monthTitle",
+      "bounds": [
+        0.08,
+        0.3,
+        0.6,
+        0.09
+      ],
+      "style": {
+        "fontFamily": "Newsreader",
+        "fontSize": 32,
+        "weight": 500,
+        "fontStyle": "italic",
+        "align": "start",
+        "vAlign": "center",
+        "color": "ink"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "yearTitle",
+      "bounds": [
+        0.68,
+        0.3,
+        0.24,
+        0.09
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 26,
+        "weight": 500,
+        "align": "end",
+        "vAlign": "center",
+        "color": "accent"
+      }
+    },
+    {
+      "type": "calendarGrid",
+      "bounds": [
+        0.08,
+        0.42,
+        0.84,
+        0.44
+      ],
+      "content": {
+        "cellStyle": "lined"
+      },
+      "style": {
+        "textColor": "ink",
+        "mutedColor": "inkMuted",
+        "weekendColor": "primary",
+        "holidayColor": "accent",
+        "headerColor": "primary",
+        "lineColor": "line"
+      }
+    },
+    {
+      "type": "shape",
+      "shape": "ellipse",
+      "bounds": [
+        0.08,
+        0.875,
+        0.2,
+        0.025
+      ],
+      "fill": "primary",
+      "opacity": 0.18
+    },
+    {
+      "type": "holidayLegend",
+      "bounds": [
+        0.08,
+        0.915,
+        0.84,
+        0.03
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 10,
+        "color": "inkMuted",
+        "align": "start"
+      }
+    }
+  ]
+}
+      </script>
+    </section>
+
+    <section class="preset" data-preset="pagoda">
+      <div class="preset-head"><h2>Sabbath</h2><span>pagoda · a4_portrait</span></div>
+      <p class="preset-desc">Devotional rather than decorative: the existing stupa motif (no new engineering needed), a monastic maroon-and-gold palette, and a legend that leads with sabbath and moon days instead of public holidays.</p>
+      <div class="canvas" data-ar="a4p" style="--paper:#F7F0DE">
+    <div class="blk deco" data-motif="stupa" data-block="decoration" data-bounds="0.3700,0.0500,0.2600,0.2000" style="left:37.000%;top:5.000%;width:26.000%;height:20.000%;opacity:0.9;--motif-color:#6B1F23"><svg viewBox="0 0 100 120" preserveAspectRatio="xMidYMid meet"><path d="M8 118 L92 118 L84 104 L16 104 Z" fill="none" stroke="var(--motif-color)" stroke-width="2.2"/><path d="M20 104 C16 82,18 62,30 50 C20 44,18 36,26 28 L74 28 C82 36,80 44,70 50 C82 62,84 82,80 104 Z" fill="none" stroke="var(--motif-color)" stroke-width="2.2"/><path d="M40 28 L40 14 L60 14 L60 28 Z" fill="none" stroke="var(--motif-color)" stroke-width="2"/><path d="M46 14 L50 0 L54 14 Z" fill="none" stroke="var(--motif-color)" stroke-width="2"/></svg></div>
+    <div class="blk" data-block="shape" data-bounds="0.3000,0.2750,0.4000,0.0015" data-shape="line" style="position:absolute;left:30.000%;top:27.500%;width:40.000%;height:0.150%;opacity:1;border-top:1.2px solid #C9A227;height:0;"></div>
+    <div class="blk blk-text ha-center va-center" data-binding="monthTitle" data-block="text" data-bounds="0.0800,0.3050,0.8400,0.0800" style="left:8.000%;top:30.500%;width:84.000%;height:8.000%;font-family:'Crimson Pro',Georgia,serif;font-weight:500;font-style:normal;line-height:1.15;color:#2E1B12"><span style="display:flex;flex-direction:column"><span style="font-size:calc(5.7116cqw)">စက်တင်ဘာ</span><span style="display:block;font-size:calc(2.1704cqw);font-weight:500;font-style:normal;color:#8A7458;margin-top:0.15em">September</span></span></div>
+    <div class="blk blk-text ha-center va-center" data-binding="yearTitle" data-block="text" data-bounds="0.0800,0.3850,0.8400,0.0500" style="left:8.000%;top:38.500%;width:84.000%;height:5.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-weight:500;font-style:normal;line-height:1.15;color:#C9A227"><span style="display:flex;flex-direction:column"><span style="font-size:calc(3.0238cqw)">၂၀၂၆</span><span style="display:block;font-size:calc(1.1490cqw);font-weight:500;font-style:normal;color:#8A7458;margin-top:0.15em">2026</span></span></div>
+    <div class="blk cal-grid lined" data-cal data-mini="false" data-block="calendarGrid" data-bounds="0.1000,0.4650,0.8000,0.4000" data-year="2026" data-month="9" data-holidays="4,19" data-events="12" style="left:10.000%;top:46.500%;width:80.000%;height:40.000%;--ink:#2E1B12;--muted:#8A7458;--weekend:#8A7458;--holiday:#6B1F23;--sabbath:#6B1F23;--accent:#C9A227;--line:#E3D6B2;--cell-fs:calc(3.6571cqw);--head-fs:calc(2.5143cqw);--cell-sub-fs:calc(1.6000cqw);font-family:'Inter','Noto Sans Myanmar',sans-serif"><div class="cal-head"></div><div class="cal-body"></div></div>
+    <div class="blk blk-text ha-center va-center" data-block="holidayLegend" data-bounds="0.1000,0.8850,0.8000,0.0350" style="left:10.000%;top:88.500%;width:80.000%;height:3.500%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-size:calc(1.6799cqw);font-weight:400;color:#8A7458"><span>အများပြည်သူ ပိတ်ရက် Public holiday   ·   လပြည့် Full moon   ·   လကွယ် New moon   ·   ဥပုသ် Sabbath</span></div>
+    <div class="blk blk-text ha-center va-center" data-binding="custom" data-block="text" data-bounds="0.2500,0.9300,0.5000,0.0400" style="left:25.000%;top:93.000%;width:50.000%;height:4.000%;font-family:'Crimson Pro',Georgia,serif;font-weight:500;font-style:italic;line-height:1.15;font-size:calc(2.5198cqw);color:#8A7458"><span>stillness on the appointed days</span></div>
+      </div>
+      <script type="application/json" class="spec">
+{
+  "id": "pagoda",
+  "name": "Sabbath",
+  "category": "wall",
+  "referenceMonth": {
+    "year": 2026,
+    "month": 9
+  },
+  "canvas": {
+    "preset": "a4_portrait",
+    "width": 595.28,
+    "height": 841.89
+  },
+  "theme": {
+    "paper": "#F7F0DE",
+    "primary": "#6B1F23",
+    "accent": "#C9A227",
+    "ink": "#2E1B12",
+    "inkMuted": "#8A7458",
+    "line": "#E3D6B2",
+    "holiday": "#6B1F23"
+  },
+  "fonts": {
+    "display": "Crimson Pro",
+    "ui": "Inter"
+  },
+  "blocks": [
+    {
+      "type": "decoration",
+      "motif": "stupa",
+      "newMotif": false,
+      "bounds": [
+        0.37,
+        0.05,
+        0.26,
+        0.2
+      ],
+      "color": "primary",
+      "opacity": 0.9
+    },
+    {
+      "type": "shape",
+      "shape": "line",
+      "bounds": [
+        0.3,
+        0.275,
+        0.4,
+        0.0015
+      ],
+      "stroke": "accent",
+      "strokeWidth": 1.2
+    },
+    {
+      "type": "text",
+      "binding": "monthTitle",
+      "bounds": [
+        0.08,
+        0.305,
+        0.84,
+        0.08
+      ],
+      "style": {
+        "fontFamily": "Crimson Pro",
+        "fontSize": 34,
+        "weight": 500,
+        "align": "center",
+        "vAlign": "center",
+        "color": "ink"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "yearTitle",
+      "bounds": [
+        0.08,
+        0.385,
+        0.84,
+        0.05
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 18,
+        "weight": 500,
+        "align": "center",
+        "vAlign": "center",
+        "color": "accent"
+      }
+    },
+    {
+      "type": "calendarGrid",
+      "bounds": [
+        0.1,
+        0.465,
+        0.8,
+        0.4
+      ],
+      "content": {
+        "cellStyle": "lined"
+      },
+      "style": {
+        "textColor": "ink",
+        "mutedColor": "inkMuted",
+        "weekendColor": "inkMuted",
+        "holidayColor": "primary",
+        "headerColor": "accent",
+        "lineColor": "line",
+        "sabbathColor": "primary"
+      }
+    },
+    {
+      "type": "holidayLegend",
+      "bounds": [
+        0.1,
+        0.885,
+        0.8,
+        0.035
+      ],
+      "publicHoliday": true,
+      "fullMoon": true,
+      "newMoon": true,
+      "sabbath": true,
+      "events": false,
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 10,
+        "color": "inkMuted",
+        "align": "center"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "custom",
+      "text": "stillness on the appointed days",
+      "bounds": [
+        0.25,
+        0.93,
+        0.5,
+        0.04
+      ],
+      "style": {
+        "fontFamily": "Crimson Pro",
+        "fontSize": 15,
+        "weight": 500,
+        "fontStyle": "italic",
+        "align": "center",
+        "vAlign": "center",
+        "color": "inkMuted"
+      }
+    }
+  ]
+}
+      </script>
+    </section>
+
+    <section class="preset" data-preset="minimalist">
+      <div class="preset-head"><h2>Plainsong</h2><span>minimalist · a4_landscape</span></div>
+      <p class="preset-desc">One typeface, one ink color, zero decoration blocks. The holiday dates are already bold in the renderer — that’s the only emphasis this template needs or uses.</p>
+      <div class="canvas" data-ar="a4l" style="--paper:#FAFAF8">
+    <div class="blk blk-text ha-start va-center" data-binding="monthTitle" data-block="text" data-bounds="0.0500,0.0800,0.5000,0.1600" style="left:5.000%;top:8.000%;width:50.000%;height:16.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-weight:600;font-style:normal;line-height:1.15;color:#1A1A1A"><span style="display:flex;flex-direction:column"><span style="font-size:calc(4.7512cqw)">စက်တင်ဘာ</span><span style="display:block;font-size:calc(1.8055cqw);font-weight:500;font-style:normal;color:#8C9196;margin-top:0.15em">September</span></span></div>
+    <div class="blk blk-text ha-start va-center" data-binding="yearTitle" data-block="text" data-bounds="0.0500,0.2350,0.3000,0.0600" style="left:5.000%;top:23.500%;width:30.000%;height:6.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-weight:500;font-style:normal;line-height:1.15;color:#8C9196"><span style="display:flex;flex-direction:column"><span style="font-size:calc(2.3756cqw)">၂၀၂၆</span><span style="display:block;font-size:calc(0.9027cqw);font-weight:500;font-style:normal;color:#8C9196;margin-top:0.15em">2026</span></span></div>
+    <div class="blk" data-block="shape" data-bounds="0.0500,0.3050,0.9000,0.0012" data-shape="line" style="position:absolute;left:5.000%;top:30.500%;width:90.000%;height:0.120%;opacity:1;border-top:1.2px solid #E7E7E4;height:0;"></div>
+    <div class="blk cal-grid minimal" data-cal data-mini="false" data-block="calendarGrid" data-bounds="0.0500,0.3400,0.9000,0.5600" data-year="2026" data-month="9" data-holidays="4,19" data-events="12" style="left:5.000%;top:34.000%;width:90.000%;height:56.000%;--ink:#1A1A1A;--muted:#8C9196;--weekend:#8C9196;--holiday:#1A1A1A;--sabbath:#3D4A52;--accent:#1A1A1A;--line:#E7E7E4;--cell-fs:calc(4.1143cqw);--head-fs:calc(2.8286cqw);--cell-sub-fs:calc(1.8000cqw);font-family:'Inter','Noto Sans Myanmar',sans-serif"><div class="cal-head"></div><div class="cal-body"></div></div>
+    <div class="blk blk-text ha-start va-center" data-block="holidayLegend" data-bounds="0.0500,0.9250,0.9000,0.0350" style="left:5.000%;top:92.500%;width:90.000%;height:3.500%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-size:calc(1.1878cqw);font-weight:400;color:#8C9196"><span>အများပြည်သူ ပိတ်ရက် Public holiday   ·   လပြည့် Full moon   ·   လကွယ် New moon   ·   ဥပုသ် Sabbath   ·   Events</span></div>
+      </div>
+      <script type="application/json" class="spec">
+{
+  "id": "minimalist",
+  "name": "Plainsong",
+  "category": "desk",
+  "referenceMonth": {
+    "year": 2026,
+    "month": 9
+  },
+  "canvas": {
+    "preset": "a4_landscape",
+    "width": 841.89,
+    "height": 595.28
+  },
+  "theme": {
+    "paper": "#FAFAF8",
+    "primary": "#3D4A52",
+    "accent": "#3D4A52",
+    "ink": "#1A1A1A",
+    "inkMuted": "#8C9196",
+    "line": "#E7E7E4",
+    "holiday": "#1A1A1A"
+  },
+  "fonts": {
+    "display": "Inter",
+    "ui": "Inter"
+  },
+  "blocks": [
+    {
+      "type": "text",
+      "binding": "monthTitle",
+      "bounds": [
+        0.05,
+        0.08,
+        0.5,
+        0.16
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 40,
+        "weight": 600,
+        "align": "start",
+        "vAlign": "center",
+        "color": "ink"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "yearTitle",
+      "bounds": [
+        0.05,
+        0.235,
+        0.3,
+        0.06
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 20,
+        "weight": 500,
+        "align": "start",
+        "vAlign": "center",
+        "color": "inkMuted"
+      }
+    },
+    {
+      "type": "shape",
+      "shape": "line",
+      "bounds": [
+        0.05,
+        0.305,
+        0.9,
+        0.0012
+      ],
+      "stroke": "line",
+      "strokeWidth": 1
+    },
+    {
+      "type": "calendarGrid",
+      "bounds": [
+        0.05,
+        0.34,
+        0.9,
+        0.56
+      ],
+      "content": {
+        "cellStyle": "minimal"
+      },
+      "style": {
+        "textColor": "ink",
+        "mutedColor": "inkMuted",
+        "weekendColor": "inkMuted",
+        "holidayColor": "ink",
+        "headerColor": "ink",
+        "lineColor": "line"
+      }
+    },
+    {
+      "type": "holidayLegend",
+      "bounds": [
+        0.05,
+        0.925,
+        0.9,
+        0.035
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 10,
+        "color": "inkMuted",
+        "align": "start"
+      }
+    }
+  ]
+}
+      </script>
+    </section>
+
+    <section class="preset" data-preset="retro">
+      <div class="preset-head"><h2>Sunbeam '74</h2><span>retro · square</span></div>
+      <p class="preset-desc">A corner sunburst bleeding off the edge, a heavyweight italic month name, warm burnt-orange and mustard on cream. The only preset that deliberately crops its own decoration.</p>
+      <div class="canvas" data-ar="sq" style="--paper:#F2E6D3">
+    <div class="blk deco" data-motif="sunRays" data-new-motif="true" data-block="decoration" data-bounds="-0.0500,-0.0500,0.5500,0.4200" style="left:-5.000%;top:-5.000%;width:55.000%;height:42.000%;opacity:0.9;--motif-color:#E0A83E"><svg viewBox="-5 -5 130 130" preserveAspectRatio="xMidYMid meet"><line x1="0" y1="0" x2="59.7" y2="6.3" stroke="var(--motif-color)" stroke-width="3"/><line x1="0" y1="0" x2="91.8" y2="24.6" stroke="var(--motif-color)" stroke-width="1.6"/><line x1="0" y1="0" x2="63.9" y2="28.5" stroke="var(--motif-color)" stroke-width="3"/><line x1="0" y1="0" x2="92.3" y2="59.9" stroke="var(--motif-color)" stroke-width="1.6"/><line x1="0" y1="0" x2="48.3" y2="43.5" stroke="var(--motif-color)" stroke-width="3"/><line x1="0" y1="0" x2="62.9" y2="77.7" stroke="var(--motif-color)" stroke-width="1.6"/><line x1="0" y1="0" x2="37.5" y2="65.0" stroke="var(--motif-color)" stroke-width="3"/><line x1="0" y1="0" x2="32.3" y2="84.0" stroke="var(--motif-color)" stroke-width="1.6"/><line x1="0" y1="0" x2="12.5" y2="58.7" stroke="var(--motif-color)" stroke-width="3"/><line x1="0" y1="0" x2="5.2" y2="99.9" stroke="var(--motif-color)" stroke-width="1.6"/><circle cx="0" cy="0" r="22" fill="var(--motif-color)"/></svg></div>
+    <div class="blk blk-text ha-start va-center" data-binding="monthTitle" data-block="text" data-bounds="0.0800,0.4400,0.7000,0.1500" style="left:8.000%;top:44.000%;width:70.000%;height:15.000%;font-family:'Fraunces',Georgia,serif;font-weight:700;font-style:italic;line-height:1.15;color:#3B2A1E"><span style="display:flex;flex-direction:column"><span style="font-size:calc(7.7778cqw)">စက်တင်ဘာ</span><span style="display:block;font-size:calc(2.9556cqw);font-weight:500;font-style:normal;color:#8A6F55;margin-top:0.15em">September</span></span></div>
+    <div class="blk blk-text ha-start va-center" data-binding="yearTitle" data-block="text" data-bounds="0.0800,0.6000,0.4000,0.0600" style="left:8.000%;top:60.000%;width:40.000%;height:6.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-weight:600;font-style:normal;line-height:1.15;color:#C1562D"><span style="display:flex;flex-direction:column"><span style="font-size:calc(2.5926cqw)">၂၀၂၆</span><span style="display:block;font-size:calc(0.9852cqw);font-weight:500;font-style:normal;color:#8A6F55;margin-top:0.15em">2026</span></span></div>
+    <div class="blk" data-block="shape" data-bounds="0.0800,0.6750,0.5000,0.0060" data-shape="line" style="position:absolute;left:8.000%;top:67.500%;width:50.000%;height:0.600%;opacity:1;border-top:2px solid #C1562D;height:0;"></div>
+    <div class="blk cal-grid minimal" data-cal data-mini="true" data-block="calendarGrid" data-bounds="0.0800,0.7000,0.8400,0.2350" data-year="2026" data-month="9" data-holidays="4,19" data-events="12" style="left:8.000%;top:70.000%;width:84.000%;height:23.500%;--ink:#3B2A1E;--muted:#8A6F55;--weekend:#C1562D;--holiday:#C1562D;--sabbath:#C1562D;--accent:#E0A83E;--line:#E3CBA0;--cell-fs:calc(3.8400cqw);--head-fs:calc(2.6400cqw);--cell-sub-fs:calc(1.6800cqw);font-family:'Inter','Noto Sans Myanmar',sans-serif"><div class="cal-head"></div><div class="cal-body"></div></div>
+    <div class="blk blk-text ha-start va-center" data-block="holidayLegend" data-bounds="0.0800,0.9500,0.8400,0.0300" style="left:8.000%;top:95.000%;width:84.000%;height:3.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-size:calc(1.1111cqw);font-weight:400;color:#8A6F55"><span>အများပြည်သူ ပိတ်ရက် Public holiday   ·   လပြည့် Full moon   ·   လကွယ် New moon   ·   ဥပုသ် Sabbath   ·   Events</span></div>
+      </div>
+      <script type="application/json" class="spec">
+{
+  "id": "retro",
+  "name": "Sunbeam '74",
+  "category": "social",
+  "referenceMonth": {
+    "year": 2026,
+    "month": 9
+  },
+  "canvas": {
+    "preset": "square",
+    "width": 1080,
+    "height": 1080
+  },
+  "theme": {
+    "paper": "#F2E6D3",
+    "primary": "#C1562D",
+    "accent": "#E0A83E",
+    "ink": "#3B2A1E",
+    "inkMuted": "#8A6F55",
+    "line": "#E3CBA0",
+    "holiday": "#C1562D"
+  },
+  "fonts": {
+    "display": "Fraunces",
+    "ui": "Inter"
+  },
+  "blocks": [
+    {
+      "type": "decoration",
+      "motif": "sunRays",
+      "newMotif": true,
+      "bounds": [
+        -0.05,
+        -0.05,
+        0.55,
+        0.42
+      ],
+      "color": "accent",
+      "opacity": 0.9
+    },
+    {
+      "type": "text",
+      "binding": "monthTitle",
+      "bounds": [
+        0.08,
+        0.44,
+        0.7,
+        0.15
+      ],
+      "style": {
+        "fontFamily": "Fraunces",
+        "fontSize": 84,
+        "weight": 700,
+        "fontStyle": "italic",
+        "align": "start",
+        "vAlign": "center",
+        "color": "ink"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "yearTitle",
+      "bounds": [
+        0.08,
+        0.6,
+        0.4,
+        0.06
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 28,
+        "weight": 600,
+        "align": "start",
+        "vAlign": "center",
+        "color": "primary"
+      }
+    },
+    {
+      "type": "shape",
+      "shape": "line",
+      "bounds": [
+        0.08,
+        0.675,
+        0.5,
+        0.006
+      ],
+      "stroke": "primary",
+      "strokeWidth": 2
+    },
+    {
+      "type": "calendarGrid",
+      "bounds": [
+        0.08,
+        0.7,
+        0.84,
+        0.235
+      ],
+      "content": {
+        "cellStyle": "minimal",
+        "mini": true
+      },
+      "style": {
+        "textColor": "ink",
+        "mutedColor": "inkMuted",
+        "weekendColor": "primary",
+        "holidayColor": "primary",
+        "headerColor": "accent",
+        "lineColor": "line"
+      }
+    },
+    {
+      "type": "holidayLegend",
+      "bounds": [
+        0.08,
+        0.95,
+        0.84,
+        0.03
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 12,
+        "color": "inkMuted",
+        "align": "start"
+      }
+    }
+  ]
+}
+      </script>
+    </section>
+
+    <section class="preset" data-preset="cafe">
+      <div class="preset-head"><h2>Morning Pour</h2><span>cafe · a4_landscape</span></div>
+      <p class="preset-desc">A coffee-brown side panel with steam rising off the corner, the day grid doing the quiet work on warm cream. The desk companion for a slower morning.</p>
+      <div class="canvas" data-ar="a4l" style="--paper:#F5EDE1">
+    <div class="blk" data-block="shape" data-bounds="0.0000,0.0000,0.2800,1.0000" data-shape="rect" style="position:absolute;left:0.000%;top:0.000%;width:28.000%;height:100.000%;opacity:1;background:#5C3D2E;"></div>
+    <div class="blk deco" data-motif="steamCurl" data-new-motif="true" data-block="decoration" data-bounds="0.0400,0.0450,0.1800,0.2200" style="left:4.000%;top:4.500%;width:18.000%;height:22.000%;opacity:0.85;--motif-color:#C08552"><svg viewBox="0 0 100 130" preserveAspectRatio="xMidYMid meet"><path d="M30 120 C 20 95, 40 80, 30 60 C 20 40, 40 25, 30 5" fill="none" stroke="var(--motif-color)" stroke-width="2.4" stroke-linecap="round" opacity="0.95"/><path d="M60 120 C 52 95, 68 80, 60 60 C 52 40, 68 25, 60 5" fill="none" stroke="var(--motif-color)" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/></svg></div>
+    <div class="blk blk-text ha-start va-top" data-binding="monthTitle" data-block="text" data-bounds="0.0400,0.3200,0.2100,0.1400" style="left:4.000%;top:32.000%;width:21.000%;height:14.000%;font-family:'Petrona',Georgia,serif;font-weight:500;font-style:normal;line-height:1.15;color:#F5EDE1"><span style="display:flex;flex-direction:column"><span style="font-size:calc(3.0883cqw)">စက်တင်ဘာ</span><span style="display:block;font-size:calc(1.1735cqw);font-weight:500;font-style:normal;color:#8A7362;margin-top:0.15em">September</span></span></div>
+    <div class="blk blk-text ha-start va-top" data-binding="yearTitle" data-block="text" data-bounds="0.0400,0.4600,0.2100,0.0600" style="left:4.000%;top:46.000%;width:21.000%;height:6.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-weight:600;font-style:normal;line-height:1.15;color:#C08552"><span style="display:flex;flex-direction:column"><span style="font-size:calc(2.1380cqw)">၂၀၂၆</span><span style="display:block;font-size:calc(0.8125cqw);font-weight:500;font-style:normal;color:#8A7362;margin-top:0.15em">2026</span></span></div>
+    <div class="blk evlist" data-block="eventList" data-bounds="0.0400,0.5400,0.2100,0.4000" style="left:4.000%;top:54.000%;width:21.000%;height:40.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;color:#F5EDE1"><div class="ev-title" style="font-size:calc(1.3660cqw);font-weight:700">Today’s brew</div><div style="font-size:calc(1.1284cqw);line-height:1.7;margin-top:4px"><div class="ev-row">4 — Grandma visits</div><div class="ev-row">12 — Dentist</div><div class="ev-row">19 — Movie night</div></div></div>
+    <div class="blk cal-grid lined" data-cal data-mini="false" data-block="calendarGrid" data-bounds="0.3200,0.0900,0.6400,0.7200" data-year="2026" data-month="9" data-holidays="4,19" data-events="12" style="left:32.000%;top:9.000%;width:64.000%;height:72.000%;--ink:#2E1D16;--muted:#8A7362;--weekend:#C08552;--holiday:#5C3D2E;--sabbath:#5C3D2E;--accent:#5C3D2E;--line:#E3D5C4;--cell-fs:calc(2.9257cqw);--head-fs:calc(2.0114cqw);--cell-sub-fs:calc(1.2800cqw);font-family:'Inter','Noto Sans Myanmar',sans-serif"><div class="cal-head"></div><div class="cal-body"></div></div>
+    <div class="blk blk-text ha-start va-center" data-block="holidayLegend" data-bounds="0.3200,0.8650,0.6400,0.0500" style="left:32.000%;top:86.500%;width:64.000%;height:5.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-size:calc(1.1878cqw);font-weight:400;color:#8A7362"><span>အများပြည်သူ ပိတ်ရက် Public holiday   ·   လပြည့် Full moon   ·   လကွယ် New moon   ·   ဥပုသ် Sabbath   ·   Events</span></div>
+      </div>
+      <script type="application/json" class="spec">
+{
+  "id": "cafe",
+  "name": "Morning Pour",
+  "category": "desk",
+  "referenceMonth": {
+    "year": 2026,
+    "month": 9
+  },
+  "canvas": {
+    "preset": "a4_landscape",
+    "width": 841.89,
+    "height": 595.28
+  },
+  "theme": {
+    "paper": "#F5EDE1",
+    "primary": "#5C3D2E",
+    "accent": "#C08552",
+    "onPrimary": "#F5EDE1",
+    "ink": "#2E1D16",
+    "inkMuted": "#8A7362",
+    "line": "#E3D5C4",
+    "holiday": "#5C3D2E"
+  },
+  "fonts": {
+    "display": "Petrona",
+    "ui": "Nunito Sans"
+  },
+  "blocks": [
+    {
+      "type": "shape",
+      "shape": "rect",
+      "bounds": [
+        0,
+        0,
+        0.28,
+        1
+      ],
+      "fill": "primary"
+    },
+    {
+      "type": "decoration",
+      "motif": "steamCurl",
+      "newMotif": true,
+      "bounds": [
+        0.04,
+        0.045,
+        0.18,
+        0.22
+      ],
+      "color": "accent",
+      "opacity": 0.85
+    },
+    {
+      "type": "text",
+      "binding": "monthTitle",
+      "bounds": [
+        0.04,
+        0.32,
+        0.21,
+        0.14
+      ],
+      "style": {
+        "fontFamily": "Petrona",
+        "fontSize": 26,
+        "weight": 500,
+        "align": "start",
+        "vAlign": "top",
+        "color": "onPrimary"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "yearTitle",
+      "bounds": [
+        0.04,
+        0.46,
+        0.21,
+        0.06
+      ],
+      "style": {
+        "fontFamily": "Nunito Sans",
+        "fontSize": 18,
+        "weight": 600,
+        "align": "start",
+        "vAlign": "top",
+        "color": "accent"
+      }
+    },
+    {
+      "type": "eventList",
+      "bounds": [
+        0.04,
+        0.54,
+        0.21,
+        0.4
+      ],
+      "title": "Today\u2019s brew",
+      "style": {
+        "fontFamily": "Nunito Sans",
+        "fontSize": 9.5,
+        "color": "onPrimary"
+      }
+    },
+    {
+      "type": "calendarGrid",
+      "bounds": [
+        0.32,
+        0.09,
+        0.64,
+        0.72
+      ],
+      "content": {
+        "cellStyle": "lined"
+      },
+      "style": {
+        "textColor": "ink",
+        "mutedColor": "inkMuted",
+        "weekendColor": "accent",
+        "holidayColor": "primary",
+        "headerColor": "primary",
+        "lineColor": "line"
+      }
+    },
+    {
+      "type": "holidayLegend",
+      "bounds": [
+        0.32,
+        0.865,
+        0.64,
+        0.05
+      ],
+      "style": {
+        "fontFamily": "Nunito Sans",
+        "fontSize": 10,
+        "color": "inkMuted",
+        "align": "start"
+      }
+    }
+  ]
+}
+      </script>
+    </section>
+
+    <section class="preset" data-preset="travel">
+      <div class="preset-head"><h2>Compass Line</h2><span>travel · a3_portrait</span></div>
+      <p class="preset-desc">A travel-poster year number anchored by a compass rose and a passport-stamp ring — wanderlust without a single depicted landmark or flag, so it travels well across markets.</p>
+      <div class="canvas" data-ar="a3p" style="--paper:#EFE6D3">
+    <div class="blk deco" data-motif="compassStar" data-new-motif="true" data-block="decoration" data-bounds="0.4200,0.0450,0.1600,0.0900" style="left:42.000%;top:4.500%;width:16.000%;height:9.000%;opacity:0.95;--motif-color:#1F5C5A"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><polygon points="50.0,4.0 61.3,38.7 96.0,50.0 61.3,61.3 50.0,96.0 38.7,61.3 4.0,50.0 38.7,38.7" fill="none" stroke="var(--motif-color)" stroke-width="2.4"/><circle cx="50" cy="50" r="3.4" fill="var(--motif-color)"/></svg></div>
+    <div class="blk blk-text ha-center va-center" data-binding="yearTitle" data-block="text" data-bounds="0.1000,0.1500,0.8000,0.1200" style="left:10.000%;top:15.000%;width:80.000%;height:12.000%;font-family:'Bitter',Georgia,serif;font-weight:600;font-style:normal;line-height:1.15;color:#1F5C5A"><span style="display:flex;flex-direction:column"><span style="font-size:calc(10.4527cqw)">၂၀၂၆</span><span style="display:block;font-size:calc(3.9720cqw);font-weight:500;font-style:normal;color:#7C7262;margin-top:0.15em">2026</span></span></div>
+    <div class="blk blk-text ha-center va-center" data-binding="monthTitle" data-block="text" data-bounds="0.1000,0.2650,0.8000,0.0500" style="left:10.000%;top:26.500%;width:80.000%;height:5.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-weight:500;font-style:normal;line-height:1.15;color:#C1562D"><span style="display:flex;flex-direction:column"><span style="font-size:calc(2.8507cqw)">စက်တင်ဘာ</span><span style="display:block;font-size:calc(1.0833cqw);font-weight:500;font-style:normal;color:#7C7262;margin-top:0.15em">September</span></span></div>
+    <div class="blk" data-block="shape" data-bounds="0.3200,0.3250,0.3600,0.0015" data-shape="line" style="position:absolute;left:32.000%;top:32.500%;width:36.000%;height:0.150%;opacity:1;border-top:1.2px solid #D9CBA8;height:0;"></div>
+    <div class="blk cal-grid boxed" data-cal data-mini="false" data-block="calendarGrid" data-bounds="0.1400,0.3550,0.7200,0.5000" data-year="2026" data-month="9" data-holidays="4,19" data-events="12" style="left:14.000%;top:35.500%;width:72.000%;height:50.000%;--ink:#2B2420;--muted:#7C7262;--weekend:#C1562D;--holiday:#C1562D;--sabbath:#1F5C5A;--accent:#1F5C5A;--line:#D9CBA8;--cell-fs:calc(3.2914cqw);--head-fs:calc(2.2629cqw);--cell-sub-fs:calc(1.4400cqw);font-family:'Inter','Noto Sans Myanmar',sans-serif"><div class="cal-head"></div><div class="cal-body"></div></div>
+    <div class="blk" data-block="shape" data-bounds="0.7600,0.8600,0.1400,0.0850" data-shape="ellipse" style="position:absolute;left:76.000%;top:86.000%;width:14.000%;height:8.500%;opacity:0.8;background:transparent;border:2px solid #1F5C5A;box-sizing:border-box;border-radius:50%;"></div>
+    <div class="blk blk-text ha-center va-center" data-block="holidayLegend" data-bounds="0.1400,0.8850,0.7200,0.0300" style="left:14.000%;top:88.500%;width:72.000%;height:3.000%;font-family:'Inter','Noto Sans Myanmar',sans-serif;font-size:calc(1.3066cqw);font-weight:400;color:#7C7262"><span>အများပြည်သူ ပိတ်ရက် Public holiday   ·   လပြည့် Full moon   ·   လကွယ် New moon   ·   ဥပုသ် Sabbath   ·   Events</span></div>
+      </div>
+      <script type="application/json" class="spec">
+{
+  "id": "travel",
+  "name": "Compass Line",
+  "category": "annual",
+  "referenceMonth": {
+    "year": 2026,
+    "month": 9
+  },
+  "canvas": {
+    "preset": "a3_portrait",
+    "width": 841.89,
+    "height": 1190.55
+  },
+  "theme": {
+    "paper": "#EFE6D3",
+    "primary": "#1F5C5A",
+    "accent": "#C1562D",
+    "ink": "#2B2420",
+    "inkMuted": "#7C7262",
+    "line": "#D9CBA8",
+    "holiday": "#C1562D"
+  },
+  "fonts": {
+    "display": "Bitter",
+    "ui": "Inter"
+  },
+  "blocks": [
+    {
+      "type": "decoration",
+      "motif": "compassStar",
+      "newMotif": true,
+      "bounds": [
+        0.42,
+        0.045,
+        0.16,
+        0.09
+      ],
+      "color": "primary",
+      "opacity": 0.95
+    },
+    {
+      "type": "text",
+      "binding": "yearTitle",
+      "bounds": [
+        0.1,
+        0.15,
+        0.8,
+        0.12
+      ],
+      "style": {
+        "fontFamily": "Bitter",
+        "fontSize": 88,
+        "weight": 600,
+        "align": "center",
+        "vAlign": "center",
+        "color": "primary"
+      }
+    },
+    {
+      "type": "text",
+      "binding": "monthTitle",
+      "bounds": [
+        0.1,
+        0.265,
+        0.8,
+        0.05
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 24,
+        "weight": 500,
+        "align": "center",
+        "vAlign": "center",
+        "color": "accent"
+      }
+    },
+    {
+      "type": "shape",
+      "shape": "line",
+      "bounds": [
+        0.32,
+        0.325,
+        0.36,
+        0.0015
+      ],
+      "stroke": "line",
+      "strokeWidth": 1.2
+    },
+    {
+      "type": "calendarGrid",
+      "bounds": [
+        0.14,
+        0.355,
+        0.72,
+        0.5
+      ],
+      "content": {
+        "cellStyle": "boxed"
+      },
+      "style": {
+        "textColor": "ink",
+        "mutedColor": "inkMuted",
+        "weekendColor": "accent",
+        "holidayColor": "accent",
+        "headerColor": "primary",
+        "lineColor": "line"
+      }
+    },
+    {
+      "type": "shape",
+      "shape": "ellipse",
+      "bounds": [
+        0.76,
+        0.86,
+        0.14,
+        0.085
+      ],
+      "stroke": "primary",
+      "strokeWidth": 2,
+      "opacity": 0.8
+    },
+    {
+      "type": "holidayLegend",
+      "bounds": [
+        0.14,
+        0.885,
+        0.72,
+        0.03
+      ],
+      "style": {
+        "fontFamily": "Inter",
+        "fontSize": 11,
+        "color": "inkMuted",
+        "align": "center"
+      }
+    }
+  ]
+}
+      </script>
+    </section>  </div>
+</div>
+
+<style>
+/* ---------- decoration / image / event-list chrome (shared) ---------- */
+.deco{display:flex;align-items:center;justify-content:center;pointer-events:none}
+.deco svg{width:100%;height:100%;overflow:visible}
+.img-blk{overflow:hidden;background:#00000014}
+.img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:#00000055;font-family:'Inter',sans-serif;letter-spacing:.02em;
+  background:repeating-linear-gradient(135deg,#00000008 0 10px,#00000000 10px 20px)}
+.evlist{overflow:hidden}
+.ev-row{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+
+<script>
+(function(){
+  // Sunday-first, matching the preview's default firstWeekday. Myanmar short
+  // forms from MyanmarText.weekdayShort (Monday-indexed in the Dart source),
+  // reordered to start on Sunday.
+  var MY_WD = ['နွေ', 'လာ', 'ဂါ', 'ဟူး', 'ကြာ', 'သော', 'နေ'];
+  var EN_WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // Illustrative Myanmar lunar-month mapping for a 30-day Gregorian month:
+  // waxing 1-15 (15 = full moon), waning 1-15 (final day = new moon). Real
+  // Myanmar months don't line up 1:1 with Gregorian ones \u2014 this is a
+  // stand-in for demonstrating the UI, the same way the rest of this card's
+  // data (holidays, events) is illustrative rather than computed.
+  var FULL = 'လပြည့်', NEWMOON = 'လကွယ်', SABBATH = 'ဥပုသ်';
+
+  // Only the days that matter get a lunar label \u2014 full moon, new moon,
+  // sabbath \u2014 same convention as a printed Myanmar wall calendar. Showing
+  // a waxing/waning count under every single day crowded every cell and, on
+  // narrow screens, ran text into the next one; this keeps every label short
+  // and fixed-length instead.
+  function myanmarDayInfo(day){
+    if (day === 15) return {label: FULL, phase:'full'};
+    if (day === 30) return {label: NEWMOON, phase:'new'};
+    if ([8,15,23,30].indexOf(day) !== -1) return {label: SABBATH, phase:'sabbath'};
+    return {label: '', phase:'none'};
+  }
+  function isSabbath(day){ return [8,15,23,30].indexOf(day) !== -1; }
+
+  document.querySelectorAll('[data-cal]').forEach(function(grid){
+    var year = +grid.dataset.year, month = +grid.dataset.month;
+    var holidays = (grid.dataset.holidays||'').split(',').filter(Boolean).map(Number);
+    var events = (grid.dataset.events||'').split(',').filter(Boolean).map(Number);
+    var mini = grid.dataset.mini === 'true';
+    var first = new Date(year, month-1, 1).getDay(); // 0=Sun
+    var days = new Date(year, month, 0).getDate();
+
+    var head = grid.querySelector('.cal-head');
+    for (var w=0; w<7; w++){
+      var cell = document.createElement('div');
+      var my = document.createElement('span'); my.className='my'; my.textContent = MY_WD[w];
+      var en = document.createElement('span'); en.className='en'; en.textContent = EN_WD[w];
+      cell.appendChild(my); cell.appendChild(en);
+      head.appendChild(cell);
+    }
+
+    var body = grid.querySelector('.cal-body');
+    var total = Math.ceil((first + days) / 7) * 7;
+    for (var i=0;i<total;i++){
+      var c = document.createElement('div');
+      c.className = 'cal-cell';
+      var dayNum = i - first + 1;
+      if (dayNum < 1 || dayNum > days){
+        c.classList.add('is-blank');
+      } else {
+        var dow = (first + dayNum - 1) % 7;
+        var info = myanmarDayInfo(dayNum);
+        if (dow===0 || dow===6) c.classList.add('is-weekend');
+        if (holidays.indexOf(dayNum)!==-1) c.classList.add('is-holiday');
+        if (isSabbath(dayNum)) c.classList.add('is-sabbath');
+        if (info.phase==='full') c.classList.add('is-fullmoon');
+        if (info.phase==='new') c.classList.add('is-newmoon');
+        var b = document.createElement('b'); b.textContent = dayNum; c.appendChild(b);
+        if (!mini && info.label){
+          var sub = document.createElement('div'); sub.className='my-sub'; sub.textContent = info.label;
+          c.appendChild(sub);
+        }
+        if (events.indexOf(dayNum)!==-1){ var dot=document.createElement('div'); dot.className='dot'; c.appendChild(dot); }
+      }
+      body.appendChild(c);
+    }
+  });
+})();
+</script>
+</body>
+</html>
