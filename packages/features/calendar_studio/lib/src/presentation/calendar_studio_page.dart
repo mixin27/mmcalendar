@@ -554,7 +554,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       for (final item in remaining)
         for (final page in item.pages)
           for (final block in page.blocks)
-            if (block.content['assetId'] case final String id) id,
+            for (final key in const ['assetId', 'originalAssetId'])
+              if (block.content[key] case final String id) id,
     };
     await _assets?.deleteUnusedAssets(usedAssets);
     await _load();
@@ -1905,6 +1906,33 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             child: const Text('Replace'),
           ),
         ),
+        if (widget.configuration.imageEditor != null &&
+            block.content['assetId'] != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    key: const ValueKey('calendar-studio-edit-image'),
+                    onPressed: () => _editImage(block),
+                    icon: const Icon(Icons.auto_fix_high_outlined),
+                    label: const Text('Edit image'),
+                  ),
+                ),
+                if (block.content['originalAssetId'] != null) ...[
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _revertImage(block),
+                      icon: const Icon(Icons.restore),
+                      label: const Text('Revert to original'),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -3349,8 +3377,121 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       (value) => value.id == replace.id,
     );
     controller.updateBlock(
-      block.copyWith(content: {...block.content, ...assetContent}),
+      block.copyWith(
+        content: {
+          for (final entry in block.content.entries)
+            if (!_editKeys.contains(entry.key)) entry.key: entry.value,
+          ...assetContent,
+        },
+      ),
     );
+  }
+
+  /// Content keys that tie an image block to an editor session.
+  static const _editKeys = {'originalAssetId', 'editorState'};
+
+  Future<void> _editImage(CalendarStudioBlock block) async {
+    final editor = widget.configuration.imageEditor;
+    final store = _assets;
+    final originalId =
+        block.content['originalAssetId'] as String? ??
+        block.content['assetId'] as String?;
+    if (editor == null || store == null || originalId == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final raw = await store.loadBytes(originalId);
+    if (raw == null || raw.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text("The original image couldn't be found.")),
+      );
+      return;
+    }
+    if (!mounted) return;
+    final original = raw is Uint8List ? raw : Uint8List.fromList(raw);
+    final edited = await editor.edit(
+      context,
+      original: original,
+      editorState: block.content['editorState'] as String?,
+      maxDimension: CalendarStudioImageImport.maxDimension,
+    );
+    if (edited == null) return;
+    final CalendarStudioAsset asset;
+    try {
+      final name = block.content['assetName'] as String? ?? 'image';
+      final prepared = await CalendarStudioImageImport.prepare(
+        CalendarStudioPickedImage(
+          name: _editedName(
+            name,
+            CalendarStudioImageImport.mayHaveAlpha(edited.bytes),
+          ),
+          bytes: edited.bytes,
+        ),
+      );
+      asset = await store.importAsset(
+        CalendarStudioAssetInput(
+          name: prepared.name,
+          bytes: prepared.bytes,
+          width: prepared.width,
+          height: prepared.height,
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text("Couldn't save the edited image.")),
+      );
+      return;
+    }
+    if (!mounted) return;
+    // The block may have moved or changed while the editor was open.
+    final current = controller.currentPage.blocks
+        .where((value) => value.id == block.id)
+        .firstOrNull;
+    if (current == null) return;
+    controller.updateBlock(
+      current.copyWith(
+        content: {
+          for (final entry in current.content.entries)
+            if (!_editKeys.contains(entry.key)) entry.key: entry.value,
+          'originalAssetId': originalId,
+          'assetId': asset.id,
+          'pixelWidth': asset.width,
+          'pixelHeight': asset.height,
+          'editorState': ?edited.editorState,
+        },
+      ),
+    );
+  }
+
+  Future<void> _revertImage(CalendarStudioBlock block) async {
+    final originalId = block.content['originalAssetId'] as String?;
+    if (originalId == null) return;
+    final original = await _assets?.load(originalId);
+    final current = controller.currentPage.blocks
+        .where((value) => value.id == block.id)
+        .firstOrNull;
+    if (current == null) return;
+    controller.updateBlock(
+      current.copyWith(
+        content: {
+          for (final entry in current.content.entries)
+            if (!_editKeys.contains(entry.key)) entry.key: entry.value,
+          'assetId': originalId,
+          if (original != null) ...{
+            'assetName': original.name,
+            'pixelWidth': original.width,
+            'pixelHeight': original.height,
+          },
+        },
+      ),
+    );
+  }
+
+  static String _editedName(String name, bool png) {
+    final dot = name.lastIndexOf('.');
+    final base = (dot > 0 ? name.substring(0, dot) : name).replaceFirst(
+      RegExp(r' \(edited\)$'),
+      '',
+    );
+    return '$base (edited).${png ? 'png' : 'jpg'}';
   }
 
   Widget _preview(BuildContext context) {

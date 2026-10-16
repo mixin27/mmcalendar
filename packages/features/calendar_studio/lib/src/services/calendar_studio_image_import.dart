@@ -84,7 +84,7 @@ abstract final class CalendarStudioImageImport {
       if (rgba == null) {
         throw CalendarStudioUnsupportedImageException(image.name);
       }
-      final keepAlpha = _mayHaveAlpha(image.bytes);
+      final keepAlpha = mayHaveAlpha(image.bytes);
       final encoded = await compute(
         _encode,
         _EncodeRequest(
@@ -108,7 +108,7 @@ abstract final class CalendarStudioImageImport {
   }
 
   /// PNG, WebP and GIF can carry transparency (logos); keep it lossless.
-  static bool _mayHaveAlpha(Uint8List bytes) {
+  static bool mayHaveAlpha(Uint8List bytes) {
     bool startsWith(List<int> signature, [int offset = 0]) {
       if (bytes.length < offset + signature.length) return false;
       for (var i = 0; i < signature.length; i++) {

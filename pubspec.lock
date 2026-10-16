@@ -1261,6 +1261,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.15.0"
+  pro_image_editor:
+    dependency: transitive
+    description:
+      name: pro_image_editor
+      sha256: "8c45ad194f9ac00cd05469078bb9de85faa848e3a59dc4277b681b41a2d23d08"
+      url: "https://pub.dev"
+    source: hosted
+    version: "14.14.2"
   process:
     dependency: transitive
     description:

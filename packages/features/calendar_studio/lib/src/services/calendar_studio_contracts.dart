@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:flutter/widgets.dart' show BuildContext;
+
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
 import '../theme/calendar_studio_theme.dart';
@@ -113,6 +115,27 @@ abstract interface class CalendarStudioImagePicker {
   });
 }
 
+class CalendarStudioEditedImage {
+  const CalendarStudioEditedImage({required this.bytes, this.editorState});
+  final Uint8List bytes;
+
+  /// Opaque, re-applicable edit history. Studio stores it on the block and
+  /// passes it back with the original bytes so edits stay non-destructive.
+  final String? editorState;
+}
+
+/// Optional rich image editing (crop, filters, adjustments) supplied by the
+/// host, e.g. backed by `pro_image_editor`.
+abstract interface class CalendarStudioImageEditor {
+  /// Opens the editor over [original]. Returns null when the user cancels.
+  Future<CalendarStudioEditedImage?> edit(
+    BuildContext context, {
+    required Uint8List original,
+    String? editorState,
+    required int maxDimension,
+  });
+}
+
 abstract interface class CalendarStudioExportDelivery {
   Future<void> deliver(
     CalendarStudioExportArtifact artifact, {
@@ -142,6 +165,7 @@ class CalendarStudioConfiguration {
     this.assets,
     this.exportDelivery,
     this.imagePicker,
+    this.imageEditor,
     this.featureName = 'Calendar Studio',
     this.classicImport,
     this.now,
@@ -156,6 +180,9 @@ class CalendarStudioConfiguration {
 
   /// Optional; defaults to a files-only picker.
   final CalendarStudioImagePicker? imagePicker;
+
+  /// Optional; when null the image inspector offers only fit and opacity.
+  final CalendarStudioImageEditor? imageEditor;
   final String featureName;
   final Future<List<CalendarStudioProject>> Function()? classicImport;
   final DateTime Function()? now;

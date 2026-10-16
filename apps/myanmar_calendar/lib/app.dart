@@ -7,6 +7,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
@@ -142,6 +143,9 @@ class _AppContentState extends State<_AppContent> {
           localizationsDelegates: [
             PromoLocalizationsDelegate(),
             ...AppLocalizations.localizationsDelegates,
+            // pro_image_editor (Calendar Studio "Edit image") is built on
+            // material_ui, which needs its own localizations.
+            ...material_ui.GlobalMaterialLocalizations.delegates,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
           locale: locale,
