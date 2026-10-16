@@ -22,24 +22,7 @@ class AppGroup extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (label != null)
-          Padding(
-            padding: EdgeInsets.fromLTRB(16, clear ? 0 : 4, 16, 6),
-            child: Text(
-              clear ? label!.toUpperCase() : label!,
-              style: clear
-                  ? TextStyle(
-                      fontSize: 12.5,
-                      letterSpacing: .4,
-                      color: t.secondaryLabel,
-                    )
-                  : TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: t.accent,
-                    ),
-            ),
-          ),
+        if (label != null) AppGroupLabel(label!),
         Material(
           color: t.surface,
           borderRadius: BorderRadius.circular(t.groupRadius),
@@ -68,6 +51,36 @@ class AppGroup extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// The label above a group or a control: small caps in Clear, an accent
+/// title in Material.
+class AppGroupLabel extends StatelessWidget {
+  const AppGroupLabel(this.label, {super.key});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final clear = t.isClear;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, clear ? 0 : 4, 16, 6),
+      child: Text(
+        clear ? label.toUpperCase() : label,
+        style: clear
+            ? TextStyle(
+                fontSize: 12.5,
+                letterSpacing: .4,
+                color: t.secondaryLabel,
+              )
+            : TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: t.accent,
+              ),
+      ),
     );
   }
 }

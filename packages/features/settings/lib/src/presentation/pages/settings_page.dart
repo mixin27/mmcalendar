@@ -11,7 +11,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:telegram_web/telegram_web.dart';
 
 import '../../di/settings_injection.dart';
-import '../widgets/reset_button.dart';
+import '../widgets/settings_widgets.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -36,183 +36,166 @@ class _SettingsPageState extends State<SettingsPage> {
       ? getIt<TelegramService>().getUserName()
       : null;
 
+  void _open(String path) => GoRouter.of(context).go('/settings/$path');
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    return BlocBuilder<SettingsBloc, SettingsState>(
+      builder: (context, state) {
+        final settings = state is SettingsLoaded ? state.settings : null;
+        final language = settings?.appLanguage ?? 'en';
+        final appLanguageName = language == 'en'
+            ? (l10n?.english ?? 'English')
+            : (l10n?.myanmar ?? 'Myanmar');
+        final useDeviceTimezone = settings?.useDeviceTimezone ?? true;
+        final offset = useDeviceTimezone
+            ? getDeviceTimezoneOffsetHours()
+            : kMyanmarTimezoneOffset;
+        final showWidgets = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: CustomScrollView(
-        slivers: [
-          // Modern App Bar
-          SliverAppBar(
-            expandedHeight: 140,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                l10n?.settings ?? 'Settings',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      context.colorScheme.primaryContainer,
-                      context.colorScheme.primaryContainer.withValues(
-                        alpha: 0.7,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Settings Content
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Inside Telegram, the signed-in user (was an extra bar
-                // above every tab).
-                if (_telegramUserName case final name?)
-                  SettingsListTile(
-                    title: 'Telegram',
-                    trailing: l10n?.telegramUserLabel(name) ?? 'TG: $name',
+        return AppPage(
+          title: l10n?.settings ?? 'Settings',
+          children: [
+            // Inside Telegram: the signed-in user (was an extra bar above
+            // every tab).
+            if (_telegramUserName case final name?)
+              AppGroup(
+                children: [
+                  AppRow(
                     icon: Icons.send_rounded,
-                    onTap: () {},
-                  ),
-                SectionHeader(title: l10n?.general ?? 'General'),
-                BlocBuilder<SettingsBloc, SettingsState>(
-                  builder: (context, state) {
-                    final settings = state is SettingsLoaded
-                        ? state.settings
-                        : null;
-                    final themeMode = settings?.themeMode ?? ThemeMode.system;
-                    return SettingsListTile(
-                      title: l10n?.appearance ?? 'Appearance',
-                      trailing: themeMode.name.capitalize,
-                      icon: Icons.palette_outlined,
-                      onTap: () => GoRouter.of(
-                        context,
-                      ).go('/settings/${RoutePaths.themeSettings}'),
-                    );
-                  },
-                ),
-                BlocBuilder<SettingsBloc, SettingsState>(
-                  builder: (context, state) {
-                    final settings = state is SettingsLoaded
-                        ? state.settings
-                        : null;
-                    final language = settings?.appLanguage ?? 'en';
-                    final appLanguageName = language == 'en'
-                        ? (l10n?.english ?? 'English')
-                        : (l10n?.myanmar ?? 'Myanmar');
-                    final calendarLanguage =
-                        settings?.calendarLanguage.name.capitalize ?? 'English';
-
-                    return SettingsListTile(
-                      title: l10n?.language ?? 'Language',
-                      trailing: '$appLanguageName / $calendarLanguage',
-                      icon: Icons.language_outlined,
-                      onTap: () => GoRouter.of(
-                        context,
-                      ).go('/settings/${RoutePaths.languageSettings}'),
-                    );
-                  },
-                ),
-
-                // Calendar section
-                SectionHeader(title: l10n?.calendar ?? 'Calendar'),
-                BlocBuilder<SettingsBloc, SettingsState>(
-                  builder: (context, state) {
-                    final settings = state is SettingsLoaded
-                        ? state.settings
-                        : null;
-
-                    final useDeviceTimezone =
-                        settings?.useDeviceTimezone ?? true;
-                    final timezoneOffset = useDeviceTimezone
-                        ? getDeviceTimezoneOffsetHours()
-                        : kMyanmarTimezoneOffset;
-                    final timezoneSource = useDeviceTimezone ? 'device' : 'MMT';
-
-                    return SettingsListTile(
-                      title:
-                          l10n?.calendar_configuration ??
-                          'Calendar Configuration',
-                      trailing:
-                          'tz: ${timezoneOffset.toStringAsFixed(1)} ($timezoneSource)',
-                      icon: Icons.edit_calendar,
-                      onTap: () => GoRouter.of(
-                        context,
-                      ).go('/settings/${RoutePaths.calendarConfig}'),
-                    );
-                  },
-                ),
-                SettingsListTile(
-                  title: 'Calendar Studio',
-                  trailing: 'Design and print',
-                  icon: Icons.edit_calendar_outlined,
-                  onTap: () => GoRouter.of(context).push(RoutePaths.studio),
-                ),
-                SettingsListTile(
-                  title: l10n?.display_preferences ?? 'Display Preferences',
-                  trailing: '',
-                  icon: Icons.display_settings_outlined,
-                  onTap: () => GoRouter.of(
-                    context,
-                  ).go('/settings/${RoutePaths.displayPreferences}'),
-                ),
-
-                // Home Screen Widget Section
-                if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) ...[
-                  SectionHeader(title: l10n?.homeWidgets ?? 'Home Widgets'),
-                  SettingsListTile(
-                    title: l10n?.widgetSettings ?? 'Widget Settings',
-                    trailing: '',
-                    icon: Icons.widgets_outlined,
-                    onTap: () => GoRouter.of(
-                      context,
-                    ).go('/settings/${RoutePaths.widgets}'),
+                    iconColor: SettingsIconColors.teal,
+                    title: 'Telegram',
+                    value: l10n?.telegramUserLabel(name) ?? 'TG: $name',
                   ),
                 ],
-
-                SectionHeader(title: l10n?.others ?? 'Others'),
-                SettingsListTile(
-                  title: l10n?.privacyAndData ?? 'Privacy & Data',
-                  trailing: '',
-                  icon: Icons.analytics_outlined,
-                  onTap: () => GoRouter.of(
-                    context,
-                  ).go('/settings/${RoutePaths.privacyAndData}'),
+              ),
+            AppGroup(
+              label: l10n?.general ?? 'General',
+              children: [
+                AppRow(
+                  icon: Icons.palette_outlined,
+                  iconColor: SettingsIconColors.indigo,
+                  title: l10n?.appearance ?? 'Appearance',
+                  value:
+                      (settings?.themeMode ?? ThemeMode.system).name.capitalize,
+                  chevron: true,
+                  onTap: () => _open(RoutePaths.themeSettings),
                 ),
-                SettingsListTile(
-                  title: l10n?.appUpdates ?? 'App Updates',
-                  trailing: '',
-                  icon: Icons.system_update_alt_outlined,
-                  onTap: () => GoRouter.of(
-                    context,
-                  ).go('/settings/${RoutePaths.appUpdate}'),
+                AppRow(
+                  icon: Icons.language_outlined,
+                  iconColor: SettingsIconColors.blue,
+                  title: l10n?.language ?? 'Language',
+                  value: appLanguageName,
+                  chevron: true,
+                  onTap: () => _open(RoutePaths.languageSettings),
                 ),
-                SettingsListTile(
-                  title: l10n?.about ?? 'About',
-                  trailing: '',
-                  icon: Icons.info_outline,
-                  onTap: () =>
-                      GoRouter.of(context).go('/settings/${RoutePaths.about}'),
-                ),
-
-                ResetButton(),
-              ]),
+              ],
             ),
-          ),
-        ],
-      ),
+            AppGroup(
+              label: l10n?.calendar ?? 'Calendar',
+              children: [
+                AppRow(
+                  icon: Icons.event_note_outlined,
+                  iconColor: SettingsIconColors.red,
+                  title:
+                      l10n?.calendar_configuration ?? 'Calendar Configuration',
+                  value: 'UTC${offset >= 0 ? '+' : ''}${_formatOffset(offset)}',
+                  chevron: true,
+                  onTap: () => _open(RoutePaths.calendarConfig),
+                ),
+                AppRow(
+                  icon: Icons.edit_calendar_outlined,
+                  iconColor: SettingsIconColors.purple,
+                  title: 'Calendar Studio',
+                  value: 'Design and print',
+                  chevron: true,
+                  onTap: () => GoRouter.of(context).push(RoutePaths.studio),
+                ),
+                AppRow(
+                  icon: Icons.tune_rounded,
+                  iconColor: SettingsIconColors.green,
+                  title: l10n?.display_preferences ?? 'Display Preferences',
+                  chevron: true,
+                  onTap: () => _open(RoutePaths.displayPreferences),
+                ),
+                if (showWidgets)
+                  AppRow(
+                    icon: Icons.widgets_outlined,
+                    iconColor: SettingsIconColors.orange,
+                    title: l10n?.widgetSettings ?? 'Widget Settings',
+                    chevron: true,
+                    onTap: () => _open(RoutePaths.widgets),
+                  ),
+              ],
+            ),
+            AppGroup(
+              label: l10n?.others ?? 'Others',
+              children: [
+                AppRow(
+                  icon: Icons.shield_outlined,
+                  iconColor: SettingsIconColors.gray,
+                  title: l10n?.privacyAndData ?? 'Privacy & Data',
+                  chevron: true,
+                  onTap: () => _open(RoutePaths.privacyAndData),
+                ),
+                AppRow(
+                  icon: Icons.system_update_alt_outlined,
+                  iconColor: SettingsIconColors.blue,
+                  title: l10n?.appUpdates ?? 'App Updates',
+                  chevron: true,
+                  onTap: () => _open(RoutePaths.appUpdate),
+                ),
+                AppRow(
+                  icon: Icons.info_outline,
+                  iconColor: SettingsIconColors.gray,
+                  title: l10n?.about ?? 'About',
+                  chevron: true,
+                  onTap: () => _open(RoutePaths.about),
+                ),
+              ],
+            ),
+            AppGroup(
+              children: [
+                AppRow(
+                  title: l10n?.resetAllSettings ?? 'Reset All Settings',
+                  tone: AppRowTone.destructive,
+                  onTap: () => _confirmReset(context),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static String _formatOffset(double hours) {
+    final minutes = (hours.abs() * 60).round();
+    final h = minutes ~/ 60, m = minutes % 60;
+    final sign = hours < 0 ? '-' : '';
+    return m == 0 ? '$sign$h' : '$sign$h:${'$m'.padLeft(2, '0')}';
+  }
+
+  Future<void> _confirmReset(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final bloc = context.read<SettingsBloc>();
+    final confirmed = await showAppConfirm(
+      context: context,
+      title: l10n?.resetSettingsQuestion ?? 'Reset Settings?',
+      message:
+          l10n?.resetSettingsConfirmation ??
+          'This will reset all settings to their default values. '
+              'This action cannot be undone.',
+      confirmLabel: l10n?.reset ?? 'Reset',
+      cancelLabel: l10n?.cancel ?? 'Cancel',
+      destructive: true,
+    );
+    if (!confirmed || !context.mounted) return;
+    bloc.add(const ResetAllSettings());
+    context.showToast(
+      l10n?.settingsResetSuccessfully ?? 'Settings reset successfully',
+      kind: AppToastKind.success,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide WidgetState;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/widget_config.dart';
 import '../bloc/widget_bloc.dart';
@@ -17,321 +18,161 @@ class WidgetSettingsPage extends StatefulWidget {
 class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
   WidgetLoaded? _cachedLoadedState;
 
+  void _updateConfig(BuildContext context, WidgetConfig config) =>
+      context.read<WidgetBloc>().add(UpdateWidgetConfig(config));
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home Widget Settings'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<WidgetBloc>().add(const RefreshWidget());
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Widget refresh started...')),
-              );
-            },
-            tooltip: 'Refresh Widget',
+    return BlocConsumer<WidgetBloc, WidgetState>(
+      listener: (context, state) {
+        if (state is WidgetLoaded) _cachedLoadedState = state;
+        if (state is WidgetError) {
+          context.showToast(state.message, kind: AppToastKind.error);
+        } else if (state is WidgetUpdated) {
+          context.showToast(
+            'Widget updated successfully!',
+            kind: AppToastKind.success,
+          );
+        }
+      },
+      builder: (context, state) {
+        final loaded = state is WidgetLoaded ? state : _cachedLoadedState;
+        return AppPage(
+          title: 'Widgets',
+          previousTitle: 'Settings',
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Refresh Widget',
+              onPressed: () {
+                context.read<WidgetBloc>().add(const RefreshWidget());
+                context.showToast('Widget refresh started…');
+              },
+            ),
+          ],
+          children: loaded == null
+              ? [
+                  if (state is WidgetLoading)
+                    const Padding(
+                      padding: EdgeInsets.all(48),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                ]
+              : _groups(context, loaded),
+        );
+      },
+    );
+  }
+
+  List<Widget> _groups(BuildContext context, WidgetLoaded state) {
+    final t = context.tokens;
+    final config = state.config;
+    String yesNo(bool value) => value ? 'Yes' : 'No';
+    return [
+      if (!state.isActive) WidgetAddInstructions(),
+      AppGroup(
+        label: 'Status',
+        children: [
+          AppRow(
+            icon: Icons.widgets_outlined,
+            iconColor: state.isActive ? t.success : t.tertiaryLabel,
+            title: 'Widget Active',
+            value: yesNo(state.isActive),
+          ),
+          AppRow(
+            icon: Icons.schedule,
+            iconColor: state.isScheduled ? t.success : t.tertiaryLabel,
+            title: 'Auto Updates',
+            value: state.isScheduled ? 'On' : 'Off',
+          ),
+          if (state.currentData != null)
+            AppRow(
+              icon: Icons.update,
+              iconColor: const Color(0xFF8E8E93),
+              title: 'Last Updated',
+              value: _formatDateTime(state.currentData!.lastUpdated),
+            ),
+        ],
+      ),
+      AppGroup(
+        label: 'Widget Theme',
+        children: [
+          for (final theme in WidgetTheme.values)
+            AppRow(
+              title: _getThemeName(theme),
+              subtitle: _getThemeDescription(theme),
+              selected: config.theme == theme,
+              onTap: () =>
+                  _updateConfig(context, config.copyWith(theme: theme)),
+            ),
+        ],
+      ),
+      AppGroup(
+        label: 'Display Options',
+        children: [
+          AppRow.toggle(
+            title: 'Show Holidays',
+            subtitle: 'Display public and religious holidays',
+            value: config.showHolidays,
+            onChanged: (v) =>
+                _updateConfig(context, config.copyWith(showHolidays: v)),
+          ),
+          AppRow.toggle(
+            title: 'Show Astrological Info',
+            subtitle: 'Display sabbath, yatyaza, and pyathada',
+            value: config.showAstrology,
+            onChanged: (v) =>
+                _updateConfig(context, config.copyWith(showAstrology: v)),
+          ),
+          AppRow(
+            title: 'Widget Language',
+            subtitle: 'Uses app calendar language automatically',
+            value: _formatLanguageCode(config.language),
           ),
         ],
       ),
-      body: BlocConsumer<WidgetBloc, WidgetState>(
-        listener: (context, state) {
-          if (state is WidgetLoaded) {
-            _cachedLoadedState = state;
-          }
-
-          if (state is WidgetError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
-          } else if (state is WidgetUpdated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Widget updated successfully!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          final loadedState = state is WidgetLoaded
-              ? state
-              : _cachedLoadedState;
-
-          if (loadedState == null && state is WidgetLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (loadedState == null) {
-            return const SizedBox.shrink();
-          }
-
-          return _buildSettingsContent(context, loadedState);
-        },
-      ),
-    );
-  }
-
-  Widget _buildSettingsContent(BuildContext context, WidgetLoaded state) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        if (!state.isActive) WidgetAddInstructions(),
-        _buildStatusSection(context, state),
-        const SizedBox(height: 24),
-        _buildThemeSection(context, state),
-        const SizedBox(height: 24),
-        _buildDisplayOptionsSection(context, state),
-        const SizedBox(height: 24),
-        _buildLanguageInfoSection(context, state),
-        const SizedBox(height: 24),
-        _buildActionsSection(context, state),
-      ],
-    );
-  }
-
-  Widget _buildStatusSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Widget Status',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            _buildStatusRow('Widget Active', state.isActive, Icons.widgets),
-            const Divider(),
-            _buildStatusRow(
-              'Auto Updates Enabled',
-              state.isScheduled,
-              Icons.schedule,
-            ),
-            if (state.currentData != null) ...[
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.update),
-                title: const Text('Last Updated'),
-                subtitle: Text(_formatDateTime(state.currentData!.lastUpdated)),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusRow(String label, bool isActive, IconData icon) {
-    return ListTile(
-      leading: Icon(icon, color: isActive ? Colors.green : Colors.grey),
-      title: Text(label),
-      trailing: Icon(
-        isActive ? Icons.check_circle : Icons.cancel,
-        color: isActive ? Colors.green : Colors.red,
-      ),
-    );
-  }
-
-  Widget _buildThemeSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Widget Theme',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            ...WidgetTheme.values.map((theme) {
-              return RadioGroup(
-                groupValue: state.config.theme,
-                onChanged: (WidgetTheme? value) {
-                  if (value != null) {
-                    final newConfig = state.config.copyWith(theme: value);
-                    context.read<WidgetBloc>().add(
-                      UpdateWidgetConfig(newConfig),
-                    );
-                  }
-                },
-                child: RadioListTile<WidgetTheme>(
-                  title: Text(_getThemeName(theme)),
-                  subtitle: Text(_getThemeDescription(theme)),
-                  value: theme,
-                ),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDisplayOptionsSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Display Options',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: const Text('Show Holidays'),
-              subtitle: const Text('Display public and religious holidays'),
-              value: state.config.showHolidays,
-              onChanged: (value) {
-                final newConfig = state.config.copyWith(showHolidays: value);
-                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-              },
-            ),
-            SwitchListTile(
-              title: const Text('Show Astrological Info'),
-              subtitle: const Text('Display sabbath, yatyaza, and pyathada'),
-              value: state.config.showAstrology,
-              onChanged: (value) {
-                final newConfig = state.config.copyWith(showAstrology: value);
-                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageInfoSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.language_outlined),
-          title: const Text('Widget Language'),
-          subtitle: const Text('Uses app calendar language automatically'),
-          trailing: Text(_formatLanguageCode(state.config.language)),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionsSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Actions', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            if (!state.isScheduled)
-              ElevatedButton.icon(
-                icon: const Icon(Icons.schedule),
-                label: const Text('Enable Auto Updates'),
-                onPressed: () {
-                  context.read<WidgetBloc>().add(const ScheduleWidgetUpdates());
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Auto updates enabled! Widgets will refresh automatically every day.',
-                      ),
-                      backgroundColor: Colors.green,
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                ),
-              )
-            else
-              OutlinedButton.icon(
-                icon: const Icon(Icons.schedule_send),
-                label: const Text('Disable Auto Updates'),
-                onPressed: () {
-                  context.read<WidgetBloc>().add(const CancelWidgetUpdates());
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Auto updates disabled'),
-                      backgroundColor: Colors.orange,
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  foregroundColor: Colors.orange,
-                  side: const BorderSide(color: Colors.orange),
-                ),
-              ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.refresh),
-              label: const Text('Refresh Widget Now'),
-              onPressed: () {
-                context.read<WidgetBloc>().add(const RefreshWidget());
-              },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-              ),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.info_outline),
-              label: const Text('Check Widget Status'),
-              onPressed: () {
-                context.read<WidgetBloc>().add(const CheckWidgetStatus());
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Checking widget status...'),
-                    duration: Duration(seconds: 1),
-                  ),
+      AppGroup(
+        footer: state.isScheduled
+            ? 'Widgets refresh automatically each day.'
+            : 'Enable auto updates to keep widgets current.',
+        children: [
+          if (!state.isScheduled)
+            AppRow(
+              title: 'Enable Auto Updates',
+              tone: AppRowTone.accent,
+              onTap: () {
+                context.read<WidgetBloc>().add(const ScheduleWidgetUpdates());
+                context.showToast(
+                  'Auto updates enabled! Widgets will refresh every day.',
+                  kind: AppToastKind.success,
                 );
               },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-              ),
+            )
+          else
+            AppRow(
+              title: 'Disable Auto Updates',
+              tone: AppRowTone.destructive,
+              onTap: () {
+                context.read<WidgetBloc>().add(const CancelWidgetUpdates());
+                context.showToast('Auto updates disabled');
+              },
             ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, color: Colors.blue, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      state.isScheduled
-                          ? 'Widgets refresh automatically each day'
-                          : 'Enable auto updates to keep widget current',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.blue[800]),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          AppRow(
+            title: 'Refresh Widget Now',
+            tone: AppRowTone.accent,
+            onTap: () => context.read<WidgetBloc>().add(const RefreshWidget()),
+          ),
+          AppRow(
+            title: 'Check Widget Status',
+            tone: AppRowTone.accent,
+            onTap: () {
+              context.read<WidgetBloc>().add(const CheckWidgetStatus());
+              context.showToast('Checking widget status…');
+            },
+          ),
+        ],
       ),
-    );
+    ];
   }
 
   String _formatLanguageCode(String code) {

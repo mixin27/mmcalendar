@@ -8,7 +8,6 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../widgets/settings_widgets.dart';
 import '../widgets/snackbar.dart';
-import '../widgets/state_widgets.dart';
 
 const Map<String, String> _appIconPreviewAssets = <String, String>{
   'default': 'assets/branding/app_icon_1024.png',
@@ -44,205 +43,73 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.palette_outlined,
-                color: Theme.of(context).colorScheme.primary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              l10n?.appearance ?? 'Appearance',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-      body: BlocConsumer<SettingsBloc, SettingsState>(
-        listener: (context, state) {
-          if (state is SettingsError) {
-            showErrorSnackBar(context, state.message);
-          }
-        },
-        builder: (context, state) {
-          if (state is SettingsInitial) {
-            context.read<SettingsBloc>().add(const LoadSettings());
-            return const LoadingView();
-          }
-
-          if (state is SettingsLoading) {
-            return const LoadingView();
-          }
-
-          if (state is SettingsError) {
-            return ErrorView(
-              message: state.message,
-              onRetry: () {
-                context.read<SettingsBloc>().add(const LoadSettings());
-              },
-            );
-          }
-
-          if (state is SettingsLoaded) {
-            return _buildContent(context, state.settings);
-          }
-
-          return const SizedBox.shrink();
-        },
-      ),
+    return SettingsSubPage(
+      title: l10n?.appearance ?? 'Appearance',
+      builder: (context, settings) => _groups(context, settings),
     );
   }
 
-  Widget _buildContent(BuildContext context, AppSettingsEntity settings) {
+  List<Widget> _groups(BuildContext context, AppSettingsEntity settings) {
     final l10n = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      child: Column(
+    final bloc = context.read<SettingsBloc>();
+    return [
+      _AppStylePicker(
+        value: settings.appStyle,
+        onChanged: (style) => bloc.add(ChangeAppStyle(style)),
+      ),
+      _Labelled(
+        label: l10n?.themeMode ?? 'Theme Mode',
+        child: AppSegmented<ThemeMode>(
+          segments: {
+            ThemeMode.light: l10n?.light ?? 'Light',
+            ThemeMode.dark: l10n?.dark ?? 'Dark',
+            ThemeMode.system: l10n?.system ?? 'System',
+          },
+          value: settings.themeMode,
+          onChanged: (mode) => bloc.add(ChangeThemeMode(mode)),
+        ),
+      ),
+      AppGroup(
+        label: l10n?.theme_preset ?? 'Theme Preset',
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: _AppStylePicker(
-              value: settings.appStyle,
-              onChanged: (style) =>
-                  context.read<SettingsBloc>().add(ChangeAppStyle(style)),
+          for (final preset in ThemePresets.getAllPresets())
+            AppRow(
+              leading: _Swatch(color: preset.lightColors.primary),
+              title: preset.id == 'modern'
+                  ? '${preset.name} (default)'
+                  : preset.name,
+              selected: settings.themePreset == preset.id,
+              onTap: () => bloc.add(ChangeThemePreset(preset.id)),
             ),
+          AppRow(
+            leading:
+                settings.themePreset == 'custom' &&
+                    settings.customColors != null
+                ? _Swatch(color: settings.customColors!.primary)
+                : const Icon(Icons.colorize_outlined, size: 20),
+            title: 'Custom colours…',
+            selected: settings.themePreset == 'custom',
+            chevron: true,
+            onTap: () => showCustomColorsEditor(context, settings),
           ),
-          SettingsTile(
-            title: l10n?.themeMode ?? 'Theme Mode',
-            subtitle: _getThemeModeText(settings.themeMode),
-            leading: const Icon(Icons.brightness_6),
-            onTap: () => _showThemeModeDialog(context, settings),
-          ),
-          SettingsTile(
-            title: AppLocalizations.of(context)?.theme_preset ?? 'Theme Preset',
-            subtitle: _getThemePresetName(settings.themePreset),
-            leading: const Icon(Icons.color_lens),
-            onTap: () => _showThemePresetDialog(context, settings),
-          ),
-          SettingsTile(
-            title: 'App Icon',
-            subtitle: _getAppIconName(settings.appIcon),
+        ],
+      ),
+      AppGroup(
+        children: [
+          AppRow(
             leading: _AppIconPreview(
               assetPath: _assetForIcon(settings.appIcon),
               iconSize: 22,
-              borderRadius: 8,
+              borderRadius: 7,
             ),
+            title: 'App Icon',
+            value: _getAppIconName(settings.appIcon),
+            chevron: true,
             onTap: () => _showAppIconDialog(context, settings),
           ),
         ],
       ),
-    );
-  }
-
-  void _showThemeModeDialog(BuildContext context, AppSettingsEntity settings) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => EnhancedDialog(
-        title: l10n?.themeMode ?? 'Theme Mode',
-        icon: Icons.brightness_6,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioOption<ThemeMode>(
-              title: l10n?.light ?? 'Light',
-              subtitle: l10n?.alwaysUseLightTheme ?? 'Always use light theme',
-              icon: Icons.light_mode,
-              value: ThemeMode.light,
-              groupValue: settings.themeMode,
-              onChanged: (value) {
-                context.read<SettingsBloc>().add(ChangeThemeMode(value!));
-                Navigator.pop(dialogContext);
-              },
-            ),
-            RadioOption<ThemeMode>(
-              title: l10n?.dark ?? 'Dark',
-              subtitle: l10n?.alwaysUseDarkTheme ?? 'Always use dark theme',
-              icon: Icons.dark_mode,
-              value: ThemeMode.dark,
-              groupValue: settings.themeMode,
-              onChanged: (value) {
-                context.read<SettingsBloc>().add(ChangeThemeMode(value!));
-                Navigator.pop(dialogContext);
-              },
-            ),
-            RadioOption<ThemeMode>(
-              title: l10n?.system ?? 'System',
-              subtitle: l10n?.matchSystemTheme ?? 'Match system theme',
-              icon: Icons.brightness_auto,
-              value: ThemeMode.system,
-              groupValue: settings.themeMode,
-              onChanged: (value) {
-                context.read<SettingsBloc>().add(ChangeThemeMode(value!));
-                Navigator.pop(dialogContext);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showThemePresetDialog(
-    BuildContext context,
-    AppSettingsEntity settings,
-  ) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => EnhancedDialog(
-        title: AppLocalizations.of(context)?.theme_preset ?? 'Theme Preset',
-        icon: Icons.color_lens,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ...ThemePresets.getAllPresets().map((preset) {
-                return RadioOption<String>(
-                  title: preset.name,
-                  subtitle: '',
-                  icon: Icons.palette,
-                  value: preset.id,
-                  groupValue: settings.themePreset,
-                  onChanged: (value) {
-                    context.read<SettingsBloc>().add(ChangeThemePreset(value!));
-                    Navigator.pop(dialogContext);
-                  },
-                );
-              }),
-
-              // Divider
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Divider(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-              ),
-
-              // Custom colors option
-              CustomColorsOption(
-                isSelected: settings.themePreset == 'custom',
-                customColors: settings.customColors,
-                onTap: () {
-                  Navigator.pop(dialogContext);
-                  showCustomColorsEditor(context, settings);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    ];
   }
 
   Future<void> _showAppIconDialog(
@@ -447,22 +314,6 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
   String? _assetForIcon(String iconId) => _appIconPreviewAssets[iconId];
 
   // Helper methods
-  String _getThemeModeText(ThemeMode mode) {
-    final l10n = AppLocalizations.of(context);
-    switch (mode) {
-      case ThemeMode.light:
-        return l10n?.light ?? 'Light';
-      case ThemeMode.dark:
-        return l10n?.dark ?? 'Dark';
-      default:
-        return l10n?.system ?? 'System';
-    }
-  }
-
-  String _getThemePresetName(String presetId) {
-    if (presetId == "custom") return presetId.capitalize;
-    return ThemePresets.getPreset(presetId).name;
-  }
 
   String _getAppIconName(String iconId) {
     for (final option in _appIconPort.availableIcons) {
@@ -710,15 +561,7 @@ class _AppStylePicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Text(
-            'App style',
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall?.copyWith(color: t.secondaryLabel),
-          ),
-        ),
+        const AppGroupLabel('App style'),
         AppSegmented<AppStyle>(
           segments: const {
             AppStyle.automatic: 'Automatic',
@@ -729,7 +572,7 @@ class _AppStylePicker extends StatelessWidget {
           onChanged: onChanged,
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
           child: Text(
             'Automatic uses Material on Android and Clear on iPhone, iPad, '
             'Mac and web (here: $automatic). Colours and content stay the '
@@ -740,4 +583,32 @@ class _AppStylePicker extends StatelessWidget {
       ],
     );
   }
+}
+
+class _Labelled extends StatelessWidget {
+  const _Labelled({required this.label, required this.child});
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [AppGroupLabel(label), child],
+  );
+}
+
+class _Swatch extends StatelessWidget {
+  const _Swatch({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 18,
+    height: 18,
+    decoration: BoxDecoration(
+      color: color,
+      shape: BoxShape.circle,
+      border: Border.all(color: context.tokens.separator),
+    ),
+  );
 }

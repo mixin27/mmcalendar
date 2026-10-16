@@ -58,5 +58,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  alchemist: ^0.14.1
   build_runner:
   injectable_generator: ^3.1.3

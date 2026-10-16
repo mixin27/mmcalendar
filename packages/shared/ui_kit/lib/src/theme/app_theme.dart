@@ -42,6 +42,8 @@ class AppTheme {
     TextTheme textTheme,
   ) => ThemeData(
     useMaterial3: true,
+    fontFamily: AppTextStyles.qualifiedFamily,
+    fontFamilyFallback: AppTextStyles.qualifiedFallback,
     colorScheme: scheme,
     brightness: scheme.brightness,
     textTheme: textTheme,

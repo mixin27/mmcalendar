@@ -6,8 +6,9 @@ import 'package:shared_core/shared_core.dart';
 
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
-import '../bloc/settings_state.dart';
-import '../widgets/state_widgets.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
+
+import '../widgets/settings_widgets.dart';
 
 /// Settings › Display › Calendar grid: pick how the month looks, with a
 /// live preview of this month in each style.
@@ -34,48 +35,37 @@ class SettingsCalendarGridPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Calendar grid')),
-      body: BlocBuilder<SettingsBloc, SettingsState>(
-        builder: (context, state) {
-          if (state is SettingsInitial) {
-            context.read<SettingsBloc>().add(const LoadSettings());
-          }
-          if (state is! SettingsLoaded) return const LoadingView();
-          final current = state.settings.calendarGridStyle;
-          final month = DateTime.now();
-          final dates = AppDateUtils.getCalendarGridDates(
-            month,
-            firstDayOfWeek: 1,
-          ).map(MyanmarCalendar.getCompleteDate).toList(growable: false);
-
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            children: [
-              for (final (style, title, description) in _choices)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _GridChoice(
-                    title: title,
-                    description: description,
-                    selected: style == current,
-                    preview: _Preview(style: style, month: month, dates: dates),
-                    onTap: () => context.read<SettingsBloc>().add(
-                      ChangeCalendarGridStyle(style),
-                    ),
-                  ),
-                ),
-              Text(
-                'Every style fits the screen: rows take the height that is '
-                'left above the day sheet.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+    return SettingsSubPage(
+      title: 'Calendar grid',
+      previousTitle: 'Display',
+      builder: (context, settings) {
+        final current = settings.calendarGridStyle;
+        final month = DateTime.now();
+        final dates = AppDateUtils.getCalendarGridDates(
+          month,
+          firstDayOfWeek: 1,
+        ).map(MyanmarCalendar.getCompleteDate).toList(growable: false);
+        return [
+          for (final (style, title, description) in _choices)
+            _GridChoice(
+              title: title,
+              description: description,
+              selected: style == current,
+              preview: _Preview(style: style, month: month, dates: dates),
+              onTap: () => context.read<SettingsBloc>().add(
+                ChangeCalendarGridStyle(style),
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          Text(
+            'Every style fits the screen: rows take the height that is '
+            'left above the day sheet.',
+            style: TextStyle(
+              fontSize: 12.5,
+              color: context.tokens.secondaryLabel,
+            ),
+          ),
+        ];
+      },
     );
   }
 }
@@ -97,23 +87,23 @@ class _GridChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final t = context.tokens;
     return Semantics(
       selected: selected,
       button: true,
       label: '$title. $description',
       excludeSemantics: true,
       child: Material(
-        color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
+        color: t.surface,
+        borderRadius: BorderRadius.circular(t.groupRadius),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(t.groupRadius),
               border: Border.all(
-                color: selected ? scheme.primary : Colors.transparent,
+                color: selected ? t.accent : Colors.transparent,
                 width: 2,
               ),
             ),
@@ -136,13 +126,13 @@ class _GridChoice extends StatelessWidget {
                       Text(
                         description,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
+                          color: t.secondaryLabel,
                         ),
                       ),
                     ],
                   ),
                 ),
-                if (selected) Icon(Icons.check_rounded, color: scheme.primary),
+                if (selected) Icon(Icons.check_rounded, color: t.accent),
               ],
             ),
           ),

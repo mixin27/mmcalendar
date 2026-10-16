@@ -5,10 +5,9 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../widgets/settings_widgets.dart';
-import '../widgets/snackbar.dart';
-import '../widgets/state_widgets.dart';
 
 class SettingsLanguagePage extends StatefulWidget {
   const SettingsLanguagePage({super.key});
@@ -31,171 +30,43 @@ class _SettingsLanguagePageState extends State<SettingsLanguagePage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
+    final l10n = AppLocalizations.of(context);
+    return SettingsSubPage(
+      title: l10n?.language ?? 'Language',
+      builder: (context, settings) => [
+        AppGroup(
+          label: l10n?.appLanguage ?? 'App Language',
           children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: colorScheme.secondary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
+            for (final (code, name) in [
+              ('en', l10n?.english ?? 'English'),
+              ('my', 'မြန်မာ'),
+            ])
+              AppRow(
+                title: name,
+                selected: settings.appLanguage == code,
+                onTap: () =>
+                    context.read<SettingsBloc>().add(ChangeAppLanguage(code)),
               ),
-              child: Icon(
-                Icons.language_outlined,
-                color: colorScheme.secondary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              AppLocalizations.of(context)?.language ?? 'Language',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
           ],
         ),
-      ),
-      body: BlocConsumer<SettingsBloc, SettingsState>(
-        listener: (context, state) {
-          if (state is SettingsError) {
-            showErrorSnackBar(context, state.message);
-          }
-        },
-        builder: (context, state) {
-          if (state is SettingsInitial) {
-            context.read<SettingsBloc>().add(const LoadSettings());
-            return const LoadingView();
-          }
-
-          if (state is SettingsLoading) {
-            return const LoadingView();
-          }
-
-          if (state is SettingsError) {
-            return ErrorView(
-              message: state.message,
-              onRetry: () {
-                context.read<SettingsBloc>().add(const LoadSettings());
-              },
-            );
-          }
-
-          if (state is SettingsLoaded) {
-            return _SettingsLanguageContent(settings: state.settings);
-          }
-
-          return const SizedBox.shrink();
-        },
-      ),
-    );
-  }
-}
-
-class _SettingsLanguageContent extends StatelessWidget {
-  const _SettingsLanguageContent({required this.settings});
-
-  final AppSettingsEntity settings;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SettingsTile(
-            title: l10n?.appLanguage ?? 'App Language',
-            subtitle: settings.appLanguage == 'en'
-                ? (l10n?.english ?? 'English')
-                : (l10n?.myanmar ?? 'Myanmar'),
-            leading: const Icon(Icons.translate),
-            onTap: () => _showAppLanguageDialog(context, settings),
-          ),
-          SettingsTile(
-            title: l10n?.calendarLanguage ?? 'Calendar Language',
-            subtitle: settings.calendarLanguage.name.capitalize,
-            leading: const Icon(Icons.calendar_today),
-            onTap: () => _showCalendarLanguageDialog(context, settings),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAppLanguageDialog(
-    BuildContext context,
-    AppSettingsEntity settings,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => EnhancedDialog(
-        title: l10n?.appLanguage ?? 'App Language',
-        icon: Icons.translate,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        AppGroup(
+          label: l10n?.calendarLanguage ?? 'Calendar Language',
+          footer:
+              'Changes month names, lunar days and weekdays across the app.',
           children: [
-            RadioOption<String>(
-              title: l10n?.english ?? 'English',
-              subtitle: l10n?.displayAppInEnglish ?? 'Display app in English',
-              icon: Icons.language,
-              value: 'en',
-              groupValue: settings.appLanguage,
-              onChanged: (value) {
-                context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
-                Navigator.pop(dialogContext);
-              },
-            ),
-            RadioOption<String>(
-              title: l10n?.myanmar ?? 'Myanmar',
-              subtitle: l10n?.displayAppInMyanmar ?? 'Display app in Myanmar',
-              icon: Icons.language,
-              value: 'my',
-              groupValue: settings.appLanguage,
-              onChanged: (value) {
-                context.read<SettingsBloc>().add(ChangeAppLanguage(value!));
-                Navigator.pop(dialogContext);
-              },
-            ),
+            for (final language in Language.values)
+              AppRow(
+                title: language == Language.myanmar
+                    ? 'မြန်မာ'
+                    : language.name.capitalize,
+                selected: settings.calendarLanguage == language,
+                onTap: () => context.read<SettingsBloc>().add(
+                  ChangeCalendarLanguage(language),
+                ),
+              ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showCalendarLanguageDialog(
-    BuildContext context,
-    AppSettingsEntity settings,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => EnhancedDialog(
-        title: l10n?.calendarLanguage ?? 'Calendar Language',
-        icon: Icons.calendar_today,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: Language.values.map((language) {
-              return RadioOption<Language>(
-                title: language.name.capitalize,
-                subtitle:
-                    l10n?.displayCalendarIn(language.name.capitalize) ??
-                    'Display calendar in ${language.name}',
-                icon: Icons.calendar_month,
-                value: language,
-                groupValue: settings.calendarLanguage,
-                onChanged: (value) {
-                  context.read<SettingsBloc>().add(
-                    ChangeCalendarLanguage(value!),
-                  );
-                  Navigator.pop(dialogContext);
-                },
-              );
-            }).toList(),
-          ),
-        ),
-      ),
+      ],
     );
   }
 }

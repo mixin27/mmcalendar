@@ -5,10 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../widgets/settings_widgets.dart';
-import '../widgets/snackbar.dart';
-import '../widgets/state_widgets.dart';
 
 class SettingsDisplayPreferencesPage extends StatefulWidget {
   const SettingsDisplayPreferencesPage({super.key});
@@ -33,190 +32,111 @@ class _SettingsDisplayPreferencesPageState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.display_settings_outlined,
-                color: Theme.of(context).colorScheme.primary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              AppLocalizations.of(context)?.display_preferences ??
-                  'Display Preferences',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-      body: BlocConsumer<SettingsBloc, SettingsState>(
-        listener: (context, state) {
-          if (state is SettingsError) {
-            showErrorSnackBar(context, state.message);
-          }
-        },
-        builder: (context, state) {
-          if (state is SettingsInitial) {
-            context.read<SettingsBloc>().add(const LoadSettings());
-            return const LoadingView();
-          }
-
-          if (state is SettingsLoading) {
-            return const LoadingView();
-          }
-
-          if (state is SettingsError) {
-            return ErrorView(
-              message: state.message,
-              onRetry: () {
-                context.read<SettingsBloc>().add(const LoadSettings());
-              },
-            );
-          }
-
-          if (state is SettingsLoaded) {
-            return _SettingsDisplayPreferencesContent(settings: state.settings);
-          }
-
-          return const SizedBox.shrink();
-        },
-      ),
-    );
-  }
-}
-
-class _SettingsDisplayPreferencesContent extends StatelessWidget {
-  const _SettingsDisplayPreferencesContent({required this.settings});
-
-  final AppSettingsEntity settings;
-
-  @override
-  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SettingsTile(
-            title: 'Calendar grid',
-            subtitle: switch (settings.calendarGridStyle) {
-              CalendarGridStyle.detailed => 'Detailed',
-              CalendarGridStyle.clean => 'Clean',
-              CalendarGridStyle.classic => 'Classic',
-            },
-            leading: const Icon(Icons.grid_view_rounded),
-            onTap: () => GoRouter.of(
-              context,
-            ).push('/settings/${RoutePaths.calendarGrid}'),
+    return SettingsSubPage(
+      title: l10n?.display_preferences ?? 'Display Preferences',
+      builder: (context, settings) {
+        AppRow toggle(
+          String title,
+          String key,
+          bool value,
+          IconData icon,
+          Color color, {
+          String? subtitle,
+        }) => AppRow.toggle(
+          title: title,
+          subtitle: subtitle,
+          icon: icon,
+          iconColor: color,
+          value: value,
+          onChanged: (v) =>
+              context.read<SettingsBloc>().add(ToggleDisplayPreference(key, v)),
+        );
+
+        return [
+          AppGroup(
+            children: [
+              AppRow(
+                icon: Icons.grid_view_rounded,
+                iconColor: SettingsIconColors.blue,
+                title: 'Calendar grid',
+                value: switch (settings.calendarGridStyle) {
+                  CalendarGridStyle.detailed => 'Detailed',
+                  CalendarGridStyle.clean => 'Clean',
+                  CalendarGridStyle.classic => 'Classic',
+                },
+                chevron: true,
+                onTap: () => GoRouter.of(
+                  context,
+                ).push('/settings/${RoutePaths.calendarGrid}'),
+              ),
+            ],
           ),
-          AnimatedSwitchTile(
-            title: l10n?.showHolidays ?? 'Show Holidays',
-            subtitle:
-                l10n?.displayHolidayIndicators ?? 'Display holiday indicators',
-            icon: Icons.public_off,
-            iconColor: Colors.red.shade700,
-            value: settings.showHolidays,
-            onChanged: (value) {
-              context.read<SettingsBloc>().add(
-                ToggleDisplayPreference(StorageKeys.showHolidays, value),
-              );
-            },
+          AppGroup(
+            label: 'Show in calendar',
+            children: [
+              toggle(
+                l10n?.showHolidays ?? 'Show Holidays',
+                StorageKeys.showHolidays,
+                settings.showHolidays,
+                Icons.star_rounded,
+                SettingsIconColors.red,
+              ),
+              toggle(
+                l10n?.showAnniversaryDays ?? 'Show Anniversary Days',
+                StorageKeys.showAnniversaryDays,
+                settings.showAnniversaryDays,
+                Icons.celebration_outlined,
+                SettingsIconColors.teal,
+              ),
+              toggle(
+                l10n?.showSabbath ?? 'Show Sabbath',
+                StorageKeys.showSabbaths,
+                settings.showSabbaths,
+                Icons.temple_buddhist_outlined,
+                SettingsIconColors.amber,
+              ),
+              toggle(
+                l10n?.showAstrology ?? 'Show Astrology',
+                StorageKeys.showAstrology,
+                settings.showAstrology,
+                Icons.auto_awesome_outlined,
+                SettingsIconColors.purple,
+              ),
+            ],
           ),
-          AnimatedSwitchTile(
-            title: l10n?.showAnniversaryDays ?? 'Show Anniversary Days',
-            subtitle:
-                l10n?.displayAnniversaryDaysIndicators ??
-                'Display anniversary days indicators',
-            icon: Icons.celebration,
-            iconColor: Colors.teal.shade700,
-            value: settings.showAnniversaryDays,
-            onChanged: (value) {
-              context.read<SettingsBloc>().add(
-                ToggleDisplayPreference(StorageKeys.showAnniversaryDays, value),
-              );
-            },
-          ),
-          AnimatedSwitchTile(
-            title: l10n?.showSabbath ?? 'Show Sabbath',
-            subtitle:
-                l10n?.displaySabbathIndicators ?? 'Display sabbath indicators',
-            icon: Icons.temple_buddhist,
-            iconColor: Colors.amber.shade700,
-            value: settings.showSabbaths,
-            onChanged: (value) {
-              context.read<SettingsBloc>().add(
-                ToggleDisplayPreference(StorageKeys.showSabbaths, value),
-              );
-            },
-          ),
-          AnimatedSwitchTile(
-            title: l10n?.showAstrology ?? 'Show Astrology',
-            subtitle:
-                l10n?.displayAstrologicalIndicators ??
-                'Display astrological indicators',
-            icon: Icons.star,
-            iconColor: Colors.deepPurple.shade700,
-            value: settings.showAstrology,
-            onChanged: (value) {
-              context.read<SettingsBloc>().add(
-                ToggleDisplayPreference(StorageKeys.showAstrology, value),
-              );
-            },
-          ),
-          AnimatedSwitchTile(
-            title: l10n?.showWesternDates ?? 'Show Western Dates',
-            subtitle:
-                l10n?.displayWesternCalendarDates ??
-                'Display Western calendar dates',
-            icon: Icons.event,
-            value: settings.showWesternDates,
-            useIcon: true,
-            onChanged: (value) {
-              context.read<SettingsBloc>().add(
-                ToggleDisplayPreference(StorageKeys.showWesternDates, value),
-              );
-            },
-          ),
-          AnimatedSwitchTile(
-            title: l10n?.showMyanmarDates ?? 'Show Myanmar Dates',
-            subtitle:
-                l10n?.displayMyanmarCalendarDates ??
-                'Display Myanmar calendar dates',
-            icon: Icons.calendar_month,
-            value: settings.showMyanmarDates,
-            useIcon: true,
-            onChanged: (value) {
-              context.read<SettingsBloc>().add(
-                ToggleDisplayPreference(StorageKeys.showMyanmarDates, value),
-              );
-            },
-          ),
-          AnimatedSwitchTile(
-            title: l10n?.preferShanYear ?? 'Prefer Shan Year',
-            subtitle:
+          AppGroup(
+            label: 'Dates',
+            footer:
                 l10n?.preferShanYearDescription ??
-                'Display Shan calendar year instead of Myanmar year in Shan language',
-            icon: Icons.calendar_month,
-            value: settings.showShanCalendar,
-            useIcon: true,
-            onChanged: (value) {
-              context.read<SettingsBloc>().add(
-                ToggleDisplayPreference(StorageKeys.showShanCalendar, value),
-              );
-            },
+                'Prefer Shan year: show the Shan calendar year instead of '
+                    'the Myanmar year when the calendar language is Shan.',
+            children: [
+              toggle(
+                l10n?.showWesternDates ?? 'Show Western Dates',
+                StorageKeys.showWesternDates,
+                settings.showWesternDates,
+                Icons.event_outlined,
+                SettingsIconColors.blue,
+              ),
+              toggle(
+                l10n?.showMyanmarDates ?? 'Show Myanmar Dates',
+                StorageKeys.showMyanmarDates,
+                settings.showMyanmarDates,
+                Icons.calendar_month_outlined,
+                SettingsIconColors.indigo,
+              ),
+              toggle(
+                l10n?.preferShanYear ?? 'Prefer Shan Year',
+                StorageKeys.showShanCalendar,
+                settings.showShanCalendar,
+                Icons.calendar_view_month_outlined,
+                SettingsIconColors.gray,
+              ),
+            ],
           ),
-        ],
-      ),
+        ];
+      },
     );
   }
 }

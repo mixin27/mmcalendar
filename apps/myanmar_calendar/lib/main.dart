@@ -17,6 +17,7 @@ import 'package:integrations_firebase/integrations_firebase.dart';
 import 'package:promo/promo.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' show AppTextStyles;
 import 'package:workmanager/workmanager.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -43,6 +44,7 @@ void main() async {
     yield LicenseEntryWithLineBreaks(<String>['google_fonts'], license);
   });
   CalendarStudioFontCatalog.registerLicenses();
+  AppTextStyles.registerLicenses();
 
   // Set up Bloc observer
   Bloc.observer = AppBlocObserver();

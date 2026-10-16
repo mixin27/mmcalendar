@@ -16,7 +16,6 @@ dependencies:
   shared_moon:
     path: ../moon
   equatable: ^2.1.0
-  google_fonts: ^8.2.1
   markdown_widget: ^2.3.2+8
   flutter_colorpicker: ^1.1.0
 
@@ -25,3 +24,20 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   alchemist: ^0.14.1
+
+flutter:
+  assets:
+    - assets/fonts/padauk/OFL.txt
+    - assets/fonts/inter/OFL.txt
+  fonts:
+    # Latin text and numbers. One variable file: Flutter maps FontWeight to
+    # its wght axis.
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter/Inter-Variable.ttf
+    # Myanmar text (SIL Padauk), used as Inter's fallback.
+    - family: Padauk
+      fonts:
+        - asset: assets/fonts/padauk/Padauk-Regular.ttf
+        - asset: assets/fonts/padauk/Padauk-Bold.ttf
+          weight: 700
