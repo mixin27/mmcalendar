@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image/image.dart' as image_lib;
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
+import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
 import '../services/calendar_studio_controller.dart';
 import '../services/calendar_studio_export_service.dart';
 import '../services/calendar_studio_preflight.dart';
+import '../services/calendar_studio_transform.dart';
 import '../services/calendar_studio_raster_renderer.dart';
 import '../templates/calendar_studio_templates.dart';
 import '../theme/calendar_studio_theme.dart';
@@ -30,6 +33,29 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   static const _maxCanvasZoom = 4.0;
   late final CalendarStudioController controller;
   late final TransformationController canvasController;
+  late final CalendarStudioDataProvider? _calendarData =
+      switch (widget.configuration.calendarData) {
+        final provider? => CachedCalendarStudioDataProvider(provider),
+        null => null,
+      };
+  late final CalendarStudioAssetStore? _assets =
+      switch (widget.configuration.assets) {
+        final store? => CachedCalendarStudioAssetStore(store),
+        null => null,
+      };
+  final _guides = ValueNotifier<List<StudioGuide>>(const []);
+  late final Listenable _canvasListenable = Listenable.merge([
+    controller.canvasChanges,
+    _guides,
+  ]);
+  double? _lastSnappedRotation;
+  final _editorFocus = FocusNode(debugLabel: 'Calendar Studio editor');
+  var _spacePanning = false;
+  ThemeData? _theme;
+  CalendarStudioTokens? _themeTokens;
+  Brightness? _themeBrightness;
+  final _templatePreviews =
+      <(String, CalendarStudioSource), CalendarStudioProject>{};
   var view = _View.dashboard;
   var projects = <CalendarStudioProject>[];
   var loading = true;
@@ -66,13 +92,42 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   Future<void> _open(CalendarStudioProject project) async {
     await controller.open(project);
+    await _warmCalendar(project);
     setState(() => view = _View.editor);
   }
 
   Future<void> _create(String template) async {
-    await controller.create(template, source);
+    final project = await controller.create(template, source);
+    await _warmCalendar(project);
     await _load();
     setState(() => view = _View.editor);
+  }
+
+  /// Resolves every month the project shows before the editor paints, so
+  /// grids render synchronously from the cache instead of flickering.
+  Future<void> _warmCalendar(CalendarStudioProject project) async {
+    final provider = _calendarData;
+    if (provider is! CachedCalendarStudioDataProvider) return;
+    final requests = <(CalendarStudioSource, int)>{
+      for (final page in project.pages)
+        for (final block in page.blocks)
+          if (block.type == CalendarStudioBlockType.calendarGrid)
+            (
+              project.source.copyWith(
+                year: page.year,
+                month: block.content['month'] as int? ?? page.month,
+              ),
+              block.content['month'] as int? ?? page.month,
+            ),
+    };
+    try {
+      await Future.wait([
+        for (final (source, month) in requests)
+          provider.daysFor(source, month: month),
+      ]);
+    } catch (_) {
+      // Grids fall back to loading on demand.
+    }
   }
 
   List<CalendarStudioProject> get _filteredProjects => projectFilter == 'All'
@@ -85,6 +140,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   void dispose() {
     controller.removeListener(_refresh);
     controller.dispose();
+    _guides.dispose();
+    _editorFocus.dispose();
     canvasController
       ..removeListener(_onCanvasTransformChanged)
       ..dispose();
@@ -109,6 +166,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     if (_canvasPointerCount < 2) return;
     _canvasPinching = true;
     controller.cancelBlockInteraction();
+    _guides.value = const [];
   }
 
   void _canvasPointerFinished(PointerEvent event) {
@@ -124,6 +182,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   void _selectBlock(CalendarStudioBlock? block) {
     controller.select(block?.id);
+    // Canvas taps take keyboard focus back from inspector fields.
+    if (!_editorFocus.hasPrimaryFocus) _editorFocus.requestFocus();
     if (block == null && _inspectorVisible) {
       setState(() => _inspectorVisible = false);
     }
@@ -148,8 +208,15 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     final tokens = brightness == Brightness.dark
         ? widget.configuration.darkTokens
         : widget.configuration.lightTokens;
+    if (_theme == null ||
+        _themeTokens != tokens ||
+        _themeBrightness != brightness) {
+      _themeTokens = tokens;
+      _themeBrightness = brightness;
+      _theme = CalendarStudioTheme.fromTokens(tokens, brightness: brightness);
+    }
     return Theme(
-      data: CalendarStudioTheme.fromTokens(tokens, brightness: brightness),
+      data: _theme!,
       child: Builder(
         builder: (studioContext) => _buildWorkspace(studioContext),
       ),
@@ -172,7 +239,12 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     child: switch (view) {
       _View.dashboard => _dashboard(context),
       _View.templates => _templates(context),
-      _View.editor => _editor(context),
+      _View.editor => Focus(
+        focusNode: _editorFocus,
+        autofocus: true,
+        onKeyEvent: _handleEditorKey,
+        child: _editor(context),
+      ),
       _View.preview => _preview(context),
     },
   );
@@ -283,8 +355,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             child: CalendarStudioScene(
               page: project.pages.first,
               source: project.source,
-              dataProvider: widget.configuration.calendarData,
-              assetStore: widget.configuration.assets,
+              dataProvider: _calendarData,
+              assetStore: _assets,
             ),
           ),
           const SizedBox(width: 14),
@@ -331,8 +403,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                     child: CalendarStudioScene(
                       page: project.pages.first,
                       source: project.source,
-                      dataProvider: widget.configuration.calendarData,
-                      assetStore: widget.configuration.assets,
+                      dataProvider: _calendarData,
+                      assetStore: _assets,
                     ),
                   ),
                 ),
@@ -485,7 +557,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           for (final block in page.blocks)
             if (block.content['assetId'] case final String id) id,
     };
-    await widget.configuration.assets?.deleteUnusedAssets(usedAssets);
+    await _assets?.deleteUnusedAssets(usedAssets);
     await _load();
   }
 
@@ -566,17 +638,20 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   Widget _templatePreview(CalendarStudioTemplate template) {
     final previewSource = source.copyWith(period: CalendarStudioPeriod.month);
-    final preview = template.create(
-      id: 'preview-${template.id}',
-      source: previewSource,
-      now: DateTime(previewSource.year),
+    final preview = _templatePreviews.putIfAbsent(
+      (template.id, previewSource),
+      () => template.create(
+        id: 'preview-${template.id}',
+        source: previewSource,
+        now: DateTime(previewSource.year),
+      ),
     );
     return IgnorePointer(
       child: CalendarStudioScene(
         page: preview.pages.first,
         source: preview.source,
-        dataProvider: widget.configuration.calendarData,
-        assetStore: widget.configuration.assets,
+        dataProvider: _calendarData,
+        assetStore: _assets,
       ),
     );
   }
@@ -1323,7 +1398,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 minScale: _minCanvasZoom,
                 maxScale: _maxCanvasZoom,
                 boundaryMargin: const EdgeInsets.all(240),
-                panEnabled: controller.selectedBlockId == null,
+                panEnabled: controller.selectedBlockId == null || _spacePanning,
                 scaleEnabled: true,
                 trackpadScrollCausesScale: true,
                 child: Center(
@@ -1338,17 +1413,28 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                         onPointerDown: _canvasPointerDown,
                         onPointerUp: _canvasPointerFinished,
                         onPointerCancel: _canvasPointerFinished,
-                        child: CalendarStudioScene(
-                          page: controller.currentPage,
-                          source: project.source,
-                          dataProvider: widget.configuration.calendarData,
-                          assetStore: widget.configuration.assets,
-                          selectedBlockId: controller.selectedBlockId,
-                          showSafeArea: safeArea,
-                          onSelect: _selectBlock,
-                          onTransform: _updateBlockTransform,
-                          onTransformStart: controller.beginBlockInteraction,
-                          onTransformEnd: controller.endBlockInteraction,
+                        // Live drags notify only `canvasChanges`, so this is
+                        // the only subtree that rebuilds per pointer move.
+                        child: RepaintBoundary(
+                          child: ListenableBuilder(
+                            listenable: _canvasListenable,
+                            builder: (context, _) => CalendarStudioScene(
+                              page: controller.currentPage,
+                              source: project.source,
+                              dataProvider: _calendarData,
+                              assetStore: _assets,
+                              selectedBlockId: controller.selectedBlockId,
+                              showSafeArea: safeArea,
+                              onSelect: _selectBlock,
+                              onTransform: _spacePanning
+                                  ? null
+                                  : _updateBlockTransform,
+                              onTransformStart:
+                                  controller.beginBlockInteraction,
+                              onTransformEnd: _endBlockTransform,
+                              guides: _guides.value,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -1877,7 +1963,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             Expanded(
               child: Slider(
                 value: opacity.clamp(0, 1),
-                onChanged: (value) => controller.updateBlock(
+                onChangeStart: (_) => controller.beginBlockInteraction(),
+                onChangeEnd: (_) => controller.endBlockInteraction(),
+                onChanged: (value) => controller.updateBlockLive(
                   block.copyWith(style: {...block.style, 'opacity': value}),
                 ),
               ),
@@ -1921,7 +2009,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 max: 96,
                 divisions: 86,
                 label: size.round().toString(),
-                onChanged: (value) => controller.updateBlock(
+                onChangeStart: (_) => controller.beginBlockInteraction(),
+                onChangeEnd: (_) => controller.endBlockInteraction(),
+                onChanged: (value) => controller.updateBlockLive(
                   block.copyWith(style: {...block.style, 'fontSize': value}),
                 ),
               ),
@@ -2060,7 +2150,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 divisions: 12,
                 value: strokeWidth.clamp(0, 12),
                 label: '${strokeWidth.round()} px',
-                onChanged: (value) => controller.updateBlock(
+                onChangeStart: (_) => controller.beginBlockInteraction(),
+                onChangeEnd: (_) => controller.endBlockInteraction(),
+                onChanged: (value) => controller.updateBlockLive(
                   block.copyWith(style: {...block.style, 'strokeWidth': value}),
                 ),
               ),
@@ -2104,7 +2196,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 divisions: 9,
                 value: opacity.clamp(.1, 1),
                 label: '${(opacity * 100).round()}%',
-                onChanged: (value) => controller.updateBlock(
+                onChangeStart: (_) => controller.beginBlockInteraction(),
+                onChangeEnd: (_) => controller.endBlockInteraction(),
+                onChanged: (value) => controller.updateBlockLive(
                   block.copyWith(style: {...block.style, 'opacity': value}),
                 ),
               ),
@@ -2287,7 +2381,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 divisions: 12,
                 value: rowHeight.clamp(.75, 1.35),
                 label: '${(rowHeight * 100).round()}%',
-                onChanged: (value) => controller.updateBlock(
+                onChangeStart: (_) => controller.beginBlockInteraction(),
+                onChangeEnd: (_) => controller.endBlockInteraction(),
+                onChanged: (value) => controller.updateBlockLive(
                   block.copyWith(style: {...block.style, 'rowHeight': value}),
                 ),
               ),
@@ -2368,8 +2464,10 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                   3.141592653589793,
                 ),
                 label: '${(block.rotation * 180 / 3.141592653589793).round()}°',
+                onChangeStart: (_) => controller.beginBlockInteraction(),
+                onChangeEnd: (_) => controller.endBlockInteraction(),
                 onChanged: (value) =>
-                    controller.updateBlock(block.copyWith(rotation: value)),
+                    controller.updateBlockLive(block.copyWith(rotation: value)),
               ),
             ),
           ],
@@ -2418,21 +2516,132 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   void _updateBlockTransform(CalendarStudioBlock block) {
     if (_canvasPinching) return;
-    if (!snapToGrid) {
-      controller.updateBlockDuringInteraction(block);
-      return;
+    final start = controller.interactionStartBlock(block.id) ?? block;
+    final page = controller.currentPage;
+    var bounds = block.bounds;
+    var rotation = block.rotation;
+    var guides = const <StudioGuide>[];
+    if (rotation != start.rotation) {
+      rotation = CalendarStudioTransform.snapRotation(rotation);
+      if (rotation != block.rotation && rotation != _lastSnappedRotation) {
+        HapticFeedback.selectionClick();
+      }
+      _lastSnappedRotation = rotation != block.rotation ? rotation : null;
+    } else if ((bounds.width - start.bounds.width).abs() < 1e-9 &&
+        (bounds.height - start.bounds.height).abs() < 1e-9) {
+      final snapped = CalendarStudioTransform.snapMove(
+        bounds,
+        others: [
+          for (final other in page.blocks)
+            if (other.id != block.id && other.visible) other.bounds,
+        ],
+        design: CalendarStudioScene.designSizeFor(page.canvas),
+        safeInset: page.canvas.safeInset,
+        grid: snapToGrid,
+      );
+      bounds = snapped.bounds;
+      guides = snapped.guides;
+    } else if (snapToGrid && block.rotation == 0) {
+      bounds = CalendarStudioTransform.snapResizeToGrid(start.bounds, bounds);
     }
-    double snap(double value) => (value * 100).round() / 100;
+    _setGuides(guides);
     controller.updateBlockDuringInteraction(
+      block.copyWith(bounds: bounds, rotation: rotation),
+    );
+  }
+
+  bool get _isTyping {
+    final context = FocusManager.instance.primaryFocus?.context;
+    if (context == null) return false;
+    return context.widget is EditableText ||
+        context.findAncestorWidgetOfExactType<EditableText>() != null;
+  }
+
+  /// Desktop key map from the mockup (§5): arrows nudge 1 px (Shift: 10 px),
+  /// Ctrl/Cmd+D duplicate, Del delete, Ctrl/Cmd+Z/Y undo/redo,
+  /// Ctrl/Cmd+] / [ layer order, Ctrl/Cmd+0 fit, Ctrl/Cmd+P preview,
+  /// Space+drag pan, Esc deselect.
+  KeyEventResult _handleEditorKey(FocusNode node, KeyEvent event) {
+    if (view != _View.editor || _isTyping) return KeyEventResult.ignored;
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.space) {
+      final down = event is! KeyUpEvent;
+      if (down != _spacePanning) setState(() => _spacePanning = down);
+      return KeyEventResult.handled;
+    }
+    if (event is KeyUpEvent) return KeyEventResult.ignored;
+    final keyboard = HardwareKeyboard.instance;
+    final command = keyboard.isControlPressed || keyboard.isMetaPressed;
+    final shift = keyboard.isShiftPressed;
+    if (command) {
+      if (key == LogicalKeyboardKey.keyZ) {
+        shift ? controller.redo() : controller.undo();
+      } else if (key == LogicalKeyboardKey.keyY) {
+        controller.redo();
+      } else if (key == LogicalKeyboardKey.keyD) {
+        controller.duplicateSelected();
+      } else if (key == LogicalKeyboardKey.bracketRight) {
+        controller.moveSelectedLayer(1);
+      } else if (key == LogicalKeyboardKey.bracketLeft) {
+        controller.moveSelectedLayer(-1);
+      } else if (key == LogicalKeyboardKey.digit0) {
+        _fitCanvas();
+      } else if (key == LogicalKeyboardKey.keyP) {
+        setState(() => view = _View.preview);
+      } else {
+        return KeyEventResult.ignored;
+      }
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.escape) {
+      if (controller.selectedBlockId == null) return KeyEventResult.ignored;
+      _selectBlock(null);
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.delete ||
+        key == LogicalKeyboardKey.backspace) {
+      if (controller.selectedBlockId == null) return KeyEventResult.ignored;
+      _deleteSelectedWithUndo();
+      return KeyEventResult.handled;
+    }
+    final direction = switch (key) {
+      LogicalKeyboardKey.arrowLeft => const Offset(-1, 0),
+      LogicalKeyboardKey.arrowRight => const Offset(1, 0),
+      LogicalKeyboardKey.arrowUp => const Offset(0, -1),
+      LogicalKeyboardKey.arrowDown => const Offset(0, 1),
+      _ => null,
+    };
+    if (direction == null) return KeyEventResult.ignored;
+    final id = controller.selectedBlockId;
+    final block = id == null
+        ? null
+        : controller.currentPage.blocks.where((b) => b.id == id).firstOrNull;
+    if (block == null || block.locked) return KeyEventResult.ignored;
+    controller.updateBlock(
       block.copyWith(
-        bounds: block.bounds.copyWith(
-          left: snap(block.bounds.left),
-          top: snap(block.bounds.top),
-          width: snap(block.bounds.width),
-          height: snap(block.bounds.height),
+        bounds: CalendarStudioTransform.move(
+          block.bounds,
+          direction * (shift ? 10 : 1),
+          CalendarStudioScene.designSizeFor(controller.currentPage.canvas),
         ),
       ),
     );
+    return KeyEventResult.handled;
+  }
+
+  void _setGuides(List<StudioGuide> guides) {
+    final previous = _guides.value;
+    if (listEquals(previous, guides)) return;
+    if (guides.any((guide) => !previous.contains(guide))) {
+      HapticFeedback.selectionClick();
+    }
+    _guides.value = guides;
+  }
+
+  void _endBlockTransform() {
+    _guides.value = const [];
+    _lastSnappedRotation = null;
+    controller.endBlockInteraction();
   }
 
   void _showLayers(BuildContext context) => showModalBottomSheet<void>(
@@ -2974,8 +3183,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                               child: CalendarStudioScene(
                                 page: page,
                                 source: project.source,
-                                dataProvider: widget.configuration.calendarData,
-                                assetStore: widget.configuration.assets,
+                                dataProvider: _calendarData,
+                                assetStore: _assets,
                               ),
                             ),
                           ),
@@ -3010,7 +3219,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     CalendarStudioBlockType type, {
     CalendarStudioBlock? replace,
   }) async {
-    final store = widget.configuration.assets;
+    final store = _assets;
     if (store == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -3102,8 +3311,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 child: CalendarStudioScene(
                   page: project.pages[index],
                   source: project.source,
-                  dataProvider: widget.configuration.calendarData,
-                  assetStore: widget.configuration.assets,
+                  dataProvider: _calendarData,
+                  assetStore: _assets,
                   showSafeArea: safeArea,
                 ),
               ),
@@ -3364,8 +3573,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       final artifact =
           await CalendarStudioExportService(
             renderer: CalendarStudioRasterRenderer(
-              dataProvider: widget.configuration.calendarData,
-              assetStore: widget.configuration.assets,
+              dataProvider: _calendarData,
+              assetStore: _assets,
             ),
           ).export(
             project: project,

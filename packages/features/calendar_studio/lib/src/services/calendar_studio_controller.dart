@@ -20,7 +20,33 @@ class CalendarStudioController extends ChangeNotifier {
   final List<CalendarStudioProject> _undo = [];
   final List<CalendarStudioProject> _redo = [];
   CalendarStudioProject? _interactionStart;
+  final _canvasRevision = ValueNotifier<int>(0);
   Timer? _saveTimer;
+
+  /// Maximum undo steps kept; each step is a full project snapshot.
+  static const historyLimit = 100;
+
+  /// Notifies on every live transform frame. Only the canvas listens to this,
+  /// so a drag does not rebuild the inspector, layers panel or app bar; those
+  /// refresh once through [notifyListeners] when the interaction ends.
+  late final Listenable canvasChanges = Listenable.merge([
+    this,
+    _canvasRevision,
+  ]);
+
+  bool get isInteracting => _interactionStart != null;
+
+  /// The block as it was when the current interaction began, so snapping can
+  /// be applied to raw gesture output instead of compounding per frame.
+  CalendarStudioBlock? interactionStartBlock(String id) {
+    final start = _interactionStart;
+    if (start == null || pageIndex >= start.pages.length) return null;
+    for (final block in start.pages[pageIndex].blocks) {
+      if (block.id == id) return block;
+    }
+    return null;
+  }
+
   bool get canUndo => _undo.isNotEmpty;
   bool get canRedo => _redo.isNotEmpty;
   CalendarStudioPage get currentPage => _project!.pages[pageIndex];
@@ -62,8 +88,7 @@ class CalendarStudioController extends ChangeNotifier {
   void updateSource(CalendarStudioSource source) {
     final value = _project;
     if (value == null || value.source == source) return;
-    _undo.add(value);
-    _redo.clear();
+    _pushUndo(value);
     _project = value.copyWith(
       source: source,
       updatedAt: configuration.now?.call() ?? DateTime.now(),
@@ -130,8 +155,7 @@ class CalendarStudioController extends ChangeNotifier {
         ),
       );
     }
-    _undo.add(value);
-    _redo.clear();
+    _pushUndo(value);
     _project = value.copyWith(
       name: value.name == previousDefaults.name ? refreshed.name : value.name,
       source: source,
@@ -162,7 +186,18 @@ class CalendarStudioController extends ChangeNotifier {
     _interactionStart ??= _project;
   }
 
-  void updateBlockDuringInteraction(CalendarStudioBlock block) {
+  /// Continuous inspector controls (sliders) record one undo step per gesture
+  /// between [beginBlockInteraction] and [endBlockInteraction]. The whole
+  /// workspace refreshes so the control itself tracks the value.
+  void updateBlockLive(CalendarStudioBlock block) {
+    if (_interactionStart == null) return updateBlock(block);
+    updateBlockDuringInteraction(block, canvasOnly: false);
+  }
+
+  void updateBlockDuringInteraction(
+    CalendarStudioBlock block, {
+    bool canvasOnly = true,
+  }) {
     final value = _project;
     if (value == null) return;
     final page = currentPage;
@@ -177,17 +212,24 @@ class CalendarStudioController extends ChangeNotifier {
         for (var i = 0; i < value.pages.length; i++)
           if (i == pageIndex) updatedPage else value.pages[i],
       ],
-      updatedAt: configuration.now?.call() ?? DateTime.now(),
     );
-    notifyListeners();
+    if (_interactionStart == null || !canvasOnly) {
+      notifyListeners();
+    } else {
+      _canvasRevision.value++;
+    }
   }
 
   void endBlockInteraction() {
     final start = _interactionStart;
     _interactionStart = null;
-    if (start == null || start == _project) return;
-    _undo.add(start);
-    _redo.clear();
+    final value = _project;
+    if (start == null || value == null || start == value) return;
+    _project = value.copyWith(
+      updatedAt: configuration.now?.call() ?? DateTime.now(),
+    );
+    _pushUndo(start);
+    notifyListeners();
     _scheduleSave();
   }
 
@@ -295,6 +337,12 @@ class CalendarStudioController extends ChangeNotifier {
     return matches.isEmpty ? null : matches.first;
   }
 
+  void _pushUndo(CalendarStudioProject value) {
+    _undo.add(value);
+    if (_undo.length > historyLimit) _undo.removeAt(0);
+    _redo.clear();
+  }
+
   void undo() {
     if (_undo.isEmpty) return;
     _redo.add(_project!);
@@ -314,8 +362,7 @@ class CalendarStudioController extends ChangeNotifier {
   void _edit(CalendarStudioPage Function(CalendarStudioPage) edit) {
     final value = _project;
     if (value == null) return;
-    _undo.add(value);
-    _redo.clear();
+    _pushUndo(value);
     _project = value.copyWith(
       pages: [
         for (var i = 0; i < value.pages.length; i++)
@@ -351,6 +398,7 @@ class CalendarStudioController extends ChangeNotifier {
   @override
   void dispose() {
     _saveTimer?.cancel();
+    _canvasRevision.dispose();
     super.dispose();
   }
 }

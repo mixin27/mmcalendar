@@ -1,11 +1,15 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show listEquals;
+import 'package:flutter/gestures.dart' show PointerDeviceKind, kTouchSlop;
 import 'package:flutter/material.dart';
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
+import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
+import '../services/calendar_studio_transform.dart';
 
 /// The single Flutter render path for editable canvases and page previews.
 class CalendarStudioScene extends StatelessWidget {
@@ -28,6 +32,7 @@ class CalendarStudioScene extends StatelessWidget {
     this.onToggleVisibility,
     this.onMove,
     this.onDelete,
+    this.guides = const [],
     super.key,
   });
   final CalendarStudioPage page;
@@ -48,6 +53,9 @@ class CalendarStudioScene extends StatelessWidget {
   final VoidCallback? onToggleVisibility;
   final VoidCallback? onMove;
   final VoidCallback? onDelete;
+
+  /// Smart-guide lines to draw while a block snaps to them.
+  final List<StudioGuide> guides;
 
   static const double designWidth = 595;
 
@@ -70,54 +78,68 @@ class CalendarStudioScene extends StatelessWidget {
         fit: BoxFit.fill,
         child: SizedBox.fromSize(
           size: designSize,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onSelect == null ? null : () => onSelect!(null),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Color(page.canvas.backgroundColor),
-              ),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  for (final block in blocks)
-                    if (block.visible) _buildBlock(context, designSize, block),
-                  if (showSafeArea)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: Padding(
-                          padding: EdgeInsets.all(
-                            designSize.width * page.canvas.safeInset,
-                          ),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withValues(alpha: .75),
+          child: _DesignSpace(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onSelect == null ? null : () => onSelect!(null),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Color(page.canvas.backgroundColor),
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    for (final block in blocks)
+                      if (block.visible)
+                        _buildBlock(context, designSize, block),
+                    if (showSafeArea)
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: Padding(
+                            padding: EdgeInsets.all(
+                              designSize.width * page.canvas.safeInset,
+                            ),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: .75),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  if (page.canvas.bleed > 0)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: Padding(
-                          padding: const EdgeInsets.all(3),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: const Color(0xFFA96300),
-                                width: 1,
+                    if (guides.isNotEmpty)
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: CustomPaint(
+                            painter: _GuidePainter(
+                              guides,
+                              const Color(0xFFD6336C),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (page.canvas.bleed > 0)
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFFA96300),
+                                  width: 1,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -131,148 +153,208 @@ class CalendarStudioScene extends StatelessWidget {
     Size size,
     CalendarStudioBlock block,
   ) {
+    final interactive = onSelect != null || onTransform != null;
+    final selected = selectedBlockId == block.id;
+    final editable = selected && !block.locked && onTransform != null;
     final rect = block.bounds.resolve(size);
+    final body = _DesignDrag(
+      key: ValueKey('calendar-studio-block-${block.id}'),
+      value: block,
+      enabled: editable,
+      onStart: onTransformStart,
+      onUpdate: (start, from, to) => onTransform?.call(
+        start.copyWith(
+          bounds: CalendarStudioTransform.move(start.bounds, to - from, size),
+        ),
+      ),
+      onEnd: onTransformEnd,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onSelect?.call(block),
+        child: Transform.rotate(
+          angle: block.rotation,
+          child: interactive
+              // Static content keeps its own layer, so moving a block or
+              // its selection chrome never repaints it.
+              ? RepaintBoundary(child: _contents(block))
+              : _contents(block),
+        ),
+      ),
+    );
+    if (!interactive) {
+      return Positioned(
+        key: ValueKey('calendar-studio-layer-${block.id}'),
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+        child: body,
+      );
+    }
+    // Interactive blocks reserve a margin for handles and quick actions so
+    // they receive hits outside the block; empty margin stays transparent.
+    const margin = _chromeMargin;
     return Positioned(
-      left: rect.left,
-      top: rect.top,
-      width: rect.width,
-      height: rect.height,
-      child: _BlockDragRegion(
-        key: ValueKey('calendar-studio-block-${block.id}'),
-        enabled:
-            selectedBlockId == block.id && !block.locked && onTransform != null,
-        onStart: onTransformStart,
-        onUpdate: (delta) {
-          final bounds = block.bounds;
-          onTransform?.call(
-            block.copyWith(
-              bounds: bounds.copyWith(
-                left: (bounds.left + delta.dx / size.width).clamp(
-                  0,
-                  1 - bounds.width,
-                ),
-                top: (bounds.top + delta.dy / size.height).clamp(
-                  0,
-                  1 - bounds.height,
-                ),
+      key: ValueKey('calendar-studio-layer-${block.id}'),
+      left: rect.left - margin,
+      top: rect.top - margin,
+      width: rect.width + margin * 2,
+      height: rect.height + margin * 2,
+      child: RepaintBoundary(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.all(margin),
+                child: body,
               ),
             ),
-          );
-        },
-        onEnd: onTransformEnd,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => onSelect?.call(block),
-          child: Transform.rotate(
-            angle: block.rotation,
-            child: Stack(
-              fit: StackFit.expand,
-              clipBehavior: Clip.none,
-              children: [
-                DecoratedBox(
-                  decoration: selectedBlockId == block.id
-                      ? BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2,
-                          ),
-                        )
-                      : const BoxDecoration(),
-                  child: _contents(block),
-                ),
-                if (selectedBlockId == block.id &&
-                    !block.locked &&
-                    onTransform != null)
-                  for (final handle in _ResizeHandle.values)
-                    _resizeHandle(context, size, block, handle),
-                if (selectedBlockId == block.id && onDuplicate != null)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: -48,
-                    child: Center(
-                      child: _SelectionActions(
-                        locked: block.locked,
-                        visible: block.visible,
-                        onDuplicate: onDuplicate!,
-                        onToggleLock: onToggleLock!,
-                        onToggleVisibility: onToggleVisibility!,
-                        onMove: onMove,
-                        onDelete: onDelete!,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+            if (selected) _chrome(context, size, block, rect, editable),
+          ],
         ),
       ),
     );
   }
 
-  Widget _resizeHandle(
+  Widget _chrome(
     BuildContext context,
     Size size,
     CalendarStudioBlock block,
-    _ResizeHandle handle,
+    Rect rect,
+    bool editable,
   ) {
+    const margin = _chromeMargin;
+    final color = Theme.of(context).colorScheme.primary;
+    final width = rect.width;
+    final height = rect.height;
     return Positioned.fill(
-      child: Align(
-        alignment: Alignment((handle.x - .5) * 2, (handle.y - .5) * 2),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onPanStart: (_) => onTransformStart?.call(),
-          onPanUpdate: (details) => onTransform!(
-            block.copyWith(
-              bounds: _resizeBounds(
-                block.bounds,
-                handle,
-                details.delta.dx / size.width,
-                details.delta.dy / size.height,
+      child: Transform.rotate(
+        angle: block.rotation,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              left: margin,
+              top: margin,
+              width: width,
+              height: height,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: color, width: 2),
+                  ),
+                ),
               ),
             ),
-          ),
-          onPanEnd: (_) => onTransformEnd?.call(),
-          onPanCancel: onTransformEnd,
-          child: Container(
-            key: ValueKey('calendar-studio-resize-${handle.name}'),
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Theme.of(context).colorScheme.primary,
+            if (editable) ...[
+              Positioned(
+                left: margin + width / 2 - 1,
+                top: margin - 26,
                 width: 2,
+                height: 26,
+                child: IgnorePointer(child: ColoredBox(color: color)),
               ),
-            ),
-          ),
+              Positioned(
+                left: margin + width / 2 - 14,
+                top: margin - 42,
+                width: 28,
+                height: 28,
+                child: _handle(
+                  key: const ValueKey('calendar-studio-rotate'),
+                  block: block,
+                  cursor: SystemMouseCursors.grab,
+                  onUpdate: (start, from, to) => onTransform!(
+                    start.copyWith(
+                      rotation: CalendarStudioTransform.rotationFor(
+                        start.bounds.resolve(size).center,
+                        to,
+                      ),
+                    ),
+                  ),
+                  child: _HandleDot(
+                    color: color,
+                    size: 22,
+                    icon: Icons.rotate_right,
+                  ),
+                ),
+              ),
+              for (final handle in _ResizeHandle.values)
+                Positioned(
+                  left: margin + handle.x * width - 11,
+                  top: margin + handle.y * height - 11,
+                  width: 22,
+                  height: 22,
+                  child: _handle(
+                    key: ValueKey('calendar-studio-resize-${handle.name}'),
+                    block: block,
+                    cursor: handle.cursor,
+                    onUpdate: (start, from, to) => onTransform!(
+                      start.copyWith(
+                        bounds: CalendarStudioTransform.resize(
+                          start.bounds,
+                          handleX: handle.x,
+                          handleY: handle.y,
+                          delta: to - from,
+                          rotation: start.rotation,
+                          design: size,
+                        ),
+                      ),
+                    ),
+                    child: _HandleDot(color: color, size: 12),
+                  ),
+                ),
+            ],
+            if (onDuplicate != null)
+              Positioned(
+                left: 0,
+                right: 0,
+                top: margin + height + 8,
+                height: 48,
+                child: Center(
+                  child: OverflowBox(
+                    maxWidth: double.infinity,
+                    child: _SelectionActions(
+                      locked: block.locked,
+                      visible: block.visible,
+                      onDuplicate: onDuplicate!,
+                      onToggleLock: onToggleLock!,
+                      onToggleVisibility: onToggleVisibility!,
+                      onMove: onMove,
+                      onDelete: onDelete!,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
 
-  StudioRect _resizeBounds(
-    StudioRect value,
-    _ResizeHandle handle,
-    double dx,
-    double dy,
-  ) {
-    var left = value.left;
-    var top = value.top;
-    var right = value.right;
-    var bottom = value.bottom;
-    if (handle.x == 0) left = (left + dx).clamp(0, right - .06);
-    if (handle.x == 1) right = (right + dx).clamp(left + .06, 1);
-    if (handle.y == 0) top = (top + dy).clamp(0, bottom - .04);
-    if (handle.y == 1) bottom = (bottom + dy).clamp(top + .04, 1);
-    return StudioRect(
-      left: left,
-      top: top,
-      width: right - left,
-      height: bottom - top,
-    );
-  }
+  Widget _handle({
+    required Key key,
+    required CalendarStudioBlock block,
+    required MouseCursor cursor,
+    required _DesignDragUpdate onUpdate,
+    required Widget child,
+  }) => MouseRegion(
+    cursor: cursor,
+    // Wins the tap arena so pressing a handle never deselects the block.
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {},
+      child: _DesignDrag(
+        key: key,
+        value: block,
+        enabled: true,
+        onStart: onTransformStart,
+        onUpdate: onUpdate,
+        onEnd: onTransformEnd,
+        child: Center(child: child),
+      ),
+    ),
+  );
 
   Widget _contents(CalendarStudioBlock block) => switch (block.type) {
     CalendarStudioBlockType.calendarGrid => _CalendarGrid(
@@ -310,8 +392,17 @@ class CalendarStudioScene extends StatelessWidget {
   }
 }
 
-class _BlockDragRegion extends StatefulWidget {
-  const _BlockDragRegion({
+typedef _DesignDragUpdate =
+    void Function(CalendarStudioBlock start, Offset from, Offset to);
+
+const double _chromeMargin = 64;
+
+/// Pointer tracking in page design pixels. Positions are mapped through the
+/// page box, so the result is correct at any zoom or fitted scale, and every
+/// update is measured from the gesture's start rather than accumulated.
+class _DesignDrag extends StatefulWidget {
+  const _DesignDrag({
+    required this.value,
     required this.enabled,
     required this.onUpdate,
     required this.child,
@@ -319,33 +410,56 @@ class _BlockDragRegion extends StatefulWidget {
     this.onEnd,
     super.key,
   });
+  final CalendarStudioBlock value;
   final bool enabled;
-  final ValueChanged<Offset> onUpdate;
+  final _DesignDragUpdate onUpdate;
   final VoidCallback? onStart;
   final VoidCallback? onEnd;
   final Widget child;
 
   @override
-  State<_BlockDragRegion> createState() => _BlockDragRegionState();
+  State<_DesignDrag> createState() => _DesignDragState();
 }
 
-class _BlockDragRegionState extends State<_BlockDragRegion> {
+class _DesignDragState extends State<_DesignDrag> {
   int? _pointer;
+  Offset _downPosition = Offset.zero;
+  double _slop = kTouchSlop;
+  CalendarStudioBlock? _start;
+  Offset? _from;
+  var _active = false;
 
   void _down(PointerDownEvent event) {
     if (!widget.enabled || _pointer != null) return;
     _pointer = event.pointer;
-    widget.onStart?.call();
+    _downPosition = event.position;
+    _slop = event.kind == PointerDeviceKind.mouse ? 1 : kTouchSlop;
+    _start = widget.value;
+    _from = _DesignSpace.toDesign(context, event.position);
   }
 
   void _move(PointerMoveEvent event) {
-    if (event.pointer == _pointer) widget.onUpdate(event.delta);
+    if (event.pointer != _pointer) return;
+    final start = _start;
+    final from = _from;
+    if (start == null || from == null) return;
+    if (!_active) {
+      if ((event.position - _downPosition).distance < _slop) return;
+      _active = true;
+      widget.onStart?.call();
+    }
+    final to = _DesignSpace.toDesign(context, event.position);
+    if (to != null) widget.onUpdate(start, from, to);
   }
 
   void _finish(PointerEvent event) {
     if (event.pointer != _pointer) return;
+    final wasActive = _active;
     _pointer = null;
-    widget.onEnd?.call();
+    _start = null;
+    _from = null;
+    _active = false;
+    if (wasActive) widget.onEnd?.call();
   }
 
   @override
@@ -357,6 +471,78 @@ class _BlockDragRegionState extends State<_BlockDragRegion> {
     onPointerCancel: _finish,
     child: widget.child,
   );
+}
+
+/// Marks the page's design-size box so descendants can map global pointer
+/// positions into design pixels.
+class _DesignSpace extends StatelessWidget {
+  const _DesignSpace({required this.child});
+  final Widget child;
+
+  static Offset? toDesign(BuildContext context, Offset global) {
+    final scope = context.getInheritedWidgetOfExactType<_DesignSpaceScope>();
+    final box = scope?.anchor.findRenderObject();
+    if (box is! RenderBox || !box.attached || !box.hasSize) return null;
+    return box.globalToLocal(global);
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      _DesignSpaceScope(anchor: context, child: child);
+}
+
+class _DesignSpaceScope extends InheritedWidget {
+  const _DesignSpaceScope({required this.anchor, required super.child});
+  final BuildContext anchor;
+
+  @override
+  bool updateShouldNotify(_DesignSpaceScope oldWidget) => false;
+}
+
+class _HandleDot extends StatelessWidget {
+  const _HandleDot({required this.color, required this.size, this.icon});
+  final Color color;
+  final double size;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+      border: Border.all(color: color, width: 2),
+      boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 3)],
+    ),
+    child: icon == null ? null : Icon(icon, size: size * .62, color: color),
+  );
+}
+
+class _GuidePainter extends CustomPainter {
+  const _GuidePainter(this.guides, this.color);
+  final List<StudioGuide> guides;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1;
+    for (final guide in guides) {
+      if (guide.axis == StudioGuideAxis.vertical) {
+        final x = guide.position * size.width;
+        canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+      } else {
+        final y = guide.position * size.height;
+        canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuidePainter oldDelegate) =>
+      !listEquals(guides, oldDelegate.guides) || color != oldDelegate.color;
 }
 
 class _ShapeBlock extends StatelessWidget {
@@ -566,6 +752,7 @@ class _AssetImageBlock extends StatefulWidget {
 
 class _AssetImageBlockState extends State<_AssetImageBlock> {
   Future<List<int>?>? _load;
+  Uint8List? _bytes;
 
   @override
   void initState() {
@@ -585,30 +772,61 @@ class _AssetImageBlockState extends State<_AssetImageBlock> {
   void _prepareLoad() {
     final id = widget.assetId;
     final store = widget.assetStore;
-    _load = id == null || store == null ? null : store.loadBytes(id);
+    _bytes = id != null && store is CachedCalendarStudioAssetStore
+        ? store.peekBytes(id)
+        : null;
+    _load = _bytes != null || id == null || store == null
+        ? null
+        : store.loadBytes(id).then((bytes) {
+            // Keep one stable instance so MemoryImage hits the image cache.
+            if (bytes == null || bytes.isEmpty) return null;
+            return _bytes = bytes is Uint8List
+                ? bytes
+                : Uint8List.fromList(bytes);
+          });
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.resolvedBytes case final bytes? when bytes.isNotEmpty) {
-      return _image(bytes);
+      // Export path: decode at full resolution.
+      return _image(bytes, constrainDecode: false);
     }
+    if (_bytes case final bytes?) return _image(bytes);
     if (_load == null) return _placeholder();
     return FutureBuilder<List<int>?>(
       future: _load,
       builder: (_, snapshot) {
-        final bytes = snapshot.data;
-        if (bytes == null || bytes.isEmpty) return _placeholder();
-        return _image(Uint8List.fromList(bytes));
+        final bytes = _bytes;
+        if (bytes == null) return _placeholder();
+        return _image(bytes);
       },
     );
   }
 
-  Widget _image(Uint8List bytes) => ClipRRect(
+  Widget _image(Uint8List bytes, {bool constrainDecode = true}) => ClipRRect(
     borderRadius: BorderRadius.circular(8),
-    child: Opacity(
-      opacity: widget.opacity.clamp(0, 1),
-      child: Image.memory(bytes, fit: widget.fit),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        // Decode near display size (with headroom for zoom) instead of the
+        // full print-resolution original.
+        final cacheWidth = constrainDecode && constraints.hasBoundedWidth
+            ? (constraints.maxWidth *
+                      MediaQuery.devicePixelRatioOf(context) *
+                      2)
+                  .round()
+                  .clamp(64, 4096)
+            : null;
+        return Image.memory(
+          bytes,
+          fit: widget.fit,
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          cacheWidth: cacheWidth,
+          gaplessPlayback: true,
+          opacity: AlwaysStoppedAnimation(widget.opacity.clamp(0, 1)),
+        );
+      },
     ),
   );
 
@@ -1058,7 +1276,7 @@ class _ListBlock extends StatelessWidget {
   );
 }
 
-class _CalendarGrid extends StatelessWidget {
+class _CalendarGrid extends StatefulWidget {
   const _CalendarGrid({
     required this.block,
     required this.source,
@@ -1069,6 +1287,49 @@ class _CalendarGrid extends StatelessWidget {
   final CalendarStudioSource source;
   final CalendarStudioDataProvider? dataProvider;
   final List<CalendarStudioDayData>? resolvedDays;
+
+  @override
+  State<_CalendarGrid> createState() => _CalendarGridState();
+}
+
+class _CalendarGridState extends State<_CalendarGrid> {
+  Future<List<CalendarStudioDayData>>? _days;
+  List<CalendarStudioDayData>? _cachedDays;
+
+  CalendarStudioBlock get block => widget.block;
+  CalendarStudioSource get source => widget.source;
+
+  int get _month => block.content['month'] as int? ?? source.month;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareDays();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CalendarGrid oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldMonth =
+        oldWidget.block.content['month'] as int? ?? oldWidget.source.month;
+    if (oldWidget.dataProvider != widget.dataProvider ||
+        oldWidget.source != widget.source ||
+        oldMonth != _month) {
+      _prepareDays();
+    }
+  }
+
+  void _prepareDays() {
+    final provider = widget.dataProvider;
+    final effectiveSource = source.copyWith(month: _month);
+    _cachedDays = provider is CachedCalendarStudioDataProvider
+        ? provider.peek(effectiveSource, month: _month)
+        : null;
+    _days = _cachedDays != null || provider == null
+        ? null
+        : provider.daysFor(effectiveSource, month: _month);
+  }
+
   @override
   Widget build(BuildContext context) {
     final rowHeight = (block.style['rowHeight'] as num?)?.toDouble() ?? 1;
@@ -1132,10 +1393,11 @@ class _CalendarGrid extends StatelessWidget {
         ),
       ],
     );
-    if (resolvedDays != null) return buildGrid(resolvedDays);
-    if (dataProvider == null) return buildGrid(null);
+    if (widget.resolvedDays case final days?) return buildGrid(days);
+    if (_cachedDays case final days?) return buildGrid(days);
+    if (_days == null) return buildGrid(null);
     return FutureBuilder<List<CalendarStudioDayData>>(
-      future: dataProvider!.daysFor(effectiveSource, month: month),
+      future: _days,
       builder: (_, snapshot) => buildGrid(snapshot.data),
     );
   }
@@ -1500,6 +1762,13 @@ enum _ResizeHandle {
   const _ResizeHandle(this.x, this.y);
   final double x;
   final double y;
+
+  MouseCursor get cursor => switch (this) {
+    topLeft || bottomRight => SystemMouseCursors.resizeUpLeftDownRight,
+    topRight || bottomLeft => SystemMouseCursors.resizeUpRightDownLeft,
+    top || bottom => SystemMouseCursors.resizeUpDown,
+    left || right => SystemMouseCursors.resizeLeftRight,
+  };
 }
 
 class _SelectionActions extends StatelessWidget {

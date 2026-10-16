@@ -7,11 +7,13 @@ library;
 
 export 'src/models/calendar_studio_document.dart';
 export 'src/models/calendar_studio_types.dart';
+export 'src/services/calendar_studio_cache.dart';
 export 'src/services/calendar_studio_contracts.dart';
 export 'src/services/calendar_studio_controller.dart';
 export 'src/services/calendar_studio_document_codec.dart';
 export 'src/services/calendar_studio_export_service.dart';
 export 'src/services/calendar_studio_preflight.dart';
+export 'src/services/calendar_studio_transform.dart';
 export 'src/services/calendar_studio_raster_renderer.dart';
 export 'src/services/myanmar_calendar_studio_data_provider.dart';
 export 'src/templates/calendar_studio_templates.dart';
