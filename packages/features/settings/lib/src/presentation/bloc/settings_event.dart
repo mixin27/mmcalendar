@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart' show CalendarGridStyle;
+import 'package:shared_ui_kit/shared_ui_kit.dart' show AppStyle;
 
 sealed class SettingsEvent extends Equatable {
   const SettingsEvent();
@@ -30,6 +31,15 @@ final class ChangeThemePreset extends SettingsEvent {
 
   @override
   List<Object?> get props => [presetId];
+}
+
+final class ChangeAppStyle extends SettingsEvent {
+  final AppStyle style;
+
+  const ChangeAppStyle(this.style);
+
+  @override
+  List<Object?> get props => [style];
 }
 
 final class ChangeAppIcon extends SettingsEvent {

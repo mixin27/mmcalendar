@@ -22,6 +22,8 @@ dependencies:
     path: ../../shared/localizations
   calendar:
     path: ../calendar
+  telegram_web:
+    path: ../../integrations/telegram_web
   promo:
     path: ../promo
 

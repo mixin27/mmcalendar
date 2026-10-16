@@ -2,6 +2,7 @@ class StorageKeys {
   // Settings
   static const String themeMode = 'theme_mode';
   static const String themePreset = 'theme_preset';
+  static const String appStyle = 'app_style';
   static const String customColors = 'custom_colors';
   static const String appIcon = 'app_icon';
   static const String appLanguage = 'app_language';

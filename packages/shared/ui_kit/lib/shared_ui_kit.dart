@@ -13,6 +13,15 @@ export 'src/theme/text_styles.dart';
 // Utils
 export 'src/utils/responsive_utils.dart';
 
+// Design system
+export 'src/design/app_style.dart';
+export 'src/design/app_tokens.dart';
+export 'src/design/components/app_controls.dart';
+export 'src/design/components/app_lists.dart';
+export 'src/design/components/app_navigation.dart';
+export 'src/design/components/app_overlays.dart';
+export 'src/design/components/app_page.dart';
+
 // Widgets
 export 'src/widgets/app_toast.dart';
 export 'src/widgets/section_header.dart';

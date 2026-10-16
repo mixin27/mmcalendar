@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
+import 'package:telegram_web/telegram_web.dart';
 
 import '../../di/settings_injection.dart';
 import '../widgets/reset_button.dart';
@@ -30,6 +31,10 @@ class _SettingsPageState extends State<SettingsPage> {
       screenClass: 'SettingsPage',
     );
   }
+
+  String? get _telegramUserName => getIt.isRegistered<TelegramService>()
+      ? getIt<TelegramService>().getUserName()
+      : null;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +77,15 @@ class _SettingsPageState extends State<SettingsPage> {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // Inside Telegram, the signed-in user (was an extra bar
+                // above every tab).
+                if (_telegramUserName case final name?)
+                  SettingsListTile(
+                    title: 'Telegram',
+                    trailing: l10n?.telegramUserLabel(name) ?? 'TG: $name',
+                    icon: Icons.send_rounded,
+                    onTap: () {},
+                  ),
                 SectionHeader(title: l10n?.general ?? 'General'),
                 BlocBuilder<SettingsBloc, SettingsState>(
                   builder: (context, state) {

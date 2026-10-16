@@ -117,6 +117,7 @@ class SettingsRepositoryImpl extends BaseRepository
         AppSettingsEntity(
           themeMode: themeMode,
           themePreset: themePreset,
+          appStyle: AppStyle.fromName(settings[StorageKeys.appStyle]),
           appIcon: appIcon,
           customColors: themeColors,
           appLanguage: appLanguage,
@@ -167,6 +168,18 @@ class SettingsRepositoryImpl extends BaseRepository
     try {
       await localDataSource.setSetting(StorageKeys.themePreset, presetId);
 
+      return const Right(null);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message, e.code));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateAppStyle(AppStyle style) async {
+    try {
+      await localDataSource.setSetting(StorageKeys.appStyle, style.name);
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));

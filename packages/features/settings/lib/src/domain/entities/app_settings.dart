@@ -2,10 +2,12 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart' show CalendarGridStyle;
+import 'package:shared_ui_kit/shared_ui_kit.dart' show AppStyle;
 
 class AppSettingsEntity extends Equatable {
   final ThemeMode themeMode;
   final String themePreset;
+  final AppStyle appStyle;
   final String appIcon;
   final ColorScheme? customColors;
   final String appLanguage;
@@ -28,6 +30,7 @@ class AppSettingsEntity extends Equatable {
   const AppSettingsEntity({
     required this.themeMode,
     required this.themePreset,
+    this.appStyle = AppStyle.automatic,
     this.appIcon = 'default',
     this.customColors,
     required this.appLanguage,
@@ -51,6 +54,7 @@ class AppSettingsEntity extends Equatable {
   AppSettingsEntity copyWith({
     ThemeMode? themeMode,
     String? themePreset,
+    AppStyle? appStyle,
     String? appIcon,
     ColorScheme? customColors,
     String? appLanguage,
@@ -73,6 +77,7 @@ class AppSettingsEntity extends Equatable {
     return AppSettingsEntity(
       themeMode: themeMode ?? this.themeMode,
       themePreset: themePreset ?? this.themePreset,
+      appStyle: appStyle ?? this.appStyle,
       appIcon: appIcon ?? this.appIcon,
       customColors: customColors ?? this.customColors,
       appLanguage: appLanguage ?? this.appLanguage,
@@ -100,6 +105,7 @@ class AppSettingsEntity extends Equatable {
     themeMode.index,
     themeMode,
     themePreset,
+    appStyle,
     appIcon,
     customColors,
     appLanguage,

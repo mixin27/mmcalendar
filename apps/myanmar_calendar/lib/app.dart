@@ -96,6 +96,7 @@ class _AppContentState extends State<_AppContent> {
       buildWhen: (prev, curr) {
         if (prev is SettingsLoaded && curr is SettingsLoaded) {
           return prev.settings.themeMode != curr.settings.themeMode ||
+              prev.settings.appStyle != curr.settings.appStyle ||
               prev.settings.customColors != curr.settings.customColors ||
               prev.settings.themePreset != curr.settings.themePreset ||
               prev.settings.appLanguage != curr.settings.appLanguage ||
@@ -113,9 +114,16 @@ class _AppContentState extends State<_AppContent> {
           themeMode = settingsState.settings.themeMode;
         }
 
-        final themeColors = settingsState is SettingsLoaded
-            ? settingsState.settings.customColors
+        final settings = settingsState is SettingsLoaded
+            ? settingsState.settings
             : null;
+        // Light and dark are resolved separately so "System" follows the
+        // device in both directions.
+        final schemes = ThemePresets.schemesFor(
+          settings?.themePreset ?? 'modern',
+          custom: settings?.customColors,
+        );
+        final appStyle = settings?.appStyle ?? AppStyle.automatic;
 
         // Sync with Telegram theme if available
         // final telegramBgColor = getIt<TelegramService>()
@@ -124,17 +132,22 @@ class _AppContentState extends State<_AppContent> {
         //   int.parse(telegramBgColor.replaceFirst('#', '0xff')),
         // );
 
-        final lightTheme = AppTheme.lightTheme(customColors: themeColors);
-        final darkTheme = AppTheme.darkTheme(customColors: themeColors);
+        final lightTheme = AppTheme.build(
+          style: appStyle,
+          colorScheme: schemes.light,
+        );
+        final darkTheme = AppTheme.build(
+          style: appStyle,
+          colorScheme: schemes.dark,
+        );
 
         final locale = settingsState is SettingsLoaded
             ? Locale(settingsState.settings.appLanguage)
             : Locale('en');
 
+        // No key tied to the theme: changing style, mode or colours
+        // restyles in place and keeps every tab's navigation stack.
         return MaterialApp.router(
-          key: ValueKey(
-            'theme-${themeMode.name}-${themeColors?.toStringShort()}',
-          ),
           title: AppConstants.appName,
           debugShowCheckedModeBanner: false,
           theme: lightTheme,

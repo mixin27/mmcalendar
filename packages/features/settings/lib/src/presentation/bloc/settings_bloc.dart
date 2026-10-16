@@ -48,6 +48,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<LoadSettings>(_onLoadSettings);
     on<ChangeThemeMode>(_onChangeThemeMode);
     on<ChangeThemePreset>(_onChangeThemePreset);
+    on<ChangeAppStyle>(_onChangeAppStyle);
     on<ChangeAppIcon>(_onChangeAppIcon);
     on<ChangeAppLanguage>(_onChangeAppLanguage);
     on<ChangeCalendarLanguage>(_onChangeCalendarLanguage);
@@ -308,6 +309,28 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           );
         }
         emit(SettingsLoaded(updatedSettings));
+      },
+    );
+  }
+
+  Future<void> _onChangeAppStyle(
+    ChangeAppStyle event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state is! SettingsLoaded) return;
+    final currentState = state as SettingsLoaded;
+    final result = await updateTheme.updateAppStyle(event.style);
+    result.fold(
+      (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
+      (_) {
+        analyticsService.logSettingsChange(
+          settingName: StorageKeys.appStyle,
+          oldValue: currentState.settings.appStyle.name,
+          newValue: event.style.name,
+        );
+        emit(
+          SettingsLoaded(currentState.settings.copyWith(appStyle: event.style)),
+        );
       },
     );
   }

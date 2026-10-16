@@ -77,7 +77,6 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
   @override
   Widget build(BuildContext context) {
     final colors = CalendarColors.of(context);
-    final scheme = Theme.of(context).colorScheme;
     return DraggableScrollableSheet(
       controller: _controller,
       initialChildSize: widget.peekFraction,
@@ -87,7 +86,7 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
       snapSizes: _snaps.sublist(1, _snaps.length - 1),
       builder: (context, scrollController) => DecoratedBox(
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
+          color: context.tokens.background,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
           boxShadow: [
             BoxShadow(
@@ -131,27 +130,28 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
                 ),
               ),
               const SizedBox(height: 18),
-              _Group(
+              AppGroup(
                 label: AppLocalizations.of(context)?.events ?? 'Events',
                 children: [
                   for (final event in widget.events)
-                    _Row(
-                      leading: _EventMark(color: eventColor(event, colors)),
+                    AppRow(
+                      icon: Icons.event_outlined,
+                      iconColor: eventColor(event, colors),
                       title: event.title,
                       subtitle: _eventTime(context, event),
                       onTap: () => widget.onOpenEvent(event),
                     ),
-                  _Row(
+                  AppRow(
                     title: 'Add event',
-                    accent: true,
+                    tone: AppRowTone.accent,
                     onTap: () => widget.onAddEvent(_date(widget.day)),
                   ),
                 ],
               ),
               const SizedBox(height: 14),
-              _Group(
+              AppGroup(
                 children: [
-                  _Row(
+                  AppRow(
                     title: 'Full day details',
                     subtitle: 'Astrology, Buddhist calendar, AI prompt',
                     chevron: true,
@@ -168,13 +168,11 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
                 onOpenEvent: widget.onOpenEvent,
               ),
               const SizedBox(height: 14),
-              _Group(
+              AppGroup(
                 children: [
-                  _Row(
-                    leading: _Tile(
-                      color: const Color(0xFF4C5BD4),
-                      icon: Icons.edit_calendar_outlined,
-                    ),
+                  AppRow(
+                    icon: Icons.edit_calendar_outlined,
+                    iconColor: const Color(0xFF4C5BD4),
                     title: 'Make your ${widget.today.year + 1} calendar',
                     subtitle: 'Calendar Studio',
                     chevron: true,
@@ -314,14 +312,18 @@ class _Upcoming {
     required this.date,
     required this.title,
     required this.subtitle,
-    required this.leading,
+    this.leading,
+    this.icon,
+    this.iconColor,
     this.event,
   });
 
   final DateTime date;
   final String title;
   final String subtitle;
-  final Widget leading;
+  final Widget? leading;
+  final IconData? icon;
+  final Color? iconColor;
   final CalendarEventItem? event;
 }
 
@@ -363,7 +365,8 @@ class _UpcomingGroup extends StatelessWidget {
           date: from,
           title: name,
           subtitle: range,
-          leading: _Tile(color: colors.holiday, icon: Icons.star_rounded),
+          icon: Icons.star_rounded,
+          iconColor: colors.holiday,
         ),
       );
       runName = null;
@@ -416,7 +419,8 @@ class _UpcomingGroup extends StatelessWidget {
             title: event.title,
             subtitle:
                 '${localizations.formatShortMonthDay(date)} · ${event.category.name}',
-            leading: _EventMark(color: eventColor(event, colors)),
+            icon: Icons.event_outlined,
+            iconColor: eventColor(event, colors),
             event: event,
           ),
         );
@@ -433,17 +437,17 @@ class _UpcomingGroup extends StatelessWidget {
     final items = _collect(context, colors);
     if (items.isEmpty) return const SizedBox.shrink();
     final start = DateUtils.dateOnly(today);
-    return _Group(
+    return AppGroup(
       label: 'Upcoming',
       children: [
         for (final item in items)
-          _Row(
+          AppRow(
             leading: item.leading,
+            icon: item.icon,
+            iconColor: item.iconColor,
             title: item.title,
             subtitle: item.subtitle,
-            trailing: translateNumbers(
-              '${item.date.difference(start).inDays} d',
-            ),
+            value: translateNumbers('${item.date.difference(start).inDays} d'),
             onTap: item.event != null
                 ? () => onOpenEvent(item.event!)
                 : () => onOpenDay(item.date),
@@ -451,153 +455,6 @@ class _UpcomingGroup extends StatelessWidget {
       ],
     );
   }
-}
-
-class _Group extends StatelessWidget {
-  const _Group({this.label, required this.children});
-  final String? label;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = CalendarColors.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (label != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
-            child: Text(
-              label!.toUpperCase(),
-              style: TextStyle(
-                fontSize: 12.5,
-                letterSpacing: .4,
-                color: colors.secondaryLabel,
-              ),
-            ),
-          ),
-        Material(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              for (final (i, child) in children.indexed) ...[
-                if (i > 0)
-                  Divider(
-                    height: .5,
-                    thickness: .5,
-                    indent: 16,
-                    color: colors.separator,
-                  ),
-                child,
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  const _Row({
-    required this.title,
-    this.subtitle,
-    this.leading,
-    this.trailing,
-    this.chevron = false,
-    this.accent = false,
-    this.onTap,
-  });
-
-  final String title;
-  final String? subtitle;
-  final Widget? leading;
-  final String? trailing;
-  final bool chevron;
-  final bool accent;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = CalendarColors.of(context);
-    return InkWell(
-      onTap: onTap,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 48),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          child: Row(
-            children: [
-              if (leading != null) ...[
-                SizedBox(width: 30, child: Center(child: leading)),
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: accent ? colors.accent : colors.label,
-                      ),
-                    ),
-                    if (subtitle != null)
-                      Text(
-                        subtitle!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          color: colors.secondaryLabel,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              if (trailing != null)
-                Text(
-                  trailing!,
-                  style: TextStyle(fontSize: 14, color: colors.secondaryLabel),
-                ),
-              if (chevron)
-                Icon(Icons.chevron_right_rounded, color: colors.tertiaryLabel),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Tile extends StatelessWidget {
-  const _Tile({required this.color, required this.icon});
-  final Color color;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 30,
-    height: 30,
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Icon(icon, size: 18, color: Colors.white),
-  );
-}
-
-class _EventMark extends StatelessWidget {
-  const _EventMark({required this.color});
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) =>
-      _Tile(color: color, icon: Icons.event_outlined);
 }
 
 class _Badge extends StatelessWidget {

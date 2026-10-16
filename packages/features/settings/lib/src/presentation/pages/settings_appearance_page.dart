@@ -110,6 +110,14 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
     return SingleChildScrollView(
       child: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: _AppStylePicker(
+              value: settings.appStyle,
+              onChanged: (style) =>
+                  context.read<SettingsBloc>().add(ChangeAppStyle(style)),
+            ),
+          ),
           SettingsTile(
             title: l10n?.themeMode ?? 'Theme Mode',
             subtitle: _getThemeModeText(settings.themeMode),
@@ -682,6 +690,54 @@ class _AppIconPreview extends StatelessWidget {
                 ),
         ),
       ),
+    );
+  }
+}
+
+/// Settings › Appearance › App style: Automatic, Clear or Material.
+class _AppStylePicker extends StatelessWidget {
+  const _AppStylePicker({required this.value, required this.onChanged});
+
+  final AppStyle value;
+  final ValueChanged<AppStyle> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final automatic = AppStyle.automatic.resolve() == AppStyle.clear
+        ? 'Clear'
+        : 'Material';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            'App style',
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(color: t.secondaryLabel),
+          ),
+        ),
+        AppSegmented<AppStyle>(
+          segments: const {
+            AppStyle.automatic: 'Automatic',
+            AppStyle.clear: 'Clear',
+            AppStyle.material: 'Material',
+          },
+          value: value,
+          onChanged: onChanged,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+          child: Text(
+            'Automatic uses Material on Android and Clear on iPhone, iPad, '
+            'Mac and web (here: $automatic). Colours and content stay the '
+            'same; bars, lists and controls change.',
+            style: TextStyle(fontSize: 12.5, color: t.secondaryLabel),
+          ),
+        ),
+      ],
     );
   }
 }

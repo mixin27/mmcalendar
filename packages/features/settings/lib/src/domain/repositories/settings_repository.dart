@@ -2,6 +2,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' show AppStyle;
 
 import '../entities/app_settings.dart';
 
@@ -9,6 +10,7 @@ abstract class SettingsRepository {
   Future<Either<Failure, AppSettingsEntity>> getSettings();
   Future<Either<Failure, void>> updateThemeMode(ThemeMode themeMode);
   Future<Either<Failure, void>> updateThemePreset(String presetId);
+  Future<Either<Failure, void>> updateAppStyle(AppStyle style);
   Future<Either<Failure, void>> updateAppIcon(String appIconId);
   Future<Either<Failure, void>> updateCustomColors(ColorScheme colors);
   Future<Either<Failure, void>> updateAppLanguage(String languageCode);

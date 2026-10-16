@@ -25,7 +25,7 @@ class ThemePresets {
   static const Map<String, ThemePreset> presets = {
     'modern': ThemePreset(
       id: 'modern',
-      name: 'Modern',
+      name: 'Blue',
       lightColors: AppColorSchemes.modernLight,
       darkColors: AppColorSchemes.modernDark,
       icon: '🎨',
@@ -52,6 +52,24 @@ class ThemePresets {
       icon: '🌳',
     ),
   };
+
+  /// The light and dark schemes for a preset, or for the user's custom
+  /// colours (stored in one brightness; the other is derived from its
+  /// primary colour).
+  static ({ColorScheme light, ColorScheme dark}) schemesFor(
+    String presetId, {
+    ColorScheme? custom,
+  }) {
+    if (presetId == 'custom' && custom != null) {
+      ColorScheme other(Brightness b) =>
+          ColorScheme.fromSeed(seedColor: custom.primary, brightness: b);
+      return custom.brightness == Brightness.dark
+          ? (light: other(Brightness.light), dark: custom)
+          : (light: custom, dark: other(Brightness.dark));
+    }
+    final preset = getPreset(presetId);
+    return (light: preset.lightColors, dark: preset.darkColors);
+  }
 
   static ThemePreset getPreset(String id) {
     return presets[id] ?? presets['modern']!;
