@@ -10,6 +10,7 @@ import '../models/calendar_studio_types.dart';
 import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
 import '../services/calendar_studio_transform.dart';
+import 'calendar_studio_theme_blocks.dart';
 
 /// The single Flutter render path for editable canvases and page previews.
 class CalendarStudioScene extends StatelessWidget {
@@ -377,11 +378,24 @@ class CalendarStudioScene extends StatelessWidget {
       },
       opacity: (block.style['opacity'] as num?)?.toDouble() ?? 1,
     ),
-    CalendarStudioBlockType.eventList => const _ListBlock(
-      icon: Icons.event_outlined,
-      label: 'My events',
-    ),
-    CalendarStudioBlockType.holidayLegend => _TemplateLegend(block: block),
+    CalendarStudioBlockType.eventList =>
+      block.content.containsKey('title') ||
+              block.content.containsKey('placeholder') ||
+              block.content['kind'] == 'notes'
+          ? StudioEventList(
+              block: block,
+              source: source.copyWith(year: page.year, month: page.month),
+              dataProvider: dataProvider,
+              resolvedDays: _resolvedDaysFor(block),
+            )
+          : const _ListBlock(icon: Icons.event_outlined, label: 'My events'),
+    CalendarStudioBlockType.holidayLegend =>
+      block.content['kind'] == 'themed'
+          ? StudioThemedLegend(
+              block: block,
+              source: source.copyWith(year: page.year, month: page.month),
+            )
+          : _TemplateLegend(block: block),
     CalendarStudioBlockType.decoration => _TemplateDecoration(block: block),
   };
 
@@ -557,6 +571,7 @@ class _ShapeBlock extends StatelessWidget {
       strokeColor: Color((block.style['strokeColor'] as int?) ?? 0xFF15201D),
       strokeWidth: (block.style['strokeWidth'] as num?)?.toDouble() ?? 0,
       opacity: (block.style['opacity'] as num?)?.toDouble() ?? 1,
+      filled: block.style['fill'] != 'none',
     ),
   );
 }
@@ -568,7 +583,11 @@ class _ShapePainter extends CustomPainter {
     required this.strokeColor,
     required this.strokeWidth,
     required this.opacity,
+    this.filled = true,
   });
+
+  /// False draws only the outline (e.g. a planet ring or stamp).
+  final bool filled;
   final String shape;
   final Color color;
   final Color strokeColor;
@@ -631,7 +650,7 @@ class _ShapePainter extends CustomPainter {
       ..style = shape == 'line' ? PaintingStyle.stroke : PaintingStyle.fill
       ..strokeWidth = shape == 'line' ? (strokeWidth > 0 ? strokeWidth : 4) : 0
       ..strokeCap = StrokeCap.round;
-    canvas.drawPath(path, fill);
+    if (filled || shape == 'line') canvas.drawPath(path, fill);
     if (strokeWidth > 0 && shape != 'line') {
       canvas.drawPath(
         path,
@@ -729,7 +748,8 @@ class _ShapePainter extends CustomPainter {
       color != oldDelegate.color ||
       strokeColor != oldDelegate.strokeColor ||
       strokeWidth != oldDelegate.strokeWidth ||
-      opacity != oldDelegate.opacity;
+      opacity != oldDelegate.opacity ||
+      filled != oldDelegate.filled;
 }
 
 class _AssetImageBlock extends StatefulWidget {
@@ -867,6 +887,12 @@ class _TextBlock extends StatelessWidget {
         fontWeight: _fontWeight(block.style['fontWeight'] as int? ?? 700),
         letterSpacing: (block.style['letterSpacing'] as num?)?.toDouble(),
         color: Color((block.style['color'] as int?) ?? 0xFF15201D),
+        // Myanmar stacks marks above and below the base line, so themed
+        // titles set a taller line height; italic is for Latin-only blocks.
+        height: (block.style['lineHeight'] as num?)?.toDouble(),
+        fontStyle: block.style['italic'] == true
+            ? FontStyle.italic
+            : FontStyle.normal,
       ),
     ),
   );
@@ -1352,6 +1378,17 @@ class _CalendarGridState extends State<_CalendarGrid> {
       block.style['holidayColor'] as int? ?? 0xFFB8322A,
     );
     final mini = block.content['mini'] as bool? ?? false;
+    final weekendColor = _color(block.style['weekendColor']);
+    final headerColor = _color(block.style['headerColor']) ?? inkColor;
+    final mutedColor = _color(block.style['mutedColor']);
+    final gridLines = block.style['gridLines'] as String? ?? 'light';
+    final collapsed = gridLines == 'full' || gridLines == 'boxed';
+    // "auto" draws only the weeks the month needs (4–6) instead of always 6.
+    final rows = block.style['rows'] == 'auto' ? (first + count + 6) ~/ 7 : 6;
+    final lineColor = Color(block.style['lineColor'] as int? ?? 0x2415201D);
+    Color headerFor(int weekday) => weekendColor != null
+        ? (weekday == 0 || weekday == 6 ? weekendColor : headerColor)
+        : (weekday == 0 ? holidayColor : headerColor);
     Widget buildGrid(List<CalendarStudioDayData>? dayData) => Column(
       children: [
         SizedBox(
@@ -1366,7 +1403,8 @@ class _CalendarGridState extends State<_CalendarGrid> {
                       english: englishHeaders[weekdayOrder[index]],
                       language: effectiveSource.language,
                       mini: mini,
-                      color: weekdayOrder[index] == 0 ? holidayColor : inkColor,
+                      color: headerFor(weekdayOrder[index]),
+                      subColor: mutedColor,
                     ),
                   ),
                 ),
@@ -1374,24 +1412,37 @@ class _CalendarGridState extends State<_CalendarGrid> {
           ),
         ),
         Expanded(
-          child: Column(
-            children: [
-              for (var row = 0; row < 6; row++)
-                Expanded(
-                  child: Row(
-                    children: [
-                      for (var column = 0; column < 7; column++)
-                        Expanded(
-                          child: _dayCell(
-                            row * 7 + column - first + 1,
-                            count,
-                            dayData,
+          // Boxed grids draw each cell's top and left edge and close the
+          // right and bottom once here, so internal lines never double.
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: collapsed
+                  ? Border(
+                      right: BorderSide(color: lineColor),
+                      bottom: BorderSide(color: lineColor),
+                    )
+                  : null,
+            ),
+            child: Column(
+              children: [
+                for (var row = 0; row < rows; row++)
+                  Expanded(
+                    child: Row(
+                      children: [
+                        for (var column = 0; column < 7; column++)
+                          Expanded(
+                            child: _dayCell(
+                              row * 7 + column - first + 1,
+                              count,
+                              dayData,
+                              row: row,
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -1405,15 +1456,41 @@ class _CalendarGridState extends State<_CalendarGrid> {
     );
   }
 
-  Widget _dayCell(int day, int count, List<CalendarStudioDayData>? dayData) {
-    if (day < 1 || day > count) return const SizedBox();
+  Widget _dayCell(
+    int day,
+    int count,
+    List<CalendarStudioDayData>? dayData, {
+    required int row,
+  }) {
+    final gridLines = block.style['gridLines'] as String? ?? 'light';
+    final borderColor = Color(block.style['lineColor'] as int? ?? 0x2415201D);
+    final border = switch (gridLines) {
+      'none' => null,
+      'full' || 'boxed' => Border(
+        top: BorderSide(color: borderColor),
+        left: BorderSide(color: borderColor),
+      ),
+      'lined' when row == 0 => null,
+      _ => Border(top: BorderSide(color: borderColor)),
+    };
+    if (day < 1 || day > count) {
+      // Blank cells keep their outline in boxed grids so the edge is even.
+      return gridLines == 'full' || gridLines == 'boxed'
+          ? DecoratedBox(
+              decoration: BoxDecoration(border: border),
+              child: const SizedBox.expand(),
+            )
+          : const SizedBox();
+    }
     final month = block.content['month'] as int? ?? source.month;
-    final sunday = DateTime(source.year, month, day).weekday == 7;
+    final weekday = DateTime(source.year, month, day).weekday;
+    final sunday = weekday == 7;
+    final weekendColor = _color(block.style['weekendColor']);
+    final weekend = weekendColor != null ? weekday >= 6 : sunday;
     final data = dayData != null && day <= dayData.length
         ? dayData[day - 1]
         : null;
     final holiday = data?.holidayLabel?.isNotEmpty ?? false;
-    final gridLines = block.style['gridLines'] as String? ?? 'light';
     final holidayColor = Color(
       block.style['holidayColor'] as int? ?? 0xFFB8322A,
     );
@@ -1423,7 +1500,6 @@ class _CalendarGridState extends State<_CalendarGrid> {
     );
     final numberFont = block.style['numberFont'] as String? ?? 'serif';
     final rowHeight = (block.style['rowHeight'] as num?)?.toDouble() ?? 1;
-    final borderColor = Color(block.style['lineColor'] as int? ?? 0x2415201D);
     final mini = block.content['mini'] as bool? ?? false;
     final calendarStyle =
         block.content['calendarStyle'] as String? ?? 'standard';
@@ -1432,11 +1508,7 @@ class _CalendarGridState extends State<_CalendarGrid> {
         color: source.showHolidays && holiday
             ? holidayColor.withValues(alpha: .08)
             : null,
-        border: switch (gridLines) {
-          'none' => null,
-          'full' => Border.all(color: borderColor),
-          _ => Border(top: BorderSide(color: borderColor)),
-        },
+        border: border,
       ),
       child: Padding(
         padding: mini
@@ -1453,9 +1525,19 @@ class _CalendarGridState extends State<_CalendarGrid> {
                       : '$day',
                   numberFont: numberFont,
                   mini: mini,
-                  color: sunday || holiday ? holidayColor : inkColor,
+                  color: holiday
+                      ? holidayColor
+                      : weekend
+                      ? weekendColor ?? holidayColor
+                      : inkColor,
                   calendarStyle: calendarStyle,
                   moonPhase: data?.moonPhase,
+                  // When the theme's holiday colour matches ordinary dates,
+                  // an underline keeps holidays visible.
+                  underline:
+                      holiday &&
+                      (holidayColor == inkColor ||
+                          holidayColor == weekendColor),
                   emphasized: sunday || holiday,
                 ),
                 if (!mini)
@@ -1494,7 +1576,9 @@ class _CalendarGridState extends State<_CalendarGrid> {
                   width: 14,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0E6B5C),
+                    color: Color(
+                      block.style['eventColor'] as int? ?? 0xFF0E6B5C,
+                    ),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -1515,7 +1599,9 @@ class _CalendarDayNumber extends StatelessWidget {
     required this.calendarStyle,
     required this.moonPhase,
     required this.emphasized,
+    this.underline = false,
   });
+  final bool underline;
   final String label;
   final String numberFont;
   final bool mini;
@@ -1537,9 +1623,10 @@ class _CalendarDayNumber extends StatelessWidget {
         fontSize: mini ? 7 : 15,
         height: 1,
         color: isFull ? const Color(0xFF151B3F) : color,
-        decoration: calendarStyle == 'plain' && emphasized
+        decoration: underline || calendarStyle == 'plain' && emphasized
             ? TextDecoration.underline
             : null,
+        decorationColor: color,
       ),
     );
     if (!isFull && !isNew) return text;
@@ -1657,12 +1744,16 @@ class _WeekdayLabel extends StatelessWidget {
     required this.language,
     required this.mini,
     required this.color,
+    this.subColor,
   });
   final String myanmar;
   final String english;
   final CalendarStudioLanguage language;
   final bool mini;
   final Color color;
+
+  /// Colour of the English line under the Myanmar weekday.
+  final Color? subColor;
 
   @override
   Widget build(BuildContext context) {
@@ -1698,7 +1789,7 @@ class _WeekdayLabel extends StatelessWidget {
             fontSize: 8,
             fontWeight: FontWeight.w500,
             height: 1.05,
-            color: color.withValues(alpha: .65),
+            color: subColor ?? color.withValues(alpha: .65),
           ),
         ),
       ],
@@ -1832,3 +1923,6 @@ class _SelectionActions extends StatelessWidget {
     icon: Icon(icon),
   );
 }
+
+/// Reads an optional ARGB colour from block style.
+Color? _color(Object? value) => value is int ? Color(value) : null;
