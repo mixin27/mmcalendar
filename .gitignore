@@ -91,3 +91,6 @@ coverage/
 
 /misc/
 **/build/
+
+# Alchemist golden-test failure output
+**/test/**/failures/
