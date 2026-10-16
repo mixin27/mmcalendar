@@ -867,36 +867,78 @@ class _AssetImageBlockState extends State<_AssetImageBlock> {
 class _TextBlock extends StatelessWidget {
   const _TextBlock({required this.block});
   final CalendarStudioBlock block;
+
   @override
-  Widget build(BuildContext context) => FittedBox(
-    fit: BoxFit.scaleDown,
-    alignment: switch (block.style['align']) {
-      'center' => Alignment.center,
-      'right' => Alignment.centerRight,
-      _ => Alignment.centerLeft,
-    },
-    child: Text(
+  Widget build(BuildContext context) {
+    final style = block.style;
+    final align = style['align'] as String?;
+    final top = style['vAlign'] == 'top';
+    final textAlign = switch (align) {
+      'center' => TextAlign.center,
+      'right' => TextAlign.right,
+      _ => TextAlign.left,
+    };
+    final size = (style['fontSize'] as num?)?.toDouble() ?? 20;
+    final color = Color((style['color'] as int?) ?? 0xFF15201D);
+    final family = style['fontFamily'] as String? ?? 'Noto Sans Myanmar';
+    // Myanmar stacks marks above and below the base line, so themed titles
+    // set a taller line height; italic is for Latin-only text.
+    final main = Text(
       (block.content['text'] as String?) ?? '',
-      textAlign: switch (block.style['align']) {
-        'center' => TextAlign.center,
-        'right' => TextAlign.right,
-        _ => TextAlign.left,
-      },
-      // Myanmar stacks marks above and below the base line, so themed
-      // titles set a taller line height; italic is for Latin-only blocks.
+      textAlign: textAlign,
       style:
           CalendarStudioFontCatalog.style(
-            family: block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar',
-            weight: _fontWeight(block.style['fontWeight'] as int? ?? 700),
-            italic: block.style['italic'] == true,
+            family: family,
+            weight: _fontWeight(style['fontWeight'] as int? ?? 700),
+            italic: style['italic'] == true,
           ).copyWith(
-            fontSize: (block.style['fontSize'] as num?)?.toDouble() ?? 20,
-            letterSpacing: (block.style['letterSpacing'] as num?)?.toDouble(),
-            color: Color((block.style['color'] as int?) ?? 0xFF15201D),
-            height: (block.style['lineHeight'] as num?)?.toDouble(),
+            fontSize: size,
+            letterSpacing: (style['letterSpacing'] as num?)?.toDouble(),
+            color: color,
+            height: (style['lineHeight'] as num?)?.toDouble(),
           ),
-    ),
-  );
+    );
+    final subtitle = block.content['subtitle'] as String?;
+    // A bilingual title: the English line sits under the Myanmar one.
+    final child = subtitle == null
+        ? main
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: switch (align) {
+              'center' => CrossAxisAlignment.center,
+              'right' => CrossAxisAlignment.end,
+              _ => CrossAxisAlignment.start,
+            },
+            children: [
+              main,
+              Text(
+                subtitle,
+                textAlign: textAlign,
+                style:
+                    CalendarStudioFontCatalog.style(
+                      family: family,
+                      weight: FontWeight.w500,
+                      italic: style['subtitleItalic'] == true,
+                    ).copyWith(
+                      fontSize:
+                          size *
+                          ((style['subtitleScale'] as num?)?.toDouble() ?? .38),
+                      height: 1.2,
+                      color: _color(style['subtitleColor']) ?? color,
+                    ),
+              ),
+            ],
+          );
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: switch (align) {
+        'center' => top ? Alignment.topCenter : Alignment.center,
+        'right' => top ? Alignment.topRight : Alignment.centerRight,
+        _ => top ? Alignment.topLeft : Alignment.centerLeft,
+      },
+      child: child,
+    );
+  }
 }
 
 FontWeight _fontWeight(int value) => switch (value) {
@@ -1521,6 +1563,7 @@ class _CalendarGridState extends State<_CalendarGrid> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _CalendarDayNumber(
+                  family: block.style['numberFamily'] as String?,
                   label: source.language == CalendarStudioLanguage.myanmar
                       ? _myanmarNumber(day)
                       : '$day',
@@ -1601,8 +1644,12 @@ class _CalendarDayNumber extends StatelessWidget {
     required this.moonPhase,
     required this.emphasized,
     this.underline = false,
+    this.family,
   });
   final bool underline;
+
+  /// Preset numeral font; defaults to the Studio serif or sans.
+  final String? family;
   final String label;
   final String numberFont;
   final bool mini;
@@ -1619,9 +1666,11 @@ class _CalendarDayNumber extends StatelessWidget {
       label,
       style:
           CalendarStudioFontCatalog.style(
-            family: numberFont == 'serif'
-                ? CalendarStudioFontCatalog.numberFamily
-                : 'Noto Sans Myanmar',
+            family:
+                family ??
+                (numberFont == 'serif'
+                    ? CalendarStudioFontCatalog.numberFamily
+                    : 'Noto Sans Myanmar'),
             weight: FontWeight.w700,
           ).copyWith(
             fontSize: mini ? 7 : 15,

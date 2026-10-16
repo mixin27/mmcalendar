@@ -20,9 +20,17 @@ void main() {
     await tester.tap(find.text('Browse templates'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(CalendarStudioScene), findsNWidgets(7));
+    expect(find.byType(CalendarStudioScene), findsWidgets);
     expect(find.text('Jade wall'), findsOneWidget);
     expect(find.text('Moonlight post'), findsOneWidget);
+    // Round-2 presets follow the originals in the same gallery.
+    await tester.scrollUntilVisible(
+      find.text('Woven Heritage'),
+      400,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Woven Heritage'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('editor canvas exposes zoom and fit controls', (tester) async {

@@ -686,11 +686,15 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     await _load();
   }
 
+  /// Dashboard filter for a project, from its template's category label
+  /// ("Wall · A4 portrait", "Story · 9:16", …).
   String _projectCategory(CalendarStudioProject project) =>
-      switch (project.templateId) {
-        'jade-wall' => 'Wall',
-        'ledger-desk' => 'Desk',
-        'square' || 'story' => 'Social',
+      switch (CalendarStudioTemplates.byId(
+        project.templateId,
+      ).category.split(' ').first) {
+        'Wall' => 'Wall',
+        'Desk' => 'Desk',
+        'Social' || 'Story' => 'Social',
         _ => 'Print',
       };
 

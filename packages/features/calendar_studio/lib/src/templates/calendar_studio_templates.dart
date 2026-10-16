@@ -2,6 +2,8 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart' as mm;
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
+import 'calendar_studio_preset_builder.dart';
+import 'calendar_studio_preset_specs.dart';
 
 typedef CalendarStudioBlockBuilder =
     List<CalendarStudioBlock> Function(int year, int month);
@@ -14,12 +16,24 @@ class CalendarStudioTemplate {
     required this.canvas,
     required this.monthly,
     required this.create,
+    this.collection,
+    this.moods = const [],
+    this.palette = const [],
   });
   final String id;
   final String name;
   final String category;
   final StudioCanvas canvas;
   final bool monthly;
+
+  /// Preset collection, e.g. "Vol 1", for the gallery's "New" rail.
+  final String? collection;
+
+  /// Mood keywords for gallery chips and search.
+  final List<String> moods;
+
+  /// Swatches shown on the gallery card (paper, primary, accent, ink, holiday).
+  final List<int> palette;
   final CalendarStudioProject Function({
     required String id,
     required CalendarStudioSource source,
@@ -82,6 +96,9 @@ abstract final class CalendarStudioTemplates {
       const StudioCanvas(width: 360, height: 640),
       blocks: _storyBlocks,
     ),
+    // Round-2 presets (docs/calendar-studio-theme-presets*.html).
+    for (final spec in calendarStudioPresetSpecs)
+      CalendarStudioPresetBuilder.build(spec),
   ];
 
   static CalendarStudioTemplate byId(String id) =>
