@@ -1,0 +1,659 @@
+<title>Myanmar Calendar Design v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a review board of every app screen, grouped by tab. Board chrome follows the viewer's theme; the app frames carry the proposed "Clear" tokens and switch to dark with the toggle. */
+:root{
+  --board:#E8E8ED; --board-ink:#111114; --board-line:rgba(17,17,20,.14);
+  --f:'Inter','Padauk','Myanmar Text',system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--board:#0B0B0D;--board-ink:#F2F2F5;--board-line:rgba(242,242,245,.14);color-scheme:dark}}
+:root[data-theme="dark"]{--board:#0B0B0D;--board-ink:#F2F2F5;--board-line:rgba(242,242,245,.14);color-scheme:dark}
+
+/* App tokens: the proposal */
+.app{
+  --bg:#F2F2F7; --surface:#FFFFFF; --surface-2:#F7F7FA; --fill:rgba(118,118,128,.12); --fill-2:rgba(118,118,128,.08);
+  --sep:rgba(60,60,67,.16); --label:#0A0A0F; --label-2:#6B6B73; --label-3:#A1A1A8;
+  --accent:#2F5BEA; --accent-soft:rgba(47,91,234,.11); --on-accent:#FFFFFF;
+  --holiday:#E5383B; --holiday-soft:rgba(229,56,59,.10);
+  --moon:#F2A900; --sabbath:#B7700B; --sabbath-soft:rgba(242,169,0,.14);
+  --newmoon:#8E8E93; --ok:#1F9D63; --warn:#C27C0E;
+  --bar:rgba(249,249,251,.86); --scrim:rgba(0,0,0,.32);
+  background:var(--bg); color:var(--label); font-family:var(--f);
+}
+.app.dark{
+  --bg:#000000; --surface:#1C1C1E; --surface-2:#242426; --fill:rgba(118,118,128,.26); --fill-2:rgba(118,118,128,.16);
+  --sep:rgba(84,84,88,.62); --label:#F5F5F7; --label-2:#A1A1A8; --label-3:#6C6C72;
+  --accent:#5B83FF; --accent-soft:rgba(91,131,255,.18); --on-accent:#FFFFFF;
+  --holiday:#FF5A5F; --holiday-soft:rgba(255,90,95,.16);
+  --moon:#FFC530; --sabbath:#FFB840; --sabbath-soft:rgba(255,184,64,.16);
+  --newmoon:#8E8E93; --ok:#34C77B; --warn:#FFB840;
+  --bar:rgba(22,22,24,.86); --scrim:rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+body{background:var(--board);color:var(--board-ink);font-family:var(--f);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-inline:clamp(16px,4vw,52px);padding-block:40px 120px}
+.wrap{max-width:1560px;margin:0 auto}
+h1,h2{letter-spacing:-.02em;text-wrap:balance}
+.hero h1{font-weight:800;font-size:clamp(32px,4.4vw,54px);line-height:1.05;margin:0 0 12px;max-width:18ch}
+.hero p{max-width:72ch;margin:0;opacity:.82}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;align-items:center}
+.toc a,.toggle{color:inherit;text-decoration:none;font:600 13px var(--f);padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--board-line);background:transparent;cursor:pointer}
+.toggle[aria-pressed="true"]{background:var(--board-ink);color:var(--board)}
+.toc a:focus-visible,.toggle:focus-visible{outline:2px solid #2F5BEA;outline-offset:2px}
+.sec{margin-top:80px;scroll-margin-top:20px}
+.sec>h2{font-weight:800;font-size:30px;line-height:1.15;margin:0 0 6px}
+.sec>.lead{max-width:78ch;margin:0 0 26px;opacity:.82}
+.row{display:flex;flex-wrap:wrap;gap:36px 26px;align-items:flex-start}
+.fr{width:360px;max-width:100%;flex:none;min-width:0}
+.fr.wide{width:100%;max-width:1240px}
+.cap{display:flex;gap:10px;align-items:center;margin:0 0 4px 4px}
+.cap .n{min-width:24px;height:22px;padding:0 6px;border-radius:11px;background:var(--board-ink);color:var(--board);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.cap .t{font-weight:700;font-size:14.5px}
+.note{margin:0 4px 12px 38px;font-size:13px;opacity:.78;max-width:46ch;line-height:1.5;min-height:3em}
+.fr.wide .note{max-width:96ch;min-height:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:22px}
+.cards div{padding:14px 16px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--board-line)}
+.cards b{display:block;font-size:15.5px}
+.cards span{font-size:13.5px;opacity:.8}
+.scroll-x{overflow-x:auto}
+table.spec{border-collapse:collapse;width:100%;min-width:680px;font-size:13.5px}
+table.spec th,table.spec td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--board-line);vertical-align:top}
+table.spec th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+
+/* phone */
+.phone{width:360px;max-width:100%;padding:7px;border-radius:44px;background:#0a0a0c;box-shadow:0 26px 50px -24px rgba(0,0,0,.5)}
+.scr{position:relative;width:100%;height:740px;border-radius:37px;overflow:hidden;display:flex;flex-direction:column;font-size:14px;line-height:1.45}
+.status{height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:6px 28px 0;font-size:13px;font-weight:600}
+.nav{flex:none;padding:0 16px}
+.navtop{height:40px;display:flex;align-items:center;gap:4px;color:var(--accent);font-size:15px}
+.navtop .sp{flex:1;text-align:center;color:var(--label);font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.navtop .act{display:flex;gap:14px;align-items:center}
+.large{font-weight:800;font-size:30px;line-height:1.25;letter-spacing:-.02em;margin:2px 0 0}
+.large.my{font-size:27px;line-height:1.45;letter-spacing:0}
+.lsub{font-size:13px;color:var(--label-2);margin:0 0 6px}
+.content{flex:1;min-height:0;overflow:hidden;padding:8px 16px 100px;display:flex;flex-direction:column;gap:16px}
+.content.notab{padding-bottom:24px}
+.muted{color:var(--label-2)}
+.faint{color:var(--label-3)}
+.tnum{font-variant-numeric:tabular-nums}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.i.s{width:16px;height:16px}
+/* tab bar */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--bar);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);box-shadow:0 -.5px 0 var(--sep);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px 26px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;color:var(--label-3)}
+.tab.on{color:var(--accent)}
+.tab svg.i{width:24px;height:24px}
+/* groups */
+.glabel{font-size:12.5px;color:var(--label-2);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px 16px}
+.gfoot{font-size:12.5px;color:var(--label-2);margin:6px 16px 0;line-height:1.4}
+.group{background:var(--surface);border-radius:14px;overflow:hidden}
+.r{display:flex;align-items:center;gap:12px;padding:0 14px;min-height:46px;position:relative}
+.r+.r::before{content:"";position:absolute;top:0;left:var(--inset,14px);right:0;height:.5px;background:var(--sep)}
+.r.ic{--inset:58px}
+.r .tile{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;flex:none}
+.r .tile svg.i{width:17px;height:17px;stroke-width:2}
+.r .tx{flex:1;min-width:0;padding:10px 0}
+.r .tx b{display:block;font-weight:500;font-size:15px;line-height:1.35}
+.r .tx small{display:block;color:var(--label-2);font-size:12.5px;line-height:1.35}
+.r .val{color:var(--label-2);font-size:14.5px;white-space:nowrap}
+.r .chev{color:var(--label-3)}
+.r.acc .tx b{color:var(--accent)}
+.r.dng .tx b{color:var(--holiday)}
+.tg{width:46px;height:28px;border-radius:14px;background:var(--fill);position:relative;flex:none}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:12px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.tg.on{background:var(--ok)}
+.tg.on::after{left:20px}
+.check{color:var(--accent)}
+/* controls */
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--fill);border-radius:9px;padding:2px;font-size:13px;font-weight:600;text-align:center}
+.seg span{padding:6px 4px;border-radius:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg .on{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.app.dark .seg .on{background:#5A5A5E}
+.btn{height:50px;border-radius:14px;border:0;font:600 16px var(--f);display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;width:100%}
+.btn.p{background:var(--accent);color:var(--on-accent)}
+.btn.t{background:var(--accent-soft);color:var(--accent)}
+.btn.g{background:transparent;color:var(--accent)}
+.btn.d{background:var(--holiday-soft);color:var(--holiday)}
+.btn.sm{height:36px;border-radius:10px;font-size:14px;width:auto;padding:0 14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{height:32px;padding:0 13px;border-radius:16px;background:var(--fill);display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:500;white-space:nowrap}
+.chip.on{background:var(--accent);color:var(--on-accent)}
+.search{height:38px;border-radius:11px;background:var(--fill);display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--label-3);font-size:15px}
+.input{background:var(--surface);border-radius:14px}
+.input .r{min-height:48px}
+.input .r .tx b{font-weight:400}
+.ph{color:var(--label-3)}
+/* overlays */
+.scrim{position:absolute;inset:0;background:var(--scrim)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:14px 14px 0 0;display:flex;flex-direction:column;overflow:hidden}
+.sheet.card{background:var(--surface)}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--label-3);opacity:.5;margin:6px auto 4px}
+.shead{display:flex;align-items:center;padding:4px 16px 8px;gap:8px}
+.shead b{flex:1;text-align:center;font-size:16px;font-weight:600}
+.shead span{color:var(--accent);font-size:15px;min-width:56px}
+.shead span:last-child{text-align:right;font-weight:600}
+.dialog{position:absolute;left:44px;right:44px;top:50%;transform:translateY(-50%);background:var(--surface);border-radius:16px;overflow:hidden;text-align:center}
+.dialog .db{padding:20px 16px 16px}
+.dialog .db b{display:block;font-size:17px;font-weight:600;margin-bottom:4px}
+.dialog .db p{margin:0;font-size:13px;color:var(--label-2);line-height:1.4}
+.dialog .da{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;box-shadow:0 -.5px 0 var(--sep)}
+.dialog .da span{padding:12px 0;color:var(--accent);font-size:16px}
+.dialog .da span+span{box-shadow:-.5px 0 0 var(--sep)}
+.dialog .da .b{font-weight:600}
+.dialog .da .x{color:var(--holiday)}
+.toast{position:absolute;left:12px;right:12px;bottom:96px;background:#1C1C1E;color:#F5F5F7;border-radius:14px;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 16px;font-size:14px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+.app.dark .toast{background:#3A3A3C}
+.toast .a{color:#8FA9FF;font-weight:600;padding:0 6px}
+.ring{width:28px;height:28px;border-radius:50%;background:conic-gradient(#F5F5F7 70%,rgba(245,245,247,.22) 0);display:grid;place-items:center;flex:none}
+.ring span{width:23px;height:23px;border-radius:50%;background:inherit;display:grid;place-items:center;font-size:10.5px;font-weight:700;background:#1C1C1E}
+.app.dark .ring span{background:#3A3A3C}
+/* bits */
+.badge{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:11px;font-size:11.5px;font-weight:600}
+.badge.hol{background:var(--holiday-soft);color:var(--holiday)}
+.badge.sab{background:var(--sabbath-soft);color:var(--sabbath)}
+.badge.acc{background:var(--accent-soft);color:var(--accent)}
+.badge.ok{background:rgba(31,157,99,.14);color:var(--ok)}
+.badge.fill{background:var(--fill);color:var(--label-2)}
+.card{background:var(--surface);border-radius:16px;padding:14px 16px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--label-2)}
+.kv dd{margin:0;text-align:right;font-weight:500}
+.big{font-weight:800;font-size:44px;line-height:1;letter-spacing:-.03em}
+.mytitle{font-size:20px;font-weight:700;line-height:1.6}
+.moon{width:34px;height:34px;flex:none}
+/* calendar grids */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--gap,0)}
+.wd{text-align:center;font-size:10.5px;font-weight:600;color:var(--label-3);line-height:1.2;padding-bottom:6px}
+.wd i{display:block;font-style:normal;font-size:9.5px;font-weight:500}
+.wd.we{color:var(--holiday)}
+/* Clean */
+.clean .c{display:flex;flex-direction:column;align-items:center;padding:3px 0 5px;min-width:0}
+.clean .n{width:32px;height:32px;border-radius:16px;display:grid;place-items:center;font-size:17px;font-weight:500}
+.clean .c.today .n{background:var(--accent);color:var(--on-accent);font-weight:700}
+.clean .c.sel .n{background:var(--label);color:var(--bg);font-weight:700}
+.clean .c.hol .n,.clean .c.sun .n{color:var(--holiday)}
+.clean .c.today.hol .n{color:var(--on-accent)}
+.clean .l{font-size:9px;line-height:1.4;color:var(--label-3);white-space:nowrap;overflow:hidden;max-width:100%}
+.clean .l.s{color:var(--sabbath);font-weight:700}
+.clean .mk{height:5px;display:flex;gap:3px;margin-top:1px}
+.clean .mk i{width:5px;height:5px;border-radius:50%}
+.clean .c.x{opacity:.28}
+.dot-h{background:var(--holiday)} .dot-s{background:var(--moon)} .dot-e{background:var(--accent)} .dot-a{background:#8E6CEF}
+.fm{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--moon);vertical-align:0}
+.nm{display:inline-block;width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--newmoon);vertical-align:0}
+/* Detailed */
+.detail .c{min-width:0;aspect-ratio:.74;box-shadow:inset 0 .5px 0 var(--sep);padding:4px 3px 3px;display:flex;flex-direction:column;position:relative}
+.detail .n{font-size:15px;font-weight:600;line-height:1.15}
+.detail .c.today .n{color:var(--accent)}
+.detail .c.today::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:11px;background:var(--accent-soft)}
+.detail .c.hol{background:var(--holiday-soft)}
+.detail .c.hol .n,.detail .c.sun .n{color:var(--holiday)}
+.detail .h{font-size:8.5px;color:var(--holiday);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.detail .l{margin-top:auto;font-size:8.5px;line-height:1.35;color:var(--label-2);white-space:nowrap;overflow:hidden}
+.detail .l.s{color:var(--sabbath);font-weight:700}
+.detail .mo{position:absolute;right:4px;top:6px}
+.detail .ev{height:3px;border-radius:2px;background:var(--accent);margin-top:2px}
+.detail .c.x{opacity:.28}
+/* Current */
+.cur{--gap:4px}
+.cur .c{aspect-ratio:.75;border-radius:12px;box-shadow:inset 0 0 0 .5px var(--sep);background:var(--surface);display:flex;flex-direction:column;align-items:center;padding:3px 2px;min-width:0}
+.cur .c .dots{height:6px;display:flex;gap:2px}
+.cur .c .dots i{width:4px;height:4px;border-radius:50%}
+.cur .c .n{font-size:15px;font-weight:600;line-height:1.3}
+.cur .c .l{font-size:8.5px;color:var(--label-3);white-space:nowrap;overflow:hidden;max-width:100%}
+.cur .c.full{background:var(--sabbath-soft)}
+.cur .c.new{background:var(--fill)}
+.cur .c.today{box-shadow:inset 0 0 0 2px var(--accent);background:var(--accent-soft)}
+.cur .c.x{opacity:.35}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--label-2)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+/* desktop */
+.win{width:100%;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.12),0 30px 60px -30px rgba(0,0,0,.5)}
+.dsk{display:grid;grid-template-columns:220px minmax(0,1fr) 340px;min-height:660px}
+.side{background:var(--surface-2);box-shadow:inset -.5px 0 0 var(--sep);padding:18px 10px;display:flex;flex-direction:column;gap:2px}
+.side .s{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;font-size:14px;font-weight:500;color:var(--label)}
+.side .s.on{background:var(--accent-soft);color:var(--accent)}
+.dmain{padding:22px 26px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.dpanel{background:var(--surface);box-shadow:inset .5px 0 0 var(--sep);padding:22px 18px;display:flex;flex-direction:column;gap:14px}
+/* widgets */
+.wgts{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;padding:24px;border-radius:24px;background:linear-gradient(160deg,#6F86C9,#A9B7E6)}
+.w{background:rgba(255,255,255,.92);color:#0A0A0F;border-radius:22px;padding:14px;box-shadow:0 10px 24px -14px rgba(0,0,0,.4)}
+.w.s{width:150px;height:150px}.w.m{width:322px;height:150px}.w.l{width:322px;height:338px}
+.app.dark .w{background:rgba(28,28,30,.92);color:#F5F5F7}
+@media (max-width:1100px){.dsk{grid-template-columns:76px minmax(0,1fr)}.dpanel{display:none}.side .s span{display:none}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header class="hero">
+  <h1>Myanmar Calendar · design v3 “Clear”</h1>
+  <p>This is the second proposal, and it shows every screen in the app. The style is clean, modern and iOS-like: grouped white surfaces on light grey (true black in dark mode), large bold titles, and one blue accent for actions. Red is used only for holidays, amber only for the moon and Sabbath. Myanmar text is set in <b>Padauk</b>, paired with <b>Inter</b> for Latin text and numbers. There are no serif headings and no cream backgrounds. Every screen uses real data for October 2026 (သီတင်းကျွတ်, ME 1388), and every feature in today's app has a place.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#system">System</a><a href="#app">App-wide</a><a href="#home">Home</a><a href="#grids">Grids</a><a href="#views">Views</a><a href="#converter">Converter</a><a href="#events">Events</a><a href="#settings">Settings</a><a href="#widgets">Widgets</a><a href="#studio">Studio</a><a href="#desktop">Desktop</a><a href="#gaps">Gaps</a>
+    <button class="toggle" type="button" id="darkToggle" aria-pressed="false">Show app in dark</button>
+  </nav>
+</header>
+
+<section class="sec" id="system">
+  <h2>System</h2>
+  <p class="lead">Flutter widgets stay underneath, but their look comes from one <code>AppTokens</code> ThemeExtension and a small component set. That replaces the stock Material look and the duplicated light and dark themes.</p>
+  <div class="cards">
+    <div><b>Grouped, not floating</b><span>Lists sit in rounded white groups on grey, separated by hairlines, with no shadows or tinted Material surfaces.</span></div>
+    <div><b>One accent</b><span>Blue for actions and selection. Every other colour has a single meaning.</span></div>
+    <div><b>Myanmar reads first</b><span>Padauk at 15–20 px with line heights from 1.45 to 1.6, so stacked marks never clip.</span></div>
+    <div><b>Same frame everywhere</b><span>Every page uses a large title that shrinks on scroll, the same tab bar and the same sheets.</span></div>
+  </div>
+  <div class="row" style="margin-top:30px">
+    <div class="fr wide"><div class="scroll-x"><table class="spec"><thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Meaning</th></tr></thead><tbody id="tokens"></tbody></table></div></div>
+    <div class="fr wide">
+      <div class="app" style="border-radius:18px;padding:20px;display:grid;gap:14px">
+        <div><span class="large">October 2026</span> <span class="faint" style="font-size:12px">Large title · Inter 30/800</span></div>
+        <div><span class="large my">သီတင်းကျွတ်လ</span> <span class="faint" style="font-size:12px">Large title (Myanmar) · Padauk 27/700, line height 1.45</span></div>
+        <div class="mytitle">၁၃၈၈ ခုနှစ် သီတင်းကျွတ် လဆန်း ၅ ရက် <span class="faint" style="font-size:12px;font-weight:400">Title · Padauk 20/700, 1.6</span></div>
+        <div style="font-size:15px">Body text is Inter 15/1.55. Myanmar falls back to Padauk on the same line: ဥပုသ်နေ့ · Sabbath.</div>
+        <div class="muted" style="font-size:13px">Secondary 13/1.4 · <span class="glabel" style="margin:0">Group label 12.5 caps</span></div>
+        <div class="muted" style="font-size:12.5px">Spacing on a 4 pt grid (4, 8, 12, 16, 24, 32). Radius 9 for segmented controls, 14 for groups and buttons, 16 for cards and dialogs, 14 for sheet tops. Breakpoints: under 600 px uses the tab bar; 600–1023 px a sidebar; 1024 px and up a sidebar plus detail panel. Motion is 200 ms with iOS spring-like easing, and reduced motion turns it off.</div>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:30px" id="componentRow"></div>
+</section>
+
+<section class="sec" id="app"><h2>App-wide</h2><p class="lead">First launch, announcements, required updates, errors and the countdown toast.</p><div class="row" id="appRow"></div></section>
+<section class="sec" id="home"><h2>Home</h2><p class="lead">Today comes first, then one month switcher. The date-jump "search" button is gone; tapping the month title opens the picker. The grid below is the current one, kept as it is, with colours from tokens. Day details keep every section the app has today, grouped into scannable lists.</p><div class="row" id="homeRow"></div></section>
+<section class="sec" id="grids"><h2>Calendar grids</h2><p class="lead">The same month in three designs: the current grid, a <b>Clean</b> proposal in the style of iOS Calendar, and a <b>Detailed</b> proposal that keeps the lunar day and holiday name in every cell. Today is 16 October, and 22 October is selected and has an event. All data is real.</p><div class="row" id="gridRow"></div></section>
+<section class="sec" id="views"><h2>Views</h2><p class="lead">Year, week and day views. Day view becomes the same screen as Day Details, so it gains events, sharing and the AI prompt instead of duplicating them.</p><div class="row" id="viewsRow"></div></section>
+<section class="sec" id="converter"><h2>Converter</h2><p class="lead">The four tools become a segmented control at the top. Every result gets Copy and Share, which today's app doesn't have.</p><div class="row" id="convRow"></div></section>
+<section class="sec" id="events"><h2>Events</h2><p class="lead">The list, search, quick actions, the full form, detail and categories. Categories finally get an entry point (Events ⋯ menu), plus edit and delete.</p><div class="row" id="eventsRow"></div></section>
+<section class="sec" id="settings"><h2>Settings</h2><p class="lead">Every settings page and dialog, as grouped lists. Choices that used to open radio dialogs become inline checkmark lists or segmented controls.</p><div class="row" id="settingsRow"></div></section>
+<section class="sec" id="widgets"><h2>Home-screen widgets</h2><p class="lead">The four existing widgets restyled to match: Compact Date, Moon Phase, Full Calendar and Myanmar Month. The widget themes from Widget Settings still apply.</p><div id="widgetRow"></div></section>
+<section class="sec" id="studio"><h2>Calendar Studio</h2><p class="lead">Studio keeps its print-focused canvas. Its chrome (title bars, sheets and lists) adopts this system so it feels part of the app.</p><div class="row" id="studioRow"></div></section>
+<section class="sec" id="desktop"><h2>Desktop and tablet</h2><p class="lead">At 600 px and wider a sidebar replaces the tab bar. At 1024 px and wider the selected day opens in a detail panel; the app already does this at 1000 px.</p><div class="fr wide" id="deskFrame"></div></section>
+<section class="sec" id="gaps"><h2>Gaps found while mapping the app</h2><p class="lead">These features exist in the code but have no screen, or are broken. They aren't designed here; this is the follow-up list.</p>
+  <div class="scroll-x"><table class="spec"><thead><tr><th>Gap</th><th>Where</th><th>Suggestion</th></tr></thead><tbody>
+    <tr><td>Recurrence options</td><td>Event form</td><td>The model supports interval, weekdays, end date, count and exceptions, but the form only lets you pick a type. Add a "Custom" repeat screen.</td></tr>
+    <tr><td>Event status</td><td>Event model</td><td>"Cancelled" exists in the model but has no UI. Add it to the event's action menu.</td></tr>
+    <tr><td>First day of the week</td><td>Settings model</td><td>Add a Sunday / Monday choice to Display Preferences.</td></tr>
+    <tr><td>Notification settings</td><td>Settings</td><td>There's no page for this. A default reminder time and quiet hours would fit.</td></tr>
+    <tr><td>Holidays list</td><td>Holidays feature</td><td>Remote holiday rules exist but there's nothing to browse them. A "Holidays this year" list would fit under Calendar.</td></tr>
+    <tr><td>Widget size</td><td>Widget model</td><td>Only applies to Android; can stay hidden.</td></tr>
+    <tr><td>Broken promo targets</td><td>Contextual promo slides</td><td>They point at <code>/categories/create</code> and <code>/holidays</code>, which don't exist. Point them at Events ⋯ Categories, or remove them.</td></tr>
+    <tr><td>Unused screens</td><td>Placeholder page, consent dialog, pending-notification debug list</td><td>Delete them, or keep the debug list behind About in debug builds.</td></tr>
+    <tr><td>Hard-coded English</td><td>Converter, Events, Widget Settings, Studio</td><td>Move these strings into localization while restyling.</td></tr>
+  </tbody></table></div>
+</section>
+</div>
+
+<script>
+/* ---------- real data (myanmar_calendar_dart) ---------- */
+const OCT = [[1,"လဆုတ် ၅",2,0,0],[2,"လဆုတ် ၆",2,0,0],[3,"လဆုတ် ၇",2,0,0],[4,"လဆုတ် ၈",2,1,0],[5,"လဆုတ် ၉",2,0,0],[6,"လဆုတ် ၁၀",2,0,0],[7,"လဆုတ် ၁၁",2,0,0],[8,"လဆုတ် ၁၂",2,0,0],[9,"လဆုတ် ၁၃",2,0,0],[10,"လဆုတ် ၁၄",2,0,0],[11,"လကွယ် ၁၅",3,1,0],[12,"လဆန်း ၁",0,0,0],[13,"လဆန်း ၂",0,0,0],[14,"လဆန်း ၃",0,0,0],[15,"လဆန်း ၄",0,0,0],[16,"လဆန်း ၅",0,0,0],[17,"လဆန်း ၆",0,0,0],[18,"လဆန်း ၇",0,0,0],[19,"လဆန်း ၈",0,1,0],[20,"လဆန်း ၉",0,0,0],[21,"လဆန်း ၁၀",0,0,0],[22,"လဆန်း ၁၁",0,0,0],[23,"လဆန်း ၁၂",0,0,0],[24,"လဆန်း ၁၃",0,0,0],[25,"လဆန်း ၁၄",0,0,1],[26,"လပြည့် ၁၅",1,1,1],[27,"လဆုတ် ၁",2,0,1],[28,"လဆုတ် ၂",2,0,0],[29,"လဆုတ် ၃",2,0,0],[30,"လဆုတ် ၄",2,0,0],[31,"လဆုတ် ၅",2,0,0]];
+const EVENTS = {22: 1, 9: 1, 16: 1};
+const ASTRO = {2:1,3:1,4:1,6:1,7:1,12:1,13:1,14:1,15:1,16:1,17:1,22:1,23:1,28:1,29:1,30:1,31:1};
+const FIRST = 4, TODAY = 16, SEL = 22;
+const WD = [['နွေ','Sun'],['လာ','Mon'],['ဂါ','Tue'],['ဟူး','Wed'],['ကြာ','Thu'],['သော','Fri'],['နေ','Sat']];
+const short = l => l.replace('လဆန်း','ဆန်း').replace('လဆုတ်','ဆုတ်').replace('လပြည့် ၁၅','လပြည့်').replace('လကွယ် ၁၅','လကွယ်');
+
+/* ---------- icons ---------- */
+const P = {
+  cal:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/>',
+  swap:'<path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/>',
+  event:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M9 15h6"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', search:'<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+  share:'<path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12"/>',
+  back:'<path d="m15 18-6-6 6-6"/>', fwd:'<path d="m9 18 6-6-6-6"/>', down:'<path d="m6 9 6 6 6-6"/>',
+  moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>', sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  bell:'<path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2H4.5z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  repeat:'<path d="M17 2.5 20.5 6 17 9.5"/><path d="M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5M7 21.5 3.5 18 7 14.5"/><path d="M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5"/>',
+  tag:'<path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1a1 1 0 0 1 .7.3l7.4 7.4a1 1 0 0 1 0 1.4l-8.1 8.1a1 1 0 0 1-1.4 0L3.8 13.3a1 1 0 0 1-.3-.7z"/><circle cx="8" cy="8" r="1.4"/>',
+  pin:'<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>', trash:'<path d="M4.5 6.5h15M9.5 6.5V4.5h5v2M6.5 6.5l1 13h9l1-13"/>',
+  edit:'<path d="M14.5 5.5 18.5 9.5M4 20l1-4.5L16 4.5a2.1 2.1 0 0 1 3 3L8 18.5z"/>', check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  copy:'<rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/>',
+  spark:'<path d="M12 3.5 13.8 9 19.5 10.5 13.8 12.2 12 18 10.2 12.2 4.5 10.5 10.2 9z"/><path d="M18.5 3.5v3M17 5h3"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>', lock:'<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/>',
+  globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 2.5 14.4 0 17M12 3.5c-2.5 2.6-2.5 14.4 0 17"/>',
+  palette:'<path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 1.9-1 1.4-2.1-.6-1.2.2-2.4 1.5-2.4H17a3.5 3.5 0 0 0 3.5-3.5c0-5-3.8-9-8.5-9z"/><circle cx="8" cy="11" r="1.1"/><circle cx="11" cy="7.5" r="1.1"/><circle cx="15.5" cy="8.5" r="1.1"/>',
+  image:'<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m20.5 16-4.5-4.5L6 19.5"/>',
+  shield:'<path d="M12 3.5 19 6v5.5c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/>', download:'<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/>',
+  refresh:'<path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4.5h-4.5"/>', layers:'<path d="m12 3.5 8.5 4.5L12 12.5 3.5 8z"/><path d="m3.5 12 8.5 4.5 8.5-4.5M3.5 16l8.5 4.5 8.5-4.5"/>',
+  text:'<path d="M5 6.5V5h14v1.5M12 5v14M9.5 19h5"/>', list:'<path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/>',
+  sliders:'<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>', x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  more:'<circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/>', today:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><rect x="8" y="13" width="4" height="4" rx="1"/>',
+  phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>', up:'<path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/>',
+  calc:'<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7h7M8.5 11h.01M12 11h.01M15.5 11h.01M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 18h.01M12 18h3.5"/>',
+  hand:'<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5V4a1.5 1.5 0 0 1 3 0v6m0-1.5a1.5 1.5 0 0 1 3 0v5.5a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3 14a1.6 1.6 0 0 1 2.6-1.8L8 15"/>',
+  widget:'<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="17" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ''}</svg>`;
+const tile = (n, c) => `<span class="tile" style="background:${c}">${ic(n)}</span>`;
+const C = {blue:'#2F5BEA', red:'#E5383B', amber:'#F2A900', green:'#1F9D63', purple:'#8E6CEF', gray:'#8E8E93', teal:'#16A3B0', pink:'#E0457B', indigo:'#4C5BD4', orange:'#F08A1C'};
+
+/* ---------- builders ---------- */
+const TABS = [['home','today','Today'],['views','grid','Views'],['convert','swap','Convert'],['events','event','Events'],['settings','gear','Settings']];
+function tabbar(on) { return `<div class="tabbar">${TABS.map(([id, i, l]) => `<span class="tab${id === on ? ' on' : ''}">${ic(i)}${l}</span>`).join('')}</div>`; }
+function nav({back, title, actions = [], large, my = false, sub}) {
+  const left = back ? `${ic('back')}<span>${back}</span>` : '';
+  const right = actions.map(a => a.startsWith('<') ? a : (P[a] ? ic(a) : `<span>${a}</span>`)).join('');
+  return `<div class="nav"><div class="navtop">${left}<span class="sp">${title || ''}</span><span class="act">${right}</span></div>${large ? `<div class="large${my ? ' my' : ''}">${large}</div>` : ''}${sub ? `<div class="lsub">${sub}</div>` : ''}</div>`;
+}
+function group(rows, label, foot) {
+  return `<div>${label ? `<div class="glabel">${label}</div>` : ''}<div class="group">${rows.join('')}</div>${foot ? `<div class="gfoot">${foot}</div>` : ''}</div>`;
+}
+function r({i, c, t, s, v, chev, tg, check, cls = ''}) {
+  const right = tg !== undefined ? `<span class="tg${tg ? ' on' : ''}"></span>` : check ? `<span class="check">${ic('check')}</span>` : (v ? `<span class="val">${v}</span>` : '') + (chev ? `<span class="chev">${ic('fwd','s')}</span>` : '');
+  return `<div class="r${i ? ' ic' : ''} ${cls}">${i ? tile(i, c || C.blue) : ''}<div class="tx"><b>${t}</b>${s ? `<small>${s}</small>` : ''}</div>${right}</div>`;
+}
+function phone(id, title, note, inner, opts = {}) {
+  return `<div class="fr"><div class="cap"><span class="n">${id}</span><span class="t">${title}</span></div><p class="note">${note}</p>
+  <div class="phone"><div class="app scr">
+    <div class="status"><span class="tnum">9:41</span><span>●●●</span></div>${inner}${opts.tab ? tabbar(opts.tab) : ''}${opts.over || ''}
+  </div></div></div>`;
+}
+const content = (html, notab) => `<div class="content${notab ? ' notab' : ''}">${html}</div>`;
+const moonSvg = (phase, size = 34) => {
+  const lit = 'var(--moon)', dark = 'var(--fill)';
+  if (phase === 'full') return `<svg class="moon" width="${size}" height="${size}" viewBox="0 0 34 34"><circle cx="17" cy="17" r="14" fill="${lit}"/></svg>`;
+  if (phase === 'new') return `<svg class="moon" width="${size}" height="${size}" viewBox="0 0 34 34"><circle cx="17" cy="17" r="13" fill="none" stroke="var(--newmoon)" stroke-width="2"/></svg>`;
+  return `<svg class="moon" width="${size}" height="${size}" viewBox="0 0 34 34"><circle cx="17" cy="17" r="14" fill="${dark}"/><path d="M17 3a14 14 0 0 1 0 28a7 14 0 0 0 0-28z" fill="${lit}"/></svg>`;
+};
+
+/* ---------- grids ---------- */
+function weekdays() { return WD.map(([m, e], i) => `<div class="wd${i === 0 ? ' we' : ''}">${m}<i>${e}</i></div>`).join(''); }
+function cells(fn) {
+  const total = Math.ceil((FIRST + OCT.length) / 7) * 7, out = [];
+  for (let i = 0; i < total; i++) { const d = i - FIRST; out.push(fn(d >= 0 && d < OCT.length ? OCT[d] : null, i % 7)); }
+  return out.join('');
+}
+function gridCurrent() {
+  return `<div class="cal cur">${weekdays()}${cells((x) => {
+    if (!x) return '<div class="c x"></div>';
+    const [d, l, ph, sab, hol] = x;
+    const dots = [hol ? 'var(--holiday)' : '', sab ? 'var(--moon)' : '', ASTRO[d] ? '#8E6CEF' : ''].filter(Boolean).map(c => `<i style="background:${c}"></i>`).join('');
+    const cls = ['c', d === TODAY ? 'today' : '', ph === 1 ? 'full' : '', ph === 3 ? 'new' : ''].join(' ');
+    return `<div class="${cls}"><span class="dots">${dots}</span><span class="n tnum">${d}</span><span class="l">${ph === 1 ? '<span class="fm"></span>' : ph === 3 ? '<span class="nm"></span>' : short(l)}</span></div>`;
+  })}</div>`;
+}
+function gridClean() {
+  return `<div class="cal clean">${weekdays()}${cells((x, col) => {
+    if (!x) return '<div class="c x"></div>';
+    const [d, l, ph, sab, hol] = x;
+    const cls = ['c', d === TODAY ? 'today' : '', d === SEL ? 'sel' : '', hol ? 'hol' : '', col === 0 ? 'sun' : ''].join(' ');
+    const lunar = ph === 1 ? '<span class="fm"></span>' : ph === 3 ? '<span class="nm"></span>' : `<span class="l${sab ? ' s' : ''}">${short(l)}</span>`;
+    const marks = [EVENTS[d] ? '<i class="dot-e"></i>' : ''].join('');
+    return `<div class="${cls}"><span class="n tnum">${d}</span>${ph === 1 || ph === 3 ? `<span class="l">${lunar}</span>` : lunar}<span class="mk">${marks}</span></div>`;
+  })}</div>`;
+}
+function gridDetail() {
+  return `<div class="cal detail">${weekdays()}${cells((x, col) => {
+    if (!x) return '<div class="c x"></div>';
+    const [d, l, ph, sab, hol] = x;
+    const cls = ['c', d === TODAY ? 'today' : '', hol ? 'hol' : '', col === 0 ? 'sun' : ''].join(' ');
+    const mo = ph === 1 ? '<span class="mo fm"></span>' : ph === 3 ? '<span class="mo nm"></span>' : '';
+    return `<div class="${cls}"><span class="n tnum" style="position:relative;z-index:1">${d}</span>${mo}${hol ? '<span class="h">သီတင်းကျွတ်</span>' : ''}${EVENTS[d] ? '<span class="ev"></span>' : ''}<span class="l${sab ? ' s' : ''}">${short(l)}</span></div>`;
+  })}</div>`;
+}
+const legend = `<div class="legend"><span><i class="dot-h"></i>Holiday</span><span><i class="dot-s"></i>Sabbath / moon</span><span><i class="dot-a"></i>Astrology</span><span><i class="dot-e"></i>Event</span></div>`;
+
+/* ---------- sections ---------- */
+const S = {};
+S.components = [
+  phone('C1', 'Navigation and controls', 'The large title shrinks into the bar on scroll; back labels and bar actions use the accent. Primary, tinted, plain and destructive buttons; chips; segmented control; search field.',
+    nav({back:'Events', title:'', actions:['plus'], large:'Components'}) + content(`
+      <div class="search">${ic('search','s')} Search</div>
+      <div class="seg"><span>Day</span><span class="on">Week</span><span>Month</span></div>
+      <div class="chips"><span class="chip on">All</span><span class="chip">Work</span><span class="chip">Religious</span><span class="chip">Family</span></div>
+      <button class="btn p">Save Event</button><button class="btn t">Add reminder</button><button class="btn g">Not now</button><button class="btn d">Delete Event</button>`), {tab:'events'}),
+  phone('C2', 'Lists, toggles and toast', 'Grouped rows with coloured icon tiles, values, chevrons, toggles and checkmarks. The countdown toast sits above the tab bar.',
+    nav({title:'', large:'Lists'}) + content(`
+      ${group([r({i:'moon', c:C.amber, t:'Moon phases', tg:true}), r({i:'star', c:C.red, t:'Holidays', tg:true}), r({i:'globe', c:C.blue, t:'Language', v:'မြန်မာ', chev:true})], 'Display', 'Changes apply to the grid, widgets and day details.')}
+      ${group([r({t:'Light', check:true}), r({t:'Dark'}), r({t:'System'})], 'Theme')}`), {tab:'settings', over:`<div class="toast"><span style="flex:1">Event deleted</span><span class="a">Undo</span><span class="ring"><span>4</span></span></div>`}),
+  phone('C3', 'Sheets and dialogs', 'Sheets have a grabber and Cancel / Done in the header. Alerts are compact and centred, with the destructive action in red.',
+    nav({title:'', large:'Overlays'}) + content(group([r({t:'Sheet below'})])),
+    {over:`<div class="scrim"></div><div class="dialog"><div class="db"><b>Delete event?</b><p>“Grandma’s birthday” will be removed from all dates. This can’t be undone.</p></div><div class="da"><span>Cancel</span><span class="b x">Delete</span></div></div>`}),
+];
+
+S.app = [
+  phone('A1', 'Privacy consent', 'First launch. Same choices as today: enable or disable analytics and crash reports, with the reminder that this can be changed later.',
+    content(`<div style="flex:1"></div><div style="text-align:center;display:grid;gap:10px;justify-items:center">
+      <span class="tile" style="width:64px;height:64px;border-radius:18px;background:${C.blue};color:#fff;display:grid;place-items:center">${ic('shield')}</span>
+      <div class="large" style="font-size:26px">Help us improve</div>
+      <p class="muted" style="margin:0 8px">Share anonymous usage and crash reports. No personal data, events or calendar content ever leave your device.</p></div>
+      <div style="flex:1"></div><button class="btn p">Enable all</button><button class="btn g">Disable all</button>
+      <p class="faint" style="text-align:center;font-size:12.5px;margin:0">You can change this any time in Settings › Privacy &amp; Data.</p>`, true)),
+  phone('A2', 'Onboarding', 'The five first-run slides (welcome, events, traditional calendar, app icons, privacy) share this layout, with "Get started" on the last.',
+    content(`<div style="text-align:right"><span style="color:var(--accent)">Skip</span></div><div style="flex:1;display:grid;place-items:center">${moonSvg('waxing', 120)}</div>
+      <div style="text-align:center"><div class="large" style="font-size:26px">Myanmar traditional calendar</div><p class="muted" style="margin:8px 6px 0">Lunar days, moon phases, Sabbath and holidays, with astrological details for every day.</p></div>
+      <div style="display:flex;justify-content:center;gap:6px">${[0,0,1,0,0].map(o=>`<i style="width:${o?18:6}px;height:6px;border-radius:3px;background:${o?'var(--accent)':'var(--fill)'};display:block"></i>`).join('')}</div><button class="btn p">Continue</button>`, true)),
+  phone('A3', 'What’s new', 'Feature announcements per version (recurring events, converter tools, Calendar Studio, app icons). The button jumps to the feature.',
+    content(`<div style="flex:1"></div>`, true), {over:`<div class="scrim"></div><div class="sheet card" style="height:62%"><div class="grab"></div><div style="padding:8px 20px 20px;display:grid;gap:12px">
+      <div class="badge acc" style="justify-self:start">New in 2.3</div><div class="large" style="font-size:24px">Calendar Studio</div>
+      <p class="muted" style="margin:0">Design wall, desk and social calendars from 23 presets, then export print-ready PDF and images.</p>
+      <div style="height:150px;border-radius:14px;background:var(--fill);display:grid;place-items:center">${ic('image')}</div>
+      <button class="btn p">Open Studio</button><button class="btn g">Later</button></div></div>`}),
+  phone('A4', 'Update required', 'The blocking update screen: version notes, Update Now, and Check Again. It can’t be dismissed while an update is required.',
+    content(`<div style="flex:1"></div><div style="display:grid;gap:10px;justify-items:center;text-align:center"><span class="tile" style="width:64px;height:64px;border-radius:18px;background:${C.blue};color:#fff;display:grid;place-items:center">${ic('download')}</span>
+      <div class="large" style="font-size:26px">Update required</div><p class="muted" style="margin:0">Version 2.3.0 fixes holiday data for 2027. Please update to keep dates accurate.</p></div>
+      ${group([r({t:'What’s new', s:'• Holiday rules for 2027<br>• Calendar Studio<br>• Faster month switching'})])}<div style="flex:1"></div><button class="btn p">Update now</button><button class="btn g">Check again</button>`, true)),
+  phone('A5', 'Errors and empty states', 'Page not found, a load error with retry, and an error toast. They all share one layout.',
+    nav({title:'', large:'Oops'}) + content(`<div style="flex:1;display:grid;place-items:center;text-align:center;gap:8px;align-content:center">${ic('info')}<b style="font-size:18px">Page not found</b><span class="muted">The link may be old or broken.</span><button class="btn t sm" style="justify-self:center">Go to Today</button></div>`), {tab:'home', over:`<div class="toast"><span style="color:#FF8A8D">${ic('info','s')}</span><span style="flex:1">Couldn’t load October. Check your connection.</span><span class="ring"><span>6</span></span></div>`}),
+];
+
+S.home = [
+  phone('H1', 'Today', 'The Today card replaces the duplicated header. It shows the Myanmar date, moon, today’s astrology, and chips for what’s next. The month switcher is a title with a chevron (tap for the picker) plus arrows. The current grid is kept.',
+    nav({title:'', actions:['plus'], large:''}).replace('<div class="large"></div>','') + content(`
+      <div class="card" style="display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center">
+        <div class="big tnum">16</div><div><div class="muted" style="font-size:12.5px">Friday · October 2026</div><div class="mytitle" style="font-size:17px;line-height:1.55">သီတင်းကျွတ် လဆန်း ၅ ရက်</div><div class="faint" style="font-size:12px">ME 1388 · Waxing · Thamanyo</div></div>${moonSvg('waxing')}
+        <div style="grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap"><span class="badge sab">ဥပုသ် Mon 19</span><span class="badge hol">Thadingyut holidays 25–27</span><span class="badge acc">1 event today</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px"><div style="flex:1"><div style="font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:4px">October 2026 <span style="color:var(--accent)">${ic('down','s')}</span></div><div class="muted" style="font-size:12.5px">တော်သလင်း – သီတင်းကျွတ် · ME 1388</div></div><span style="color:var(--accent);display:flex;gap:18px">${ic('back')}${ic('fwd')}</span></div>
+      ${gridCurrent()}`), {tab:'home'}),
+  phone('H2', 'Today · scrolled', 'Below the grid: Upcoming (holidays, Sabbath, the moon and your events for 30 days) and a Calendar Studio row in place of the old promo card.',
+    nav({title:'October 2026'}) + content(`
+      ${group([r({i:'moon', c:C.amber, t:'ဥပုသ်နေ့ · Sabbath', s:'Mon 19 Oct · လဆန်း ၈', v:'3 d'}), r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'Thu 22 Oct · Family', v:'6 d'}), r({i:'star', c:C.red, t:'သီတင်းကျွတ် ပိတ်ရက်', s:'Sun 25 – Tue 27 · Public holidays', v:'9 d'}), r({i:'moon', c:C.amber, t:'လပြည့် · End of Buddhist Lent', s:'Mon 26 Oct · Full moon, Sabbath', v:'10 d'})], 'Upcoming')}
+      ${group([r({i:'edit', c:C.indigo, t:'Make your 2027 calendar', s:'Calendar Studio · 23 presets', chev:true})])}`), {tab:'home'}),
+  phone('H3', 'Month and year picker', 'Same features as today: a year wheel, a month grid, Today, Cancel and Apply. Laid out as a standard sheet.',
+    content('', false), {tab:'home', over:`<div class="scrim"></div><div class="sheet" style="height:64%"><div class="grab"></div><div class="shead"><span>Cancel</span><b>Jump to month</b><span>Apply</span></div>
+      <div style="padding:6px 16px 16px;display:grid;gap:14px"><div class="group" style="display:grid;grid-template-columns:repeat(3,1fr);text-align:center;padding:8px 0"><span class="faint">2025</span><b style="font-size:18px">2026</b><span class="faint">2027</span></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,i)=>`<span class="chip${i===9?' on':''}" style="justify-content:center">${m}</span>`).join('')}</div>
+      <button class="btn t">Today</button></div></div>`}),
+  phone('H4', 'Day details · top', 'Every section from today’s Day Details. Previous and next day sit in the title bar, Share in the bar actions, and swipe still changes the day.',
+    nav({back:'October', title:'', actions:['share'], large:'Thu, 22 Oct', sub:'2026 · 6 days from today'}) + content(`
+      <div class="card"><div class="mytitle">၁၃၈၈ သီတင်းကျွတ် လဆန်း ၁၁ ရက်</div><div class="muted" style="font-size:13px">1388 Thadingyut, waxing 11</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;text-align:center">${[['Year','1388'],['Month','Thadingyut'],['Day','Waxing 11'],['Type','Big watat']].map(([k,v])=>`<div style="background:var(--fill-2);border-radius:10px;padding:6px 2px"><div class="faint" style="font-size:10.5px">${k}</div><b style="font-size:12px">${v}</b></div>`).join('')}</div></div>
+      ${group([r({t:'Buddhist Era', v:'2570'}), r({t:'Sasana year', v:'2570'}), r({t:'Myanmar Era', v:'1388'})], 'Buddhist calendar')}
+      ${group([r({i:'moon', c:C.amber, t:'Waxing moon', s:'11th day of the fortnight'}), r({i:'cal', c:C.blue, t:'Thursday', s:'ကြာသပတေးနေ့'})], 'Moon and weekday')}`), {tab:'home'}),
+  phone('H5', 'Day details · astrology and events', 'Astrology, the AI horoscope prompt, the quick summary and the day’s events. Events can be completed in place, with Add in the group header.',
+    nav({title:'Thu, 22 Oct', actions:['share']}) + content(`
+      ${group([r({t:'Sabbath', v:'—'}), r({t:'Yatyaza', v:'Yatyaza'}), r({t:'Pyathada', v:'—'}), r({t:'Nagahle', v:'East'}), r({t:'Mahabote', v:'Marana'}), r({t:'Nakhat', v:'Human'}), r({t:'Year name', v:'Bhadrapaha'})], 'Astrology', 'Special day: Thamanyo')}
+      ${group([r({i:'spark', c:C.purple, t:'AI horoscope prompt', s:'Copy a ready-made prompt for this day', chev:true})])}
+      <div><div style="display:flex;justify-content:space-between;align-items:end"><div class="glabel">Events · 1</div><span style="color:var(--accent);font-size:14px;margin:0 6px 6px 0">Add</span></div>
+      ${'<div class="group">' + r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'All day · Family · repeats yearly · 🔔 1 day before', chev:true}) + '</div>'}</div>`), {tab:'home'}),
+  phone('H6', 'AI prompt sheet', 'Same feature as today: an explanation, the prompt text, and Copy prompt. A Share button is added.',
+    content(''), {tab:'home', over:`<div class="scrim"></div><div class="sheet" style="height:70%"><div class="grab"></div><div class="shead"><span>Close</span><b>AI horoscope prompt</b><span></span></div>
+      <div style="padding:6px 16px 16px;display:grid;gap:12px"><p class="muted" style="margin:0 4px;font-size:13px">Paste this into any AI assistant to get a reading for the day. Nothing is sent from this app.</p>
+      <div class="card" style="font-size:13px;line-height:1.55">Give me a Myanmar astrology reading for Thursday 22 October 2026 (1388 Thadingyut, waxing 11). Mahabote: Marana. Nakhat: Human. Nagahle: East. Today is Yatyaza…</div>
+      <button class="btn p">${ic('copy')} Copy prompt</button><button class="btn t">${ic('share')} Share</button></div></div>`}),
+];
+
+S.grids = [
+  `<div class="fr"><div class="cap"><span class="n">G1</span><span class="t">Current (kept for now)</span></div><p class="note">Bordered tiles and coloured dots, as today, with colours from tokens so dark mode works. The light amber and indigo moon fills are gone.</p><div class="app card" style="padding:12px">${gridCurrent()}<div style="margin-top:8px">${legend}</div></div></div>`,
+  `<div class="fr"><div class="cap"><span class="n">G2</span><span class="t">Clean (proposed)</span></div><p class="note">In the style of iOS Calendar. There are no borders; today is a blue disc and the selected day black. Holidays and Sundays use red numbers. The lunar day stays under each date, Sabbath in amber, and moon days show a glyph. A blue dot means events.</p><div class="app card" style="padding:12px">${gridClean()}<div class="legend" style="margin-top:8px"><span style="color:var(--sabbath);font-weight:700">ဆန်း ၈</span> Sabbath<span><span class="fm"></span>Full</span><span><span class="nm"></span>New</span><span><i class="dot-e"></i>Event</span></div></div></div>`,
+  `<div class="fr"><div class="cap"><span class="n">G3</span><span class="t">Detailed (proposed)</span></div><p class="note">Ruled rows for people who read the calendar closely. Holidays get a tint and their name, moon glyphs sit in the corner, events get a bar, and the lunar day is at the bottom.</p><div class="app card" style="padding:12px 8px">${gridDetail()}<div class="legend" style="margin-top:8px"><span><i style="background:var(--holiday-soft);box-shadow:inset 0 0 0 1px var(--holiday)"></i>Holiday</span><span><span class="fm"></span>Full</span><span><span class="nm"></span>New</span><span><i style="width:12px;height:3px;border-radius:2px;background:var(--accent)"></i>Event</span></div></div></div>`,
+];
+
+S.views = [
+  phone('V1', 'Views', 'The selector becomes a short list. Each row explains the view.',
+    nav({title:'', large:'Views'}) + content(group([r({i:'grid', c:C.blue, t:'Year', s:'All 12 months with holiday counts', chev:true}), r({i:'list', c:C.teal, t:'Week', s:'Seven days with Myanmar dates and moon', chev:true}), r({i:'cal', c:C.purple, t:'Day', s:'Everything about one day', chev:true})])), {tab:'views'}),
+  phone('V2', 'Year view', 'Twelve mini months with today and holidays marked, plus a holiday count. Tapping a month opens its preview.',
+    nav({back:'Views', title:'', actions:['Today'], large:'2026'}) + content(`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,i)=>`<div class="card" style="padding:8px;${i===9?'box-shadow:inset 0 0 0 1.5px var(--accent)':''}"><b style="font-size:13px;color:${i===9?'var(--accent)':'inherit'}">${m}</b><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin:4px 0">${Array.from({length:35},(_,k)=>`<i style="height:5px;border-radius:2px;background:${(i===9&&k===19)?'var(--accent)':([3,15,24].includes((k+i)%31)?'var(--holiday)':'var(--fill)')}"></i>`).join('')}</div><span class="faint" style="font-size:11px">★ ${[3,2,3,5,2,1,1,1,0,3,2,3][i]}</span></div>`).join('')}</div>`), {tab:'views'}),
+  phone('V3', 'Month preview', 'Tapping a month in Year view opens a preview sheet with Close and View full month. Tapping a date opens it on Today.',
+    content(''), {tab:'views', over:`<div class="scrim"></div><div class="sheet" style="height:68%"><div class="grab"></div><div class="shead"><span>Close</span><b>October 2026</b><span></span></div><div style="padding:4px 12px 16px;display:grid;gap:12px">${gridClean()}<button class="btn t">View full month</button></div></div>`}),
+  phone('V4', 'Week view', 'Seven rows with the date, Myanmar date, a moon chip and the first holiday with a "+N" count. Today is highlighted; tapping a row opens the day.',
+    nav({back:'Views', title:'', actions:['back','Today','fwd'], large:'Week 42', sub:'12 – 18 Oct 2026'}) + content(group([12,13,14,15,16,17,18].map(d=>{const x=OCT[d-1];const wd=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][(d-12)%7];return r({t:`<span class="tnum" style="${d===16?'color:var(--accent);font-weight:700':''}">${wd} ${d}</span>`, s:`သီတင်းကျွတ် ${x[1]}${d===12?' · New moon tomorrow':''}`, v: d===16?'<span class="badge acc">Today</span>':'', chev:true});}))), {tab:'views'}),
+  phone('V5', 'Day view', 'This is the Day Details screen (H4–H5) reached from Views, so it gains events, Share and the AI prompt.',
+    nav({back:'Week', title:'', actions:['share'], large:'Fri, 16 Oct', sub:'Today'}) + content(`<div class="card" style="display:flex;gap:12px;align-items:center">${moonSvg('waxing')}<div><div class="mytitle" style="font-size:17px">သီတင်းကျွတ် လဆန်း ၅ ရက်</div><div class="muted" style="font-size:12.5px">Waxing · Year 1388 · Day 5</div></div></div>${group([r({t:'Nagahle', v:'East'}), r({t:'Mahabote', v:'Adipati'}), r({t:'Nakhat', v:'Human'})], 'Astrology', 'Special day: Thamanyo')}${group([r({i:'event', c:C.blue, t:'Team call', s:'10:00 · Work', chev:true})], 'Events')}`), {tab:'views'}),
+];
+
+S.conv = [
+  phone('K1', 'Convert · Western to Myanmar', 'The four tools are a segmented control. Every field from today’s converter is kept, and the result gets Copy and Share.',
+    nav({title:'', large:'Convert'}) + content(`<div class="seg"><span class="on">Convert</span><span>Difference</span><span>Add/Sub</span><span>Moon</span></div>
+      <div class="seg"><span class="on">Western → Myanmar</span><span>Myanmar → Western</span></div>
+      ${group([r({t:'Date', v:'16 Oct 2026', chev:true})])}
+      ${group([r({t:'Myanmar date', s:'၁၃၈၈ သီတင်းကျွတ် လဆန်း ၅'}), r({t:'Weekday', v:'Friday'}), r({t:'Moon', v:'Waxing'}), r({t:'Holidays', v:'None'}), r({t:'Astrology', v:'Thamanyo'})], 'Result')}
+      <div style="display:flex;gap:10px"><button class="btn t sm" style="flex:1">${ic('copy','s')} Copy</button><button class="btn t sm" style="flex:1">${ic('share','s')} Share</button></div>`), {tab:'convert'}),
+  phone('K2', 'Convert · Myanmar to Western', 'Year, month and day fields, with the month help text from today. A wrong value shows an inline hint instead of a snackbar.',
+    nav({title:'', large:'Convert'}) + content(`<div class="seg"><span class="on">Convert</span><span>Difference</span><span>Add/Sub</span><span>Moon</span></div><div class="seg"><span>Western → Myanmar</span><span class="on">Myanmar → Western</span></div>
+      <div class="input">${r({t:'Year', v:'1388'})}${r({t:'Month', v:'7 · Thadingyut'})}${r({t:'Day', v:'15'})}</div><div class="gfoot">Month: 0 = First Waso, 1–12 = Tagu to Tabaung, 13 = Late Tagu, 14 = Second Waso.</div>
+      <button class="btn p">Convert</button>${group([r({t:'Western date', v:'Mon 26 Oct 2026'}), r({t:'Holidays', v:'End of Buddhist Lent'})], 'Result')}`), {tab:'convert'}),
+  phone('K3', 'Date difference', 'Start and end dates, each with a Today shortcut, plus swap. The total days is large, with years, months, weeks and days below.',
+    nav({title:'', large:'Difference'}) + content(`<div class="seg"><span>Convert</span><span class="on">Difference</span><span>Add/Sub</span><span>Moon</span></div>
+      ${group([r({t:'Start', v:'16 Oct 2026', chev:true}), r({t:'End', v:'17 Apr 2027', chev:true})], '', '<span style="color:var(--accent)">Swap dates · Use today</span>')}
+      <div class="card" style="text-align:center"><div class="big tnum">183</div><div class="muted">days</div></div>
+      ${group([r({t:'Years', v:'0'}), r({t:'Months', v:'6'}), r({t:'Weeks', v:'26'}), r({t:'Days', v:'1'})])}`), {tab:'convert'}),
+  phone('K4', 'Add or subtract', 'Start date, add or subtract, a value and a unit. The result shows the Western date, Myanmar date, weekday and moon.',
+    nav({title:'', large:'Add / Subtract'}) + content(`<div class="seg"><span>Convert</span><span>Difference</span><span class="on">Add/Sub</span><span>Moon</span></div>
+      ${group([r({t:'Start', v:'16 Oct 2026', chev:true})])}<div class="seg"><span class="on">Add</span><span>Subtract</span></div>
+      <div class="input">${r({t:'Value', v:'100'})}</div><div class="chips"><span class="chip on">Days</span><span class="chip">Weeks</span><span class="chip">Months</span><span class="chip">Years</span></div>
+      ${group([r({t:'Result', v:'Sun 24 Jan 2027'}), r({t:'Myanmar', s:'၁၃၈၈ ပြာသို လပြည့်ကျော်'}), r({t:'Moon', v:'Waning'})], '+100 days')}`), {tab:'convert'}),
+  phone('K5', 'Moon finder', 'From date and phase. The result shows when it is, how many days away, and the full date details.',
+    nav({title:'', large:'Moon finder'}) + content(`<div class="seg"><span>Convert</span><span>Difference</span><span>Add/Sub</span><span class="on">Moon</span></div>
+      ${group([r({t:'From', v:'16 Oct 2026', chev:true})])}<div class="seg"><span>Waxing</span><span class="on">Full</span><span>Waning</span><span>New</span></div>
+      <div class="card" style="display:flex;gap:12px;align-items:center">${moonSvg('full')}<div><b>Next full moon</b><div class="muted" style="font-size:13px">Mon 26 Oct 2026 · in 10 days</div></div></div>
+      ${group([r({t:'Myanmar', s:'၁၃၈၈ သီတင်းကျွတ် လပြည့် ၁၅'}), r({t:'Holidays', v:'End of Buddhist Lent'})])}`), {tab:'convert'}),
+];
+
+const strip = `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">${[13,14,15,16,17,18,19].map(d=>`<div style="padding:6px 0;border-radius:12px;${d===16?'background:var(--accent);color:#fff':''}"><div style="font-size:10.5px;opacity:.7">${['Tue','Wed','Thu','Fri','Sat','Sun','Mon'][d-13]}</div><b class="tnum" style="font-size:17px">${d}</b><div style="height:5px;display:flex;justify-content:center"><i style="width:5px;height:5px;border-radius:50%;background:${EVENTS[d]||d===19?(d===16?'#fff':'var(--accent)'):'transparent'}"></i></div></div>`).join('')}</div>`;
+S.events = [
+  phone('E1', 'Events', 'A week strip with event dots, then the day’s events as rows: time, title, category, and recurring and reminder icons. The complete toggle is the circle. Search and Categories live in the ⋯ menu.',
+    nav({title:'', actions:['search','more','plus'], large:'Events', sub:'Friday 16 Oct · 2 events'}) + content(`${strip}
+      ${group([r({i:'check', c:C.gray, t:'<s class="faint">Morning offering</s>', s:'07:00 · Religious · repeats daily'}), r({i:'event', c:C.blue, t:'Team call', s:'10:00 – 10:30 · Work · 🔔 15 min · Online'})], 'Today')}
+      ${group([r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'Thu 22 Oct · All day · Family', chev:true})], 'Next')}`), {tab:'events'}),
+  phone('E2', 'Search', 'Searches titles and descriptions, as today, with recent searches added.',
+    nav({title:''}) + content(`<div style="display:flex;gap:10px;align-items:center"><div class="search" style="flex:1">${ic('search','s')}<span style="color:var(--label)">birth</span></div><span style="color:var(--accent)">Cancel</span></div>
+      ${group([r({i:'event', c:C.pink, t:'Grandma’s <b>birth</b>day', s:'22 Oct 2026 · Family', chev:true}), r({i:'event', c:C.orange, t:'Aung’s <b>birth</b>day party', s:'3 Jan 2027 · Personal', chev:true})], 'Results')}`), {tab:'events'}),
+  phone('E3', 'Event actions', 'Long-press opens the same actions as today (complete, edit, delete this occurrence, delete all), adding Duplicate and Cancel event.',
+    content(''), {tab:'events', over:`<div class="scrim"></div><div class="sheet" style="height:auto"><div class="grab"></div><div style="padding:6px 12px 20px;display:grid;gap:10px"><div class="group">${r({i:'check', c:C.green, t:'Mark complete'})}${r({i:'edit', c:C.blue, t:'Edit'})}${r({i:'copy', c:C.gray, t:'Duplicate'})}</div><div class="group">${r({i:'trash', c:C.red, t:'Delete this occurrence', cls:'dng'})}${r({i:'trash', c:C.red, t:'Delete all occurrences', cls:'dng'})}</div><button class="btn" style="background:var(--surface);color:var(--accent)">Cancel</button></div></div>`}),
+  phone('E4', 'New event · basics', 'Title, description, date (Myanmar date picker), all-day switch, time, category chips and priority, all from today’s form.',
+    nav({back:'Cancel', title:'New Event', actions:['<b>Add</b>']}).replace(ic('back'),'') + content(`<div class="input">${r({t:'<span class="ph">Title</span>'})}${r({t:'<span class="ph">Description</span>'})}</div>
+      ${group([r({i:'cal', c:C.red, t:'Date', v:'Thu 22 Oct 2026'}), r({i:'clock', c:C.blue, t:'All day', tg:false}), r({i:'clock', c:C.blue, t:'Time', v:'18:00'})])}
+      <div><div class="glabel">Category</div><div class="chips" style="padding:0 4px"><span class="chip on">Family</span><span class="chip">Personal</span><span class="chip">Work</span><span class="chip">Religious</span><span class="chip">Health</span></div></div>
+      <div><div class="glabel">Priority</div><div class="seg"><span>Low</span><span class="on">Normal</span><span>High</span><span>Urgent</span></div></div>`)),
+  phone('E5', 'New event · more', 'Location, repeat, reminders, tags and custom colour. Repeat gains a Custom… option for interval, weekdays and end, which the model already supports.',
+    nav({back:'Cancel', title:'New Event', actions:['<b>Add</b>']}).replace(ic('back'),'') + content(`${group([r({i:'pin', c:C.green, t:'Location', v:'Home', chev:true}), r({i:'repeat', c:C.gray, t:'Repeat', v:'Yearly', chev:true})])}
+      ${group([r({i:'bell', c:C.red, t:'1 day before'}), r({i:'bell', c:C.red, t:'1 hour before'}), r({t:'Add reminder', cls:'acc'})], 'Reminders')}
+      ${group([r({i:'tag', c:C.purple, t:'Tags', v:'birthday, family', chev:true}), r({i:'palette', c:C.pink, t:'Colour', v:'<i style="display:inline-block;width:14px;height:14px;border-radius:7px;background:#E0457B;vertical-align:-2px"></i> Override', chev:true})])}`)),
+  phone('E6', 'Repeat', 'Today’s five choices, plus Custom, with an end option for repeating events.',
+    nav({back:'New Event', title:'Repeat'}) + content(`${group([r({t:'Never'}), r({t:'Daily'}), r({t:'Weekly'}), r({t:'Monthly'}), r({t:'Yearly', check:true}), r({t:'Custom…', chev:true})])}${group([r({t:'End repeat', v:'Never', chev:true})])}`, true)),
+  phone('E7', 'Event detail', 'Header with the category colour, then date and time, category, priority, description, location, repeat, reminders and tags. Complete, Edit and Delete as today; the toast offers Undo.',
+    nav({back:'Events', title:'', actions:['Edit']}) + content(`<div class="card" style="display:grid;gap:6px;box-shadow:inset 4px 0 0 #E0457B"><div style="display:flex;gap:6px"><span class="badge fill">Occurrence</span><span class="badge sab">Family</span></div><div class="large" style="font-size:24px">Grandma’s birthday</div><div class="muted">Thursday 22 Oct 2026 · All day</div></div>
+      ${group([r({t:'Priority', v:'High'}), r({t:'Location', v:'Home'}), r({t:'Repeat', v:'Yearly'}), r({t:'Reminders', v:'1 day, 1 hour'}), r({t:'Tags', v:'birthday, family'})])}
+      ${group([r({t:'Mark complete', cls:'acc'}), r({t:'Delete event', cls:'dng'})])}`), {tab:'events'}),
+  phone('E8', 'Categories', 'Reachable from the Events ⋯ menu; today it has no entry point. Defaults are locked. Custom categories can now be edited and deleted, as well as created.',
+    nav({back:'Events', title:'', actions:['plus'], large:'Categories'}) + content(`${group([r({i:'event', c:C.blue, t:'Personal', v:'<span class="faint">${ic("lock","s")}</span>'}), r({i:'event', c:C.indigo, t:'Work', v:'<span class="faint">${ic("lock","s")}</span>'}), r({i:'star', c:C.amber, t:'Religious', v:'<span class="faint">${ic("lock","s")}</span>'}), r({i:'event', c:C.pink, t:'Family', v:'<span class="faint">${ic("lock","s")}</span>'}), r({i:'event', c:C.green, t:'Health', v:'<span class="faint">${ic("lock","s")}</span>'})], 'Default')}
+      ${group([r({i:'image', c:C.teal, t:'Photography club', chev:true})], 'Custom', 'Swipe left to delete.')}`), {tab:'events'}),
+  phone('E9', 'New category', 'Name, icon grid and colour swatches, as today’s dialog, in a sheet.',
+    content(''), {tab:'events', over:`<div class="scrim"></div><div class="sheet" style="height:70%"><div class="grab"></div><div class="shead"><span>Cancel</span><b>New Category</b><span>Create</span></div><div style="padding:6px 16px;display:grid;gap:14px"><div class="input">${r({t:'Photography club'})}</div>
+      <div><div class="glabel">Icon</div><div class="group" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:12px">${['event','image','star','pin','bell','tag','cal','moon','sun','spark','phone','globe'].map((n,i)=>`<span style="height:38px;border-radius:10px;display:grid;place-items:center;${i===1?'background:var(--accent);color:#fff':'background:var(--fill-2)'}">${ic(n,'s')}</span>`).join('')}</div></div>
+      <div><div class="glabel">Colour</div><div style="display:flex;gap:10px;padding:0 6px">${Object.values(C).slice(0,8).map((c,i)=>`<i style="width:28px;height:28px;border-radius:14px;background:${c};display:block;${i===5?'box-shadow:0 0 0 3px var(--bg),0 0 0 5px '+c:''}"></i>`).join('')}</div></div></div></div>`}),
+];
+
+S.settings = [
+  phone('S1', 'Settings', 'Every entry from today, grouped the same way. When the app runs inside Telegram, the signed-in user appears as the first row instead of in an extra app bar.',
+    nav({title:'', large:'Settings'}) + content(`${group([r({i:'phone', c:C.teal, t:'Telegram', v:'@mixin'})])}
+      ${group([r({i:'palette', c:C.indigo, t:'Appearance', v:'System', chev:true}), r({i:'globe', c:C.blue, t:'Language', v:'မြန်မာ / Myanmar', chev:true})], 'General')}
+      ${group([r({i:'cal', c:C.red, t:'Calendar configuration', v:'UTC+6:30', chev:true}), r({i:'edit', c:C.purple, t:'Calendar Studio', v:'Design and print', chev:true}), r({i:'sliders', c:C.green, t:'Display preferences', chev:true}), r({i:'widget', c:C.orange, t:'Home widgets', chev:true})], 'Calendar')}
+      ${group([r({i:'shield', c:C.gray, t:'Privacy & data', chev:true}), r({i:'download', c:C.blue, t:'App updates', chev:true}), r({i:'info', c:C.gray, t:'About', chev:true})], 'Others')}`), {tab:'settings'}),
+  phone('S2', 'Appearance', 'Theme mode becomes a segmented control. Theme presets are an inline checkmark list, with Custom colours below. App icon opens its own page.',
+    nav({back:'Settings', title:'', large:'Appearance'}) + content(`<div><div class="glabel">Mode</div><div class="seg"><span>Light</span><span>Dark</span><span class="on">System</span></div></div>
+      ${group([r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#2F5BEA;margin-right:8px"></i>Clear (default)', check:true}), r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#B3261E;margin-right:8px"></i>Traditional Myanmar'}), r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#1478B8;margin-right:8px"></i>Ocean'}), r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#2E7D4F;margin-right:8px"></i>Forest'}), r({t:'Custom colours…', chev:true})], 'Theme')}
+      ${group([r({i:'image', c:C.indigo, t:'App icon', v:'Default', chev:true})])}`), {tab:'settings'}),
+  phone('S3', 'Custom colours', 'All 10 colour slots from today’s editor, each with a swatch that opens a picker. Reset and Apply.',
+    nav({back:'Appearance', title:'Custom colours', actions:['<b>Apply</b>']}) + content(group(['Primary','On primary','Secondary','On secondary','Tertiary','On tertiary','Error','On error','Surface','On surface'].map((n,i)=>r({t:n, v:`<i style="display:inline-block;width:22px;height:22px;border-radius:6px;vertical-align:-6px;box-shadow:inset 0 0 0 1px var(--sep);background:${['#2F5BEA','#fff','#6B6B73','#fff','#8E6CEF','#fff','#E5383B','#fff','#FFFFFF','#0A0A0F'][i]}"></i>`, chev:true}))) + `<button class="btn d">Reset to preset</button>`, true)),
+  phone('S4', 'App icon', 'The six launcher icons from today (Default, Moon, Forest, Minimal Flat, Premium Dark, Traditional Motif), with the current one checked. Not shown on web.',
+    nav({back:'Appearance', title:'', large:'App icon'}) + content(`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center">${[['Default','#2F5BEA'],['Moon','#1E2A55'],['Forest','#2E7D4F'],['Minimal','#F2F2F7'],['Premium dark','#0A0A0F'],['Traditional','#B3261E']].map(([n,c],i)=>`<div><div style="width:72px;height:72px;margin:0 auto 6px;border-radius:17px;background:${c};display:grid;place-items:center;color:${i===3?'#0A0A0F':'#fff'};font-weight:800;font-size:22px;${i===0?'box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--accent)':''}">မြ</div><span style="font-size:12.5px">${n}</span></div>`).join('')}</div>
+      <div class="gfoot">Your home screen updates after you apply. Some launchers take a moment.</div><button class="btn p">Apply</button>`), {tab:'settings'}),
+  phone('S5', 'Language', 'App language (English, Myanmar) and calendar language (English, Myanmar, Zawgyi, Mon, Shan, Karen), each as a checkmark list.',
+    nav({back:'Settings', title:'', large:'Language'}) + content(`${group([r({t:'English'}), r({t:'မြန်မာ', check:true})], 'App language')}${group([r({t:'English'}), r({t:'မြန်မာ', check:true}), r({t:'Zawgyi'}), r({t:'Mon'}), r({t:'Shan'}), r({t:'Karen'})], 'Calendar language', 'Changes month names, lunar days and weekdays across the app.')}`), {tab:'settings'}),
+  phone('S6', 'Display preferences', 'Today’s seven switches. "First day of week" is added; the setting already exists but has no UI.',
+    nav({back:'Settings', title:'', large:'Display'}) + content(`${group([r({t:'Holidays', tg:true}), r({t:'Anniversary days', tg:true}), r({t:'Sabbath', tg:true}), r({t:'Astrology', tg:true})], 'Show in calendar')}${group([r({t:'Western dates', tg:true}), r({t:'Myanmar dates', tg:true}), r({t:'Prefer Shan year', s:'When the calendar language is Shan', tg:false}), r({t:'First day of week', v:'Sunday', chev:true})], 'Dates')}`), {tab:'settings'}),
+  phone('S7', 'Calendar configuration', 'Sasana year type, calendar type (locked), device time zone, the current offset, and refreshing holiday data.',
+    nav({back:'Settings', title:'', large:'Configuration'}) + content(`${group([r({t:'Type 0', s:'Default', check:true}), r({t:'Type 1'}), r({t:'Type 2'})], 'Sasana year')}
+      ${group([r({t:'Calendar type', v:'British <span class="faint">${ic("lock","s")}</span>'}), r({t:'Use device time zone', tg:false}), r({t:'Current offset', v:'UTC+6:30 · Myanmar'})], 'Time')}
+      ${group([r({t:'Refresh holiday data', s:'Last updated 2 days ago', cls:'acc'})], 'Holidays')}`), {tab:'settings'}),
+  phone('S8', 'Privacy & data', 'The analytics and crash report switches, with the reassurance text.',
+    nav({back:'Settings', title:'', large:'Privacy'}) + content(`${group([r({i:'sliders', c:C.blue, t:'Usage analytics', tg:true}), r({i:'info', c:C.red, t:'Crash reports', tg:true})], '', 'Anonymous only. Your events and calendar data never leave this device and are never shared with third parties.')}`), {tab:'settings'}),
+  phone('S9', 'App updates', 'Current version, Check for updates, Force refresh, and a status card with versions, release notes and Open store.',
+    nav({back:'Settings', title:'', large:'Updates'}) + content(`${group([r({t:'Current version', v:'2.2.3 (223)'})])}
+      <div class="card" style="display:grid;gap:8px"><div style="display:flex;gap:8px;align-items:center"><span class="badge acc">Update available</span><span class="faint" style="font-size:12px">Checked just now</span></div><b>Version 2.3.0 (230)</b><div class="muted" style="font-size:13px">• Calendar Studio presets<br>• 2027 holiday rules<br>• Faster loading</div><button class="btn p sm" style="justify-self:start">Open store</button></div>
+      ${group([r({t:'Check for updates', cls:'acc'}), r({t:'Force refresh update config', cls:'acc'})])}`), {tab:'settings'}),
+  phone('S10', 'About', 'Version, App updates, open-source licences and privacy policy, plus the debug-only promo reset.',
+    nav({back:'Settings', title:'', large:'About'}) + content(`<div style="display:grid;justify-items:center;gap:6px;padding:8px 0"><div style="width:72px;height:72px;border-radius:17px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:24px">မြ</div><b>Myanmar Calendar</b><span class="muted" style="font-size:13px">Version 2.2.3</span></div>
+      ${group([r({t:'App updates', chev:true}), r({t:'Open-source licences', chev:true}), r({t:'Privacy policy', chev:true})])}${group([r({t:'Clear promo data', s:'Debug builds only', cls:'dng'})])}`), {tab:'settings'}),
+  phone('S11', 'Privacy policy', 'The markdown policy in readable text.',
+    nav({back:'About', title:'Privacy policy'}) + content(`<div class="card" style="font-size:13.5px;line-height:1.6"><b style="font-size:17px">Privacy Policy</b><p class="muted" style="margin:6px 0">Last updated 1 October 2026</p><p style="margin:0 0 8px">Myanmar Calendar works offline. Your events, settings and designs are stored only on your device…</p><b>What we collect</b><p style="margin:4px 0 0">If you allow it, anonymous usage statistics and crash reports…</p></div>`), {tab:'settings'}),
+  phone('S12', 'Home widgets', 'Status, setup steps, widget theme (7 options), display options and actions, as today. Shown on Android and iOS only.',
+    nav({back:'Settings', title:'', actions:['refresh'], large:'Widgets'}) + content(`${group([r({t:'Widget active', v:'<span style="color:var(--ok)">Yes</span>'}), r({t:'Auto updates', v:'<span style="color:var(--ok)">On</span>'}), r({t:'Last updated', v:'09:00'})], 'Status')}
+      ${group([r({t:'Auto (default)', check:true}), r({t:'Light'}), r({t:'Dark'}), r({t:'Traditional Myanmar'}), r({t:'Gradient blue · purple · teal', chev:true})], 'Theme')}
+      ${group([r({t:'Show holidays', tg:true}), r({t:'Show astrology', tg:true})], 'Display')}${group([r({t:'Refresh widget now', cls:'acc'}), r({t:'Turn off auto updates', cls:'acc'})])}`), {tab:'settings'}),
+  phone('S13', 'Reset settings', 'The Reset All Settings button at the bottom of Settings asks for confirmation first.',
+    nav({title:'', large:'Settings'}) + content(group([r({t:'Reset all settings', cls:'dng'})])), {tab:'settings', over:`<div class="scrim"></div><div class="dialog"><div class="db"><b>Reset all settings?</b><p>Theme, language and display options go back to defaults. Your events and Studio projects stay.</p></div><div class="da"><span>Cancel</span><span class="b x">Reset</span></div></div>`}),
+];
+
+S.studio = [
+  phone('T1', 'Studio · projects', 'The Studio dashboard in this system: a large title, a continue card, a project list, Import in the bar and New in the bar.',
+    nav({back:'Today', title:'', actions:['download','plus'], large:'Calendar Studio'}) + content(`<div class="card" style="display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center"><div style="height:96px;border-radius:8px;background:#FAF6EF;box-shadow:inset 0 0 0 1px var(--sep)"></div><div><div class="glabel" style="margin:0">Continue editing</div><b>Family calendar 2027</b><div class="muted" style="font-size:12.5px">Hearth &amp; Home · Jan–Dec · Saved 2 min ago</div><button class="btn p sm" style="margin-top:8px">Resume</button></div></div>
+      <div class="seg"><span class="on">All</span><span>Wall</span><span>Desk</span><span>Social</span></div>
+      ${group([r({t:'Temple days', s:'Sabbath · Jan–Dec 2027', chev:true}), r({t:'Wedding countdown', s:'Rose Bond · Feb 2027 · Exported', chev:true})])}`, true)),
+  phone('T2', 'Studio · editor chrome', 'The canvas and blocks stay as they are. The top bar, tool bar and inspector sheet use this system’s tokens and controls.',
+    nav({back:'Projects', title:'Family calendar 2027', actions:['Export']}) + content(`<div style="flex:1;border-radius:12px;background:var(--fill-2);display:grid;place-items:center"><div style="width:62%;aspect-ratio:.707;background:#FAF6EF;box-shadow:0 8px 24px -10px rgba(0,0,0,.35)"></div></div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);text-align:center;font-size:11px;color:var(--label-2)">${[['plus','Add'],['text','Text'],['image','Image'],['star','Elements'],['layers','Layers'],['sliders','Page']].map(([i,l])=>`<span style="display:grid;justify-items:center;gap:2px">${ic(i)}${l}</span>`).join('')}</div>`, true)),
+];
+
+/* ---------- render ---------- */
+document.getElementById('componentRow').innerHTML = S.components.join('');
+document.getElementById('appRow').innerHTML = S.app.join('');
+document.getElementById('homeRow').innerHTML = S.home.join('');
+document.getElementById('gridRow').innerHTML = S.grids.join('');
+document.getElementById('viewsRow').innerHTML = S.views.join('');
+document.getElementById('convRow').innerHTML = S.conv.join('');
+document.getElementById('eventsRow').innerHTML = S.events.join('');
+document.getElementById('settingsRow').innerHTML = S.settings.join('');
+document.getElementById('studioRow').innerHTML = S.studio.join('');
+
+document.getElementById('widgetRow').innerHTML = `<div class="app wgts">
+  <div class="w s"><div class="faint" style="font-size:11px;font-weight:700;color:var(--holiday)">FRIDAY</div><div class="big tnum" style="font-size:52px">16</div><div style="font-size:13px;font-weight:700;line-height:1.5">သီတင်းကျွတ်<br>လဆန်း ၅</div></div>
+  <div class="w s" style="display:grid;place-items:center;text-align:center">${moonSvg('waxing',64)}<div style="font-size:12.5px;font-weight:700">Waxing · 5</div><div class="faint" style="font-size:11px">Full moon in 10 d</div></div>
+  <div class="w m" style="display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center"><div><div class="faint" style="font-size:11px;font-weight:700;color:var(--holiday)">FRI</div><div class="big tnum" style="font-size:52px">16</div></div><div><div style="font-weight:700;line-height:1.5">၁၃၈၈ သီတင်းကျွတ် လဆန်း ၅</div><div class="faint" style="font-size:12px">Waxing · Thamanyo · Nagahle East</div><div style="display:flex;gap:6px;margin-top:6px"><span class="badge sab">ဥပုသ် Mon</span><span class="badge hol">Holidays 25–27</span></div></div></div>
+  <div class="w l"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><b>သီတင်းကျွတ် ၁၃၈၈</b><span class="faint" style="font-size:12px">October</span></div>${gridClean()}</div>
+</div>`;
+
+document.getElementById('deskFrame').innerHTML = `<div class="cap"><span class="n">D1</span><span class="t">Today · 1280 px</span></div><p class="note">Sidebar navigation, the month in the middle (here the Clean grid), and the selected day’s details on the right.</p>
+<div class="win"><div class="app dsk">
+  <div class="side"><div style="font-weight:800;font-size:18px;padding:4px 10px 12px">Myanmar Calendar</div>${TABS.map(([id,i,l],k)=>`<span class="s${k===0?' on':''}">${ic(i)}<span>${l}</span></span>`).join('')}<div style="margin-top:auto"></div><span class="s">${ic('edit')}<span>Calendar Studio</span></span></div>
+  <div class="dmain"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="large">October 2026</div><div class="muted">တော်သလင်း – သီတင်းကျွတ် · ME 1388</div></div><span class="chip">Today</span><span style="color:var(--accent);display:flex;gap:16px">${ic('back')}${ic('fwd')}</span></div>${gridClean()}</div>
+  <div class="dpanel"><div class="glabel" style="margin:0">Thursday 22 October</div><div class="mytitle">သီတင်းကျွတ် လဆန်း ၁၁ ရက်</div>
+    ${group([r({t:'Moon', v:'Waxing 11'}), r({t:'Yatyaza', v:'Yes'}), r({t:'Mahabote', v:'Marana'}), r({t:'Nagahle', v:'East'})])}
+    ${group([r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'All day · Family', chev:true})], 'Events')}<button class="btn p sm" style="align-self:flex-start">${ic('plus','s')} Add event</button></div>
+</div></div>`;
+
+const TOKENS = [
+  ['bg','#F2F2F7','#000000','Grouped background'],['surface','#FFFFFF','#1C1C1E','Groups, cards, sheets'],['fill','rgba(118,118,128,.12)','rgba(118,118,128,.26)','Fields, segmented track, chips'],
+  ['separator','rgba(60,60,67,.16)','rgba(84,84,88,.62)','Hairlines'],['label','#0A0A0F','#F5F5F7','Text'],['label-2','#6B6B73','#A1A1A8','Secondary text, values'],
+  ['accent','#2F5BEA','#5B83FF','Actions, selection, today'],['holiday','#E5383B','#FF5A5F','Holidays, Sundays, destructive actions'],['moon','#F2A900','#FFC530','Moon glyphs, Sabbath marks'],
+  ['sabbath text','#B7700B','#FFB840','Sabbath labels (AA contrast)'],['success','#1F9D63','#34C77B','Switches, status'],
+];
+document.getElementById('tokens').innerHTML = TOKENS.map(([n,l,d,u])=>`<tr><td><code>${n}</code></td><td><span class="sw" style="background:${l}"></span>${l}</td><td><span class="sw" style="background:${d}"></span>${d}</td><td>${u}</td></tr>`).join('');
+
+const toggle = document.getElementById('darkToggle');
+toggle.addEventListener('click', () => {
+  const on = toggle.getAttribute('aria-pressed') !== 'true';
+  toggle.setAttribute('aria-pressed', String(on));
+  toggle.textContent = on ? 'Show app in light' : 'Show app in dark';
+  document.querySelectorAll('.app').forEach(el => el.classList.toggle('dark', on));
+});
+</script>
