@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/app_toast.dart';
+
 extension ContextExtension on BuildContext {
   // Theme
   ThemeData get theme => Theme.of(this);
@@ -42,36 +44,23 @@ extension ContextExtension on BuildContext {
     arguments: arguments,
   );
 
-  // Snackbar
+  // Snackbar: all go through the self-dismissing toast (see app_toast.dart).
   void showSnackBar(
     String message, {
     Duration duration = const Duration(seconds: 3),
     SnackBarAction? action,
-  }) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(content: Text(message), duration: duration, action: action),
-    );
-  }
+  }) => showToast(
+    message,
+    duration: duration,
+    actionLabel: action?.label,
+    onAction: action?.onPressed,
+  );
 
-  void showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: colorScheme.error,
-        duration: const Duration(seconds: 4),
-      ),
-    );
-  }
+  void showErrorSnackBar(String message) =>
+      showToast(message, kind: AppToastKind.error);
 
-  void showSuccessSnackBar(String message) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
+  void showSuccessSnackBar(String message) =>
+      showToast(message, kind: AppToastKind.success);
 
   // Dialog
   Future<T?> showAlertDialog<T>({

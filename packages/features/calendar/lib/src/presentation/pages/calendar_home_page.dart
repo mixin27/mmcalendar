@@ -808,27 +808,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
   }
 
-  void _showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: context.colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        action: SnackBarAction(
-          label: 'Dismiss',
-          textColor: Colors.white,
-          onPressed: () {},
-        ),
-      ),
-    );
-  }
+  void _showErrorSnackBar(BuildContext context, String message) =>
+      context.showToast(message, kind: AppToastKind.error);
 
   Future<void> _chooseDate() async {
     final state = context.read<CalendarBloc>().state;

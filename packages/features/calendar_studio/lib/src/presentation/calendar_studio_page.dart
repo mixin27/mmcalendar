@@ -21,6 +21,7 @@ import '../theme/calendar_studio_font_catalog.dart';
 import '../theme/calendar_studio_theme.dart';
 import '../widgets/calendar_studio_scene.dart';
 import 'calendar_studio_export_flow.dart';
+import 'calendar_studio_toast.dart';
 
 class CalendarStudioWorkspace extends StatefulWidget {
   const CalendarStudioWorkspace({required this.configuration, super.key});
@@ -885,8 +886,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     final messenger = ScaffoldMessenger.of(context);
     final delivery = widget.configuration.exportDelivery;
     if (delivery == null) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('No export destination is configured.')),
+      messenger.toast(
+        'No export destination is configured.',
+        kind: StudioToastKind.error,
       );
       return;
     }
@@ -897,12 +899,11 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         fileName: _safeFileName(project.name),
       );
       await delivery.deliver(artifact, destination: destination);
-      messenger.showSnackBar(
-        SnackBar(content: Text('${artifact.name} is ready.')),
-      );
+      messenger.toast('${artifact.name} is ready.');
     } catch (_) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text("Couldn't create the project file.")),
+      messenger.toast(
+        "Couldn't create the project file.",
+        kind: StudioToastKind.error,
       );
     }
   }
@@ -918,12 +919,10 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       if (bytes == null) return;
       file = await CalendarStudioProjectBundle.read(bytes);
     } on CalendarStudioProjectFileException catch (error) {
-      messenger.showSnackBar(SnackBar(content: Text(error.message)));
+      messenger.toast(error.message, kind: StudioToastKind.error);
       return;
     } catch (_) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text("Couldn't open that file.")),
-      );
+      messenger.toast("Couldn't open that file.", kind: StudioToastKind.error);
       return;
     }
     if (!mounted) return;
@@ -945,18 +944,15 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         now: widget.configuration.now?.call(),
       );
       await _load();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text('Imported "${project.name}".'),
-          action: SnackBarAction(
-            label: 'Open',
-            onPressed: () => _open(project),
-          ),
-        ),
+      messenger.toast(
+        'Imported "${project.name}".',
+        actionLabel: 'Open',
+        onAction: () => _open(project),
       );
     } catch (_) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text("Couldn't import the project.")),
+      messenger.toast(
+        "Couldn't import the project.",
+        kind: StudioToastKind.error,
       );
     }
   }
@@ -2499,12 +2495,10 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     controller.deleteSelected();
     setState(() => _inspectorVisible = false);
     final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
-    messenger.showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        content: Text('${block.name} deleted'),
-        action: SnackBarAction(label: 'Undo', onPressed: controller.undo),
-      ),
+    messenger.toast(
+      '${block.name} deleted',
+      actionLabel: 'Undo',
+      onAction: controller.undo,
     );
   }
 
@@ -4290,8 +4284,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     final store = _assets;
     if (store == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image storage is not configured.')),
+        ScaffoldMessenger.of(context).toast(
+          'Image storage is not configured.',
+          kind: StudioToastKind.error,
         );
       }
       return;
@@ -4319,25 +4314,21 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         ),
       );
       if (prepared.resized) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(
-              'Large image resized to ${prepared.width} × ${prepared.height} px '
-              '— still sharp for print.',
-            ),
-          ),
+        messenger.toast(
+          'Large image resized to ${prepared.width} × ${prepared.height} px '
+          '— still sharp for print.',
         );
       }
     } on CalendarStudioUnsupportedImageException {
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text("That file isn't an image Studio can use."),
-        ),
+      messenger.toast(
+        "That file isn't an image Studio can use.",
+        kind: StudioToastKind.error,
       );
       return;
     } catch (_) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text("Couldn't add the image. Try again.")),
+      messenger.toast(
+        "Couldn't add the image. Try again.",
+        kind: StudioToastKind.error,
       );
       return;
     }
@@ -4392,8 +4383,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     final messenger = ScaffoldMessenger.of(context);
     final raw = await store.loadBytes(baseId);
     if (raw == null || raw.isEmpty) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text("The original image couldn't be found.")),
+      messenger.toast(
+        "The original image couldn't be found.",
+        kind: StudioToastKind.error,
       );
       return;
     }
@@ -4428,8 +4420,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         ),
       );
     } catch (_) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text("Couldn't save the edited image.")),
+      messenger.toast(
+        "Couldn't save the edited image.",
+        kind: StudioToastKind.error,
       );
       return;
     }
@@ -4579,7 +4572,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       navigator.pop();
     }
     if (asset == null) {
-      messenger.showSnackBar(SnackBar(content: Text(failure ?? '')));
+      messenger.toast(failure ?? '', kind: StudioToastKind.error);
       return;
     }
     if (!mounted) return;
@@ -5005,8 +4998,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   }) async {
     final delivery = widget.configuration.exportDelivery;
     if (delivery == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No export destination is configured.')),
+      ScaffoldMessenger.of(context).toast(
+        'No export destination is configured.',
+        kind: StudioToastKind.error,
       );
       return;
     }
