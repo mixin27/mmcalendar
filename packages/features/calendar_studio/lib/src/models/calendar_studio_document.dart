@@ -94,6 +94,31 @@ class CalendarStudioPage extends Equatable {
   List<Object> get props => [id, label, year, month, canvas, blocks];
 }
 
+/// What a project's most recent export produced, for its detail page.
+class CalendarStudioExportRecord extends Equatable {
+  const CalendarStudioExportRecord({
+    required this.exportedAt,
+    required this.presetLabel,
+    required this.format,
+    required this.pageCount,
+    required this.fileName,
+  });
+  final DateTime exportedAt;
+  final String presetLabel;
+  final CalendarStudioExportFormat format;
+  final int pageCount;
+  final String fileName;
+
+  @override
+  List<Object> get props => [
+    exportedAt,
+    presetLabel,
+    format,
+    pageCount,
+    fileName,
+  ];
+}
+
 class CalendarStudioProject extends Equatable {
   const CalendarStudioProject({
     required this.id,
@@ -105,6 +130,7 @@ class CalendarStudioProject extends Equatable {
     required this.updatedAt,
     this.schemaVersion = 3,
     this.defaultExportPreset = CalendarStudioExportPreset.a4Pdf,
+    this.lastExport,
   });
   final String id;
   final String name;
@@ -115,12 +141,14 @@ class CalendarStudioProject extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final CalendarStudioExportPreset defaultExportPreset;
+  final CalendarStudioExportRecord? lastExport;
   CalendarStudioProject copyWith({
     String? name,
     CalendarStudioSource? source,
     List<CalendarStudioPage>? pages,
     DateTime? updatedAt,
     CalendarStudioExportPreset? defaultExportPreset,
+    CalendarStudioExportRecord? lastExport,
   }) => CalendarStudioProject(
     id: id,
     name: name ?? this.name,
@@ -131,9 +159,10 @@ class CalendarStudioProject extends Equatable {
     updatedAt: updatedAt ?? this.updatedAt,
     schemaVersion: schemaVersion,
     defaultExportPreset: defaultExportPreset ?? this.defaultExportPreset,
+    lastExport: lastExport ?? this.lastExport,
   );
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
     id,
     name,
     templateId,
@@ -143,5 +172,6 @@ class CalendarStudioProject extends Equatable {
     createdAt,
     updatedAt,
     defaultExportPreset,
+    lastExport,
   ];
 }

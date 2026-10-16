@@ -18,6 +18,7 @@ import '../services/calendar_studio_raster_renderer.dart';
 import '../templates/calendar_studio_templates.dart';
 import '../theme/calendar_studio_theme.dart';
 import '../widgets/calendar_studio_scene.dart';
+import 'calendar_studio_export_flow.dart';
 
 class CalendarStudioWorkspace extends StatefulWidget {
   const CalendarStudioWorkspace({required this.configuration, super.key});
@@ -4270,23 +4271,37 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       return;
     }
     final token = CalendarStudioExportCancellationToken();
-    final progress = ValueNotifier(
-      CalendarStudioExportProgress(
-        completed: 0,
-        total: pageIndexes?.length ?? project.pages.length,
-      ),
+    final run = StudioExportRun(
+      project: project,
+      pages: CalendarStudioExportService.selectPages(project, pageIndexes),
+      preset: preset,
+      destination: destination,
     );
-    var dialogOpen = true;
+    final navigator = Navigator.of(context, rootNavigator: true);
+    var open = true;
+    Future<void> deliver(CalendarStudioExportDestination target) async {
+      final artifact = run.artifact;
+      if (artifact == null) return;
+      try {
+        await delivery.deliver(artifact, destination: target);
+        run.done(target);
+      } catch (error) {
+        run.note("Couldn't ${target.name} the file: $error");
+      }
+    }
+
     unawaited(
       showDialog<void>(
         context: context,
         barrierDismissible: false,
-        builder: (dialogContext) => _ExportProgressDialog(
-          format: preset.format,
-          progress: progress,
+        builder: (_) => StudioExportFlow(
+          run: run,
+          dataProvider: _calendarData,
+          assetStore: _assets,
           onCancel: token.cancel,
+          onDeliver: deliver,
         ),
-      ).whenComplete(() => dialogOpen = false),
+      ).whenComplete(() => open = false),
     );
     try {
       final artifact =
@@ -4300,34 +4315,43 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             preset: preset,
             pageIndexes: pageIndexes,
             cancellationToken: token,
-            onProgress: (value) => progress.value = value,
+            onProgress: (value) => run.progress(value.completed),
           );
-      if (dialogOpen && mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
+      run.delivering(artifact);
       await delivery.deliver(artifact, destination: destination);
+      run.done(destination);
       _rememberExportPreset(project, preset);
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('${artifact.name} is ready.')));
-      }
+      await _recordExport(
+        project,
+        CalendarStudioExportRecord(
+          exportedAt: widget.configuration.now?.call() ?? DateTime.now(),
+          presetLabel: preset.label,
+          format: preset.format,
+          pageCount: run.pages.length,
+          fileName: artifact.name,
+        ),
+      );
     } on CalendarStudioExportCancelled {
-      if (dialogOpen && mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
+      if (open && mounted) navigator.pop();
     } catch (error) {
-      if (dialogOpen && mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Export failed: $error')));
-      }
-    } finally {
-      progress.dispose();
+      run.failed('$error');
     }
+  }
+
+  /// Saves the export summary without touching undo history; projects not
+  /// open in the editor are saved directly.
+  Future<void> _recordExport(
+    CalendarStudioProject project,
+    CalendarStudioExportRecord record,
+  ) async {
+    if (controller.project?.id == project.id) {
+      controller.recordExport(record);
+    } else {
+      await widget.configuration.projects.save(
+        project.copyWith(lastExport: record),
+      );
+    }
+    await _load();
   }
 }
 
@@ -4713,44 +4737,6 @@ class _EditorBoardPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _EditorBoardPainter oldDelegate) =>
       oldDelegate.tokens != tokens;
-}
-
-class _ExportProgressDialog extends StatelessWidget {
-  const _ExportProgressDialog({
-    required this.format,
-    required this.progress,
-    required this.onCancel,
-  });
-  final CalendarStudioExportFormat format;
-  final ValueListenable<CalendarStudioExportProgress> progress;
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text('Exporting ${format.name.toUpperCase()}'),
-    content: ValueListenableBuilder<CalendarStudioExportProgress>(
-      valueListenable: progress,
-      builder: (_, value, _) => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Rendering page ${value.completed >= value.total ? value.total : value.completed + 1} '
-            'of ${value.total}',
-          ),
-          const SizedBox(height: 12),
-          LinearProgressIndicator(
-            value: value.total == 0 ? 0 : value.completed / value.total,
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Pages are rendered one at a time so long calendars remain responsive.',
-          ),
-        ],
-      ),
-    ),
-    actions: [OutlinedButton(onPressed: onCancel, child: const Text('Cancel'))],
-  );
 }
 
 IconData _icon(CalendarStudioBlockType type) => switch (type) {

@@ -168,6 +168,15 @@ class CalendarStudioController extends ChangeNotifier {
     _scheduleSave();
   }
 
+  /// Records the latest export; like export settings, not an undoable edit.
+  void recordExport(CalendarStudioExportRecord record) {
+    final value = _project;
+    if (value == null) return;
+    _project = value.copyWith(lastExport: record);
+    notifyListeners();
+    _scheduleSave();
+  }
+
   /// Export settings aren't design edits, so this skips undo history.
   void updateDefaultExportPreset(CalendarStudioExportPreset preset) {
     final value = _project;
