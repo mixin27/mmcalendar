@@ -1,5 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' show MoonGlyph;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
@@ -540,6 +541,14 @@ class _DateConverterCardState extends State<DateConverterCard>
                   _getMoonPhaseName(completeDate.moonPhase),
                   Icons.brightness_3,
                   _getMoonPhaseColor(completeDate.moonPhase),
+                  leading: MoonGlyph(
+                    date: DateTime(
+                      completeDate.westernYear,
+                      completeDate.westernMonth,
+                      completeDate.westernDay,
+                    ),
+                    size: 24,
+                  ),
                 ),
 
                 if (completeDate.hasHolidays ||
@@ -585,8 +594,9 @@ class _DateConverterCardState extends State<DateConverterCard>
     String label,
     String value,
     IconData icon,
-    Color color,
-  ) {
+    Color color, {
+    Widget? leading,
+  }) {
     final theme = Theme.of(context);
 
     return Container(
@@ -604,7 +614,7 @@ class _DateConverterCardState extends State<DateConverterCard>
               color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: leading ?? Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(

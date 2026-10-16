@@ -25,14 +25,12 @@ class WidgetUpdateService {
 
       // 1. Render moon phase image (needed by multiple widgets)
       final fullMoonImagePath = await _renderMoonPhaseImage(
-        data.moonPhaseValue,
-        data.fortnightDay,
+        data.moonState,
         storageKey: 'moon_phase_image_large',
       );
 
       final moonImagePath = await _renderMoonPhaseImage(
-        data.moonPhaseValue,
-        data.fortnightDay,
+        data.moonState,
         size: 90,
         storageKey: 'moon_phase_image_small',
       );
@@ -70,10 +68,11 @@ class WidgetUpdateService {
     await HomeWidget.saveWidgetData<String>('myanmar_date', data.myanmarDate);
     await HomeWidget.saveWidgetData<String>('western_date', data.westernDate);
     await HomeWidget.saveWidgetData<String>('moon_phase', data.moonPhase);
-    await HomeWidget.saveWidgetData<String>(
-      'moon_phase_emoji',
-      data.moonPhaseEmoji,
+    await HomeWidget.saveWidgetData<double>(
+      'moon_illumination',
+      data.moonIllumination,
     );
+    await HomeWidget.saveWidgetData<bool>('moon_is_waxing', data.moonIsWaxing);
     await HomeWidget.saveWidgetData<int>(
       'moon_phase_value',
       data.moonPhaseValue,
@@ -222,8 +221,7 @@ class WidgetUpdateService {
 
   /// Render moon phase image
   static Future<String?> _renderMoonPhaseImage(
-    int moonPhase,
-    int fortnightDay, {
+    MoonPhaseState moon, {
     double size = 120,
     String storageKey = 'moon_phase_image',
   }) async {
@@ -232,14 +230,11 @@ class WidgetUpdateService {
         width: size,
         height: size,
         color: Colors.transparent,
-        child: MoonPhaseVisual(
-          moonPhase: moonPhase,
-          fortnightDay: fortnightDay,
+        child: MoonGlyph(
+          state: moon,
           size: size,
-          moonColor: const Color(0xFFF5F5DC),
-          shadowColor: const Color(0xFF2C2C2C),
-          showGlow: false,
-          widgetMode: true,
+          colors: MoonColors.night,
+          texture: true,
         ),
       );
 
@@ -259,17 +254,11 @@ class WidgetUpdateService {
 
   /// Render moon phase image that can be reused by timeline entries.
   static Future<String?> renderMoonPhaseImage(
-    int moonPhase,
-    int fortnightDay, {
+    MoonPhaseState moon, {
     double size = 120,
     required String storageKey,
   }) {
-    return _renderMoonPhaseImage(
-      moonPhase,
-      fortnightDay,
-      size: size,
-      storageKey: storageKey,
-    );
+    return _renderMoonPhaseImage(moon, size: size, storageKey: storageKey);
   }
 
   /// Save timeline payload used by native widget providers to read daily data

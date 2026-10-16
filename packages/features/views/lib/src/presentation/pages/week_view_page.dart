@@ -340,9 +340,12 @@ class _WeekViewPageState extends State<WeekViewPage>
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              CompactMoonPhaseIndicator(
-                                moonPhase: dayInfo.moonPhase,
-                                fortnightDay: dayInfo.fortnightDay,
+                              MoonGlyph(
+                                date: DateTime(
+                                  dayInfo.westernYear,
+                                  dayInfo.westernMonth,
+                                  dayInfo.westernDay,
+                                ),
                                 size: 24,
                               ),
                               const SizedBox(width: 8),

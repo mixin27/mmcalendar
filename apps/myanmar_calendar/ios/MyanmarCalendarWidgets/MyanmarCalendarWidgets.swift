@@ -13,7 +13,8 @@ struct MyanmarCalendarEntry: TimelineEntry {
     let westernDate: String
     let myanmarDate: String
     let moonPhase: String
-    let moonPhaseEmoji: String
+    let moonIllumination: Double
+    let moonIsWaxing: Bool
     let fortnightDay: String
     let fortnightDayText: String
     let nextMoonPhase: String
@@ -143,7 +144,8 @@ private enum WidgetDataStore {
             westernDate: string(data, "western_date"),
             myanmarDate: string(data, "myanmar_date"),
             moonPhase: string(data, "moon_phase"),
-            moonPhaseEmoji: string(data, "moon_phase_emoji", fallback: "🌙"),
+            moonIllumination: number(data, "moon_illumination", fallback: 0.5),
+            moonIsWaxing: number(data, "moon_is_waxing", fallback: 1) != 0,
             fortnightDay: string(data, "fortnight_day"),
             fortnightDayText: string(data, "fortnight_day_text"),
             nextMoonPhase: string(data, "next_moon_phase"),
@@ -176,7 +178,7 @@ private enum WidgetDataStore {
         guard let defaults else { return [:] }
         let keys = [
             "western_date", "myanmar_date", "moon_phase",
-            "moon_phase_emoji", "fortnight_day", "holidays",
+            "moon_illumination", "moon_is_waxing", "fortnight_day", "holidays",
             "fortnight_day_text", "next_moon_phase",
             "moon_phase_image_path", "full_moon_phase_image_path",
             "sabbath_info", "astrological_days",
@@ -252,6 +254,16 @@ private enum WidgetDataStore {
         return object as? [String: Any]
     }
 
+    private static func number(
+        _ dictionary: [String: Any],
+        _ key: String,
+        fallback: Double
+    ) -> Double {
+        if let value = dictionary[key] as? NSNumber { return value.doubleValue }
+        if let value = dictionary[key] as? String, let parsed = Double(value) { return parsed }
+        return fallback
+    }
+
     private static func string(
         _ dictionary: [String: Any],
         _ key: String,
@@ -301,7 +313,8 @@ private extension MyanmarCalendarEntry {
             westernDate: "12 September 2026",
             myanmarDate: "မြန်မာပြက္ခဒိန်",
             moonPhase: "Moon phase",
-            moonPhaseEmoji: "🌕",
+            moonIllumination: 1,
+            moonIsWaxing: true,
             fortnightDay: "15",
             fortnightDayText: "15 days",
             nextMoonPhase: "New Moon in 15d",
@@ -508,7 +521,7 @@ private extension MyanmarCalendarEntry {
 
 private struct MoonArtwork: View {
     let path: String
-    let fallback: String
+    let entry: MyanmarCalendarEntry
     let size: CGFloat
 
     var body: some View {
@@ -518,11 +531,62 @@ private struct MoonArtwork: View {
                     .resizable()
                     .scaledToFit()
             } else {
-                Text(fallback)
-                    .font(.system(size: size * 0.72))
+                MoonGlyphView(illumination: entry.moonIllumination, isWaxing: entry.moonIsWaxing)
             }
         }
         .frame(width: size, height: size)
+    }
+}
+
+/// Same drawing as the app's Dart `MoonPainter`: a lit half disc plus a
+/// terminator ellipse of half-width r·|1 − 2k|, tilted 40° the way the moon
+/// lies near 20°N (waxing lit toward the lower right, waning the upper left).
+private struct MoonLitShape: Shape {
+    let illumination: Double
+    let isWaxing: Bool
+    static let tilt = 40.0 * Double.pi / 180
+
+    func path(in rect: CGRect) -> Path {
+        let k = min(max(illumination, 0), 1)
+        let r = min(rect.width, rect.height) / 2
+        var path = Path()
+        if k < 0.015 { return path }
+        if k > 0.985 {
+            path.addEllipse(in: CGRect(x: rect.midX - r, y: rect.midY - r, width: 2 * r, height: 2 * r))
+            return path
+        }
+        let terminator = r * abs(1 - 2 * k)
+        let bulge = k < 0.5 ? 1.0 : -1.0
+        let steps = 48
+        var points: [CGPoint] = []
+        for i in 0...steps { // limb, top to bottom through the lit side
+            let a = -Double.pi / 2 + Double.pi * Double(i) / Double(steps)
+            points.append(CGPoint(x: r * cos(a), y: r * sin(a)))
+        }
+        for i in 1..<steps { // terminator, bottom back to top
+            let a = Double.pi / 2 - Double.pi * Double(i) / Double(steps)
+            points.append(CGPoint(x: bulge * terminator * cos(a), y: r * sin(a)))
+        }
+        let transform = CGAffineTransform(scaleX: isWaxing ? 1 : -1, y: 1)
+            .concatenating(CGAffineTransform(rotationAngle: Self.tilt))
+            .concatenating(CGAffineTransform(translationX: rect.midX, y: rect.midY))
+        path.addLines(points.map { $0.applying(transform) })
+        path.closeSubpath()
+        return path
+    }
+}
+
+private struct MoonGlyphView: View {
+    let illumination: Double
+    let isWaxing: Bool
+
+    var body: some View {
+        ZStack {
+            Circle().fill(Color(red: 0.17, green: 0.18, blue: 0.22))
+            MoonLitShape(illumination: illumination, isWaxing: isWaxing)
+                .fill(Color(red: 0.96, green: 0.945, blue: 0.89))
+            Circle().stroke(Color.white.opacity(0.25), lineWidth: 1)
+        }
     }
 }
 
@@ -555,7 +619,8 @@ struct CompactDateWidgetView: View {
                     }
                     Spacer(minLength: 0)
                     HStack(spacing: 5) {
-                        Text(entry.moonPhaseEmoji)
+                        MoonGlyphView(illumination: entry.moonIllumination, isWaxing: entry.moonIsWaxing)
+                            .frame(width: 14, height: 14)
                         Text(entry.moonPhase)
                             .font(.caption2.weight(.medium))
                             .foregroundColor(palette.secondary)
@@ -626,7 +691,7 @@ struct MoonPhaseWidgetView: View {
                     }
                     MoonArtwork(
                         path: entry.fullMoonPhaseImagePath,
-                        fallback: entry.moonPhaseEmoji,
+                        entry: entry,
                         size: 66
                     )
                     moonDetails(palette: palette, showNextPhase: false)
@@ -635,7 +700,7 @@ struct MoonPhaseWidgetView: View {
                 HStack(spacing: 18) {
                     MoonArtwork(
                         path: entry.fullMoonPhaseImagePath,
-                        fallback: entry.moonPhaseEmoji,
+                        entry: entry,
                         size: 96
                     )
                     VStack(alignment: .leading, spacing: 6) {
@@ -764,7 +829,7 @@ struct FullCalendarWidgetView: View {
                 VStack(spacing: 3) {
                     MoonArtwork(
                         path: entry.fullMoonPhaseImagePath,
-                        fallback: entry.moonPhaseEmoji,
+                        entry: entry,
                         size: family == .systemLarge ? 94 : 68
                     )
                     Text(entry.moonPhase)

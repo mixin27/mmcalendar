@@ -378,6 +378,13 @@ class DayDetailsContent extends StatelessWidget {
   }
 
   Widget _buildMoonPhaseCard(BuildContext context) {
+    final moon = MoonPhaseState.evening(
+      DateTime(
+        completeDate.westernYear,
+        completeDate.westernMonth,
+        completeDate.westernDay,
+      ),
+    );
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -388,18 +395,7 @@ class DayDetailsContent extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.brightness_3,
-                color: Theme.of(context).colorScheme.primary,
-                size: 24,
-              ),
-            ),
+            MoonGlyph(state: moon, size: 48),
             const SizedBox(height: 12),
             Semantics(
               label: AppLocalizations.of(context)?.moon_phase ?? 'Moon Phase',
@@ -432,6 +428,12 @@ class DayDetailsContent extends StatelessWidget {
             Text(
               'Day ${MyanmarCalendar.formatMyanmar(completeDate.myanmar, pattern: "&f")}',
               style: Theme.of(context).textTheme.bodySmall,
+            ),
+            Text(
+              translateNumbers('${moon.percentLit}% lit'),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

@@ -106,11 +106,7 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                 color: theme.colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                Icons.brightness_3,
-                color: theme.colorScheme.onSecondaryContainer,
-                size: 32,
-              ),
+              child: MoonGlyph(state: MoonPhaseState.typical(0), size: 32),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -252,7 +248,6 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
             'Waxing',
             MyanmarCalendar.currentLanguage,
           ),
-          Icons.brightness_2,
           Colors.amber,
         ),
         _buildMoonPhaseOption(
@@ -261,7 +256,6 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
             'Full Moon',
             MyanmarCalendar.currentLanguage,
           ),
-          Icons.brightness_1,
           Colors.orange,
         ),
         _buildMoonPhaseOption(
@@ -270,7 +264,6 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
             'Waning',
             MyanmarCalendar.currentLanguage,
           ),
-          Icons.brightness_3,
           Colors.blue,
         ),
         _buildMoonPhaseOption(
@@ -279,19 +272,13 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
             'New Moon',
             MyanmarCalendar.currentLanguage,
           ),
-          Icons.brightness_4,
           Colors.indigo,
         ),
       ],
     );
   }
 
-  Widget _buildMoonPhaseOption(
-    int value,
-    String label,
-    IconData icon,
-    Color color,
-  ) {
+  Widget _buildMoonPhaseOption(int value, String label, Color color) {
     final theme = Theme.of(context);
     final isSelected = _selectedMoonPhase == value;
 
@@ -313,11 +300,7 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? color : theme.colorScheme.onSurfaceVariant,
-              size: 24,
-            ),
+            MoonGlyph(state: MoonPhaseState.typical(value), size: 24),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -444,9 +427,12 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
                     color: color.withValues(alpha: 0.3),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    _getMoonPhaseIcon(result.moonPhase),
-                    color: color,
+                  child: MoonGlyph(
+                    date: DateTime(
+                      completeDate.westernYear,
+                      completeDate.westernMonth,
+                      completeDate.westernDay,
+                    ),
                     size: 40,
                   ),
                 ),
@@ -560,8 +546,9 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
     String label,
     String value,
     IconData icon,
-    Color color,
-  ) {
+    Color color, {
+    Widget? leading,
+  }) {
     final theme = Theme.of(context);
 
     return Container(
@@ -579,7 +566,7 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
               color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: leading ?? Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -668,16 +655,6 @@ class _MoonPhaseFinderCardState extends State<MoonPhaseFinderCard>
   Color _getMoonPhaseColor(int moonPhase) {
     const colors = [Colors.amber, Colors.orange, Colors.blue, Colors.indigo];
     return colors[moonPhase % 4];
-  }
-
-  IconData _getMoonPhaseIcon(int moonPhase) {
-    const icons = [
-      Icons.brightness_2,
-      Icons.brightness_1,
-      Icons.brightness_3,
-      Icons.brightness_4,
-    ];
-    return icons[moonPhase % 4];
   }
 
   String _getWeekdayName(int weekday) {

@@ -1,5 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' show MoonGlyph;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
@@ -522,6 +523,14 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
                   _getMoonPhaseName(completeDate.moonPhase),
                   Icons.brightness_3,
                   _getMoonPhaseColor(completeDate.moonPhase),
+                  leading: MoonGlyph(
+                    date: DateTime(
+                      completeDate.westernYear,
+                      completeDate.westernMonth,
+                      completeDate.westernDay,
+                    ),
+                    size: 20,
+                  ),
                 ),
               ],
             ),
@@ -535,8 +544,9 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
     String label,
     String value,
     IconData icon,
-    Color color,
-  ) {
+    Color color, {
+    Widget? leading,
+  }) {
     final theme = Theme.of(context);
 
     return Container(
@@ -554,7 +564,7 @@ class _DateArithmeticCardState extends State<DateArithmeticCard>
               color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: leading ?? Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(

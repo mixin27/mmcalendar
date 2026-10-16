@@ -13,6 +13,8 @@ dependencies:
     sdk: flutter
   shared_core:
     path: ../core
+  shared_moon:
+    path: ../moon
   equatable: ^2.1.0
   google_fonts: ^8.2.1
   markdown_widget: ^2.3.2+8

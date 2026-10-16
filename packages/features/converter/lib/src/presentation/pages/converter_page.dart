@@ -135,7 +135,7 @@ class _ConverterPageState extends State<ConverterPage>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.brightness_3, size: 20),
+                          MoonGlyph(state: MoonPhaseState.typical(0), size: 20),
                           SizedBox(width: 8),
                           Text(
                             AppLocalizations.of(context)?.moon_phase ??

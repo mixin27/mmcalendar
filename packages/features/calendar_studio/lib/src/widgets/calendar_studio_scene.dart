@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/gestures.dart' show PointerDeviceKind, kTouchSlop;
 import 'package:flutter/material.dart';
+import 'package:shared_moon/shared_moon.dart';
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
@@ -1702,6 +1703,13 @@ class _CalendarDayNumber extends StatelessWidget {
   }
 }
 
+/// Gold on paper for the lit part, a grey ring so a new moon still reads.
+const _printMoonColors = MoonColors(
+  lit: Color(0xFFD9A93A),
+  shade: Color(0x1F5F6B67),
+  rim: Color(0xFF5F6B67),
+);
+
 class _CalendarDayIndicators extends StatelessWidget {
   const _CalendarDayIndicators({
     required this.data,
@@ -1717,15 +1725,7 @@ class _CalendarDayIndicators extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       if (source.showMoonPhases && (data.moonPhase == 1 || data.moonPhase == 3))
-        CustomPaint(
-          size: const Size.square(8),
-          painter: _MoonPhasePainter(
-            phase: data.moonPhase!,
-            color: data.moonPhase == 1
-                ? const Color(0xFFD9A93A)
-                : const Color(0xFF5F6B67),
-          ),
-        ),
+        MoonGlyph(date: data.date, size: 8, colors: _printMoonColors),
       if (source.showAstrology && data.hasAstrology)
         _dot(const Color(0xFF6847A8)),
     ],
@@ -1848,52 +1848,6 @@ class _WeekdayLabel extends StatelessWidget {
       ],
     );
   }
-}
-
-class _MoonPhasePainter extends CustomPainter {
-  const _MoonPhasePainter({required this.phase, required this.color});
-  final int phase;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final radius = size.shortestSide / 2;
-    final paint = Paint()..color = color;
-    if (phase == 1) {
-      canvas.drawCircle(center, radius, paint);
-      return;
-    }
-    if (phase == 3) {
-      canvas.drawCircle(
-        center,
-        radius - .6,
-        paint
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.2,
-      );
-      return;
-    }
-    canvas.drawCircle(
-      center,
-      radius - .5,
-      paint
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1,
-    );
-    final half = Rect.fromCircle(center: center, radius: radius - 1.4);
-    canvas.drawArc(
-      half,
-      phase == 0 ? -1.5708 : 1.5708,
-      3.14159,
-      true,
-      Paint()..color = color,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _MoonPhasePainter oldDelegate) =>
-      oldDelegate.phase != phase || oldDelegate.color != color;
 }
 
 enum _ResizeHandle {

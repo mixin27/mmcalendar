@@ -290,13 +290,15 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
     );
   }
 
+  DateTime get _westernDate => DateTime(
+    widget.dateInfo.westernYear,
+    widget.dateInfo.westernMonth,
+    widget.dateInfo.westernDay,
+  );
+
   Widget _buildMyanmarDate(Color textColor, double opacity) {
     if (widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon) {
-      return CompactMoonPhaseIndicator(
-        moonPhase: widget.dateInfo.moonPhase,
-        fortnightDay: widget.dateInfo.fortnightDay,
-        size: 12,
-      );
+      return MoonGlyph(date: _westernDate, size: 13);
     }
 
     final fortnightDay = translateNumbers(
@@ -307,11 +309,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        CompactMoonPhaseIndicator(
-          moonPhase: widget.dateInfo.moonPhase,
-          size: 8,
-          fortnightDay: widget.dateInfo.fortnightDay,
-        ),
+        MoonGlyph(date: _westernDate, size: 9),
         const SizedBox(width: 2),
         Text(
           fortnightDay,

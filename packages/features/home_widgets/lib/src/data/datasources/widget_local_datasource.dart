@@ -6,6 +6,7 @@ import 'package:home_widget/home_widget.dart';
 import 'package:home_widgets/src/domain/entities/widget_data.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' show MoonPhaseState;
 import 'package:workmanager/workmanager.dart';
 
 import '../../domain/entities/widget_config.dart';
@@ -67,7 +68,7 @@ class WidgetLocalDataSource {
         myanmarDateTime.moonPhase,
         targetLanguage,
       );
-      final moonPhaseEmoji = _getMoonPhaseEmoji(myanmarDateTime.moonPhase);
+      final moon = MoonPhaseState.evening(date);
 
       // Get holidays
       final allHolidays = [
@@ -122,7 +123,8 @@ class WidgetLocalDataSource {
         westernDate: westernDate,
         moonPhase: moonPhase,
         moonPhaseValue: myanmarDateTime.moonPhase,
-        moonPhaseEmoji: moonPhaseEmoji,
+        moonIllumination: moon.illumination,
+        moonIsWaxing: moon.isWaxing,
         fortnightDay: myanmarDateTime.fortnightDay,
         fortnightDayText: fortnightDayText,
         holidays: holidays,
@@ -200,7 +202,8 @@ class WidgetLocalDataSource {
         effectiveConfig.language,
       );
       final dateKey = _dateKey(date);
-      final moonKey = '${data.moonPhaseValue}_${data.fortnightDay}';
+      final moonKey =
+          '${data.moonState.percentLit}_${data.moonIsWaxing ? 'wax' : 'wane'}';
       final monthKey = MyanmarMonthWidgetService.monthPayloadKeyForDate(date);
 
       monthKeyByDate[dateKey] = monthKey;
@@ -216,16 +219,14 @@ class WidgetLocalDataSource {
       if (!largeMoonImageCache.containsKey(moonKey)) {
         largeMoonImageCache[moonKey] =
             await WidgetUpdateService.renderMoonPhaseImage(
-              data.moonPhaseValue,
-              data.fortnightDay,
+              data.moonState,
               storageKey: 'moon_phase_large_$moonKey',
             );
       }
       if (!smallMoonImageCache.containsKey(moonKey)) {
         smallMoonImageCache[moonKey] =
             await WidgetUpdateService.renderMoonPhaseImage(
-              data.moonPhaseValue,
-              data.fortnightDay,
+              data.moonState,
               size: 90,
               storageKey: 'moon_phase_small_$moonKey',
             );
@@ -236,7 +237,8 @@ class WidgetLocalDataSource {
         'western_date': data.westernDate,
         'moon_phase': data.moonPhase,
         'moon_phase_value': data.moonPhaseValue,
-        'moon_phase_emoji': data.moonPhaseEmoji,
+        'moon_illumination': data.moonIllumination,
+        'moon_is_waxing': data.moonIsWaxing,
         'fortnight_day': data.fortnightDay.toString(),
         'fortnight_day_text': data.fortnightDayText,
         'holidays': data.holidays.join(', '),
@@ -450,21 +452,6 @@ class WidgetLocalDataSource {
   // Helper methods
   String _getMoonPhaseName(int moonPhase, Language language) {
     return TranslationService.getMoonPhaseName(moonPhase, language);
-  }
-
-  String _getMoonPhaseEmoji(int moonPhase) {
-    switch (moonPhase) {
-      case 0:
-        return '🌒'; // Waxing crescent
-      case 1:
-        return '🌕'; // Full moon
-      case 2:
-        return '🌘'; // Waning crescent
-      case 3:
-        return '🌑'; // New moon
-      default:
-        return '🌙';
-    }
   }
 
   List<String> _getWeekdayNames(Language language) {

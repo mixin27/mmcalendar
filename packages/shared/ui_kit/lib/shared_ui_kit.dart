@@ -17,7 +17,7 @@ export 'src/utils/responsive_utils.dart';
 export 'src/widgets/app_toast.dart';
 export 'src/widgets/section_header.dart';
 export 'src/widgets/settings_list_tile.dart';
-export 'src/widgets/moon_phase.dart';
+export 'package:shared_moon/shared_moon.dart';
 export 'src/widgets/markdown_render.dart';
 export 'src/widgets/expandable_section.dart';
 export 'src/widgets/color_picker_tile.dart';

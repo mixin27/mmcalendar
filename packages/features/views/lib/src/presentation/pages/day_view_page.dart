@@ -379,6 +379,13 @@ class _DayViewPageState extends State<DayViewPage>
   }
 
   Widget _buildMoonPhaseCard(CompleteDate completeDate) {
+    final moon = MoonPhaseState.evening(
+      DateTime(
+        completeDate.westernYear,
+        completeDate.westernMonth,
+        completeDate.westernDay,
+      ),
+    );
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -397,11 +404,7 @@ class _DayViewPageState extends State<DayViewPage>
                     color: context.colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    Icons.brightness_3,
-                    color: context.colorScheme.primary,
-                    size: 20,
-                  ),
+                  child: MoonGlyph(state: moon, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -415,19 +418,28 @@ class _DayViewPageState extends State<DayViewPage>
             const SizedBox(height: 24),
 
             // Moon Phase Indicator
-            MoonPhaseIndicator(
-              moonPhase: completeDate.moonPhase,
-              fortnightDay: completeDate.fortnightDay,
-              size: 100,
-              getMoonPhaseName: (mp) {
-                return TranslationService.getMoonPhaseName(
-                  mp,
-                  MyanmarCalendar.currentLanguage,
-                );
-              },
-              getFortnightDay: (fd) {
-                return translateNumbers('Day $fd');
-              },
+            MoonGlyph(state: moon, size: 100),
+            const SizedBox(height: 12),
+            Text(
+              TranslationService.getMoonPhaseName(
+                completeDate.moonPhase,
+                MyanmarCalendar.currentLanguage,
+              ),
+              style: context.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              translateNumbers(
+                completeDate.isFullMoon || completeDate.isNewMoon
+                    ? '${moon.percentLit}% lit'
+                    : 'Day ${completeDate.fortnightDay} · ${moon.percentLit}% lit',
+              ),
+              style: context.textTheme.bodySmall?.copyWith(
+                color: context.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
