@@ -211,7 +211,10 @@ void main() {
       await gesture.moveBy(const Offset(5, 0));
       await gesture.up();
       expect(latest, isNotNull);
-      expect((latest!.bounds.left - grid.bounds.left) * 595, closeTo(25 / 1.5, .5));
+      expect(
+        (latest!.bounds.left - grid.bounds.left) * 595,
+        closeTo(25 / 1.5, .5),
+      );
     });
 
     testWidgets('small pointer jitter under the slop does not transform', (

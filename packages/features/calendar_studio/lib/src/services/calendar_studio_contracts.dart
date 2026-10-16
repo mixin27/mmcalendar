@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
 import '../theme/calendar_studio_theme.dart';
@@ -83,6 +85,34 @@ class CalendarStudioAsset {
   final String? localPath;
 }
 
+enum CalendarStudioImageSource { gallery, camera, files }
+
+class CalendarStudioPickedImage {
+  const CalendarStudioPickedImage({
+    required this.name,
+    required this.bytes,
+    this.mimeType,
+  });
+  final String name;
+  final Uint8List bytes;
+  final String? mimeType;
+}
+
+/// Lets the host offer platform pickers (gallery, camera) without the Studio
+/// package depending on them. Studio downsizes whatever is returned.
+abstract interface class CalendarStudioImagePicker {
+  /// Sources to offer, in display order. Studio skips the chooser sheet
+  /// when only one is available.
+  List<CalendarStudioImageSource> get sources;
+
+  /// Returns null when the user cancels. [maxDimension] is a hint for
+  /// pickers that can downscale natively.
+  Future<CalendarStudioPickedImage?> pick(
+    CalendarStudioImageSource source, {
+    required int maxDimension,
+  });
+}
+
 abstract interface class CalendarStudioExportDelivery {
   Future<void> deliver(
     CalendarStudioExportArtifact artifact, {
@@ -111,6 +141,7 @@ class CalendarStudioConfiguration {
     this.calendarData,
     this.assets,
     this.exportDelivery,
+    this.imagePicker,
     this.featureName = 'Calendar Studio',
     this.classicImport,
     this.now,
@@ -122,6 +153,9 @@ class CalendarStudioConfiguration {
   final CalendarStudioDataProvider? calendarData;
   final CalendarStudioAssetStore? assets;
   final CalendarStudioExportDelivery? exportDelivery;
+
+  /// Optional; defaults to a files-only picker.
+  final CalendarStudioImagePicker? imagePicker;
   final String featureName;
   final Future<List<CalendarStudioProject>> Function()? classicImport;
   final DateTime Function()? now;

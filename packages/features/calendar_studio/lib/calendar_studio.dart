@@ -12,6 +12,7 @@ export 'src/services/calendar_studio_contracts.dart';
 export 'src/services/calendar_studio_controller.dart';
 export 'src/services/calendar_studio_document_codec.dart';
 export 'src/services/calendar_studio_export_service.dart';
+export 'src/services/calendar_studio_image_import.dart';
 export 'src/services/calendar_studio_preflight.dart';
 export 'src/services/calendar_studio_transform.dart';
 export 'src/services/calendar_studio_raster_renderer.dart';

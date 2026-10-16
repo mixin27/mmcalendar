@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'di_setup.dart';
 import 'calendar_studio_asset_store.dart';
+import 'calendar_studio_image_picker.dart';
 
 /// App integration kept deliberately small until the Studio Drift migration.
 /// The package remains reusable; this adapter is the only app-specific seam.
@@ -22,6 +23,7 @@ final CalendarStudioConfiguration calendarStudioConfiguration =
       calendarData: const MyanmarCalendarStudioDataProvider(),
       assets: createCalendarStudioAssetStore(getIt<SharedPreferences>()),
       exportDelivery: const _StudioExportDelivery(),
+      imagePicker: AppCalendarStudioImagePicker(),
     );
 
 class _StudioProjectStore implements CalendarStudioProjectStore {

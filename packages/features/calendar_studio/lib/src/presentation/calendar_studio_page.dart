@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image/image.dart' as image_lib;
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
@@ -12,6 +10,7 @@ import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
 import '../services/calendar_studio_controller.dart';
 import '../services/calendar_studio_export_service.dart';
+import '../services/calendar_studio_image_import.dart';
 import '../services/calendar_studio_preflight.dart';
 import '../services/calendar_studio_transform.dart';
 import '../services/calendar_studio_raster_renderer.dart';
@@ -3215,6 +3214,67 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     },
   );
 
+  /// "Choose image" sheet from the mockup; skipped when the host offers a
+  /// single source.
+  Future<CalendarStudioImageSource?> _chooseImageSource(
+    List<CalendarStudioImageSource> sources,
+  ) async {
+    if (sources.isEmpty) return null;
+    if (sources.length == 1) return sources.single;
+    return showModalBottomSheet<CalendarStudioImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: Text(
+                'Choose image',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              ),
+            ),
+            for (final source in sources)
+              ListTile(
+                minTileHeight: 56,
+                leading: Icon(switch (source) {
+                  CalendarStudioImageSource.gallery =>
+                    Icons.photo_library_outlined,
+                  CalendarStudioImageSource.camera =>
+                    Icons.photo_camera_outlined,
+                  CalendarStudioImageSource.files => Icons.folder_outlined,
+                }),
+                title: Text(switch (source) {
+                  CalendarStudioImageSource.gallery => 'Gallery',
+                  CalendarStudioImageSource.camera => 'Camera',
+                  CalendarStudioImageSource.files => 'Files',
+                }),
+                subtitle: Text(switch (source) {
+                  CalendarStudioImageSource.gallery => 'Photos on this device',
+                  CalendarStudioImageSource.camera => 'Take a new photo',
+                  CalendarStudioImageSource.files => 'Browse files',
+                }),
+                onTap: () => Navigator.pop(context, source),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              child: Text(
+                "A copy is kept inside the app, so moving or deleting the "
+                "original won't change your calendar.",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: CalendarStudioTokens.of(context).ink3,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickAsset(
     CalendarStudioBlockType type, {
     CalendarStudioBlock? replace,
@@ -3228,36 +3288,68 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       }
       return;
     }
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
-    final file = result?.files.single;
-    final bytes = file?.bytes;
-    if (file == null || bytes == null) return;
-    final decoded = image_lib.decodeImage(bytes);
-    final asset = await store.importAsset(
-      CalendarStudioAssetInput(
-        name: file.name,
-        bytes: bytes,
-        width: decoded?.width ?? 0,
-        height: decoded?.height ?? 0,
-      ),
-    );
-    final id = replace?.id ?? controller.addBlock(type);
+    final picker =
+        widget.configuration.imagePicker ??
+        const CalendarStudioFileImagePicker();
+    final imageSource = await _chooseImageSource(picker.sources);
+    if (imageSource == null || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final CalendarStudioAsset asset;
+    try {
+      final picked = await picker.pick(
+        imageSource,
+        maxDimension: CalendarStudioImageImport.maxDimension,
+      );
+      if (picked == null) return;
+      final prepared = await CalendarStudioImageImport.prepare(picked);
+      asset = await store.importAsset(
+        CalendarStudioAssetInput(
+          name: prepared.name,
+          bytes: prepared.bytes,
+          width: prepared.width,
+          height: prepared.height,
+        ),
+      );
+      if (prepared.resized) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              'Large image resized to ${prepared.width} × ${prepared.height} px '
+              '— still sharp for print.',
+            ),
+          ),
+        );
+      }
+    } on CalendarStudioUnsupportedImageException {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text("That file isn't an image Studio can use."),
+        ),
+      );
+      return;
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text("Couldn't add the image. Try again.")),
+      );
+      return;
+    }
+    if (!mounted) return;
+    final assetContent = {
+      'assetId': asset.id,
+      'assetName': asset.name,
+      'pixelWidth': asset.width,
+      'pixelHeight': asset.height,
+    };
+    if (replace == null) {
+      // One undo step for "add image", not add + assign.
+      controller.addBlock(type, content: assetContent);
+      return;
+    }
     final block = controller.currentPage.blocks.firstWhere(
-      (value) => value.id == id,
+      (value) => value.id == replace.id,
     );
     controller.updateBlock(
-      block.copyWith(
-        content: {
-          ...block.content,
-          'assetId': asset.id,
-          'assetName': asset.name,
-          'pixelWidth': asset.width,
-          'pixelHeight': asset.height,
-        },
-      ),
+      block.copyWith(content: {...block.content, ...assetContent}),
     );
   }
 
