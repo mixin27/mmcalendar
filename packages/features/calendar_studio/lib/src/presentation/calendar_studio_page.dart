@@ -17,6 +17,7 @@ import '../services/calendar_studio_project_bundle.dart';
 import '../services/calendar_studio_transform.dart';
 import '../services/calendar_studio_raster_renderer.dart';
 import '../templates/calendar_studio_templates.dart';
+import '../theme/calendar_studio_font_catalog.dart';
 import '../theme/calendar_studio_theme.dart';
 import '../widgets/calendar_studio_scene.dart';
 import 'calendar_studio_export_flow.dart';
@@ -54,6 +55,10 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   final _editorFocus = FocusNode(debugLabel: 'Calendar Studio editor');
   var _spacePanning = false;
   var _projectsAsList = false;
+  var _galleryQuery = '';
+  var _galleryPlace = 'All';
+  String? _galleryMood;
+  String? _selectedPresetId;
   String? _detailId;
   var _canRemoveBackground = false;
   var _canSuggestText = false;
@@ -1022,65 +1027,472 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     return normalized.isEmpty ? 'calendar' : normalized;
   }
 
-  Widget _templates(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      leading: BackButton(
-        onPressed: () => setState(() => view = _View.dashboard),
-      ),
-      title: const Text('Choose a template'),
-    ),
-    body: LayoutBuilder(
-      builder: (context, box) {
-        final count = box.maxWidth >= 900 ? 4 : 2;
-        return GridView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: CalendarStudioTemplates.all.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: count,
-            childAspectRatio: .72,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
+  static const _places = ['All', 'Wall', 'Desk', 'Social', 'Story', 'Annual'];
+
+  /// Gallery place for a template, from its category label.
+  static String _placeOf(CalendarStudioTemplate template) =>
+      switch (template.category.split(' ').first) {
+        'Desk' => 'Desk',
+        'Social' => 'Social',
+        'Story' => 'Story',
+        'Annual' => 'Annual',
+        'Wall' || 'Print' => 'Wall',
+        _ => 'All',
+      };
+
+  List<String> get _moods {
+    final counts = <String, int>{};
+    for (final template in CalendarStudioTemplates.all) {
+      for (final mood in template.moods) {
+        counts[mood] = (counts[mood] ?? 0) + 1;
+      }
+    }
+    return counts.keys.toList()
+      ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
+  }
+
+  bool _matchesGallery(CalendarStudioTemplate template, {String? place}) {
+    final wanted = place ?? _galleryPlace;
+    if (wanted != 'All' && _placeOf(template) != wanted) return false;
+    if (_galleryMood case final mood? when !template.moods.contains(mood)) {
+      return false;
+    }
+    final query = _galleryQuery.trim().toLowerCase();
+    if (query.isEmpty) return true;
+    return [
+      template.name,
+      template.category,
+      ...template.moods,
+    ].any((value) => value.toLowerCase().contains(query));
+  }
+
+  Widget _palette(CalendarStudioTemplate template, {double size = 14}) => Row(
+    mainAxisSize: MainAxisSize.min,
+    spacing: 3,
+    children: [
+      for (final color in template.palette)
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: Color(color),
+            borderRadius: BorderRadius.circular(size * .28),
+            border: Border.all(color: const Color(0x1F000000)),
           ),
-          itemBuilder: (_, index) {
-            final template = CalendarStudioTemplates.all[index];
-            return Card(
-              child: InkWell(
-                onTap: () => _showSetup(context, template),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        margin: const EdgeInsets.all(8),
-                        child: Center(
-                          child: AspectRatio(
-                            aspectRatio: template.canvas.aspectRatio,
-                            child: _templatePreview(template),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 2),
-                      child: Text(
-                        template.name,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-                      child: Text(template.category),
-                    ),
-                  ],
+        ),
+    ],
+  );
+
+  Widget _presetCard(
+    BuildContext context,
+    CalendarStudioTemplate template, {
+    required bool wide,
+  }) {
+    final selected = wide && _selectedPresetId == template.id;
+    final tokens = CalendarStudioTokens.of(context);
+    return InkWell(
+      key: ValueKey('calendar-studio-preset-${template.id}'),
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => wide
+          ? setState(() => _selectedPresetId = template.id)
+          : _showPresetDetail(context, template),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: tokens.surface2,
+                borderRadius: BorderRadius.circular(12),
+                border: selected
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2.5,
+                      )
+                    : null,
+              ),
+              padding: const EdgeInsets.all(10),
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: template.canvas.aspectRatio,
+                  child: _templatePreview(template),
                 ),
               ),
-            );
+            ),
+          ),
+          const SizedBox(height: 6),
+          if (template.palette.isNotEmpty) _palette(template),
+          const SizedBox(height: 4),
+          Text(
+            template.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          Text(
+            template.category,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 12, color: tokens.ink3),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SliverGrid _presetGrid(
+    BuildContext context,
+    List<CalendarStudioTemplate> templates, {
+    required int columns,
+    required bool wide,
+  }) => SliverGrid.builder(
+    itemCount: templates.length,
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: columns,
+      childAspectRatio: .62,
+      mainAxisSpacing: 14,
+      crossAxisSpacing: 12,
+    ),
+    itemBuilder: (_, index) =>
+        _presetCard(context, templates[index], wide: wide),
+  );
+
+  Widget _galleryFilters(BuildContext context, {required bool vertical}) {
+    final search = TextField(
+      key: const ValueKey('calendar-studio-preset-search'),
+      onChanged: (value) => setState(() => _galleryQuery = value),
+      decoration: const InputDecoration(
+        hintText: 'Search presets or moods',
+        prefixIcon: Icon(Icons.search),
+        isDense: true,
+      ),
+    );
+    final places = [
+      for (final place in _places)
+        ChoiceChip(
+          label: Text(
+            place == 'All'
+                ? 'All ${CalendarStudioTemplates.all.length}'
+                : '$place ${CalendarStudioTemplates.all.where((t) => _placeOf(t) == place).length}',
+          ),
+          selected: _galleryPlace == place,
+          onSelected: (_) => setState(() => _galleryPlace = place),
+        ),
+    ];
+    final moods = [
+      for (final mood in _moods)
+        FilterChip(
+          label: Text(mood),
+          selected: _galleryMood == mood,
+          onSelected: (on) => setState(() => _galleryMood = on ? mood : null),
+        ),
+    ];
+    if (vertical) {
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          search,
+          const SizedBox(height: 16),
+          Text('PLACE', style: Theme.of(context).textTheme.labelSmall),
+          const SizedBox(height: 6),
+          Wrap(spacing: 6, runSpacing: 6, children: places),
+          const SizedBox(height: 16),
+          Text('MOOD', style: Theme.of(context).textTheme.labelSmall),
+          const SizedBox(height: 6),
+          Wrap(spacing: 6, runSpacing: 6, children: moods),
+        ],
+      );
+    }
+    Widget row(List<Widget> chips) => SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(spacing: 8, children: chips),
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: search,
+        ),
+        row(places),
+        const SizedBox(height: 6),
+        row(moods),
+      ],
+    );
+  }
+
+  Widget _templates(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final wide = box.maxWidth >= 1024;
+      final filtered = CalendarStudioTemplates.all
+          .where((template) => _matchesGallery(template))
+          .toList();
+      final browsing =
+          _galleryQuery.trim().isEmpty &&
+          _galleryMood == null &&
+          _galleryPlace == 'All';
+      final fresh = filtered.where((t) => t.collection != null).toList();
+      final classic = filtered.where((t) => t.collection == null).toList();
+      final columns = wide ? 4 : (box.maxWidth >= 600 ? 3 : 2);
+      Widget heading(String text, String trailing) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                text.toUpperCase(),
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  letterSpacing: .7,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            Text(trailing, style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+      );
+      final grid = CustomScrollView(
+        slivers: [
+          if (!wide)
+            SliverToBoxAdapter(
+              child: _galleryFilters(context, vertical: false),
+            ),
+          if (filtered.isEmpty)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: Text('No presets match. Try another mood.')),
+            )
+          else if (browsing) ...[
+            SliverToBoxAdapter(
+              child: heading('New · Vol 1 & 2', '${fresh.length} presets'),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: _presetGrid(context, fresh, columns: columns, wide: wide),
+            ),
+            SliverToBoxAdapter(
+              child: heading('Classic', '${classic.length} templates'),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              sliver: _presetGrid(
+                context,
+                classic,
+                columns: columns,
+                wide: wide,
+              ),
+            ),
+          ] else ...[
+            SliverToBoxAdapter(child: heading('Results', '${filtered.length}')),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              sliver: _presetGrid(
+                context,
+                filtered,
+                columns: columns,
+                wide: wide,
+              ),
+            ),
+          ],
+        ],
+      );
+      final selected = wide
+          ? CalendarStudioTemplates.all
+                .where((t) => t.id == _selectedPresetId)
+                .firstOrNull
+          : null;
+      return Scaffold(
+        appBar: AppBar(
+          leading: BackButton(
+            onPressed: () => setState(() => view = _View.dashboard),
+          ),
+          title: const Text('Choose a preset'),
+        ),
+        body: wide
+            ? Row(
+                children: [
+                  SizedBox(
+                    width: 240,
+                    child: _galleryFilters(context, vertical: true),
+                  ),
+                  const VerticalDivider(width: 1),
+                  Expanded(child: grid),
+                  const VerticalDivider(width: 1),
+                  SizedBox(
+                    width: 320,
+                    child: selected == null
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(24),
+                              child: Text(
+                                'Select a preset to see its months and colours.',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          )
+                        : _presetDetail(context, selected, panel: true),
+                  ),
+                ],
+              )
+            : grid,
+      );
+    },
+  );
+
+  /// The first text block's font and its Myanmar fallback, for the detail.
+  String _presetFonts(CalendarStudioTemplate template) {
+    final family = template
+        .create(
+          id: 'fonts-${template.id}',
+          source: source.copyWith(period: CalendarStudioPeriod.month),
+          now: DateTime(source.year),
+        )
+        .pages
+        .first
+        .blocks
+        .where((block) => block.type == CalendarStudioBlockType.text)
+        .map((block) => block.style['fontFamily'] as String?)
+        .nonNulls
+        .firstOrNull;
+    if (family == null) return 'Noto Sans Myanmar';
+    final serif = CalendarStudioFontCatalog.byFamily(family)?.serif ?? false;
+    final myanmar = serif ? 'Noto Serif Myanmar' : 'Noto Sans Myanmar';
+    return family == myanmar || family == 'Noto Sans Myanmar'
+        ? family
+        : '$family · $myanmar';
+  }
+
+  Widget _monthPreview(CalendarStudioTemplate template, int month) {
+    final monthSource = source.copyWith(
+      period: CalendarStudioPeriod.month,
+      month: month,
+    );
+    final project = _templatePreviews.putIfAbsent(
+      (template.id, monthSource),
+      () => template.create(
+        id: 'preview-${template.id}-$month',
+        source: monthSource,
+        now: DateTime(monthSource.year),
+      ),
+    );
+    return IgnorePointer(
+      child: CalendarStudioScene(
+        page: project.pages.first,
+        source: project.source,
+        dataProvider: _calendarData,
+        assetStore: _assets,
+      ),
+    );
+  }
+
+  /// Preset detail (mockup 2): sample months, palette, fonts and moods.
+  Widget _presetDetail(
+    BuildContext context,
+    CalendarStudioTemplate template, {
+    bool panel = false,
+  }) {
+    final tokens = CalendarStudioTokens.of(context);
+    final months = template.monthly ? const [1, 4, 10] : const [1];
+    final pages = template.monthly ? source.pageCount : 1;
+    return ListView(
+      padding: EdgeInsets.fromLTRB(20, panel ? 20 : 0, 20, 20),
+      children: [
+        SizedBox(
+          height: 260,
+          child: _PresetCarousel(
+            children: [
+              for (final month in months)
+                Center(
+                  child: AspectRatio(
+                    aspectRatio: template.canvas.aspectRatio,
+                    child: _monthPreview(template, month),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(template.name, style: Theme.of(context).textTheme.titleLarge),
+            for (final mood in template.moods.take(2))
+              Chip(
+                label: Text(mood),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+              ),
+          ],
+        ),
+        Text(
+          '${template.category} · $pages page${pages == 1 ? '' : 's'}',
+          style: TextStyle(color: tokens.ink3),
+        ),
+        if (template.palette.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          _palette(template, size: 18),
+        ],
+        const SizedBox(height: 12),
+        Card(
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              spacing: 6,
+              children: [
+                for (final (label, value) in [
+                  ('Fonts', _presetFonts(template)),
+                  (
+                    'Pages',
+                    template.monthly
+                        ? 'One per month'
+                        : 'Whole year on one sheet',
+                  ),
+                  if (template.collection case final collection?)
+                    ('Collection', collection),
+                ])
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 86,
+                        child: Text(
+                          label,
+                          style: TextStyle(color: tokens.ink3),
+                        ),
+                      ),
+                      Expanded(child: Text(value)),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        FilledButton(
+          key: const ValueKey('calendar-studio-use-preset'),
+          onPressed: () {
+            if (!panel) Navigator.pop(context);
+            _showSetup(this.context, template);
           },
-        );
-      },
+          child: const Text('Use preset'),
+        ),
+      ],
+    );
+  }
+
+  void _showPresetDetail(
+    BuildContext context,
+    CalendarStudioTemplate template,
+  ) => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (sheetContext) => FractionallySizedBox(
+      heightFactor: _sheetHeight,
+      child: _presetDetail(sheetContext, template),
     ),
   );
 
@@ -5323,4 +5735,59 @@ class _ImportSummary extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Swipeable sample months with page dots (preset detail).
+class _PresetCarousel extends StatefulWidget {
+  const _PresetCarousel({required this.children});
+  final List<Widget> children;
+
+  @override
+  State<_PresetCarousel> createState() => _PresetCarouselState();
+}
+
+class _PresetCarouselState extends State<_PresetCarousel> {
+  final _controller = PageController(viewportFraction: .78);
+  var _page = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      Expanded(
+        child: PageView(
+          controller: _controller,
+          onPageChanged: (value) => setState(() => _page = value),
+          children: [
+            for (final child in widget.children)
+              Padding(padding: const EdgeInsets.all(6), child: child),
+          ],
+        ),
+      ),
+      const SizedBox(height: 8),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 6,
+        children: [
+          for (var i = 0; i < widget.children.length; i++)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: i == _page ? 18 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: i == _page
+                    ? Theme.of(context).colorScheme.primary
+                    : CalendarStudioTokens.of(context).surface3,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+        ],
+      ),
+    ],
+  );
 }

@@ -20,16 +20,45 @@ void main() {
     await tester.tap(find.text('Browse presets'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(CalendarStudioScene), findsWidgets);
-    expect(find.text('Jade wall'), findsOneWidget);
-    expect(find.text('Moonlight post'), findsOneWidget);
-    // Round-2 presets follow the originals in the same gallery.
-    await tester.scrollUntilVisible(
-      find.text('Woven Heritage'),
-      400,
-      scrollable: find.byType(Scrollable).first,
+    expect(find.text('Choose a preset'), findsOneWidget);
+    expect(find.text('NEW · VOL 1 & 2'), findsOneWidget);
+    expect(find.text('Rose Bond'), findsOneWidget);
+
+    // Search narrows to matching names, categories and moods.
+    await tester.enterText(
+      find.byKey(const ValueKey('calendar-studio-preset-search')),
+      'jade',
     );
-    expect(find.text('Woven Heritage'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('Jade wall'), findsOneWidget);
+    expect(find.text('Rose Bond'), findsNothing);
+    await tester.enterText(
+      find.byKey(const ValueKey('calendar-studio-preset-search')),
+      '',
+    );
+    await tester.pumpAndSettle();
+
+    // A mood keeps only presets tagged with it.
+    await tester.ensureVisible(find.widgetWithText(FilterChip, 'Spiritual'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilterChip, 'Spiritual'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sabbath'), findsOneWidget);
+    expect(find.text('Rose Bond'), findsNothing);
+
+    // Tapping a card opens its detail; "Use preset" continues to setup.
+    await tester.tap(
+      find.byKey(const ValueKey('calendar-studio-preset-pagoda')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Use preset'), findsOneWidget);
+    expect(
+      find.textContaining('Crimson Pro · Noto Serif Myanmar'),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('calendar-studio-use-preset')));
+    await tester.pumpAndSettle();
+    expect(find.text('Set up Sabbath'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
