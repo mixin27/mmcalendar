@@ -10,6 +10,7 @@ import '../models/calendar_studio_types.dart';
 import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
 import '../services/calendar_studio_transform.dart';
+import 'calendar_studio_decorations.dart';
 import 'calendar_studio_theme_blocks.dart';
 
 /// The single Flutter render path for editable canvases and page previews.
@@ -929,9 +930,11 @@ class _TemplateDecoration extends StatelessWidget {
     'goldRule' => const ColoredBox(color: Color(0xFFB98A25)),
     'inkRule' => const ColoredBox(color: Color(0xFF15201D)),
     'storyEvents' => const _StoryEvents(),
-    _ => const Center(
-      child: Icon(Icons.spa_outlined, color: Color(0xFFB98A25)),
-    ),
+    _ =>
+      CalendarStudioDecorations.build(block) ??
+          const Center(
+            child: Icon(Icons.spa_outlined, color: Color(0xFFB98A25)),
+          ),
   };
 }
 

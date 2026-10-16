@@ -21,5 +21,6 @@ export 'src/services/myanmar_calendar_studio_data_provider.dart';
 export 'src/templates/calendar_studio_templates.dart';
 export 'src/templates/calendar_studio_theme_spec.dart';
 export 'src/theme/calendar_studio_theme.dart';
+export 'src/widgets/calendar_studio_decorations.dart';
 export 'src/widgets/calendar_studio_scene.dart';
 export 'src/presentation/calendar_studio_page.dart';
