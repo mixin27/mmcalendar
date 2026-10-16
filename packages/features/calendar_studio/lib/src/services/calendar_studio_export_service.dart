@@ -43,14 +43,16 @@ class CalendarStudioExportService {
   Future<CalendarStudioExportArtifact> export({
     required CalendarStudioProject project,
     required CalendarStudioExportPreset preset,
+    Iterable<int>? pageIndexes,
     CalendarStudioExportCancellationToken? cancellationToken,
     ValueChanged<CalendarStudioExportProgress>? onProgress,
   }) async {
     final token = cancellationToken ?? CalendarStudioExportCancellationToken();
+    final selected = selectPages(project, pageIndexes);
     final pages = <_RenderedPage>[];
-    for (var index = 0; index < project.pages.length; index++) {
+    for (var index = 0; index < selected.length; index++) {
       token.throwIfCancelled();
-      final page = project.pages[index];
+      final page = selected[index];
       final png = await renderer.renderPage(
         project,
         page,
@@ -62,7 +64,7 @@ class CalendarStudioExportService {
       onProgress?.call(
         CalendarStudioExportProgress(
           completed: index + 1,
-          total: project.pages.length,
+          total: selected.length,
         ),
       );
       await Future<void>.delayed(Duration.zero);
@@ -93,6 +95,22 @@ class CalendarStudioExportService {
         forceZip: true,
       ),
     };
+  }
+
+  /// Pages to export in project order. Null exports every page; indexes
+  /// outside the project are ignored, and an empty result is an error.
+  static List<CalendarStudioPage> selectPages(
+    CalendarStudioProject project,
+    Iterable<int>? pageIndexes,
+  ) {
+    if (pageIndexes == null) return project.pages;
+    final wanted = pageIndexes.toSet();
+    final pages = [
+      for (var i = 0; i < project.pages.length; i++)
+        if (wanted.contains(i)) project.pages[i],
+    ];
+    if (pages.isEmpty) throw ArgumentError('Choose at least one page.');
+    return pages;
   }
 
   Future<CalendarStudioExportArtifact> _pdf(

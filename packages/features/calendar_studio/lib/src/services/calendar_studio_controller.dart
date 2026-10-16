@@ -168,6 +168,14 @@ class CalendarStudioController extends ChangeNotifier {
     _scheduleSave();
   }
 
+  /// Export settings aren't design edits, so this skips undo history.
+  void updateDefaultExportPreset(CalendarStudioExportPreset preset) {
+    final value = _project;
+    if (value == null || value.defaultExportPreset == preset) return;
+    _project = value.copyWith(defaultExportPreset: preset);
+    _scheduleSave();
+  }
+
   void updateCurrentCanvas(StudioCanvas canvas) {
     if (currentPage.canvas == canvas) return;
     _edit((page) => page.copyWith(canvas: canvas));

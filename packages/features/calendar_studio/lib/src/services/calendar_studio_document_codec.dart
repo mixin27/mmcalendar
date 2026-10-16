@@ -11,8 +11,36 @@ abstract final class CalendarStudioDocumentCodec {
     'createdAt': project.createdAt.toIso8601String(),
     'updatedAt': project.updatedAt.toIso8601String(),
     'source': _source(project.source),
+    'defaultExportPreset': _preset(project.defaultExportPreset),
     'pages': project.pages.map(_page).toList(),
   };
+
+  static Map<String, Object?> _preset(CalendarStudioExportPreset preset) => {
+    'id': preset.id,
+    'label': preset.label,
+    'format': preset.format.name,
+    'dpi': preset.dpi,
+    'width': preset.width,
+    'height': preset.height,
+  };
+
+  static CalendarStudioExportPreset _decodePreset(Object? value) {
+    if (value is! Map) return CalendarStudioExportPreset.a4Pdf;
+    try {
+      return CalendarStudioExportPreset(
+        id: value['id'] as String,
+        label: value['label'] as String,
+        format: CalendarStudioExportFormat.values.byName(
+          value['format'] as String,
+        ),
+        dpi: value['dpi'] as int,
+        width: value['width'] as int,
+        height: value['height'] as int,
+      );
+    } catch (_) {
+      return CalendarStudioExportPreset.a4Pdf;
+    }
+  }
 
   static CalendarStudioProject decode(Map<String, dynamic> value) =>
       CalendarStudioProject(
@@ -29,6 +57,7 @@ abstract final class CalendarStudioDocumentCodec {
           value['pages'] as List,
           _decodeSource(Map<String, dynamic>.from(value['source'] as Map)),
         ),
+        defaultExportPreset: _decodePreset(value['defaultExportPreset']),
       );
 
   static Map<String, Object?> _source(CalendarStudioSource source) => {

@@ -53,6 +53,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   var _canRemoveBackground = false;
   var _canSuggestText = false;
   var _textFieldRevision = 0;
+  PageController? _previewPages;
   ThemeData? _theme;
   CalendarStudioTokens? _themeTokens;
   Brightness? _themeBrightness;
@@ -145,6 +146,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     controller.dispose();
     _guides.dispose();
     _editorFocus.dispose();
+    _previewPages?.dispose();
     canvasController
       ..removeListener(_onCanvasTransformChanged)
       ..dispose();
@@ -1306,7 +1308,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                 icon: const Icon(Icons.redo),
               ),
               FilledButton(
-                onPressed: () => setState(() => view = _View.preview),
+                onPressed: () => _openPreview(),
                 child: const Text('Export'),
               ),
             ],
@@ -2698,7 +2700,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       } else if (key == LogicalKeyboardKey.digit0) {
         _fitCanvas();
       } else if (key == LogicalKeyboardKey.keyP) {
-        setState(() => view = _View.preview);
+        _openPreview();
       } else {
         return KeyEventResult.ignored;
       }
@@ -3825,6 +3827,12 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         ),
         Expanded(
           child: PageView.builder(
+            // Opens on the page being edited, so "This page" in the export
+            // sheet means what the user is looking at.
+            key: const ValueKey('calendar-studio-preview-pages'),
+            controller: _previewPages ??= PageController(
+              initialPage: controller.pageIndex,
+            ),
             itemCount: project.pages.length,
             onPageChanged: controller.setPage,
             itemBuilder: (_, index) => Center(
@@ -3902,7 +3910,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                         ),
                         Text(
                           errors > 0
-                              ? 'Fix errors before exporting.'
+                              ? 'Pages with errors are skipped until fixed.'
                               : 'No errors. You can export now.',
                         ),
                       ],
@@ -3964,7 +3972,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             const SizedBox(width: 12),
             Expanded(
               child: FilledButton.icon(
-                onPressed: errors > 0 ? null : () => _showExport(context),
+                onPressed: () => _showExport(context),
                 icon: const Icon(Icons.download_outlined),
                 label: const Text('Export…'),
               ),
@@ -4055,19 +4063,54 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         initialPreset: project.defaultExportPreset.copyWith(
           fileName: _safeFileName(project.name),
         ),
-        pageCount: project.pages.length,
+        pages: project.pages,
+        currentPage: controller.pageIndex,
+        blockedPages: {
+          for (final issue in CalendarStudioPreflight.check(project))
+            if (issue.severity == CalendarStudioIssueSeverity.error)
+              project.pages.indexWhere((page) => page.id == issue.pageId),
+        }..remove(-1),
       ),
     );
     if (request != null && mounted) {
-      await _runExport(project, request.preset, request.destination);
+      await _runExport(
+        project,
+        request.preset,
+        request.destination,
+        pageIndexes: request.pageIndexes,
+      );
     }
+  }
+
+  void _openPreview() {
+    _previewPages?.dispose();
+    _previewPages = null;
+    setState(() => view = _View.preview);
+  }
+
+  /// Next export of this project starts from the preset just used.
+  void _rememberExportPreset(
+    CalendarStudioProject project,
+    CalendarStudioExportPreset preset,
+  ) {
+    final current = controller.project;
+    if (current == null ||
+        current.id != project.id ||
+        current.defaultExportPreset.id == preset.id &&
+            current.defaultExportPreset.format == preset.format) {
+      return;
+    }
+    controller.updateDefaultExportPreset(
+      preset.copyWith(fileName: 'my-calendar'),
+    );
   }
 
   Future<void> _runExport(
     CalendarStudioProject project,
     CalendarStudioExportPreset preset,
-    CalendarStudioExportDestination destination,
-  ) async {
+    CalendarStudioExportDestination destination, {
+    List<int>? pageIndexes,
+  }) async {
     final delivery = widget.configuration.exportDelivery;
     if (delivery == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -4077,7 +4120,10 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     }
     final token = CalendarStudioExportCancellationToken();
     final progress = ValueNotifier(
-      CalendarStudioExportProgress(completed: 0, total: project.pages.length),
+      CalendarStudioExportProgress(
+        completed: 0,
+        total: pageIndexes?.length ?? project.pages.length,
+      ),
     );
     var dialogOpen = true;
     unawaited(
@@ -4101,6 +4147,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           ).export(
             project: project,
             preset: preset,
+            pageIndexes: pageIndexes,
             cancellationToken: token,
             onProgress: (value) => progress.value = value,
           );
@@ -4108,6 +4155,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         Navigator.of(context, rootNavigator: true).pop();
       }
       await delivery.deliver(artifact, destination: destination);
+      _rememberExportPreset(project, preset);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -4132,10 +4180,23 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   }
 }
 
+enum _ExportPages { all, current, choose }
+
 class _ExportSheet extends StatefulWidget {
-  const _ExportSheet({required this.initialPreset, required this.pageCount});
+  const _ExportSheet({
+    required this.initialPreset,
+    required this.pages,
+    this.currentPage,
+    this.blockedPages = const {},
+  });
   final CalendarStudioExportPreset initialPreset;
-  final int pageCount;
+  final List<CalendarStudioPage> pages;
+
+  /// The page being edited; preselects "This month" when set.
+  final int? currentPage;
+
+  /// Pages with preflight errors; exporting them is blocked.
+  final Set<int> blockedPages;
 
   @override
   State<_ExportSheet> createState() => _ExportSheetState();
@@ -4144,9 +4205,14 @@ class _ExportSheet extends StatefulWidget {
 class _ExportSheetState extends State<_ExportSheet> {
   late CalendarStudioExportPreset preset = widget.initialPreset;
   var destination = CalendarStudioExportDestination.save;
+  late var mode = widget.currentPage != null && widget.pages.length > 1
+      ? _ExportPages.current
+      : _ExportPages.all;
+  late final Set<int> chosen = {widget.currentPage ?? 0};
   late final TextEditingController nameController = TextEditingController(
-    text: widget.initialPreset.fileName,
+    text: _suggestedName(),
   );
+  var _nameEdited = false;
 
   static const presets = [
     CalendarStudioExportPreset.screenPng,
@@ -4157,6 +4223,35 @@ class _ExportSheetState extends State<_ExportSheet> {
     CalendarStudioExportPreset.storyPng,
   ];
 
+  List<int> get selection => switch (mode) {
+    _ExportPages.all => [for (var i = 0; i < widget.pages.length; i++) i],
+    _ExportPages.current => [widget.currentPage ?? 0],
+    _ExportPages.choose => chosen.toList()..sort(),
+  };
+
+  /// `family-2027-04` for one page, `family-2027-04-to-06` for a run,
+  /// `family-5-pages` for any other partial selection.
+  String _suggestedName() {
+    final base = widget.initialPreset.fileName;
+    final pages = selection;
+    if (pages.length == widget.pages.length || pages.isEmpty) return base;
+    String month(int index) =>
+        widget.pages[index].month.toString().padLeft(2, '0');
+    final first = widget.pages[pages.first];
+    if (pages.length == 1) return '$base-${first.year}-${month(pages.first)}';
+    final contiguous = pages.last - pages.first == pages.length - 1;
+    final last = widget.pages[pages.last];
+    if (contiguous && first.year == last.year) {
+      return '$base-${first.year}-${month(pages.first)}-to-${month(pages.last)}';
+    }
+    return '$base-${pages.length}-pages';
+  }
+
+  void _updateSelection(VoidCallback change) => setState(() {
+    change();
+    if (!_nameEdited) nameController.text = _suggestedName();
+  });
+
   @override
   void dispose() {
     nameController.dispose();
@@ -4165,12 +4260,15 @@ class _ExportSheetState extends State<_ExportSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final pageCount = selection.length;
+    final blocked = selection.where(widget.blockedPages.contains).toList();
     final extension = switch (preset.format) {
       CalendarStudioExportFormat.pdf => '.pdf',
-      CalendarStudioExportFormat.png => widget.pageCount > 1 ? '.zip' : '.png',
-      CalendarStudioExportFormat.jpeg => widget.pageCount > 1 ? '.zip' : '.jpg',
+      CalendarStudioExportFormat.png => pageCount > 1 ? '.zip' : '.png',
+      CalendarStudioExportFormat.jpeg => pageCount > 1 ? '.zip' : '.jpg',
       CalendarStudioExportFormat.zip => '.zip',
     };
+    final multiPage = widget.pages.length > 1;
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
@@ -4233,6 +4331,53 @@ class _ExportSheetState extends State<_ExportSheet> {
                   },
                 ),
               ),
+              if (multiPage) ...[
+                const SizedBox(height: 12),
+                const Text('Pages'),
+                const SizedBox(height: 6),
+                SegmentedButton<_ExportPages>(
+                  key: const ValueKey('calendar-studio-export-pages'),
+                  segments: [
+                    ButtonSegment(
+                      value: _ExportPages.all,
+                      label: Text('All ${widget.pages.length}'),
+                    ),
+                    if (widget.currentPage != null)
+                      const ButtonSegment(
+                        value: _ExportPages.current,
+                        label: Text('This page'),
+                      ),
+                    const ButtonSegment(
+                      value: _ExportPages.choose,
+                      label: Text('Choose'),
+                    ),
+                  ],
+                  selected: {mode},
+                  onSelectionChanged: (values) =>
+                      _updateSelection(() => mode = values.first),
+                ),
+                if (mode == _ExportPages.choose) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (var i = 0; i < widget.pages.length; i++)
+                        FilterChip(
+                          label: Text(widget.pages[i].label),
+                          selected: chosen.contains(i),
+                          onSelected: (on) => _updateSelection(() {
+                            if (on) {
+                              chosen.add(i);
+                            } else if (chosen.length > 1) {
+                              chosen.remove(i);
+                            }
+                          }),
+                        ),
+                    ],
+                  ),
+                ],
+              ],
               const SizedBox(height: 12),
               const Text('Format'),
               const SizedBox(height: 6),
@@ -4263,6 +4408,7 @@ class _ExportSheetState extends State<_ExportSheet> {
               const SizedBox(height: 12),
               TextField(
                 controller: nameController,
+                onChanged: (_) => _nameEdited = true,
                 decoration: InputDecoration(
                   labelText: 'File name',
                   suffixText: extension,
@@ -4271,10 +4417,21 @@ class _ExportSheetState extends State<_ExportSheet> {
               const SizedBox(height: 12),
               Text(
                 '${preset.width} × ${preset.height} px · ${preset.dpi} dpi · '
-                '${widget.pageCount} page${widget.pageCount == 1 ? '' : 's'}\n'
+                '$pageCount page${pageCount == 1 ? '' : 's'}\n'
                 'Myanmar text is shaped by Flutter for reliable PDF output.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+              if (blocked.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(
+                  '${blocked.map((i) => widget.pages[i].label).join(', ')} '
+                  '${blocked.length == 1 ? 'has' : 'have'} problems to fix '
+                  'before exporting. Check the preview, or choose other pages.',
+                  style: TextStyle(
+                    color: CalendarStudioTokens.of(context).error,
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               const Text('After exporting'),
               const SizedBox(height: 6),
@@ -4308,15 +4465,26 @@ class _ExportSheetState extends State<_ExportSheet> {
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
-                onPressed: () => Navigator.pop(
-                  context,
-                  _ExportRequest(
-                    preset: preset.copyWith(fileName: nameController.text),
-                    destination: destination,
-                  ),
-                ),
+                key: const ValueKey('calendar-studio-export-confirm'),
+                onPressed: blocked.isNotEmpty
+                    ? null
+                    : () => Navigator.pop(
+                        context,
+                        _ExportRequest(
+                          preset: preset.copyWith(
+                            fileName: nameController.text,
+                          ),
+                          destination: destination,
+                          pageIndexes: pageCount == widget.pages.length
+                              ? null
+                              : selection,
+                        ),
+                      ),
                 icon: const Icon(Icons.download_outlined),
-                label: Text('Export ${preset.format.name.toUpperCase()}'),
+                label: Text(
+                  'Export ${preset.format.name.toUpperCase()} · '
+                  '$pageCount page${pageCount == 1 ? '' : 's'}',
+                ),
               ),
             ],
           ),
@@ -4327,9 +4495,16 @@ class _ExportSheetState extends State<_ExportSheet> {
 }
 
 class _ExportRequest {
-  const _ExportRequest({required this.preset, required this.destination});
+  const _ExportRequest({
+    required this.preset,
+    required this.destination,
+    this.pageIndexes,
+  });
   final CalendarStudioExportPreset preset;
   final CalendarStudioExportDestination destination;
+
+  /// Null exports every page.
+  final List<int>? pageIndexes;
 }
 
 class _StudioTool extends StatelessWidget {
