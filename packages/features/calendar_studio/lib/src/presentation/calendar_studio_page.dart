@@ -12,6 +12,7 @@ import '../services/calendar_studio_controller.dart';
 import '../services/calendar_studio_export_service.dart';
 import '../services/calendar_studio_image_import.dart';
 import '../services/calendar_studio_preflight.dart';
+import '../services/calendar_studio_project_bundle.dart';
 import '../services/calendar_studio_transform.dart';
 import '../services/calendar_studio_raster_renderer.dart';
 import '../templates/calendar_studio_templates.dart';
@@ -255,7 +256,16 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   );
 
   Widget _dashboard(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(widget.configuration.featureName)),
+    appBar: AppBar(
+      title: Text(widget.configuration.featureName),
+      actions: [
+        IconButton(
+          tooltip: 'Import project',
+          onPressed: _importProject,
+          icon: const Icon(Icons.file_open_outlined),
+        ),
+      ],
+    ),
     floatingActionButton: FloatingActionButton.extended(
       onPressed: () => setState(() => view = _View.templates),
       icon: const Icon(Icons.add),
@@ -285,6 +295,11 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                   FilledButton(
                     onPressed: () => setState(() => view = _View.templates),
                     child: const Text('Browse templates'),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton(
+                    onPressed: _importProject,
+                    child: const Text('Import a project file'),
                   ),
                 ],
               ),
@@ -434,6 +449,14 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                           child: Text('Duplicate'),
                         ),
                         PopupMenuItem(value: 'export', child: Text('Export…')),
+                        PopupMenuItem(
+                          value: 'save-file',
+                          child: Text('Save project file'),
+                        ),
+                        PopupMenuItem(
+                          value: 'share-file',
+                          child: Text('Share project file'),
+                        ),
                         PopupMenuDivider(),
                         PopupMenuItem(value: 'delete', child: Text('Delete…')),
                       ],
@@ -465,6 +488,15 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         return;
       case 'export':
         await _exportProject(project);
+        return;
+      case 'save-file':
+        await _exportProjectFile(project, CalendarStudioExportDestination.save);
+        return;
+      case 'share-file':
+        await _exportProjectFile(
+          project,
+          CalendarStudioExportDestination.share,
+        );
         return;
       case 'delete':
         await _deleteProject(project);
@@ -520,6 +552,89 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     );
     await widget.configuration.projects.save(duplicate);
     await _load();
+  }
+
+  Future<void> _exportProjectFile(
+    CalendarStudioProject project,
+    CalendarStudioExportDestination destination,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final delivery = widget.configuration.exportDelivery;
+    if (delivery == null) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('No export destination is configured.')),
+      );
+      return;
+    }
+    try {
+      final artifact = await CalendarStudioProjectBundle.export(
+        project,
+        assets: _assets,
+        fileName: _safeFileName(project.name),
+      );
+      await delivery.deliver(artifact, destination: destination);
+      messenger.showSnackBar(
+        SnackBar(content: Text('${artifact.name} is ready.')),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text("Couldn't create the project file.")),
+      );
+    }
+  }
+
+  Future<void> _importProject() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final pick =
+        widget.configuration.pickProjectFile ??
+        CalendarStudioProjectBundle.pickFile;
+    final CalendarStudioProjectFile file;
+    try {
+      final bytes = await pick();
+      if (bytes == null) return;
+      file = await CalendarStudioProjectBundle.read(bytes);
+    } on CalendarStudioProjectFileException catch (error) {
+      messenger.showSnackBar(SnackBar(content: Text(error.message)));
+      return;
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text("Couldn't open that file.")),
+      );
+      return;
+    }
+    if (!mounted) return;
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * _sheetHeight,
+      ),
+      builder: (_) => _ImportSummary(file: file),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      final project = await CalendarStudioProjectBundle.import(
+        file,
+        projects: widget.configuration.projects,
+        assets: _assets,
+        now: widget.configuration.now?.call(),
+      );
+      await _load();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Imported "${project.name}".'),
+          action: SnackBarAction(
+            label: 'Open',
+            onPressed: () => _open(project),
+          ),
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text("Couldn't import the project.")),
+      );
+    }
   }
 
   Future<void> _exportProject(CalendarStudioProject project) async {
@@ -1132,6 +1247,38 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                       contentPadding: EdgeInsets.zero,
                       title: const Text('Time zone'),
                       subtitle: Text(draft.timeZoneLabel),
+                    ),
+                    const Divider(height: 24),
+                    const Text(
+                      'Project file',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const Text(
+                      'A copy with its images, to move this calendar to another '
+                      'device or keep a backup.',
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 8,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () => _exportProjectFile(
+                            controller.project!,
+                            CalendarStudioExportDestination.save,
+                          ),
+                          icon: const Icon(Icons.save_alt_outlined),
+                          label: const Text('Save project file'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => _exportProjectFile(
+                            controller.project!,
+                            CalendarStudioExportDestination.share,
+                          ),
+                          icon: const Icon(Icons.share_outlined),
+                          label: const Text('Share'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -4734,4 +4881,128 @@ class _TextSuggestionSheetState extends State<_TextSuggestionSheet> {
       ),
     ),
   );
+}
+
+/// Review step before a project file is saved, per the round-2 mockups.
+class _ImportSummary extends StatelessWidget {
+  const _ImportSummary({required this.file});
+  final CalendarStudioProjectFile file;
+
+  @override
+  Widget build(BuildContext context) {
+    final project = file.project;
+    final page = project.pages.firstOrNull;
+    final tokens = CalendarStudioTokens.of(context);
+    final megabytes = (file.sizeInBytes / (1 << 20)).toStringAsFixed(1);
+    final canvas = page?.canvas;
+    Widget row(String label, String value) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Text(label, style: TextStyle(color: tokens.ink3)),
+          const SizedBox(width: 16),
+          Expanded(child: Text(value, textAlign: TextAlign.end)),
+        ],
+      ),
+    );
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Import project',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 14),
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    if (page != null)
+                      SizedBox(
+                        width: 64,
+                        child: IgnorePointer(
+                          child: CalendarStudioScene(
+                            page: page,
+                            source: project.source,
+                            resolvedAssets: {
+                              for (final MapEntry(:key, :value)
+                                  in file.assets.entries)
+                                key: value.bytes,
+                            },
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            project.name,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            '$megabytes MB',
+                            style: TextStyle(color: tokens.ink3),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            row(
+              'Pages',
+              '${project.pages.length}'
+                  '${canvas == null ? '' : ' · ${canvas.width.round()} × ${canvas.height.round()}'}',
+            ),
+            row('Images', '${file.assets.length} included'),
+            row('Saved as', '${project.name} (imported)'),
+            if (file.missingAssetIds.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: tokens.warning.withValues(alpha: .14),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${file.missingAssetIds.length} '
+                  '${file.missingAssetIds.length == 1 ? 'image isn\'t' : 'images aren\'t'} '
+                  'in this file. Those blocks will ask for a new image.',
+                ),
+              ),
+            ],
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    key: const ValueKey('calendar-studio-import-confirm'),
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Import'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

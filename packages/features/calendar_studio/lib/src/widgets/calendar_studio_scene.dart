@@ -825,6 +825,9 @@ class _AssetImageBlockState extends State<_AssetImageBlock> {
           cacheWidth: cacheWidth,
           gaplessPlayback: true,
           opacity: AlwaysStoppedAnimation(widget.opacity.clamp(0, 1)),
+          // Damaged or unsupported bytes (e.g. from an imported file) show
+          // the empty-image placeholder instead of a broken image.
+          errorBuilder: (_, _, _) => _placeholder(),
         );
       },
     ),

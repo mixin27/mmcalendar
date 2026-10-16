@@ -226,6 +226,7 @@ class CalendarStudioConfiguration {
     this.imagePicker,
     this.imageEditor,
     this.ai = const CalendarStudioAiConfiguration(),
+    this.pickProjectFile,
     this.featureName = 'Calendar Studio',
     this.classicImport,
     this.now,
@@ -246,6 +247,10 @@ class CalendarStudioConfiguration {
 
   /// AI features; all off unless the host supplies providers.
   final CalendarStudioAiConfiguration ai;
+
+  /// Optional; returns the bytes of a `.mmcstudio` file the user picked.
+  /// Defaults to the system file picker.
+  final Future<Uint8List?> Function()? pickProjectFile;
   final String featureName;
   final Future<List<CalendarStudioProject>> Function()? classicImport;
   final DateTime Function()? now;
