@@ -4,6 +4,7 @@ import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
 import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
+import '../theme/calendar_studio_font_catalog.dart';
 
 /// Legend items a themed legend can show, in display order.
 enum StudioLegendItem {
@@ -111,13 +112,9 @@ class StudioThemedLegend extends StatelessWidget {
                     SizedBox(width: size * .45),
                     Text(
                       label(item),
-                      style: TextStyle(
-                        fontSize: size,
-                        height: 1.6,
-                        color: ink,
-                        fontFamily: style['fontFamily'] as String?,
-                        fontFamilyFallback: const ['Noto Sans Myanmar'],
-                      ),
+                      style: CalendarStudioFontCatalog.style(
+                        family: style['fontFamily'] as String?,
+                      ).copyWith(fontSize: size, height: 1.6, color: ink),
                     ),
                   ],
                 ),
@@ -253,14 +250,15 @@ class _StudioEventListState extends State<StudioEventList> {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: size * 1.05,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: .4,
-                      color: titleColor,
-                      fontFamily: family,
-                      fontFamilyFallback: const ['Noto Sans Myanmar'],
-                    ),
+                    style:
+                        CalendarStudioFontCatalog.style(
+                          family: family,
+                          weight: FontWeight.w700,
+                        ).copyWith(
+                          fontSize: size * 1.05,
+                          letterSpacing: .4,
+                          color: titleColor,
+                        ),
                   ),
                 ),
               ),
@@ -279,13 +277,12 @@ class _StudioEventListState extends State<StudioEventList> {
                         rows[i],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: size,
-                          height: 1.4,
-                          color: real.isNotEmpty ? ink : muted,
-                          fontFamily: family,
-                          fontFamilyFallback: const ['Noto Sans Myanmar'],
-                        ),
+                        style: CalendarStudioFontCatalog.style(family: family)
+                            .copyWith(
+                              fontSize: size,
+                              height: 1.4,
+                              color: real.isNotEmpty ? ink : muted,
+                            ),
                       ),
               ),
           ],

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:calendar/calendar.dart';
+import 'package:calendar_studio/calendar_studio.dart'
+    show CalendarStudioFontCatalog;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,6 +42,7 @@ void main() async {
     );
     yield LicenseEntryWithLineBreaks(<String>['google_fonts'], license);
   });
+  CalendarStudioFontCatalog.registerLicenses();
 
   // Set up Bloc observer
   Bloc.observer = AppBlocObserver();

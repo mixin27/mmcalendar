@@ -10,6 +10,7 @@ import '../models/calendar_studio_types.dart';
 import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
 import '../services/calendar_studio_transform.dart';
+import '../theme/calendar_studio_font_catalog.dart';
 import 'calendar_studio_decorations.dart';
 import 'calendar_studio_theme_blocks.dart';
 
@@ -881,20 +882,19 @@ class _TextBlock extends StatelessWidget {
         'right' => TextAlign.right,
         _ => TextAlign.left,
       },
-      style: TextStyle(
-        fontFamily: block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar',
-        fontFamilyFallback: const ['Noto Sans Myanmar'],
-        fontSize: (block.style['fontSize'] as num?)?.toDouble() ?? 20,
-        fontWeight: _fontWeight(block.style['fontWeight'] as int? ?? 700),
-        letterSpacing: (block.style['letterSpacing'] as num?)?.toDouble(),
-        color: Color((block.style['color'] as int?) ?? 0xFF15201D),
-        // Myanmar stacks marks above and below the base line, so themed
-        // titles set a taller line height; italic is for Latin-only blocks.
-        height: (block.style['lineHeight'] as num?)?.toDouble(),
-        fontStyle: block.style['italic'] == true
-            ? FontStyle.italic
-            : FontStyle.normal,
-      ),
+      // Myanmar stacks marks above and below the base line, so themed
+      // titles set a taller line height; italic is for Latin-only blocks.
+      style:
+          CalendarStudioFontCatalog.style(
+            family: block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar',
+            weight: _fontWeight(block.style['fontWeight'] as int? ?? 700),
+            italic: block.style['italic'] == true,
+          ).copyWith(
+            fontSize: (block.style['fontSize'] as num?)?.toDouble() ?? 20,
+            letterSpacing: (block.style['letterSpacing'] as num?)?.toDouble(),
+            color: Color((block.style['color'] as int?) ?? 0xFF15201D),
+            height: (block.style['lineHeight'] as num?)?.toDouble(),
+          ),
     ),
   );
 }
@@ -1034,12 +1034,10 @@ class _StoryEvent extends StatelessWidget {
             width: 58,
             child: Text(
               day,
-              style: const TextStyle(
-                fontFamily: 'Georgia',
-                fontSize: 40,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFFF7D98A),
-              ),
+              style: CalendarStudioFontCatalog.style(
+                family: CalendarStudioFontCatalog.numberFamily,
+                weight: FontWeight.w600,
+              ).copyWith(fontSize: 40, color: const Color(0xFFF7D98A)),
             ),
           ),
           Expanded(
@@ -1619,18 +1617,21 @@ class _CalendarDayNumber extends StatelessWidget {
     final isNew = calendarStyle == 'moonlight' && moonPhase == 3;
     final text = Text(
       label,
-      style: TextStyle(
-        fontFamily: numberFont == 'serif' ? 'Georgia' : 'Noto Sans Myanmar',
-        fontFamilyFallback: const ['Noto Sans Myanmar'],
-        fontWeight: FontWeight.w700,
-        fontSize: mini ? 7 : 15,
-        height: 1,
-        color: isFull ? const Color(0xFF151B3F) : color,
-        decoration: underline || calendarStyle == 'plain' && emphasized
-            ? TextDecoration.underline
-            : null,
-        decorationColor: color,
-      ),
+      style:
+          CalendarStudioFontCatalog.style(
+            family: numberFont == 'serif'
+                ? CalendarStudioFontCatalog.numberFamily
+                : 'Noto Sans Myanmar',
+            weight: FontWeight.w700,
+          ).copyWith(
+            fontSize: mini ? 7 : 15,
+            height: 1,
+            color: isFull ? const Color(0xFF151B3F) : color,
+            decoration: underline || calendarStyle == 'plain' && emphasized
+                ? TextDecoration.underline
+                : null,
+            decorationColor: color,
+          ),
     );
     if (!isFull && !isNew) return text;
     return Transform.translate(
