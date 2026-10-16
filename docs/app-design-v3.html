@@ -19,6 +19,7 @@
   --moon:#F2A900; --sabbath:#B7700B; --sabbath-soft:rgba(242,169,0,.14);
   --newmoon:#8E8E93; --ok:#1F9D63; --warn:#C27C0E;
   --bar:rgba(249,249,251,.86); --scrim:rgba(0,0,0,.32);
+  --moonshade:rgba(118,118,128,.20); --moonrim:rgba(60,60,67,.22);
   background:var(--bg); color:var(--label); font-family:var(--f);
 }
 .app.dark{
@@ -29,6 +30,7 @@
   --moon:#FFC530; --sabbath:#FFB840; --sabbath-soft:rgba(255,184,64,.16);
   --newmoon:#8E8E93; --ok:#34C77B; --warn:#FFB840;
   --bar:rgba(22,22,24,.86); --scrim:rgba(0,0,0,.55);
+  --moonshade:rgba(255,255,255,.10); --moonrim:rgba(255,255,255,.20);
 }
 *{box-sizing:border-box}
 body{background:var(--board);color:var(--board-ink);font-family:var(--f);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-inline:clamp(16px,4vw,52px);padding-block:40px 120px}
@@ -79,6 +81,7 @@ table.spec th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;opa
 .tnum{font-variant-numeric:tabular-nums}
 svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 svg.i.s{width:16px;height:16px}
+svg.i.xs{width:12px;height:12px;vertical-align:-2px;margin-right:2px}
 /* tab bar */
 .tabbar{position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--bar);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);box-shadow:0 -.5px 0 var(--sep);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px 26px}
 .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;color:var(--label-3)}
@@ -149,7 +152,7 @@ svg.i.s{width:16px;height:16px}
 .ring span{width:23px;height:23px;border-radius:50%;background:inherit;display:grid;place-items:center;font-size:10.5px;font-weight:700;background:#1C1C1E}
 .app.dark .ring span{background:#3A3A3C}
 /* bits */
-.badge{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:11px;font-size:11.5px;font-weight:600}
+.badge{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:11px;font-size:11.5px;font-weight:600}
 .badge.hol{background:var(--holiday-soft);color:var(--holiday)}
 .badge.sab{background:var(--sabbath-soft);color:var(--sabbath)}
 .badge.acc{background:var(--accent-soft);color:var(--accent)}
@@ -161,7 +164,18 @@ svg.i.s{width:16px;height:16px}
 .kv dd{margin:0;text-align:right;font-weight:500}
 .big{font-weight:800;font-size:44px;line-height:1;letter-spacing:-.03em}
 .mytitle{font-size:20px;font-weight:700;line-height:1.6}
-.moon{width:34px;height:34px;flex:none}
+
+.hhead{display:flex;align-items:center;gap:10px;padding:2px 16px 6px;height:54px;flex:none}
+.htitle{font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:4px;line-height:1.25;white-space:nowrap}
+.hsub{font-size:12px;color:var(--label-2);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.peek{position:absolute;left:0;right:0;bottom:84px;height:96px;background:var(--surface);border-radius:16px 16px 0 0;box-shadow:0 -8px 24px -12px rgba(0,0,0,.28),0 -.5px 0 var(--sep);padding:0 16px;overflow:hidden}
+.peek.up{top:120px;height:auto;background:var(--bg);display:flex;flex-direction:column;gap:14px;padding-bottom:16px}
+.peek.up .pk{background:var(--surface);border-radius:14px;padding:10px 12px}
+.pk{display:flex;gap:12px;align-items:center}
+.mstrip{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:10px 4px}
+.mstrip div{display:grid;justify-items:center;gap:3px;padding:4px 0;border-radius:10px}
+.mstrip div.on{background:var(--accent-soft)}
+.mini{width:330px;zoom:.34;flex:none;pointer-events:none}
 /* calendar grids */
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--gap,0)}
 .wd{text-align:center;font-size:10.5px;font-weight:600;color:var(--label-3);line-height:1.2;padding-bottom:6px}
@@ -183,18 +197,21 @@ svg.i.s{width:16px;height:16px}
 .fm{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--moon);vertical-align:0}
 .nm{display:inline-block;width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--newmoon);vertical-align:0}
 /* Detailed */
-.detail .c{min-width:0;aspect-ratio:.74;box-shadow:inset 0 .5px 0 var(--sep);padding:4px 3px 3px;display:flex;flex-direction:column;position:relative}
-.detail .n{font-size:15px;font-weight:600;line-height:1.15}
-.detail .c.today .n{color:var(--accent)}
-.detail .c.today::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:11px;background:var(--accent-soft)}
+.detail .c{min-width:0;aspect-ratio:.74;box-shadow:inset 0 .5px 0 var(--sep);padding:4px 3px 3px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.detail.fit .c{aspect-ratio:auto;height:var(--rowh)}
+.detail .n{font-size:14px;font-weight:600;line-height:22px;width:22px;height:22px;text-align:center;border-radius:11px;flex:none}
+.detail .c.today .n{background:var(--accent);color:var(--on-accent)!important}
+.detail .c.sel{box-shadow:inset 0 0 0 1.5px var(--label);border-radius:8px}
 .detail .c.hol{background:var(--holiday-soft)}
 .detail .c.hol .n,.detail .c.sun .n{color:var(--holiday)}
-.detail .h{font-size:8.5px;color:var(--holiday);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.detail .h{font-size:8.5px;color:var(--holiday);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-top:1px}
 .detail .l{margin-top:auto;font-size:8.5px;line-height:1.35;color:var(--label-2);white-space:nowrap;overflow:hidden}
 .detail .l.s{color:var(--sabbath);font-weight:700}
-.detail .mo{position:absolute;right:4px;top:6px}
+.detail .mo{position:absolute;right:3px;top:5px;line-height:0}
 .detail .ev{height:3px;border-radius:2px;background:var(--accent);margin-top:2px}
+.detail .evt{font-size:8.5px;font-weight:600;line-height:1.5;padding:0 3px;border-radius:4px;background:var(--accent-soft);color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .detail .c.x{opacity:.28}
+.moon{flex:none;display:inline-block;vertical-align:middle}
 /* Current */
 .cur{--gap:4px}
 .cur .c{aspect-ratio:.75;border-radius:12px;box-shadow:inset 0 0 0 .5px var(--sep);background:var(--surface);display:flex;flex-direction:column;align-items:center;padding:3px 2px;min-width:0}
@@ -223,16 +240,75 @@ svg.i.s{width:16px;height:16px}
 .w.s{width:150px;height:150px}.w.m{width:322px;height:150px}.w.l{width:322px;height:338px}
 .app.dark .w{background:rgba(28,28,30,.92);color:#F5F5F7}
 @media (max-width:1100px){.dsk{grid-template-columns:76px minmax(0,1fr)}.dpanel{display:none}.side .s span{display:none}}
+/* Material style: same tokens and content, Android chrome */
+.toc-sep{width:1px;height:20px;background:var(--board-line);margin:0 4px}
+.phone:has(.md){border-radius:38px}
+.app.md{--bg:#F6F7FB;--bar:#ECEEF6}
+.app.md.dark{--bg:#111318;--surface:#1C1E25;--surface-2:#22252D;--bar:#1D2028}
+.app.md .tabbar{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bar);box-shadow:none;height:80px;padding:12px 4px 18px}
+.app.md .tab{color:var(--label-2);font-weight:500;gap:4px;font-size:11px}
+.app.md .tab svg.i{width:56px;height:30px;padding:4px 16px;border-radius:15px}
+.app.md .tab.on{color:var(--label);font-weight:700}
+.app.md .tab.on svg.i{background:var(--accent-soft);color:var(--accent)}
+.app.md .navtop{color:var(--label);height:52px;gap:14px}
+.app.md .navtop .bl{display:none}
+.app.md .navtop .sp{text-align:left;font-size:20px;font-weight:500}
+.app.md .navtop .act{gap:20px;color:var(--label-2)}
+.app.md .large{font-weight:500;font-size:28px;letter-spacing:0}
+.app.md .htitle{font-weight:500;letter-spacing:0}
+.app.md .content{gap:10px}
+.app.md .group{background:transparent;border-radius:0;margin:0 -16px}
+.app.md .r{padding:0 16px;min-height:54px}
+.app.md .r+.r::before{display:none}
+.app.md .r.ic{gap:18px}
+.app.md .r .tile{background:transparent!important;color:var(--label-2);width:24px}
+.app.md .r .tile svg.i{width:22px;height:22px;stroke-width:1.8}
+.app.md .glabel{text-transform:none;letter-spacing:0;color:var(--accent);font-weight:600;font-size:14px;margin:6px 0 0 0}
+.app.md .gfoot{margin:2px 0 0}
+.app.md .tg{width:52px;height:32px;border-radius:16px;background:var(--fill-2);box-shadow:inset 0 0 0 2px var(--label-3)}
+.app.md .tg::after{top:8px;left:8px;width:16px;height:16px;border-radius:8px;background:var(--label-3);box-shadow:none}
+.app.md .tg.on{background:var(--accent);box-shadow:none}
+.app.md .tg.on::after{top:4px;left:24px;width:24px;height:24px;border-radius:12px;background:#fff}
+.app.md .seg{background:transparent;padding:0;border-radius:20px;box-shadow:inset 0 0 0 1px var(--label-3);overflow:hidden}
+.app.md .seg span{border-radius:0;padding:8px 4px;font-weight:500}
+.app.md .seg span+span{box-shadow:-1px 0 0 var(--label-3)}
+.app.md .seg span.on{background:var(--accent-soft);color:var(--accent)}
+.app.md .btn{border-radius:24px;height:48px;font-size:15px}
+.app.md .btn.sm{height:40px;border-radius:20px}
+.app.md .chip{border-radius:8px;background:transparent;box-shadow:inset 0 0 0 1px var(--label-3)}
+.app.md .chip.on{background:var(--accent-soft);color:var(--accent);box-shadow:none}
+.app.md .search{height:50px;border-radius:25px;background:var(--surface)}
+.app.md .input{background:transparent;display:grid;gap:10px}
+.app.md .input .r{box-shadow:inset 0 0 0 1px var(--label-3);border-radius:6px;margin:0}
+.app.md .sheet{border-radius:28px 28px 0 0;background:var(--surface)}
+.app.md .grab{width:32px;height:4px;margin:14px auto 8px}
+.app.md .shead span:first-child{display:none}
+.app.md .shead b{text-align:left;font-size:20px;font-weight:500}
+.app.md .dialog{border-radius:28px;text-align:left;left:32px;right:32px}
+.app.md .dialog .db{padding:24px 24px 10px}
+.app.md .dialog .db b{font-size:22px;font-weight:500;margin-bottom:12px}
+.app.md .dialog .db p{font-size:14px}
+.app.md .dialog .da{display:flex;justify-content:flex-end;gap:4px;box-shadow:none;padding:4px 14px 16px}
+.app.md .dialog .da span{padding:10px 12px;box-shadow:none;font-weight:600;font-size:14px}
+.app.md .toast{border-radius:6px;bottom:90px}
+.app.md .peek{border-radius:28px 28px 0 0;bottom:80px}
+.app.md .peek.up{background:var(--surface)}
+.app.md .peek.up .pk{background:var(--bg)}
+.app.md .card{border-radius:16px}
+.fab{display:none}
+.app.md .fab{display:grid;position:absolute;right:16px;bottom:96px;width:56px;height:56px;border-radius:16px;background:var(--accent-soft);color:var(--accent);place-items:center;box-shadow:0 4px 10px -3px rgba(0,0,0,.3)}
+.app.md .co{display:none}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <div class="wrap">
 <header class="hero">
-  <h1>Myanmar Calendar · design v3 “Clear”</h1>
-  <p>This is the second proposal, and it shows every screen in the app. The style is clean, modern and iOS-like: grouped white surfaces on light grey (true black in dark mode), large bold titles, and one blue accent for actions. Red is used only for holidays, amber only for the moon and Sabbath. Myanmar text is set in <b>Padauk</b>, paired with <b>Inter</b> for Latin text and numbers. There are no serif headings and no cream backgrounds. Every screen uses real data for October 2026 (သီတင်းကျွတ်, ME 1388), and every feature in today's app has a place.</p>
+  <h1>Myanmar Calendar · design v3.1</h1>
+  <p><b>v3.1 adds:</b> two app styles, <b>Clear</b> (iOS-like) and <b>Material</b> (Android), switchable with the button below and in Settings › Appearance; a home page where the month always fits on a phone; a Calendar grid preference with Detailed as the default; and one real-sky moon drawing everywhere.</p>
+  <p style="margin-top:10px">This is the second proposal, and it shows every screen in the app. The style is clean, modern and iOS-like: grouped white surfaces on light grey (true black in dark mode), large bold titles, and one blue accent for actions. Red is used only for holidays, amber only for the moon and Sabbath. Myanmar text is set in <b>Padauk</b>, paired with <b>Inter</b> for Latin text and numbers. There are no serif headings and no cream backgrounds. Every screen uses real data for October 2026 (သီတင်းကျွတ်, ME 1388), and every feature in today's app has a place.</p>
   <nav class="toc" aria-label="Sections">
-    <a href="#system">System</a><a href="#app">App-wide</a><a href="#home">Home</a><a href="#grids">Grids</a><a href="#views">Views</a><a href="#converter">Converter</a><a href="#events">Events</a><a href="#settings">Settings</a><a href="#widgets">Widgets</a><a href="#studio">Studio</a><a href="#desktop">Desktop</a><a href="#gaps">Gaps</a>
-    <button class="toggle" type="button" id="darkToggle" aria-pressed="false">Show app in dark</button>
+    <a href="#system">System</a><a href="#app">App-wide</a><a href="#home">Home</a><a href="#grids">Grids</a><a href="#moon">Moon</a><a href="#views">Views</a><a href="#converter">Converter</a><a href="#events">Events</a><a href="#settings">Settings</a><a href="#widgets">Widgets</a><a href="#studio">Studio</a><a href="#desktop">Desktop</a><a href="#gaps">Gaps</a>
+    <span class="toc-sep" aria-hidden="true"></span><button class="toggle" type="button" id="styleToggle" aria-pressed="false">Show Material style</button><button class="toggle" type="button" id="darkToggle" aria-pressed="false">Show app in dark</button>
   </nav>
 </header>
 
@@ -244,6 +320,11 @@ svg.i.s{width:16px;height:16px}
     <div><b>One accent</b><span>Blue for actions and selection. Every other colour has a single meaning.</span></div>
     <div><b>Myanmar reads first</b><span>Padauk at 15–20 px with line heights from 1.45 to 1.6, so stacked marks never clip.</span></div>
     <div><b>Same frame everywhere</b><span>Every page uses a large title that shrinks on scroll, the same tab bar and the same sheets.</span></div>
+  </div>
+  <div class="cards">
+    <div><b>Clear (iOS, Mac, web)</b><span>Inset grouped lists, frosted tab bar, bold large titles, back labels, Cancel / Done sheets, centred alerts.</span></div>
+    <div><b>Material (Android)</b><span>Full-width lists with accent section headers, a navigation bar with a pill indicator, regular-weight titles, M3 switches, outlined segmented buttons, pill buttons, a FAB, left-aligned dialogs.</span></div>
+    <div><b>Shared</b><span>Colours, Padauk and Inter, spacing, grids, moon and every screen’s content. Only the chrome changes, so one widget API renders both.</span></div>
   </div>
   <div class="row" style="margin-top:30px">
     <div class="fr wide"><div class="scroll-x"><table class="spec"><thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Meaning</th></tr></thead><tbody id="tokens"></tbody></table></div></div>
@@ -262,8 +343,9 @@ svg.i.s{width:16px;height:16px}
 </section>
 
 <section class="sec" id="app"><h2>App-wide</h2><p class="lead">First launch, announcements, required updates, errors and the countdown toast.</p><div class="row" id="appRow"></div></section>
-<section class="sec" id="home"><h2>Home</h2><p class="lead">Today comes first, then one month switcher. The date-jump "search" button is gone; tapping the month title opens the picker. The grid below is the current one, kept as it is, with colours from tokens. Day details keep every section the app has today, grouped into scannable lists.</p><div class="row" id="homeRow"></div></section>
-<section class="sec" id="grids"><h2>Calendar grids</h2><p class="lead">The same month in three designs: the current grid, a <b>Clean</b> proposal in the style of iOS Calendar, and a <b>Detailed</b> proposal that keeps the lunar day and holiday name in every cell. Today is 16 October, and 22 October is selected and has an event. All data is real.</p><div class="row" id="gridRow"></div></section>
+<section class="sec" id="home"><h2>Home</h2><p class="lead">On a phone the month always fits: a compact header, the grid sized to the space that is left, and a day sheet peeking above the tab bar. The large Today card and the date-jump "search" button are gone; tapping the month title opens the picker. Day details keep every section the app has today.</p><div class="row" id="homeRow"></div></section>
+<section class="sec" id="grids"><h2>Calendar grids</h2><p class="lead">Users choose the grid in Settings › Display › Calendar grid. <b>Detailed</b> is the default; <b>Clean</b> and <b>Classic</b> (today’s grid, recoloured from tokens) are the alternatives. All three take their row height from the layout, so they fit any screen. Today is 16 October and 22 October is selected.</p><div class="row" id="gridRow"></div></section>
+<section class="sec" id="moon"><h2>Moon</h2><p class="lead">One moon drawing everywhere (grid, day details, week view, converter, widgets and Studio), with no emoji or icon stand-ins. The shape follows the real sky at 18:30 Myanmar time: the lit fraction comes from the moon’s phase angle, and the terminator is an ellipse, so quarters are true half discs and gibbous moons bulge correctly. It is tilted as the moon lies near 20°N: lit toward the lower right while waxing, toward the upper left while waning. Labels such as လပြည့် and ဥပုသ် still follow the Myanmar calendar.</p><div id="moonRow"></div></section>
 <section class="sec" id="views"><h2>Views</h2><p class="lead">Year, week and day views. Day view becomes the same screen as Day Details, so it gains events, sharing and the AI prompt instead of duplicating them.</p><div class="row" id="viewsRow"></div></section>
 <section class="sec" id="converter"><h2>Converter</h2><p class="lead">The four tools become a segmented control at the top. Every result gets Copy and Share, which today's app doesn't have.</p><div class="row" id="convRow"></div></section>
 <section class="sec" id="events"><h2>Events</h2><p class="lead">The list, search, quick actions, the full form, detail and categories. Categories finally get an entry point (Events ⋯ menu), plus edit and delete.</p><div class="row" id="eventsRow"></div></section>
@@ -289,7 +371,7 @@ svg.i.s{width:16px;height:16px}
 <script>
 /* ---------- real data (myanmar_calendar_dart) ---------- */
 const OCT = [[1,"လဆုတ် ၅",2,0,0],[2,"လဆုတ် ၆",2,0,0],[3,"လဆုတ် ၇",2,0,0],[4,"လဆုတ် ၈",2,1,0],[5,"လဆုတ် ၉",2,0,0],[6,"လဆုတ် ၁၀",2,0,0],[7,"လဆုတ် ၁၁",2,0,0],[8,"လဆုတ် ၁၂",2,0,0],[9,"လဆုတ် ၁၃",2,0,0],[10,"လဆုတ် ၁၄",2,0,0],[11,"လကွယ် ၁၅",3,1,0],[12,"လဆန်း ၁",0,0,0],[13,"လဆန်း ၂",0,0,0],[14,"လဆန်း ၃",0,0,0],[15,"လဆန်း ၄",0,0,0],[16,"လဆန်း ၅",0,0,0],[17,"လဆန်း ၆",0,0,0],[18,"လဆန်း ၇",0,0,0],[19,"လဆန်း ၈",0,1,0],[20,"လဆန်း ၉",0,0,0],[21,"လဆန်း ၁၀",0,0,0],[22,"လဆန်း ၁၁",0,0,0],[23,"လဆန်း ၁၂",0,0,0],[24,"လဆန်း ၁၃",0,0,0],[25,"လဆန်း ၁၄",0,0,1],[26,"လပြည့် ၁၅",1,1,1],[27,"လဆုတ် ၁",2,0,1],[28,"လဆုတ် ၂",2,0,0],[29,"လဆုတ် ၃",2,0,0],[30,"လဆုတ် ၄",2,0,0],[31,"လဆုတ် ၅",2,0,0]];
-const EVENTS = {22: 1, 9: 1, 16: 1};
+const EVENTS = {22: 'Grandma', 9: 'Rent', 16: 'Team call'};
 const ASTRO = {2:1,3:1,4:1,6:1,7:1,12:1,13:1,14:1,15:1,16:1,17:1,22:1,23:1,28:1,29:1,30:1,31:1};
 const FIRST = 4, TODAY = 16, SEL = 22;
 const WD = [['နွေ','Sun'],['လာ','Mon'],['ဂါ','Tue'],['ဟူး','Wed'],['ကြာ','Thu'],['သော','Fri'],['နေ','Sat']];
@@ -337,30 +419,46 @@ const C = {blue:'#2F5BEA', red:'#E5383B', amber:'#F2A900', green:'#1F9D63', purp
 const TABS = [['home','today','Today'],['views','grid','Views'],['convert','swap','Convert'],['events','event','Events'],['settings','gear','Settings']];
 function tabbar(on) { return `<div class="tabbar">${TABS.map(([id, i, l]) => `<span class="tab${id === on ? ' on' : ''}">${ic(i)}${l}</span>`).join('')}</div>`; }
 function nav({back, title, actions = [], large, my = false, sub}) {
-  const left = back ? `${ic('back')}<span>${back}</span>` : '';
+  const left = back ? `${ic('back')}<span class="bl">${back}</span>` : '';
   const right = actions.map(a => a.startsWith('<') ? a : (P[a] ? ic(a) : `<span>${a}</span>`)).join('');
   return `<div class="nav"><div class="navtop">${left}<span class="sp">${title || ''}</span><span class="act">${right}</span></div>${large ? `<div class="large${my ? ' my' : ''}">${large}</div>` : ''}${sub ? `<div class="lsub">${sub}</div>` : ''}</div>`;
 }
 function group(rows, label, foot) {
   return `<div>${label ? `<div class="glabel">${label}</div>` : ''}<div class="group">${rows.join('')}</div>${foot ? `<div class="gfoot">${foot}</div>` : ''}</div>`;
 }
-function r({i, c, t, s, v, chev, tg, check, cls = ''}) {
+function r({i, c, t, s, v, chev, tg, check, cls = '', lead}) {
+  if (s) s = s.replace('[bell]', ic('bell', 'xs'));
   const right = tg !== undefined ? `<span class="tg${tg ? ' on' : ''}"></span>` : check ? `<span class="check">${ic('check')}</span>` : (v ? `<span class="val">${v}</span>` : '') + (chev ? `<span class="chev">${ic('fwd','s')}</span>` : '');
-  return `<div class="r${i ? ' ic' : ''} ${cls}">${i ? tile(i, c || C.blue) : ''}<div class="tx"><b>${t}</b>${s ? `<small>${s}</small>` : ''}</div>${right}</div>`;
+  return `<div class="r${i || lead ? ' ic' : ''} ${cls}">${i ? tile(i, c || C.blue) : lead ? `<span class="tile" style="background:transparent">${lead}</span>` : ''}<div class="tx"><b>${t}</b>${s ? `<small>${s}</small>` : ''}</div>${right}</div>`;
 }
 function phone(id, title, note, inner, opts = {}) {
   return `<div class="fr"><div class="cap"><span class="n">${id}</span><span class="t">${title}</span></div><p class="note">${note}</p>
-  <div class="phone"><div class="app scr">
+  <div class="phone"><div class="app scr"${opts.h ? ` style="height:${opts.h}px"` : ''}>
     <div class="status"><span class="tnum">9:41</span><span>●●●</span></div>${inner}${opts.tab ? tabbar(opts.tab) : ''}${opts.over || ''}
   </div></div></div>`;
 }
 const content = (html, notab) => `<div class="content${notab ? ' notab' : ''}">${html}</div>`;
-const moonSvg = (phase, size = 34) => {
-  const lit = 'var(--moon)', dark = 'var(--fill)';
-  if (phase === 'full') return `<svg class="moon" width="${size}" height="${size}" viewBox="0 0 34 34"><circle cx="17" cy="17" r="14" fill="${lit}"/></svg>`;
-  if (phase === 'new') return `<svg class="moon" width="${size}" height="${size}" viewBox="0 0 34 34"><circle cx="17" cy="17" r="13" fill="none" stroke="var(--newmoon)" stroke-width="2"/></svg>`;
-  return `<svg class="moon" width="${size}" height="${size}" viewBox="0 0 34 34"><circle cx="17" cy="17" r="14" fill="${dark}"/><path d="M17 3a14 14 0 0 1 0 28a7 14 0 0 0 0-28z" fill="${lit}"/></svg>`;
+/* Real-sky moon: low-precision Meeus phase angle at 18:30 Myanmar time (12:00 UTC), the evening people look up.
+   Drawn as a lit half disc plus a terminator ellipse (half-width r·|1−2k|), then tilted 40° the way the moon
+   lies near 20°N: waxing lit toward the lower right, waning toward the upper left. Same maths as the Flutter MoonPainter. */
+const RAD = Math.PI / 180;
+function moonAt(y, m, d) {
+  const jd = Date.UTC(y, m - 1, d, 12) / 86400000 + 2440587.5, T = (jd - 2451545) / 36525;
+  const D = (297.8501921 + 445267.1114034 * T) % 360, M = (357.5291092 + 35999.0502909 * T) % 360, Mp = (134.9633964 + 477198.8675055 * T) % 360;
+  const i = 180 - D - 6.289 * Math.sin(Mp * RAD) + 2.1 * Math.sin(M * RAD) - 1.274 * Math.sin((2 * D - Mp) * RAD) - 0.658 * Math.sin(2 * D * RAD) - 0.214 * Math.sin(2 * Mp * RAD) - 0.11 * Math.sin(D * RAD);
+  return {k: (1 + Math.cos(i * RAD)) / 2, waxing: ((D % 360) + 360) % 360 < 180};
+}
+const moonSvg = (day, size = 34, date) => {
+  const [y, m, d] = date || [2026, 10, day], {k, waxing} = moonAt(y, m, d), R = 14;
+  let lit = '';
+  if (k > 0.985) lit = `<circle r="${R}" fill="var(--moon)"/>`;
+  else if (k >= 0.015) {
+    const rx = (R * Math.abs(1 - 2 * k)).toFixed(2);
+    lit = `<path d="M0 ${-R}A${R} ${R} 0 0 1 0 ${R}A${rx} ${R} 0 0 ${k < 0.5 ? 0 : 1} 0 ${-R}Z" fill="var(--moon)" transform="rotate(40)${waxing ? '' : ' scale(-1,1)'}"/>`;
+  }
+  return `<svg class="moon" width="${size}" height="${size}" viewBox="-15.5 -15.5 31 31" role="img" aria-label="Moon ${Math.round(k * 100)}% lit, ${waxing ? 'waxing' : 'waning'}"><circle r="${R}" fill="var(--moonshade)"/>${lit}<circle r="${R}" fill="none" stroke="var(--moonrim)" stroke-width="${size < 16 ? 2 : 1}"/></svg>`;
 };
+const moonPct = d => Math.round(moonAt(2026, 10, d).k * 100);
 
 /* ---------- grids ---------- */
 function weekdays() { return WD.map(([m, e], i) => `<div class="wd${i === 0 ? ' we' : ''}">${m}<i>${e}</i></div>`).join(''); }
@@ -375,7 +473,7 @@ function gridCurrent() {
     const [d, l, ph, sab, hol] = x;
     const dots = [hol ? 'var(--holiday)' : '', sab ? 'var(--moon)' : '', ASTRO[d] ? '#8E6CEF' : ''].filter(Boolean).map(c => `<i style="background:${c}"></i>`).join('');
     const cls = ['c', d === TODAY ? 'today' : '', ph === 1 ? 'full' : '', ph === 3 ? 'new' : ''].join(' ');
-    return `<div class="${cls}"><span class="dots">${dots}</span><span class="n tnum">${d}</span><span class="l">${ph === 1 ? '<span class="fm"></span>' : ph === 3 ? '<span class="nm"></span>' : short(l)}</span></div>`;
+    return `<div class="${cls}"><span class="dots">${dots}</span><span class="n tnum">${d}</span><span class="l">${ph === 1 || ph === 3 ? moonSvg(d, 11) : short(l)}</span></div>`;
   })}</div>`;
 }
 function gridClean() {
@@ -383,21 +481,36 @@ function gridClean() {
     if (!x) return '<div class="c x"></div>';
     const [d, l, ph, sab, hol] = x;
     const cls = ['c', d === TODAY ? 'today' : '', d === SEL ? 'sel' : '', hol ? 'hol' : '', col === 0 ? 'sun' : ''].join(' ');
-    const lunar = ph === 1 ? '<span class="fm"></span>' : ph === 3 ? '<span class="nm"></span>' : `<span class="l${sab ? ' s' : ''}">${short(l)}</span>`;
+    const lunar = ph === 1 || ph === 3 ? moonSvg(d, 10) : `<span class="l${sab ? ' s' : ''}">${short(l)}</span>`;
     const marks = [EVENTS[d] ? '<i class="dot-e"></i>' : ''].join('');
     return `<div class="${cls}"><span class="n tnum">${d}</span>${ph === 1 || ph === 3 ? `<span class="l">${lunar}</span>` : lunar}<span class="mk">${marks}</span></div>`;
   })}</div>`;
 }
-function gridDetail() {
-  return `<div class="cal detail">${weekdays()}${cells((x, col) => {
+/* Detailed: the default. With rowH the rows take a height handed down by the layout (no aspect ratio),
+   and taller rows reveal more: holiday name from 52 px, event titles from 64 px. */
+function gridDetail({rowH, sel} = {}) {
+  const tall = !rowH || rowH >= 64, roomy = !rowH || rowH >= 52;
+  return `<div class="cal detail${rowH ? ' fit' : ''}"${rowH ? ` style="--rowh:${rowH}px"` : ''}>${weekdays()}${cells((x, col) => {
     if (!x) return '<div class="c x"></div>';
     const [d, l, ph, sab, hol] = x;
-    const cls = ['c', d === TODAY ? 'today' : '', hol ? 'hol' : '', col === 0 ? 'sun' : ''].join(' ');
-    const mo = ph === 1 ? '<span class="mo fm"></span>' : ph === 3 ? '<span class="mo nm"></span>' : '';
-    return `<div class="${cls}"><span class="n tnum" style="position:relative;z-index:1">${d}</span>${mo}${hol ? '<span class="h">သီတင်းကျွတ်</span>' : ''}${EVENTS[d] ? '<span class="ev"></span>' : ''}<span class="l${sab ? ' s' : ''}">${short(l)}</span></div>`;
+    const cls = ['c', d === TODAY ? 'today' : '', d === sel ? 'sel' : '', hol ? 'hol' : '', col === 0 ? 'sun' : ''].join(' ');
+    const ev = EVENTS[d] ? (tall && rowH ? `<span class="evt">${EVENTS[d]}</span>` : '<span class="ev"></span>') : '';
+    return `<div class="${cls}"><span class="n tnum">${d}</span><span class="mo">${moonSvg(d, 10)}</span>${hol && roomy ? '<span class="h">သီတင်းကျွတ်</span>' : ''}${ev}<span class="l${sab ? ' s' : ''}">${short(l)}</span></div>`;
   })}</div>`;
 }
 const legend = `<div class="legend"><span><i class="dot-h"></i>Holiday</span><span><i class="dot-s"></i>Sabbath / moon</span><span><i class="dot-a"></i>Astrology</span><span><i class="dot-e"></i>Event</span></div>`;
+
+/* ---------- home ---------- */
+const PEEK = {16: ['Today · Fri 16 Oct', 'သီတင်းကျွတ် လဆန်း ၅', '<span class="badge fill">Thamanyo</span><span class="badge sab">ဥပုသ် in 3 d</span>', '1 event'],
+              22: ['Thu 22 Oct · in 6 days', 'သီတင်းကျွတ် လဆန်း ၁၁', '<span class="badge fill">Yatyaza</span><span class="badge fill">Mahabote Marana</span>', '1 event']};
+function homeTop() {
+  return `<div class="hhead"><div style="flex:1;min-width:0"><div class="htitle">October 2026 <span style="color:var(--accent)">${ic('down','s')}</span></div><div class="hsub">တော်သလင်း – သီတင်းကျွတ် · ME 1388</div></div><span class="chip">Today</span><span style="color:var(--accent)">${ic('edit')}</span></div>`;
+}
+function peekRow(d) {
+  const [when, my, badges, ev] = PEEK[d];
+  return `<div class="pk">${moonSvg(d, 34)}<div style="flex:1;min-width:0"><div class="muted" style="font-size:12px">${when} · ${moonPct(d)}% lit</div><div style="font-weight:700;font-size:16px;line-height:1.6">${my}</div><div style="display:flex;gap:5px">${badges}</div></div><span class="badge acc">${ev}</span></div>`;
+}
+const peek = d => `<div class="peek"><div class="grab"></div>${peekRow(d)}</div>`;
 
 /* ---------- sections ---------- */
 const S = {};
@@ -426,7 +539,7 @@ S.app = [
       <div style="flex:1"></div><button class="btn p">Enable all</button><button class="btn g">Disable all</button>
       <p class="faint" style="text-align:center;font-size:12.5px;margin:0">You can change this any time in Settings › Privacy &amp; Data.</p>`, true)),
   phone('A2', 'Onboarding', 'The five first-run slides (welcome, events, traditional calendar, app icons, privacy) share this layout, with "Get started" on the last.',
-    content(`<div style="text-align:right"><span style="color:var(--accent)">Skip</span></div><div style="flex:1;display:grid;place-items:center">${moonSvg('waxing', 120)}</div>
+    content(`<div style="text-align:right"><span style="color:var(--accent)">Skip</span></div><div style="flex:1;display:grid;place-items:center">${moonSvg(16, 120)}</div>
       <div style="text-align:center"><div class="large" style="font-size:26px">Myanmar traditional calendar</div><p class="muted" style="margin:8px 6px 0">Lunar days, moon phases, Sabbath and holidays, with astrological details for every day.</p></div>
       <div style="display:flex;justify-content:center;gap:6px">${[0,0,1,0,0].map(o=>`<i style="width:${o?18:6}px;height:6px;border-radius:3px;background:${o?'var(--accent)':'var(--fill)'};display:block"></i>`).join('')}</div><button class="btn p">Continue</button>`, true)),
   phone('A3', 'What’s new', 'Feature announcements per version (recurring events, converter tools, Calendar Studio, app icons). The button jumps to the feature.',
@@ -444,18 +557,17 @@ S.app = [
 ];
 
 S.home = [
-  phone('H1', 'Today', 'The Today card replaces the duplicated header. It shows the Myanmar date, moon, today’s astrology, and chips for what’s next. The month switcher is a title with a chevron (tap for the picker) plus arrows. The current grid is kept.',
-    nav({title:'', actions:['plus'], large:''}).replace('<div class="large"></div>','') + content(`
-      <div class="card" style="display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center">
-        <div class="big tnum">16</div><div><div class="muted" style="font-size:12.5px">Friday · October 2026</div><div class="mytitle" style="font-size:17px;line-height:1.55">သီတင်းကျွတ် လဆန်း ၅ ရက်</div><div class="faint" style="font-size:12px">ME 1388 · Waxing · Thamanyo</div></div>${moonSvg('waxing')}
-        <div style="grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap"><span class="badge sab">ဥပုသ် Mon 19</span><span class="badge hol">Thadingyut holidays 25–27</span><span class="badge acc">1 event today</span></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px"><div style="flex:1"><div style="font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:4px">October 2026 <span style="color:var(--accent)">${ic('down','s')}</span></div><div class="muted" style="font-size:12.5px">တော်သလင်း – သီတင်းကျွတ် · ME 1388</div></div><span style="color:var(--accent);display:flex;gap:18px">${ic('back')}${ic('fwd')}</span></div>
-      ${gridCurrent()}`), {tab:'home'}),
-  phone('H2', 'Today · scrolled', 'Below the grid: Upcoming (holidays, Sabbath, the moon and your events for 30 days) and a Calendar Studio row in place of the old promo card.',
-    nav({title:'October 2026'}) + content(`
-      ${group([r({i:'moon', c:C.amber, t:'ဥပုသ်နေ့ · Sabbath', s:'Mon 19 Oct · လဆန်း ၈', v:'3 d'}), r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'Thu 22 Oct · Family', v:'6 d'}), r({i:'star', c:C.red, t:'သီတင်းကျွတ် ပိတ်ရက်', s:'Sun 25 – Tue 27 · Public holidays', v:'9 d'}), r({i:'moon', c:C.amber, t:'လပြည့် · End of Buddhist Lent', s:'Mon 26 Oct · Full moon, Sabbath', v:'10 d'})], 'Upcoming')}
-      ${group([r({i:'edit', c:C.indigo, t:'Make your 2027 calendar', s:'Calendar Studio · 23 presets', chev:true})])}`), {tab:'home'}),
+  phone('H1', 'Today · fits the screen', 'One compact header: tap the month title for the picker, swipe the grid to change month, Today jumps back. The Detailed grid (the default) gets every pixel left above the day sheet, so all rows show. Here rows are 84 px, so event titles fit in the cells.',
+    homeTop() + `<div style="padding:0 6px">${gridDetail({rowH: 84})}</div>` + peek(16), {tab:'home'}),
+  phone('H1b', 'Today · small phone (640 pt)', 'The same layout on a shorter screen. Rows shrink to 62 px; cells drop event titles to a bar but keep the holiday name. A 6-row month gets 52 px rows and drops the holiday name instead. Tapping a day updates the sheet without leaving the month.',
+    homeTop() + `<div style="padding:0 6px">${gridDetail({rowH: 62, sel: 22})}</div>` + peek(22), {tab:'home', h:640}),
+  phone('H2', 'Day sheet · pulled up', 'Drag the sheet up (it snaps at about half and nearly full). It holds the selected day’s summary, events, a link to full Day Details, Upcoming for 30 days, and the Calendar Studio row that replaces the promo card.',
+    homeTop() + `<div style="padding:0 6px;opacity:.5">${gridDetail({rowH: 84, sel: 22})}</div>`, {tab:'home', over:`<div class="scrim" style="background:rgba(0,0,0,.12)"></div><div class="peek up">
+      <div class="grab"></div>${peekRow(22)}
+      ${group([r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'All day · Family · [bell]1 day before', chev:true}), r({t:'Add event', cls:'acc'})], 'Events')}
+      ${group([r({t:'Full day details', s:'Astrology, Buddhist calendar, AI prompt', chev:true})])}
+      ${group([r({lead:moonSvg(19, 26), t:'ဥပုသ်နေ့ · Sabbath', s:'Mon 19 Oct · လဆန်း ၈', v:'3 d'}), r({i:'star', c:C.red, t:'သီတင်းကျွတ် ပိတ်ရက်', s:'Sun 25 – Tue 27 · Public holidays', v:'9 d'}), r({lead:moonSvg(26, 26), t:'လပြည့် · End of Buddhist Lent', s:'Mon 26 Oct · Full moon, Sabbath', v:'10 d'})], 'Upcoming')}
+      ${group([r({i:'edit', c:C.indigo, t:'Make your 2027 calendar', s:'Calendar Studio · 23 presets', chev:true})])}</div>`}),
   phone('H3', 'Month and year picker', 'Same features as today: a year wheel, a month grid, Today, Cancel and Apply. Laid out as a standard sheet.',
     content('', false), {tab:'home', over:`<div class="scrim"></div><div class="sheet" style="height:64%"><div class="grab"></div><div class="shead"><span>Cancel</span><b>Jump to month</b><span>Apply</span></div>
       <div style="padding:6px 16px 16px;display:grid;gap:14px"><div class="group" style="display:grid;grid-template-columns:repeat(3,1fr);text-align:center;padding:8px 0"><span class="faint">2025</span><b style="font-size:18px">2026</b><span class="faint">2027</span></div>
@@ -472,7 +584,7 @@ S.home = [
       ${group([r({t:'Sabbath', v:'—'}), r({t:'Yatyaza', v:'Yatyaza'}), r({t:'Pyathada', v:'—'}), r({t:'Nagahle', v:'East'}), r({t:'Mahabote', v:'Marana'}), r({t:'Nakhat', v:'Human'}), r({t:'Year name', v:'Bhadrapaha'})], 'Astrology', 'Special day: Thamanyo')}
       ${group([r({i:'spark', c:C.purple, t:'AI horoscope prompt', s:'Copy a ready-made prompt for this day', chev:true})])}
       <div><div style="display:flex;justify-content:space-between;align-items:end"><div class="glabel">Events · 1</div><span style="color:var(--accent);font-size:14px;margin:0 6px 6px 0">Add</span></div>
-      ${'<div class="group">' + r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'All day · Family · repeats yearly · 🔔 1 day before', chev:true}) + '</div>'}</div>`), {tab:'home'}),
+      ${'<div class="group">' + r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'All day · Family · repeats yearly · [bell]1 day before', chev:true}) + '</div>'}</div>`), {tab:'home'}),
   phone('H6', 'AI prompt sheet', 'Same feature as today: an explanation, the prompt text, and Copy prompt. A Share button is added.',
     content(''), {tab:'home', over:`<div class="scrim"></div><div class="sheet" style="height:70%"><div class="grab"></div><div class="shead"><span>Close</span><b>AI horoscope prompt</b><span></span></div>
       <div style="padding:6px 16px 16px;display:grid;gap:12px"><p class="muted" style="margin:0 4px;font-size:13px">Paste this into any AI assistant to get a reading for the day. Nothing is sent from this app.</p>
@@ -481,9 +593,9 @@ S.home = [
 ];
 
 S.grids = [
-  `<div class="fr"><div class="cap"><span class="n">G1</span><span class="t">Current (kept for now)</span></div><p class="note">Bordered tiles and coloured dots, as today, with colours from tokens so dark mode works. The light amber and indigo moon fills are gone.</p><div class="app card" style="padding:12px">${gridCurrent()}<div style="margin-top:8px">${legend}</div></div></div>`,
-  `<div class="fr"><div class="cap"><span class="n">G2</span><span class="t">Clean (proposed)</span></div><p class="note">In the style of iOS Calendar. There are no borders; today is a blue disc and the selected day black. Holidays and Sundays use red numbers. The lunar day stays under each date, Sabbath in amber, and moon days show a glyph. A blue dot means events.</p><div class="app card" style="padding:12px">${gridClean()}<div class="legend" style="margin-top:8px"><span style="color:var(--sabbath);font-weight:700">ဆန်း ၈</span> Sabbath<span><span class="fm"></span>Full</span><span><span class="nm"></span>New</span><span><i class="dot-e"></i>Event</span></div></div></div>`,
-  `<div class="fr"><div class="cap"><span class="n">G3</span><span class="t">Detailed (proposed)</span></div><p class="note">Ruled rows for people who read the calendar closely. Holidays get a tint and their name, moon glyphs sit in the corner, events get a bar, and the lunar day is at the bottom.</p><div class="app card" style="padding:12px 8px">${gridDetail()}<div class="legend" style="margin-top:8px"><span><i style="background:var(--holiday-soft);box-shadow:inset 0 0 0 1px var(--holiday)"></i>Holiday</span><span><span class="fm"></span>Full</span><span><span class="nm"></span>New</span><span><i style="width:12px;height:3px;border-radius:2px;background:var(--accent)"></i>Event</span></div></div></div>`,
+  `<div class="fr"><div class="cap"><span class="n">G1</span><span class="t">Detailed · default</span></div><p class="note">Ruled rows for people who read the calendar closely. Holidays get a tint and their name, every day shows the real moon in the corner, events get a bar (or their title when rows are tall), and the lunar day sits at the bottom.</p><div class="app card" style="padding:12px 8px">${gridDetail()}<div class="legend" style="margin-top:8px"><span><i style="background:var(--holiday-soft);box-shadow:inset 0 0 0 1px var(--holiday)"></i>Holiday</span><span>${moonSvg(26, 10)} Full</span><span>${moonSvg(11, 10)} New</span><span><i style="width:12px;height:3px;border-radius:2px;background:var(--accent)"></i>Event</span></div></div></div>`,
+  `<div class="fr"><div class="cap"><span class="n">G2</span><span class="t">Clean</span></div><p class="note">In the style of iOS Calendar. There are no borders; today is a blue disc and the selected day black. Holidays and Sundays use red numbers. The lunar day stays under each date, Sabbath in amber, and moon days show a glyph. A blue dot means events.</p><div class="app card" style="padding:12px">${gridClean()}<div class="legend" style="margin-top:8px"><span style="color:var(--sabbath);font-weight:700">ဆန်း ၈</span> Sabbath<span>${moonSvg(26, 10)} Full</span><span>${moonSvg(11, 10)} New</span><span><i class="dot-e"></i>Event</span></div></div></div>`,
+  `<div class="fr"><div class="cap"><span class="n">G3</span><span class="t">Classic</span></div><p class="note">Today’s bordered tiles and coloured dots, with colours from tokens so dark mode works. The amber and indigo moon fills become the real moon glyph.</p><div class="app card" style="padding:12px">${gridCurrent()}<div style="margin-top:8px">${legend}</div></div></div>`,
 ];
 
 S.views = [
@@ -492,11 +604,11 @@ S.views = [
   phone('V2', 'Year view', 'Twelve mini months with today and holidays marked, plus a holiday count. Tapping a month opens its preview.',
     nav({back:'Views', title:'', actions:['Today'], large:'2026'}) + content(`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,i)=>`<div class="card" style="padding:8px;${i===9?'box-shadow:inset 0 0 0 1.5px var(--accent)':''}"><b style="font-size:13px;color:${i===9?'var(--accent)':'inherit'}">${m}</b><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin:4px 0">${Array.from({length:35},(_,k)=>`<i style="height:5px;border-radius:2px;background:${(i===9&&k===19)?'var(--accent)':([3,15,24].includes((k+i)%31)?'var(--holiday)':'var(--fill)')}"></i>`).join('')}</div><span class="faint" style="font-size:11px">★ ${[3,2,3,5,2,1,1,1,0,3,2,3][i]}</span></div>`).join('')}</div>`), {tab:'views'}),
   phone('V3', 'Month preview', 'Tapping a month in Year view opens a preview sheet with Close and View full month. Tapping a date opens it on Today.',
-    content(''), {tab:'views', over:`<div class="scrim"></div><div class="sheet" style="height:68%"><div class="grab"></div><div class="shead"><span>Close</span><b>October 2026</b><span></span></div><div style="padding:4px 12px 16px;display:grid;gap:12px">${gridClean()}<button class="btn t">View full month</button></div></div>`}),
+    content(''), {tab:'views', over:`<div class="scrim"></div><div class="sheet" style="height:68%"><div class="grab"></div><div class="shead"><span>Close</span><b>October 2026</b><span></span></div><div style="padding:4px 12px 16px;display:grid;gap:12px">${gridDetail()}<button class="btn t">View full month</button></div></div>`}),
   phone('V4', 'Week view', 'Seven rows with the date, Myanmar date, a moon chip and the first holiday with a "+N" count. Today is highlighted; tapping a row opens the day.',
     nav({back:'Views', title:'', actions:['back','Today','fwd'], large:'Week 42', sub:'12 – 18 Oct 2026'}) + content(group([12,13,14,15,16,17,18].map(d=>{const x=OCT[d-1];const wd=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][(d-12)%7];return r({t:`<span class="tnum" style="${d===16?'color:var(--accent);font-weight:700':''}">${wd} ${d}</span>`, s:`သီတင်းကျွတ် ${x[1]}${d===12?' · New moon tomorrow':''}`, v: d===16?'<span class="badge acc">Today</span>':'', chev:true});}))), {tab:'views'}),
   phone('V5', 'Day view', 'This is the Day Details screen (H4–H5) reached from Views, so it gains events, Share and the AI prompt.',
-    nav({back:'Week', title:'', actions:['share'], large:'Fri, 16 Oct', sub:'Today'}) + content(`<div class="card" style="display:flex;gap:12px;align-items:center">${moonSvg('waxing')}<div><div class="mytitle" style="font-size:17px">သီတင်းကျွတ် လဆန်း ၅ ရက်</div><div class="muted" style="font-size:12.5px">Waxing · Year 1388 · Day 5</div></div></div>${group([r({t:'Nagahle', v:'East'}), r({t:'Mahabote', v:'Adipati'}), r({t:'Nakhat', v:'Human'})], 'Astrology', 'Special day: Thamanyo')}${group([r({i:'event', c:C.blue, t:'Team call', s:'10:00 · Work', chev:true})], 'Events')}`), {tab:'views'}),
+    nav({back:'Week', title:'', actions:['share'], large:'Fri, 16 Oct', sub:'Today'}) + content(`<div class="card" style="display:flex;gap:12px;align-items:center">${moonSvg(16)}<div><div class="mytitle" style="font-size:17px">သီတင်းကျွတ် လဆန်း ၅ ရက်</div><div class="muted" style="font-size:12.5px">Waxing · Year 1388 · Day 5</div></div></div>${group([r({t:'Nagahle', v:'East'}), r({t:'Mahabote', v:'Adipati'}), r({t:'Nakhat', v:'Human'})], 'Astrology', 'Special day: Thamanyo')}${group([r({i:'event', c:C.blue, t:'Team call', s:'10:00 · Work', chev:true})], 'Events')}`), {tab:'views'}),
 ];
 
 S.conv = [
@@ -523,16 +635,16 @@ S.conv = [
   phone('K5', 'Moon finder', 'From date and phase. The result shows when it is, how many days away, and the full date details.',
     nav({title:'', large:'Moon finder'}) + content(`<div class="seg"><span>Convert</span><span>Difference</span><span>Add/Sub</span><span class="on">Moon</span></div>
       ${group([r({t:'From', v:'16 Oct 2026', chev:true})])}<div class="seg"><span>Waxing</span><span class="on">Full</span><span>Waning</span><span>New</span></div>
-      <div class="card" style="display:flex;gap:12px;align-items:center">${moonSvg('full')}<div><b>Next full moon</b><div class="muted" style="font-size:13px">Mon 26 Oct 2026 · in 10 days</div></div></div>
+      <div class="card" style="display:flex;gap:12px;align-items:center">${moonSvg(26)}<div><b>Next full moon</b><div class="muted" style="font-size:13px">Mon 26 Oct 2026 · in 10 days</div></div></div>
       ${group([r({t:'Myanmar', s:'၁၃၈၈ သီတင်းကျွတ် လပြည့် ၁၅'}), r({t:'Holidays', v:'End of Buddhist Lent'})])}`), {tab:'convert'}),
 ];
 
 const strip = `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">${[13,14,15,16,17,18,19].map(d=>`<div style="padding:6px 0;border-radius:12px;${d===16?'background:var(--accent);color:#fff':''}"><div style="font-size:10.5px;opacity:.7">${['Tue','Wed','Thu','Fri','Sat','Sun','Mon'][d-13]}</div><b class="tnum" style="font-size:17px">${d}</b><div style="height:5px;display:flex;justify-content:center"><i style="width:5px;height:5px;border-radius:50%;background:${EVENTS[d]||d===19?(d===16?'#fff':'var(--accent)'):'transparent'}"></i></div></div>`).join('')}</div>`;
 S.events = [
   phone('E1', 'Events', 'A week strip with event dots, then the day’s events as rows: time, title, category, and recurring and reminder icons. The complete toggle is the circle. Search and Categories live in the ⋯ menu.',
-    nav({title:'', actions:['search','more','plus'], large:'Events', sub:'Friday 16 Oct · 2 events'}) + content(`${strip}
-      ${group([r({i:'check', c:C.gray, t:'<s class="faint">Morning offering</s>', s:'07:00 · Religious · repeats daily'}), r({i:'event', c:C.blue, t:'Team call', s:'10:00 – 10:30 · Work · 🔔 15 min · Online'})], 'Today')}
-      ${group([r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'Thu 22 Oct · All day · Family', chev:true})], 'Next')}`), {tab:'events'}),
+    nav({title:'', actions:['search','more',`<span class="co">${ic('plus')}</span>`], large:'Events', sub:'Friday 16 Oct · 2 events'}) + content(`${strip}
+      ${group([r({i:'check', c:C.gray, t:'<s class="faint">Morning offering</s>', s:'07:00 · Religious · repeats daily'}), r({i:'event', c:C.blue, t:'Team call', s:'10:00 – 10:30 · Work · [bell]15 min · Online'})], 'Today')}
+      ${group([r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'Thu 22 Oct · All day · Family', chev:true})], 'Next')}`), {tab:'events', over:`<div class="fab">${ic('plus')}</div>`}),
   phone('E2', 'Search', 'Searches titles and descriptions, as today, with recent searches added.',
     nav({title:''}) + content(`<div style="display:flex;gap:10px;align-items:center"><div class="search" style="flex:1">${ic('search','s')}<span style="color:var(--label)">birth</span></div><span style="color:var(--accent)">Cancel</span></div>
       ${group([r({i:'event', c:C.pink, t:'Grandma’s <b>birth</b>day', s:'22 Oct 2026 · Family', chev:true}), r({i:'event', c:C.orange, t:'Aung’s <b>birth</b>day party', s:'3 Jan 2027 · Personal', chev:true})], 'Results')}`), {tab:'events'}),
@@ -568,9 +680,9 @@ S.settings = [
       ${group([r({i:'palette', c:C.indigo, t:'Appearance', v:'System', chev:true}), r({i:'globe', c:C.blue, t:'Language', v:'မြန်မာ / Myanmar', chev:true})], 'General')}
       ${group([r({i:'cal', c:C.red, t:'Calendar configuration', v:'UTC+6:30', chev:true}), r({i:'edit', c:C.purple, t:'Calendar Studio', v:'Design and print', chev:true}), r({i:'sliders', c:C.green, t:'Display preferences', chev:true}), r({i:'widget', c:C.orange, t:'Home widgets', chev:true})], 'Calendar')}
       ${group([r({i:'shield', c:C.gray, t:'Privacy & data', chev:true}), r({i:'download', c:C.blue, t:'App updates', chev:true}), r({i:'info', c:C.gray, t:'About', chev:true})], 'Others')}`), {tab:'settings'}),
-  phone('S2', 'Appearance', 'Theme mode becomes a segmented control. Theme presets are an inline checkmark list, with Custom colours below. App icon opens its own page.',
-    nav({back:'Settings', title:'', large:'Appearance'}) + content(`<div><div class="glabel">Mode</div><div class="seg"><span>Light</span><span>Dark</span><span class="on">System</span></div></div>
-      ${group([r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#2F5BEA;margin-right:8px"></i>Clear (default)', check:true}), r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#B3261E;margin-right:8px"></i>Traditional Myanmar'}), r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#1478B8;margin-right:8px"></i>Ocean'}), r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#2E7D4F;margin-right:8px"></i>Forest'}), r({t:'Custom colours…', chev:true})], 'Theme')}
+  phone('S2', 'Appearance', 'App style picks the design system: Automatic (Material on Android, Clear elsewhere), Clear or Material. Theme mode is a segmented control, presets an inline checkmark list. App icon opens its own page.',
+    nav({back:'Settings', title:'', large:'Appearance'}) + content(`<div><div class="glabel">App style</div><div class="seg"><span class="on">Automatic</span><span>Clear</span><span>Material</span></div><div class="gfoot">Automatic uses Material on Android and Clear on iPhone, iPad, Mac and web.</div></div><div><div class="glabel">Mode</div><div class="seg"><span>Light</span><span>Dark</span><span class="on">System</span></div></div>
+      ${group([r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#2F5BEA;margin-right:8px"></i>Blue (default)', check:true}), r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#B3261E;margin-right:8px"></i>Traditional Myanmar'}), r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#1478B8;margin-right:8px"></i>Ocean'}), r({t:'<i style="display:inline-block;width:12px;height:12px;border-radius:6px;background:#2E7D4F;margin-right:8px"></i>Forest'}), r({t:'Custom colours…', chev:true})], 'Theme')}
       ${group([r({i:'image', c:C.indigo, t:'App icon', v:'Default', chev:true})])}`), {tab:'settings'}),
   phone('S3', 'Custom colours', 'All 10 colour slots from today’s editor, each with a swatch that opens a picker. Reset and Apply.',
     nav({back:'Appearance', title:'Custom colours', actions:['<b>Apply</b>']}) + content(group(['Primary','On primary','Secondary','On secondary','Tertiary','On tertiary','Error','On error','Surface','On surface'].map((n,i)=>r({t:n, v:`<i style="display:inline-block;width:22px;height:22px;border-radius:6px;vertical-align:-6px;box-shadow:inset 0 0 0 1px var(--sep);background:${['#2F5BEA','#fff','#6B6B73','#fff','#8E6CEF','#fff','#E5383B','#fff','#FFFFFF','#0A0A0F'][i]}"></i>`, chev:true}))) + `<button class="btn d">Reset to preset</button>`, true)),
@@ -579,8 +691,10 @@ S.settings = [
       <div class="gfoot">Your home screen updates after you apply. Some launchers take a moment.</div><button class="btn p">Apply</button>`), {tab:'settings'}),
   phone('S5', 'Language', 'App language (English, Myanmar) and calendar language (English, Myanmar, Zawgyi, Mon, Shan, Karen), each as a checkmark list.',
     nav({back:'Settings', title:'', large:'Language'}) + content(`${group([r({t:'English'}), r({t:'မြန်မာ', check:true})], 'App language')}${group([r({t:'English'}), r({t:'မြန်မာ', check:true}), r({t:'Zawgyi'}), r({t:'Mon'}), r({t:'Shan'}), r({t:'Karen'})], 'Calendar language', 'Changes month names, lunar days and weekdays across the app.')}`), {tab:'settings'}),
-  phone('S6', 'Display preferences', 'Today’s seven switches. "First day of week" is added; the setting already exists but has no UI.',
-    nav({back:'Settings', title:'', large:'Display'}) + content(`${group([r({t:'Holidays', tg:true}), r({t:'Anniversary days', tg:true}), r({t:'Sabbath', tg:true}), r({t:'Astrology', tg:true})], 'Show in calendar')}${group([r({t:'Western dates', tg:true}), r({t:'Myanmar dates', tg:true}), r({t:'Prefer Shan year', s:'When the calendar language is Shan', tg:false}), r({t:'First day of week', v:'Sunday', chev:true})], 'Dates')}`), {tab:'settings'}),
+  phone('S6', 'Display preferences', 'Calendar grid opens the grid picker. Below are today’s seven switches. "First day of week" is added; the setting already exists but has no UI.',
+    nav({back:'Settings', title:'', large:'Display'}) + content(`${group([r({i:'grid', c:C.blue, t:'Calendar grid', v:'Detailed', chev:true})])}${group([r({t:'Holidays', tg:true}), r({t:'Anniversary days', tg:true}), r({t:'Sabbath', tg:true}), r({t:'Astrology', tg:true})], 'Show in calendar')}${group([r({t:'Western dates', tg:true}), r({t:'Myanmar dates', tg:true}), r({t:'Prefer Shan year', s:'When the calendar language is Shan', tg:false}), r({t:'First day of week', v:'Sunday', chev:true})], 'Dates')}`), {tab:'settings'}),
+  phone('S6b', 'Calendar grid', 'Choose how the month looks on Today, in Views and in the month preview. Each option shows a live preview; Detailed is the default on a fresh install.',
+    nav({back:'Display', title:'', large:'Calendar grid'}) + content(`<div class="group">${[['Detailed', 'Default. Lunar day, holiday name, moon and event titles in every cell.', gridDetail()], ['Clean', 'Calm. Numbers first; the moon only on full and new moon days.', gridClean()], ['Classic', 'Today’s tiles and coloured dots.', gridCurrent()]].map(([n, d, g], i) => `<div class="r" style="align-items:flex-start;padding-block:10px;gap:12px"><div class="mini">${g}</div><div class="tx" style="padding-top:2px"><b>${n}</b><small>${d}</small></div>${i === 0 ? `<span class="check" style="padding-top:2px">${ic('check')}</span>` : ''}</div>`).join('')}</div><div class="gfoot">Every style fits the screen: rows take the height that is left above the day sheet.</div>`), {tab:'settings'}),
   phone('S7', 'Calendar configuration', 'Sasana year type, calendar type (locked), device time zone, the current offset, and refreshing holiday data.',
     nav({back:'Settings', title:'', large:'Configuration'}) + content(`${group([r({t:'Type 0', s:'Default', check:true}), r({t:'Type 1'}), r({t:'Type 2'})], 'Sasana year')}
       ${group([r({t:'Calendar type', v:'British <span class="faint">${ic("lock","s")}</span>'}), r({t:'Use device time zone', tg:false}), r({t:'Current offset', v:'UTC+6:30 · Myanmar'})], 'Time')}
@@ -614,11 +728,15 @@ S.studio = [
       <div style="display:grid;grid-template-columns:repeat(6,1fr);text-align:center;font-size:11px;color:var(--label-2)">${[['plus','Add'],['text','Text'],['image','Image'],['star','Elements'],['layers','Layers'],['sliders','Page']].map(([i,l])=>`<span style="display:grid;justify-items:center;gap:2px">${ic(i)}${l}</span>`).join('')}</div>`, true)),
 ];
 
+const moonStrip = () => `<div class="app card" style="padding:16px;border-radius:18px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px"><b>October 2026</b><span class="muted" style="font-size:12.5px">% lit at 18:30 MMT</span></div>
+  <div class="mstrip">${OCT.map(([d, l, ph]) => `<div class="${d === TODAY ? 'on' : ''}"><span class="tnum" style="font-size:11px;font-weight:600">${d}</span>${moonSvg(d, 30)}<span class="tnum faint" style="font-size:10px">${moonPct(d)}%</span><span style="font-size:9px;color:${ph === 1 || ph === 3 ? 'var(--sabbath)' : 'var(--label-3)'};font-weight:${ph === 1 || ph === 3 ? 700 : 400}">${short(l)}</span></div>`).join('')}</div>
+  <div class="row" style="gap:28px;margin-top:20px;align-items:center">${[[11,'New · 11 Oct'],[16,'Waxing crescent · today'],[18,'First quarter · 18 Oct'],[22,'Waxing gibbous'],[26,'Full · လပြည့်'],[30,'Waning gibbous'],[3,'Last quarter · 3 Oct']].map(([d,t])=>`<div style="display:grid;justify-items:center;gap:6px;width:96px;text-align:center">${moonSvg(d, 64)}<span style="font-size:12px">${t}</span></div>`).join('')}</div></div>`;
 /* ---------- render ---------- */
 document.getElementById('componentRow').innerHTML = S.components.join('');
 document.getElementById('appRow').innerHTML = S.app.join('');
 document.getElementById('homeRow').innerHTML = S.home.join('');
 document.getElementById('gridRow').innerHTML = S.grids.join('');
+document.getElementById('moonRow').innerHTML = moonStrip();
 document.getElementById('viewsRow').innerHTML = S.views.join('');
 document.getElementById('convRow').innerHTML = S.conv.join('');
 document.getElementById('eventsRow').innerHTML = S.events.join('');
@@ -627,15 +745,15 @@ document.getElementById('studioRow').innerHTML = S.studio.join('');
 
 document.getElementById('widgetRow').innerHTML = `<div class="app wgts">
   <div class="w s"><div class="faint" style="font-size:11px;font-weight:700;color:var(--holiday)">FRIDAY</div><div class="big tnum" style="font-size:52px">16</div><div style="font-size:13px;font-weight:700;line-height:1.5">သီတင်းကျွတ်<br>လဆန်း ၅</div></div>
-  <div class="w s" style="display:grid;place-items:center;text-align:center">${moonSvg('waxing',64)}<div style="font-size:12.5px;font-weight:700">Waxing · 5</div><div class="faint" style="font-size:11px">Full moon in 10 d</div></div>
+  <div class="w s" style="display:grid;place-items:center;text-align:center">${moonSvg(16,64)}<div style="font-size:12.5px;font-weight:700">Waxing · 5</div><div class="faint" style="font-size:11px">Full moon in 10 d</div></div>
   <div class="w m" style="display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center"><div><div class="faint" style="font-size:11px;font-weight:700;color:var(--holiday)">FRI</div><div class="big tnum" style="font-size:52px">16</div></div><div><div style="font-weight:700;line-height:1.5">၁၃၈၈ သီတင်းကျွတ် လဆန်း ၅</div><div class="faint" style="font-size:12px">Waxing · Thamanyo · Nagahle East</div><div style="display:flex;gap:6px;margin-top:6px"><span class="badge sab">ဥပုသ် Mon</span><span class="badge hol">Holidays 25–27</span></div></div></div>
-  <div class="w l"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><b>သီတင်းကျွတ် ၁၃၈၈</b><span class="faint" style="font-size:12px">October</span></div>${gridClean()}</div>
+  <div class="w l"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><b>သီတင်းကျွတ် ၁၃၈၈</b><span class="faint" style="font-size:12px">October</span></div>${gridDetail({rowH: 46})}</div>
 </div>`;
 
-document.getElementById('deskFrame').innerHTML = `<div class="cap"><span class="n">D1</span><span class="t">Today · 1280 px</span></div><p class="note">Sidebar navigation, the month in the middle (here the Clean grid), and the selected day’s details on the right.</p>
+document.getElementById('deskFrame').innerHTML = `<div class="cap"><span class="n">D1</span><span class="t">Today · 1280 px</span></div><p class="note">Sidebar navigation, the month in the middle (the Detailed grid by default), and the selected day’s details on the right.</p>
 <div class="win"><div class="app dsk">
   <div class="side"><div style="font-weight:800;font-size:18px;padding:4px 10px 12px">Myanmar Calendar</div>${TABS.map(([id,i,l],k)=>`<span class="s${k===0?' on':''}">${ic(i)}<span>${l}</span></span>`).join('')}<div style="margin-top:auto"></div><span class="s">${ic('edit')}<span>Calendar Studio</span></span></div>
-  <div class="dmain"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="large">October 2026</div><div class="muted">တော်သလင်း – သီတင်းကျွတ် · ME 1388</div></div><span class="chip">Today</span><span style="color:var(--accent);display:flex;gap:16px">${ic('back')}${ic('fwd')}</span></div>${gridClean()}</div>
+  <div class="dmain"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="large">October 2026</div><div class="muted">တော်သလင်း – သီတင်းကျွတ် · ME 1388</div></div><span class="chip">Today</span><span style="color:var(--accent);display:flex;gap:16px">${ic('back')}${ic('fwd')}</span></div>${gridDetail({rowH: 96, sel: 22})}</div>
   <div class="dpanel"><div class="glabel" style="margin:0">Thursday 22 October</div><div class="mytitle">သီတင်းကျွတ် လဆန်း ၁၁ ရက်</div>
     ${group([r({t:'Moon', v:'Waxing 11'}), r({t:'Yatyaza', v:'Yes'}), r({t:'Mahabote', v:'Marana'}), r({t:'Nagahle', v:'East'})])}
     ${group([r({i:'event', c:C.pink, t:'Grandma’s birthday', s:'All day · Family', chev:true})], 'Events')}<button class="btn p sm" style="align-self:flex-start">${ic('plus','s')} Add event</button></div>
@@ -649,6 +767,13 @@ const TOKENS = [
 ];
 document.getElementById('tokens').innerHTML = TOKENS.map(([n,l,d,u])=>`<tr><td><code>${n}</code></td><td><span class="sw" style="background:${l}"></span>${l}</td><td><span class="sw" style="background:${d}"></span>${d}</td><td>${u}</td></tr>`).join('');
 
+const styleToggle = document.getElementById('styleToggle');
+styleToggle.addEventListener('click', () => {
+  const on = styleToggle.getAttribute('aria-pressed') !== 'true';
+  styleToggle.setAttribute('aria-pressed', String(on));
+  styleToggle.textContent = on ? 'Show Clear style' : 'Show Material style';
+  document.querySelectorAll('.app').forEach(el => el.classList.toggle('md', on));
+});
 const toggle = document.getElementById('darkToggle');
 toggle.addEventListener('click', () => {
   const on = toggle.getAttribute('aria-pressed') !== 'true';
