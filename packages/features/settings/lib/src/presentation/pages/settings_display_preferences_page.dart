@@ -1,6 +1,7 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
@@ -106,6 +107,18 @@ class _SettingsDisplayPreferencesContent extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
+          SettingsTile(
+            title: 'Calendar grid',
+            subtitle: switch (settings.calendarGridStyle) {
+              CalendarGridStyle.detailed => 'Detailed',
+              CalendarGridStyle.clean => 'Clean',
+              CalendarGridStyle.classic => 'Classic',
+            },
+            leading: const Icon(Icons.grid_view_rounded),
+            onTap: () => GoRouter.of(
+              context,
+            ).push('/settings/${RoutePaths.calendarGrid}'),
+          ),
           AnimatedSwitchTile(
             title: l10n?.showHolidays ?? 'Show Holidays',
             subtitle:

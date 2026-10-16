@@ -15,6 +15,9 @@ abstract class SettingsRepository {
   Future<Either<Failure, void>> updateCalendarLanguage(Language language);
   Future<Either<Failure, void>> updateCalendarConfig(CalendarConfig config);
   Future<Either<Failure, void>> updateDisplayPreference(String key, bool value);
+  Future<Either<Failure, void>> updateCalendarGridStyle(
+    CalendarGridStyle style,
+  );
   Future<Either<Failure, void>> resetSettings();
   Future<Either<Failure, void>> updateAnalyticsConsent(bool enableAnalytics);
   Future<Either<Failure, void>> updateCrashlyticsConsent(

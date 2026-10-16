@@ -1,6 +1,25 @@
 import 'package:equatable/equatable.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
+/// How the month grid draws its days. Users pick it in Settings › Display.
+enum CalendarGridStyle {
+  /// Ruled cells with the lunar day, holiday name, moon and events.
+  detailed,
+
+  /// Calm, numbers first; the moon only on full and new moon days.
+  clean,
+
+  /// The original bordered tiles with coloured dots.
+  classic;
+
+  static const defaultStyle = CalendarGridStyle.detailed;
+
+  static CalendarGridStyle fromName(String? name) => values.firstWhere(
+    (style) => style.name == name,
+    orElse: () => defaultStyle,
+  );
+}
+
 class CalendarDisplayConfig extends Equatable {
   const CalendarDisplayConfig({
     required this.calendarLanguage,
@@ -17,6 +36,7 @@ class CalendarDisplayConfig extends Equatable {
     required this.gregorianStart,
     required this.timezoneOffset,
     required this.defaultLanguage,
+    this.gridStyle = CalendarGridStyle.defaultStyle,
   });
 
   factory CalendarDisplayConfig.defaults() {
@@ -35,6 +55,7 @@ class CalendarDisplayConfig extends Equatable {
       gregorianStart: 2361222,
       timezoneOffset: 6.5,
       defaultLanguage: 'en',
+      gridStyle: CalendarGridStyle.defaultStyle,
     );
   }
 
@@ -52,6 +73,7 @@ class CalendarDisplayConfig extends Equatable {
   final int gregorianStart;
   final double timezoneOffset;
   final String defaultLanguage;
+  final CalendarGridStyle gridStyle;
 
   CalendarConfig get calendarConfig {
     return CalendarConfig(
@@ -87,6 +109,7 @@ class CalendarDisplayConfig extends Equatable {
     gregorianStart,
     timezoneOffset,
     defaultLanguage,
+    gridStyle,
   ];
 }
 

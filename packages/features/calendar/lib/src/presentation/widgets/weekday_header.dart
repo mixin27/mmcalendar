@@ -25,7 +25,7 @@ class WeekdayHeader extends StatelessWidget {
         final density = _resolveDensity(adjustedCellWidth);
 
         return Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
           child: Row(
             children: List.generate(7, (index) {
               final myanmarWeekdayIndex = (firstDayOfWeek + index) % 7;

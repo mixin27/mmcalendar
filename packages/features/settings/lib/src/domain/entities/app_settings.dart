@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:shared_core/shared_core.dart' show CalendarGridStyle;
 
 class AppSettingsEntity extends Equatable {
   final ThemeMode themeMode;
@@ -17,6 +18,7 @@ class AppSettingsEntity extends Equatable {
   final bool showWesternDates;
   final bool showMyanmarDates;
   final int firstDayOfWeek;
+  final CalendarGridStyle calendarGridStyle;
   final bool enableAnalytics;
   final bool enableCrashlytics;
   final bool hasShownConsentDialog;
@@ -38,6 +40,7 @@ class AppSettingsEntity extends Equatable {
     required this.showWesternDates,
     required this.showMyanmarDates,
     required this.firstDayOfWeek,
+    this.calendarGridStyle = CalendarGridStyle.defaultStyle,
     this.enableAnalytics = true,
     this.enableCrashlytics = true,
     this.hasShownConsentDialog = false,
@@ -60,6 +63,7 @@ class AppSettingsEntity extends Equatable {
     bool? showWesternDates,
     bool? showMyanmarDates,
     int? firstDayOfWeek,
+    CalendarGridStyle? calendarGridStyle,
     bool? enableAnalytics,
     bool? enableCrashlytics,
     bool? hasShownConsentDialog,
@@ -81,6 +85,7 @@ class AppSettingsEntity extends Equatable {
       showWesternDates: showWesternDates ?? this.showWesternDates,
       showMyanmarDates: showMyanmarDates ?? this.showMyanmarDates,
       firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
+      calendarGridStyle: calendarGridStyle ?? this.calendarGridStyle,
       enableAnalytics: enableAnalytics ?? this.enableAnalytics,
       enableCrashlytics: enableCrashlytics ?? this.enableCrashlytics,
       hasShownConsentDialog:
@@ -107,6 +112,7 @@ class AppSettingsEntity extends Equatable {
     showWesternDates,
     showMyanmarDates,
     firstDayOfWeek,
+    calendarGridStyle,
     enableAnalytics,
     enableCrashlytics,
     hasShownConsentDialog,

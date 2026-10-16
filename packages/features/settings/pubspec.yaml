@@ -20,6 +20,8 @@ dependencies:
     path: ../../integrations/database
   shared_localizations:
     path: ../../shared/localizations
+  calendar:
+    path: ../calendar
   promo:
     path: ../promo
 

@@ -222,6 +222,10 @@ final GoRouter router = GoRouter(
                       const SettingsDisplayPreferencesPage(),
                 ),
                 GoRoute(
+                  path: RoutePaths.calendarGrid,
+                  builder: (context, state) => const SettingsCalendarGridPage(),
+                ),
+                GoRoute(
                   path: RoutePaths.calendarConfig,
                   builder: (context, state) =>
                       const SettingsCalendarConfigurationPage(),

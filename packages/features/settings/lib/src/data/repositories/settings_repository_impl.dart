@@ -129,6 +129,9 @@ class SettingsRepositoryImpl extends BaseRepository
           showWesternDates: showWesternDates,
           showMyanmarDates: showMyanmarDates,
           firstDayOfWeek: firstDayOfWeek,
+          calendarGridStyle: CalendarGridStyle.fromName(
+            settings[StorageKeys.calendarGridStyle],
+          ),
           enableAnalytics: enableAnalytics,
           enableCrashlytics: enableCrashlytics,
           hasShownConsentDialog: hasShownConsentDialog,
@@ -271,6 +274,23 @@ class SettingsRepositoryImpl extends BaseRepository
         await prefs.setBool(StorageKeys.useDeviceTimezone, value);
       }
 
+      return const Right(null);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message, e.code));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateCalendarGridStyle(
+    CalendarGridStyle style,
+  ) async {
+    try {
+      await localDataSource.setSetting(
+        StorageKeys.calendarGridStyle,
+        style.name,
+      );
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));

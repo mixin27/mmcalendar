@@ -53,6 +53,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<ChangeCalendarLanguage>(_onChangeCalendarLanguage);
     on<UpdateCalendarConfiguration>(_onUpdateCalendarConfiguration);
     on<ToggleDisplayPreference>(_onToggleDisplayPreference);
+    on<ChangeCalendarGridStyle>(_onChangeCalendarGridStyle);
     on<ResetAllSettings>(_onResetAllSettings);
     on<UpdateCustomColors>(_onUpdateCustomColors);
     on<UpdateAnalyticsConsent>(_onUpdateAnalyticsConsent);
@@ -307,6 +308,30 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           );
         }
         emit(SettingsLoaded(updatedSettings));
+      },
+    );
+  }
+
+  Future<void> _onChangeCalendarGridStyle(
+    ChangeCalendarGridStyle event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state is! SettingsLoaded) return;
+    final currentState = state as SettingsLoaded;
+    final result = await updateDisplayPreferences.gridStyle(event.style);
+    result.fold(
+      (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
+      (_) {
+        analyticsService.logSettingsChange(
+          settingName: StorageKeys.calendarGridStyle,
+          oldValue: currentState.settings.calendarGridStyle.name,
+          newValue: event.style.name,
+        );
+        emit(
+          SettingsLoaded(
+            currentState.settings.copyWith(calendarGridStyle: event.style),
+          ),
+        );
       },
     );
   }

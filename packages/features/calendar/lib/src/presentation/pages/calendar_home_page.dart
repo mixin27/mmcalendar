@@ -11,11 +11,12 @@ import '../../di/calendar_injection.dart';
 import '../bloc/calendar_bloc.dart';
 import '../bloc/calendar_event.dart';
 import '../bloc/calendar_state.dart';
-import '../widgets/calendar_app_bar.dart';
 import '../widgets/calendar_header.dart';
 import '../widgets/weekday_header.dart';
 import '../widgets/calendar_grid.dart';
+import '../widgets/day_cells.dart';
 import '../widgets/day_details_content.dart';
+import '../widgets/home_day_sheet.dart';
 import '../../utils/utils.dart';
 
 // import '../widgets/astrology_expandable_card.dart';
@@ -126,156 +127,66 @@ class _CalendarHomePageState extends State<CalendarHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<CalendarDisplayConfig>(
-        stream: _calendarDisplayConfigPort.watchDisplayConfig(),
-        initialData: CalendarDisplayConfig.defaults(),
-        builder: (context, configSnapshot) {
-          final displayConfig =
-              configSnapshot.data ?? CalendarDisplayConfig.defaults();
-          _handleDisplayConfigUpdate(displayConfig);
+      body: SafeArea(
+        bottom: false,
+        child: StreamBuilder<CalendarDisplayConfig>(
+          stream: _calendarDisplayConfigPort.watchDisplayConfig(),
+          initialData: CalendarDisplayConfig.defaults(),
+          builder: (context, configSnapshot) {
+            final displayConfig =
+                configSnapshot.data ?? CalendarDisplayConfig.defaults();
+            _handleDisplayConfigUpdate(displayConfig);
 
-          return CustomScrollView(
-            slivers: [
-              // Compact App Bar
-              SliverToBoxAdapter(
-                child: BlocBuilder<CalendarBloc, CalendarState>(
-                  builder: (context, state) {
-                    final displayedMonth = state is CalendarLoaded
-                        ? state.calendarMonth.month
-                        : DateTime.now();
-                    return CalendarAppBar(
-                      displayedMonth: displayedMonth,
-                      onStudioTap: () =>
-                          GoRouter.of(context).push(RoutePaths.studio),
-                      onSearchTap: _chooseDate,
-                      onCalendarTap: () =>
-                          _showMonthYearPicker(context, displayedMonth),
-                      language: displayConfig.calendarLanguage,
-                    );
-                  },
-                ),
-              ),
-              // Main Calendar Content
-              SliverToBoxAdapter(
-                child: BlocConsumer<CalendarBloc, CalendarState>(
-                  listener: (context, state) {
-                    if (state is CalendarError) {
-                      _analyticsService.logException(
-                        exceptionName: 'CalendarLoadError',
-                        description: state.message,
-                      );
-                      _showErrorSnackBar(context, state.message);
-                    }
+            return BlocConsumer<CalendarBloc, CalendarState>(
+              listener: (context, state) {
+                if (state is CalendarError) {
+                  _analyticsService.logException(
+                    exceptionName: 'CalendarLoadError',
+                    description: state.message,
+                  );
+                  _showErrorSnackBar(context, state.message);
+                }
 
-                    // Auto-select today's date on large screens for split view
-                    if (state is CalendarLoaded && state.selectedDate == null) {
-                      final screenWidth = MediaQuery.sizeOf(context).width;
-                      if (screenWidth > 1000) {
-                        // Auto-select today's date to show split view
-                        final today = state.today;
-                        // Use a post-frame callback to avoid modifying state during build
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (mounted) {
-                            context.read<CalendarBloc>().add(
-                              SelectDateEvent(today),
-                            );
-                          }
-                        });
-                      }
-                    }
-                    // Replay animation on month change
-                    // if (state is CalendarLoaded) {
-                    //   _slideController.reset();
-                    //   _slideController.forward();
-                    // }
-                  },
-                  builder: (context, state) {
-                    if (state is CalendarLoaded) {
-                      _lastLoadedState = state;
-                    }
-
-                    if (state is CalendarLoading) {
-                      if (_lastLoadedState != null) {
-                        return FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: _buildCalendarContent(
-                            _lastLoadedState!,
-                            calendarLanguage: displayConfig.calendarLanguage,
-                            showHolidays: displayConfig.showHolidays,
-                            showAnniversaryDays:
-                                displayConfig.showAnniversaryDays,
-                            showSabbaths: displayConfig.showSabbaths,
-                            showAstrology: displayConfig.showAstrology,
-                            showWesternDates: displayConfig.showWesternDates,
-                            showMyanmarDates: displayConfig.showMyanmarDates,
-                            showShanCalendar: displayConfig.showShanCalendar,
-                          ),
-                        );
-                      }
-                      return _buildLoadingSkeleton();
-                    }
-
-                    if (state is CalendarError) {
-                      if (_lastLoadedState != null) {
-                        return FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: _buildCalendarContent(
-                            _lastLoadedState!,
-                            calendarLanguage: displayConfig.calendarLanguage,
-                            showHolidays: displayConfig.showHolidays,
-                            showAnniversaryDays:
-                                displayConfig.showAnniversaryDays,
-                            showSabbaths: displayConfig.showSabbaths,
-                            showAstrology: displayConfig.showAstrology,
-                            showWesternDates: displayConfig.showWesternDates,
-                            showMyanmarDates: displayConfig.showMyanmarDates,
-                            showShanCalendar: displayConfig.showShanCalendar,
-                          ),
-                        );
-                      }
-                      return _buildErrorState(state.message);
-                    }
-
-                    if (state is CalendarLoaded) {
-                      return FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: _buildCalendarContent(
-                          state,
-                          calendarLanguage: displayConfig.calendarLanguage,
-                          showHolidays: displayConfig.showHolidays,
-                          showAnniversaryDays:
-                              displayConfig.showAnniversaryDays,
-                          showSabbaths: displayConfig.showSabbaths,
-                          showAstrology: displayConfig.showAstrology,
-                          showWesternDates: displayConfig.showWesternDates,
-                          showMyanmarDates: displayConfig.showMyanmarDates,
-                          showShanCalendar: displayConfig.showShanCalendar,
-                        ),
-                        // child: SlideTransition(
-                        //   position: _slideAnimation,
-                        //   child: _buildCalendarContent(state),
-                        // ),
+                // The split view always shows a day: start with today.
+                if (state is CalendarLoaded &&
+                    state.selectedDate == null &&
+                    MediaQuery.sizeOf(context).width >= _splitBreakpoint) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      context.read<CalendarBloc>().add(
+                        SelectDateEvent(state.today),
                       );
                     }
-
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 16, 12, 20),
-                  child: _CalendarStudioPromoCard(
-                    onTap: () => GoRouter.of(context).push(RoutePaths.studio),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+                  });
+                }
+              },
+              builder: (context, state) {
+                if (state is CalendarLoaded) {
+                  _lastLoadedState = state;
+                }
+                final shown = _lastLoadedState;
+                if (shown == null) {
+                  return state is CalendarError
+                      ? _buildErrorState(state.message)
+                      : _buildLoadingSkeleton();
+                }
+                return FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: _buildCalendarContent(shown, displayConfig),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
+
+  /// Phones get the fitted grid plus the pull-up day sheet; tablets the
+  /// fitted grid alone; from [_splitBreakpoint] the selected day opens
+  /// beside the month.
+  static const double _phoneBreakpoint = 600;
+  static const double _splitBreakpoint = 1024;
 
   void _handleDisplayConfigUpdate(CalendarDisplayConfig currentConfig) {
     final previousConfig = _lastDisplayConfig;
@@ -379,16 +290,9 @@ class _CalendarHomePageState extends State<CalendarHomePage>
   }
 
   Widget _buildCalendarContent(
-    CalendarLoaded state, {
-    required Language calendarLanguage,
-    bool showHolidays = true,
-    bool showAnniversaryDays = true,
-    bool showSabbaths = true,
-    bool showAstrology = true,
-    bool showWesternDates = true,
-    bool showMyanmarDates = true,
-    bool showShanCalendar = true,
-  }) {
+    CalendarLoaded state,
+    CalendarDisplayConfig config,
+  ) {
     return StreamBuilder<Map<DateTime, List<CalendarEventItem>>>(
       stream: _eventsStreamForMonth(state.calendarMonth.month),
       initialData: const <DateTime, List<CalendarEventItem>>{},
@@ -398,36 +302,31 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
         return LayoutBuilder(
           builder: (context, constraints) {
-            final isLargeScreen = constraints.maxWidth > 1000;
-
-            if (isLargeScreen && state.selectedDate != null) {
-              // Master-Detail Layout for large screens
-              return _buildMasterDetailLayout(
-                state,
-                calendarLanguage: calendarLanguage,
-                eventsByDate: eventsByDate,
-                showHolidays: showHolidays,
-                showAnniversaryDays: showAnniversaryDays,
-                showSabbaths: showSabbaths,
-                showAstrology: showAstrology,
-                showWesternDates: showWesternDates,
-                showMyanmarDates: showMyanmarDates,
-                showShanCalendar: showShanCalendar,
-              );
+            final width = constraints.maxWidth;
+            if (width >= _splitBreakpoint && state.selectedDate != null) {
+              return _buildSplitLayout(state, config, eventsByDate);
             }
-
-            // Standard single-column layout for mobile/tablet
-            return _buildStandardLayout(
-              state,
-              calendarLanguage: calendarLanguage,
-              eventsByDate: eventsByDate,
-              showHolidays: showHolidays,
-              showAnniversaryDays: showAnniversaryDays,
-              showSabbaths: showSabbaths,
-              showAstrology: showAstrology,
-              showWesternDates: showWesternDates,
-              showMyanmarDates: showMyanmarDates,
-              showShanCalendar: showShanCalendar,
+            if (width < _phoneBreakpoint) {
+              return _buildPhoneLayout(state, config, eventsByDate);
+            }
+            return Column(
+              children: [
+                _buildHeader(state, config),
+                WeekdayHeader(language: config.calendarLanguage),
+                Expanded(
+                  child: _buildGrid(
+                    state,
+                    config,
+                    eventsByDate,
+                    maxRowHeightFactor: 1.4,
+                    onDateTap: (date) {
+                      context.read<CalendarBloc>().add(SelectDateEvent(date));
+                      _navigateToDayDetails(context, date);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
             );
           },
         );
@@ -435,235 +334,244 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
   }
 
-  Widget _buildStandardLayout(
-    CalendarLoaded state, {
-    required Language calendarLanguage,
-    Map<DateTime, List<CalendarEventItem>> eventsByDate =
-        const <DateTime, List<CalendarEventItem>>{},
-    bool showHolidays = true,
-    bool showAnniversaryDays = true,
-    bool showSabbaths = true,
-    bool showAstrology = true,
-    bool showWesternDates = true,
-    bool showMyanmarDates = true,
-    bool showShanCalendar = true,
-  }) {
+  /// The day the phone sheet describes: the selection, else today when it
+  /// is in view, else the first of the month.
+  CompleteDate _sheetDay(CalendarLoaded state) =>
+      state.selectedDate?.completeDate ??
+      state.todayCompleteDate ??
+      state.calendarMonth.dates.first;
+
+  Widget _buildPhoneLayout(
+    CalendarLoaded state,
+    CalendarDisplayConfig config,
+    Map<DateTime, List<CalendarEventItem>> eventsByDate,
+  ) {
+    final day = _sheetDay(state);
+    final dayDate = DateTime(day.westernYear, day.westernMonth, day.westernDay);
+    final options = DayCellOptions(
+      showHolidays: config.showHolidays,
+      showAnniversaryDays: config.showAnniversaryDays,
+      showSabbaths: config.showSabbaths,
+      showAstrology: config.showAstrology,
+      showWesternDates: config.showWesternDates,
+      showMyanmarDates: config.showMyanmarDates,
+    );
+
     return Column(
       children: [
-        // Calendar Header with smooth transitions
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (child, animation) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          child: CalendarHeader(
-            key: ValueKey(state.calendarMonth.month),
-            currentMonth: state.calendarMonth.month,
-            monthDates: state.calendarMonth.dates,
-            language: calendarLanguage,
-            showShanCalendar: showShanCalendar,
-            onPreviousMonth: () {
-              _analyticsService.logWidgetInteraction(
-                widgetName: 'calendar_header',
-                actionType: 'previous_month',
-                metadata: {
-                  'from_month': state.calendarMonth.month.toString(),
-                  'to_month': (DateTime(
-                    state.calendarMonth.month.year,
-                    state.calendarMonth.month.month - 1,
-                  )).toString(),
-                },
+        _buildHeader(state, config),
+        WeekdayHeader(language: config.calendarLanguage),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, area) {
+              final peek = HomeDaySheet.peekHeight(context);
+              final rows = CalendarGrid.visibleRows(
+                state.calendarMonth.gridDates,
+                state.calendarMonth.month,
+              ).length;
+              final rowHeight = CalendarGrid.rowHeightFor(
+                size: Size(area.maxWidth, area.maxHeight - peek),
+                rows: rows,
               );
-              context.read<CalendarBloc>().add(const NavigateToPreviousMonth());
-            },
-            onNextMonth: () {
-              _analyticsService.logWidgetInteraction(
-                widgetName: 'calendar_header',
-                actionType: 'next_month',
-                metadata: {
-                  'from_month': state.calendarMonth.month.toString(),
-                  'to_month': (DateTime(
-                    state.calendarMonth.month.year,
-                    state.calendarMonth.month.month + 1,
-                  )).toString(),
-                },
+              final gridHeight = rowHeight * rows;
+              final peekFraction =
+                  ((area.maxHeight - gridHeight) / area.maxHeight).clamp(
+                    .05,
+                    .9,
+                  );
+
+              return Stack(
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: gridHeight,
+                    child: _buildGrid(
+                      state,
+                      config,
+                      eventsByDate,
+                      highlighted: dayDate,
+                      onDateTap: (date) {
+                        _analyticsService.logDateSelection(
+                          selectedDate: date.toString(),
+                          calendarType: 'myanmar',
+                          dateFormat: '${date.year}/${date.month}/${date.day}',
+                        );
+                        if (DateUtils.isSameDay(date, dayDate)) {
+                          _navigateToDayDetails(context, date);
+                        } else {
+                          _moveSelection(context, date);
+                        }
+                      },
+                    ),
+                  ),
+                  StreamBuilder<Map<DateTime, List<CalendarEventItem>>>(
+                    stream: _upcomingEventsStream(state.today),
+                    initialData: const <DateTime, List<CalendarEventItem>>{},
+                    builder: (context, upcoming) => HomeDaySheet(
+                      key: ValueKey(peekFraction.toStringAsFixed(3)),
+                      peekFraction: peekFraction,
+                      day: day,
+                      today: state.today,
+                      events:
+                          eventsByDate[dayDate] ?? const <CalendarEventItem>[],
+                      upcomingEvents:
+                          upcoming.data ??
+                          const <DateTime, List<CalendarEventItem>>{},
+                      options: options,
+                      onOpenDetails: (date) =>
+                          _navigateToDayDetails(context, date),
+                      onOpenDay: (date) => _navigateToDayDetails(context, date),
+                      onOpenEvent: (event) => event.id == null
+                          ? _navigateToDayDetails(context, event.eventDate)
+                          : GoRouter.of(
+                              context,
+                            ).push('${RoutePaths.events}/${event.id}/detail'),
+                      onAddEvent: (date) => GoRouter.of(
+                        context,
+                      ).push('${RoutePaths.events}/create', extra: date),
+                      onStudioTap: () =>
+                          GoRouter.of(context).push(RoutePaths.studio),
+                    ),
+                  ),
+                ],
               );
-              context.read<CalendarBloc>().add(const NavigateToNextMonth());
-            },
-            onMonthYearTap: () {
-              _analyticsService.logButtonClick(
-                buttonName: 'month_year_picker',
-                buttonLocation: 'calendar_header',
-              );
-              _showMonthYearPicker(context, state.calendarMonth.month);
             },
           ),
         ),
-
-        // Weekday Header
-        WeekdayHeader(language: calendarLanguage),
-
-        // Calendar Grid with page transition
-        Focus(
-          autofocus: true,
-          onKeyEvent: (node, event) {
-            final selectedDate = state.selectedDate?.date ?? state.today;
-            return _handleGridKeyEvent(
-              event: event,
-              selectedDate: selectedDate,
-              onActivate: () => _navigateToDayDetails(context, selectedDate),
-            );
-          },
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 350),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: ScaleTransition(
-                  scale: Tween<double>(
-                    begin: 0.95,
-                    end: 1.0,
-                  ).animate(animation),
-                  child: child,
-                ),
-              );
-            },
-            child: CalendarGrid(
-              key: ValueKey(state.calendarMonth.month),
-              gridDates: state.calendarMonth.gridDates,
-              currentMonth: state.calendarMonth.month,
-              selectedDate: state.selectedDate?.date,
-              today: state.today,
-              showHolidays: showHolidays,
-              showAnniversaryDays: showAnniversaryDays,
-              showSabbaths: showSabbaths,
-              showAstrology: showAstrology,
-              showWesternDates: showWesternDates,
-              showMyanmarDates: showMyanmarDates,
-              eventsByDate: eventsByDate,
-              onDateTap: (date) {
-                _analyticsService.logDateSelection(
-                  selectedDate: date.toString(),
-                  calendarType: 'myanmar',
-                  dateFormat: '${date.year}/${date.month}/${date.day}',
-                );
-
-                context.read<CalendarBloc>().add(SelectDateEvent(date));
-                _navigateToDayDetails(context, date);
-              },
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildMasterDetailLayout(
-    CalendarLoaded state, {
-    required Language calendarLanguage,
-    Map<DateTime, List<CalendarEventItem>> eventsByDate =
-        const <DateTime, List<CalendarEventItem>>{},
-    bool showHolidays = true,
-    bool showAnniversaryDays = true,
-    bool showSabbaths = true,
-    bool showAstrology = true,
-    bool showWesternDates = true,
-    bool showMyanmarDates = true,
-    bool showShanCalendar = true,
+  Widget _buildHeader(CalendarLoaded state, CalendarDisplayConfig config) {
+    final month = state.calendarMonth.month;
+    final selected = state.selectedDate?.date;
+    final atToday =
+        month.year == state.today.year &&
+        month.month == state.today.month &&
+        (selected == null || DateUtils.isSameDay(selected, state.today));
+
+    return CalendarHeader(
+      key: ValueKey(month),
+      currentMonth: month,
+      monthDates: state.calendarMonth.dates,
+      language: config.calendarLanguage,
+      showShanCalendar: config.showShanCalendar,
+      onToday: atToday
+          ? null
+          : () => context.read<CalendarBloc>().add(const NavigateToToday()),
+      onStudioTap: () => GoRouter.of(context).push(RoutePaths.studio),
+      onPreviousMonth: () => _changeMonth(state, -1),
+      onNextMonth: () => _changeMonth(state, 1),
+      onMonthYearTap: () {
+        _analyticsService.logButtonClick(
+          buttonName: 'month_year_picker',
+          buttonLocation: 'calendar_header',
+        );
+        _showMonthYearPicker(context, month);
+      },
+    );
+  }
+
+  void _changeMonth(CalendarLoaded state, int delta) {
+    final from = state.calendarMonth.month;
+    _analyticsService.logWidgetInteraction(
+      widgetName: 'calendar_header',
+      actionType: delta < 0 ? 'previous_month' : 'next_month',
+      metadata: {
+        'from_month': from.toString(),
+        'to_month': DateTime(from.year, from.month + delta).toString(),
+      },
+    );
+    context.read<CalendarBloc>().add(
+      delta < 0 ? const NavigateToPreviousMonth() : const NavigateToNextMonth(),
+    );
+  }
+
+  /// The month grid with keyboard navigation and swipe-to-change-month.
+  Widget _buildGrid(
+    CalendarLoaded state,
+    CalendarDisplayConfig config,
+    Map<DateTime, List<CalendarEventItem>> eventsByDate, {
+    required ValueChanged<DateTime> onDateTap,
+    DateTime? highlighted,
+    double maxRowHeightFactor = 1.6,
   }) {
+    final selectedDate = highlighted ?? state.selectedDate?.date;
+    return Focus(
+      autofocus: true,
+      onKeyEvent: (node, event) {
+        final current = selectedDate ?? state.today;
+        return _handleGridKeyEvent(
+          event: event,
+          selectedDate: current,
+          onActivate: () => onDateTap(current),
+        );
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragEnd: (details) {
+          final velocity = details.primaryVelocity ?? 0;
+          if (velocity.abs() < 250) return;
+          _changeMonth(state, velocity < 0 ? 1 : -1);
+        },
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          layoutBuilder: (current, previous) => Stack(
+            alignment: Alignment.topCenter,
+            children: [...previous, ?current],
+          ),
+          child: CalendarGrid(
+            key: ValueKey(state.calendarMonth.month),
+            gridDates: state.calendarMonth.gridDates,
+            currentMonth: state.calendarMonth.month,
+            selectedDate: selectedDate,
+            today: state.today,
+            gridStyle: config.gridStyle,
+            maxRowHeightFactor: maxRowHeightFactor,
+            showHolidays: config.showHolidays,
+            showAnniversaryDays: config.showAnniversaryDays,
+            showSabbaths: config.showSabbaths,
+            showAstrology: config.showAstrology,
+            showWesternDates: config.showWesternDates,
+            showMyanmarDates: config.showMyanmarDates,
+            eventsByDate: eventsByDate,
+            onDateTap: onDateTap,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSplitLayout(
+    CalendarLoaded state,
+    CalendarDisplayConfig config,
+    Map<DateTime, List<CalendarEventItem>> eventsByDate,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left: Calendar Grid (Master) - 2/3 width
         Expanded(
           flex: 2,
           child: Column(
             children: [
-              // Calendar Header
-              CalendarHeader(
-                key: ValueKey(state.calendarMonth.month),
-                currentMonth: state.calendarMonth.month,
-                monthDates: state.calendarMonth.dates,
-                language: calendarLanguage,
-                showShanCalendar: showShanCalendar,
-                onPreviousMonth: () {
-                  _analyticsService.logWidgetInteraction(
-                    widgetName: 'calendar_header',
-                    actionType: 'previous_month',
-                    metadata: {
-                      'from_month': state.calendarMonth.month.toString(),
-                      'to_month': (DateTime(
-                        state.calendarMonth.month.year,
-                        state.calendarMonth.month.month - 1,
-                      )).toString(),
-                    },
-                  );
-                  context.read<CalendarBloc>().add(
-                    const NavigateToPreviousMonth(),
-                  );
-                },
-                onNextMonth: () {
-                  _analyticsService.logWidgetInteraction(
-                    widgetName: 'calendar_header',
-                    actionType: 'next_month',
-                    metadata: {
-                      'from_month': state.calendarMonth.month.toString(),
-                      'to_month': (DateTime(
-                        state.calendarMonth.month.year,
-                        state.calendarMonth.month.month + 1,
-                      )).toString(),
-                    },
-                  );
-                  context.read<CalendarBloc>().add(const NavigateToNextMonth());
-                },
-                onMonthYearTap: () {
-                  _analyticsService.logButtonClick(
-                    buttonName: 'month_year_picker',
-                    buttonLocation: 'calendar_header',
-                  );
-                  _showMonthYearPicker(context, state.calendarMonth.month);
-                },
-              ),
-
-              // Weekday Header
-              WeekdayHeader(language: calendarLanguage),
-
-              // Calendar Grid
-              Focus(
-                autofocus: true,
-                onKeyEvent: (node, event) {
-                  final selectedDate = state.selectedDate?.date ?? state.today;
-                  return _handleGridKeyEvent(
-                    event: event,
-                    selectedDate: selectedDate,
-                    onActivate: () => context.read<CalendarBloc>().add(
-                      SelectDateEvent(selectedDate),
-                    ),
-                  );
-                },
-                child: CalendarGrid(
-                  key: ValueKey(state.calendarMonth.month),
-                  gridDates: state.calendarMonth.gridDates,
-                  currentMonth: state.calendarMonth.month,
-                  selectedDate: state.selectedDate?.date,
-                  today: state.today,
-                  showHolidays: showHolidays,
-                  showAnniversaryDays: showAnniversaryDays,
-                  showSabbaths: showSabbaths,
-                  showAstrology: showAstrology,
-                  showWesternDates: showWesternDates,
-                  showMyanmarDates: showMyanmarDates,
-                  eventsByDate: eventsByDate,
+              _buildHeader(state, config),
+              WeekdayHeader(language: config.calendarLanguage),
+              Expanded(
+                child: _buildGrid(
+                  state,
+                  config,
+                  eventsByDate,
+                  maxRowHeightFactor: 1.2,
                   onDateTap: (date) {
                     _analyticsService.logDateSelection(
                       selectedDate: date.toString(),
                       calendarType: 'myanmar',
                       dateFormat: '${date.year}/${date.month}/${date.day}',
                     );
-                    // In split view, just select the date, don't navigate
                     context.read<CalendarBloc>().add(SelectDateEvent(date));
                   },
                 ),
@@ -671,32 +579,38 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             ],
           ),
         ),
-
         const SizedBox(width: 16),
-
-        // Right: Day Details (Detail) - 1/3 width, max 400px
         Flexible(
           flex: 1,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
-            child: _buildDayDetailsPanel(state, showShanCalendar),
+            child: SingleChildScrollView(
+              child: DayDetailsContent(
+                date: state.selectedDate!.date,
+                completeDate: state.selectedDate!.completeDate,
+                showShanCalendar: config.showShanCalendar,
+              ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildDayDetailsPanel(CalendarLoaded state, bool showShanCalendar) {
-    if (state.selectedDate == null) {
-      return const SizedBox.shrink();
-    }
+  DateTime? _upcomingFrom;
+  Stream<Map<DateTime, List<CalendarEventItem>>>? _upcomingStream;
 
-    return SingleChildScrollView(
-      child: DayDetailsContent(
-        date: state.selectedDate!.date,
-        completeDate: state.selectedDate!.completeDate,
-        showShanCalendar: showShanCalendar,
-      ),
+  Stream<Map<DateTime, List<CalendarEventItem>>> _upcomingEventsStream(
+    DateTime today,
+  ) {
+    final from = DateUtils.dateOnly(today);
+    if (_upcomingStream != null && _upcomingFrom == from) {
+      return _upcomingStream!;
+    }
+    _upcomingFrom = from;
+    return _upcomingStream = _eventMarkersPort.watchEventMarkers(
+      startDate: from,
+      endDate: from.add(const Duration(days: 31)),
     );
   }
 
@@ -769,7 +683,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     );
 
     // Add subtle haptic feedback
-    getIt<TelegramService>().hapticImpact('light');
+    _haptics?.hapticImpact('light');
 
     // This callback is used by the single-column layout. Whether the detail
     // pane is visible is decided from the calendar's actual LayoutBuilder
@@ -779,9 +693,13 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     GoRouter.of(context).go("/home/${RoutePaths.dayDetails}?date=$dateStr");
   }
 
+  /// Telegram haptics, when the app runs inside Telegram's host.
+  TelegramService? get _haptics =>
+      getIt.isRegistered<TelegramService>() ? getIt<TelegramService>() : null;
+
   void _moveSelection(BuildContext context, DateTime date) {
     context.read<CalendarBloc>().add(SelectDateEvent(date));
-    getIt<TelegramService>().hapticSelectionChanged();
+    _haptics?.hapticSelectionChanged();
   }
 
   void _showMonthYearPicker(BuildContext context, DateTime currentMonth) {
@@ -810,209 +728,6 @@ class _CalendarHomePageState extends State<CalendarHomePage>
 
   void _showErrorSnackBar(BuildContext context, String message) =>
       context.showToast(message, kind: AppToastKind.error);
-
-  Future<void> _chooseDate() async {
-    final state = context.read<CalendarBloc>().state;
-    final initial = state is CalendarLoaded
-        ? state.calendarMonth.month
-        : DateTime.now();
-    final selected = await showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2200),
-      helpText: 'Find a date',
-    );
-    if (selected == null || !mounted) return;
-    context.read<CalendarBloc>()
-      ..add(LoadCalendarMonth(selected))
-      ..add(SelectDateEvent(selected));
-  }
-}
-
-class _CalendarStudioPromoCard extends StatelessWidget {
-  const _CalendarStudioPromoCard({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Material(
-      color: colors.primaryContainer.withValues(alpha: .58),
-      borderRadius: BorderRadius.circular(24),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          height: 178,
-          child: Stack(
-            children: [
-              Positioned(
-                right: -14,
-                top: 16,
-                width: 162,
-                height: 146,
-                child: IgnorePointer(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Transform.rotate(
-                        angle: -.15,
-                        child: const _StudioPromoSheet(
-                          width: 72,
-                          height: 106,
-                          accent: Color(0xFFFAFAF7),
-                        ),
-                      ),
-                      Transform.translate(
-                        offset: const Offset(58, 16),
-                        child: Transform.rotate(
-                          angle: .14,
-                          child: const _StudioPromoSheet(
-                            width: 72,
-                            height: 106,
-                            accent: Color(0xFFD9A93A),
-                          ),
-                        ),
-                      ),
-                      Transform.translate(
-                        offset: const Offset(14, -6),
-                        child: Transform.rotate(
-                          angle: .05,
-                          child: const _StudioPromoSheet(
-                            width: 82,
-                            height: 120,
-                            accent: Color(0xFF0E6B5C),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 128, 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Make your ${DateTime.now().year + 1} calendar',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          height: 1.15,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Design a printable wall or desk calendar with Myanmar dates, holidays and your events.',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          height: 1.3,
-                        ),
-                      ),
-                      const Spacer(),
-                      FilledButton.icon(
-                        onPressed: onTap,
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(0, 38),
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                        icon: const Icon(
-                          Icons.calendar_month_outlined,
-                          size: 18,
-                        ),
-                        label: const Text('Open Studio'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StudioPromoSheet extends StatelessWidget {
-  const _StudioPromoSheet({
-    required this.width,
-    required this.height,
-    required this.accent,
-  });
-  final double width;
-  final double height;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: width,
-    height: height,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(2),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x33000000),
-          blurRadius: 12,
-          offset: Offset(0, 6),
-        ),
-      ],
-    ),
-    child: Column(
-      children: [
-        Expanded(
-          flex: 3,
-          child: ColoredBox(
-            color: accent,
-            child: Center(
-              child: Icon(
-                Icons.temple_buddhist_outlined,
-                color: accent.computeLuminance() < .5
-                    ? Colors.white70
-                    : const Color(0xFF0E6B5C),
-                size: 22,
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 5,
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Column(
-              children: [
-                Container(height: 3, width: width * .52, color: accent),
-                const SizedBox(height: 5),
-                for (var row = 0; row < 5; row++) ...[
-                  Row(
-                    children: [
-                      for (var column = 0; column < 7; column++)
-                        Expanded(
-                          child: Container(
-                            height: 3,
-                            margin: const EdgeInsets.all(1),
-                            color: const Color(0xFFD5DEDA),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 class _MonthYearPickerBottomSheet extends StatefulWidget {

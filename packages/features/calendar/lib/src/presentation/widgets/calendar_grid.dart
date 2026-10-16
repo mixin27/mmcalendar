@@ -1,8 +1,17 @@
+import 'dart:math' as math;
+
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'date_cell.dart';
+import 'day_cells.dart';
 
+/// The month as rows of seven days.
+///
+/// Row height comes from the layout, not an aspect ratio: with a bounded
+/// height the rows split it evenly (capped at [maxRowHeightFactor] × the
+/// cell width), so the whole month always fits. Unbounded, rows fall back
+/// to a width-based height.
 class CalendarGrid extends StatelessWidget {
   final List<CompleteDate> gridDates;
   final DateTime currentMonth;
@@ -16,6 +25,9 @@ class CalendarGrid extends StatelessWidget {
   final bool showWesternDates;
   final bool showMyanmarDates;
   final Map<DateTime, List<CalendarEventItem>> eventsByDate;
+  final CalendarGridStyle gridStyle;
+  final double maxRowHeightFactor;
+  final EdgeInsets padding;
 
   const CalendarGrid({
     super.key,
@@ -31,61 +43,132 @@ class CalendarGrid extends StatelessWidget {
     this.showWesternDates = true,
     this.showMyanmarDates = true,
     this.eventsByDate = const <DateTime, List<CalendarEventItem>>{},
+    this.gridStyle = CalendarGridStyle.defaultStyle,
+    this.maxRowHeightFactor = 1.6,
+    this.padding = const EdgeInsets.symmetric(horizontal: 6),
   });
+
+  int get rowCount => visibleRows(gridDates, currentMonth).length;
+
+  /// Week rows that contain at least one day of [month]. The grid data is
+  /// always six weeks; trailing weeks wholly in the next month are skipped
+  /// so the month takes four to six rows.
+  static List<List<CompleteDate>> visibleRows(
+    List<CompleteDate> gridDates,
+    DateTime month,
+  ) =>
+      [
+            for (var i = 0; i < gridDates.length; i += 7)
+              gridDates.sublist(i, math.min(i + 7, gridDates.length)),
+          ]
+          .where(
+            (week) => week.any(
+              (d) =>
+                  d.westernYear == month.year && d.westernMonth == month.month,
+            ),
+          )
+          .toList();
+
+  /// Row height for a grid of [rows] in a box of [size].
+  static double rowHeightFor({
+    required Size size,
+    required int rows,
+    double horizontalPadding = 12,
+    double maxRowHeightFactor = 1.6,
+    double fallbackRatio = 1.3,
+  }) {
+    final cellWidth = (size.width - horizontalPadding) / 7;
+    if (!size.height.isFinite) return cellWidth * fallbackRatio;
+    return math.min(size.height / rows, cellWidth * maxRowHeightFactor);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final options = DayCellOptions(
+      showHolidays: showHolidays,
+      showAnniversaryDays: showAnniversaryDays,
+      showSabbaths: showSabbaths,
+      showAstrology: showAstrology,
+      showWesternDates: showWesternDates,
+      showMyanmarDates: showMyanmarDates,
+    );
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Calculate dynamic aspect ratio based on available width
-        // Mobile (<600): 0.75 (taller)
-        // Tablet/Desktop: wider cells, but maintain reasonable height
-        double aspectRatio = 0.75;
-        if (constraints.maxWidth > 800) {
-          // For very wide screens (desktop split view), make cells more square or wider
-          // Assuming 7 columns.
-          // e.g. Width 1000 / 7 = 142px per cell.
-          // Height approx 120px -> ratio ~ 1.2
-          aspectRatio = 1.1;
-        } else if (constraints.maxWidth > 600) {
-          aspectRatio = 0.9;
-        }
-
-        return GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          crossAxisCount: 7,
-          childAspectRatio: aspectRatio,
-          children: gridDates.map((dateInfo) {
-            final date = dateInfo.western.toDateTime();
-            final dateKey = DateTime(date.year, date.month, date.day);
-            final eventsForDate =
-                eventsByDate[dateKey] ?? const <CalendarEventItem>[];
-
-            return Hero(
-              tag: 'date_${date.toIso8601String()}',
-              child: DateCell(
-                dateInfo: dateInfo,
-                isSelected: _isSelected(date),
-                isToday: _isToday(date),
-                isInCurrentMonth: _isInCurrentMonth(date),
-                showHolidays: showHolidays,
-                showAnniversaryDays: showAnniversaryDays,
-                showSabbaths: showSabbaths,
-                showAstrology: showAstrology,
-                showWesternDates: showWesternDates,
-                showMyanmarDates: showMyanmarDates,
-                showEvents: true,
-                eventsForDate: eventsForDate,
-                onTap: () => onDateTap(date),
-              ),
-            );
-          }).toList(),
+        final rows = visibleRows(gridDates, currentMonth);
+        final rowHeight = rowHeightFor(
+          size: constraints.biggest,
+          rows: rows.length,
+          horizontalPadding: padding.horizontal,
+          maxRowHeightFactor: maxRowHeightFactor,
+          fallbackRatio: gridStyle == CalendarGridStyle.classic ? 1.33 : 1.25,
+        );
+        return Padding(
+          padding: padding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final week in rows)
+                SizedBox(
+                  height: rowHeight,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final info in week)
+                        Expanded(child: _cell(info, options)),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         );
       },
     );
   }
+
+  Widget _cell(CompleteDate info, DayCellOptions options) {
+    final date = DateTime(info.westernYear, info.westernMonth, info.westernDay);
+    final events = eventsByDate[date] ?? const <CalendarEventItem>[];
+    void onTap() => onDateTap(date);
+    final cell = switch (gridStyle) {
+      CalendarGridStyle.classic => DateCell(
+        dateInfo: info,
+        isSelected: _isSelected(date),
+        isToday: _isToday(date),
+        isInCurrentMonth: _isInCurrentMonth(date),
+        showHolidays: showHolidays,
+        showAnniversaryDays: showAnniversaryDays,
+        showSabbaths: showSabbaths,
+        showAstrology: showAstrology,
+        showWesternDates: showWesternDates,
+        showMyanmarDates: showMyanmarDates,
+        eventsForDate: events,
+        onTap: onTap,
+      ),
+      CalendarGridStyle.detailed => DetailedDayCell(
+        data: _data(info, date, events, options),
+        onTap: onTap,
+      ),
+      CalendarGridStyle.clean => CleanDayCell(
+        data: _data(info, date, events, options),
+        onTap: onTap,
+      ),
+    };
+    return Hero(tag: 'date_${date.toIso8601String()}', child: cell);
+  }
+
+  DayCellData _data(
+    CompleteDate info,
+    DateTime date,
+    List<CalendarEventItem> events,
+    DayCellOptions options,
+  ) => DayCellData(
+    info: info,
+    isToday: _isToday(date),
+    isSelected: _isSelected(date),
+    isInMonth: _isInCurrentMonth(date),
+    options: options,
+    events: events,
+  );
 
   bool _isToday(DateTime date) =>
       date.year == today.year &&

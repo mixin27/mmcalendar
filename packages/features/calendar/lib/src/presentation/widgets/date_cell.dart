@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
+import 'calendar_colors.dart';
+
+/// The classic grid style: bordered tiles with coloured marker dots.
+
 class DateCell extends StatefulWidget {
   final CompleteDate dateInfo;
   final bool isSelected;
@@ -64,6 +68,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final colors = CalendarColors.of(context);
 
     // Determine styling
     Color? backgroundColor;
@@ -79,13 +84,11 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       textColor = colorScheme.onPrimaryContainer;
       borderColor = colorScheme.primary;
     } else if (widget.dateInfo.isFullMoon) {
-      backgroundColor = Colors.amber.shade50;
-      textColor = Colors.amber.shade900;
-      borderColor = Colors.amber.shade200;
+      backgroundColor = colors.sabbathSoft;
+      borderColor = colors.sabbath.withValues(alpha: .35);
     } else if (widget.dateInfo.isNewMoon) {
-      backgroundColor = Colors.indigo.shade50;
-      textColor = Colors.indigo.shade900;
-      borderColor = Colors.indigo.shade200;
+      backgroundColor = colors.fill;
+      borderColor = colors.separator;
     }
 
     if (!widget.isInCurrentMonth) {
@@ -117,11 +120,15 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
             curve: Curves.easeInOut,
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: backgroundColor?.withValues(alpha: opacity),
+              color: backgroundColor?.withValues(
+                alpha: backgroundColor.a * opacity,
+              ),
               borderRadius: BorderRadius.circular(12),
               border: borderColor != null
                   ? Border.all(
-                      color: borderColor.withValues(alpha: opacity),
+                      color: borderColor.withValues(
+                        alpha: borderColor.a * opacity,
+                      ),
                       width: widget.isToday ? 2 : 1,
                     )
                   : Border.all(
@@ -152,7 +159,8 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
 
                       // Middle section: Date numbers
                       Expanded(
-                        child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
                           child: _buildDateNumbers(textColor, opacity),
                         ),
                       ),
@@ -205,6 +213,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
   }
 
   Widget _buildTopIndicators(Color textColor, double opacity) {
+    final colors = CalendarColors.of(context);
     final hasIndicators =
         (widget.showHolidays && widget.dateInfo.hasHolidays) ||
         (widget.showAnniversaryDays && widget.dateInfo.hasAnniversaryDays) ||
@@ -224,28 +233,28 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
             _buildDot(
               widget.isSelected || widget.isToday
                   ? textColor.withValues(alpha: 0.8)
-                  : Colors.red.shade600,
+                  : colors.holiday,
               opacity,
             ),
           if (widget.showAnniversaryDays && widget.dateInfo.hasAnniversaryDays)
             _buildDot(
               widget.isSelected || widget.isToday
                   ? textColor.withValues(alpha: 0.8)
-                  : Colors.teal.shade600,
+                  : colors.anniversary,
               opacity,
             ),
           if (widget.showSabbaths && widget.dateInfo.isSabbath)
             _buildDot(
               widget.isSelected || widget.isToday
                   ? textColor.withValues(alpha: 0.8)
-                  : Colors.amber.shade700,
+                  : colors.sabbath,
               opacity,
             ),
           if (widget.showAstrology && widget.dateInfo.hasAstrologicalDays)
             _buildDot(
               widget.isSelected || widget.isToday
                   ? textColor.withValues(alpha: 0.8)
-                  : Colors.deepPurple.shade600,
+                  : colors.astrology,
               opacity,
             ),
         ],
