@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class CalendarStudioWorkspace extends StatefulWidget {
   State<CalendarStudioWorkspace> createState() => _CalendarStudioPageState();
 }
 
-enum _View { dashboard, templates, editor, preview }
+enum _View { dashboard, project, templates, editor, preview }
 
 class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   static const _minCanvasZoom = .5;
@@ -52,6 +53,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   double? _lastSnappedRotation;
   final _editorFocus = FocusNode(debugLabel: 'Calendar Studio editor');
   var _spacePanning = false;
+  var _projectsAsList = false;
+  String? _detailId;
   var _canRemoveBackground = false;
   var _canSuggestText = false;
   var _textFieldRevision = 0;
@@ -245,6 +248,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     },
     child: switch (view) {
       _View.dashboard => _dashboard(context),
+      _View.project => _projectDetail(context),
       _View.templates => _templates(context),
       _View.editor => Focus(
         focusNode: _editorFocus,
@@ -255,6 +259,54 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       _View.preview => _preview(context),
     },
   );
+
+  String _presetName(CalendarStudioProject project) =>
+      CalendarStudioTemplates.byId(project.templateId).name;
+
+  String _period(CalendarStudioProject project) {
+    final first = project.pages.first;
+    final last = project.pages.last;
+    String short(CalendarStudioPage page) =>
+        page.label.substring(0, math.min(3, page.label.length));
+    if (project.pages.length == 1) return '${first.label} ${first.year}';
+    return first.year == last.year
+        ? '${short(first)}–${short(last)} ${first.year}'
+        : '${short(first)} ${first.year}–${short(last)} ${last.year}';
+  }
+
+  String _ago(DateTime time) {
+    final now = widget.configuration.now?.call() ?? DateTime.now();
+    final difference = now.difference(time);
+    if (difference.inMinutes < 1) return 'just now';
+    if (difference.inMinutes < 60) return '${difference.inMinutes} min ago';
+    if (difference.inHours < 24) return '${difference.inHours} h ago';
+    if (difference.inDays == 1) return 'yesterday';
+    if (difference.inDays < 30) return '${difference.inDays} days ago';
+    return 'on ${time.day} ${_monthName(time.month).substring(0, 3)} ${time.year}';
+  }
+
+  bool _recentlyExported(CalendarStudioProject project) {
+    final record = project.lastExport;
+    if (record == null) return false;
+    final now = widget.configuration.now?.call() ?? DateTime.now();
+    return now.difference(record.exportedAt).inDays < 30;
+  }
+
+  String _languageLabel(CalendarStudioLanguage language) => switch (language) {
+    CalendarStudioLanguage.myanmar => 'Myanmar',
+    CalendarStudioLanguage.english => 'English',
+    CalendarStudioLanguage.both => 'Myanmar + English',
+  };
+
+  Widget _projectThumb(CalendarStudioProject project, {int page = 0}) =>
+      IgnorePointer(
+        child: CalendarStudioScene(
+          page: project.pages[page],
+          source: project.source,
+          dataProvider: _calendarData,
+          assetStore: _assets,
+        ),
+      );
 
   Widget _dashboard(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -267,171 +319,288 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         ),
       ],
     ),
-    floatingActionButton: FloatingActionButton.extended(
-      onPressed: () => setState(() => view = _View.templates),
-      icon: const Icon(Icons.add),
-      label: const Text('New calendar'),
-    ),
+    floatingActionButton: projects.isEmpty
+        ? null
+        : FloatingActionButton.extended(
+            onPressed: () => setState(() => view = _View.templates),
+            icon: const Icon(Icons.add),
+            label: const Text('New calendar'),
+          ),
     body: loading
         ? const Center(child: CircularProgressIndicator())
         : projects.isEmpty
-        ? Center(
-            child: Padding(
-              padding: const EdgeInsets.all(28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.calendar_month_outlined, size: 80),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Design your first calendar',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Start from a template, add photos and events, then export for print or sharing.',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: () => setState(() => view = _View.templates),
-                    child: const Text('Browse templates'),
-                  ),
-                  const SizedBox(height: 8),
-                  OutlinedButton(
-                    onPressed: _importProject,
-                    child: const Text('Import a project file'),
-                  ),
-                ],
-              ),
-            ),
-          )
+        ? _emptyDashboard(context)
         : LayoutBuilder(
             builder: (context, box) {
               final count = box.maxWidth >= 900 ? 4 : 2;
+              final visible = _filteredProjects;
               return ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
                 children: [
                   _continueCard(context, projects.first),
                   const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        for (final filter in const [
-                          'All',
-                          'Wall',
-                          'Desk',
-                          'Social',
-                          'Print',
-                        ])
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ChoiceChip(
-                              label: Text(filter),
-                              selected: projectFilter == filter,
-                              onSelected: (_) =>
-                                  setState(() => projectFilter = filter),
-                            ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              for (final filter in const [
+                                'All',
+                                'Wall',
+                                'Desk',
+                                'Social',
+                                'Print',
+                              ])
+                                ChoiceChip(
+                                  label: Text(filter),
+                                  selected: projectFilter == filter,
+                                  onSelected: (_) =>
+                                      setState(() => projectFilter = filter),
+                                ),
+                            ],
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: _projectsAsList ? 'Grid view' : 'List view',
+                        onPressed: () =>
+                            setState(() => _projectsAsList = !_projectsAsList),
+                        icon: Icon(
+                          _projectsAsList
+                              ? Icons.grid_view_outlined
+                              : Icons.view_list_outlined,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Text(
                     'Your projects',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 12),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _filteredProjects.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: count,
-                      childAspectRatio: .72,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
+                  if (visible.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        'No ${projectFilter.toLowerCase()} projects yet.',
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  else if (_projectsAsList)
+                    Card(
+                      margin: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          for (final project in visible)
+                            _projectRow(context, project),
+                        ],
+                      ),
+                    )
+                  else
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: visible.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: count,
+                        childAspectRatio: .68,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                      ),
+                      itemBuilder: (_, index) =>
+                          _projectCard(context, visible[index]),
                     ),
-                    itemBuilder: (_, index) =>
-                        _projectCard(context, _filteredProjects[index]),
-                  ),
                 ],
               );
             },
           ),
   );
 
-  Widget _continueCard(
-    BuildContext context,
-    CalendarStudioProject project,
-  ) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 62,
-            height: 84,
-            child: CalendarStudioScene(
-              page: project.pages.first,
-              source: project.source,
-              dataProvider: _calendarData,
-              assetStore: _assets,
+  /// First visit (mockup 6): a fan of presets, then start fresh or import.
+  Widget _emptyDashboard(BuildContext context) {
+    final fan = [
+      for (final id in const ['love_relationship', 'pagoda', 'ocean'])
+        CalendarStudioTemplates.byId(id),
+    ];
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 120,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (var i = 0; i < fan.length; i++)
+                    Transform.translate(
+                      offset: Offset((1 - i) * 8.0, i == 1 ? -8 : 0),
+                      child: Transform.rotate(
+                        angle: (i - 1) * .14,
+                        child: SizedBox(
+                          width: 74,
+                          child: DecoratedBox(
+                            decoration: const BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0x33000000),
+                                  blurRadius: 10,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: _templatePreview(fan[i]),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Continue editing',
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
-                Text(
-                  project.name,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                Text(
-                  '${project.pages.length} pages · ${_projectCategory(project)}',
-                ),
-              ],
+            const SizedBox(height: 20),
+            Text(
+              'Design your first calendar',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
-          ),
-          FilledButton(
-            onPressed: () => _open(project),
-            child: const Text('Resume'),
-          ),
-        ],
+            const SizedBox(height: 8),
+            const Text(
+              'Pick a preset with Myanmar dates, moon days and holidays already '
+              'in place.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 18),
+            FilledButton(
+              onPressed: () => setState(() => view = _View.templates),
+              child: const Text('Browse presets'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: _importProject,
+              child: const Text('Import a project file'),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _continueCard(BuildContext context, CalendarStudioProject project) {
+    final tokens = CalendarStudioTokens.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            SizedBox(width: 96, child: _projectThumb(project)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'CONTINUE EDITING',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: .7,
+                      color: tokens.ink3,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    project.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    '${_presetName(project)} · ${_period(project)} · '
+                    'Saved ${_ago(project.updatedAt)}',
+                    style: TextStyle(fontSize: 12, color: tokens.ink3),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton(
+                    onPressed: () => _open(project),
+                    child: const Text('Resume'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _projectMenu(CalendarStudioProject project) => PopupMenuButton<String>(
+    onSelected: (value) => _projectAction(value, project),
+    itemBuilder: (_) => const [
+      PopupMenuItem(value: 'rename', child: Text('Rename')),
+      PopupMenuItem(value: 'duplicate', child: Text('Duplicate')),
+      PopupMenuItem(value: 'export', child: Text('Export…')),
+      PopupMenuItem(value: 'save-file', child: Text('Save project file')),
+      PopupMenuItem(value: 'share-file', child: Text('Share project file')),
+      PopupMenuDivider(),
+      PopupMenuItem(value: 'delete', child: Text('Delete…')),
+    ],
+  );
+
+  Widget _projectSubtitle(CalendarStudioProject project) => Text.rich(
+    TextSpan(
+      text: '${_presetName(project)} · ${_period(project)}',
+      children: [
+        if (_recentlyExported(project))
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 6),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(
+                  color: CalendarStudioTokens.of(context).primaryContainer,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  'Exported',
+                  style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+          ),
+      ],
+    ),
+    maxLines: 2,
+    overflow: TextOverflow.ellipsis,
+    style: TextStyle(
+      fontSize: 12,
+      color: CalendarStudioTokens.of(context).ink3,
     ),
   );
 
   Widget _projectCard(BuildContext context, CalendarStudioProject project) =>
       Card(
+        margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => _open(project),
+          onTap: () => _openProjectDetail(project),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Container(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  padding: const EdgeInsets.all(16),
-                  child: Center(
-                    child: CalendarStudioScene(
-                      page: project.pages.first,
-                      source: project.source,
-                      dataProvider: _calendarData,
-                      assetStore: _assets,
-                    ),
-                  ),
+                  padding: const EdgeInsets.all(14),
+                  child: Center(child: _projectThumb(project)),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 4, 4),
+                padding: const EdgeInsets.fromLTRB(12, 8, 0, 0),
                 child: Row(
                   children: [
                     Expanded(
@@ -441,40 +610,189 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
-                    PopupMenuButton<String>(
-                      onSelected: (value) => _projectAction(value, project),
-                      itemBuilder: (_) => const [
-                        PopupMenuItem(value: 'rename', child: Text('Rename')),
-                        PopupMenuItem(
-                          value: 'duplicate',
-                          child: Text('Duplicate'),
-                        ),
-                        PopupMenuItem(value: 'export', child: Text('Export…')),
-                        PopupMenuItem(
-                          value: 'save-file',
-                          child: Text('Save project file'),
-                        ),
-                        PopupMenuItem(
-                          value: 'share-file',
-                          child: Text('Share project file'),
-                        ),
-                        PopupMenuDivider(),
-                        PopupMenuItem(value: 'delete', child: Text('Delete…')),
-                      ],
-                    ),
+                    _projectMenu(project),
                   ],
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                child: Text(
-                  '${project.pages.length} pages · ${project.templateId}',
-                ),
+                child: _projectSubtitle(project),
               ),
             ],
           ),
         ),
       );
+
+  Widget _projectRow(BuildContext context, CalendarStudioProject project) =>
+      ListTile(
+        onTap: () => _openProjectDetail(project),
+        leading: SizedBox(width: 40, child: _projectThumb(project)),
+        title: Text(project.name, overflow: TextOverflow.ellipsis),
+        subtitle: _projectSubtitle(project),
+        trailing: _projectMenu(project),
+      );
+
+  void _openProjectDetail(CalendarStudioProject project) => setState(() {
+    _detailId = project.id;
+    view = _View.project;
+  });
+
+  CalendarStudioProject? get _detailProject =>
+      projects.where((project) => project.id == _detailId).firstOrNull;
+
+  Future<void> _openPage(CalendarStudioProject project, int index) async {
+    await _open(project);
+    _changePage(index);
+  }
+
+  /// Project detail (mockup 4): actions, last export and every page.
+  /// Long-press a page to export just that month.
+  Widget _projectDetail(BuildContext context) {
+    final project = _detailProject;
+    if (project == null) return _dashboard(context);
+    final tokens = CalendarStudioTokens.of(context);
+    final template = CalendarStudioTemplates.byId(project.templateId);
+    final blocked = _pagesWithErrors(project);
+    final warned = {
+      for (final issue in CalendarStudioPreflight.check(project))
+        project.pages.indexWhere((page) => page.id == issue.pageId),
+    }..remove(-1);
+    final record = project.lastExport;
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () => setState(() => view = _View.dashboard),
+        ),
+        title: Text(project.name),
+        actions: [_projectMenu(project)],
+      ),
+      body: LayoutBuilder(
+        builder: (context, box) => ListView(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+          children: [
+            Text(
+              '${template.name} · ${template.category.split(' · ').last} · '
+              '${project.pages.length} page${project.pages.length == 1 ? '' : 's'} · '
+              '${_languageLabel(project.source.language)}',
+              style: TextStyle(color: tokens.ink3),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                FilledButton.icon(
+                  onPressed: () => _open(project),
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Open editor'),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: () =>
+                      _showExport(context, project: project, fromEditor: false),
+                  icon: const Icon(Icons.download_outlined),
+                  label: const Text('Export…'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _exportProjectFile(
+                    project,
+                    CalendarStudioExportDestination.share,
+                  ),
+                  icon: const Icon(Icons.share_outlined),
+                  label: const Text('Share file'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Card(
+              margin: EdgeInsets.zero,
+              child: ListTile(
+                title: Text(
+                  record == null
+                      ? 'Not exported yet'
+                      : 'Last export · ${record.presetLabel} · '
+                            '${record.pageCount} page${record.pageCount == 1 ? '' : 's'}',
+                ),
+                subtitle: record == null
+                    ? const Text('Export a PDF or images when you are ready.')
+                    : Text(record.fileName),
+                trailing: record == null
+                    ? null
+                    : Text(
+                        _ago(record.exportedAt),
+                        style: TextStyle(color: tokens.ink3),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              'PAGES',
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                letterSpacing: .7,
+                color: tokens.ink3,
+              ),
+            ),
+            const SizedBox(height: 8),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: project.pages.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: box.maxWidth >= 900 ? 6 : 4,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 10,
+                childAspectRatio: .62,
+              ),
+              itemBuilder: (_, index) => InkWell(
+                key: ValueKey('calendar-studio-detail-page-$index'),
+                borderRadius: BorderRadius.circular(6),
+                onTap: () => _openPage(project, index),
+                onLongPress: () => _showExport(
+                  context,
+                  project: project,
+                  currentPage: index,
+                  fromEditor: false,
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Center(child: _projectThumb(project, page: index)),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            project.pages[index].label,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                        if (warned.contains(index))
+                          Tooltip(
+                            message: blocked.contains(index)
+                                ? 'Needs fixing before export'
+                                : 'Has a preflight warning',
+                            child: Icon(
+                              Icons.circle,
+                              size: 8,
+                              color: blocked.contains(index)
+                                  ? tokens.error
+                                  : tokens.warning,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Future<void> _projectAction(
     String action,
@@ -4206,33 +4524,43 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       ],
     ),
   );
-  Future<void> _showExport(BuildContext context) async {
-    final project = controller.project!;
+
+  /// Export sheet for [project] (the open project by default).
+  /// [currentPage] preselects "This page"; null starts with all pages.
+  Future<void> _showExport(
+    BuildContext context, {
+    CalendarStudioProject? project,
+    int? currentPage,
+    bool fromEditor = true,
+  }) async {
+    final target = project ?? controller.project!;
     final request = await showModalBottomSheet<_ExportRequest>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _ExportSheet(
-        initialPreset: project.defaultExportPreset.copyWith(
-          fileName: _safeFileName(project.name),
+        initialPreset: target.defaultExportPreset.copyWith(
+          fileName: _safeFileName(target.name),
         ),
-        pages: project.pages,
-        currentPage: controller.pageIndex,
-        blockedPages: {
-          for (final issue in CalendarStudioPreflight.check(project))
-            if (issue.severity == CalendarStudioIssueSeverity.error)
-              project.pages.indexWhere((page) => page.id == issue.pageId),
-        }..remove(-1),
+        pages: target.pages,
+        currentPage: currentPage ?? (fromEditor ? controller.pageIndex : null),
+        blockedPages: _pagesWithErrors(target),
       ),
     );
     if (request != null && mounted) {
       await _runExport(
-        project,
+        target,
         request.preset,
         request.destination,
         pageIndexes: request.pageIndexes,
       );
     }
   }
+
+  Set<int> _pagesWithErrors(CalendarStudioProject project) => {
+    for (final issue in CalendarStudioPreflight.check(project))
+      if (issue.severity == CalendarStudioIssueSeverity.error)
+        project.pages.indexWhere((page) => page.id == issue.pageId),
+  }..remove(-1);
 
   void _openPreview() {
     _previewPages?.dispose();

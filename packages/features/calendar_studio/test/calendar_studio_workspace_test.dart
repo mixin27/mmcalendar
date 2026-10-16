@@ -17,7 +17,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Browse templates'));
+    await tester.tap(find.text('Browse presets'));
     await tester.pumpAndSettle();
 
     expect(find.byType(CalendarStudioScene), findsWidgets);
