@@ -3,6 +3,61 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart' as mm;
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
 
+extension CalendarStudioLanguageData on CalendarStudioLanguage {
+  /// The `myanmar_calendar_dart` language for this project's calendar data
+  /// (Myanmar for [CalendarStudioLanguage.both]).
+  mm.Language get calendarLanguage => switch (this) {
+    CalendarStudioLanguage.english => mm.Language.english,
+    CalendarStudioLanguage.myanmar ||
+    CalendarStudioLanguage.both => mm.Language.myanmar,
+    CalendarStudioLanguage.zawgyi => mm.Language.zawgyi,
+    CalendarStudioLanguage.mon => mm.Language.mon,
+    CalendarStudioLanguage.shan => mm.Language.shan,
+    CalendarStudioLanguage.karen => mm.Language.karen,
+  };
+
+  /// The Studio language for an app's calendar language.
+  static CalendarStudioLanguage fromCalendarLanguage(mm.Language language) =>
+      switch (language) {
+        mm.Language.english => CalendarStudioLanguage.english,
+        mm.Language.myanmar => CalendarStudioLanguage.myanmar,
+        mm.Language.zawgyi => CalendarStudioLanguage.zawgyi,
+        mm.Language.mon => CalendarStudioLanguage.mon,
+        mm.Language.shan => CalendarStudioLanguage.shan,
+        mm.Language.karen => CalendarStudioLanguage.karen,
+      };
+
+  /// Myanmar, English and both use Studio's own print wording; the other
+  /// languages take theirs from `myanmar_calendar_dart`.
+  bool get usesPackageText => switch (this) {
+    CalendarStudioLanguage.myanmar ||
+    CalendarStudioLanguage.english ||
+    CalendarStudioLanguage.both => false,
+    _ => true,
+  };
+
+  String get label => switch (this) {
+    CalendarStudioLanguage.myanmar => 'Myanmar',
+    CalendarStudioLanguage.english => 'English',
+    CalendarStudioLanguage.both => 'Myanmar + English',
+    CalendarStudioLanguage.zawgyi => 'Zawgyi',
+    CalendarStudioLanguage.mon => 'Mon',
+    CalendarStudioLanguage.shan => 'Shan',
+    CalendarStudioLanguage.karen => 'Karen',
+  };
+
+  /// [value] in this language's digits.
+  String digits(Object value) {
+    final language = calendarLanguage;
+    final text = '$value';
+    if (!mm.TranslationService.shouldTranslateDigits(language)) return text;
+    return text.replaceAllMapped(
+      RegExp(r'\d'),
+      (match) => mm.TranslationService.translateTo(match[0]!, language),
+    );
+  }
+}
+
 /// What a bound text block shows; it is rewritten for every page's month and
 /// the project's language, so one template design works for any month.
 enum CalendarStudioBinding {
@@ -60,11 +115,29 @@ abstract final class CalendarStudioBindings {
   }) {
     final mmMonth = myanmarMonths[month - 1];
     final enMonth = englishMonths[month - 1];
+    if (language.usesPackageText) {
+      final name = mm.TranslationService.getWesternMonthName(
+        month,
+        language.calendarLanguage,
+      );
+      return switch (binding) {
+        CalendarStudioBinding.monthTitle => (name, null),
+        CalendarStudioBinding.yearTitle => (language.digits(year), null),
+        CalendarStudioBinding.monthYear => (
+          '$name ${language.digits(year)}',
+          null,
+        ),
+        CalendarStudioBinding.eraLine => (
+          eraLine(year, month, language: language.calendarLanguage),
+          null,
+        ),
+      };
+    }
     return switch (binding) {
       CalendarStudioBinding.monthTitle => switch (language) {
-        CalendarStudioLanguage.myanmar => (mmMonth, null),
         CalendarStudioLanguage.english => (enMonth, null),
         CalendarStudioLanguage.both => (mmMonth, enMonth),
+        _ => (mmMonth, null),
       },
       CalendarStudioBinding.yearTitle => (
         language == CalendarStudioLanguage.myanmar
@@ -179,7 +252,11 @@ abstract final class CalendarStudioBindings {
 
   /// "သီတင်းကျွတ်၊ တန်ဆောင်မုန်း ၁၃၈၈" for the Myanmar months a Gregorian
   /// month spans and their era years.
-  static String eraLine(int year, int month) {
+  static String eraLine(
+    int year,
+    int month, {
+    mm.Language language = mm.Language.myanmar,
+  }) {
     final first = mm.MyanmarCalendar.getCompleteDate(DateTime(year, month, 1));
     final last = mm.MyanmarCalendar.getCompleteDate(
       DateTime(year, month + 1, 0),
@@ -187,12 +264,30 @@ abstract final class CalendarStudioBindings {
     String monthOf(mm.MyanmarDate date) => mm.MyanmarCalendar.formatMyanmar(
       date,
       pattern: '&M',
-      language: mm.Language.myanmar,
+      language: language,
     );
     final firstMonth = monthOf(first.myanmar);
     final lastMonth = monthOf(last.myanmar);
-    final years = eraYearsBetween(first.myanmar, last.myanmar);
+    final years = language == mm.Language.myanmar
+        ? eraYearsBetween(first.myanmar, last.myanmar)
+        : _eraYearsIn(first.myanmar, last.myanmar, language);
     return '${firstMonth == lastMonth ? firstMonth : '$firstMonth၊ $lastMonth'} $years';
+  }
+
+  static String _eraYearsIn(
+    mm.MyanmarDate first,
+    mm.MyanmarDate last,
+    mm.Language language,
+  ) {
+    String digits(int value) =>
+        mm.TranslationService.shouldTranslateDigits(language)
+        ? '$value'.replaceAllMapped(
+            RegExp(r'\d'),
+            (m) => mm.TranslationService.translateTo(m[0]!, language),
+          )
+        : '$value';
+    final a = digits(first.year), b = digits(last.year);
+    return a == b ? a : '$a–$b';
   }
 
   static String eraYearsBetween(mm.MyanmarDate first, mm.MyanmarDate last) {

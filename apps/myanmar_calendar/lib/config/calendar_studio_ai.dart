@@ -82,6 +82,11 @@ String studioSuggestionPrompt(CalendarStudioTextSuggestionRequest request) {
     CalendarStudioLanguage.both =>
       'Write each suggestion in Burmese followed by " / " and its English '
           'translation.',
+    CalendarStudioLanguage.zawgyi =>
+      'Write in Burmese using the Zawgyi encoding.',
+    CalendarStudioLanguage.mon => 'Write in the Mon language.',
+    CalendarStudioLanguage.shan => 'Write in the Shan language.',
+    CalendarStudioLanguage.karen => 'Write in S\'gaw Karen.',
   };
   return [
     'Suggest 5 $kind for the ${request.pageLabel} ${request.year} page '

@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:equatable/equatable.dart';
 
-enum CalendarStudioLanguage { myanmar, english, both }
+/// The language of a project's calendar data. [both] is Myanmar with
+/// English alongside; the others follow `myanmar_calendar_dart`'s languages.
+enum CalendarStudioLanguage { myanmar, english, both, zawgyi, mon, shan, karen }
 
 enum CalendarStudioPeriod { month, year }
 

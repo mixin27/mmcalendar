@@ -230,6 +230,7 @@ class CalendarStudioConfiguration {
     this.ai = const CalendarStudioAiConfiguration(),
     this.pickProjectFile,
     this.pickTemplateFile,
+    this.defaultLanguage = CalendarStudioLanguage.both,
     this.featureName = 'Calendar Studio',
     this.now,
     this.appearance = CalendarStudioAppearance.system,
@@ -261,6 +262,9 @@ class CalendarStudioConfiguration {
   /// Defaults to the system file picker.
   final Future<Uint8List?> Function()? pickProjectFile;
 
+  /// The language new projects start in; hosts pass their calendar language.
+  final CalendarStudioLanguage defaultLanguage;
+
   /// Optional; returns the bytes of a `.mmctemplate` file the user picked.
   /// Defaults to the system file picker.
   final Future<Uint8List?> Function()? pickTemplateFile;
@@ -279,6 +283,7 @@ class CalendarStudioConfiguration {
 
   /// The same services with the host's current look.
   CalendarStudioConfiguration withLook({
+    CalendarStudioLanguage? defaultLanguage,
     CalendarStudioAppearance? appearance,
     CalendarStudioTokens? lightTokens,
     CalendarStudioTokens? darkTokens,
@@ -296,6 +301,7 @@ class CalendarStudioConfiguration {
     ai: ai,
     pickProjectFile: pickProjectFile,
     pickTemplateFile: pickTemplateFile,
+    defaultLanguage: defaultLanguage ?? this.defaultLanguage,
     featureName: featureName,
     now: now,
     appearance: appearance ?? this.appearance,

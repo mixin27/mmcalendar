@@ -4,12 +4,15 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/gestures.dart' show PointerDeviceKind, kTouchSlop;
 import 'package:flutter/material.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
+    show TranslationService;
 import 'package:shared_moon/shared_moon.dart';
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
 import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
+import '../templates/calendar_studio_bindings.dart';
 import '../services/calendar_studio_transform.dart';
 import '../theme/calendar_studio_font_catalog.dart';
 import 'calendar_studio_decorations.dart';
@@ -1443,7 +1446,13 @@ class _CalendarGridState extends State<_CalendarGrid> {
                 Expanded(
                   child: Center(
                     child: _WeekdayLabel(
-                      myanmar: myanmarHeaders[weekdayOrder[index]],
+                      myanmar: effectiveSource.language.usesPackageText
+                          // The package counts weekdays from Saturday.
+                          ? TranslationService.getShortWeekdayName(
+                              (weekdayOrder[index] + 1) % 7,
+                              effectiveSource.language.calendarLanguage,
+                            )
+                          : myanmarHeaders[weekdayOrder[index]],
                       english: englishHeaders[weekdayOrder[index]],
                       language: effectiveSource.language,
                       mini: mini,
@@ -1567,6 +1576,8 @@ class _CalendarGridState extends State<_CalendarGrid> {
                   family: block.style['numberFamily'] as String?,
                   label: source.language == CalendarStudioLanguage.myanmar
                       ? _myanmarNumber(day)
+                      : source.language.usesPackageText
+                      ? source.language.digits(day)
                       : '$day',
                   numberFont: numberFont,
                   mini: mini,
@@ -1756,7 +1767,10 @@ class _MyanmarDayIndicator extends StatelessWidget {
     if (!source.showMyanmarDate || data == null) return const SizedBox();
     final fortnightDay = data!.fortnightDay;
     final moonPhase = data!.moonPhase;
-    if (fortnightDay == null || moonPhase == null) {
+    // Mon, Shan, Karen and Zawgyi use the provider's label in that language.
+    if (fortnightDay == null ||
+        moonPhase == null ||
+        source.language.usesPackageText) {
       return Text(
         data!.myanmarLabel ?? '',
         style: TextStyle(

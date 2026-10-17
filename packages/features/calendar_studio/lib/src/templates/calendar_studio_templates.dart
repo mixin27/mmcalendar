@@ -150,7 +150,16 @@ abstract final class CalendarStudioTemplates {
             year: year,
             month: month,
             canvas: canvas,
-            blocks: blocks(year, month),
+            // Bound text (the era line) follows the project's language.
+            blocks: [
+              for (final block in blocks(year, month))
+                CalendarStudioBindings.apply(
+                  block,
+                  language: source.language,
+                  year: year,
+                  month: month,
+                ),
+            ],
           );
         }),
       );

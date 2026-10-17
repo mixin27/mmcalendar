@@ -18,6 +18,7 @@ import '../services/calendar_studio_project_bundle.dart';
 import '../services/calendar_studio_template_bundle.dart';
 import '../services/calendar_studio_transform.dart';
 import '../services/calendar_studio_raster_renderer.dart';
+import '../templates/calendar_studio_bindings.dart';
 import '../templates/calendar_studio_templates.dart';
 import '../templates/calendar_studio_user_templates.dart';
 import '../theme/calendar_studio_font_catalog.dart';
@@ -85,7 +86,10 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   var projects = <CalendarStudioProject>[];
   var _userTemplates = <CalendarStudioUserTemplate>[];
   var loading = true;
-  var source = CalendarStudioSource(year: DateTime.now().year + 1);
+  late var source = CalendarStudioSource(
+    year: DateTime.now().year + 1,
+    language: widget.configuration.defaultLanguage,
+  );
   var safeArea = true;
   var showBleed = false;
   var showPreviewGrid = false;
@@ -355,11 +359,29 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     return now.difference(record.exportedAt).inDays < 30;
   }
 
-  String _languageLabel(CalendarStudioLanguage language) => switch (language) {
-    CalendarStudioLanguage.myanmar => 'Myanmar',
-    CalendarStudioLanguage.english => 'English',
-    CalendarStudioLanguage.both => 'Myanmar + English',
-  };
+  String _languageLabel(CalendarStudioLanguage language) => language.label;
+
+  /// Every calendar language a project can use, as chips.
+  Widget _languageChips({
+    required CalendarStudioLanguage selected,
+    required ValueChanged<CalendarStudioLanguage> onSelected,
+  }) => Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: [
+      for (final language in CalendarStudioLanguage.values)
+        ChoiceChip(
+          key: ValueKey('calendar-studio-language-${language.name}'),
+          label: Text(switch (language) {
+            CalendarStudioLanguage.myanmar => 'မြန်မာ',
+            CalendarStudioLanguage.both => 'မြန်မာ + English',
+            _ => language.label,
+          }),
+          selected: selected == language,
+          onSelected: (_) => onSelected(language),
+        ),
+    ],
+  );
 
   Widget _projectThumb(CalendarStudioProject project, {int page = 0}) =>
       IgnorePointer(
@@ -1990,24 +2012,10 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                       ),
                       const SizedBox(height: 16),
                       _sectionLabel('Language on the calendar'),
-                      SegmentedButton<CalendarStudioLanguage>(
-                        segments: const [
-                          ButtonSegment(
-                            value: CalendarStudioLanguage.myanmar,
-                            label: Text('မြန်မာ'),
-                          ),
-                          ButtonSegment(
-                            value: CalendarStudioLanguage.english,
-                            label: Text('English'),
-                          ),
-                          ButtonSegment(
-                            value: CalendarStudioLanguage.both,
-                            label: Text('Both'),
-                          ),
-                        ],
-                        selected: {draft.language},
-                        onSelectionChanged: (value) => setSheet(
-                          () => draft = draft.copyWith(language: value.first),
+                      _languageChips(
+                        selected: draft.language,
+                        onSelected: (value) => setSheet(
+                          () => draft = draft.copyWith(language: value),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -2242,24 +2250,10 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                     ),
                     const SizedBox(height: 18),
                     _sectionLabel('Language on the calendar'),
-                    SegmentedButton<CalendarStudioLanguage>(
-                      segments: const [
-                        ButtonSegment(
-                          value: CalendarStudioLanguage.myanmar,
-                          label: Text('မြန်မာ'),
-                        ),
-                        ButtonSegment(
-                          value: CalendarStudioLanguage.english,
-                          label: Text('English'),
-                        ),
-                        ButtonSegment(
-                          value: CalendarStudioLanguage.both,
-                          label: Text('Both'),
-                        ),
-                      ],
-                      selected: {draft.language},
-                      onSelectionChanged: (value) => setSheet(
-                        () => draft = draft.copyWith(language: value.first),
+                    _languageChips(
+                      selected: draft.language,
+                      onSelected: (value) => setSheet(
+                        () => draft = draft.copyWith(language: value),
                       ),
                     ),
                     const SizedBox(height: 18),

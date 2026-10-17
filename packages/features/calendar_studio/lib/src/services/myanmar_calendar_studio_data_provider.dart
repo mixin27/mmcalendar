@@ -2,6 +2,7 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:flutter/material.dart' show DateUtils;
 
 import '../models/calendar_studio_types.dart';
+import '../templates/calendar_studio_bindings.dart';
 import 'calendar_studio_contracts.dart';
 
 /// Canonical Studio data adapter backed by `myanmar_calendar_dart`.
@@ -17,9 +18,13 @@ class MyanmarCalendarStudioDataProvider implements CalendarStudioDataProvider {
     required int month,
   }) async {
     final days = DateUtils.getDaysInMonth(source.year, month);
+    final language = source.language.calendarLanguage;
     return List.generate(days, (index) {
       final date = DateTime(source.year, month, index + 1);
-      final complete = MyanmarCalendar.getCompleteDate(date);
+      final complete = MyanmarCalendar.getCompleteDate(
+        date,
+        language: language,
+      );
       return CalendarStudioDayData(
         date: date,
         gregorianLabel: '${date.day}',
@@ -27,7 +32,7 @@ class MyanmarCalendarStudioDataProvider implements CalendarStudioDataProvider {
             ? MyanmarCalendar.formatMyanmar(
                 complete.myanmar,
                 pattern: '&P &f',
-                language: Language.myanmar,
+                language: language,
               )
             : null,
         moonLabel: null,

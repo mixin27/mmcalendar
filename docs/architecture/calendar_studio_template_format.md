@@ -122,8 +122,11 @@ The binding keys:
   to the English month in "Both". Otherwise `subtitle` is removed.
 - **`bindingUpper`:** when true, the text is written in capitals.
 
-The language is the project's calendar language (`myanmar`, `english` or
-`both`), not the device language. When saving, the app marks a text block as
+The language is the project's calendar language (`myanmar`, `english`,
+`both`, `zawgyi`, `mon`, `shan` or `karen`), not the device language. Zawgyi,
+Mon, Shan and Karen take their month names, digits and era line from
+`myanmar_calendar_dart` (for example, Shan keeps Western digits). A month
+title has no subtitle in those languages. When saving, the app marks a text block as
 bound if its text matches one of the forms above for the page's month and
 year. English matches ignore case. The author can turn any of these back into
 fixed text.

@@ -1,9 +1,12 @@
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
+    show TranslationService;
 import 'package:flutter/material.dart';
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
 import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
+import '../templates/calendar_studio_bindings.dart';
 import '../theme/calendar_studio_font_catalog.dart';
 
 /// Legend items a themed legend can show, in display order.
@@ -17,6 +20,21 @@ enum StudioLegendItem {
   const StudioLegendItem(this.myanmar, this.english);
   final String myanmar;
   final String english;
+
+  /// The label in one of the package languages (Mon, Shan, Karen, Zawgyi),
+  /// falling back to Myanmar where the package has no word for it.
+  String translated(CalendarStudioLanguage language) {
+    final key = switch (this) {
+      holiday => 'Holiday',
+      sabbath => 'Sabbath',
+      fullMoon => 'Full Moon',
+      newMoon => 'New Moon',
+      events => null,
+    };
+    if (key == null) return myanmar;
+    final text = TranslationService.translateTo(key, language.calendarLanguage);
+    return text == key ? myanmar : text;
+  }
 }
 
 Color? _color(Object? value) => value is int ? Color(value) : null;
@@ -83,6 +101,7 @@ class StudioThemedLegend extends StatelessWidget {
       CalendarStudioLanguage.myanmar => item.myanmar,
       CalendarStudioLanguage.english => item.english,
       CalendarStudioLanguage.both => '${item.myanmar}  ${item.english}',
+      final language => item.translated(language),
     };
     return LayoutBuilder(
       builder: (context, constraints) => FittedBox(

@@ -239,38 +239,27 @@ class _PageContext {
     final style = (spec['style'] as Map?)?.cast<String, Object?>() ?? const {};
     final binding = spec['binding'] as String? ?? 'custom';
     final italic = style['fontStyle'] == 'italic';
-    final (text, subtitle, name, myanmar) = switch (binding) {
-      'monthTitle' => switch (language) {
-        CalendarStudioLanguage.myanmar => (
-          _myanmarMonths[month - 1],
-          null,
-          'Month title',
-          true,
-        ),
-        CalendarStudioLanguage.english => (
-          _englishMonths[month - 1],
-          null,
-          'Month title',
-          false,
-        ),
-        CalendarStudioLanguage.both => (
-          _myanmarMonths[month - 1],
-          _englishMonths[month - 1],
-          'Month title',
-          true,
-        ),
-      },
-      'yearTitle' =>
-        language == CalendarStudioLanguage.myanmar
-            ? (_myanmarNumber(year), null, 'Year', true)
-            : ('$year', null, 'Year', false),
-      _ => (
-        spec['text'] as String? ?? '',
-        null,
-        spec['name'] as String? ?? 'Text',
-        false,
-      ),
-    };
+    final bound = CalendarStudioBinding.tryParse(binding);
+    final String text;
+    final String? subtitle;
+    final String name;
+    if (bound == CalendarStudioBinding.monthTitle ||
+        bound == CalendarStudioBinding.yearTitle) {
+      (text, subtitle) = CalendarStudioBindings.resolve(
+        bound!,
+        language: language,
+        year: year,
+        month: month,
+      );
+      name = bound == CalendarStudioBinding.monthTitle ? 'Month title' : 'Year';
+    } else {
+      (text, subtitle) = (spec['text'] as String? ?? '', null);
+      name = spec['name'] as String? ?? 'Text';
+    }
+    // Myanmar-script lines get more leading and are never slanted.
+    final myanmar =
+        bound != null &&
+        RegExp('[\u1000-\u109F\uA9E0-\uA9FF\uAA60-\uAA7F]').hasMatch(text);
     return block(
       CalendarStudioBlockType.text,
       name,
@@ -418,7 +407,14 @@ class _PageContext {
           ),
           zIndex: index,
           content: {
-            'text': language == CalendarStudioLanguage.english
+            'text': language.usesPackageText
+                ? CalendarStudioBindings.resolve(
+                    CalendarStudioBinding.monthTitle,
+                    language: language,
+                    year: year,
+                    month: m + 1,
+                  ).$1
+                : language == CalendarStudioLanguage.english
                 ? _englishMonths[m]
                 : _myanmarMonths[m],
             if (language == CalendarStudioLanguage.both)
@@ -555,11 +551,6 @@ const _motifNames = {
   'steamCurl': 'Steam',
   'compassStar': 'Compass star',
 };
-
-String _myanmarNumber(int value) => value.toString().replaceAllMapped(
-  RegExp(r'\d'),
-  (match) => '၀၁၂၃၄၅၆၇၈၉'[int.parse(match[0]!)],
-);
 
 const _myanmarMonths = [
   'ဇန်နဝါရီ',

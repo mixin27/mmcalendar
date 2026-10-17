@@ -1,11 +1,13 @@
 import 'package:calendar_studio/calendar_studio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_core/shared_core.dart' show CalendarLanguageContext;
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import 'calendar_studio_configuration.dart';
 
 /// Studio with the app's current look: Clear or Material chrome, the app
-/// colours for this brightness and the app fonts. Studio stays independent
+/// colours for this brightness and the app fonts, and new projects in the
+/// app's calendar language. Studio stays independent
 /// of shared_ui_kit; this adapter is the only place that knows both.
 CalendarStudioConfiguration calendarStudioConfigurationFor(
   BuildContext context, {
@@ -26,6 +28,10 @@ CalendarStudioConfiguration calendarStudioConfigurationFor(
         : CalendarStudioChrome.material,
     fontFamily: AppTextStyles.qualifiedFamily,
     fontFamilyFallback: AppTextStyles.qualifiedFallback,
+    // New projects start in the app's calendar language.
+    defaultLanguage: CalendarStudioLanguageData.fromCalendarLanguage(
+      context.calendarLanguage,
+    ),
   );
 }
 
