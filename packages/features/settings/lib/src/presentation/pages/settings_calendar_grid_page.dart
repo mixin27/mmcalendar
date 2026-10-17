@@ -10,28 +10,40 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../widgets/settings_widgets.dart';
 
-/// Settings › Display › Calendar grid: pick how the month looks, with a
-/// live preview of this month in each style.
+/// Names and one-line descriptions for each grid style.
+extension CalendarGridStyleLabel on CalendarGridStyle {
+  String get title => switch (this) {
+    CalendarGridStyle.detailed => 'Detailed',
+    CalendarGridStyle.clean => 'Clean',
+    CalendarGridStyle.classic => 'Classic',
+    CalendarGridStyle.detailedV2 => 'Detailed v2',
+    CalendarGridStyle.lunarFirst => 'Lunar first',
+    CalendarGridStyle.minimal => 'Minimal',
+    CalendarGridStyle.moonStrip => 'Moon strip',
+    CalendarGridStyle.agenda => 'Agenda',
+    CalendarGridStyle.classicPrint => 'Classic print',
+  };
+
+  String get description => switch (this) {
+    CalendarGridStyle.detailed =>
+      'Lunar day, holiday name, moon and events in every day.',
+    CalendarGridStyle.clean => 'Numbers first; the moon only on moon days.',
+    CalendarGridStyle.classic => 'The original tiles and coloured dots.',
+    CalendarGridStyle.detailedV2 =>
+      'Detailed, calmer: no lines, the moon only on moon days.',
+    CalendarGridStyle.lunarFirst =>
+      'The lunar day large, the date small in the corner.',
+    CalendarGridStyle.minimal => 'The date and one status dot.',
+    CalendarGridStyle.moonStrip => 'Tonight’s moon in every day.',
+    CalendarGridStyle.agenda => 'Event titles and holidays inside the days.',
+    CalendarGridStyle.classicPrint => 'A ruled table like a wall calendar.',
+  };
+}
+
+/// Settings › Display › Calendar grid: every style as a live preview of
+/// this month, two or three to a row.
 class SettingsCalendarGridPage extends StatelessWidget {
   const SettingsCalendarGridPage({super.key});
-
-  static const _choices = [
-    (
-      CalendarGridStyle.detailed,
-      'Detailed',
-      'Default. Lunar day, holiday name, moon and event titles in every day.',
-    ),
-    (
-      CalendarGridStyle.clean,
-      'Clean',
-      'Calm. Numbers first; the moon only on full and new moon days.',
-    ),
-    (
-      CalendarGridStyle.classic,
-      'Classic',
-      'The original tiles and coloured dots.',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -46,16 +58,32 @@ class SettingsCalendarGridPage extends StatelessWidget {
           firstDayOfWeek: 1,
         ).map(MyanmarCalendar.getCompleteDate).toList(growable: false);
         return [
-          for (final (style, title, description) in _choices)
-            _GridChoice(
-              title: title,
-              description: description,
-              selected: style == current,
-              preview: _Preview(style: style, month: month, dates: dates),
-              onTap: () => context.read<SettingsBloc>().add(
-                ChangeCalendarGridStyle(style),
-              ),
+          LayoutBuilder(
+            builder: (context, box) => GridView.count(
+              crossAxisCount: box.maxWidth >= 560 ? 3 : 2,
+              // The page already handles the safe area.
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: .68,
+              children: [
+                for (final style in CalendarGridStyle.values)
+                  _GridChoice(
+                    key: ValueKey('grid-style-${style.name}'),
+                    title: style.title,
+                    description: style.description,
+                    isDefault: style == CalendarGridStyle.defaultStyle,
+                    selected: style == current,
+                    preview: _Preview(style: style, month: month, dates: dates),
+                    onTap: () => context.read<SettingsBloc>().add(
+                      ChangeCalendarGridStyle(style),
+                    ),
+                  ),
+              ],
             ),
+          ),
           Text(
             'Every style fits the screen: rows take the height that is '
             'left above the day sheet.',
@@ -72,8 +100,10 @@ class SettingsCalendarGridPage extends StatelessWidget {
 
 class _GridChoice extends StatelessWidget {
   const _GridChoice({
+    super.key,
     required this.title,
     required this.description,
+    required this.isDefault,
     required this.selected,
     required this.preview,
     required this.onTap,
@@ -81,6 +111,7 @@ class _GridChoice extends StatelessWidget {
 
   final String title;
   final String description;
+  final bool isDefault;
   final bool selected;
   final Widget preview;
   final VoidCallback onTap;
@@ -107,32 +138,44 @@ class _GridChoice extends StatelessWidget {
                 width: 2,
               ),
             ),
-            padding: const EdgeInsets.all(12),
-            child: Row(
+            padding: const EdgeInsets.all(8),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(width: 132, child: preview),
-                const SizedBox(width: 14),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        description,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: t.secondaryLabel,
-                        ),
-                      ),
-                    ],
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: ColoredBox(color: t.background, child: preview),
                   ),
                 ),
-                if (selected) Icon(Icons.check_rounded, color: t.accent),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ),
+                    if (selected)
+                      Icon(
+                        Icons.check_circle_rounded,
+                        size: 18,
+                        color: t.accent,
+                      ),
+                  ],
+                ),
+                Text(
+                  isDefault ? 'Default · $description' : description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: t.secondaryLabel,
+                    height: 1.3,
+                  ),
+                ),
               ],
             ),
           ),
@@ -142,7 +185,8 @@ class _GridChoice extends StatelessWidget {
   }
 }
 
-/// This month at phone size, scaled down to fit the row.
+/// This month at phone size, scaled down to fit the card, with a day
+/// selected so the selection style shows.
 class _Preview extends StatelessWidget {
   const _Preview({
     required this.style,
@@ -157,19 +201,25 @@ class _Preview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rows = CalendarGrid.visibleRows(dates, month).length;
+    final today = DateUtils.dateOnly(DateTime.now());
+    final selected = today.day <= 20
+        ? today.add(const Duration(days: 5))
+        : today.subtract(const Duration(days: 5));
     return ExcludeSemantics(
       child: IgnorePointer(
         child: FittedBox(
+          // The whole week must show, Sunday to Saturday.
           fit: BoxFit.fitWidth,
           alignment: Alignment.topCenter,
           child: SizedBox(
             width: 360,
-            height: rows * 68,
+            height: rows * 78,
             child: MediaQuery.withNoTextScaling(
               child: CalendarGrid(
                 gridDates: dates,
                 currentMonth: month,
-                today: DateUtils.dateOnly(DateTime.now()),
+                today: today,
+                selectedDate: selected,
                 gridStyle: style,
                 onDateTap: (_) {},
               ),

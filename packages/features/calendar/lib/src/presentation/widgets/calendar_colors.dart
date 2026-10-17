@@ -21,6 +21,7 @@ class CalendarColors {
     required this.astrology,
     required this.fill,
     required this.surface,
+    required this.moon,
   });
 
   factory CalendarColors.of(BuildContext context) {
@@ -42,6 +43,7 @@ class CalendarColors {
       astrology: dark ? const Color(0xFFA48BFF) : const Color(0xFF7553E0),
       fill: t.fill,
       surface: t.surface,
+      moon: t.moon,
     );
   }
 
@@ -60,4 +62,5 @@ class CalendarColors {
   final Color astrology;
   final Color fill;
   final Color surface;
+  final Color moon;
 }

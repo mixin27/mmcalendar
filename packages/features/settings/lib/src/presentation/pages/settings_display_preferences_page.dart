@@ -60,11 +60,7 @@ class _SettingsDisplayPreferencesPageState
                 icon: Icons.grid_view_rounded,
                 iconColor: SettingsIconColors.blue,
                 title: 'Calendar grid',
-                value: switch (settings.calendarGridStyle) {
-                  CalendarGridStyle.detailed => 'Detailed',
-                  CalendarGridStyle.clean => 'Clean',
-                  CalendarGridStyle.classic => 'Classic',
-                },
+                value: settings.calendarGridStyle.title,
                 chevron: true,
                 onTap: () => GoRouter.of(
                   context,

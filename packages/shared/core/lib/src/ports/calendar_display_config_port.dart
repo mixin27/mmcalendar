@@ -10,7 +10,25 @@ enum CalendarGridStyle {
   clean,
 
   /// The original bordered tiles with coloured dots.
-  classic;
+  classic,
+
+  /// A calmer detailed cell: no ruling, the moon only on moon days.
+  detailedV2,
+
+  /// The lunar day as the big figure, the Gregorian date in the corner.
+  lunarFirst,
+
+  /// The date and one status dot.
+  minimal,
+
+  /// Tonight's moon in every day.
+  moonStrip,
+
+  /// Event titles and holiday chips inside the cells.
+  agenda,
+
+  /// A ruled table like a printed wall calendar.
+  classicPrint;
 
   static const defaultStyle = CalendarGridStyle.detailed;
 

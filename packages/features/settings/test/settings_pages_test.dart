@@ -71,6 +71,32 @@ void main() {
         );
       });
 
+      testWidgets('Calendar grid previews every style and saves the pick', (
+        tester,
+      ) async {
+        final harness = await SettingsHarness.pump(
+          tester,
+          style: style,
+          page: const SettingsCalendarGridPage(),
+        );
+        for (final grid in CalendarGridStyle.values) {
+          expect(
+            find.byKey(
+              ValueKey('grid-style-${grid.name}'),
+              skipOffstage: false,
+            ),
+            findsOneWidget,
+          );
+        }
+        final moon = find.byKey(const ValueKey('grid-style-moonStrip'));
+        await tester.ensureVisible(moon);
+        await tester.pumpAndSettle();
+        await tester.tap(moon);
+        await tester.pumpAndSettle();
+        expect(harness.repository.gridStyle, CalendarGridStyle.moonStrip);
+        expect(tester.takeException(), isNull);
+      });
+
       testWidgets('Appearance switches app style, mode and preset', (
         tester,
       ) async {

@@ -163,6 +163,75 @@ button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
 .d5 .chip.h{background:var(--holiday-soft);color:var(--holiday)}
 .d5 .more{font-size:8.5px;color:var(--label-3);padding-left:3px}
 
+/* 7 Tiles */
+.d7 .g{gap:3px;padding:0 8px}
+.d7 .c{border-radius:10px;background:var(--surface);padding:4px 4px 3px;display:flex;flex-direction:column;justify-content:space-between}
+.md .d7 .c{border-radius:14px}
+.d7 .c.out{background:transparent}
+.d7 .c.hol{background:var(--holiday-soft)}
+.d7 .c.sab:not(.hol){background:var(--sabbath-soft)}
+.d7 .c.sel::before{inset:0;border-radius:inherit}
+.d7 .dn{font-size:15px;font-weight:700}
+.d7 .lu{font-size:9px;color:var(--label-2);white-space:nowrap;overflow:hidden;text-align:right}
+.d7 .ev{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:3px;background:var(--accent)}
+
+/* 8 Moonlight */
+.d8 .c{display:grid;justify-items:center;align-content:center;gap:2px;border-radius:10px;margin:1px}
+.d8 .c .shade{position:absolute;inset:0;border-radius:inherit;z-index:0}
+.d8 .dn{font-size:15px;font-weight:600}
+.d8 .lu{font-size:9px;color:var(--label-2);white-space:nowrap}
+.d8 .c.full .lu,.d8 .c.new .lu{font-weight:700;color:var(--label)}
+.d8 .ev{width:4px;height:4px;border-radius:2px;background:var(--accent)}
+
+/* 9 Split */
+.d9 .c{border-right:.5px solid var(--sep);border-bottom:.5px solid var(--sep)}
+.d9 .c:nth-child(7n){border-right:0}
+.d9 .c .diag{position:absolute;inset:0;z-index:0;background:linear-gradient(to top right,transparent calc(50% - .4px),var(--sep) 50%,transparent calc(50% + .4px))}
+.d9 .c.sel::before{inset:0;border-radius:0}
+.d9 .c.hol .diag{background:linear-gradient(to top right,transparent calc(50% - .4px),var(--sep) 50%,transparent calc(50% + .4px)),var(--holiday-soft)}
+.d9 .gd{position:absolute;top:3px;left:3px;font-size:14px;font-weight:700;min-width:22px;height:22px;border-radius:11px;display:grid;place-items:center;padding:0 3px}
+.d9 .c.today .gd{background:var(--accent);color:var(--on-accent)}
+.d9 .c.sun .gd,.d9 .c.hol .gd{color:var(--holiday)}
+.d9 .c.today .gd{color:var(--on-accent)}
+.d9 .ln{position:absolute;right:4px;bottom:3px;text-align:right;line-height:1.1}
+.d9 .ln b{display:block;font-size:15px;font-weight:700;color:var(--label-2)}
+.d9 .ln b.my{font-size:14px;line-height:1.35}
+.d9 .ln i{font-style:normal;font-size:8px;color:var(--label-3)}
+.d9 .c.sab .ln b{color:var(--sabbath)}
+.d9 .ev{position:absolute;top:8px;right:6px;width:5px;height:5px;border-radius:3px;background:var(--accent)}
+
+/* 10 Poster */
+.d10 .c{display:grid;justify-items:center;align-content:center;gap:3px;border-radius:12px}
+.d10 .dn{font-size:23px;font-weight:800;letter-spacing:-.02em;min-width:40px;height:40px;border-radius:20px}
+.d10 .bar{width:16px;height:3px;border-radius:2px;background:transparent}
+.d10 .c.sab .bar{background:var(--moon)}
+.d10 .c.hol .bar{background:var(--holiday)}
+.d10 .ev{position:absolute;top:8px;right:8px;width:6px;height:6px;border-radius:3px;background:var(--accent)}
+
+/* 11 Moon ring */
+.d11 .c{display:grid;justify-items:center;align-content:center;gap:3px;border-radius:12px}
+.d11 .ring{position:relative;width:34px;height:34px;display:grid;place-items:center}
+.d11 .ring svg{position:absolute;inset:0}
+.d11 .ring .dn{position:relative;font-size:13.5px;min-width:26px;height:26px;border-radius:13px}
+.d11 .lu{font-size:8.5px;color:var(--label-2);white-space:nowrap}
+.d11 .c.sab .lu{color:var(--sabbath);font-weight:700}
+.d11 .ev{position:absolute;top:6px;right:6px;width:5px;height:5px;border-radius:3px;background:var(--accent)}
+
+/* 12 Astrology */
+.d12 .c{padding:3px 2px 2px;display:flex;flex-direction:column;gap:2px;border-top:.5px solid var(--sep)}
+.d12 .c.sel::before{border-radius:8px}
+.d12 .top{display:flex;align-items:center;justify-content:space-between;height:22px}
+.d12 .top .lu{font-size:8.5px;color:var(--label-3);white-space:nowrap;overflow:hidden}
+.d12 .top .lu.s{color:var(--sabbath);font-weight:700}
+.d12 .tag{font-size:8.2px;line-height:1.4;font-weight:600;padding:0 3px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--fill);color:var(--label-2)}
+.d12 .tag.good{background:rgba(31,157,99,.14);color:#1F9D63}
+.dark .d12 .tag.good{color:#34C77B}
+.d12 .tag.h{background:var(--holiday-soft);color:var(--holiday)}
+
+.set{display:grid;gap:18px}
+.set>h2{margin:0;font-size:22px;letter-spacing:-.01em}
+.set>p{margin:0;max-width:72ch;color:var(--ink-2)}
+
 /* 6 Classic print */
 .d6 .g{padding:0 10px;grid-auto-rows:var(--rh)}
 .d6 .c{padding:4px 4px 3px;display:flex;flex-direction:column;justify-content:space-between;border-right:.75px solid var(--rule);border-bottom:.75px solid var(--rule)}
@@ -191,7 +260,7 @@ button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
 <div class="wrap">
   <header>
     <h1>Calendar Grids v4</h1>
-    <p class="intro">Six new grid designs for the home screen, each shown in a phone at real size with October 2026 data. Today is 17 October and the 22nd is selected. Every design uses the new soft tint for the selected day and keeps today's solid accent circle. Switch the language, app style, theme and phone size to compare. Then mark which to build and which one should be the default, and copy your picks back to me.</p>
+    <p class="intro">Twelve new grid designs for the home screen, each shown in a phone at real size with October 2026 data. All of them will be choices in Settings › Calendar grid, next to today’s Detailed, Clean and Classic. Set 1 is being built now; set 2 is new for review. Today is 17 October and the 22nd is selected; every design uses the soft tint for the selected day and keeps today’s accent circle. Pick the default, mark anything you’d rather leave out, and copy your picks back to me.</p>
   </header>
 
   <div class="bar" role="group" aria-label="Preview options">
@@ -205,15 +274,10 @@ button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
     <span><b>25–27</b> Thadingyut holidays</span><span><b>11</b> new moon</span><span><b>26</b> full moon</span><span><b>4, 11, 19, 26</b> Sabbath days</span><span><b>9, 16, 22, 30</b> events</span>
   </div>
 
-  <div class="board" id="board"></div>
+  <div class="sets" id="board" style="display:grid;gap:44px"></div>
 
   <section class="summary" aria-labelledby="sumh">
     <h2 id="sumh">Your picks</h2>
-    <div class="cur"><span>Today's grids:</span>
-      <button class="pk-btn" data-keep="Detailed" aria-pressed="false">Keep Detailed</button>
-      <button class="pk-btn" data-keep="Clean" aria-pressed="false">Keep Clean</button>
-      <button class="pk-btn" data-keep="Classic" aria-pressed="false">Keep Classic</button>
-    </div>
     <output id="out" aria-live="polite"></output>
     <div class="row"><button class="copy" id="copy">Copy picks</button><span id="copied" class="legend"></span></div>
   </section>
@@ -224,6 +288,8 @@ button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
    [day, Myanmar lunar label, phase 0 waxing / 1 full / 2 waning / 3 new, Sabbath, holiday] */
 const OCT = [[1,"လဆုတ် ၅",2,0,0],[2,"လဆုတ် ၆",2,0,0],[3,"လဆုတ် ၇",2,0,0],[4,"လဆုတ် ၈",2,1,0],[5,"လဆုတ် ၉",2,0,0],[6,"လဆုတ် ၁၀",2,0,0],[7,"လဆုတ် ၁၁",2,0,0],[8,"လဆုတ် ၁၂",2,0,0],[9,"လဆုတ် ၁၃",2,0,0],[10,"လဆုတ် ၁၄",2,0,0],[11,"လကွယ် ၁၅",3,1,0],[12,"လဆန်း ၁",0,0,0],[13,"လဆန်း ၂",0,0,0],[14,"လဆန်း ၃",0,0,0],[15,"လဆန်း ၄",0,0,0],[16,"လဆန်း ၅",0,0,0],[17,"လဆန်း ၆",0,0,0],[18,"လဆန်း ၇",0,0,0],[19,"လဆန်း ၈",0,1,0],[20,"လဆန်း ၉",0,0,0],[21,"လဆန်း ၁၀",0,0,0],[22,"လဆန်း ၁၁",0,0,0],[23,"လဆန်း ၁၂",0,0,0],[24,"လဆန်း ၁၃",0,0,0],[25,"လဆန်း ၁၄",0,0,1],[26,"လပြည့် ၁၅",1,1,1],[27,"လဆုတ် ၁",2,0,1],[28,"လဆုတ် ၂",2,0,0],[29,"လဆုတ် ၃",2,0,0],[30,"လဆုတ် ၄",2,0,0],[31,"လဆုတ် ၅",2,0,0]];
 const EVENTS = {9:['Rent'],16:['Team call','Gym'],22:['Grandma’s birthday'],30:['Dentist']};
+/* Astrological days from myanmar_calendar_dart (names as the package gives them). */
+const ASTRO = {2:['Nagapor'],3:['Warameittugyi'],4:['Amyeittasote','Yatyotema'],6:['Thamanyo','Warameittunge'],7:['Thamanyo'],12:['Nagapor'],13:['Mahayatkyan'],14:['Shanyat'],15:['Thamanyo','Amyeittasote','Thamaphyu'],16:['Thamanyo'],17:['Warameittunge'],22:['Thamanyo'],23:['Thamanyo','Yatyotema'],28:['Amyeittasote','Mahayatkyan'],29:['Thamanyo','Thamaphyu','Shanyat'],30:['Thamanyo'],31:['Amyeittasote']};
 const FIRST = 4, TODAY = 17, SEL = 22, PREV = [27,28,29,30];
 const MMD = '၀၁၂၃၄၅၆၇၈၉';
 const mmNum = n => String(n).replace(/\d/g, d => MMD[d]);
@@ -271,7 +337,7 @@ const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidd
 
 /* ---------- state ---------- */
 const st = {lang:'my', style:'clear', theme:'light', size:'s'};
-const picks = {build: new Set(), def: null, keep: new Set()};
+const picks = {def: null, out: new Set()};
 
 /* ---------- cell data ---------- */
 function days() {
@@ -293,7 +359,7 @@ const cls = (x, extra = []) => ['c', x.out ? 'out' : '', x.n === TODAY && !x.out
 
 /* ---------- the six designs ---------- */
 const DESIGNS = [
-  {id:'detailed2', name:'Detailed v2', desc:'A calmer version of today’s default. No ruling lines and the moon only on new and full moon days. The lunar day sits under the number; a holiday name and an event title show when the row is tall enough.',
+  {set:1, id:'detailed2', name:'Detailed v2', desc:'A calmer version of today’s default. No ruling lines and the moon only on new and full moon days. The lunar day sits under the number; a holiday name and an event title show when the row is tall enough.',
    cell(x, lang, rh) {
      if (x.out) return `<div class="${cls(x)}"><div class="top"><span class="dn tnum">${x.n}</span></div></div>`;
      const l = lunarParts(x, lang), roomy = rh >= 60, tall = rh >= 70;
@@ -301,7 +367,7 @@ const DESIGNS = [
      const ev = EVENTS[x.n] ? (tall ? `<span class="ev">${EVENTS[x.n][0]}</span>` : '<span class="evb"></span>') : '';
      return `<div class="${cls(x)}"><div class="top"><span class="dn tnum">${x.n}</span>${moon}</div><span class="lu${x.sab ? ' s' : ''}">${x.sab && x.ph !== 1 && x.ph !== 3 ? T[lang].sab : l.short}</span>${x.hol && roomy ? `<span class="hn">${T[lang].hol}</span>` : ''}${ev}</div>`;
    }},
-  {id:'lunar', name:'Lunar first', desc:'The Myanmar lunar day is the big figure and the Gregorian date sits small in the corner. For people who plan around waxing and waning days; Sabbath days are gold and moon days show the moon.',
+  {set:1, id:'lunar', name:'Lunar first', desc:'The Myanmar lunar day is the big figure and the Gregorian date sits small in the corner. For people who plan around waxing and waning days; Sabbath days are gold and moon days show the moon.',
    cell(x, lang) {
      if (x.out) return `<div class="${cls(x)}"><span class="gd tnum">${x.n}</span></div>`;
      const l = lunarParts(x, lang);
@@ -311,19 +377,19 @@ const DESIGNS = [
      const dots = [x.hol ? 'var(--holiday)' : '', EVENTS[x.n] ? 'var(--accent)' : ''].filter(Boolean).map(c => `<i style="background:${c}"></i>`).join('');
      return `<div class="${cls(x)}"><span class="gd tnum">${x.n}</span><div class="big">${big}</div><div class="ft">${dots}</div></div>`;
    }},
-  {id:'minimal', name:'Minimal', desc:'Just the date and one status dot: red for a holiday, gold for a Sabbath day, blue for an event. The calmest grid; everything else is one tap away in the day sheet.',
+  {set:1, id:'minimal', name:'Minimal', desc:'Just the date and one status dot: red for a holiday, gold for a Sabbath day, blue for an event. The calmest grid; everything else is one tap away in the day sheet.',
    cell(x) {
      if (x.out) return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span><i class="dot no"></i></div>`;
      const dot = x.hol ? 'h' : x.sab ? 's' : EVENTS[x.n] ? 'e' : 'no';
      return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span><i class="dot ${dot}"></i></div>`;
    }},
-  {id:'moon', name:'Moon strip', desc:'Every day shows tonight’s moon as it will look in the sky, with the lunar day under it. New and full moon days stand out in bold, so the month’s rhythm reads at a glance.',
+  {set:1, id:'moon', name:'Moon strip', desc:'Every day shows tonight’s moon as it will look in the sky, with the lunar day under it. New and full moon days stand out in bold, so the month’s rhythm reads at a glance.',
    cell(x, lang, rh) {
      if (x.out) return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span></div>`;
      const l = lunarParts(x, lang), size = rh >= 70 ? 20 : 16;
      return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span><span class="mo">${moonSvg(x.n, size)}</span><span class="lu">${x.ph === 1 || x.ph === 3 ? l.phase : l.short}</span></div>`;
    }},
-  {id:'agenda', name:'Agenda', desc:'For people with many events: titles show inside the cells (two at most, then “+1”), and holidays appear as red chips. The lunar day moves next to the number to make room.',
+  {set:1, id:'agenda', name:'Agenda', desc:'For people with many events: titles show inside the cells (two at most, then “+1”), and holidays appear as red chips. The lunar day moves next to the number to make room.',
    cell(x, lang, rh) {
      if (x.out) return `<div class="${cls(x)}"><div class="top"><span class="dn tnum">${x.n}</span></div></div>`;
      const l = lunarParts(x, lang), room = rh >= 70 ? 2 : 1;
@@ -332,13 +398,53 @@ const DESIGNS = [
      const lu = lang === 'my' ? l.num : l.num;
      return `<div class="${cls(x)}"><div class="top"><span class="dn tnum">${x.n}</span><span class="lu${x.sab ? ' s' : ''}">${x.ph === 1 || x.ph === 3 ? moonSvg(x.n, 11) : lu}</span></div>${chips}</div>`;
    }},
-  {id:'print', name:'Classic print', desc:'A ruled table like a printed wall calendar: a bold date in each box and the full Myanmar date in the lower right. Holidays are shaded and Sundays red. Familiar to anyone who hangs a calendar at home.',
+  {set:1, id:'print', name:'Classic print', desc:'A ruled table like a printed wall calendar: a bold date in each box and the full Myanmar date in the lower right. Holidays are shaded and Sundays red. Familiar to anyone who hangs a calendar at home.',
    cell(x, lang) {
      if (x.out) return `<div class="${cls(x)}"><div class="row1"><span class="dn tnum">${x.n}</span></div></div>`;
      const l = lunarParts(x, lang);
      const label = x.ph === 1 || x.ph === 3 ? l.phase : (lang === 'my' ? x.my : l.short);
      const bars = [x.hol ? 'var(--holiday)' : '', EVENTS[x.n] ? 'var(--accent)' : ''].filter(Boolean).map(c => `<i style="background:${c}"></i>`).join('');
      return `<div class="${cls(x)}"><div class="row1"><span class="dn tnum">${x.n}</span>${x.ph === 1 || x.ph === 3 ? moonSvg(x.n, 11) : ''}</div><div><div class="ft">${bars}</div><div class="lu${x.sab ? ' s' : ''}">${label}</div></div></div>`;
+   }},
+  {set:2, id:'tiles', name:'Tiles', desc:'Every day is its own small card, like widgets on a home screen. Holiday cards are rose and Sabbath cards gold, so special days stand out from across the room.',
+   cell(x, lang) {
+     if (x.out) return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span></div>`;
+     const l = lunarParts(x, lang);
+     return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span>${EVENTS[x.n] ? '<i class="ev"></i>' : ''}<span class="lu">${x.ph === 1 || x.ph === 3 ? l.phase : l.short}</span></div>`;
+   }},
+  {set:2, id:'moonlight', name:'Moonlight', desc:'Each day glows with the moon: the background brightens toward the full moon and fades to nothing at the new moon. The month’s lunar rhythm shows as light rather than icons.',
+   cell(x, lang) {
+     if (x.out) return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span></div>`;
+     const l = lunarParts(x, lang), k = moonAt(2026, 10, x.n).k;
+     const shade = `<span class="shade" style="background:color-mix(in srgb, var(--moon) ${Math.round(k * 30)}%, transparent)"></span>`;
+     return `<div class="${cls(x)}">${shade}<span class="dn tnum">${x.n}</span><span class="lu">${x.ph === 1 || x.ph === 3 ? l.phase : l.short}</span>${EVENTS[x.n] ? '<i class="ev"></i>' : ''}</div>`;
+   }},
+  {set:2, id:'split', name:'Split', desc:'Two calendars in one cell, divided by a fine diagonal: the Gregorian date at the top left, the lunar day at the bottom right. Neither one is secondary.',
+   cell(x, lang) {
+     if (x.out) return `<div class="${cls(x)}"><span class="diag"></span><span class="gd tnum">${x.n}</span></div>`;
+     const l = lunarParts(x, lang);
+     const big = x.ph === 1 || x.ph === 3 ? moonSvg(x.n, 16) : `<b class="tnum${lang === 'my' ? ' my' : ''}">${l.num}</b>`;
+     return `<div class="${cls(x)}"><span class="diag"></span><span class="gd tnum">${x.n}</span>${EVENTS[x.n] ? '<i class="ev"></i>' : ''}<span class="ln">${big}<i>${x.ph === 1 || x.ph === 3 ? l.phase : l.phase}</i></span></div>`;
+   }},
+  {set:2, id:'poster', name:'Poster', desc:'Big, bold numbers and nothing else, readable from arm’s length. A short gold bar marks Sabbath days and a red one holidays. Everything else waits in the day sheet.',
+   cell(x) {
+     if (x.out) return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span><i class="bar"></i></div>`;
+     return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span><i class="bar"></i>${EVENTS[x.n] ? '<i class="ev"></i>' : ''}</div>`;
+   }},
+  {set:2, id:'ring', name:'Moon ring', desc:'A thin ring around each date fills with the moon’s light: a full circle at the full moon, empty at the new moon. Compact, and the phase reads at a glance.',
+   cell(x, lang) {
+     if (x.out) return `<div class="${cls(x)}"><span class="ring"><span class="dn tnum">${x.n}</span></span></div>`;
+     const l = lunarParts(x, lang), k = moonAt(2026, 10, x.n).k, C = 2 * Math.PI * 15;
+     const ring = `<svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="15" fill="none" stroke="var(--fill)" stroke-width="2.5"/><circle cx="17" cy="17" r="15" fill="none" stroke="var(--moon)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="${(k * C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 17 17)"/></svg>`;
+     return `<div class="${cls(x)}"><span class="ring">${ring}<span class="dn tnum">${x.n}</span></span><span class="lu">${x.sab && x.ph !== 1 && x.ph !== 3 ? T[lang].sab : x.ph === 1 || x.ph === 3 ? l.phase : l.short}</span>${EVENTS[x.n] ? '<i class="ev"></i>' : ''}</div>`;
+   }},
+  {set:2, id:'astro', name:'Astrology', desc:'For people who check auspicious days: each cell lists that day’s astrological days (Thamanyo in green), with holidays as red tags. The lunar day sits next to the number.',
+   cell(x, lang, rh) {
+     if (x.out) return `<div class="${cls(x)}"><div class="top"><span class="dn tnum">${x.n}</span></div></div>`;
+     const l = lunarParts(x, lang), room = rh >= 70 ? 2 : 1;
+     const items = [...(x.hol ? [['h', T[lang].hol]] : []), ...(ASTRO[x.n] || []).map(a => [a === 'Thamanyo' ? 'good' : '', a])];
+     const tags = items.slice(0, room).map(([k, t]) => `<span class="tag ${k}">${t}</span>`).join('');
+     return `<div class="${cls(x)}"><div class="top"><span class="dn tnum">${x.n}</span><span class="lu${x.sab ? ' s' : ''}">${x.ph === 1 || x.ph === 3 ? moonSvg(x.n, 11) : l.num}</span></div>${tags}</div>`;
    }},
 ];
 
@@ -363,31 +469,37 @@ function phoneHtml(design) {
     <div class="tabs">${tabs}</div>
   </div></div>`;
 }
-const DCLS = {detailed2:'d1', lunar:'d2', minimal:'d3', moon:'d4', agenda:'d5', print:'d6'};
+const DCLS = {detailed2:'d1', lunar:'d2', minimal:'d3', moon:'d4', agenda:'d5', print:'d6', tiles:'d7', moonlight:'d8', split:'d9', poster:'d10', ring:'d11', astro:'d12'};
 
-function render() {
-  const pw = st.size === 's' ? 360 : 390;
-  document.getElementById('board').innerHTML = DESIGNS.map((d, i) => `
+const SETS = {
+  1: ['Set 1', 'The first six, now being built into the app.'],
+  2: ['Set 2', 'Six more, each different from everything above. Tell me if any should change before I build them.'],
+};
+function card(d, n, pw) {
+  return `
     <article class="card" style="--pw:${pw}px" aria-labelledby="h-${d.id}">
-      <div class="head"><span class="num">${i + 1}</span><h2 id="h-${d.id}">${d.name}</h2></div>
+      <div class="head"><span class="num">${n}</span><h2 id="h-${d.id}">${d.name}</h2></div>
       <p class="desc">${d.desc}</p>
       <div class="${DCLS[d.id]}">${phoneHtml(d)}</div>
       <div class="picks">
-        <button class="pk-btn" data-build="${d.id}" aria-pressed="${picks.build.has(d.id)}">Build this</button>
         <button class="pk-btn" data-def="${d.id}" aria-pressed="${picks.def === d.id}">Make default</button>
+        <button class="pk-btn" data-out="${d.id}" aria-pressed="${picks.out.has(d.id)}">Leave out</button>
       </div>
-    </article>`).join('');
+    </article>`;
+}
+function render() {
+  const pw = st.size === 's' ? 360 : 390;
+  document.getElementById('board').innerHTML = Object.entries(SETS).map(([k, [title, note]]) => `
+    <section class="set" aria-label="${title}"><h2>${title}</h2><p>${note}</p>
+      <div class="board">${DESIGNS.map((d, i) => [d, i]).filter(([d]) => String(d.set) === k).map(([d, i]) => card(d, i + 1, pw)).join('')}</div>
+    </section>`).join('');
   summary();
 }
 function summary() {
   const name = id => DESIGNS.find(d => d.id === id).name;
-  const build = [...picks.build].map(name);
-  const keep = ['Detailed', 'Clean', 'Classic'];
   const lines = [
-    `Build: ${build.length ? build.join(', ') : '(none yet)'}`,
-    `Default: ${picks.def ? name(picks.def) : '(not chosen)'}`,
-    `Keep from today: ${picks.keep.size ? [...picks.keep].join(', ') : 'none'}`,
-    `Drop: ${keep.filter(k => !picks.keep.has(k)).join(', ') || 'none'}`,
+    `Default: ${picks.def ? name(picks.def) : 'keep Detailed (not changed)'}`,
+    `Leave out: ${picks.out.size ? [...picks.out].map(name).join(', ') : 'none'}`,
   ];
   document.getElementById('out').textContent = lines.join('\n');
 }
@@ -400,9 +512,8 @@ document.querySelectorAll('.seg').forEach(seg => seg.addEventListener('click', e
 }));
 document.addEventListener('click', e => {
   const b = e.target.closest('.pk-btn'); if (!b) return;
-  if (b.dataset.build) { const id = b.dataset.build; picks.build.has(id) ? picks.build.delete(id) : picks.build.add(id); }
-  else if (b.dataset.def) { const id = b.dataset.def; picks.def = picks.def === id ? null : id; if (picks.def) picks.build.add(id); }
-  else if (b.dataset.keep) { const k = b.dataset.keep; picks.keep.has(k) ? picks.keep.delete(k) : picks.keep.add(k); b.setAttribute('aria-pressed', String(picks.keep.has(k))); summary(); return; }
+  if (b.dataset.def) { const id = b.dataset.def; picks.def = picks.def === id ? null : id; if (picks.def) picks.out.delete(id); }
+  else if (b.dataset.out) { const id = b.dataset.out; picks.out.has(id) ? picks.out.delete(id) : picks.out.add(id); if (picks.def === id) picks.def = null; }
   render();
 });
 document.getElementById('copy').addEventListener('click', () => {

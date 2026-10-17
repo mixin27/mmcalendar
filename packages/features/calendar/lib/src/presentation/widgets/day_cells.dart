@@ -5,6 +5,8 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import 'calendar_colors.dart';
 
+part 'day_cells_set1.dart';
+
 /// Which optional details the user wants in the grid (Settings › Display).
 @immutable
 class DayCellOptions {
@@ -65,6 +67,32 @@ class DayCellData {
           info.allHolidays.first,
           MyanmarCalendar.currentLanguage,
         );
+
+  /// "ဆန်း" / "Waxing", or the moon day's name ("လပြည့်", "Full Moon").
+  String get lunarPhase {
+    final language = MyanmarCalendar.currentLanguage;
+    var phase = TranslationService.getMoonPhaseName(info.moonPhase, language);
+    if (!isMoonDay && language == Language.myanmar && phase.startsWith('လ')) {
+      phase = phase.substring(1);
+    }
+    return phase;
+  }
+
+  /// The day of the fortnight in the calendar language's digits ("၅").
+  String get lunarNumber => translateNumbers('${info.fortnightDay}');
+
+  /// "ဥပုသ်" / "Sabbath".
+  String get sabbathName => TranslationService.translateTo(
+    'Sabbath',
+    MyanmarCalendar.currentLanguage,
+  );
+
+  /// The full Myanmar date, "သီတင်းကျွတ် လဆန်း ၅".
+  String get myanmarDate => MyanmarCalendar.formatMyanmar(
+    info.myanmar,
+    pattern: '&P &f',
+    language: MyanmarCalendar.currentLanguage,
+  );
 
   /// "ဆန်း ၅", "Waxing 5", or the moon day's name.
   String get lunarLabel {
