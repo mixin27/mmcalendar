@@ -369,24 +369,23 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                 state.calendarMonth.gridDates,
                 state.calendarMonth.month,
               ).length;
+              // Phones are tall: rows may grow to 2.1 × the cell width so
+              // the grid fills the space down to the sheet's peek.
+              const rowFactor = 2.1;
               final rowHeight = CalendarGrid.rowHeightFor(
                 size: Size(area.maxWidth, area.maxHeight - peek),
                 rows: rows,
+                maxRowHeightFactor: rowFactor,
               );
               final gridHeight = rowHeight * rows;
-              // The sheet stays at its peek; when the grid hits its height
-              // cap on tall phones, the spare space goes around the grid
-              // instead of making the sheet taller.
+              // The sheet always stays at its peek; the grid sits right
+              // under the weekday row.
               final peekFraction = (peek / area.maxHeight).clamp(.05, .9);
-              final gridTop = ((area.maxHeight - peek - gridHeight) / 2).clamp(
-                0.0,
-                double.infinity,
-              );
 
               return Stack(
                 children: [
                   Positioned(
-                    top: gridTop,
+                    top: 0,
                     left: 0,
                     right: 0,
                     height: gridHeight,
@@ -394,6 +393,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                       state,
                       config,
                       eventsByDate,
+                      maxRowHeightFactor: rowFactor,
                       highlighted: dayDate,
                       onDateTap: (date) {
                         _analyticsService.logDateSelection(
