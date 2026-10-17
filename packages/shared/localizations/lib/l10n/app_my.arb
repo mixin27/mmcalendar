@@ -1564,5 +1564,13 @@
   "yesterday": "မနေ့က",
   "@yesterday": {
     "description": "Localized text for yesterday."
+  },
+  "settingsAppLanguageFooter": "မီနူး၊ ခလုတ်နှင့် စာတိုများ။",
+  "@settingsAppLanguageFooter": {
+    "description": "Footer under the app language choices on the Language page."
+  },
+  "settingsCalendarLanguageFooter": "ရက်စွဲ၊ လနှင့် နေ့အမည်၊ လဆန်း လဆုတ်၊ ရုံးပိတ်ရက်နှင့် လအခြေအနေများကို ဝီဂျက်များ အပါအဝင် အက်ပ်တစ်ခုလုံးတွင် ပြောင်းပေးသည်။",
+  "@settingsCalendarLanguageFooter": {
+    "description": "Footer under the calendar language choices on the Language page."
   }
 }

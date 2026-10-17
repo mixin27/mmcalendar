@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_core/shared_core.dart' show showAppMyanmarDatePicker;
+import 'package:shared_core/shared_core.dart'
+    show CalendarLanguageContext, showAppMyanmarDatePicker;
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 import '../../domain/entities/event.dart';
@@ -161,7 +161,9 @@ class _EventFormPageState extends State<EventFormPage> {
             icon: Icons.event,
             iconColor: t.holiday,
             title: l10n?.date ?? 'Date',
-            value: DateFormat('EEE, MMM d, yyyy').format(state.eventDate),
+            value:
+                '${context.calendarFormat.shortDate(state.eventDate)} '
+                '${context.calendarFormat.number(state.eventDate.year)}',
             chevron: true,
             onTap: () => _selectDate(context, state.eventDate),
           ),

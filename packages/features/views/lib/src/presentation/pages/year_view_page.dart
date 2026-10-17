@@ -124,7 +124,7 @@ class _YearViewPageState extends State<YearViewPage>
                         _showMonthSheet(
                           context,
                           DateTime(month.firstDay.year, month.monthNumber),
-                          month.monthName,
+                          context.calendarFormat.month(month.monthNumber),
                         );
                       },
                     ),
@@ -175,7 +175,7 @@ class _YearViewPageState extends State<YearViewPage>
     final l10n = AppLocalizations.of(context);
     showAppSheet<void>(
       context: context,
-      title: '$title ${month.year}',
+      title: '$title ${context.calendarFormat.number(month.year)}',
       cancelLabel: l10n?.close ?? 'Close',
       builder: (sheetContext) => SizedBox(
         height: MediaQuery.sizeOf(sheetContext).height * .68,
@@ -241,7 +241,7 @@ class _MonthTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                month.monthName,
+                context.calendarFormat.month(month.monthNumber),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

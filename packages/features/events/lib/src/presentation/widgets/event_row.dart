@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_core/shared_core.dart' show RoutePaths;
+import 'package:shared_core/shared_core.dart'
+    show CalendarFormat, CalendarLanguageContext, RoutePaths;
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 
@@ -100,7 +101,7 @@ class EventRow extends StatelessWidget {
           ),
         ),
         title: event.title,
-        subtitleSpan: _details(t, l10n),
+        subtitleSpan: _details(t, l10n, context.calendarFormat),
         completed: done,
         chevron: showDate,
         onTap: onOpen,
@@ -108,10 +109,13 @@ class EventRow extends StatelessWidget {
     );
   }
 
-  InlineSpan _details(AppTokens t, AppLocalizations? l10n) {
+  InlineSpan _details(
+    AppTokens t,
+    AppLocalizations? l10n,
+    CalendarFormat format,
+  ) {
     final parts = <InlineSpan>[
-      if (showDate)
-        TextSpan(text: DateFormat('EEE d MMM').format(event.eventDate)),
+      if (showDate) TextSpan(text: format.shortDate(event.eventDate)),
       TextSpan(
         text: event.isAllDay || event.eventTime == null
             ? (l10n?.allDay ?? 'All day')

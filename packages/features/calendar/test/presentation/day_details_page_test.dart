@@ -4,6 +4,8 @@ import 'package:calendar/calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
+    show MyanmarCalendar;
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
@@ -104,7 +106,14 @@ void main() {
     group('${style.name} style', () {
       testWidgets('shows every section of the day', (tester) async {
         await pump(tester, style);
-        expect(find.text('Thu, 22 Oct'), findsWidgets);
+        expect(
+          find.text(
+            CalendarFormat(
+              MyanmarCalendar.currentLanguage,
+            ).shortDate(DateTime(2026, 10, 22)),
+          ),
+          findsWidgets,
+        );
         for (final label in [
           'Buddhist Calendar',
           'Mahabote',
@@ -141,7 +150,14 @@ void main() {
         await pump(tester, style);
         await tester.tap(find.byTooltip('Next Day'));
         await tester.pumpAndSettle();
-        expect(find.text('Fri, 23 Oct'), findsWidgets);
+        expect(
+          find.text(
+            CalendarFormat(
+              MyanmarCalendar.currentLanguage,
+            ).shortDate(DateTime(2026, 10, 23)),
+          ),
+          findsWidgets,
+        );
         expect(find.text('Grandma’s birthday'), findsNothing);
       });
 

@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
-import 'package:intl/intl.dart';
 
 class MyanmarMonthWidgetService {
   /// Build month payload for timeline cache.
@@ -140,7 +139,10 @@ class MyanmarMonthWidgetService {
 
       // Get month names
       final myanmarMonthName = myanmarDate.formatMyanmar('&M', targetLanguage);
-      final westernMonthName = DateFormat('MMMM').format(firstWesternDate);
+      final westernMonthName = TranslationService.getWesternMonthName(
+        firstWesternDate.month,
+        targetLanguage,
+      );
 
       return MyanmarMonthData(
         myanmarYear: myanmarYear,
@@ -173,7 +175,10 @@ class MyanmarMonthWidgetService {
       date.month,
       date.day,
     );
-    final westernMonthName = DateFormat('MMMM').format(firstOfMonth);
+    final westernMonthName = TranslationService.getWesternMonthName(
+      firstOfMonth.month,
+      targetLanguage,
+    );
 
     final days = List<MyanmarDayData>.generate(42, (index) {
       final westernDate = gridStart.add(Duration(days: index));

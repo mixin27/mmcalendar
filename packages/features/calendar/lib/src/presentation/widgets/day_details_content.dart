@@ -133,7 +133,7 @@ class DayDetailsContent extends StatelessWidget {
               ),
             ),
             Text(
-              MaterialLocalizations.of(context).formatFullDate(date),
+              context.calendarFormat.fullDate(date),
               style: TextStyle(fontSize: 13, color: t.secondaryLabel),
             ),
             const SizedBox(height: 12),
@@ -245,13 +245,10 @@ class DayDetailsContent extends StatelessWidget {
               completeDate.weekday,
               _language,
             );
-            final western = date.format('EEEE');
             return AppRow(
               icon: Icons.calendar_today_outlined,
               iconColor: const Color(0xFF2F5BEA),
               title: weekday,
-              // Only when the calendar language names it differently.
-              value: western == weekday ? null : western,
             );
           },
         ),

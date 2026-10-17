@@ -24,8 +24,9 @@ String _t(String key) => TranslationService.translateTo(key, _language);
 DateTime _dateOf(CompleteDate d) =>
     DateTime(d.westernYear, d.westernMonth, d.westernDay);
 
+/// Dates are calendar data, so they follow the calendar language.
 String _fullDate(BuildContext context, DateTime date) =>
-    MaterialLocalizations.of(context).formatFullDate(date);
+    context.calendarFormat.fullDate(date);
 
 /// A row that shows a date and opens the Myanmar date picker.
 class _DateRow extends StatelessWidget {
@@ -42,7 +43,7 @@ class _DateRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AppRow(
     title: label,
-    value: MaterialLocalizations.of(context).formatMediumDate(date),
+    value: context.calendarFormat.shortDate(date),
     chevron: true,
     onTap: () async {
       final picked = await showAppMyanmarDatePicker(

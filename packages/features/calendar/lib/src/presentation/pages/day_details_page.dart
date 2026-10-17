@@ -136,7 +136,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
         builder: (context, snapshot) {
           final showShanCalendar = snapshot.data ?? true;
           return AppPage(
-            title: _currentDate.format('EEE, d MMM'),
+            title: context.calendarFormat.shortDate(_currentDate),
             actions: [
               IconButton(
                 icon: const Icon(Icons.chevron_left_rounded),
@@ -307,7 +307,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     final l10n = AppLocalizations.of(context);
 
     // The day on screen, not today.
-    buffer.writeln('📅 ${_currentDate.format('EEEE, MMMM d, yyyy')}');
+    buffer.writeln('📅 ${context.calendarFormat.fullDate(_currentDate)}');
     buffer.writeln(
       '🇲🇲 ${_myanmarDateString(completeDate, showShanCalendar)}',
     );

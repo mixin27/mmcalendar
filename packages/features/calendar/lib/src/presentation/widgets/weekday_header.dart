@@ -111,7 +111,11 @@ class WeekdayHeader extends StatelessWidget {
       };
     }
 
-    if (language == Language.myanmar || language == Language.zawgyi) {
+    if (language == Language.zawgyi) {
+      // Zawgyi-encoded names, for devices with a Zawgyi system font.
+      return TranslationService.getShortWeekdayName(weekdayIndex, language);
+    }
+    if (language == Language.myanmar) {
       return switch (weekdayIndex) {
         1 => 'နွေ',
         2 => 'လာ',

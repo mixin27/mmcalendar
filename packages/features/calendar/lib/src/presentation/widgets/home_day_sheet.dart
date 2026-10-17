@@ -378,8 +378,8 @@ class _UpcomingGroup extends StatelessWidget {
   static const _limit = 8;
 
   List<_Upcoming> _collect(BuildContext context, CalendarColors colors) {
-    final language = MyanmarCalendar.currentLanguage;
-    final localizations = MaterialLocalizations.of(context);
+    final language = context.calendarLanguage;
+    final format = context.calendarFormat;
     final items = <_Upcoming>[];
     String? runName;
     DateTime? runStart;
@@ -389,9 +389,9 @@ class _UpcomingGroup extends StatelessWidget {
       final name = runName, from = runStart, to = runEnd;
       if (name == null || from == null || to == null) return;
       final range = from == to
-          ? localizations.formatShortMonthDay(from)
-          : '${localizations.formatShortMonthDay(from)} – '
-                '${localizations.formatShortMonthDay(to)}';
+          ? format.dayMonth(from)
+          : '${format.dayMonth(from)} – '
+                '${format.dayMonth(to)}';
       items.add(
         _Upcoming(
           date: from,
@@ -438,7 +438,7 @@ class _UpcomingGroup extends StatelessWidget {
                 ? [phase, ?sabbath].join(' · ')
                 : sabbath!,
             subtitle:
-                '${localizations.formatShortMonthDay(date)} · '
+                '${format.dayMonth(date)} · '
                 '${MyanmarCalendar.formatMyanmar(day.myanmar, pattern: '&P &f', language: language)}',
             leading: MoonGlyph(date: date, size: 28),
           ),
@@ -449,8 +449,7 @@ class _UpcomingGroup extends StatelessWidget {
           _Upcoming(
             date: date,
             title: event.title,
-            subtitle:
-                '${localizations.formatShortMonthDay(date)} · ${event.category.name}',
+            subtitle: '${format.dayMonth(date)} · ${event.category.name}',
             icon: Icons.event_outlined,
             iconColor: eventColor(event, colors),
             event: event,

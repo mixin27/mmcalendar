@@ -36,6 +36,8 @@ class _SettingsLanguagePageState extends State<SettingsLanguagePage> {
       builder: (context, settings) => [
         AppGroup(
           label: l10n?.appLanguage ?? 'App Language',
+          footer:
+              l10n?.settingsAppLanguageFooter ?? 'Menus, buttons and messages.',
           children: [
             for (final (code, name) in [
               ('en', l10n?.english ?? 'English'),
@@ -52,7 +54,9 @@ class _SettingsLanguagePageState extends State<SettingsLanguagePage> {
         AppGroup(
           label: l10n?.calendarLanguage ?? 'Calendar Language',
           footer:
-              'Changes month names, lunar days and weekdays across the app.',
+              l10n?.settingsCalendarLanguageFooter ??
+              'Dates, month and weekday names, lunar days, holidays and moon '
+                  'phases everywhere in the app, including widgets.',
           children: [
             for (final language in Language.values)
               AppRow(

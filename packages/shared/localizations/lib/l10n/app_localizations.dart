@@ -2183,6 +2183,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yesterday'**
   String get yesterday;
+
+  /// Footer under the app language choices on the Language page.
+  ///
+  /// In en, this message translates to:
+  /// **'Menus, buttons and messages.'**
+  String get settingsAppLanguageFooter;
+
+  /// Footer under the calendar language choices on the Language page.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates, month and weekday names, lunar days, holidays and moon phases everywhere in the app, including widgets.'**
+  String get settingsCalendarLanguageFooter;
 }
 
 class _AppLocalizationsDelegate

@@ -85,7 +85,7 @@ void main() {
         await tester.tap(find.text('Convert').last);
         await tester.pumpAndSettle();
         // Thadingyut full moon 1388 is 26 October 2026.
-        expect(find.textContaining('October 26, 2026'), findsWidgets);
+        expect(find.textContaining('26 October 2026'), findsWidgets);
       });
 
       testWidgets('each tool keeps its own result', (tester) async {

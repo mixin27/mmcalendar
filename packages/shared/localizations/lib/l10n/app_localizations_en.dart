@@ -1195,4 +1195,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yesterday => 'Yesterday';
+
+  @override
+  String get settingsAppLanguageFooter => 'Menus, buttons and messages.';
+
+  @override
+  String get settingsCalendarLanguageFooter =>
+      'Dates, month and weekday names, lunar days, holidays and moon phases everywhere in the app, including widgets.';
 }

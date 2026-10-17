@@ -1564,5 +1564,13 @@
   "yesterday": "Yesterday",
   "@yesterday": {
     "description": "Localized text for yesterday."
+  },
+  "settingsAppLanguageFooter": "Menus, buttons and messages.",
+  "@settingsAppLanguageFooter": {
+    "description": "Footer under the app language choices on the Language page."
+  },
+  "settingsCalendarLanguageFooter": "Dates, month and weekday names, lunar days, holidays and moon phases everywhere in the app, including widgets.",
+  "@settingsCalendarLanguageFooter": {
+    "description": "Footer under the calendar language choices on the Language page."
   }
 }

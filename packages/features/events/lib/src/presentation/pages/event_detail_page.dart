@@ -1,8 +1,8 @@
-import 'package:shared_core/shared_core.dart' show RoutePaths;
+import 'package:shared_core/shared_core.dart'
+    show CalendarLanguageContext, RoutePaths;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 
@@ -269,7 +269,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                 ),
               ),
               Text(
-                '${DateFormat('EEEE, MMMM d, yyyy').format(event.eventDate)} · $time',
+                '${context.calendarFormat.fullDate(event.eventDate)} · $time',
                 style: TextStyle(color: t.secondaryLabel),
               ),
             ],

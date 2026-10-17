@@ -175,7 +175,11 @@ Future<void> _initializeMyanmarCalendar() async {
       StorageKeys.calendarLanguage,
     );
     if (calendarLanguage == null || calendarLanguage.isEmpty) {
-      calendarLanguage = Language.myanmar.code;
+      // First launch: the calendar starts in the app language (Myanmar or
+      // English). After that the two settings change independently.
+      calendarLanguage = (await _firstLaunchAppLanguage(settingsDao)) == 'my'
+          ? Language.myanmar.code
+          : Language.english.code;
       await settingsDao.setSetting(
         StorageKeys.calendarLanguage,
         calendarLanguage,
@@ -365,4 +369,15 @@ class ErrorBoundary extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The stored app language, or on first launch the device's (Myanmar or
+/// English), saved so the interface and the calendar start out matching.
+Future<String> _firstLaunchAppLanguage(SettingsDao settingsDao) async {
+  final stored = await settingsDao.getSetting(StorageKeys.appLanguage);
+  if (stored != null && stored.isNotEmpty) return stored;
+  final device = PlatformDispatcher.instance.locale.languageCode;
+  final language = device == 'my' ? 'my' : 'en';
+  await settingsDao.setSetting(StorageKeys.appLanguage, language);
+  return language;
 }

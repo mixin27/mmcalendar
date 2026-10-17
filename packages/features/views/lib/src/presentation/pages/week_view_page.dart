@@ -122,10 +122,12 @@ class _WeekViewPageState extends State<WeekViewPage>
 
   Widget _weekGroup(BuildContext context, WeekData week, bool showShan) {
     final t = context.tokens;
-    final shan = MyanmarCalendar.currentLanguage == Language.shan && showShan;
+    final format = context.calendarFormat;
+    final shan = format.language == Language.shan && showShan;
     return AppGroup(
       label:
-          '${week.weekStart.format('MMM d')} – ${week.weekEnd.format('MMM d, yyyy')}',
+          '${format.dayMonth(week.weekStart)} – ${format.dayMonth(week.weekEnd)} '
+          '${format.number(week.weekEnd.year)}',
       children: [
         for (final day in week.days)
           Builder(
@@ -137,16 +139,14 @@ class _WeekViewPageState extends State<WeekViewPage>
               );
               final isToday = date.isToday;
               final holidays = [...day.allHolidays, ...day.allAnniversaryDays];
-              final myanmar = MyanmarCalendar.formatMyanmar(
-                day.myanmar,
-                pattern: '&M &P &f &Yat',
-              );
+              final myanmar = format.myanmar(day.myanmar, '&M &P &f &Yat');
               final shanYear = MyanmarDateTime.fromMyanmarDate(
                 day.myanmar,
               ).shanDate.year;
               return AppRow(
                 leading: MoonGlyph(date: date, size: 28),
-                title: '${date.format('EEE')} ${date.day}',
+                title:
+                    '${format.weekday(date, short: true)} ${format.number(date.day)}',
                 subtitle: shan
                     ? '${translateNumbers('$shanYear', language: Language.shan)} $myanmar'
                     : myanmar,

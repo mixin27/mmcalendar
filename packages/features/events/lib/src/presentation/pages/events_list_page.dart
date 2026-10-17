@@ -1,10 +1,13 @@
 import 'package:shared_core/shared_core.dart'
-    show RoutePaths, showAppMyanmarDatePicker;
+    show
+        CalendarFormat,
+        CalendarLanguageContext,
+        RoutePaths,
+        showAppMyanmarDatePicker;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../domain/entities/event.dart';
@@ -59,7 +62,7 @@ class _EventsListPageState extends State<EventsListPage>
   }
 
   String _noEventsTitle(AppLocalizations? l10n) {
-    final dateText = DateFormat('EEE, MMM d').format(_selectedDate);
+    final dateText = context.calendarFormat.shortDate(_selectedDate);
     return l10n?.eventsNoEventsOn(dateText) ?? 'No events on $dateText';
   }
 
@@ -156,7 +159,7 @@ class _EventsListPageState extends State<EventsListPage>
               else
                 AppGroup(
                   label:
-                      '${_isSameDay(_selectedDate, DateTime.now()) ? (l10n?.today ?? 'Today') : DateFormat('EEEE, MMM d').format(_selectedDate)} · '
+                      '${_isSameDay(_selectedDate, DateTime.now()) ? (l10n?.today ?? 'Today') : context.calendarFormat.shortDate(_selectedDate)} · '
                       '${l10n?.eventsEventCount(count) ?? '$count event${count == 1 ? '' : 's'}'}',
                   children: [
                     for (final event in events)
@@ -520,10 +523,11 @@ class _DayStrip extends StatelessWidget {
 
   static String _semanticsLabel(
     AppLocalizations? l10n,
+    CalendarFormat format,
     DateTime date,
     int count,
   ) {
-    final dateText = DateFormat('EEEE, MMMM d').format(date);
+    final dateText = format.fullDate(date);
     return l10n?.eventsDayEventsSemantics(dateText, count) ??
         '$dateText, $count events';
   }
@@ -551,7 +555,7 @@ class _DayStrip extends StatelessWidget {
           return Semantics(
             selected: isSelected,
             button: true,
-            label: _semanticsLabel(l10n, date, count),
+            label: _semanticsLabel(l10n, context.calendarFormat, date, count),
             excludeSemantics: true,
             child: Material(
               color: isSelected ? t.accent : t.surface,
@@ -571,7 +575,7 @@ class _DayStrip extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        DateFormat('E').format(date),
+                        context.calendarFormat.weekday(date, short: true),
                         style: TextStyle(
                           fontSize: 11,
                           color: isSelected

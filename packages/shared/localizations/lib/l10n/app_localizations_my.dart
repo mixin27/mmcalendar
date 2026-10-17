@@ -1187,4 +1187,11 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get yesterday => 'မနေ့က';
+
+  @override
+  String get settingsAppLanguageFooter => 'မီနူး၊ ခလုတ်နှင့် စာတိုများ။';
+
+  @override
+  String get settingsCalendarLanguageFooter =>
+      'ရက်စွဲ၊ လနှင့် နေ့အမည်၊ လဆန်း လဆုတ်၊ ရုံးပိတ်ရက်နှင့် လအခြေအနေများကို ဝီဂျက်များ အပါအဝင် အက်ပ်တစ်ခုလုံးတွင် ပြောင်းပေးသည်။';
 }

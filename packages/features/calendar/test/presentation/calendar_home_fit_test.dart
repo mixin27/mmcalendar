@@ -246,6 +246,34 @@ void main() {
     }
   }
 
+  for (final language in Language.values) {
+    testWidgets('${language.name}: header and sheet dates follow the '
+        'calendar language', (tester) async {
+      await _pumpHome(
+        tester,
+        size: const Size(430, 932),
+        month: DateTime(2026, 10),
+        language: language,
+      );
+      final format = CalendarFormat(language);
+      expect(
+        find.text(format.monthYear(DateTime(2026, 10))).evaluate().isNotEmpty ||
+            find
+                .text(format.shortMonthYear(DateTime(2026, 10)))
+                .evaluate()
+                .isNotEmpty,
+        isTrue,
+      );
+      await tester.tap(find.text('22').first);
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining(format.shortDate(DateTime(2026, 10, 22))),
+        findsWidgets,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('the sheet expands when dragged up', (tester) async {
     await _pumpHome(
       tester,
