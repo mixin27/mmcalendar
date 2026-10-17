@@ -97,6 +97,36 @@ void main() {
         expect(tester.takeException(), isNull);
       });
 
+      testWidgets('Calendar grid themes preview, save and switch the motif', (
+        tester,
+      ) async {
+        final harness = await SettingsHarness.pump(
+          tester,
+          style: style,
+          page: const SettingsCalendarGridPage(),
+        );
+        await tester.tap(find.text('Theme'));
+        await tester.pumpAndSettle();
+        for (final theme in CalendarGridTheme.values) {
+          final choice = find.byKey(ValueKey('grid-theme-${theme.name}'));
+          await tester.ensureVisible(choice);
+          await tester.pumpAndSettle();
+          await tester.tap(choice);
+          await tester.pumpAndSettle();
+          expect(harness.repository.gridTheme, theme);
+        }
+        final motif = find.byKey(const ValueKey('grid-theme-motif'));
+        await tester.ensureVisible(motif);
+        await tester.pumpAndSettle();
+        await tester.tap(motif);
+        await tester.pumpAndSettle();
+        expect(
+          harness.repository.preferences[StorageKeys.calendarGridMotif],
+          isFalse,
+        );
+        expect(tester.takeException(), isNull);
+      });
+
       testWidgets('Appearance switches app style, mode and preset', (
         tester,
       ) async {
