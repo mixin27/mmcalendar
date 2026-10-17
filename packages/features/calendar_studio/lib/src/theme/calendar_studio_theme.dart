@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 
 enum CalendarStudioAppearance { system, light, dark }
+
+/// How Studio's chrome (bars, sheets, lists, controls) is drawn, so it can
+/// match the host app. The canvas never changes.
+enum CalendarStudioChrome {
+  /// Material 3 controls, left-aligned titles.
+  material,
+
+  /// iOS-like: centred bar titles, flat grouped surfaces, iOS transitions.
+  clear,
+}
 
 /// Semantic tokens copied from `calendar-studio-mockups.html`.
 /// Canvas documents keep their own colours; these style the Studio chrome.
@@ -96,6 +108,37 @@ class CalendarStudioTokens extends ThemeExtension<CalendarStudioTokens> {
       Color.alphaBlend(primary.withValues(alpha: .11), surface);
   Color get primaryContainerStrong =>
       Color.alphaBlend(primary.withValues(alpha: .20), surface);
+
+  List<Color> get _colors => [
+    primary,
+    onPrimary,
+    background,
+    surface,
+    surface2,
+    surface3,
+    scrim,
+    ink,
+    ink2,
+    ink3,
+    line,
+    holiday,
+    gold,
+    ok,
+    warning,
+    error,
+    board,
+    boardInk,
+    board2,
+  ];
+
+  // Value equality: hosts rebuild tokens on every theme pass, and Studio
+  // only rebuilds its ThemeData when the colours actually change.
+  @override
+  bool operator ==(Object other) =>
+      other is CalendarStudioTokens && listEquals(other._colors, _colors);
+
+  @override
+  int get hashCode => Object.hashAll(_colors);
 
   static CalendarStudioTokens of(BuildContext context) =>
       Theme.of(context).extension<CalendarStudioTokens>() ?? light;
@@ -196,7 +239,11 @@ abstract final class CalendarStudioTheme {
   static ThemeData fromTokens(
     CalendarStudioTokens tokens, {
     Brightness brightness = Brightness.light,
+    CalendarStudioChrome chrome = CalendarStudioChrome.material,
+    String fontFamily = 'Noto Sans Myanmar',
+    List<String>? fontFamilyFallback,
   }) {
+    final clear = chrome == CalendarStudioChrome.clear;
     final scheme = ColorScheme.fromSeed(
       seedColor: tokens.primary,
       brightness: brightness,
@@ -221,33 +268,78 @@ abstract final class CalendarStudioTheme {
       extensions: [tokens],
       scaffoldBackgroundColor: tokens.background,
       canvasColor: tokens.surface,
-      fontFamily: 'Noto Sans Myanmar',
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
       textTheme: baseTextTheme
           .apply(bodyColor: tokens.ink, displayColor: tokens.ink)
           .copyWith(
             bodySmall: baseTextTheme.bodySmall?.copyWith(color: tokens.ink3),
           ),
+      pageTransitionsTheme: clear
+          ? PageTransitionsTheme(
+              builders: {
+                for (final platform in TargetPlatform.values)
+                  platform: const CupertinoPageTransitionsBuilder(),
+              },
+            )
+          : null,
+      splashFactory: clear ? NoSplash.splashFactory : null,
+      // iOS chevron for Back in Clear, on every platform.
+      actionIconTheme: clear
+          ? ActionIconThemeData(
+              backButtonIconBuilder: (_) =>
+                  const Icon(Icons.arrow_back_ios_new_rounded, size: 21),
+            )
+          : null,
       appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
-        centerTitle: false,
+        centerTitle: clear,
         backgroundColor: tokens.background,
+        surfaceTintColor: clear ? Colors.transparent : null,
         foregroundColor: tokens.ink,
-        toolbarHeight: 56,
+        iconTheme: clear ? IconThemeData(color: tokens.primary) : null,
+        actionsIconTheme: clear ? IconThemeData(color: tokens.primary) : null,
+        toolbarHeight: clear ? 50 : 56,
         titleTextStyle: TextStyle(
           color: tokens.ink,
-          fontFamily: 'Noto Sans Myanmar',
-          fontSize: 18.5,
+          fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
+          fontSize: clear ? 17 : 18.5,
           fontWeight: FontWeight.w600,
         ),
       ),
+      switchTheme: clear
+          ? SwitchThemeData(
+              thumbColor: const WidgetStatePropertyAll(Colors.white),
+              trackColor: WidgetStateProperty.resolveWith(
+                (s) => s.contains(WidgetState.selected)
+                    ? tokens.ok
+                    : tokens.surface3,
+              ),
+              trackOutlineColor: const WidgetStatePropertyAll(
+                Colors.transparent,
+              ),
+            )
+          : null,
+      // Material keeps its tinted M3 dialogs.
+      dialogTheme: clear
+          ? DialogThemeData(
+              backgroundColor: tokens.surface,
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            )
+          : null,
       cardTheme: CardThemeData(
         color: tokens.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
+        // Clear groups are flat white on grey; Material keeps a hairline.
         shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: tokens.line),
+          borderRadius: BorderRadius.all(Radius.circular(clear ? 14 : 16)),
+          side: clear ? BorderSide.none : BorderSide(color: tokens.line),
         ),
       ),
       dividerColor: tokens.line,
@@ -257,8 +349,12 @@ abstract final class CalendarStudioTheme {
           padding: const EdgeInsets.symmetric(horizontal: 18),
           backgroundColor: tokens.primary,
           foregroundColor: tokens.onPrimary,
-          shape: const StadiumBorder(),
-          textStyle: const TextStyle(
+          shape: clear
+              ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+              : const StadiumBorder(),
+          textStyle: TextStyle(
+            fontFamily: fontFamily,
+            fontFamilyFallback: fontFamilyFallback,
             fontSize: 13.5,
             fontWeight: FontWeight.w600,
           ),
@@ -269,7 +365,9 @@ abstract final class CalendarStudioTheme {
           minimumSize: const Size(0, 40),
           foregroundColor: tokens.primary,
           side: BorderSide(color: tokens.line),
-          shape: const StadiumBorder(),
+          shape: clear
+              ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+              : const StadiumBorder(),
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
@@ -277,8 +375,10 @@ abstract final class CalendarStudioTheme {
         modalBackgroundColor: tokens.surface,
         modalBarrierColor: tokens.scrim,
         showDragHandle: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(clear ? 14 : 28),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -298,26 +398,44 @@ abstract final class CalendarStudioTheme {
         ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: Colors.transparent,
+        backgroundColor: clear ? tokens.surface2 : Colors.transparent,
         selectedColor: tokens.primaryContainerStrong,
-        side: BorderSide(color: tokens.line),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
-        labelStyle: TextStyle(fontSize: 12.5, color: tokens.ink2),
+        side: clear ? BorderSide.none : BorderSide(color: tokens.line),
+        // Rounded rectangles in both: Studio chips can wrap to two lines.
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(clear ? 10 : 9),
+        ),
+        showCheckmark: !clear,
+        labelStyle: TextStyle(
+          fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
+          fontSize: 12.5,
+          color: tokens.ink2,
+        ),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
+        // iOS segments mark the choice by the raised segment, not a check.
+        selectedIcon: clear ? const SizedBox.shrink() : null,
         style: ButtonStyle(
           foregroundColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.selected)
-                ? tokens.primary
+                ? (clear ? tokens.ink : tokens.primary)
                 : tokens.ink2,
           ),
           backgroundColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.selected)
-                ? tokens.primaryContainerStrong
-                : Colors.transparent,
+                ? (clear ? tokens.surface : tokens.primaryContainerStrong)
+                : (clear ? tokens.surface3 : Colors.transparent),
           ),
-          side: WidgetStatePropertyAll(BorderSide(color: tokens.line)),
-          shape: const WidgetStatePropertyAll(StadiumBorder()),
+          // Clear: a filled track with a raised white segment, like iOS.
+          side: WidgetStatePropertyAll(
+            clear ? BorderSide.none : BorderSide(color: tokens.line),
+          ),
+          shape: WidgetStatePropertyAll(
+            clear
+                ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(9))
+                : const StadiumBorder(),
+          ),
         ),
       ),
     );

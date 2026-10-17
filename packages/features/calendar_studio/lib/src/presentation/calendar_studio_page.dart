@@ -68,6 +68,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   ThemeData? _theme;
   CalendarStudioTokens? _themeTokens;
   Brightness? _themeBrightness;
+  CalendarStudioChrome? _themeChrome;
   final _templatePreviews =
       <(String, CalendarStudioSource), CalendarStudioProject>{};
   var view = _View.dashboard;
@@ -226,10 +227,18 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         : widget.configuration.lightTokens;
     if (_theme == null ||
         _themeTokens != tokens ||
-        _themeBrightness != brightness) {
+        _themeBrightness != brightness ||
+        _themeChrome != widget.configuration.chrome) {
       _themeTokens = tokens;
       _themeBrightness = brightness;
-      _theme = CalendarStudioTheme.fromTokens(tokens, brightness: brightness);
+      _themeChrome = widget.configuration.chrome;
+      _theme = CalendarStudioTheme.fromTokens(
+        tokens,
+        brightness: brightness,
+        chrome: widget.configuration.chrome,
+        fontFamily: widget.configuration.fontFamily,
+        fontFamilyFallback: widget.configuration.fontFamilyFallback,
+      );
     }
     return Theme(
       data: _theme!,

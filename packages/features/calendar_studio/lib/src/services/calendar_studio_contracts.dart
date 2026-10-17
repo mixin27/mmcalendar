@@ -232,6 +232,9 @@ class CalendarStudioConfiguration {
     this.appearance = CalendarStudioAppearance.system,
     this.lightTokens = CalendarStudioTokens.light,
     this.darkTokens = CalendarStudioTokens.dark,
+    this.chrome = CalendarStudioChrome.material,
+    this.fontFamily = 'Noto Sans Myanmar',
+    this.fontFamilyFallback,
   });
   final CalendarStudioProjectStore projects;
   final CalendarStudioDataProvider? calendarData;
@@ -255,4 +258,38 @@ class CalendarStudioConfiguration {
   final CalendarStudioAppearance appearance;
   final CalendarStudioTokens lightTokens;
   final CalendarStudioTokens darkTokens;
+
+  /// Bars, sheets, lists and controls follow the host app's style.
+  final CalendarStudioChrome chrome;
+
+  /// Font for Studio's chrome (designs keep their own fonts).
+  final String fontFamily;
+  final List<String>? fontFamilyFallback;
+
+  /// The same services with the host's current look.
+  CalendarStudioConfiguration withLook({
+    CalendarStudioAppearance? appearance,
+    CalendarStudioTokens? lightTokens,
+    CalendarStudioTokens? darkTokens,
+    CalendarStudioChrome? chrome,
+    String? fontFamily,
+    List<String>? fontFamilyFallback,
+  }) => CalendarStudioConfiguration(
+    projects: projects,
+    calendarData: calendarData,
+    assets: assets,
+    exportDelivery: exportDelivery,
+    imagePicker: imagePicker,
+    imageEditor: imageEditor,
+    ai: ai,
+    pickProjectFile: pickProjectFile,
+    featureName: featureName,
+    now: now,
+    appearance: appearance ?? this.appearance,
+    lightTokens: lightTokens ?? this.lightTokens,
+    darkTokens: darkTokens ?? this.darkTokens,
+    chrome: chrome ?? this.chrome,
+    fontFamily: fontFamily ?? this.fontFamily,
+    fontFamilyFallback: fontFamilyFallback ?? this.fontFamilyFallback,
+  );
 }

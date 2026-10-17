@@ -115,6 +115,11 @@ class AppTheme {
         },
       ),
       splashFactory: NoSplash.splashFactory,
+      // iOS chevron for Back on every platform (AppBar pages).
+      actionIconTheme: ActionIconThemeData(
+        backButtonIconBuilder: (_) =>
+            const Icon(Icons.arrow_back_ios_new_rounded, size: 21),
+      ),
       appBarTheme: AppBarTheme(
         centerTitle: true,
         elevation: 0,

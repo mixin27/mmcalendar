@@ -17,7 +17,7 @@ import '../presentation/pages/privacy_policy_page.dart';
 import '../presentation/shell/app_shell.dart';
 import '../presentation/widgets/promo_initializer.dart';
 import 'di_setup.dart';
-import 'calendar_studio_configuration.dart';
+import 'calendar_studio_look.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: RoutePaths.home,
@@ -29,8 +29,12 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.studio,
-      builder: (context, state) =>
-          CalendarStudioWorkspace(configuration: calendarStudioConfiguration),
+      builder: (context, state) => Builder(
+        // Rebuilds when the app style, colours or brightness change.
+        builder: (context) => CalendarStudioWorkspace(
+          configuration: calendarStudioConfigurationFor(context),
+        ),
+      ),
     ),
 
     // Main App Shell with Bottom Navigation
