@@ -25,6 +25,7 @@ import '../theme/calendar_studio_theme.dart';
 import '../widgets/calendar_studio_scene.dart';
 import 'calendar_studio_export_flow.dart';
 import 'calendar_studio_template_sheets.dart';
+import 'calendar_studio_year_field.dart';
 import 'calendar_studio_toast.dart';
 
 // Layout breakpoints, the same as the app's ResponsiveUtils (600 / 1024).
@@ -1959,18 +1960,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                       Row(
                         children: [
                           Expanded(
-                            child: DropdownButtonFormField<int>(
-                              initialValue: draft.year,
-                              decoration: const InputDecoration(
-                                labelText: 'Year',
-                              ),
-                              items: List.generate(
-                                7,
-                                (index) => DropdownMenuItem(
-                                  value: source.year - 2 + index,
-                                  child: Text('${source.year - 2 + index}'),
-                                ),
-                              ),
+                            child: CalendarStudioYearField(
+                              year: draft.year,
                               onChanged: (value) => setSheet(
                                 () => draft = draft.copyWith(year: value),
                               ),
@@ -2220,21 +2211,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                     Row(
                       children: [
                         Expanded(
-                          child: DropdownButtonFormField<int>(
-                            key: ValueKey('settings-year-${draft.year}'),
-                            initialValue: draft.year,
-                            decoration: const InputDecoration(
-                              labelText: 'Year',
-                            ),
-                            items: List.generate(
-                              11,
-                              (index) => DropdownMenuItem(
-                                value: DateTime.now().year - 5 + index,
-                                child: Text(
-                                  '${DateTime.now().year - 5 + index}',
-                                ),
-                              ),
-                            ),
+                          child: CalendarStudioYearField(
+                            year: draft.year,
                             onChanged: (value) => setSheet(
                               () => draft = draft.copyWith(year: value),
                             ),
