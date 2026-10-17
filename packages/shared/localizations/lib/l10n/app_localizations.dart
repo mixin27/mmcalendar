@@ -104,6 +104,24 @@ abstract class AppLocalizations {
   /// **'About'**
   String get about;
 
+  /// Localized text for add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// Localized text for addEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add event'**
+  String get addEvent;
+
+  /// Localized text for allDay.
+  ///
+  /// In en, this message translates to:
+  /// **'All day'**
+  String get allDay;
+
   /// Localized text for alternativeCalculationMethod.
   ///
   /// In en, this message translates to:
@@ -158,6 +176,12 @@ abstract class AppLocalizations {
   /// **'App Language'**
   String get appLanguage;
 
+  /// Localized text for apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
   /// Localized text for appUpdates.
   ///
   /// In en, this message translates to:
@@ -188,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Astrological Information'**
   String get astrological_information;
 
+  /// Localized text for astrology.
+  ///
+  /// In en, this message translates to:
+  /// **'Astrology'**
+  String get astrology;
+
   /// Localized text for britishCalendarSystem.
   ///
   /// In en, this message translates to:
@@ -212,11 +242,101 @@ abstract class AppLocalizations {
   /// **'Calendar'**
   String get calendar;
 
+  /// Localized text for calendarChooseMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose month'**
+  String get calendarChooseMonth;
+
+  /// Localized text for calendarDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days ago'**
+  String calendarDaysAgo(int days);
+
+  /// Localized text for calendarDaysFromToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days from today'**
+  String calendarDaysFromToday(int days);
+
+  /// Compact day count in the Upcoming list
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d'**
+  String calendarDaysShort(int days);
+
+  /// Localized text for calendarEventCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 event} other{{count} events}}'**
+  String calendarEventCount(int count);
+
+  /// Localized text for calendarFullDayDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Full day details'**
+  String get calendarFullDayDetails;
+
+  /// Localized text for calendarFullDayDetailsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Astrology, Buddhist calendar, AI prompt'**
+  String get calendarFullDayDetailsSubtitle;
+
+  /// Localized text for calendarInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'in {days} days'**
+  String calendarInDays(int days);
+
+  /// Localized text for calendarJumpToMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to month'**
+  String get calendarJumpToMonth;
+
+  /// Localized text for calendarLabelCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} copied!'**
+  String calendarLabelCopied(String label);
+
   /// Localized text for calendarLanguage.
   ///
   /// In en, this message translates to:
   /// **'Calendar Language'**
   String get calendarLanguage;
+
+  /// Localized text for calendarMakeYourCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Make your {year} calendar'**
+  String calendarMakeYourCalendar(int year);
+
+  /// Localized text for calendarNextYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Next year'**
+  String get calendarNextYear;
+
+  /// Localized text for calendarPreviousYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous year'**
+  String get calendarPreviousYear;
+
+  /// Localized text for calendarStudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar Studio'**
+  String get calendarStudio;
+
+  /// Localized text for calendarToggleDayDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Show or hide day details'**
+  String get calendarToggleDayDetails;
 
   /// Localized text for calendarType.
   ///
@@ -248,11 +368,29 @@ abstract class AppLocalizations {
   /// **'Calendar Configuration'**
   String get calendar_configuration;
 
+  /// Localized text for calendarUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get calendarUpcoming;
+
   /// Localized text for cancel.
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
+
+  /// Localized text for categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categories;
+
+  /// Localized text for category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get category;
 
   /// Localized text for checkAgain.
   ///
@@ -284,6 +422,12 @@ abstract class AppLocalizations {
   /// **'Choose Your View'**
   String get choose_your_view;
 
+  /// Localized text for clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
   /// Localized text for clearPromoDataDebug.
   ///
   /// In en, this message translates to:
@@ -295,6 +439,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get close;
+
+  /// Localized text for colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get colour;
 
   /// Localized text for comingSoon.
   ///
@@ -332,11 +482,185 @@ abstract class AppLocalizations {
   /// **'Converter'**
   String get converter;
 
+  /// Localized text for converterAddSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Add/Sub'**
+  String get converterAddSub;
+
+  /// Localized text for converterConvertedDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted date'**
+  String get converterConvertedDate;
+
+  /// Localized text for converterDateArithmetic.
+  ///
+  /// In en, this message translates to:
+  /// **'Date arithmetic'**
+  String get converterDateArithmetic;
+
+  /// Localized text for converterDateDifference.
+  ///
+  /// In en, this message translates to:
+  /// **'Date difference'**
+  String get converterDateDifference;
+
+  /// Localized text for converterDaysUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{day} other{days}}'**
+  String converterDaysUnit(int count);
+
+  /// Localized text for converterDifference.
+  ///
+  /// In en, this message translates to:
+  /// **'Difference'**
+  String get converterDifference;
+
+  /// Localized text for converterEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get converterEnd;
+
+  /// Localized text for converterEnterMyanmarDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Myanmar year, month and day.'**
+  String get converterEnterMyanmarDate;
+
+  /// Localized text for converterEnterWholeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number above 0.'**
+  String get converterEnterWholeNumber;
+
+  /// Localized text for converterFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get converterFrom;
+
+  /// Localized text for converterInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{in 1 day} other{in {count} days}}'**
+  String converterInDays(int count);
+
+  /// Localized text for converterMonthDayRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Month is 0–14 and day is 1–30.'**
+  String get converterMonthDayRange;
+
+  /// Localized text for converterMonthFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Month: 0 = First Waso, 1–12 = Tagu to Tabaung, 13 = Late Tagu, 14 = Second Waso.'**
+  String get converterMonthFooter;
+
+  /// Localized text for converterMoonPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Moon phase'**
+  String get converterMoonPhase;
+
+  /// Localized text for converterMyanmarDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Myanmar date'**
+  String get converterMyanmarDate;
+
+  /// Localized text for converterMyanmarToWestern.
+  ///
+  /// In en, this message translates to:
+  /// **'Myanmar → Western'**
+  String get converterMyanmarToWestern;
+
+  /// Localized text for converterNextPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Next {name}'**
+  String converterNextPhase(String name);
+
+  /// Localized text for converterResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get converterResult;
+
+  /// Localized text for converterStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get converterStart;
+
+  /// Localized text for converterStartFromToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from today'**
+  String get converterStartFromToday;
+
+  /// Localized text for converterSubtract.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtract'**
+  String get converterSubtract;
+
+  /// Localized text for converterSwapDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap dates'**
+  String get converterSwapDates;
+
+  /// Localized text for converterTodayLower.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get converterTodayLower;
+
+  /// Localized text for converterUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit, select, days{days} weeks{weeks} months{months} years{years} other{{unit}}}'**
+  String converterUnit(String unit);
+
+  /// Localized text for converterValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get converterValue;
+
+  /// Localized text for converterWesternToMyanmar.
+  ///
+  /// In en, this message translates to:
+  /// **'Western → Myanmar'**
+  String get converterWesternToMyanmar;
+
+  /// Localized text for copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// Localized text for copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
   /// Localized text for crashReports.
   ///
   /// In en, this message translates to:
   /// **'Crash Reports'**
   String get crashReports;
+
+  /// Localized text for create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
 
   /// Localized text for currentVersion.
   ///
@@ -350,11 +674,23 @@ abstract class AppLocalizations {
   /// **'Current: {version} ({build})'**
   String currentVersionWithBuild(Object version, Object build);
 
+  /// Localized text for custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get custom;
+
   /// Localized text for dark.
   ///
   /// In en, this message translates to:
   /// **'Dark'**
   String get dark;
+
+  /// Localized text for date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
 
   /// Day label
   ///
@@ -368,11 +704,191 @@ abstract class AppLocalizations {
   /// **'Day View'**
   String get day_view;
 
+  /// Localized text for dayDetailsAddEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Event'**
+  String get dayDetailsAddEvent;
+
+  /// Localized text for dayDetailsAiHoroscopePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Horoscope Prompt'**
+  String get dayDetailsAiHoroscopePrompt;
+
+  /// Localized text for dayDetailsAiHoroscopePromptSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy a ready-made prompt for this day'**
+  String get dayDetailsAiHoroscopePromptSubtitle;
+
+  /// Localized text for dayDetailsAiPromptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste this into any AI assistant (ChatGPT, Gemini, …) for a reading of the day. Nothing is sent from this app.'**
+  String get dayDetailsAiPromptHint;
+
+  /// Localized text for dayDetailsBuddhistCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Buddhist Calendar'**
+  String get dayDetailsBuddhistCalendar;
+
+  /// Localized text for dayDetailsCopyPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Prompt'**
+  String get dayDetailsCopyPrompt;
+
+  /// Localized text for dayDetailsErrorLoadingEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading events'**
+  String get dayDetailsErrorLoadingEvents;
+
+  /// Localized text for dayDetailsFailedToUpdateEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update event: {error}'**
+  String dayDetailsFailedToUpdateEvent(String error);
+
+  /// Localized text for dayDetailsFortnightDayPercentLit.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} · {percent}% lit'**
+  String dayDetailsFortnightDayPercentLit(String day, String percent);
+
+  /// Localized text for dayDetailsJumpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to Date'**
+  String get dayDetailsJumpToDate;
+
+  /// Localized text for dayDetailsLoadingEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading events…'**
+  String get dayDetailsLoadingEvents;
+
+  /// Localized text for dayDetailsMarkNotDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark not done'**
+  String get dayDetailsMarkNotDone;
+
+  /// Localized text for dayDetailsNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Day'**
+  String get dayDetailsNextDay;
+
+  /// Localized text for dayDetailsNoEventsAddEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'No events · Add event'**
+  String get dayDetailsNoEventsAddEvent;
+
+  /// Moon illumination
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% lit'**
+  String dayDetailsPercentLit(String percent);
+
+  /// Localized text for dayDetailsPreviousDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Day'**
+  String get dayDetailsPreviousDay;
+
+  /// Localized text for dayDetailsPromptCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt copied to clipboard'**
+  String get dayDetailsPromptCopied;
+
+  /// Localized text for dayDetailsPyathada.
+  ///
+  /// In en, this message translates to:
+  /// **'Pyathada'**
+  String get dayDetailsPyathada;
+
+  /// Localized text for dayDetailsShareDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Day'**
+  String get dayDetailsShareDay;
+
+  /// Localized text for dayDetailsShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to share'**
+  String get dayDetailsShareFailed;
+
+  /// Localized text for dayDetailsShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check myanmar calendar'**
+  String get dayDetailsShareSubject;
+
+  /// Localized text for dayDetailsSpecial.
+  ///
+  /// In en, this message translates to:
+  /// **'Special'**
+  String get dayDetailsSpecial;
+
+  /// Localized text for dayDetailsYatyaza.
+  ///
+  /// In en, this message translates to:
+  /// **'Yatyaza'**
+  String get dayDetailsYatyaza;
+
+  /// Myanmar year type (common, little/big watat)
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get dayDetailsYearType;
+
+  /// Localized text for days.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get days;
+
   /// Localized text for defaultCalculationMethod.
   ///
   /// In en, this message translates to:
   /// **'Default calculation method'**
   String get defaultCalculationMethod;
+
+  /// Localized text for defaultLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get defaultLabel;
+
+  /// Localized text for delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Localized text for deleteEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete event'**
+  String get deleteEvent;
+
+  /// Localized text for deleteEventQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete event?'**
+  String get deleteEventQuestion;
+
+  /// Localized text for description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
 
   /// Name of developer
   ///
@@ -446,6 +962,18 @@ abstract class AppLocalizations {
   /// **'Display Preferences'**
   String get display_preferences;
 
+  /// Localized text for edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// Localized text for editEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit event'**
+  String get editEvent;
+
   /// Localized text for enableAll.
   ///
   /// In en, this message translates to:
@@ -476,11 +1004,341 @@ abstract class AppLocalizations {
   /// **'Error: {error}'**
   String errorWithMessage(Object error);
 
+  /// Localized text for event.
+  ///
+  /// In en, this message translates to:
+  /// **'Event'**
+  String get event;
+
   /// Events label
   ///
   /// In en, this message translates to:
   /// **'Events'**
   String get events;
+
+  /// Localized text for eventsAddReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reminder'**
+  String get eventsAddReminder;
+
+  /// Localized text for eventsAddTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tag and press return'**
+  String get eventsAddTagHint;
+
+  /// Localized text for eventsBuiltInCategoriesFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in categories can’t be changed.'**
+  String get eventsBuiltInCategoriesFooter;
+
+  /// Localized text for eventsCategoryColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Category colour'**
+  String get eventsCategoryColour;
+
+  /// Localized text for eventsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get eventsCompleted;
+
+  /// Localized text for eventsCouldNotLoadEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t load this event'**
+  String get eventsCouldNotLoadEvent;
+
+  /// Localized text for eventsCreateEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Event'**
+  String get eventsCreateEvent;
+
+  /// Localized text for eventsCustomCategoriesEmptyFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Create categories for the events you keep.'**
+  String get eventsCustomCategoriesEmptyFooter;
+
+  /// Localized text for eventsCustomCategoriesFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a category to rename, recolour or delete it.'**
+  String get eventsCustomCategoriesFooter;
+
+  /// Screen-reader label for a day in the events day strip.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}, {count} events'**
+  String eventsDayEventsSemantics(String date, int count);
+
+  /// Localized text for eventsDeleteCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Category'**
+  String get eventsDeleteCategory;
+
+  /// Localized text for eventsDeleteCategoryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Its events are kept; they just stop being linked to this category.'**
+  String get eventsDeleteCategoryMessage;
+
+  /// Localized text for eventsDeleteCategoryQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”?'**
+  String eventsDeleteCategoryQuestion(String name);
+
+  /// Localized text for eventsDeleteEventMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This event will be removed. This can’t be undone.'**
+  String get eventsDeleteEventMessage;
+
+  /// Localized text for eventsDeleteThisOccurrence.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this occurrence'**
+  String get eventsDeleteThisOccurrence;
+
+  /// Localized text for eventsDeleteThisOccurrenceQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this occurrence?'**
+  String get eventsDeleteThisOccurrenceQuestion;
+
+  /// Localized text for eventsEditCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Category'**
+  String get eventsEditCategory;
+
+  /// Title of the event form when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Event'**
+  String get eventsEditEventTitle;
+
+  /// Localized text for eventsEventCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 event} other{{count} events}}'**
+  String eventsEventCount(int count);
+
+  /// Localized text for eventsEventCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Event created'**
+  String get eventsEventCreated;
+
+  /// Localized text for eventsEventNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Event not found'**
+  String get eventsEventNotFound;
+
+  /// Localized text for eventsEventUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Event updated'**
+  String get eventsEventUpdated;
+
+  /// Localized text for eventsEventWillBeRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'“{title}” will be removed. This can’t be undone.'**
+  String eventsEventWillBeRemoved(String title);
+
+  /// Localized text for eventsFillRequiredFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in required fields'**
+  String get eventsFillRequiredFields;
+
+  /// Localized text for eventsJumpToToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to today'**
+  String get eventsJumpToToday;
+
+  /// Localized text for eventsMayHaveBeenDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been deleted.'**
+  String get eventsMayHaveBeenDeleted;
+
+  /// Localized text for eventsNewCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'New Category'**
+  String get eventsNewCategory;
+
+  /// Localized text for eventsNoEventsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'No events on {date}'**
+  String eventsNoEventsOn(String date);
+
+  /// Localized text for eventsNoResultsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get eventsNoResultsFound;
+
+  /// Localized text for eventsOccurrence.
+  ///
+  /// In en, this message translates to:
+  /// **'Occurrence'**
+  String get eventsOccurrence;
+
+  /// Localized text for eventsOnlyThisOccurrenceRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Only this occurrence will be removed.'**
+  String get eventsOnlyThisOccurrenceRemoved;
+
+  /// Localized text for eventsPickAColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a color'**
+  String get eventsPickAColor;
+
+  /// Localized text for eventsPickADate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date'**
+  String get eventsPickADate;
+
+  /// Localized text for eventsPickAnotherDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick another day or create one.'**
+  String get eventsPickAnotherDay;
+
+  /// Localized text for eventsReminderAtStart.
+  ///
+  /// In en, this message translates to:
+  /// **'at start'**
+  String get eventsReminderAtStart;
+
+  /// Localized text for eventsReminderDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} day} other{{count} days}}'**
+  String eventsReminderDays(int count);
+
+  /// Localized text for eventsReminderHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h'**
+  String eventsReminderHours(int count);
+
+  /// Localized text for eventsReminderMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String eventsReminderMinutes(int count);
+
+  /// Localized text for eventsRemoveReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove reminder'**
+  String get eventsRemoveReminder;
+
+  /// Localized text for eventsReopenEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen event'**
+  String get eventsReopenEvent;
+
+  /// Localized text for eventsRepeatsDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats daily'**
+  String get eventsRepeatsDaily;
+
+  /// Localized text for eventsRepeatsEveryNDays.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats every {count} days'**
+  String eventsRepeatsEveryNDays(int count);
+
+  /// Localized text for eventsRepeatsEveryNMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats every {count} months'**
+  String eventsRepeatsEveryNMonths(int count);
+
+  /// Localized text for eventsRepeatsEveryNWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats every {count} weeks'**
+  String eventsRepeatsEveryNWeeks(int count);
+
+  /// Localized text for eventsRepeatsEveryNYears.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats every {count} years'**
+  String eventsRepeatsEveryNYears(int count);
+
+  /// Localized text for eventsRepeatsMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats monthly'**
+  String get eventsRepeatsMonthly;
+
+  /// Localized text for eventsRepeatsWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats weekly'**
+  String get eventsRepeatsWeekly;
+
+  /// Localized text for eventsRepeatsYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats yearly'**
+  String get eventsRepeatsYearly;
+
+  /// Localized text for eventsResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Results'**
+  String get eventsResults;
+
+  /// Localized text for eventsSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get eventsSaveChanges;
+
+  /// Localized text for eventsSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get eventsSaving;
+
+  /// Localized text for eventsSearchEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Search events'**
+  String get eventsSearchEvents;
+
+  /// Localized text for eventsSearchPromptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type title or description'**
+  String get eventsSearchPromptHint;
+
+  /// Localized text for eventsTryDifferentKeyword.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different keyword'**
+  String get eventsTryDifferentKeyword;
 
   /// Localized text for failedToFetchHolidayConfig.
   ///
@@ -517,6 +1375,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'General'**
   String get general;
+
+  /// Localized text for goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get goBack;
 
   /// Localized text for goToHome.
   ///
@@ -600,6 +1464,12 @@ abstract class AppLocalizations {
   /// **'{value} hours'**
   String hoursValue(Object value);
 
+  /// Localized text for icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get icon;
+
   /// Localized text for initializationErrorTitle.
   ///
   /// In en, this message translates to:
@@ -654,11 +1524,29 @@ abstract class AppLocalizations {
   /// **'Loading settings...'**
   String get loadingSettings;
 
+  /// Localized text for location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
   /// Mahabote label
   ///
   /// In en, this message translates to:
   /// **'Mahabote'**
   String get mahabote;
+
+  /// Localized text for markAsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as pending'**
+  String get markAsPending;
+
+  /// Localized text for markComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark complete'**
+  String get markComplete;
 
   /// Localized text for matchSystemTheme.
   ///
@@ -671,6 +1559,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Month'**
   String get month;
+
+  /// Localized text for months.
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get months;
+
+  /// Localized text for moon.
+  ///
+  /// In en, this message translates to:
+  /// **'Moon'**
+  String get moon;
 
   /// Moon Phase label
   ///
@@ -708,17 +1608,47 @@ abstract class AppLocalizations {
   /// **'Nakhat'**
   String get nakhat;
 
+  /// Localized text for name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// Localized text for never.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get never;
+
+  /// Localized text for newEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'New Event'**
+  String get newEvent;
+
   /// Next Month label
   ///
   /// In en, this message translates to:
   /// **'Next Month'**
   String get next_month;
 
+  /// Localized text for nextYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Year'**
+  String get nextYear;
+
   /// Localized text for noChanges.
   ///
   /// In en, this message translates to:
   /// **'no changes'**
   String get noChanges;
+
+  /// Localized text for none.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get none;
 
   /// Localized text for openSourceLicenses.
   ///
@@ -762,6 +1692,18 @@ abstract class AppLocalizations {
   /// **'Previous Month'**
   String get previous_month;
 
+  /// Localized text for previousYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Year'**
+  String get previousYear;
+
+  /// Localized text for priority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priority;
+
   /// Localized text for privacyAndData.
   ///
   /// In en, this message translates to:
@@ -792,11 +1734,29 @@ abstract class AppLocalizations {
   /// **'Promo data cleared! Restart app to see onboarding.'**
   String get promoDataClearedRestartApp;
 
+  /// Localized text for refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
   /// Localized text for releaseNotes.
   ///
   /// In en, this message translates to:
   /// **'Release Notes'**
   String get releaseNotes;
+
+  /// Localized text for reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get reminders;
+
+  /// Localized text for repeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get repeat;
 
   /// Localized text for reset.
   ///
@@ -834,6 +1794,12 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get retry;
 
+  /// Localized text for sabbath.
+  ///
+  /// In en, this message translates to:
+  /// **'Sabbath'**
+  String get sabbath;
+
   /// Localized text for sasanaYearType.
   ///
   /// In en, this message translates to:
@@ -852,6 +1818,12 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get save;
 
+  /// Localized text for select.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get select;
+
   /// Localized text for sendCrashReportsToHelpFixIssues.
   ///
   /// In en, this message translates to:
@@ -869,6 +1841,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings reset successfully'**
   String get settingsResetSuccessfully;
+
+  /// Localized text for share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
 
   /// Localized text for showAnniversaryDays.
   ///
@@ -906,6 +1884,12 @@ abstract class AppLocalizations {
   /// **'Show Western Dates'**
   String get showWesternDates;
 
+  /// Localized text for somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Oops! Something went wrong'**
+  String get somethingWentWrong;
+
   /// Special Days label
   ///
   /// In en, this message translates to:
@@ -917,6 +1901,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'System'**
   String get system;
+
+  /// Localized text for tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get tags;
 
   /// Localized text for telegramUserLabel.
   ///
@@ -936,6 +1926,12 @@ abstract class AppLocalizations {
   /// **'Theme Preset'**
   String get theme_preset;
 
+  /// Localized text for time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
   /// Localized text for timezoneOffset.
   ///
   /// In en, this message translates to:
@@ -948,11 +1944,29 @@ abstract class AppLocalizations {
   /// **'e.g., 6.5 for Myanmar Time (UTC+6:30)'**
   String get timezoneOffsetExample;
 
+  /// Localized text for title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get title;
+
   /// Today label
   ///
   /// In en, this message translates to:
   /// **'Today'**
   String get today;
+
+  /// Localized text for tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get tomorrow;
+
+  /// Localized text for tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
 
   /// Localized text for typeValue.
   ///
@@ -965,6 +1979,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to open the update page.'**
   String get unableToOpenUpdatePage;
+
+  /// Localized text for unexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected error occurred'**
+  String get unexpectedError;
 
   /// Localized text for unknown.
   ///
@@ -1050,6 +2070,60 @@ abstract class AppLocalizations {
   /// **'Views'**
   String get views;
 
+  /// Localized text for viewsDayViewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything about one day'**
+  String get viewsDayViewSubtitle;
+
+  /// Localized text for viewsNextWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Week'**
+  String get viewsNextWeek;
+
+  /// Localized text for viewsPreviousWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Week'**
+  String get viewsPreviousWeek;
+
+  /// Localized text for viewsThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get viewsThisWeek;
+
+  /// Localized text for viewsThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This Year'**
+  String get viewsThisYear;
+
+  /// Localized text for viewsViewFullMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'View Full Month'**
+  String get viewsViewFullMonth;
+
+  /// Localized text for viewsWeekViewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Seven days with Myanmar dates and the moon'**
+  String get viewsWeekViewSubtitle;
+
+  /// Localized text for viewsYearViewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All 12 months with holiday counts'**
+  String get viewsYearViewSubtitle;
+
+  /// Localized text for week.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get week;
+
   /// Week View label
   ///
   /// In en, this message translates to:
@@ -1061,6 +2135,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Weekday'**
   String get weekday;
+
+  /// Localized text for weekNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {number}'**
+  String weekNumber(int number);
+
+  /// Localized text for weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Weeks'**
+  String get weeks;
 
   /// Localized text for widgetSettings.
   ///
@@ -1085,6 +2171,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Year View'**
   String get year_view;
+
+  /// Localized text for years.
+  ///
+  /// In en, this message translates to:
+  /// **'Years'**
+  String get years;
+
+  /// Localized text for yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
 }
 
 class _AppLocalizationsDelegate

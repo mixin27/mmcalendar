@@ -38,10 +38,10 @@ class _ConverterPageState extends State<ConverterPage> {
       children: [
         AppSegmented<_Tool>(
           segments: {
-            _Tool.convert: l10n?.converter ?? 'Convert',
-            _Tool.difference: 'Difference',
-            _Tool.arithmetic: l10n?.arithmetic ?? 'Add/Sub',
-            _Tool.moon: 'Moon',
+            _Tool.convert: l10n?.convert ?? 'Convert',
+            _Tool.difference: l10n?.converterDifference ?? 'Difference',
+            _Tool.arithmetic: l10n?.converterAddSub ?? 'Add/Sub',
+            _Tool.moon: l10n?.moon ?? 'Moon',
           },
           value: _tool,
           onChanged: (tool) {

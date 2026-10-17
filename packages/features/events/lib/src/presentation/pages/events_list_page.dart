@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../domain/entities/event.dart';
 import '../../domain/repositories/events_repository.dart';
@@ -57,6 +58,11 @@ class _EventsListPageState extends State<EventsListPage>
     super.dispose();
   }
 
+  String _noEventsTitle(AppLocalizations? l10n) {
+    final dateText = DateFormat('EEE, MMM d').format(_selectedDate);
+    return l10n?.eventsNoEventsOn(dateText) ?? 'No events on $dateText';
+  }
+
   Future<void> _create() async {
     await context.push(RoutePaths.eventsCreate(), extra: _selectedDate);
     if (mounted) await _refreshSelectedDateAndIndicators();
@@ -65,6 +71,7 @@ class _EventsListPageState extends State<EventsListPage>
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l10n = AppLocalizations.of(context);
     return BlocConsumer<UserEventsBloc, UserEventsState>(
       listenWhen: (previous, current) =>
           current is EventsOperationSuccess || current is EventsError,
@@ -85,11 +92,11 @@ class _EventsListPageState extends State<EventsListPage>
         return RefreshIndicator(
           onRefresh: _refreshSelectedDateAndIndicators,
           child: AppPage(
-            title: 'Events',
+            title: l10n?.events ?? 'Events',
             actions: [
               IconButton(
                 icon: const Icon(Icons.search),
-                tooltip: 'Search events',
+                tooltip: l10n?.eventsSearchEvents ?? 'Search events',
                 onPressed: () => _showSearch(context),
               ),
               _MoreMenu(
@@ -102,7 +109,7 @@ class _EventsListPageState extends State<EventsListPage>
               if (t.isClear)
                 IconButton(
                   icon: const Icon(Icons.add),
-                  tooltip: 'New Event',
+                  tooltip: l10n?.newEvent ?? 'New Event',
                   onPressed: _create,
                 ),
             ],
@@ -111,7 +118,7 @@ class _EventsListPageState extends State<EventsListPage>
                 : ScaleTransition(
                     scale: _fabScaleAnimation,
                     child: FloatingActionButton(
-                      tooltip: 'New Event',
+                      tooltip: l10n?.newEvent ?? 'New Event',
                       onPressed: _create,
                       child: const Icon(Icons.add),
                     ),
@@ -133,23 +140,24 @@ class _EventsListPageState extends State<EventsListPage>
                 _EmptyCard(
                   icon: Icons.error_outline,
                   title: state.failure.message,
-                  action: 'Try Again',
+                  action: l10n?.tryAgain ?? 'Try Again',
                   onAction: _refreshSelectedDateAndIndicators,
                 )
               else if (events.isEmpty)
                 _EmptyCard(
                   icon: Icons.event_available_outlined,
-                  title:
-                      'No events on ${DateFormat('EEE, MMM d').format(_selectedDate)}',
-                  subtitle: 'Pick another day or create one.',
-                  action: 'New Event',
+                  title: _noEventsTitle(l10n),
+                  subtitle:
+                      l10n?.eventsPickAnotherDay ??
+                      'Pick another day or create one.',
+                  action: l10n?.newEvent ?? 'New Event',
                   onAction: _create,
                 )
               else
                 AppGroup(
                   label:
-                      '${_isSameDay(_selectedDate, DateTime.now()) ? 'Today' : DateFormat('EEEE, MMM d').format(_selectedDate)} · '
-                      '$count event${count == 1 ? '' : 's'}',
+                      '${_isSameDay(_selectedDate, DateTime.now()) ? (l10n?.today ?? 'Today') : DateFormat('EEEE, MMM d').format(_selectedDate)} · '
+                      '${l10n?.eventsEventCount(count) ?? '$count event${count == 1 ? '' : 's'}'}',
                   children: [
                     for (final event in events)
                       EventRow(
@@ -354,7 +362,7 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
             padding: const EdgeInsets.all(16),
             children: [
               AppGroup(
-                label: 'Results',
+                label: AppLocalizations.of(context)?.eventsResults ?? 'Results',
                 children: [
                   for (final event in state.events)
                     EventRow(
@@ -390,6 +398,7 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
   }
 
   Widget _buildPrompt(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -402,10 +411,13 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
             ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
-          Text('Search events', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            l10n?.eventsSearchEvents ?? 'Search events',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 8),
           Text(
-            'Type title or description',
+            l10n?.eventsSearchPromptHint ?? 'Type title or description',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -416,6 +428,7 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
   }
 
   Widget _buildNoResults(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -429,12 +442,12 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No results found',
+            l10n?.eventsNoResultsFound ?? 'No results found',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'Try a different keyword',
+            l10n?.eventsTryDifferentKeyword ?? 'Try a different keyword',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -460,34 +473,37 @@ class _MoreMenu extends StatelessWidget {
   final VoidCallback onCategories;
 
   @override
-  Widget build(BuildContext context) => AppMenuButton(
-    groups: [
-      [
-        AppMenuAction(
-          label: 'Pick a date',
-          icon: Icons.calendar_month_outlined,
-          onSelected: onPickDate,
-        ),
-        AppMenuAction(
-          label: 'Jump to today',
-          icon: Icons.today_outlined,
-          onSelected: onToday,
-        ),
-        AppMenuAction(
-          label: 'Refresh',
-          icon: Icons.refresh_rounded,
-          onSelected: onRefresh,
-        ),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AppMenuButton(
+      groups: [
+        [
+          AppMenuAction(
+            label: l10n?.eventsPickADate ?? 'Pick a date',
+            icon: Icons.calendar_month_outlined,
+            onSelected: onPickDate,
+          ),
+          AppMenuAction(
+            label: l10n?.eventsJumpToToday ?? 'Jump to today',
+            icon: Icons.today_outlined,
+            onSelected: onToday,
+          ),
+          AppMenuAction(
+            label: l10n?.refresh ?? 'Refresh',
+            icon: Icons.refresh_rounded,
+            onSelected: onRefresh,
+          ),
+        ],
+        [
+          AppMenuAction(
+            label: l10n?.categories ?? 'Categories',
+            icon: Icons.sell_outlined,
+            onSelected: onCategories,
+          ),
+        ],
       ],
-      [
-        AppMenuAction(
-          label: 'Categories',
-          icon: Icons.sell_outlined,
-          onSelected: onCategories,
-        ),
-      ],
-    ],
-  );
+    );
+  }
 }
 
 /// Thirteen days around the selection with event counts.
@@ -502,11 +518,22 @@ class _DayStrip extends StatelessWidget {
   final Map<DateTime, int> counts;
   final ValueChanged<DateTime> onSelected;
 
+  static String _semanticsLabel(
+    AppLocalizations? l10n,
+    DateTime date,
+    int count,
+  ) {
+    final dateText = DateFormat('EEEE, MMMM d').format(date);
+    return l10n?.eventsDayEventsSemantics(dateText, count) ??
+        '$dateText, $count events';
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final start = selected.subtract(const Duration(days: 6));
     final today = DateUtils.dateOnly(DateTime.now());
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       height: 72,
       child: ListView.separated(
@@ -524,7 +551,7 @@ class _DayStrip extends StatelessWidget {
           return Semantics(
             selected: isSelected,
             button: true,
-            label: '${DateFormat('EEEE, MMMM d').format(date)}, $count events',
+            label: _semanticsLabel(l10n, date, count),
             excludeSemantics: true,
             child: Material(
               color: isSelected ? t.accent : t.surface,

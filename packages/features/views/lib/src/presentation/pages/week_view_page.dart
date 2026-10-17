@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/views_injection.dart';
@@ -76,23 +77,26 @@ class _WeekViewPageState extends State<WeekViewPage>
         }
 
         final week = state is WeekViewLoaded ? state.weekData : null;
+        final l10n = AppLocalizations.of(context);
         return AppPage(
-          title: week == null ? 'Week' : 'Week ${week.weekNumber}',
-          previousTitle: 'Views',
+          title: week == null
+              ? l10n?.week ?? 'Week'
+              : l10n?.weekNumber(week.weekNumber) ?? 'Week ${week.weekNumber}',
+          previousTitle: l10n?.views ?? 'Views',
           actions: [
             IconButton(
               icon: const Icon(Icons.chevron_left_rounded),
-              tooltip: 'Previous Week',
+              tooltip: l10n?.viewsPreviousWeek ?? 'Previous Week',
               onPressed: () => go(const NavigateWeekPrevious()),
             ),
             IconButton(
               icon: const Icon(Icons.today_outlined),
-              tooltip: 'This Week',
+              tooltip: l10n?.viewsThisWeek ?? 'This Week',
               onPressed: () => go(LoadWeekView(DateTime.now())),
             ),
             IconButton(
               icon: const Icon(Icons.chevron_right_rounded),
-              tooltip: 'Next Week',
+              tooltip: l10n?.viewsNextWeek ?? 'Next Week',
               onPressed: () => go(const NavigateWeekNext()),
             ),
           ],
@@ -180,7 +184,7 @@ class _WeekViewPageState extends State<WeekViewPage>
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          'Today',
+                          AppLocalizations.of(context)?.today ?? 'Today',
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
@@ -205,6 +209,7 @@ class _WeekViewPageState extends State<WeekViewPage>
   );
 
   Widget _buildErrorState(String message) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -225,7 +230,7 @@ class _WeekViewPageState extends State<WeekViewPage>
             ),
             const SizedBox(height: 24),
             Text(
-              'Oops! Something went wrong',
+              l10n?.somethingWentWrong ?? 'Oops! Something went wrong',
               style: context.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -244,7 +249,7 @@ class _WeekViewPageState extends State<WeekViewPage>
                 context.read<ViewsBloc>().add(LoadWeekView(DateTime.now()));
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
+              label: Text(l10n?.tryAgain ?? 'Try Again'),
             ),
           ],
         ),

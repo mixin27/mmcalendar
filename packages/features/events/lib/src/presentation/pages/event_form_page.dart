@@ -4,6 +4,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_core/shared_core.dart' show showAppMyanmarDatePicker;
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 import '../../domain/entities/event.dart';
 import '../../domain/entities/notification_setting.dart';
@@ -61,11 +62,14 @@ class _EventFormPageState extends State<EventFormPage> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final isNew = widget.eventId == null;
+    final l10n = AppLocalizations.of(context);
     return BlocConsumer<EventFormBloc, EventFormState>(
       listener: (context, state) {
         if (state is EventFormSuccess) {
           context.showToast(
-            state.isNew ? 'Event created' : 'Event updated',
+            state.isNew
+                ? (l10n?.eventsEventCreated ?? 'Event created')
+                : (l10n?.eventsEventUpdated ?? 'Event updated'),
             kind: AppToastKind.success,
           );
           context.pop();
@@ -78,15 +82,17 @@ class _EventFormPageState extends State<EventFormPage> {
         final submitting = state is EventFormSubmitting;
         final canSave = editing != null && editing.isValid && !submitting;
         return AppPage(
-          title: isNew ? 'New Event' : 'Edit Event',
+          title: isNew
+              ? (l10n?.newEvent ?? 'New Event')
+              : (l10n?.eventsEditEventTitle ?? 'Edit Event'),
           largeTitle: false,
-          previousTitle: 'Cancel',
+          previousTitle: l10n?.cancel ?? 'Cancel',
           actions: [
             if (t.isClear)
               TextButton(
                 onPressed: canSave ? _submitForm : null,
                 child: Text(
-                  isNew ? 'Add' : 'Save',
+                  isNew ? (l10n?.add ?? 'Add') : (l10n?.save ?? 'Save'),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -103,8 +109,10 @@ class _EventFormPageState extends State<EventFormPage> {
                   if (!t.isClear)
                     AppButton(
                       label: submitting
-                          ? 'Saving…'
-                          : (isNew ? 'Create Event' : 'Save Changes'),
+                          ? (l10n?.eventsSaving ?? 'Saving…')
+                          : (isNew
+                                ? (l10n?.eventsCreateEvent ?? 'Create Event')
+                                : (l10n?.eventsSaveChanges ?? 'Save Changes')),
                       icon: Icons.check,
                       onPressed: canSave ? _submitForm : null,
                     ),
@@ -117,6 +125,7 @@ class _EventFormPageState extends State<EventFormPage> {
   List<Widget> _formGroups(EventFormEditing state) {
     final t = context.tokens;
     final bloc = context.read<EventFormBloc>();
+    final l10n = AppLocalizations.of(context);
     if (_titleController.text != state.title) {
       _titleController.text = state.title;
     }
@@ -134,13 +143,13 @@ class _EventFormPageState extends State<EventFormPage> {
         children: [
           FormFieldRow(
             controller: _titleController,
-            hint: 'Title',
+            hint: l10n?.title ?? 'Title',
             autofocus: widget.eventId == null,
             onChanged: (v) => bloc.add(UpdateEventTitle(v)),
           ),
           FormFieldRow(
             controller: _descriptionController,
-            hint: 'Description',
+            hint: l10n?.description ?? 'Description',
             maxLines: 4,
             onChanged: (v) => bloc.add(UpdateEventDescription(v)),
           ),
@@ -151,7 +160,7 @@ class _EventFormPageState extends State<EventFormPage> {
           AppRow(
             icon: Icons.event,
             iconColor: t.holiday,
-            title: 'Date',
+            title: l10n?.date ?? 'Date',
             value: DateFormat('EEE, MMM d, yyyy').format(state.eventDate),
             chevron: true,
             onTap: () => _selectDate(context, state.eventDate),
@@ -159,7 +168,7 @@ class _EventFormPageState extends State<EventFormPage> {
           AppRow.toggle(
             icon: Icons.schedule,
             iconColor: t.accent,
-            title: 'All day',
+            title: l10n?.allDay ?? 'All day',
             value: state.isAllDay,
             onChanged: (_) => bloc.add(const ToggleAllDay()),
           ),
@@ -167,10 +176,10 @@ class _EventFormPageState extends State<EventFormPage> {
             AppRow(
               icon: Icons.access_time,
               iconColor: t.accent,
-              title: 'Time',
+              title: l10n?.time ?? 'Time',
               value: state.eventTime != null
                   ? TimeOfDay.fromDateTime(state.eventTime!).format(context)
-                  : 'Select',
+                  : (l10n?.select ?? 'Select'),
               chevron: true,
               onTap: () =>
                   _selectTime(context, state.eventTime, state.eventDate),
@@ -180,7 +189,7 @@ class _EventFormPageState extends State<EventFormPage> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AppGroupLabel('Category'),
+          AppGroupLabel(l10n?.category ?? 'Category'),
           BlocBuilder<EventCategoriesBloc, EventCategoriesState>(
             builder: (context, categories) =>
                 categories is EventCategoriesLoaded
@@ -205,7 +214,7 @@ class _EventFormPageState extends State<EventFormPage> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AppGroupLabel('Priority'),
+          AppGroupLabel(l10n?.priority ?? 'Priority'),
           AppSegmented<EventPriority>(
             segments: {for (final p in EventPriority.values) p: p.displayName},
             value: state.priority,
@@ -217,22 +226,24 @@ class _EventFormPageState extends State<EventFormPage> {
         children: [
           FormFieldRow(
             controller: _locationController,
-            hint: 'Location',
+            hint: l10n?.location ?? 'Location',
             icon: Icons.location_on_outlined,
             onChanged: (v) => bloc.add(UpdateEventLocation(v)),
           ),
           AppRow(
             icon: Icons.repeat,
             iconColor: const Color(0xFF8E8E93),
-            title: 'Repeat',
-            value: state.recurrenceRule?.type.displayName ?? 'Never',
+            title: l10n?.repeat ?? 'Repeat',
+            value:
+                state.recurrenceRule?.type.displayName ??
+                (l10n?.never ?? 'Never'),
             chevron: true,
             onTap: () => _showRecurrencePicker(context, state.recurrenceRule),
           ),
         ],
       ),
       AppGroup(
-        label: 'Reminders',
+        label: l10n?.reminders ?? 'Reminders',
         children: [
           for (final (index, notification) in state.notifications.indexed)
             AppRow(
@@ -242,23 +253,23 @@ class _EventFormPageState extends State<EventFormPage> {
               trailing: IconButton(
                 icon: const Icon(Icons.remove_circle_outline),
                 color: t.holiday,
-                tooltip: 'Remove reminder',
+                tooltip: l10n?.eventsRemoveReminder ?? 'Remove reminder',
                 onPressed: () => bloc.add(RemoveNotification(index)),
               ),
             ),
           AppRow(
-            title: 'Add reminder',
+            title: l10n?.eventsAddReminder ?? 'Add reminder',
             tone: AppRowTone.accent,
             onTap: () => _showNotificationPicker(context),
           ),
         ],
       ),
       AppGroup(
-        label: 'Tags',
+        label: l10n?.tags ?? 'Tags',
         children: [
           FormFieldRow(
             controller: _tagController,
-            hint: 'Add a tag and press return',
+            hint: l10n?.eventsAddTagHint ?? 'Add a tag and press return',
             icon: Icons.sell_outlined,
             onSubmitted: (value) {
               if (value.trim().isEmpty) return;
@@ -295,8 +306,10 @@ class _EventFormPageState extends State<EventFormPage> {
                 border: Border.all(color: t.separator),
               ),
             ),
-            title: 'Colour',
-            value: state.colorCode == null ? 'Category colour' : 'Custom',
+            title: l10n?.colour ?? 'Colour',
+            value: state.colorCode == null
+                ? (l10n?.eventsCategoryColour ?? 'Category colour')
+                : (l10n?.custom ?? 'Custom'),
             chevron: true,
             onTap: () => _showColorPicker(context, state.colorCode),
           ),
@@ -348,7 +361,9 @@ class _EventFormPageState extends State<EventFormPage> {
 
     if (!currentState.isValid) {
       context.showToast(
-        currentState.errorMessage ?? 'Please fill in required fields',
+        currentState.errorMessage ??
+            (AppLocalizations.of(context)?.eventsFillRequiredFields ??
+                'Please fill in required fields'),
         kind: AppToastKind.error,
       );
       return;
@@ -359,16 +374,19 @@ class _EventFormPageState extends State<EventFormPage> {
 
   void _showRecurrencePicker(BuildContext context, RecurrenceRule? current) {
     final bloc = context.read<EventFormBloc>();
+    final l10n = AppLocalizations.of(context);
     showAppSheet<void>(
       context: context,
-      title: 'Repeat',
+      title: l10n?.repeat ?? 'Repeat',
       builder: (sheetContext) => Padding(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         child: AppGroup(
           children: [
             for (final type in RecurrenceType.values)
               AppRow(
-                title: type == RecurrenceType.none ? 'Never' : type.displayName,
+                title: type == RecurrenceType.none
+                    ? (l10n?.never ?? 'Never')
+                    : type.displayName,
                 selected: (current?.type ?? RecurrenceType.none) == type,
                 onTap: () {
                   bloc.add(
@@ -391,7 +409,7 @@ class _EventFormPageState extends State<EventFormPage> {
     final bloc = context.read<EventFormBloc>();
     showAppSheet<void>(
       context: context,
-      title: 'Add reminder',
+      title: AppLocalizations.of(context)?.eventsAddReminder ?? 'Add reminder',
       builder: (sheetContext) => SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         child: AppGroup(
@@ -414,11 +432,12 @@ class _EventFormPageState extends State<EventFormPage> {
     Color pickerColor = currentColor != null
         ? Color(currentColor)
         : Colors.blue;
+    final l10n = AppLocalizations.of(context);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Pick a color'),
+        title: Text(l10n?.eventsPickAColor ?? 'Pick a color'),
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: pickerColor,
@@ -429,7 +448,7 @@ class _EventFormPageState extends State<EventFormPage> {
         ),
         actions: [
           TextButton(
-            child: const Text('Clear'),
+            child: Text(l10n?.clear ?? 'Clear'),
             onPressed: () {
               this.context.read<EventFormBloc>().add(
                 const UpdateEventColor(null),
@@ -438,11 +457,11 @@ class _EventFormPageState extends State<EventFormPage> {
             },
           ),
           TextButton(
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
             onPressed: () => Navigator.of(context).pop(),
           ),
           TextButton(
-            child: const Text('Select'),
+            child: Text(l10n?.select ?? 'Select'),
             onPressed: () {
               this.context.read<EventFormBloc>().add(
                 UpdateEventColor(pickerColor.toARGB32()),

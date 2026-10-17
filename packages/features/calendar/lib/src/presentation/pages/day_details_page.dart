@@ -98,21 +98,22 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     _navigateToDay(_currentDate.add(Duration(days: days)));
   }
 
-  String _relativeLabel() {
+  String _relativeLabel(AppLocalizations? l10n) {
     final today = DateUtils.dateOnly(DateTime.now());
     final days = DateUtils.dateOnly(_currentDate).difference(today).inDays;
     return switch (days) {
-      0 => 'Today',
-      1 => 'Tomorrow',
-      -1 => 'Yesterday',
-      > 1 => '$days days from today',
-      _ => '${-days} days ago',
+      0 => l10n?.today ?? 'Today',
+      1 => l10n?.tomorrow ?? 'Tomorrow',
+      -1 => l10n?.yesterday ?? 'Yesterday',
+      > 1 => l10n?.calendarDaysFromToday(days) ?? '$days days from today',
+      _ => l10n?.calendarDaysAgo(-days) ?? '${-days} days ago',
     };
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onHorizontalDragEnd: (details) {
         final velocity = details.primaryVelocity ?? 0;
@@ -139,12 +140,12 @@ class _DayDetailsPageState extends State<DayDetailsPage>
             actions: [
               IconButton(
                 icon: const Icon(Icons.chevron_left_rounded),
-                tooltip: 'Previous Day',
+                tooltip: l10n?.dayDetailsPreviousDay ?? 'Previous Day',
                 onPressed: () => _step(-1, 'previous_day'),
               ),
               IconButton(
                 icon: const Icon(Icons.calendar_month_outlined),
-                tooltip: 'Jump to Date',
+                tooltip: l10n?.dayDetailsJumpToDate ?? 'Jump to Date',
                 onPressed: () {
                   _analyticsService.logButtonClick(
                     buttonName: 'jump_to_date',
@@ -155,12 +156,12 @@ class _DayDetailsPageState extends State<DayDetailsPage>
               ),
               IconButton(
                 icon: const Icon(Icons.chevron_right_rounded),
-                tooltip: 'Next Day',
+                tooltip: l10n?.dayDetailsNextDay ?? 'Next Day',
                 onPressed: () => _step(1, 'next_day'),
               ),
               IconButton(
                 icon: Icon(t.isClear ? Icons.ios_share : Icons.share_outlined),
-                tooltip: 'Share',
+                tooltip: l10n?.share ?? 'Share',
                 onPressed: () => _shareDate(
                   _formatDetailedShareText(
                     context,
@@ -174,7 +175,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                 ? null
                 : FloatingActionButton(
                     heroTag: 'event',
-                    tooltip: 'Add Event',
+                    tooltip: l10n?.dayDetailsAddEvent ?? 'Add Event',
                     onPressed: () {
                       _analyticsService.logButtonClick(
                         buttonName: 'add_event',
@@ -198,7 +199,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
                       Padding(
                         padding: const EdgeInsets.only(left: 4, bottom: 14),
                         child: Text(
-                          '${_currentDate.year} · ${_relativeLabel()}',
+                          '${_currentDate.year} · ${_relativeLabel(l10n)}',
                           style: TextStyle(
                             fontSize: 13.5,
                             color: _isSameDay(_currentDate, DateTime.now())
@@ -250,11 +251,13 @@ class _DayDetailsPageState extends State<DayDetailsPage>
   }
 
   void _shareDate(String text) async {
+    final l10n = AppLocalizations.of(context);
     try {
       HapticFeedback.lightImpact();
       await share(
-        title: 'Share Day',
-        subject: 'Please check myanmar calendar',
+        title: l10n?.dayDetailsShareDay ?? 'Share Day',
+        subject:
+            l10n?.dayDetailsShareSubject ?? 'Please check myanmar calendar',
         content: text,
       );
 
@@ -288,7 +291,10 @@ class _DayDetailsPageState extends State<DayDetailsPage>
         return;
       }
 
-      context.showToast('Failed to share', kind: AppToastKind.error);
+      context.showToast(
+        l10n?.dayDetailsShareFailed ?? 'Failed to share',
+        kind: AppToastKind.error,
+      );
     }
   }
 
@@ -339,17 +345,17 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     );
     if (completeDate.sabbath.isNotEmpty) {
       buffer.writeln(
-        '• Sabbath: ${TranslationService.translateTo(completeDate.sabbath, MyanmarCalendar.currentLanguage)}',
+        '• ${l10n?.sabbath ?? 'Sabbath'}: ${TranslationService.translateTo(completeDate.sabbath, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.yatyaza.isNotEmpty) {
       buffer.writeln(
-        '• Yatyaza: ${TranslationService.translateTo(completeDate.yatyaza, MyanmarCalendar.currentLanguage)}',
+        '• ${l10n?.dayDetailsYatyaza ?? 'Yatyaza'}: ${TranslationService.translateTo(completeDate.yatyaza, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.pyathada.isNotEmpty) {
       buffer.writeln(
-        '• Pyathada: ${TranslationService.translateTo(completeDate.pyathada, MyanmarCalendar.currentLanguage)}',
+        '• ${l10n?.dayDetailsPyathada ?? 'Pyathada'}: ${TranslationService.translateTo(completeDate.pyathada, MyanmarCalendar.currentLanguage)}',
       );
     }
     if (completeDate.nagahle.isNotEmpty) {
@@ -359,7 +365,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     }
     if (completeDate.mahabote.isNotEmpty) {
       buffer.writeln(
-        '• Mahabote: ${TranslationService.translateTo(completeDate.mahabote, MyanmarCalendar.currentLanguage)}',
+        '• ${l10n?.mahabote ?? 'Mahabote'}: ${TranslationService.translateTo(completeDate.mahabote, MyanmarCalendar.currentLanguage)}',
       );
     }
 

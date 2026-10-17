@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 
 import '../../domain/entities/event.dart';
@@ -134,6 +135,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l10n = AppLocalizations.of(context);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -157,17 +159,20 @@ class _EventDetailPageState extends State<EventDetailPage> {
         builder: (context, state) {
           final event = _currentEvent;
           return AppPage(
-            title: 'Event',
+            title: l10n?.event ?? 'Event',
             largeTitle: false,
-            previousTitle: 'Events',
+            previousTitle: l10n?.events ?? 'Events',
             actions: [
               if (event != null) ...[
                 if (t.isClear)
-                  TextButton(onPressed: _edit, child: const Text('Edit'))
+                  TextButton(
+                    onPressed: _edit,
+                    child: Text(l10n?.edit ?? 'Edit'),
+                  )
                 else
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
-                    tooltip: 'Edit',
+                    tooltip: l10n?.edit ?? 'Edit',
                     onPressed: _edit,
                   ),
               ],
@@ -182,9 +187,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
               (EventsError(:final failure), _) => [
                 _StateCard(
                   icon: Icons.error_outline,
-                  title: 'Couldn’t load this event',
+                  title:
+                      l10n?.eventsCouldNotLoadEvent ??
+                      'Couldn’t load this event',
                   message: failure.message,
-                  action: 'Try Again',
+                  action: l10n?.tryAgain ?? 'Try Again',
                   onAction: _loadEvent,
                 ),
               ],
@@ -192,9 +199,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
               _ => [
                 _StateCard(
                   icon: Icons.event_busy,
-                  title: 'Event not found',
-                  message: 'It may have been deleted.',
-                  action: 'Go back',
+                  title: l10n?.eventsEventNotFound ?? 'Event not found',
+                  message:
+                      l10n?.eventsMayHaveBeenDeleted ??
+                      'It may have been deleted.',
+                  action: l10n?.goBack ?? 'Go back',
                   onAction: () => context.pop(),
                 ),
               ],
@@ -208,8 +217,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
   List<Widget> _details(BuildContext context, Event event) {
     final t = context.tokens;
     final color = Color(event.effectiveColor);
+    final l10n = AppLocalizations.of(context);
     final time = event.isAllDay || event.eventTime == null
-        ? 'All day'
+        ? (l10n?.allDay ?? 'All day')
         : TimeOfDay.fromDateTime(event.eventTime!).format(context);
     final isOccurrence = event.isRecurring && widget.occurrenceDate != null;
     Widget badge(String text, Color c) => Container(
@@ -240,8 +250,13 @@ class _EventDetailPageState extends State<EventDetailPage> {
                 runSpacing: 6,
                 children: [
                   badge(event.category.name, color),
-                  if (isOccurrence) badge('Occurrence', t.secondaryLabel),
-                  if (event.isCompleted) badge('Completed', t.success),
+                  if (isOccurrence)
+                    badge(
+                      l10n?.eventsOccurrence ?? 'Occurrence',
+                      t.secondaryLabel,
+                    ),
+                  if (event.isCompleted)
+                    badge(l10n?.eventsCompleted ?? 'Completed', t.success),
                 ],
               ),
               const SizedBox(height: 8),
@@ -265,7 +280,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AppGroupLabel('Description'),
+            AppGroupLabel(l10n?.description ?? 'Description'),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(14),
@@ -282,34 +297,34 @@ class _EventDetailPageState extends State<EventDetailPage> {
           AppRow(
             icon: categoryIcon(event.category.iconName),
             iconColor: Color(event.category.colorCode),
-            title: 'Category',
+            title: l10n?.category ?? 'Category',
             value: event.category.name,
           ),
           AppRow(
             icon: Icons.flag_outlined,
             iconColor: _getPriorityColor(event.priority),
-            title: 'Priority',
+            title: l10n?.priority ?? 'Priority',
             value: event.priority.displayName,
           ),
           if ((event.location ?? '').isNotEmpty)
             AppRow(
               icon: Icons.location_on_outlined,
               iconColor: const Color(0xFF1F9D63),
-              title: 'Location',
+              title: l10n?.location ?? 'Location',
               value: event.location,
             ),
           if (event.isRecurring)
             AppRow(
               icon: Icons.repeat,
               iconColor: const Color(0xFF8E8E93),
-              title: 'Repeat',
+              title: l10n?.repeat ?? 'Repeat',
               value: event.recurrenceRule!.type.displayName,
             ),
           if (event.hasNotifications)
             AppRow(
               icon: Icons.notifications_none_rounded,
               iconColor: t.holiday,
-              title: 'Reminders',
+              title: l10n?.reminders ?? 'Reminders',
               subtitle: event.notifications
                   .map((n) => n.displayName)
                   .join(', '),
@@ -318,7 +333,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
             AppRow(
               icon: Icons.sell_outlined,
               iconColor: const Color(0xFF8E6CEF),
-              title: 'Tags',
+              title: l10n?.tags ?? 'Tags',
               subtitle: event.tags.join(', '),
             ),
         ],
@@ -326,12 +341,14 @@ class _EventDetailPageState extends State<EventDetailPage> {
       AppGroup(
         children: [
           AppRow(
-            title: event.isCompleted ? 'Reopen event' : 'Mark complete',
+            title: event.isCompleted
+                ? (l10n?.eventsReopenEvent ?? 'Reopen event')
+                : (l10n?.markComplete ?? 'Mark complete'),
             tone: AppRowTone.accent,
             onTap: () => _toggleCurrentEventCompletion(event),
           ),
           AppRow(
-            title: 'Delete event',
+            title: l10n?.deleteEvent ?? 'Delete event',
             tone: AppRowTone.destructive,
             onTap: () => _confirmDelete(context),
           ),
@@ -354,11 +371,14 @@ class _EventDetailPageState extends State<EventDetailPage> {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showAppConfirm(
       context: context,
-      title: 'Delete event?',
-      message: 'This event will be removed. This can’t be undone.',
-      confirmLabel: 'Delete',
+      title: l10n?.deleteEventQuestion ?? 'Delete event?',
+      message:
+          l10n?.eventsDeleteEventMessage ??
+          'This event will be removed. This can’t be undone.',
+      confirmLabel: l10n?.delete ?? 'Delete',
       destructive: true,
     );
     if (!confirmed || !context.mounted) return;

@@ -27,6 +27,11 @@ import 'calendar_studio_export_flow.dart';
 import 'calendar_studio_template_sheets.dart';
 import 'calendar_studio_toast.dart';
 
+// Layout breakpoints, the same as the app's ResponsiveUtils (600 / 1024).
+// Calendar Studio is standalone, so it keeps its own copy.
+const double _tabletWidth = 600;
+const double _desktopWidth = 1024;
+
 class CalendarStudioWorkspace extends StatefulWidget {
   const CalendarStudioWorkspace({required this.configuration, super.key});
   final CalendarStudioConfiguration configuration;
@@ -389,7 +394,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         ? _emptyDashboard(context)
         : LayoutBuilder(
             builder: (context, box) {
-              final count = box.maxWidth >= 900 ? 4 : 2;
+              final count = box.maxWidth >= _desktopWidth
+                  ? 4
+                  : (box.maxWidth >= _tabletWidth ? 3 : 2);
               final visible = _filteredProjects;
               return ListView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
@@ -803,7 +810,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: project.pages.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: box.maxWidth >= 900 ? 6 : 4,
+                crossAxisCount: box.maxWidth >= _desktopWidth ? 6 : 4,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 10,
                 childAspectRatio: .62,
@@ -1530,7 +1537,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   Widget _templates(BuildContext context) => LayoutBuilder(
     builder: (context, box) {
-      final wide = box.maxWidth >= 1024;
+      final wide = box.maxWidth >= _desktopWidth;
       final filtered = _allTemplates
           .where((template) => _matchesGallery(template))
           .toList();
@@ -1543,7 +1550,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       final classic = filtered
           .where((t) => t.collection == null && t.user == null)
           .toList();
-      final columns = wide ? 4 : (box.maxWidth >= 600 ? 3 : 2);
+      final columns = wide ? 4 : (box.maxWidth >= _tabletWidth ? 3 : 2);
       Widget heading(String text, String trailing) => Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
         child: Row(
@@ -2503,7 +2510,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     };
     return LayoutBuilder(
       builder: (context, box) {
-        final wide = box.maxWidth >= 900;
+        final wide = box.maxWidth >= _desktopWidth;
         final canvas = _canvas(context, project);
         final workspace = wide
             ? Row(
@@ -5215,7 +5222,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         ],
       ),
       body: LayoutBuilder(
-        builder: (context, box) => box.maxWidth >= 900
+        builder: (context, box) => box.maxWidth >= _desktopWidth
             ? Row(
                 children: [
                   Expanded(child: preview),

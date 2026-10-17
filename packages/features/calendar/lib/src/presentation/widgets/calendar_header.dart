@@ -60,7 +60,7 @@ class CalendarHeader extends StatelessWidget {
           Expanded(
             child: Semantics(
               button: true,
-              label: 'Choose month',
+              label: l10n?.calendarChooseMonth ?? 'Choose month',
               child: InkWell(
                 onTap: onMonthYearTap,
                 borderRadius: BorderRadius.circular(10),
@@ -142,7 +142,7 @@ class CalendarHeader extends StatelessWidget {
               onPressed: onStudioTap,
               color: colors.primary,
               visualDensity: VisualDensity.compact,
-              tooltip: 'Calendar Studio',
+              tooltip: l10n?.calendarStudio ?? 'Calendar Studio',
             ),
         ],
       ),

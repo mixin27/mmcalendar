@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_core/shared_core.dart' show RoutePaths;
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 
 import '../../domain/entities/event.dart';
@@ -38,6 +39,7 @@ class EventRow extends StatelessWidget {
     final t = context.tokens;
     final color = Color(event.effectiveColor);
     final done = event.isCompleted;
+    final l10n = AppLocalizations.of(context);
 
     final tile = t.isClear
         ? Container(
@@ -83,7 +85,9 @@ class EventRow extends StatelessWidget {
         leading: Semantics(
           checked: done,
           button: true,
-          label: done ? 'Mark as pending' : 'Mark complete',
+          label: done
+              ? (l10n?.markAsPending ?? 'Mark as pending')
+              : (l10n?.markComplete ?? 'Mark complete'),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: event.id == null
@@ -96,7 +100,7 @@ class EventRow extends StatelessWidget {
           ),
         ),
         title: event.title,
-        subtitleSpan: _details(t),
+        subtitleSpan: _details(t, l10n),
         completed: done,
         chevron: showDate,
         onTap: onOpen,
@@ -104,19 +108,19 @@ class EventRow extends StatelessWidget {
     );
   }
 
-  InlineSpan _details(AppTokens t) {
+  InlineSpan _details(AppTokens t, AppLocalizations? l10n) {
     final parts = <InlineSpan>[
       if (showDate)
         TextSpan(text: DateFormat('EEE d MMM').format(event.eventDate)),
       TextSpan(
         text: event.isAllDay || event.eventTime == null
-            ? 'All day'
+            ? (l10n?.allDay ?? 'All day')
             : DateFormat.Hm().format(event.eventDateTime),
       ),
       TextSpan(text: event.category.name),
       if (event.recurrenceRule case final rule?
           when rule.type != RecurrenceType.none)
-        TextSpan(text: _repeatText(rule)),
+        TextSpan(text: _repeatText(rule, l10n)),
       if (event.hasNotifications)
         TextSpan(
           children: [
@@ -131,7 +135,7 @@ class EventRow extends StatelessWidget {
                 ),
               ),
             ),
-            TextSpan(text: _reminderText()),
+            TextSpan(text: _reminderText(l10n)),
           ],
         ),
       if ((event.location ?? '').isNotEmpty) TextSpan(text: event.location),
@@ -151,7 +155,7 @@ class EventRow extends StatelessWidget {
     );
   }
 
-  static String _repeatText(RecurrenceRule rule) {
+  static String _repeatText(RecurrenceRule rule, AppLocalizations? l10n) {
     const units = {
       RecurrenceType.daily: ('daily', 'days'),
       RecurrenceType.weekly: ('weekly', 'weeks'),
@@ -159,22 +163,41 @@ class EventRow extends StatelessWidget {
       RecurrenceType.yearly: ('yearly', 'years'),
     };
     final (once, plural) = units[rule.type]!;
-    return rule.interval > 1
-        ? 'repeats every ${rule.interval} $plural'
-        : 'repeats $once';
+    final n = rule.interval;
+    final localized = l10n == null
+        ? null
+        : n > 1
+        ? switch (rule.type) {
+            RecurrenceType.daily => l10n.eventsRepeatsEveryNDays(n),
+            RecurrenceType.weekly => l10n.eventsRepeatsEveryNWeeks(n),
+            RecurrenceType.monthly => l10n.eventsRepeatsEveryNMonths(n),
+            RecurrenceType.yearly => l10n.eventsRepeatsEveryNYears(n),
+            RecurrenceType.none => null,
+          }
+        : switch (rule.type) {
+            RecurrenceType.daily => l10n.eventsRepeatsDaily,
+            RecurrenceType.weekly => l10n.eventsRepeatsWeekly,
+            RecurrenceType.monthly => l10n.eventsRepeatsMonthly,
+            RecurrenceType.yearly => l10n.eventsRepeatsYearly,
+            RecurrenceType.none => null,
+          };
+    return localized ?? (n > 1 ? 'repeats every $n $plural' : 'repeats $once');
   }
 
   /// The earliest reminder, short ("15 min", "1 h", "1 day"), plus how many
   /// more there are.
-  String _reminderText() {
+  String _reminderText(AppLocalizations? l10n) {
     final minutes = event.notifications
         .map((n) => n.minutesBefore)
         .reduce((a, b) => a > b ? a : b);
     final first = switch (minutes) {
-      0 => 'at start',
-      < 60 => '$minutes min',
-      < 1440 => '${minutes ~/ 60} h',
-      _ => '${minutes ~/ 1440} day${minutes >= 2880 ? 's' : ''}',
+      0 => l10n?.eventsReminderAtStart ?? 'at start',
+      < 60 => l10n?.eventsReminderMinutes(minutes) ?? '$minutes min',
+      < 1440 =>
+        l10n?.eventsReminderHours(minutes ~/ 60) ?? '${minutes ~/ 60} h',
+      _ =>
+        l10n?.eventsReminderDays(minutes ~/ 1440) ??
+            '${minutes ~/ 1440} day${minutes >= 2880 ? 's' : ''}',
     };
     final more = event.notifications.length - 1;
     return more > 0 ? '$first +$more' : first;
@@ -207,10 +230,11 @@ void toggleEventComplete(BuildContext context, Event event) {
 Future<void> showEventActions(BuildContext context, Event event) async {
   final id = event.id;
   if (id == null) return;
+  final l10n = AppLocalizations.of(context);
   await showAppSheet<void>(
     context: context,
     title: event.title,
-    cancelLabel: 'Close',
+    cancelLabel: l10n?.close ?? 'Close',
     builder: (sheetContext) => SafeArea(
       top: false,
       child: Padding(
@@ -227,8 +251,8 @@ Future<void> showEventActions(BuildContext context, Event event) async {
                       : Icons.check_rounded,
                   iconColor: const Color(0xFF1F9D63),
                   title: event.isCompleted
-                      ? 'Mark as pending'
-                      : 'Mark complete',
+                      ? (l10n?.markAsPending ?? 'Mark as pending')
+                      : (l10n?.markComplete ?? 'Mark complete'),
                   onTap: () {
                     Navigator.of(sheetContext).pop();
                     toggleEventComplete(context, event);
@@ -237,7 +261,7 @@ Future<void> showEventActions(BuildContext context, Event event) async {
                 AppRow(
                   icon: Icons.edit_outlined,
                   iconColor: const Color(0xFF2F5BEA),
-                  title: 'Edit event',
+                  title: l10n?.editEvent ?? 'Edit event',
                   onTap: () {
                     Navigator.of(sheetContext).pop();
                     context.push(RoutePaths.eventsEdit(id));
@@ -252,8 +276,9 @@ Future<void> showEventActions(BuildContext context, Event event) async {
                   icon: Icons.delete_outline,
                   iconColor: const Color(0xFFE5383B),
                   title: event.isRecurring
-                      ? 'Delete this occurrence'
-                      : 'Delete event',
+                      ? (l10n?.eventsDeleteThisOccurrence ??
+                            'Delete this occurrence')
+                      : (l10n?.deleteEvent ?? 'Delete event'),
                   tone: AppRowTone.destructive,
                   onTap: () {
                     Navigator.of(sheetContext).pop();
@@ -272,13 +297,19 @@ Future<void> showEventActions(BuildContext context, Event event) async {
 Future<void> confirmDeleteEvent(BuildContext context, Event event) async {
   final id = event.id;
   if (id == null) return;
+  final l10n = AppLocalizations.of(context);
   final confirmed = await showAppConfirm(
     context: context,
-    title: event.isRecurring ? 'Delete this occurrence?' : 'Delete event?',
+    title: event.isRecurring
+        ? (l10n?.eventsDeleteThisOccurrenceQuestion ??
+              'Delete this occurrence?')
+        : (l10n?.deleteEventQuestion ?? 'Delete event?'),
     message: event.isRecurring
-        ? 'Only this occurrence will be removed.'
-        : '“${event.title}” will be removed. This can’t be undone.',
-    confirmLabel: 'Delete',
+        ? (l10n?.eventsOnlyThisOccurrenceRemoved ??
+              'Only this occurrence will be removed.')
+        : (l10n?.eventsEventWillBeRemoved(event.title) ??
+              '“${event.title}” will be removed. This can’t be undone.'),
+    confirmLabel: l10n?.delete ?? 'Delete',
     destructive: true,
   );
   if (!confirmed || !context.mounted) return;

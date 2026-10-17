@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/converter_injection.dart';
@@ -107,32 +108,38 @@ class _ResultActions extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: AppButton(
-          label: 'Copy',
-          icon: Icons.copy_rounded,
-          kind: AppButtonKind.tinted,
-          compact: true,
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: text));
-            context.showToast('Copied', kind: AppToastKind.success);
-          },
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Row(
+      children: [
+        Expanded(
+          child: AppButton(
+            label: l10n?.copy ?? 'Copy',
+            icon: Icons.copy_rounded,
+            kind: AppButtonKind.tinted,
+            compact: true,
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: text));
+              context.showToast(
+                l10n?.copied ?? 'Copied',
+                kind: AppToastKind.success,
+              );
+            },
+          ),
         ),
-      ),
-      const SizedBox(width: 10),
-      Expanded(
-        child: AppButton(
-          label: 'Share',
-          icon: context.isClearStyle ? Icons.ios_share : Icons.share_outlined,
-          kind: AppButtonKind.tinted,
-          compact: true,
-          onPressed: () => share(title: title, subject: title, content: text),
+        const SizedBox(width: 10),
+        Expanded(
+          child: AppButton(
+            label: l10n?.share ?? 'Share',
+            icon: context.isClearStyle ? Icons.ios_share : Icons.share_outlined,
+            kind: AppButtonKind.tinted,
+            compact: true,
+            onPressed: () => share(title: title, subject: title, content: text),
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
 
 /// Inline message instead of a snackbar.
@@ -157,29 +164,36 @@ List<AppRow> _dateFacts(BuildContext context, CompleteDate d) {
     ...d.allAnniversaryDays,
   ].map(_t).join(', ');
   final astro = d.astrologicalDays.map(_t).join(', ');
+  final l10n = AppLocalizations.of(context);
   return [
     AppRow(
-      title: 'Weekday',
+      title: l10n?.weekday ?? 'Weekday',
       value: TranslationService.getWeekdayName(d.weekday, _language),
     ),
     AppRow(
       leading: MoonGlyph(date: _dateOf(d), size: 24),
-      title: 'Moon',
+      title: l10n?.moon ?? 'Moon',
       value: TranslationService.getMoonPhaseName(d.moonPhase, _language),
     ),
-    AppRow(title: 'Holidays', subtitle: holidays.isEmpty ? 'None' : holidays),
-    if (astro.isNotEmpty) AppRow(title: 'Astrology', subtitle: astro),
+    AppRow(
+      title: l10n?.holidays ?? 'Holidays',
+      subtitle: holidays.isEmpty ? l10n?.none ?? 'None' : holidays,
+    ),
+    if (astro.isNotEmpty)
+      AppRow(title: l10n?.astrology ?? 'Astrology', subtitle: astro),
   ];
 }
 
-String _factsText(CompleteDate d) {
+String _factsText(BuildContext context, CompleteDate d) {
   final holidays = [...d.allHolidays, ...d.allAnniversaryDays].map(_t);
+  final l10n = AppLocalizations.of(context);
   return [
-    'Weekday: ${TranslationService.getWeekdayName(d.weekday, _language)}',
-    'Moon: ${TranslationService.getMoonPhaseName(d.moonPhase, _language)}',
-    if (holidays.isNotEmpty) 'Holidays: ${holidays.join(', ')}',
+    '${l10n?.weekday ?? 'Weekday'}: ${TranslationService.getWeekdayName(d.weekday, _language)}',
+    '${l10n?.moon ?? 'Moon'}: ${TranslationService.getMoonPhaseName(d.moonPhase, _language)}',
+    if (holidays.isNotEmpty)
+      '${l10n?.holidays ?? 'Holidays'}: ${holidays.join(', ')}',
     if (d.astrologicalDays.isNotEmpty)
-      'Astrology: ${d.astrologicalDays.map(_t).join(', ')}',
+      '${l10n?.astrology ?? 'Astrology'}: ${d.astrologicalDays.map(_t).join(', ')}',
   ].join('\n');
 }
 
@@ -236,12 +250,20 @@ class _ConvertToolState extends State<ConvertTool> {
     final year = int.tryParse(_year.text);
     final month = int.tryParse(_month.text);
     final day = int.tryParse(_day.text);
+    final l10n = AppLocalizations.of(context);
     if (year == null || month == null || day == null) {
-      setState(() => _error = 'Enter a Myanmar year, month and day.');
+      setState(
+        () => _error =
+            l10n?.converterEnterMyanmarDate ??
+            'Enter a Myanmar year, month and day.',
+      );
       return;
     }
     if (month > 14 || day < 1 || day > 30) {
-      setState(() => _error = 'Month is 0–14 and day is 1–30.');
+      setState(
+        () => _error =
+            l10n?.converterMonthDayRange ?? 'Month is 0–14 and day is 1–30.',
+      );
       return;
     }
     setState(() => _error = null);
@@ -252,6 +274,7 @@ class _ConvertToolState extends State<ConvertTool> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return BlocListener<ConverterBloc, ConverterState>(
       listenWhen: (_, s) => s is ConversionSuccess || s is ConversionError,
       listener: (context, state) => setState(() {
@@ -266,9 +289,9 @@ class _ConvertToolState extends State<ConvertTool> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: _spaced([
           AppSegmented<bool>(
-            segments: const {
-              true: 'Western → Myanmar',
-              false: 'Myanmar → Western',
+            segments: {
+              true: l10n?.converterWesternToMyanmar ?? 'Western → Myanmar',
+              false: l10n?.converterMyanmarToWestern ?? 'Myanmar → Western',
             },
             value: _westernToMyanmar,
             onChanged: (v) => setState(() {
@@ -282,7 +305,7 @@ class _ConvertToolState extends State<ConvertTool> {
             AppGroup(
               children: [
                 _DateRow(
-                  label: 'Date',
+                  label: l10n?.date ?? 'Date',
                   date: _date,
                   onChanged: (d) {
                     setState(() => _date = d);
@@ -294,20 +317,29 @@ class _ConvertToolState extends State<ConvertTool> {
           else ...[
             AppGroup(
               footer:
+                  l10n?.converterMonthFooter ??
                   'Month: 0 = First Waso, 1–12 = Tagu to Tabaung, '
-                  '13 = Late Tagu, 14 = Second Waso.',
+                      '13 = Late Tagu, 14 = Second Waso.',
               children: [
-                _NumberRow(label: 'Year', controller: _year, hint: '1388'),
-                _NumberRow(label: 'Month', controller: _month, hint: '0–14'),
                 _NumberRow(
-                  label: 'Day',
+                  label: l10n?.year ?? 'Year',
+                  controller: _year,
+                  hint: '1388',
+                ),
+                _NumberRow(
+                  label: l10n?.month ?? 'Month',
+                  controller: _month,
+                  hint: '0–14',
+                ),
+                _NumberRow(
+                  label: l10n?.day ?? 'Day',
                   controller: _day,
                   hint: '1–30',
                   onSubmitted: _convert,
                 ),
               ],
             ),
-            AppButton(label: 'Convert', onPressed: _convert),
+            AppButton(label: l10n?.convert ?? 'Convert', onPressed: _convert),
           ],
           if (_error != null) _Message(_error!),
           if (_result case final result?) ..._resultSection(context, result),
@@ -324,17 +356,18 @@ class _ConvertToolState extends State<ConvertTool> {
     final other = _westernToMyanmar
         ? _fullDate(context, _dateOf(d))
         : result.formattedMyanmar;
+    final l10n = AppLocalizations.of(context);
     return [
       AppGroup(
-        label: 'Result',
+        label: l10n?.converterResult ?? 'Result',
         children: [
           AppRow(title: headline, subtitle: other),
           ..._dateFacts(context, d),
         ],
       ),
       _ResultActions(
-        title: 'Converted date',
-        text: '$headline\n$other\n${_factsText(d)}',
+        title: l10n?.converterConvertedDate ?? 'Converted date',
+        text: '$headline\n$other\n${_factsText(context, d)}',
       ),
     ];
   }
@@ -377,6 +410,7 @@ class _DifferenceToolState extends State<DifferenceTool> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l10n = AppLocalizations.of(context);
     return BlocListener<ConverterBloc, ConverterState>(
       listenWhen: (_, s) => s is CalculationSuccess || s is CalculationError,
       listener: (context, state) => setState(() {
@@ -393,7 +427,7 @@ class _DifferenceToolState extends State<DifferenceTool> {
           AppGroup(
             children: [
               _DateRow(
-                label: 'Start',
+                label: l10n?.converterStart ?? 'Start',
                 date: _start,
                 onChanged: (d) {
                   setState(() => _start = d);
@@ -401,7 +435,7 @@ class _DifferenceToolState extends State<DifferenceTool> {
                 },
               ),
               _DateRow(
-                label: 'End',
+                label: l10n?.converterEnd ?? 'End',
                 date: _end,
                 onChanged: (d) {
                   setState(() => _end = d);
@@ -409,7 +443,7 @@ class _DifferenceToolState extends State<DifferenceTool> {
                 },
               ),
               AppRow(
-                title: 'Swap dates',
+                title: l10n?.converterSwapDates ?? 'Swap dates',
                 tone: AppRowTone.accent,
                 onTap: () {
                   setState(() {
@@ -421,7 +455,7 @@ class _DifferenceToolState extends State<DifferenceTool> {
                 },
               ),
               AppRow(
-                title: 'Start from today',
+                title: l10n?.converterStartFromToday ?? 'Start from today',
                 tone: AppRowTone.accent,
                 onTap: () {
                   setState(() => _start = DateUtils.dateOnly(DateTime.now()));
@@ -446,7 +480,8 @@ class _DifferenceToolState extends State<DifferenceTool> {
                       ),
                     ),
                     Text(
-                      result.totalDays == 1 ? 'day' : 'days',
+                      l10n?.converterDaysUnit(result.totalDays) ??
+                          (result.totalDays == 1 ? 'day' : 'days'),
                       style: TextStyle(color: t.secondaryLabel),
                     ),
                   ],
@@ -457,28 +492,30 @@ class _DifferenceToolState extends State<DifferenceTool> {
               footer: result.formattedDifference,
               children: [
                 AppRow(
-                  title: 'Years',
+                  title: l10n?.years ?? 'Years',
                   value: translateNumbers('${result.years}'),
                 ),
                 AppRow(
-                  title: 'Months',
+                  title: l10n?.months ?? 'Months',
                   value: translateNumbers('${result.months}'),
                 ),
                 AppRow(
-                  title: 'Weeks',
+                  title: l10n?.weeks ?? 'Weeks',
                   value: translateNumbers('${result.weeks}'),
                 ),
                 AppRow(
-                  title: 'Days',
+                  title: l10n?.days ?? 'Days',
                   value: translateNumbers('${result.days}'),
                 ),
               ],
             ),
             _ResultActions(
-              title: 'Date difference',
+              title: l10n?.converterDateDifference ?? 'Date difference',
               text:
                   '${_fullDate(context, _start)} → ${_fullDate(context, _end)}\n'
-                  '${result.totalDays} days (${result.formattedDifference})',
+                  '${result.totalDays} '
+                  '${l10n?.converterDaysUnit(result.totalDays) ?? 'days'} '
+                  '(${result.formattedDifference})',
             ),
           ],
         ]),
@@ -504,11 +541,11 @@ class _ArithmeticToolState extends State<ArithmeticTool> {
   DateArithmeticResult? _result;
   String? _error;
 
-  static const _units = {
-    'days': 'Days',
-    'weeks': 'Weeks',
-    'months': 'Months',
-    'years': 'Years',
+  Map<String, String> _units(AppLocalizations? l10n) => {
+    'days': l10n?.days ?? 'Days',
+    'weeks': l10n?.weeks ?? 'Weeks',
+    'months': l10n?.months ?? 'Months',
+    'years': l10n?.years ?? 'Years',
   };
 
   @override
@@ -520,7 +557,11 @@ class _ArithmeticToolState extends State<ArithmeticTool> {
   void _calculate() {
     final value = int.tryParse(_value.text);
     if (value == null || value <= 0) {
-      setState(() => _error = 'Enter a whole number above 0.');
+      final l10n = AppLocalizations.of(context);
+      setState(
+        () => _error =
+            l10n?.converterEnterWholeNumber ?? 'Enter a whole number above 0.',
+      );
       return;
     }
     setState(() => _error = null);
@@ -540,6 +581,10 @@ class _ArithmeticToolState extends State<ArithmeticTool> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final unit = _result == null
+        ? ''
+        : l10n?.converterUnit(_result!.unit) ?? _result!.unit;
     return BlocListener<ConverterBloc, ConverterState>(
       listenWhen: (_, s) => s is ArithmeticSuccess || s is ArithmeticError,
       listener: (context, state) => setState(() {
@@ -556,19 +601,22 @@ class _ArithmeticToolState extends State<ArithmeticTool> {
           AppGroup(
             children: [
               _DateRow(
-                label: 'Start',
+                label: l10n?.converterStart ?? 'Start',
                 date: _start,
                 onChanged: (d) => setState(() => _start = d),
               ),
               _NumberRow(
-                label: 'Value',
+                label: l10n?.converterValue ?? 'Value',
                 controller: _value,
                 onSubmitted: _calculate,
               ),
             ],
           ),
           AppSegmented<String>(
-            segments: const {'add': 'Add', 'subtract': 'Subtract'},
+            segments: {
+              'add': l10n?.add ?? 'Add',
+              'subtract': l10n?.converterSubtract ?? 'Subtract',
+            },
             value: _operation,
             onChanged: (v) => setState(() => _operation = v),
           ),
@@ -576,7 +624,7 @@ class _ArithmeticToolState extends State<ArithmeticTool> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final MapEntry(:key, :value) in _units.entries)
+              for (final MapEntry(:key, :value) in _units(l10n).entries)
                 AppChip(
                   label: value,
                   selected: _unit == key,
@@ -584,12 +632,15 @@ class _ArithmeticToolState extends State<ArithmeticTool> {
                 ),
             ],
           ),
-          AppButton(label: 'Calculate', onPressed: _calculate),
+          AppButton(
+            label: l10n?.calculate ?? 'Calculate',
+            onPressed: _calculate,
+          ),
           if (_error != null) _Message(_error!),
           if (_result case final result?) ...[
             AppGroup(
               label:
-                  '${result.operation == 'add' ? '+' : '−'}${result.value} ${result.unit}',
+                  '${result.operation == 'add' ? '+' : '−'}${result.value} $unit',
               children: [
                 AppRow(
                   title: _fullDate(context, _dateOf(result.resultDate)),
@@ -602,14 +653,14 @@ class _ArithmeticToolState extends State<ArithmeticTool> {
               ],
             ),
             _ResultActions(
-              title: 'Date arithmetic',
+              title: l10n?.converterDateArithmetic ?? 'Date arithmetic',
               text:
                   '${_fullDate(context, _start)} '
                   '${result.operation == 'add' ? '+' : '−'} '
-                  '${result.value} ${result.unit} = '
+                  '${result.value} $unit = '
                   '${_fullDate(context, _dateOf(result.resultDate))}\n'
                   '${MyanmarCalendar.formatMyanmar(result.resultDate.myanmar, language: _language)}\n'
-                  '${_factsText(result.resultDate)}',
+                  '${_factsText(context, result.resultDate)}',
             ),
           ],
         ]),
@@ -651,6 +702,7 @@ class _MoonFinderToolState extends State<MoonFinderTool> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l10n = AppLocalizations.of(context);
     return BlocListener<ConverterBloc, ConverterState>(
       listenWhen: (_, s) => s is MoonPhaseSuccess || s is MoonPhaseError,
       listener: (context, state) => setState(() {
@@ -667,7 +719,7 @@ class _MoonFinderToolState extends State<MoonFinderTool> {
           AppGroup(
             children: [
               _DateRow(
-                label: 'From',
+                label: l10n?.converterFrom ?? 'From',
                 date: _from,
                 onChanged: (d) {
                   setState(() => _from = d);
@@ -701,12 +753,13 @@ class _MoonFinderToolState extends State<MoonFinderTool> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Next ${result.moonPhaseName}',
+                            l10n?.converterNextPhase(result.moonPhaseName) ??
+                                'Next ${result.moonPhaseName}',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           Text(
                             '${_fullDate(context, _dateOf(result.dateFound))} · '
-                            '${result.daysFromStart == 0 ? 'today' : 'in ${result.daysFromStart} ${result.daysFromStart == 1 ? 'day' : 'days'}'}',
+                            '${result.daysFromStart == 0 ? l10n?.converterTodayLower ?? 'today' : l10n?.converterInDays(result.daysFromStart) ?? 'in ${result.daysFromStart} ${result.daysFromStart == 1 ? 'day' : 'days'}'}',
                             style: TextStyle(color: t.secondaryLabel),
                           ),
                         ],
@@ -719,7 +772,7 @@ class _MoonFinderToolState extends State<MoonFinderTool> {
             AppGroup(
               children: [
                 AppRow(
-                  title: 'Myanmar date',
+                  title: l10n?.converterMyanmarDate ?? 'Myanmar date',
                   subtitle: MyanmarCalendar.formatMyanmar(
                     result.dateFound.myanmar,
                     language: _language,
@@ -729,11 +782,11 @@ class _MoonFinderToolState extends State<MoonFinderTool> {
               ],
             ),
             _ResultActions(
-              title: 'Moon phase',
+              title: l10n?.converterMoonPhase ?? 'Moon phase',
               text:
-                  'Next ${result.moonPhaseName}: '
+                  '${l10n?.converterNextPhase(result.moonPhaseName) ?? 'Next ${result.moonPhaseName}'}: '
                   '${_fullDate(context, _dateOf(result.dateFound))} '
-                  '(in ${result.daysFromStart} days)\n'
+                  '(${l10n?.converterInDays(result.daysFromStart) ?? 'in ${result.daysFromStart} days'})\n'
                   '${MyanmarCalendar.formatMyanmar(result.dateFound.myanmar, language: _language)}',
             ),
           ],

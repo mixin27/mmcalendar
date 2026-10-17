@@ -6,6 +6,7 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:telegram_web/telegram_web.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../di/calendar_injection.dart';
 import '../bloc/calendar_bloc.dart';
@@ -646,7 +647,8 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             ),
             const SizedBox(height: 24),
             Text(
-              'Oops! Something went wrong',
+              AppLocalizations.of(context)?.somethingWentWrong ??
+                  'Oops! Something went wrong',
               style: context.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -667,7 +669,9 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                 );
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
+              label: Text(
+                AppLocalizations.of(context)?.tryAgain ?? 'Try Again',
+              ),
             ),
           ],
         ),
@@ -826,6 +830,7 @@ class _MonthYearPickerBottomSheetState
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final selectedLabel = '${_getMonthName(selectedMonth)} $selectedYear';
+    final l10n = AppLocalizations.of(context);
 
     return SafeArea(
       top: false,
@@ -855,7 +860,7 @@ class _MonthYearPickerBottomSheetState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Jump to month',
+                      l10n?.calendarJumpToMonth ?? 'Jump to month',
                       style: context.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -885,7 +890,7 @@ class _MonthYearPickerBottomSheetState
               child: Row(
                 children: [
                   IconButton(
-                    tooltip: 'Previous year',
+                    tooltip: l10n?.calendarPreviousYear ?? 'Previous year',
                     onPressed: () => _shiftYear(-1),
                     icon: const Icon(Icons.chevron_left),
                   ),
@@ -926,7 +931,7 @@ class _MonthYearPickerBottomSheetState
                     ),
                   ),
                   IconButton(
-                    tooltip: 'Next year',
+                    tooltip: l10n?.calendarNextYear ?? 'Next year',
                     onPressed: () => _shiftYear(1),
                     icon: const Icon(Icons.chevron_right),
                   ),
@@ -939,7 +944,7 @@ class _MonthYearPickerBottomSheetState
               child: FilledButton.tonalIcon(
                 onPressed: _selectToday,
                 icon: const Icon(Icons.today, size: 18),
-                label: const Text('Today'),
+                label: Text(l10n?.today ?? 'Today'),
               ),
             ),
             const SizedBox(height: 12),
@@ -1011,14 +1016,14 @@ class _MonthYearPickerBottomSheetState
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+                    child: Text(l10n?.cancel ?? 'Cancel'),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: FilledButton(
                     onPressed: _applySelection,
-                    child: const Text('Apply'),
+                    child: Text(l10n?.apply ?? 'Apply'),
                   ),
                 ),
               ],

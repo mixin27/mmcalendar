@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/views_injection.dart';
@@ -80,23 +81,24 @@ class _YearViewPageState extends State<YearViewPage>
           context.read<ViewsBloc>().add(event);
         }
 
+        final l10n = AppLocalizations.of(context);
         return AppPage(
           title: '$year',
-          previousTitle: 'Views',
+          previousTitle: l10n?.views ?? 'Views',
           actions: [
             IconButton(
               icon: const Icon(Icons.chevron_left_rounded),
-              tooltip: 'Previous Year',
+              tooltip: l10n?.previousYear ?? 'Previous Year',
               onPressed: () => go(const NavigateYearPrevious()),
             ),
             IconButton(
               icon: const Icon(Icons.today_outlined),
-              tooltip: 'This Year',
+              tooltip: l10n?.viewsThisYear ?? 'This Year',
               onPressed: () => go(LoadYearView(DateTime.now().year)),
             ),
             IconButton(
               icon: const Icon(Icons.chevron_right_rounded),
-              tooltip: 'Next Year',
+              tooltip: l10n?.nextYear ?? 'Next Year',
               onPressed: () => go(const NavigateYearNext()),
             ),
           ],
@@ -142,7 +144,7 @@ class _YearViewPageState extends State<YearViewPage>
                               Text(state.message, textAlign: TextAlign.center),
                               const SizedBox(height: 16),
                               AppButton(
-                                label: 'Try Again',
+                                label: l10n?.tryAgain ?? 'Try Again',
                                 icon: Icons.refresh,
                                 expand: false,
                                 onPressed: () => context.read<ViewsBloc>().add(
@@ -170,10 +172,11 @@ class _YearViewPageState extends State<YearViewPage>
       );
     }
 
+    final l10n = AppLocalizations.of(context);
     showAppSheet<void>(
       context: context,
       title: '$title ${month.year}',
-      cancelLabel: 'Close',
+      cancelLabel: l10n?.close ?? 'Close',
       builder: (sheetContext) => SizedBox(
         height: MediaQuery.sizeOf(sheetContext).height * .68,
         child: Column(
@@ -190,7 +193,7 @@ class _YearViewPageState extends State<YearViewPage>
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: AppButton(
-                label: 'View Full Month',
+                label: l10n?.viewsViewFullMonth ?? 'View Full Month',
                 kind: AppButtonKind.tinted,
                 onPressed: () => openHome(sheetContext, month),
               ),

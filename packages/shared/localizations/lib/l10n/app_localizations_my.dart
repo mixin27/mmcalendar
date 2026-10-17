@@ -12,6 +12,15 @@ class AppLocalizationsMy extends AppLocalizations {
   String get about => 'ဤအက်ပ်အကြောင်း';
 
   @override
+  String get add => 'ထည့်မည်';
+
+  @override
+  String get addEvent => 'Event ထည့်မည်';
+
+  @override
+  String get allDay => 'တစ်နေ့လုံး';
+
+  @override
   String get alternativeCalculationMethod => 'အခြားတွက်ချက်နည်း';
 
   @override
@@ -42,6 +51,9 @@ class AppLocalizationsMy extends AppLocalizations {
   String get appLanguage => 'အက်ပ် ဘာသာစကား';
 
   @override
+  String get apply => 'အသုံးပြုမည်';
+
+  @override
   String get appUpdates => 'အက်ပ် အပ်ဒိတ်များ';
 
   @override
@@ -57,6 +69,9 @@ class AppLocalizationsMy extends AppLocalizations {
   String get astrological_information => 'နက္ခတ်ဗေဒဆိုင်ရာအချက်အလက်များ';
 
   @override
+  String get astrology => 'နက္ခတ်ဗေဒင်';
+
+  @override
   String get britishCalendarSystem => 'ဗြိတိသျှ ပြက္ခဒိန်စနစ်';
 
   @override
@@ -69,7 +84,73 @@ class AppLocalizationsMy extends AppLocalizations {
   String get calendar => 'ပြက္ခဒိန်';
 
   @override
+  String get calendarChooseMonth => 'လ ရွေးမည်';
+
+  @override
+  String calendarDaysAgo(int days) {
+    return '$days ရက်က';
+  }
+
+  @override
+  String calendarDaysFromToday(int days) {
+    return 'ယနေ့မှ $days ရက်အကြာ';
+  }
+
+  @override
+  String calendarDaysShort(int days) {
+    return '$days ရက်';
+  }
+
+  @override
+  String calendarEventCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Event $count ခု',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarFullDayDetails => 'နေ့အသေးစိတ် အပြည့်အစုံ';
+
+  @override
+  String get calendarFullDayDetailsSubtitle =>
+      'ဗေဒင်၊ ဗုဒ္ဓပြက္ခဒိန်၊ AI prompt';
+
+  @override
+  String calendarInDays(int days) {
+    return '$days ရက်အကြာ';
+  }
+
+  @override
+  String get calendarJumpToMonth => 'လသို့ သွားမည်';
+
+  @override
+  String calendarLabelCopied(String label) {
+    return '$label ကူးယူပြီးပါပြီ!';
+  }
+
+  @override
   String get calendarLanguage => 'ပြက္ခဒိန် ဘာသာစကား';
+
+  @override
+  String calendarMakeYourCalendar(int year) {
+    return 'သင့် $year ပြက္ခဒိန်ကို ဖန်တီးမည်';
+  }
+
+  @override
+  String get calendarNextYear => 'နောက်နှစ်';
+
+  @override
+  String get calendarPreviousYear => 'ယခင်နှစ်';
+
+  @override
+  String get calendarStudio => 'Calendar Studio';
+
+  @override
+  String get calendarToggleDayDetails =>
+      'နေ့အသေးစိတ် ပြမည် သို့မဟုတ် ဖျောက်မည်';
 
   @override
   String get calendarType => 'ပြက္ခဒိန် အမျိုးအစား';
@@ -87,7 +168,16 @@ class AppLocalizationsMy extends AppLocalizations {
   String get calendar_configuration => 'ပြက္ခဒိန်ဖွဲ့စည်းမှု';
 
   @override
+  String get calendarUpcoming => 'လာမည့်ရက်များ';
+
+  @override
   String get cancel => 'ပယ်ဖျက်မည်';
+
+  @override
+  String get categories => 'အမျိုးအစားများ';
+
+  @override
+  String get category => 'အမျိုးအစား';
 
   @override
   String get checkAgain => 'ထပ်မံစစ်ဆေးမည်';
@@ -106,10 +196,16 @@ class AppLocalizationsMy extends AppLocalizations {
   String get choose_your_view => 'သင်၏အမြင်ကိုရွေးချယ်ပါ';
 
   @override
+  String get clear => 'ရှင်းမည်';
+
+  @override
   String get clearPromoDataDebug => 'Promo Data ဖျက်ရန် (Debug)';
 
   @override
   String get close => 'ပိတ်မည်';
+
+  @override
+  String get colour => 'အရောင်';
 
   @override
   String get comingSoon => 'မကြာမီ ရရှိမည်';
@@ -133,7 +229,121 @@ class AppLocalizationsMy extends AppLocalizations {
   String get converter => 'ပြောင်းလဲခြင်း';
 
   @override
+  String get converterAddSub => 'ပေါင်း/နုတ်';
+
+  @override
+  String get converterConvertedDate => 'ပြောင်းလဲထားသော ရက်စွဲ';
+
+  @override
+  String get converterDateArithmetic => 'ရက်စွဲ တွက်ချက်ခြင်း';
+
+  @override
+  String get converterDateDifference => 'ရက်စွဲ ကွာခြားချက်';
+
+  @override
+  String converterDaysUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ရက်',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get converterDifference => 'ကွာခြားချက်';
+
+  @override
+  String get converterEnd => 'ပြီးဆုံးရက်';
+
+  @override
+  String get converterEnterMyanmarDate => 'မြန်မာ နှစ်၊ လ နှင့် ရက် ထည့်ပါ။';
+
+  @override
+  String get converterEnterWholeNumber => '၀ ထက်ကြီးသော ကိန်းပြည့် ထည့်ပါ။';
+
+  @override
+  String get converterFrom => 'မှ';
+
+  @override
+  String converterInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ရက်အကြာ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get converterMonthDayRange =>
+      'လသည် ၀–၁၄ ဖြစ်ပြီး ရက်သည် ၁–၃၀ ဖြစ်ရမည်။';
+
+  @override
+  String get converterMonthFooter =>
+      'လ: ၀ = ပဌမဝါဆို၊ ၁–၁၂ = တန်ခူးမှ တပေါင်း၊ ၁၃ = နှောင်းတန်ခူး၊ ၁၄ = ဒုတိယဝါဆို။';
+
+  @override
+  String get converterMoonPhase => 'လအခြေအနေ';
+
+  @override
+  String get converterMyanmarDate => 'မြန်မာ ရက်စွဲ';
+
+  @override
+  String get converterMyanmarToWestern => 'မြန်မာ → အင်္ဂလိပ်';
+
+  @override
+  String converterNextPhase(String name) {
+    return 'နောက်လာမည့် $name';
+  }
+
+  @override
+  String get converterResult => 'ရလဒ်';
+
+  @override
+  String get converterStart => 'စတင်ရက်';
+
+  @override
+  String get converterStartFromToday => 'ယနေ့မှ စမည်';
+
+  @override
+  String get converterSubtract => 'နုတ်မည်';
+
+  @override
+  String get converterSwapDates => 'ရက်စွဲများ လဲမည်';
+
+  @override
+  String get converterTodayLower => 'ယနေ့';
+
+  @override
+  String converterUnit(String unit) {
+    String _temp0 = intl.Intl.selectLogic(unit, {
+      'days': 'ရက်',
+      'weeks': 'ပတ်',
+      'months': 'လ',
+      'years': 'နှစ်',
+      'other': '$unit',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get converterValue => 'တန်ဖိုး';
+
+  @override
+  String get converterWesternToMyanmar => 'အင်္ဂလိပ် → မြန်မာ';
+
+  @override
+  String get copied => 'ကူးယူပြီးပါပြီ';
+
+  @override
+  String get copy => 'ကူးယူမည်';
+
+  @override
   String get crashReports => 'Crash Reports';
+
+  @override
+  String get create => 'ဖန်တီးမည်';
 
   @override
   String get currentVersion => 'လက်ရှိ ဗားရှင်း';
@@ -144,7 +354,13 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
+  String get custom => 'စိတ်ကြိုက်';
+
+  @override
   String get dark => 'အမှောင်';
+
+  @override
+  String get date => 'ရက်စွဲ';
 
   @override
   String get day => 'နေ့';
@@ -153,7 +369,105 @@ class AppLocalizationsMy extends AppLocalizations {
   String get day_view => 'နေ့မြင်ကွင်း';
 
   @override
+  String get dayDetailsAddEvent => 'Event ထည့်မည်';
+
+  @override
+  String get dayDetailsAiHoroscopePrompt => 'AI ဟောစာတမ်း Prompt';
+
+  @override
+  String get dayDetailsAiHoroscopePromptSubtitle =>
+      'ဤနေ့အတွက် အသင့်ရေးထားသော prompt ကို ကူးယူပါ';
+
+  @override
+  String get dayDetailsAiPromptHint =>
+      'ဤနေ့၏ ဟောစာတမ်းအတွက် AI assistant (ChatGPT, Gemini, …) တစ်ခုခုတွင် ကူးထည့်ပါ။ ဤအက်ပ်မှ မည်သည့်အချက်အလက်မှ မပို့ပါ။';
+
+  @override
+  String get dayDetailsBuddhistCalendar => 'ဗုဒ္ဓပြက္ခဒိန်';
+
+  @override
+  String get dayDetailsCopyPrompt => 'Prompt ကူးယူမည်';
+
+  @override
+  String get dayDetailsErrorLoadingEvents => 'Events များ ဖွင့်၍ မရပါ';
+
+  @override
+  String dayDetailsFailedToUpdateEvent(String error) {
+    return 'Event ကို ပြင်ဆင်၍ မရပါ: $error';
+  }
+
+  @override
+  String dayDetailsFortnightDayPercentLit(String day, String percent) {
+    return '$day ရက် · $percent% လင်း';
+  }
+
+  @override
+  String get dayDetailsJumpToDate => 'ရက်စွဲသို့ သွားမည်';
+
+  @override
+  String get dayDetailsLoadingEvents => 'Events များ ဖွင့်နေသည်…';
+
+  @override
+  String get dayDetailsMarkNotDone => 'မပြီးသေးကြောင်း မှတ်မည်';
+
+  @override
+  String get dayDetailsNextDay => 'နောက်နေ့';
+
+  @override
+  String get dayDetailsNoEventsAddEvent => 'Event မရှိပါ · Event ထည့်မည်';
+
+  @override
+  String dayDetailsPercentLit(String percent) {
+    return '$percent% လင်း';
+  }
+
+  @override
+  String get dayDetailsPreviousDay => 'ယခင်နေ့';
+
+  @override
+  String get dayDetailsPromptCopied => 'Prompt ကို ကူးယူပြီးပါပြီ';
+
+  @override
+  String get dayDetailsPyathada => 'ပြဿဒါး';
+
+  @override
+  String get dayDetailsShareDay => 'နေ့ကို မျှဝေမည်';
+
+  @override
+  String get dayDetailsShareFailed => 'မျှဝေ၍ မရပါ';
+
+  @override
+  String get dayDetailsShareSubject => 'မြန်မာပြက္ခဒိန်ကို ကြည့်ပေးပါ';
+
+  @override
+  String get dayDetailsSpecial => 'ထူးခြားရက်';
+
+  @override
+  String get dayDetailsYatyaza => 'ရက်ရာဇာ';
+
+  @override
+  String get dayDetailsYearType => 'နှစ်အမျိုးအစား';
+
+  @override
+  String get days => 'ရက်';
+
+  @override
   String get defaultCalculationMethod => 'မူလတွက်ချက်နည်း';
+
+  @override
+  String get defaultLabel => 'မူလ';
+
+  @override
+  String get delete => 'ဖျက်မည်';
+
+  @override
+  String get deleteEvent => 'Event ဖျက်မည်';
+
+  @override
+  String get deleteEventQuestion => 'Event ကို ဖျက်မလား?';
+
+  @override
+  String get description => 'ဖော်ပြချက်';
 
   @override
   String get developer => 'Kyaw Zayar Tun';
@@ -197,6 +511,12 @@ class AppLocalizationsMy extends AppLocalizations {
   String get display_preferences => 'ပြသရန် ဆက်တင်များ';
 
   @override
+  String get edit => 'ပြင်မည်';
+
+  @override
+  String get editEvent => 'Event ပြင်မည်';
+
+  @override
   String get enableAll => 'အားလုံး ဖွင့်မည်';
 
   @override
@@ -214,7 +534,203 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
+  String get event => 'Event';
+
+  @override
   String get events => 'Events';
+
+  @override
+  String get eventsAddReminder => 'သတိပေးချက် ထည့်မည်';
+
+  @override
+  String get eventsAddTagHint => 'တဂ်ရိုက်ထည့်ပြီး Return နှိပ်ပါ';
+
+  @override
+  String get eventsBuiltInCategoriesFooter =>
+      'မူလပါရှိသော အမျိုးအစားများကို ပြောင်း၍မရပါ။';
+
+  @override
+  String get eventsCategoryColour => 'အမျိုးအစား အရောင်';
+
+  @override
+  String get eventsCompleted => 'ပြီးဆုံးပြီ';
+
+  @override
+  String get eventsCouldNotLoadEvent => 'ဤ Event ကို ဖွင့်၍မရပါ';
+
+  @override
+  String get eventsCreateEvent => 'Event ဖန်တီးမည်';
+
+  @override
+  String get eventsCustomCategoriesEmptyFooter =>
+      'သင့် Event များအတွက် အမျိုးအစားများ ဖန်တီးပါ။';
+
+  @override
+  String get eventsCustomCategoriesFooter =>
+      'အမည်ပြောင်းရန်၊ အရောင်ပြောင်းရန် သို့မဟုတ် ဖျက်ရန် အမျိုးအစားကို နှိပ်ပါ။';
+
+  @override
+  String eventsDayEventsSemantics(String date, int count) {
+    return '$date၊ Event $count ခု';
+  }
+
+  @override
+  String get eventsDeleteCategory => 'အမျိုးအစား ဖျက်မည်';
+
+  @override
+  String get eventsDeleteCategoryMessage =>
+      '၎င်း၏ Event များ ကျန်ရှိနေမည်ဖြစ်ပြီး ဤအမျိုးအစားနှင့် ချိတ်ဆက်မှုသာ ပျက်သွားပါမည်။';
+
+  @override
+  String eventsDeleteCategoryQuestion(String name) {
+    return '“$name” ကို ဖျက်မလား?';
+  }
+
+  @override
+  String get eventsDeleteEventMessage =>
+      'ဤ Event ကို ဖယ်ရှားပါမည်။ ပြန်ပြင်၍ မရပါ။';
+
+  @override
+  String get eventsDeleteThisOccurrence => 'ဤတစ်ကြိမ်ကို ဖျက်မည်';
+
+  @override
+  String get eventsDeleteThisOccurrenceQuestion => 'ဤတစ်ကြိမ်ကို ဖျက်မလား?';
+
+  @override
+  String get eventsEditCategory => 'အမျိုးအစား ပြင်ဆင်ရန်';
+
+  @override
+  String get eventsEditEventTitle => 'Event ပြင်ဆင်ရန်';
+
+  @override
+  String eventsEventCount(int count) {
+    return 'Event $count ခု';
+  }
+
+  @override
+  String get eventsEventCreated => 'Event ဖန်တီးပြီးပါပြီ';
+
+  @override
+  String get eventsEventNotFound => 'Event ကို ရှာမတွေ့ပါ';
+
+  @override
+  String get eventsEventUpdated => 'Event ပြင်ဆင်ပြီးပါပြီ';
+
+  @override
+  String eventsEventWillBeRemoved(String title) {
+    return '“$title” ကို ဖယ်ရှားပါမည်။ ပြန်ပြင်၍ မရပါ။';
+  }
+
+  @override
+  String get eventsFillRequiredFields => 'လိုအပ်သော အကွက်များကို ဖြည့်ပါ';
+
+  @override
+  String get eventsJumpToToday => 'ယနေ့သို့ သွားမည်';
+
+  @override
+  String get eventsMayHaveBeenDeleted => 'ဖျက်ပြီးဖြစ်နိုင်ပါသည်။';
+
+  @override
+  String get eventsNewCategory => 'အမျိုးအစား အသစ်';
+
+  @override
+  String eventsNoEventsOn(String date) {
+    return '$date တွင် Event မရှိပါ';
+  }
+
+  @override
+  String get eventsNoResultsFound => 'ရလဒ် မတွေ့ပါ';
+
+  @override
+  String get eventsOccurrence => 'ထပ်ခါဖြစ်ရပ်';
+
+  @override
+  String get eventsOnlyThisOccurrenceRemoved => 'ဤတစ်ကြိမ်ကိုသာ ဖယ်ရှားပါမည်။';
+
+  @override
+  String get eventsPickAColor => 'အရောင် ရွေးပါ';
+
+  @override
+  String get eventsPickADate => 'ရက်စွဲ ရွေးမည်';
+
+  @override
+  String get eventsPickAnotherDay =>
+      'အခြားနေ့ကို ရွေးပါ သို့မဟုတ် အသစ်ဖန်တီးပါ။';
+
+  @override
+  String get eventsReminderAtStart => 'စတင်ချိန်တွင်';
+
+  @override
+  String eventsReminderDays(int count) {
+    return '$count ရက်';
+  }
+
+  @override
+  String eventsReminderHours(int count) {
+    return '$count နာရီ';
+  }
+
+  @override
+  String eventsReminderMinutes(int count) {
+    return '$count မိနစ်';
+  }
+
+  @override
+  String get eventsRemoveReminder => 'သတိပေးချက် ဖယ်ရှားမည်';
+
+  @override
+  String get eventsReopenEvent => 'Event ကို ပြန်ဖွင့်မည်';
+
+  @override
+  String get eventsRepeatsDaily => 'နေ့စဉ် ထပ်သည်';
+
+  @override
+  String eventsRepeatsEveryNDays(int count) {
+    return '$count ရက်တစ်ကြိမ် ထပ်သည်';
+  }
+
+  @override
+  String eventsRepeatsEveryNMonths(int count) {
+    return '$count လတစ်ကြိမ် ထပ်သည်';
+  }
+
+  @override
+  String eventsRepeatsEveryNWeeks(int count) {
+    return '$count ပတ်တစ်ကြိမ် ထပ်သည်';
+  }
+
+  @override
+  String eventsRepeatsEveryNYears(int count) {
+    return '$count နှစ်တစ်ကြိမ် ထပ်သည်';
+  }
+
+  @override
+  String get eventsRepeatsMonthly => 'လစဉ် ထပ်သည်';
+
+  @override
+  String get eventsRepeatsWeekly => 'အပတ်စဉ် ထပ်သည်';
+
+  @override
+  String get eventsRepeatsYearly => 'နှစ်စဉ် ထပ်သည်';
+
+  @override
+  String get eventsResults => 'ရလဒ်များ';
+
+  @override
+  String get eventsSaveChanges => 'ပြောင်းလဲမှုများ သိမ်းမည်';
+
+  @override
+  String get eventsSaving => 'သိမ်းနေသည်…';
+
+  @override
+  String get eventsSearchEvents => 'Event များ ရှာမည်';
+
+  @override
+  String get eventsSearchPromptHint =>
+      'ခေါင်းစဉ် သို့မဟုတ် ဖော်ပြချက် ရိုက်ထည့်ပါ';
+
+  @override
+  String get eventsTryDifferentKeyword => 'အခြားစကားလုံးဖြင့် ရှာကြည့်ပါ';
 
   @override
   String get failedToFetchHolidayConfig =>
@@ -239,6 +755,9 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get general => 'အထွေထွေ';
+
+  @override
+  String get goBack => 'နောက်သို့ ပြန်သွားမည်';
 
   @override
   String get goToHome => 'ပင်မသို့ သွားမည်';
@@ -289,6 +808,9 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
+  String get icon => 'အိုင်ကွန်';
+
+  @override
   String get initializationErrorTitle => 'စတင်ခြင်း အမှား';
 
   @override
@@ -320,13 +842,28 @@ class AppLocalizationsMy extends AppLocalizations {
   String get loadingSettings => 'ဆက်တင်များကို ဖတ်နေသည်...';
 
   @override
+  String get location => 'နေရာ';
+
+  @override
   String get mahabote => 'မဟာဘုတ်';
+
+  @override
+  String get markAsPending => 'မပြီးသေးကြောင်း မှတ်မည်';
+
+  @override
+  String get markComplete => 'ပြီးဆုံးကြောင်း မှတ်မည်';
 
   @override
   String get matchSystemTheme => 'စနစ် Theme နှင့် ကိုက်ညီစေမည်';
 
   @override
   String get month => 'လ';
+
+  @override
+  String get months => 'လ';
+
+  @override
+  String get moon => 'လ';
 
   @override
   String get moon_phase => 'လအဆင့်';
@@ -347,10 +884,25 @@ class AppLocalizationsMy extends AppLocalizations {
   String get nakhat => 'နက္ခတ်';
 
   @override
+  String get name => 'အမည်';
+
+  @override
+  String get never => 'မထပ်ပါ';
+
+  @override
+  String get newEvent => 'Event အသစ်';
+
+  @override
   String get next_month => 'နောက်လ';
 
   @override
+  String get nextYear => 'နောက်နှစ်';
+
+  @override
   String get noChanges => 'ပြောင်းလဲမှုမရှိ';
+
+  @override
+  String get none => 'မရှိ';
 
   @override
   String get openSourceLicenses => 'Open Source လိုင်စင်များ';
@@ -375,6 +927,12 @@ class AppLocalizationsMy extends AppLocalizations {
   String get previous_month => 'ယခင်လ';
 
   @override
+  String get previousYear => 'ယခင်နှစ်';
+
+  @override
+  String get priority => 'ဦးစားပေးအဆင့်';
+
+  @override
   String get privacyAndData => 'ကိုယ်ရေးကိုယ်တာ နှင့် ဒေတာ';
 
   @override
@@ -393,7 +951,16 @@ class AppLocalizationsMy extends AppLocalizations {
       'Promo data ဖျက်ပြီးပါပြီ။ Onboarding ပြန်မြင်ရန် app ကို restart လုပ်ပါ။';
 
   @override
+  String get refresh => 'ပြန်လည်ဆန်းသစ်မည်';
+
+  @override
   String get releaseNotes => 'ပြောင်းလဲမှု မှတ်စုများ';
+
+  @override
+  String get reminders => 'သတိပေးချက်များ';
+
+  @override
+  String get repeat => 'ထပ်ခါထပ်ခါ';
 
   @override
   String get reset => 'ပြန်သတ်မှတ်မည်';
@@ -416,6 +983,9 @@ class AppLocalizationsMy extends AppLocalizations {
   String get retry => 'ပြန်ကြိုးစားမည်';
 
   @override
+  String get sabbath => 'ဥပုသ်';
+
+  @override
   String get sasanaYearType => 'သာသနာနှစ် အမျိုးအစား';
 
   @override
@@ -423,6 +993,9 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get save => 'သိမ်းမည်';
+
+  @override
+  String get select => 'ရွေးမည်';
 
   @override
   String get sendCrashReportsToHelpFixIssues =>
@@ -433,6 +1006,9 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get settingsResetSuccessfully => 'ဆက်တင်များ ပြန်သတ်မှတ်ပြီးပါပြီ';
+
+  @override
+  String get share => 'မျှဝေမည်';
 
   @override
   String get showAnniversaryDays => 'နှစ်ပတ်လည်နေ့များ ပြ';
@@ -453,10 +1029,16 @@ class AppLocalizationsMy extends AppLocalizations {
   String get showWesternDates => 'အနောက်တိုင်း ရက်စွဲ ပြ';
 
   @override
+  String get somethingWentWrong => 'တစ်ခုခု မှားယွင်းသွားပါသည်';
+
+  @override
   String get special_days => 'အထူးနေ့များ';
 
   @override
   String get system => 'စနစ်အတိုင်း';
+
+  @override
+  String get tags => 'တဂ်များ';
 
   @override
   String telegramUserLabel(Object userName) {
@@ -470,6 +1052,9 @@ class AppLocalizationsMy extends AppLocalizations {
   String get theme_preset => 'ကြိုတင်သတ်မှတ်ထားသည့် အပြင်အဆင်များ';
 
   @override
+  String get time => 'အချိန်';
+
+  @override
   String get timezoneOffset => 'အချိန်ဇုန် ကွာဟချက်';
 
   @override
@@ -477,7 +1062,16 @@ class AppLocalizationsMy extends AppLocalizations {
       'ဥပမာ - မြန်မာစံတော်ချိန် (UTC+6:30) အတွက် 6.5';
 
   @override
+  String get title => 'ခေါင်းစဉ်';
+
+  @override
   String get today => 'ယနေ့';
+
+  @override
+  String get tomorrow => 'မနက်ဖြန်';
+
+  @override
+  String get tryAgain => 'ထပ်ကြိုးစားမည်';
 
   @override
   String typeValue(Object value) {
@@ -486,6 +1080,9 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get unableToOpenUpdatePage => 'အပ်ဒိတ် စာမျက်နှာကို မဖွင့်နိုင်ပါ။';
+
+  @override
+  String get unexpectedError => 'မမျှော်လင့်သော အမှား ဖြစ်ပွားခဲ့သည်';
 
   @override
   String get unknown => 'မသိရှိ';
@@ -533,10 +1130,45 @@ class AppLocalizationsMy extends AppLocalizations {
   String get views => 'အမြင်များ';
 
   @override
+  String get viewsDayViewSubtitle => 'တစ်ရက်အကြောင်း အားလုံး';
+
+  @override
+  String get viewsNextWeek => 'နောက်အပတ်';
+
+  @override
+  String get viewsPreviousWeek => 'ယခင်အပတ်';
+
+  @override
+  String get viewsThisWeek => 'ယခုအပတ်';
+
+  @override
+  String get viewsThisYear => 'ယခုနှစ်';
+
+  @override
+  String get viewsViewFullMonth => 'တစ်လလုံး ကြည့်မည်';
+
+  @override
+  String get viewsWeekViewSubtitle => 'မြန်မာရက်စွဲနှင့် လအခြေအနေပါ ခုနစ်ရက်';
+
+  @override
+  String get viewsYearViewSubtitle => 'ရုံးပိတ်ရက် အရေအတွက်နှင့် ၁၂ လလုံး';
+
+  @override
+  String get week => 'ရက်သတ္တပတ်';
+
+  @override
   String get week_view => 'ရက်သတ္တပတ်မြင်ကွင်း';
 
   @override
   String get weekday => 'အပတ်စဉ်';
+
+  @override
+  String weekNumber(int number) {
+    return 'ရက်သတ္တပတ် $number';
+  }
+
+  @override
+  String get weeks => 'ရက်သတ္တပတ်';
 
   @override
   String get widgetSettings => 'ဝစ်ဂျက် ဆက်တင်များ';
@@ -549,4 +1181,10 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get year_view => 'နှစ်မြင်ကွင်း';
+
+  @override
+  String get years => 'နှစ်';
+
+  @override
+  String get yesterday => 'မနေ့က';
 }

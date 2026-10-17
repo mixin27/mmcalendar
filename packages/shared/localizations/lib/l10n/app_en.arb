@@ -3,6 +3,18 @@
   "@about": {
     "description": "About label"
   },
+  "add": "Add",
+  "@add": {
+    "description": "Localized text for add."
+  },
+  "addEvent": "Add event",
+  "@addEvent": {
+    "description": "Localized text for addEvent."
+  },
+  "allDay": "All day",
+  "@allDay": {
+    "description": "Localized text for allDay."
+  },
   "alternativeCalculationMethod": "Alternative calculation method",
   "@alternativeCalculationMethod": {
     "description": "Localized text for alternativeCalculationMethod."
@@ -39,6 +51,10 @@
   "@appLanguage": {
     "description": "Localized text for appLanguage."
   },
+  "apply": "Apply",
+  "@apply": {
+    "description": "Localized text for apply."
+  },
   "appUpdates": "App Updates",
   "@appUpdates": {
     "description": "Localized text for appUpdates."
@@ -59,6 +75,10 @@
   "@astrological_information": {
     "description": "Astrological Information label"
   },
+  "astrology": "Astrology",
+  "@astrology": {
+    "description": "Localized text for astrology."
+  },
   "britishCalendarSystem": "British calendar system",
   "@britishCalendarSystem": {
     "description": "Localized text for britishCalendarSystem."
@@ -75,9 +95,104 @@
   "@calendar": {
     "description": "Localized text for calendar."
   },
+  "calendarChooseMonth": "Choose month",
+  "@calendarChooseMonth": {
+    "description": "Localized text for calendarChooseMonth."
+  },
+  "calendarDaysAgo": "{days} days ago",
+  "@calendarDaysAgo": {
+    "description": "Localized text for calendarDaysAgo.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarDaysFromToday": "{days} days from today",
+  "@calendarDaysFromToday": {
+    "description": "Localized text for calendarDaysFromToday.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarDaysShort": "{days} d",
+  "@calendarDaysShort": {
+    "description": "Compact day count in the Upcoming list",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarEventCount": "{count, plural, =1{1 event} other{{count} events}}",
+  "@calendarEventCount": {
+    "description": "Localized text for calendarEventCount.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarFullDayDetails": "Full day details",
+  "@calendarFullDayDetails": {
+    "description": "Localized text for calendarFullDayDetails."
+  },
+  "calendarFullDayDetailsSubtitle": "Astrology, Buddhist calendar, AI prompt",
+  "@calendarFullDayDetailsSubtitle": {
+    "description": "Localized text for calendarFullDayDetailsSubtitle."
+  },
+  "calendarInDays": "in {days} days",
+  "@calendarInDays": {
+    "description": "Localized text for calendarInDays.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarJumpToMonth": "Jump to month",
+  "@calendarJumpToMonth": {
+    "description": "Localized text for calendarJumpToMonth."
+  },
+  "calendarLabelCopied": "{label} copied!",
+  "@calendarLabelCopied": {
+    "description": "Localized text for calendarLabelCopied.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "calendarLanguage": "Calendar Language",
   "@calendarLanguage": {
     "description": "Localized text for calendarLanguage."
+  },
+  "calendarMakeYourCalendar": "Make your {year} calendar",
+  "@calendarMakeYourCalendar": {
+    "description": "Localized text for calendarMakeYourCalendar.",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarNextYear": "Next year",
+  "@calendarNextYear": {
+    "description": "Localized text for calendarNextYear."
+  },
+  "calendarPreviousYear": "Previous year",
+  "@calendarPreviousYear": {
+    "description": "Localized text for calendarPreviousYear."
+  },
+  "calendarStudio": "Calendar Studio",
+  "@calendarStudio": {
+    "description": "Localized text for calendarStudio."
+  },
+  "calendarToggleDayDetails": "Show or hide day details",
+  "@calendarToggleDayDetails": {
+    "description": "Localized text for calendarToggleDayDetails."
   },
   "calendarType": "Calendar Type",
   "@calendarType": {
@@ -99,9 +214,21 @@
   "@calendar_configuration": {
     "description": "Calendar Configuration label"
   },
+  "calendarUpcoming": "Upcoming",
+  "@calendarUpcoming": {
+    "description": "Localized text for calendarUpcoming."
+  },
   "cancel": "Cancel",
   "@cancel": {
     "description": "Localized text for cancel."
+  },
+  "categories": "Categories",
+  "@categories": {
+    "description": "Localized text for categories."
+  },
+  "category": "Category",
+  "@category": {
+    "description": "Localized text for category."
   },
   "checkAgain": "Check Again",
   "@checkAgain": {
@@ -123,6 +250,10 @@
   "@choose_your_view": {
     "description": "Choose Your View label"
   },
+  "clear": "Clear",
+  "@clear": {
+    "description": "Localized text for clear."
+  },
   "clearPromoDataDebug": "Clear Promo Data (Debug)",
   "@clearPromoDataDebug": {
     "description": "Localized text for clearPromoDataDebug."
@@ -130,6 +261,10 @@
   "close": "Close",
   "@close": {
     "description": "Localized text for close."
+  },
+  "colour": "Colour",
+  "@colour": {
+    "description": "Localized text for colour."
   },
   "comingSoon": "Coming Soon",
   "@comingSoon": {
@@ -155,9 +290,145 @@
   "@converter": {
     "description": "Converter label"
   },
+  "converterAddSub": "Add/Sub",
+  "@converterAddSub": {
+    "description": "Localized text for converterAddSub."
+  },
+  "converterConvertedDate": "Converted date",
+  "@converterConvertedDate": {
+    "description": "Localized text for converterConvertedDate."
+  },
+  "converterDateArithmetic": "Date arithmetic",
+  "@converterDateArithmetic": {
+    "description": "Localized text for converterDateArithmetic."
+  },
+  "converterDateDifference": "Date difference",
+  "@converterDateDifference": {
+    "description": "Localized text for converterDateDifference."
+  },
+  "converterDaysUnit": "{count, plural, =1{day} other{days}}",
+  "@converterDaysUnit": {
+    "description": "Localized text for converterDaysUnit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "converterDifference": "Difference",
+  "@converterDifference": {
+    "description": "Localized text for converterDifference."
+  },
+  "converterEnd": "End",
+  "@converterEnd": {
+    "description": "Localized text for converterEnd."
+  },
+  "converterEnterMyanmarDate": "Enter a Myanmar year, month and day.",
+  "@converterEnterMyanmarDate": {
+    "description": "Localized text for converterEnterMyanmarDate."
+  },
+  "converterEnterWholeNumber": "Enter a whole number above 0.",
+  "@converterEnterWholeNumber": {
+    "description": "Localized text for converterEnterWholeNumber."
+  },
+  "converterFrom": "From",
+  "@converterFrom": {
+    "description": "Localized text for converterFrom."
+  },
+  "converterInDays": "{count, plural, =1{in 1 day} other{in {count} days}}",
+  "@converterInDays": {
+    "description": "Localized text for converterInDays.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "converterMonthDayRange": "Month is 0–14 and day is 1–30.",
+  "@converterMonthDayRange": {
+    "description": "Localized text for converterMonthDayRange."
+  },
+  "converterMonthFooter": "Month: 0 = First Waso, 1–12 = Tagu to Tabaung, 13 = Late Tagu, 14 = Second Waso.",
+  "@converterMonthFooter": {
+    "description": "Localized text for converterMonthFooter."
+  },
+  "converterMoonPhase": "Moon phase",
+  "@converterMoonPhase": {
+    "description": "Localized text for converterMoonPhase."
+  },
+  "converterMyanmarDate": "Myanmar date",
+  "@converterMyanmarDate": {
+    "description": "Localized text for converterMyanmarDate."
+  },
+  "converterMyanmarToWestern": "Myanmar → Western",
+  "@converterMyanmarToWestern": {
+    "description": "Localized text for converterMyanmarToWestern."
+  },
+  "converterNextPhase": "Next {name}",
+  "@converterNextPhase": {
+    "description": "Localized text for converterNextPhase.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "converterResult": "Result",
+  "@converterResult": {
+    "description": "Localized text for converterResult."
+  },
+  "converterStart": "Start",
+  "@converterStart": {
+    "description": "Localized text for converterStart."
+  },
+  "converterStartFromToday": "Start from today",
+  "@converterStartFromToday": {
+    "description": "Localized text for converterStartFromToday."
+  },
+  "converterSubtract": "Subtract",
+  "@converterSubtract": {
+    "description": "Localized text for converterSubtract."
+  },
+  "converterSwapDates": "Swap dates",
+  "@converterSwapDates": {
+    "description": "Localized text for converterSwapDates."
+  },
+  "converterTodayLower": "today",
+  "@converterTodayLower": {
+    "description": "Localized text for converterTodayLower."
+  },
+  "converterUnit": "{unit, select, days{days} weeks{weeks} months{months} years{years} other{{unit}}}",
+  "@converterUnit": {
+    "description": "Localized text for converterUnit.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "converterValue": "Value",
+  "@converterValue": {
+    "description": "Localized text for converterValue."
+  },
+  "converterWesternToMyanmar": "Western → Myanmar",
+  "@converterWesternToMyanmar": {
+    "description": "Localized text for converterWesternToMyanmar."
+  },
+  "copied": "Copied",
+  "@copied": {
+    "description": "Localized text for copied."
+  },
+  "copy": "Copy",
+  "@copy": {
+    "description": "Localized text for copy."
+  },
   "crashReports": "Crash Reports",
   "@crashReports": {
     "description": "Localized text for crashReports."
+  },
+  "create": "Create",
+  "@create": {
+    "description": "Localized text for create."
   },
   "currentVersion": "Current Version",
   "@currentVersion": {
@@ -171,9 +442,17 @@
       "build": {}
     }
   },
+  "custom": "Custom",
+  "@custom": {
+    "description": "Localized text for custom."
+  },
   "dark": "Dark",
   "@dark": {
     "description": "Localized text for dark."
+  },
+  "date": "Date",
+  "@date": {
+    "description": "Localized text for date."
   },
   "day": "Day",
   "@day": {
@@ -183,9 +462,147 @@
   "@day_view": {
     "description": "Day View label"
   },
+  "dayDetailsAddEvent": "Add Event",
+  "@dayDetailsAddEvent": {
+    "description": "Localized text for dayDetailsAddEvent."
+  },
+  "dayDetailsAiHoroscopePrompt": "AI Horoscope Prompt",
+  "@dayDetailsAiHoroscopePrompt": {
+    "description": "Localized text for dayDetailsAiHoroscopePrompt."
+  },
+  "dayDetailsAiHoroscopePromptSubtitle": "Copy a ready-made prompt for this day",
+  "@dayDetailsAiHoroscopePromptSubtitle": {
+    "description": "Localized text for dayDetailsAiHoroscopePromptSubtitle."
+  },
+  "dayDetailsAiPromptHint": "Paste this into any AI assistant (ChatGPT, Gemini, …) for a reading of the day. Nothing is sent from this app.",
+  "@dayDetailsAiPromptHint": {
+    "description": "Localized text for dayDetailsAiPromptHint."
+  },
+  "dayDetailsBuddhistCalendar": "Buddhist Calendar",
+  "@dayDetailsBuddhistCalendar": {
+    "description": "Localized text for dayDetailsBuddhistCalendar."
+  },
+  "dayDetailsCopyPrompt": "Copy Prompt",
+  "@dayDetailsCopyPrompt": {
+    "description": "Localized text for dayDetailsCopyPrompt."
+  },
+  "dayDetailsErrorLoadingEvents": "Error loading events",
+  "@dayDetailsErrorLoadingEvents": {
+    "description": "Localized text for dayDetailsErrorLoadingEvents."
+  },
+  "dayDetailsFailedToUpdateEvent": "Failed to update event: {error}",
+  "@dayDetailsFailedToUpdateEvent": {
+    "description": "Localized text for dayDetailsFailedToUpdateEvent.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDetailsFortnightDayPercentLit": "Day {day} · {percent}% lit",
+  "@dayDetailsFortnightDayPercentLit": {
+    "description": "Localized text for dayDetailsFortnightDayPercentLit.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDetailsJumpToDate": "Jump to Date",
+  "@dayDetailsJumpToDate": {
+    "description": "Localized text for dayDetailsJumpToDate."
+  },
+  "dayDetailsLoadingEvents": "Loading events…",
+  "@dayDetailsLoadingEvents": {
+    "description": "Localized text for dayDetailsLoadingEvents."
+  },
+  "dayDetailsMarkNotDone": "Mark not done",
+  "@dayDetailsMarkNotDone": {
+    "description": "Localized text for dayDetailsMarkNotDone."
+  },
+  "dayDetailsNextDay": "Next Day",
+  "@dayDetailsNextDay": {
+    "description": "Localized text for dayDetailsNextDay."
+  },
+  "dayDetailsNoEventsAddEvent": "No events · Add event",
+  "@dayDetailsNoEventsAddEvent": {
+    "description": "Localized text for dayDetailsNoEventsAddEvent."
+  },
+  "dayDetailsPercentLit": "{percent}% lit",
+  "@dayDetailsPercentLit": {
+    "description": "Moon illumination",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDetailsPreviousDay": "Previous Day",
+  "@dayDetailsPreviousDay": {
+    "description": "Localized text for dayDetailsPreviousDay."
+  },
+  "dayDetailsPromptCopied": "Prompt copied to clipboard",
+  "@dayDetailsPromptCopied": {
+    "description": "Localized text for dayDetailsPromptCopied."
+  },
+  "dayDetailsPyathada": "Pyathada",
+  "@dayDetailsPyathada": {
+    "description": "Localized text for dayDetailsPyathada."
+  },
+  "dayDetailsShareDay": "Share Day",
+  "@dayDetailsShareDay": {
+    "description": "Localized text for dayDetailsShareDay."
+  },
+  "dayDetailsShareFailed": "Failed to share",
+  "@dayDetailsShareFailed": {
+    "description": "Localized text for dayDetailsShareFailed."
+  },
+  "dayDetailsShareSubject": "Please check myanmar calendar",
+  "@dayDetailsShareSubject": {
+    "description": "Localized text for dayDetailsShareSubject."
+  },
+  "dayDetailsSpecial": "Special",
+  "@dayDetailsSpecial": {
+    "description": "Localized text for dayDetailsSpecial."
+  },
+  "dayDetailsYatyaza": "Yatyaza",
+  "@dayDetailsYatyaza": {
+    "description": "Localized text for dayDetailsYatyaza."
+  },
+  "dayDetailsYearType": "Type",
+  "@dayDetailsYearType": {
+    "description": "Myanmar year type (common, little/big watat)"
+  },
+  "days": "Days",
+  "@days": {
+    "description": "Localized text for days."
+  },
   "defaultCalculationMethod": "Default calculation method",
   "@defaultCalculationMethod": {
     "description": "Localized text for defaultCalculationMethod."
+  },
+  "defaultLabel": "Default",
+  "@defaultLabel": {
+    "description": "Localized text for defaultLabel."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Localized text for delete."
+  },
+  "deleteEvent": "Delete event",
+  "@deleteEvent": {
+    "description": "Localized text for deleteEvent."
+  },
+  "deleteEventQuestion": "Delete event?",
+  "@deleteEventQuestion": {
+    "description": "Localized text for deleteEventQuestion."
+  },
+  "description": "Description",
+  "@description": {
+    "description": "Localized text for description."
   },
   "developer": "Kyaw Zayar Tun",
   "@developer": {
@@ -238,6 +655,14 @@
   "@display_preferences": {
     "description": "Display Preferences label"
   },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Localized text for edit."
+  },
+  "editEvent": "Edit event",
+  "@editEvent": {
+    "description": "Localized text for editEvent."
+  },
   "enableAll": "Enable All",
   "@enableAll": {
     "description": "Localized text for enableAll."
@@ -261,9 +686,292 @@
       "error": {}
     }
   },
+  "event": "Event",
+  "@event": {
+    "description": "Localized text for event."
+  },
   "events": "Events",
   "@events": {
     "description": "Events label"
+  },
+  "eventsAddReminder": "Add reminder",
+  "@eventsAddReminder": {
+    "description": "Localized text for eventsAddReminder."
+  },
+  "eventsAddTagHint": "Add a tag and press return",
+  "@eventsAddTagHint": {
+    "description": "Localized text for eventsAddTagHint."
+  },
+  "eventsBuiltInCategoriesFooter": "Built-in categories can’t be changed.",
+  "@eventsBuiltInCategoriesFooter": {
+    "description": "Localized text for eventsBuiltInCategoriesFooter."
+  },
+  "eventsCategoryColour": "Category colour",
+  "@eventsCategoryColour": {
+    "description": "Localized text for eventsCategoryColour."
+  },
+  "eventsCompleted": "Completed",
+  "@eventsCompleted": {
+    "description": "Localized text for eventsCompleted."
+  },
+  "eventsCouldNotLoadEvent": "Couldn’t load this event",
+  "@eventsCouldNotLoadEvent": {
+    "description": "Localized text for eventsCouldNotLoadEvent."
+  },
+  "eventsCreateEvent": "Create Event",
+  "@eventsCreateEvent": {
+    "description": "Localized text for eventsCreateEvent."
+  },
+  "eventsCustomCategoriesEmptyFooter": "Create categories for the events you keep.",
+  "@eventsCustomCategoriesEmptyFooter": {
+    "description": "Localized text for eventsCustomCategoriesEmptyFooter."
+  },
+  "eventsCustomCategoriesFooter": "Tap a category to rename, recolour or delete it.",
+  "@eventsCustomCategoriesFooter": {
+    "description": "Localized text for eventsCustomCategoriesFooter."
+  },
+  "eventsDayEventsSemantics": "{date}, {count} events",
+  "@eventsDayEventsSemantics": {
+    "description": "Screen-reader label for a day in the events day strip.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsDeleteCategory": "Delete Category",
+  "@eventsDeleteCategory": {
+    "description": "Localized text for eventsDeleteCategory."
+  },
+  "eventsDeleteCategoryMessage": "Its events are kept; they just stop being linked to this category.",
+  "@eventsDeleteCategoryMessage": {
+    "description": "Localized text for eventsDeleteCategoryMessage."
+  },
+  "eventsDeleteCategoryQuestion": "Delete “{name}”?",
+  "@eventsDeleteCategoryQuestion": {
+    "description": "Localized text for eventsDeleteCategoryQuestion.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsDeleteEventMessage": "This event will be removed. This can’t be undone.",
+  "@eventsDeleteEventMessage": {
+    "description": "Localized text for eventsDeleteEventMessage."
+  },
+  "eventsDeleteThisOccurrence": "Delete this occurrence",
+  "@eventsDeleteThisOccurrence": {
+    "description": "Localized text for eventsDeleteThisOccurrence."
+  },
+  "eventsDeleteThisOccurrenceQuestion": "Delete this occurrence?",
+  "@eventsDeleteThisOccurrenceQuestion": {
+    "description": "Localized text for eventsDeleteThisOccurrenceQuestion."
+  },
+  "eventsEditCategory": "Edit Category",
+  "@eventsEditCategory": {
+    "description": "Localized text for eventsEditCategory."
+  },
+  "eventsEditEventTitle": "Edit Event",
+  "@eventsEditEventTitle": {
+    "description": "Title of the event form when editing."
+  },
+  "eventsEventCount": "{count, plural, =1{1 event} other{{count} events}}",
+  "@eventsEventCount": {
+    "description": "Localized text for eventsEventCount.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsEventCreated": "Event created",
+  "@eventsEventCreated": {
+    "description": "Localized text for eventsEventCreated."
+  },
+  "eventsEventNotFound": "Event not found",
+  "@eventsEventNotFound": {
+    "description": "Localized text for eventsEventNotFound."
+  },
+  "eventsEventUpdated": "Event updated",
+  "@eventsEventUpdated": {
+    "description": "Localized text for eventsEventUpdated."
+  },
+  "eventsEventWillBeRemoved": "“{title}” will be removed. This can’t be undone.",
+  "@eventsEventWillBeRemoved": {
+    "description": "Localized text for eventsEventWillBeRemoved.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsFillRequiredFields": "Please fill in required fields",
+  "@eventsFillRequiredFields": {
+    "description": "Localized text for eventsFillRequiredFields."
+  },
+  "eventsJumpToToday": "Jump to today",
+  "@eventsJumpToToday": {
+    "description": "Localized text for eventsJumpToToday."
+  },
+  "eventsMayHaveBeenDeleted": "It may have been deleted.",
+  "@eventsMayHaveBeenDeleted": {
+    "description": "Localized text for eventsMayHaveBeenDeleted."
+  },
+  "eventsNewCategory": "New Category",
+  "@eventsNewCategory": {
+    "description": "Localized text for eventsNewCategory."
+  },
+  "eventsNoEventsOn": "No events on {date}",
+  "@eventsNoEventsOn": {
+    "description": "Localized text for eventsNoEventsOn.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsNoResultsFound": "No results found",
+  "@eventsNoResultsFound": {
+    "description": "Localized text for eventsNoResultsFound."
+  },
+  "eventsOccurrence": "Occurrence",
+  "@eventsOccurrence": {
+    "description": "Localized text for eventsOccurrence."
+  },
+  "eventsOnlyThisOccurrenceRemoved": "Only this occurrence will be removed.",
+  "@eventsOnlyThisOccurrenceRemoved": {
+    "description": "Localized text for eventsOnlyThisOccurrenceRemoved."
+  },
+  "eventsPickAColor": "Pick a color",
+  "@eventsPickAColor": {
+    "description": "Localized text for eventsPickAColor."
+  },
+  "eventsPickADate": "Pick a date",
+  "@eventsPickADate": {
+    "description": "Localized text for eventsPickADate."
+  },
+  "eventsPickAnotherDay": "Pick another day or create one.",
+  "@eventsPickAnotherDay": {
+    "description": "Localized text for eventsPickAnotherDay."
+  },
+  "eventsReminderAtStart": "at start",
+  "@eventsReminderAtStart": {
+    "description": "Localized text for eventsReminderAtStart."
+  },
+  "eventsReminderDays": "{count, plural, =1{{count} day} other{{count} days}}",
+  "@eventsReminderDays": {
+    "description": "Localized text for eventsReminderDays.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsReminderHours": "{count} h",
+  "@eventsReminderHours": {
+    "description": "Localized text for eventsReminderHours.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsReminderMinutes": "{count} min",
+  "@eventsReminderMinutes": {
+    "description": "Localized text for eventsReminderMinutes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsRemoveReminder": "Remove reminder",
+  "@eventsRemoveReminder": {
+    "description": "Localized text for eventsRemoveReminder."
+  },
+  "eventsReopenEvent": "Reopen event",
+  "@eventsReopenEvent": {
+    "description": "Localized text for eventsReopenEvent."
+  },
+  "eventsRepeatsDaily": "repeats daily",
+  "@eventsRepeatsDaily": {
+    "description": "Localized text for eventsRepeatsDaily."
+  },
+  "eventsRepeatsEveryNDays": "repeats every {count} days",
+  "@eventsRepeatsEveryNDays": {
+    "description": "Localized text for eventsRepeatsEveryNDays.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsRepeatsEveryNMonths": "repeats every {count} months",
+  "@eventsRepeatsEveryNMonths": {
+    "description": "Localized text for eventsRepeatsEveryNMonths.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsRepeatsEveryNWeeks": "repeats every {count} weeks",
+  "@eventsRepeatsEveryNWeeks": {
+    "description": "Localized text for eventsRepeatsEveryNWeeks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsRepeatsEveryNYears": "repeats every {count} years",
+  "@eventsRepeatsEveryNYears": {
+    "description": "Localized text for eventsRepeatsEveryNYears.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsRepeatsMonthly": "repeats monthly",
+  "@eventsRepeatsMonthly": {
+    "description": "Localized text for eventsRepeatsMonthly."
+  },
+  "eventsRepeatsWeekly": "repeats weekly",
+  "@eventsRepeatsWeekly": {
+    "description": "Localized text for eventsRepeatsWeekly."
+  },
+  "eventsRepeatsYearly": "repeats yearly",
+  "@eventsRepeatsYearly": {
+    "description": "Localized text for eventsRepeatsYearly."
+  },
+  "eventsResults": "Results",
+  "@eventsResults": {
+    "description": "Localized text for eventsResults."
+  },
+  "eventsSaveChanges": "Save Changes",
+  "@eventsSaveChanges": {
+    "description": "Localized text for eventsSaveChanges."
+  },
+  "eventsSaving": "Saving…",
+  "@eventsSaving": {
+    "description": "Localized text for eventsSaving."
+  },
+  "eventsSearchEvents": "Search events",
+  "@eventsSearchEvents": {
+    "description": "Localized text for eventsSearchEvents."
+  },
+  "eventsSearchPromptHint": "Type title or description",
+  "@eventsSearchPromptHint": {
+    "description": "Localized text for eventsSearchPromptHint."
+  },
+  "eventsTryDifferentKeyword": "Try a different keyword",
+  "@eventsTryDifferentKeyword": {
+    "description": "Localized text for eventsTryDifferentKeyword."
   },
   "failedToFetchHolidayConfig": "Failed to fetch holiday config from server.",
   "@failedToFetchHolidayConfig": {
@@ -291,6 +999,10 @@
   "general": "General",
   "@general": {
     "description": "Localized text for general."
+  },
+  "goBack": "Go back",
+  "@goBack": {
+    "description": "Localized text for goBack."
   },
   "goToHome": "Go to Home",
   "@goToHome": {
@@ -352,6 +1064,10 @@
       "value": {}
     }
   },
+  "icon": "Icon",
+  "@icon": {
+    "description": "Localized text for icon."
+  },
   "initializationErrorTitle": "Initialization Error",
   "@initializationErrorTitle": {
     "description": "Localized text for initializationErrorTitle."
@@ -395,9 +1111,21 @@
   "@loadingSettings": {
     "description": "Localized text for loadingSettings."
   },
+  "location": "Location",
+  "@location": {
+    "description": "Localized text for location."
+  },
   "mahabote": "Mahabote",
   "@mahabote": {
     "description": "Mahabote label"
+  },
+  "markAsPending": "Mark as pending",
+  "@markAsPending": {
+    "description": "Localized text for markAsPending."
+  },
+  "markComplete": "Mark complete",
+  "@markComplete": {
+    "description": "Localized text for markComplete."
   },
   "matchSystemTheme": "Match system theme",
   "@matchSystemTheme": {
@@ -406,6 +1134,14 @@
   "month": "Month",
   "@month": {
     "description": "Month label"
+  },
+  "months": "Months",
+  "@months": {
+    "description": "Localized text for months."
+  },
+  "moon": "Moon",
+  "@moon": {
+    "description": "Localized text for moon."
   },
   "moon_phase": "Moon Phase",
   "@moon_phase": {
@@ -431,13 +1167,33 @@
   "@nakhat": {
     "description": "Nakhat label"
   },
+  "name": "Name",
+  "@name": {
+    "description": "Localized text for name."
+  },
+  "never": "Never",
+  "@never": {
+    "description": "Localized text for never."
+  },
+  "newEvent": "New Event",
+  "@newEvent": {
+    "description": "Localized text for newEvent."
+  },
   "next_month": "Next Month",
   "@next_month": {
     "description": "Next Month label"
   },
+  "nextYear": "Next Year",
+  "@nextYear": {
+    "description": "Localized text for nextYear."
+  },
   "noChanges": "no changes",
   "@noChanges": {
     "description": "Localized text for noChanges."
+  },
+  "none": "None",
+  "@none": {
+    "description": "Localized text for none."
   },
   "openSourceLicenses": "Open Source Licenses",
   "@openSourceLicenses": {
@@ -467,6 +1223,14 @@
   "@previous_month": {
     "description": "Previous Month label"
   },
+  "previousYear": "Previous Year",
+  "@previousYear": {
+    "description": "Localized text for previousYear."
+  },
+  "priority": "Priority",
+  "@priority": {
+    "description": "Localized text for priority."
+  },
   "privacyAndData": "Privacy & Data",
   "@privacyAndData": {
     "description": "Localized text for privacyAndData."
@@ -487,9 +1251,21 @@
   "@promoDataClearedRestartApp": {
     "description": "Localized text for promoDataClearedRestartApp."
   },
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "Localized text for refresh."
+  },
   "releaseNotes": "Release Notes",
   "@releaseNotes": {
     "description": "Localized text for releaseNotes."
+  },
+  "reminders": "Reminders",
+  "@reminders": {
+    "description": "Localized text for reminders."
+  },
+  "repeat": "Repeat",
+  "@repeat": {
+    "description": "Localized text for repeat."
   },
   "reset": "Reset",
   "@reset": {
@@ -515,6 +1291,10 @@
   "@retry": {
     "description": "Localized text for retry."
   },
+  "sabbath": "Sabbath",
+  "@sabbath": {
+    "description": "Localized text for sabbath."
+  },
   "sasanaYearType": "Sasana Year Type",
   "@sasanaYearType": {
     "description": "Localized text for sasanaYearType."
@@ -527,6 +1307,10 @@
   "@save": {
     "description": "Localized text for save."
   },
+  "select": "Select",
+  "@select": {
+    "description": "Localized text for select."
+  },
   "sendCrashReportsToHelpFixIssues": "Send crash reports to help fix issues",
   "@sendCrashReportsToHelpFixIssues": {
     "description": "Localized text for sendCrashReportsToHelpFixIssues."
@@ -538,6 +1322,10 @@
   "settingsResetSuccessfully": "Settings reset successfully",
   "@settingsResetSuccessfully": {
     "description": "Localized text for settingsResetSuccessfully."
+  },
+  "share": "Share",
+  "@share": {
+    "description": "Localized text for share."
   },
   "showAnniversaryDays": "Show Anniversary Days",
   "@showAnniversaryDays": {
@@ -563,6 +1351,10 @@
   "@showWesternDates": {
     "description": "Localized text for showWesternDates."
   },
+  "somethingWentWrong": "Oops! Something went wrong",
+  "@somethingWentWrong": {
+    "description": "Localized text for somethingWentWrong."
+  },
   "special_days": "Special Days",
   "@special_days": {
     "description": "Special Days label"
@@ -570,6 +1362,10 @@
   "system": "System",
   "@system": {
     "description": "Localized text for system."
+  },
+  "tags": "Tags",
+  "@tags": {
+    "description": "Localized text for tags."
   },
   "telegramUserLabel": "TG: {userName}",
   "@telegramUserLabel": {
@@ -586,6 +1382,10 @@
   "@theme_preset": {
     "description": "Theme Preset label"
   },
+  "time": "Time",
+  "@time": {
+    "description": "Localized text for time."
+  },
   "timezoneOffset": "Timezone Offset",
   "@timezoneOffset": {
     "description": "Localized text for timezoneOffset."
@@ -594,9 +1394,21 @@
   "@timezoneOffsetExample": {
     "description": "Localized text for timezoneOffsetExample."
   },
+  "title": "Title",
+  "@title": {
+    "description": "Localized text for title."
+  },
   "today": "Today",
   "@today": {
     "description": "Today label"
+  },
+  "tomorrow": "Tomorrow",
+  "@tomorrow": {
+    "description": "Localized text for tomorrow."
+  },
+  "tryAgain": "Try Again",
+  "@tryAgain": {
+    "description": "Localized text for tryAgain."
   },
   "typeValue": "Type {value}",
   "@typeValue": {
@@ -608,6 +1420,10 @@
   "unableToOpenUpdatePage": "Unable to open the update page.",
   "@unableToOpenUpdatePage": {
     "description": "Localized text for unableToOpenUpdatePage."
+  },
+  "unexpectedError": "Unexpected error occurred",
+  "@unexpectedError": {
+    "description": "Localized text for unexpectedError."
   },
   "unknown": "Unknown",
   "@unknown": {
@@ -668,6 +1484,42 @@
   "@views": {
     "description": "Views label"
   },
+  "viewsDayViewSubtitle": "Everything about one day",
+  "@viewsDayViewSubtitle": {
+    "description": "Localized text for viewsDayViewSubtitle."
+  },
+  "viewsNextWeek": "Next Week",
+  "@viewsNextWeek": {
+    "description": "Localized text for viewsNextWeek."
+  },
+  "viewsPreviousWeek": "Previous Week",
+  "@viewsPreviousWeek": {
+    "description": "Localized text for viewsPreviousWeek."
+  },
+  "viewsThisWeek": "This Week",
+  "@viewsThisWeek": {
+    "description": "Localized text for viewsThisWeek."
+  },
+  "viewsThisYear": "This Year",
+  "@viewsThisYear": {
+    "description": "Localized text for viewsThisYear."
+  },
+  "viewsViewFullMonth": "View Full Month",
+  "@viewsViewFullMonth": {
+    "description": "Localized text for viewsViewFullMonth."
+  },
+  "viewsWeekViewSubtitle": "Seven days with Myanmar dates and the moon",
+  "@viewsWeekViewSubtitle": {
+    "description": "Localized text for viewsWeekViewSubtitle."
+  },
+  "viewsYearViewSubtitle": "All 12 months with holiday counts",
+  "@viewsYearViewSubtitle": {
+    "description": "Localized text for viewsYearViewSubtitle."
+  },
+  "week": "Week",
+  "@week": {
+    "description": "Localized text for week."
+  },
   "week_view": "Week View",
   "@week_view": {
     "description": "Week View label"
@@ -675,6 +1527,19 @@
   "weekday": "Weekday",
   "@weekday": {
     "description": "Weekday label"
+  },
+  "weekNumber": "Week {number}",
+  "@weekNumber": {
+    "description": "Localized text for weekNumber.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "weeks": "Weeks",
+  "@weeks": {
+    "description": "Localized text for weeks."
   },
   "widgetSettings": "Widget Settings",
   "@widgetSettings": {
@@ -691,5 +1556,13 @@
   "year_view": "Year View",
   "@year_view": {
     "description": "Year View label"
+  },
+  "years": "Years",
+  "@years": {
+    "description": "Localized text for years."
+  },
+  "yesterday": "Yesterday",
+  "@yesterday": {
+    "description": "Localized text for yesterday."
   }
 }

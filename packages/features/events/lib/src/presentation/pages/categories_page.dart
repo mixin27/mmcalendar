@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 
 import '../../domain/entities/event_category.dart';
@@ -13,6 +14,7 @@ class CategoriesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return BlocBuilder<EventCategoriesBloc, EventCategoriesState>(
       builder: (context, state) {
         final bloc = context.read<EventCategoriesBloc>();
@@ -43,12 +45,12 @@ class CategoriesPage extends StatelessWidget {
         );
 
         return AppPage(
-          title: 'Categories',
-          previousTitle: 'Events',
+          title: l10n?.categories ?? 'Categories',
+          previousTitle: l10n?.events ?? 'Events',
           actions: [
             IconButton(
               icon: const Icon(Icons.add),
-              tooltip: 'New Category',
+              tooltip: l10n?.eventsNewCategory ?? 'New Category',
               onPressed: () => _showCategorySheet(context, null),
             ),
           ],
@@ -58,7 +60,7 @@ class CategoriesPage extends StatelessWidget {
                 footer: failure.message,
                 children: [
                   AppRow(
-                    title: 'Retry',
+                    title: l10n?.retry ?? 'Retry',
                     tone: AppRowTone.accent,
                     onTap: () => bloc.add(const LoadEventCategories()),
                   ),
@@ -68,19 +70,23 @@ class CategoriesPage extends StatelessWidget {
             EventCategoriesLoaded() => [
               if (defaults.isNotEmpty)
                 AppGroup(
-                  label: 'Default',
-                  footer: 'Built-in categories can’t be changed.',
+                  label: l10n?.defaultLabel ?? 'Default',
+                  footer:
+                      l10n?.eventsBuiltInCategoriesFooter ??
+                      'Built-in categories can’t be changed.',
                   children: [for (final c in defaults) row(c)],
                 ),
               AppGroup(
-                label: 'Custom',
+                label: l10n?.custom ?? 'Custom',
                 footer: custom.isEmpty
-                    ? 'Create categories for the events you keep.'
-                    : 'Tap a category to rename, recolour or delete it.',
+                    ? (l10n?.eventsCustomCategoriesEmptyFooter ??
+                          'Create categories for the events you keep.')
+                    : (l10n?.eventsCustomCategoriesFooter ??
+                          'Tap a category to rename, recolour or delete it.'),
                 children: [
                   for (final c in custom) row(c),
                   AppRow(
-                    title: 'New Category',
+                    title: l10n?.eventsNewCategory ?? 'New Category',
                     tone: AppRowTone.accent,
                     onTap: () => _showCategorySheet(context, null),
                   ),
@@ -111,6 +117,7 @@ class CategoriesPage extends StatelessWidget {
     var icon = category?.iconName ?? 'person';
     var color = Color(category?.colorCode ?? Colors.blue.toARGB32());
     final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
 
     void save() {
       final trimmed = name.trim();
@@ -138,8 +145,12 @@ class CategoriesPage extends StatelessWidget {
 
     await showAppSheet<void>(
       context: context,
-      title: category == null ? 'New Category' : 'Edit Category',
-      doneLabel: category == null ? 'Create' : 'Save',
+      title: category == null
+          ? (l10n?.eventsNewCategory ?? 'New Category')
+          : (l10n?.eventsEditCategory ?? 'Edit Category'),
+      doneLabel: category == null
+          ? (l10n?.create ?? 'Create')
+          : (l10n?.save ?? 'Save'),
       onDone: save,
       builder: (sheetContext) => StatefulBuilder(
         builder: (sheetContext, setState) {
@@ -164,8 +175,8 @@ class CategoriesPage extends StatelessWidget {
                         autofocus: category == null,
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) => save(),
-                        decoration: const InputDecoration(
-                          hintText: 'Name',
+                        decoration: InputDecoration(
+                          hintText: l10n?.name ?? 'Name',
                           filled: false,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -176,7 +187,7 @@ class CategoriesPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 18),
-                const AppGroupLabel('Icon'),
+                AppGroupLabel(l10n?.icon ?? 'Icon'),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -208,7 +219,7 @@ class CategoriesPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 18),
-                const AppGroupLabel('Colour'),
+                AppGroupLabel(l10n?.colour ?? 'Colour'),
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
@@ -217,7 +228,7 @@ class CategoriesPage extends StatelessWidget {
                       Semantics(
                         selected: swatch == color,
                         button: true,
-                        label: 'Colour',
+                        label: l10n?.colour ?? 'Colour',
                         child: GestureDetector(
                           onTap: () => setState(() => color = swatch),
                           child: Container(
@@ -238,16 +249,20 @@ class CategoriesPage extends StatelessWidget {
                 if (category?.id != null) ...[
                   const SizedBox(height: 24),
                   AppButton(
-                    label: 'Delete Category',
+                    label: l10n?.eventsDeleteCategory ?? 'Delete Category',
                     kind: AppButtonKind.destructive,
                     onPressed: () async {
+                      final categoryName = category!.name;
                       final confirmed = await showAppConfirm(
                         context: sheetContext,
-                        title: 'Delete “${category!.name}”?',
+                        title:
+                            l10n?.eventsDeleteCategoryQuestion(categoryName) ??
+                            'Delete “$categoryName”?',
                         message:
+                            l10n?.eventsDeleteCategoryMessage ??
                             'Its events are kept; they just stop being linked '
-                            'to this category.',
-                        confirmLabel: 'Delete',
+                                'to this category.',
+                        confirmLabel: l10n?.delete ?? 'Delete',
                         destructive: true,
                       );
                       if (!confirmed) return;

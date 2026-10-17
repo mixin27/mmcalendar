@@ -163,9 +163,9 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
               orElse: () => options.first,
             );
 
-            final crossAxisCount = width >= 900
+            final crossAxisCount = width >= ResponsiveUtils.desktopBreakpoint
                 ? 4
-                : width >= 680
+                : width >= ResponsiveUtils.tabletBreakpoint
                 ? 3
                 : 2;
 

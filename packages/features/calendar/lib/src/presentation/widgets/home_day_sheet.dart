@@ -77,6 +77,7 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
   @override
   Widget build(BuildContext context) {
     final colors = CalendarColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return DraggableScrollableSheet(
       controller: _controller,
       initialChildSize: widget.peekFraction,
@@ -104,7 +105,9 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
             children: [
               Semantics(
                 button: true,
-                label: 'Show or hide day details',
+                label:
+                    l10n?.calendarToggleDayDetails ??
+                    'Show or hide day details',
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: _toggle,
@@ -131,7 +134,7 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
               ),
               const SizedBox(height: 18),
               AppGroup(
-                label: AppLocalizations.of(context)?.events ?? 'Events',
+                label: l10n?.events ?? 'Events',
                 children: [
                   for (final event in widget.events)
                     AppRow(
@@ -142,7 +145,7 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
                       onTap: () => widget.onOpenEvent(event),
                     ),
                   AppRow(
-                    title: 'Add event',
+                    title: l10n?.addEvent ?? 'Add event',
                     tone: AppRowTone.accent,
                     onTap: () => widget.onAddEvent(_date(widget.day)),
                   ),
@@ -152,8 +155,10 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
               AppGroup(
                 children: [
                   AppRow(
-                    title: 'Full day details',
-                    subtitle: 'Astrology, Buddhist calendar, AI prompt',
+                    title: l10n?.calendarFullDayDetails ?? 'Full day details',
+                    subtitle:
+                        l10n?.calendarFullDayDetailsSubtitle ??
+                        'Astrology, Buddhist calendar, AI prompt',
                     chevron: true,
                     onTap: () => widget.onOpenDetails(_date(widget.day)),
                   ),
@@ -173,8 +178,10 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
                   AppRow(
                     icon: Icons.edit_calendar_outlined,
                     iconColor: const Color(0xFF4C5BD4),
-                    title: 'Make your ${widget.today.year + 1} calendar',
-                    subtitle: 'Calendar Studio',
+                    title:
+                        l10n?.calendarMakeYourCalendar(widget.today.year + 1) ??
+                        'Make your ${widget.today.year + 1} calendar',
+                    subtitle: l10n?.calendarStudio ?? 'Calendar Studio',
                     chevron: true,
                     onTap: widget.onStudioTap,
                   ),
@@ -192,7 +199,9 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
 
   static String _eventTime(BuildContext context, CalendarEventItem event) {
     final category = event.category.name;
-    if (event.isAllDay || event.eventTime == null) return 'All day · $category';
+    if (event.isAllDay || event.eventTime == null) {
+      return '${AppLocalizations.of(context)?.allDay ?? 'All day'} · $category';
+    }
     final time = TimeOfDay.fromDateTime(event.eventTime!).format(context);
     return '$time · $category';
   }
@@ -221,14 +230,15 @@ class _Summary extends StatelessWidget {
       date,
     ).difference(DateUtils.dateOnly(today)).inDays;
     final localizations = MaterialLocalizations.of(context);
+    final l10n = AppLocalizations.of(context);
     final when = switch (days) {
-      0 => '${AppLocalizations.of(context)?.today ?? 'Today'} · ',
-      1 => 'Tomorrow · ',
-      -1 => 'Yesterday · ',
+      0 => '${l10n?.today ?? 'Today'} · ',
+      1 => '${l10n?.tomorrow ?? 'Tomorrow'} · ',
+      -1 => '${l10n?.yesterday ?? 'Yesterday'} · ',
       _ => '',
     };
     final distance = days.abs() > 1
-        ? ' · ${days > 0 ? 'in $days days' : '${-days} days ago'}'
+        ? ' · ${days > 0 ? l10n?.calendarInDays(days) ?? 'in $days days' : l10n?.calendarDaysAgo(-days) ?? '${-days} days ago'}'
         : '';
     final badges = <Widget>[
       if (options.showHolidays)
@@ -260,7 +270,7 @@ class _Summary extends StatelessWidget {
             children: [
               Text(
                 '$when${localizations.formatShortMonthDay(date)}$distance · '
-                '${translateNumbers('${moon.percentLit}')}% lit',
+                '${l10n?.dayDetailsPercentLit(translateNumbers('${moon.percentLit}')) ?? '${translateNumbers('${moon.percentLit}')}% lit'}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 12, color: colors.secondaryLabel),
@@ -297,7 +307,9 @@ class _Summary extends StatelessWidget {
         if (eventCount > 0) ...[
           const SizedBox(width: 8),
           _Badge(
-            text: eventCount == 1 ? '1 event' : '$eventCount events',
+            text:
+                l10n?.calendarEventCount(eventCount) ??
+                (eventCount == 1 ? '1 event' : '$eventCount events'),
             color: colors.accent,
           ),
         ],
@@ -437,8 +449,9 @@ class _UpcomingGroup extends StatelessWidget {
     final items = _collect(context, colors);
     if (items.isEmpty) return const SizedBox.shrink();
     final start = DateUtils.dateOnly(today);
+    final l10n = AppLocalizations.of(context);
     return AppGroup(
-      label: 'Upcoming',
+      label: l10n?.calendarUpcoming ?? 'Upcoming',
       children: [
         for (final item in items)
           AppRow(
@@ -447,7 +460,10 @@ class _UpcomingGroup extends StatelessWidget {
             iconColor: item.iconColor,
             title: item.title,
             subtitle: item.subtitle,
-            value: translateNumbers('${item.date.difference(start).inDays} d'),
+            value: translateNumbers(
+              l10n?.calendarDaysShort(item.date.difference(start).inDays) ??
+                  '${item.date.difference(start).inDays} d',
+            ),
             onTap: item.event != null
                 ? () => onOpenEvent(item.event!)
                 : () => onOpenDay(item.date),

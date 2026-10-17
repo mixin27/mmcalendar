@@ -114,7 +114,7 @@ class DayDetailsContent extends StatelessWidget {
       ),
       (l10n?.day ?? 'Day', translateNumbers('${completeDate.myanmarDay}')),
       (
-        'Type',
+        l10n?.dayDetailsYearType ?? 'Type',
         TranslationService.getYearTypeName(completeDate.yearType, _language),
       ),
     ];
@@ -187,7 +187,7 @@ class DayDetailsContent extends StatelessWidget {
   Widget _buddhistCalendar(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return AppGroup(
-      label: 'Buddhist Calendar',
+      label: l10n?.dayDetailsBuddhistCalendar ?? 'Buddhist Calendar',
       children: [
         AppRow(
           title: l10n?.buddhist_era ?? 'Buddhist Era (BE)',
@@ -227,8 +227,17 @@ class DayDetailsContent extends StatelessWidget {
           leading: MoonGlyph(state: moon, size: 30),
           title: phase,
           subtitle: completeDate.isFullMoon || completeDate.isNewMoon
-              ? translateNumbers('${moon.percentLit}% lit')
-              : translateNumbers('Day $fortnight · ${moon.percentLit}% lit'),
+              ? translateNumbers(
+                  l10n?.dayDetailsPercentLit('${moon.percentLit}') ??
+                      '${moon.percentLit}% lit',
+                )
+              : translateNumbers(
+                  l10n?.dayDetailsFortnightDayPercentLit(
+                        fortnight,
+                        '${moon.percentLit}',
+                      ) ??
+                      'Day $fortnight · ${moon.percentLit}% lit',
+                ),
         ),
         Builder(
           builder: (context) {
@@ -276,11 +285,11 @@ class DayDetailsContent extends StatelessWidget {
   Widget _astrology(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final rows = <(String, String)>[
-      ('Sabbath', completeDate.sabbath),
-      ('Yatyaza', completeDate.yatyaza),
-      ('Pyathada', completeDate.pyathada),
+      (l10n?.sabbath ?? 'Sabbath', completeDate.sabbath),
+      (l10n?.dayDetailsYatyaza ?? 'Yatyaza', completeDate.yatyaza),
+      (l10n?.dayDetailsPyathada ?? 'Pyathada', completeDate.pyathada),
       (l10n?.nagahle ?? 'Nagahle', completeDate.nagahle),
-      ('Mahabote', completeDate.mahabote),
+      (l10n?.mahabote ?? 'Mahabote', completeDate.mahabote),
       (l10n?.nakhat ?? 'Nakhat', completeDate.nakhat),
       (l10n?.year_name ?? 'Year Name', completeDate.yearName),
     ];
@@ -297,18 +306,23 @@ class DayDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _aiPrompt(BuildContext context) => AppGroup(
-    children: [
-      AppRow(
-        icon: Icons.auto_awesome,
-        iconColor: const Color(0xFF8E6CEF),
-        title: 'AI Horoscope Prompt',
-        subtitle: 'Copy a ready-made prompt for this day',
-        chevron: true,
-        onTap: () => _showAIPrompt(context),
-      ),
-    ],
-  );
+  Widget _aiPrompt(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AppGroup(
+      children: [
+        AppRow(
+          icon: Icons.auto_awesome,
+          iconColor: const Color(0xFF8E6CEF),
+          title: l10n?.dayDetailsAiHoroscopePrompt ?? 'AI Horoscope Prompt',
+          subtitle:
+              l10n?.dayDetailsAiHoroscopePromptSubtitle ??
+              'Copy a ready-made prompt for this day',
+          chevron: true,
+          onTap: () => _showAIPrompt(context),
+        ),
+      ],
+    );
+  }
 
   Future<void> _showAIPrompt(BuildContext context) {
     _analyticsService.logButtonClick(
@@ -320,10 +334,13 @@ class DayDetailsContent extends StatelessWidget {
       language: _language,
       type: AIPromptType.horoscope,
     );
+    final l10n = AppLocalizations.of(context);
+    final promptTitle =
+        l10n?.dayDetailsAiHoroscopePrompt ?? 'AI Horoscope Prompt';
     return showAppSheet<void>(
       context: context,
-      title: 'AI Horoscope Prompt',
-      cancelLabel: 'Close',
+      title: promptTitle,
+      cancelLabel: l10n?.close ?? 'Close',
       builder: (sheetContext) {
         final t = sheetContext.tokens;
         return SingleChildScrollView(
@@ -332,8 +349,9 @@ class DayDetailsContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Paste this into any AI assistant (ChatGPT, Gemini, …) for a '
-                'reading of the day. Nothing is sent from this app.',
+                l10n?.dayDetailsAiPromptHint ??
+                    'Paste this into any AI assistant (ChatGPT, Gemini, …) for a '
+                        'reading of the day. Nothing is sent from this app.',
                 style: TextStyle(fontSize: 13, color: t.secondaryLabel),
               ),
               const SizedBox(height: 12),
@@ -348,25 +366,26 @@ class DayDetailsContent extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               AppButton(
-                label: 'Copy Prompt',
+                label: l10n?.dayDetailsCopyPrompt ?? 'Copy Prompt',
                 icon: Icons.copy_rounded,
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: prompt));
                   Navigator.of(sheetContext).pop();
                   context.showToast(
-                    'Prompt copied to clipboard',
+                    l10n?.dayDetailsPromptCopied ??
+                        'Prompt copied to clipboard',
                     kind: AppToastKind.success,
                   );
                 },
               ),
               const SizedBox(height: 8),
               AppButton(
-                label: 'Share',
+                label: l10n?.share ?? 'Share',
                 icon: Icons.ios_share,
                 kind: AppButtonKind.tinted,
                 onPressed: () => share(
-                  title: 'AI Horoscope Prompt',
-                  subject: 'AI Horoscope Prompt',
+                  title: promptTitle,
+                  subject: promptTitle,
                   content: prompt,
                 ),
               ),
@@ -380,14 +399,19 @@ class DayDetailsContent extends StatelessWidget {
   Widget _summary(BuildContext context, {required int eventCount}) {
     final t = context.tokens;
     final colors = CalendarColors.of(context);
+    final l10n = AppLocalizations.of(context);
     final stats = [
-      ('$eventCount', 'Events', t.accent),
+      ('$eventCount', l10n?.events ?? 'Events', t.accent),
       (
         '${completeDate.allHolidays.length + completeDate.allAnniversaryDays.length}',
-        'Holidays',
+        l10n?.holidays ?? 'Holidays',
         colors.holiday,
       ),
-      ('${completeDate.astrologicalDays.length}', 'Special', colors.astrology),
+      (
+        '${completeDate.astrologicalDays.length}',
+        l10n?.dayDetailsSpecial ?? 'Special',
+        colors.astrology,
+      ),
     ];
     return Card(
       child: Padding(
@@ -426,18 +450,19 @@ class DayDetailsContent extends StatelessWidget {
     String? error,
   }) {
     final colors = CalendarColors.of(context);
+    final l10n = AppLocalizations.of(context);
     final rows = <Widget>[
       if (loading)
-        const AppRow(
-          title: 'Loading events…',
-          trailing: SizedBox.square(
+        AppRow(
+          title: l10n?.dayDetailsLoadingEvents ?? 'Loading events…',
+          trailing: const SizedBox.square(
             dimension: 18,
             child: CircularProgressIndicator(strokeWidth: 2),
           ),
         )
       else if (error != null)
         AppRow(
-          title: 'Error loading events',
+          title: l10n?.dayDetailsErrorLoadingEvents ?? 'Error loading events',
           subtitle: error,
           tone: AppRowTone.destructive,
         )
@@ -477,8 +502,8 @@ class DayDetailsContent extends StatelessWidget {
           ),
       AppRow(
         title: events.isEmpty && !loading
-            ? 'No events · Add event'
-            : 'Add event',
+            ? l10n?.dayDetailsNoEventsAddEvent ?? 'No events · Add event'
+            : l10n?.addEvent ?? 'Add event',
         tone: AppRowTone.accent,
         onTap: () {
           _analyticsService.logButtonClick(
@@ -490,14 +515,16 @@ class DayDetailsContent extends StatelessWidget {
       ),
     ];
     return AppGroup(
-      label: events.isEmpty ? 'Events' : 'Events · ${events.length}',
+      label: events.isEmpty
+          ? l10n?.events ?? 'Events'
+          : '${l10n?.events ?? 'Events'} · ${events.length}',
       children: rows,
     );
   }
 
   String _eventSubtitle(BuildContext context, Event event) {
     final time = event.isAllDay || event.eventTime == null
-        ? 'All day'
+        ? AppLocalizations.of(context)?.allDay ?? 'All day'
         : TimeOfDay.fromDateTime(event.eventTime!).format(context);
     return [
       time,
@@ -521,7 +548,8 @@ class DayDetailsContent extends StatelessWidget {
     } catch (error) {
       if (!context.mounted) return;
       context.showToast(
-        'Failed to update event: $error',
+        AppLocalizations.of(context)?.dayDetailsFailedToUpdateEvent('$error') ??
+            'Failed to update event: $error',
         kind: AppToastKind.error,
       );
     }
@@ -543,7 +571,9 @@ class _CompleteToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     checked: done,
-    label: done ? 'Mark not done' : 'Mark complete',
+    label: done
+        ? AppLocalizations.of(context)?.dayDetailsMarkNotDone ?? 'Mark not done'
+        : AppLocalizations.of(context)?.markComplete ?? 'Mark complete',
     button: true,
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,

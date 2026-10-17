@@ -40,7 +40,9 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
               icon: Icons.calendar_view_month,
               iconColor: const Color(0xFF2F5BEA),
               title: l10n?.year_view ?? 'Year View',
-              subtitle: 'All 12 months with holiday counts',
+              subtitle:
+                  l10n?.viewsYearViewSubtitle ??
+                  'All 12 months with holiday counts',
               chevron: true,
               onTap: () {
                 context.read<ViewsBloc>().add(
@@ -53,7 +55,9 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
               icon: Icons.calendar_view_week,
               iconColor: const Color(0xFF16A3B0),
               title: l10n?.week_view ?? 'Week View',
-              subtitle: 'Seven days with Myanmar dates and the moon',
+              subtitle:
+                  l10n?.viewsWeekViewSubtitle ??
+                  'Seven days with Myanmar dates and the moon',
               chevron: true,
               onTap: () {
                 context.read<ViewsBloc>().add(LoadWeekView(DateTime.now()));
@@ -64,7 +68,8 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
               icon: Icons.calendar_today,
               iconColor: const Color(0xFF8E6CEF),
               title: l10n?.day_view ?? 'Day View',
-              subtitle: 'Everything about one day',
+              subtitle:
+                  l10n?.viewsDayViewSubtitle ?? 'Everything about one day',
               chevron: true,
               onTap: () => context.go('/views/day'),
             ),
