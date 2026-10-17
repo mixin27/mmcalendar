@@ -18,6 +18,22 @@ final class CreateCategory extends EventCategoriesEvent {
   const CreateCategory(this.category);
 }
 
+final class UpdateCategory extends EventCategoriesEvent {
+  final EventCategory category;
+  const UpdateCategory(this.category);
+
+  @override
+  List<Object?> get props => [category];
+}
+
+final class DeleteCategory extends EventCategoriesEvent {
+  final int categoryId;
+  const DeleteCategory(this.categoryId);
+
+  @override
+  List<Object?> get props => [categoryId];
+}
+
 final class RefreshCategories extends EventCategoriesEvent {
   const RefreshCategories();
 }

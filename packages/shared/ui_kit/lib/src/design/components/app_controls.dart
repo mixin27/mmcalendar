@@ -126,9 +126,11 @@ class AppButton extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: compact ? 14 : 20),
       shape: shape,
       elevation: 0,
-      textStyle: TextStyle(
+      // From the theme so the label keeps the app font.
+      textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
         fontSize: compact ? 14 : (t.isClear ? 16 : 15),
         fontWeight: FontWeight.w600,
+        height: 1.2,
       ),
     );
     final text = Text(label, maxLines: 1, overflow: TextOverflow.ellipsis);

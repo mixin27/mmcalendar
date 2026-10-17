@@ -19,9 +19,17 @@ final class EventCategoriesLoading extends EventCategoriesState {
 final class EventCategoriesLoaded extends EventCategoriesState {
   final List<EventCategory> categories;
   const EventCategoriesLoaded(this.categories);
+
+  // Without props every loaded state compares equal and bloc drops the
+  // emit, so created, renamed and deleted categories never showed.
+  @override
+  List<Object?> get props => [categories];
 }
 
 final class EventCategoriesError extends EventCategoriesState {
   final Failure failure;
   const EventCategoriesError(this.failure);
+
+  @override
+  List<Object?> get props => [failure];
 }

@@ -155,7 +155,10 @@ class AppTheme {
         style: FilledButton.styleFrom(
           minimumSize: const Size(64, 50),
           shape: controlShape,
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(

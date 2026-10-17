@@ -16,6 +16,8 @@ dependencies:
     path: ../../shared/core
   integrations_database:
     path: ../../integrations/database
+  shared_ui_kit:
+    path: ../../shared/ui_kit
 
   # Utilities
   intl: ^0.20.2
