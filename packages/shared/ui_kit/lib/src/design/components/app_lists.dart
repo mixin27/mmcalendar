@@ -102,6 +102,7 @@ class AppRow extends StatelessWidget {
     this.chevron = false,
     this.selected = false,
     this.tone = AppRowTone.normal,
+    this.completed = false,
     this.onTap,
   });
 
@@ -140,6 +141,9 @@ class AppRow extends StatelessWidget {
   /// Shows a checkmark (single-choice lists).
   final bool selected;
   final AppRowTone tone;
+
+  /// Struck-through, secondary title (done tasks and events).
+  final bool completed;
   final VoidCallback? onTap;
 
   bool get hasLeading => icon != null || leading != null;
@@ -200,7 +204,10 @@ class AppRow extends StatelessWidget {
                         style: TextStyle(
                           fontSize: clear ? 15.5 : 16,
                           fontWeight: clear ? FontWeight.w500 : FontWeight.w400,
-                          color: titleColor,
+                          color: completed ? t.secondaryLabel : titleColor,
+                          decoration: completed
+                              ? TextDecoration.lineThrough
+                              : null,
                         ),
                       ),
                       if (subtitle != null)

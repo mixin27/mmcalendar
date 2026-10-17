@@ -96,9 +96,13 @@ final GoRouter router = GoRouter(
                   path: RoutePaths.weekView,
                   builder: (context, state) => const WeekViewPage(),
                 ),
+                // Views › Day is the Day Details screen (events, share and
+                // the AI prompt included), not a separate copy.
                 GoRoute(
                   path: RoutePaths.dayView,
-                  builder: (context, state) => const DayViewPage(),
+                  builder: (context, state) => DayDetailsPage(
+                    date: state.extra as DateTime? ?? DateTime.now(),
+                  ),
                 ),
               ],
             ),

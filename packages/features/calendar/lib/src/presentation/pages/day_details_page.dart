@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/calendar_injection.dart';
 import '../widgets/day_details_content.dart';
@@ -88,226 +89,138 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     super.dispose();
   }
 
+  void _step(int days, String button) {
+    _analyticsService.logButtonClick(
+      buttonName: button,
+      buttonLocation: 'day_details_appbar',
+    );
+    HapticFeedback.lightImpact();
+    _navigateToDay(_currentDate.add(Duration(days: days)));
+  }
+
+  String _relativeLabel() {
+    final today = DateUtils.dateOnly(DateTime.now());
+    final days = DateUtils.dateOnly(_currentDate).difference(today).inDays;
+    return switch (days) {
+      0 => 'Today',
+      1 => 'Tomorrow',
+      -1 => 'Yesterday',
+      > 1 => '$days days from today',
+      _ => '${-days} days ago',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = context.tokens;
     return GestureDetector(
       onHorizontalDragEnd: (details) {
-        if (details.primaryVelocity == null) {
-          return;
-        }
-
-        if (details.primaryVelocity! > 0) {
-          final previousDay = _currentDate.subtract(const Duration(days: 1));
-          _analyticsService.logWidgetInteraction(
-            widgetName: 'day_details_page',
-            actionType: 'swipe_previous',
-            metadata: {
-              'from_date': _currentDate.toString(),
-              'to_date': previousDay.toString(),
-            },
-          );
-          _navigateToDay(previousDay);
-        } else if (details.primaryVelocity! < 0) {
-          final nextDay = _currentDate.add(const Duration(days: 1));
-          _analyticsService.logWidgetInteraction(
-            widgetName: 'day_details_page',
-            actionType: 'swipe_next',
-            metadata: {
-              'from_date': _currentDate.toString(),
-              'to_date': nextDay.toString(),
-            },
-          );
-          _navigateToDay(nextDay);
-        }
-      },
-      child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          heroTag: 'event',
-          onPressed: () async {
-            _analyticsService.logButtonClick(
-              buttonName: 'add_event',
-              buttonLocation: 'day_details_fab',
-            );
-            await _eventActionsPort.openCreateEvent(
-              context,
-              initialDate: _currentDate,
-            );
+        final velocity = details.primaryVelocity ?? 0;
+        if (velocity == 0) return;
+        final next = velocity < 0;
+        final target = _currentDate.add(Duration(days: next ? 1 : -1));
+        _analyticsService.logWidgetInteraction(
+          widgetName: 'day_details_page',
+          actionType: next ? 'swipe_next' : 'swipe_previous',
+          metadata: {
+            'from_date': _currentDate.toString(),
+            'to_date': target.toString(),
           },
-          tooltip: 'Add Event',
-          child: const Icon(Icons.add),
-        ),
-        body: StreamBuilder<bool>(
-          stream: _displayPreferencesPort.watchShowShanCalendar(),
-          initialData: true,
-          builder: (context, snapshot) {
-            final showShanCalendar = snapshot.data ?? true;
-
-            return CustomScrollView(
-              slivers: [
-                _buildAppBar(showShanCalendar),
-                SliverToBoxAdapter(
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Stack(
-                          children: [
-                            DayDetailsContent(
-                              key: ValueKey<DateTime>(_currentDate),
-                              date: _currentDate,
-                              completeDate: _completeDate,
-                              showShanCalendar: showShanCalendar,
-                            ),
-                            _buildTodayIndicator(),
-                          ],
-                        ),
-                      ),
-                    ),
+        );
+        _navigateToDay(target);
+      },
+      child: StreamBuilder<bool>(
+        stream: _displayPreferencesPort.watchShowShanCalendar(),
+        initialData: true,
+        builder: (context, snapshot) {
+          final showShanCalendar = snapshot.data ?? true;
+          return AppPage(
+            title: _currentDate.format('EEE, d MMM'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.chevron_left_rounded),
+                tooltip: 'Previous Day',
+                onPressed: () => _step(-1, 'previous_day'),
+              ),
+              IconButton(
+                icon: const Icon(Icons.calendar_month_outlined),
+                tooltip: 'Jump to Date',
+                onPressed: () {
+                  _analyticsService.logButtonClick(
+                    buttonName: 'jump_to_date',
+                    buttonLocation: 'day_details_appbar',
+                  );
+                  _showDatePicker(context);
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right_rounded),
+                tooltip: 'Next Day',
+                onPressed: () => _step(1, 'next_day'),
+              ),
+              IconButton(
+                icon: Icon(t.isClear ? Icons.ios_share : Icons.share_outlined),
+                tooltip: 'Share',
+                onPressed: () => _shareDate(
+                  _formatDetailedShareText(
+                    context,
+                    _completeDate,
+                    showShanCalendar,
                   ),
                 ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppBar(bool showShanCalendar) {
-    return SliverAppBar(
-      expandedHeight: 140,
-      floating: false,
-      pinned: true,
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _currentDate.format('EEEE'),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            Text(
-              _currentDate.format('MMMM d, yyyy'),
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
               ),
-            ),
-          ],
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).colorScheme.primaryContainer,
-                Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withValues(alpha: 0.7),
-              ],
-            ),
-          ),
-        ),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: () {
-            _analyticsService.logButtonClick(
-              buttonName: 'previous_day',
-              buttonLocation: 'day_details_appbar',
-            );
-
-            HapticFeedback.lightImpact();
-            _navigateToDay(_currentDate.subtract(const Duration(days: 1)));
-          },
-          tooltip: 'Previous Day',
-        ),
-        IconButton(
-          icon: const Icon(Icons.calendar_month),
-          onPressed: () {
-            _analyticsService.logButtonClick(
-              buttonName: 'jump_to_date',
-              buttonLocation: 'day_details_appbar',
-            );
-            _showDatePicker(context);
-          },
-          tooltip: 'Jump to Date',
-        ),
-        IconButton(
-          icon: const Icon(Icons.chevron_right),
-          onPressed: () {
-            _analyticsService.logButtonClick(
-              buttonName: 'next_day',
-              buttonLocation: 'day_details_appbar',
-            );
-
-            HapticFeedback.lightImpact();
-            _navigateToDay(_currentDate.add(const Duration(days: 1)));
-          },
-          tooltip: 'Next Day',
-        ),
-        IconButton(
-          icon: const Icon(Icons.share_outlined),
-          onPressed: () {
-            final detailedShareText = _formatDetailedShareText(
-              context,
-              _completeDate,
-              showShanCalendar,
-            );
-            _shareDate(detailedShareText);
-          },
-          tooltip: 'Share',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTodayIndicator() {
-    final isToday = _isSameDay(_currentDate, DateTime.now());
-    if (!isToday) {
-      return const SizedBox.shrink();
-    }
-
-    return Positioned(
-      top: 16,
-      left: 16,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.today,
-              size: 16,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              'Today',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontWeight: FontWeight.w600,
+            ],
+            floatingActionButton: t.isClear
+                ? null
+                : FloatingActionButton(
+                    heroTag: 'event',
+                    tooltip: 'Add Event',
+                    onPressed: () {
+                      _analyticsService.logButtonClick(
+                        buttonName: 'add_event',
+                        buttonLocation: 'day_details_fab',
+                      );
+                      _eventActionsPort.openCreateEvent(
+                        context,
+                        initialDate: _currentDate,
+                      );
+                    },
+                    child: const Icon(Icons.add),
+                  ),
+            children: [
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 14),
+                        child: Text(
+                          '${_currentDate.year} · ${_relativeLabel()}',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            color: _isSameDay(_currentDate, DateTime.now())
+                                ? t.accent
+                                : t.secondaryLabel,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      DayDetailsContent(
+                        key: ValueKey<DateTime>(_currentDate),
+                        date: _currentDate,
+                        completeDate: _completeDate,
+                        showShanCalendar: showShanCalendar,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -375,9 +288,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to share')));
+      context.showToast('Failed to share', kind: AppToastKind.error);
     }
   }
 
@@ -389,8 +300,11 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     final buffer = StringBuffer();
     final l10n = AppLocalizations.of(context);
 
-    buffer.writeln('📅 ${_getTodayString()}');
-    buffer.writeln('🇲🇲 ${_getTodayMyanmarString(showShanCalendar)}');
+    // The day on screen, not today.
+    buffer.writeln('📅 ${_currentDate.format('EEEE, MMMM d, yyyy')}');
+    buffer.writeln(
+      '🇲🇲 ${_myanmarDateString(completeDate, showShanCalendar)}',
+    );
     buffer.writeln('');
 
     if (completeDate.hasHolidays || completeDate.hasAnniversaryDays) {
@@ -408,7 +322,7 @@ class _DayDetailsPageState extends State<DayDetailsPage>
       '☸️ ${l10n?.sasana_year ?? "Sasana Year"}: ${translateNumbers(completeDate.sasanaYear.toString())}',
     );
     buffer.writeln(
-      '☀️ ${l10n?.buddhist_era ?? "Buddhist Era"}: ${translateNumbers((DateTime.now().year + 543).toString())}',
+      '☀️ ${l10n?.buddhist_era ?? "Buddhist Era"}: ${translateNumbers((_currentDate.year + 543).toString())}',
     );
     buffer.writeln('');
 
@@ -461,18 +375,16 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     return buffer.toString().trim();
   }
 
-  String _getTodayString() {
-    final now = DateTime.now();
-    return now.format('EEEE, MMMM d');
-  }
-
-  String _getTodayMyanmarString([bool showShanCalendar = true]) {
-    final myanmarDateTime = MyanmarCalendar.today();
-
+  String _myanmarDateString(
+    CompleteDate completeDate, [
+    bool showShanCalendar = true,
+  ]) {
+    final myanmarDateTime = MyanmarDateTime.fromMyanmarDate(
+      completeDate.myanmar,
+    );
     if (showShanCalendar && MyanmarCalendar.currentLanguage == Language.shan) {
       return '${myanmarDateTime.shanDate.year} ${myanmarDateTime.formatMyanmar("&M &P &f &Yat")}';
     }
-
     return myanmarDateTime.formatMyanmar();
   }
 }

@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/views_injection.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+
 import '../../domain/entities/year_data.dart';
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
@@ -55,452 +57,260 @@ class _YearViewPageState extends State<YearViewPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocConsumer<ViewsBloc, ViewsState>(
-        listener: (context, state) {
-          if (state is ViewsError) {
-            _showErrorSnackBar(context, state.message);
-          }
-          if (state is YearViewLoaded) {
-            _animationController.reset();
-            _animationController.forward();
-          }
-        },
-        builder: (context, state) {
-          if (state is ViewsInitial) {
-            context.read<ViewsBloc>().add(LoadYearView(DateTime.now().year));
-            return _buildLoadingState();
-          }
-
-          if (state is ViewsLoading) {
-            return _buildLoadingState();
-          }
-
-          if (state is ViewsError) {
-            return _buildErrorState(state.message);
-          }
-
-          if (state is YearViewLoaded) {
-            return _buildYearContent(state);
-          }
-
-          return const SizedBox.shrink();
-        },
-      ),
-    );
-  }
-
-  Widget _buildYearContent(YearViewLoaded state) {
-    return CustomScrollView(
-      slivers: [
-        // App Bar
-        _buildAppBar(state),
-
-        // Months Grid
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverFadeTransition(
-            opacity: _fadeAnimation,
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final month = state.yearData.months[index];
-                return _buildMonthCard(month, index);
-              }, childCount: state.yearData.months.length),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAppBar(YearViewLoaded state) {
-    return SliverAppBar(
-      expandedHeight: 100,
-      floating: false,
-      pinned: true,
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
-        title: Text(
-          state.yearData.year.toString(),
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                context.colorScheme.tertiaryContainer,
-                context.colorScheme.tertiaryContainer.withValues(alpha: 0.7),
-              ],
-            ),
-          ),
-        ),
-      ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            context.read<ViewsBloc>().add(const NavigateYearPrevious());
-          },
-          tooltip: 'Previous Year',
-        ),
-        IconButton(
-          icon: const Icon(Icons.today),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            context.read<ViewsBloc>().add(LoadYearView(DateTime.now().year));
-          },
-          tooltip: 'This Year',
-        ),
-        IconButton(
-          icon: const Icon(Icons.chevron_right),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            context.read<ViewsBloc>().add(const NavigateYearNext());
-          },
-          tooltip: 'Next Year',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMonthCard(MonthSummary month, int index) {
-    final now = DateTime.now();
-    final isCurrentMonth =
-        month.firstDay.month == now.month && month.firstDay.year == now.year;
-
-    return TweenAnimationBuilder<double>(
-      duration: Duration(milliseconds: 300 + (index * 30)),
-      tween: Tween(begin: 0.0, end: 1.0),
-      curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Transform.scale(
-          scale: 0.8 + (0.2 * value),
-          child: Opacity(opacity: value, child: child),
-        );
+    return BlocConsumer<ViewsBloc, ViewsState>(
+      listener: (context, state) {
+        if (state is ViewsError) {
+          context.showToast(state.message, kind: AppToastKind.error);
+        }
+        if (state is YearViewLoaded) {
+          _animationController
+            ..reset()
+            ..forward();
+        }
       },
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: isCurrentMonth
-                ? context.colorScheme.primary
-                : context.colorScheme.outlineVariant,
-            width: isCurrentMonth ? 2 : 1,
-          ),
-        ),
-        child: InkWell(
-          onTap: () {
-            final date = DateTime(month.firstDay.year, month.monthNumber, 1);
-            _showMonthModal(context, date);
-          },
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: isCurrentMonth
-                ? BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    gradient: LinearGradient(
-                      colors: [
-                        context.colorScheme.primaryContainer.withValues(
-                          alpha: 0.3,
+      builder: (context, state) {
+        if (state is ViewsInitial) {
+          context.read<ViewsBloc>().add(LoadYearView(DateTime.now().year));
+        }
+        final year = state is YearViewLoaded
+            ? state.yearData.year
+            : DateTime.now().year;
+        void go(ViewsEvent event) {
+          HapticFeedback.lightImpact();
+          context.read<ViewsBloc>().add(event);
+        }
+
+        return AppPage(
+          title: '$year',
+          previousTitle: 'Views',
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.chevron_left_rounded),
+              tooltip: 'Previous Year',
+              onPressed: () => go(const NavigateYearPrevious()),
+            ),
+            IconButton(
+              icon: const Icon(Icons.today_outlined),
+              tooltip: 'This Year',
+              onPressed: () => go(LoadYearView(DateTime.now().year)),
+            ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right_rounded),
+              tooltip: 'Next Year',
+              onPressed: () => go(const NavigateYearNext()),
+            ),
+          ],
+          slivers: [
+            if (state is YearViewLoaded)
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                sliver: SliverFadeTransition(
+                  opacity: _fadeAnimation,
+                  sliver: SliverGrid.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 170,
+                          childAspectRatio: .8,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
                         ),
-                        context.colorScheme.primaryContainer.withValues(
-                          alpha: 0.1,
-                        ),
-                      ],
+                    itemCount: state.yearData.months.length,
+                    itemBuilder: (context, index) => _MonthTile(
+                      month: state.yearData.months[index],
+                      onTap: () {
+                        final month = state.yearData.months[index];
+                        _showMonthSheet(
+                          context,
+                          DateTime(month.firstDay.year, month.monthNumber),
+                          month.monthName,
+                        );
+                      },
                     ),
-                  )
-                : null,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Month name
-                Text(
-                  month.monthName,
-                  style: context.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isCurrentMonth
-                        ? context.colorScheme.primary
-                        : context.colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 8),
+              )
+            else
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: state is ViewsError
+                      ? Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(state.message, textAlign: TextAlign.center),
+                              const SizedBox(height: 16),
+                              AppButton(
+                                label: 'Try Again',
+                                icon: Icons.refresh,
+                                expand: false,
+                                onPressed: () => context.read<ViewsBloc>().add(
+                                  LoadYearView(DateTime.now().year),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const CircularProgressIndicator(),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
 
-                // Mini calendar
-                Expanded(child: _buildMiniCalendar(month, now, isCurrentMonth)),
+  void _showMonthSheet(BuildContext context, DateTime month, String title) {
+    void openHome(BuildContext sheetContext, DateTime date) {
+      HapticFeedback.lightImpact();
+      Navigator.pop(sheetContext);
+      context.go(
+        '${RoutePaths.home}?date=${Uri.encodeComponent(date.toIso8601String())}',
+      );
+    }
 
-                // Stats
-                const SizedBox(height: 8),
-                _buildMonthStats(month, isCurrentMonth),
-              ],
+    showAppSheet<void>(
+      context: context,
+      title: '$title ${month.year}',
+      cancelLabel: 'Close',
+      builder: (sheetContext) => SizedBox(
+        height: MediaQuery.sizeOf(sheetContext).height * .68,
+        child: Column(
+          children: [
+            Expanded(
+              child: _monthPreviewPort.buildMonthPreview(
+                date: month,
+                onDateTap: (date) {
+                  log('selected: ${date.toIso8601String()}');
+                  openHome(sheetContext, date);
+                },
+              ),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: AppButton(
+                label: 'View Full Month',
+                kind: AppButtonKind.tinted,
+                onPressed: () => openHome(sheetContext, month),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildMiniCalendar(
-    MonthSummary month,
-    DateTime now,
-    bool isCurrentMonth,
-  ) {
-    return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 7,
-        childAspectRatio: 1.0,
-      ),
-      itemCount: month.dates.length,
-      itemBuilder: (context, index) {
-        final dateInfo = month.dates[index];
-        final date = dateInfo.western.toDateTime();
-        final isToday =
-            date.day == now.day &&
-            date.month == now.month &&
-            date.year == now.year;
+/// One month of the year: name, a mini grid starting on the right weekday
+/// (Sunday first), today and holidays marked, and a holiday count.
+class _MonthTile extends StatelessWidget {
+  const _MonthTile({required this.month, required this.onTap});
 
-        return Container(
-          alignment: Alignment.center,
-          decoration: isToday
+  final MonthSummary month;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final now = DateTime.now();
+    final isCurrent =
+        month.firstDay.month == now.month && month.firstDay.year == now.year;
+    final holidays = month.dates.where((d) => d.hasHolidays).length;
+    // DateTime.weekday: Monday 1 … Sunday 7; the grid starts on Sunday.
+    final leading = month.firstDay.weekday % 7;
+
+    return Material(
+      color: t.surface,
+      borderRadius: BorderRadius.circular(t.groupRadius),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(t.groupRadius),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: isCurrent
               ? BoxDecoration(
-                  color: context.colorScheme.primary,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(t.groupRadius),
+                  border: Border.all(color: t.accent, width: 1.5),
                 )
               : null,
-          child: Text(
-            date.day.toString(),
-            style: TextStyle(
-              fontSize: 9,
-              fontWeight: isToday ? FontWeight.bold : null,
-              color: isToday
-                  ? context.colorScheme.onPrimary
-                  : dateInfo.hasHolidays
-                  ? context.colorScheme.error
-                  : isCurrentMonth
-                  ? context.colorScheme.primary
-                  : context.colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                month.monthName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isCurrent ? t.accent : t.label,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Expanded(
+                child: GridView.count(
+                  crossAxisCount: 7,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  children: [
+                    for (var i = 0; i < leading; i++) const SizedBox.shrink(),
+                    for (final day in month.dates) _MiniDay(day: day, now: now),
+                  ],
+                ),
+              ),
+              if (holidays > 0)
+                Row(
+                  children: [
+                    Icon(Icons.star_rounded, size: 12, color: t.holiday),
+                    const SizedBox(width: 3),
+                    Text(
+                      translateNumbers('$holidays'),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: t.holiday,
+                      ),
+                    ),
+                  ],
+                ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
+}
 
-  Widget _buildMonthStats(MonthSummary month, bool isCurrentMonth) {
-    final holidayCount = month.dates.where((d) => d.hasHolidays).length;
+class _MiniDay extends StatelessWidget {
+  const _MiniDay({required this.day, required this.now});
+  final CompleteDate day;
+  final DateTime now;
 
-    if (holidayCount == 0) return const SizedBox.shrink();
-
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final isToday =
+        day.westernDay == now.day &&
+        day.westernMonth == now.month &&
+        day.westernYear == now.year;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: context.colorScheme.errorContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.celebration, size: 12, color: context.colorScheme.error),
-          const SizedBox(width: 4),
-          Text(
-            '$holidayCount',
-            style: context.textTheme.bodySmall?.copyWith(
-              color: context.colorScheme.error,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                context.colorScheme.primary,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Loading year...',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: context.colorScheme.errorContainer,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.error_outline,
-                size: 48,
-                color: context.colorScheme.error,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Oops! Something went wrong',
-              style: context.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () {
-                context.read<ViewsBloc>().add(
-                  LoadYearView(DateTime.now().year),
-                );
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
-            ),
-          ],
+      alignment: Alignment.center,
+      decoration: isToday
+          ? BoxDecoration(color: t.accent, shape: BoxShape.circle)
+          : null,
+      child: Text(
+        '${day.westernDay}',
+        style: TextStyle(
+          fontSize: 8.5,
+          height: 1,
+          fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+          color: isToday
+              ? t.onAccent
+              : day.hasHolidays
+              ? t.holiday
+              : t.secondaryLabel,
         ),
-      ),
-    );
-  }
-
-  void _showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white, size: 20),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: context.colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
-  }
-
-  void _showMonthModal(BuildContext context, DateTime month) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.8,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (context, scrollController) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-            ),
-            child: Column(
-              children: [
-                // Handle bar
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                // Month preview content
-                Expanded(
-                  child: _monthPreviewPort.buildMonthPreview(
-                    date: month,
-                    onDateTap: (date) {
-                      log("selected: ${date.toIso8601String()}");
-                      // Haptic feedback
-                      HapticFeedback.lightImpact();
-
-                      Navigator.pop(context);
-                      context.go(
-                        '${RoutePaths.home}?date=${Uri.encodeComponent(date.toIso8601String())}',
-                      );
-                    },
-                  ),
-                ),
-                // Actions
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Close'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () {
-                            // Haptic feedback
-                            HapticFeedback.lightImpact();
-
-                            Navigator.pop(context);
-                            context.go(
-                              '${RoutePaths.home}?date=${Uri.encodeComponent(month.toIso8601String())}',
-                            );
-                          },
-                          child: const Text('View Full Month'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }

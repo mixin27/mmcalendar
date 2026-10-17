@@ -6,10 +6,18 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/calendar_injection.dart';
+import 'calendar_colors.dart';
+import 'day_cells.dart' show eventColor;
 
 typedef Event = CalendarEventItem;
 typedef EventPriority = CalendarEventPriority;
 
+/// Everything about one day, as grouped lists in the app style: the
+/// Myanmar date, Buddhist calendar, moon and weekday, holidays, astrology,
+/// the AI horoscope prompt, a quick summary and the day's events.
+///
+/// Used by Day Details (phones and Views › Day) and the split view's side
+/// panel.
 class DayDetailsContent extends StatelessWidget {
   final DateTime date;
   final CompleteDate completeDate;
@@ -25,1200 +33,477 @@ class DayDetailsContent extends StatelessWidget {
     this.showShanCalendar = true,
   });
 
+  static const _spacing = 22.0;
+
+  Language get _language => MyanmarCalendar.currentLanguage;
+  String _t(String key) => TranslationService.translateTo(key, _language);
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Event>>(
       stream: _eventMarkersPort.watchEventsForDate(date),
       builder: (context, eventsSnapshot) {
-        final dateEvents = eventsSnapshot.data ?? const <Event>[];
-        final isEventsLoading =
+        final events = [...?eventsSnapshot.data]
+          ..sort((a, b) {
+            if (a.isAllDay != b.isAllDay) return a.isAllDay ? -1 : 1;
+            if (a.isAllDay || a.eventTime == null || b.eventTime == null) {
+              return 0;
+            }
+            return a.eventTime!.compareTo(b.eventTime!);
+          });
+        final loading =
             eventsSnapshot.connectionState == ConnectionState.waiting &&
             !eventsSnapshot.hasData;
-        final eventsErrorMessage = eventsSnapshot.hasError
-            ? eventsSnapshot.error.toString()
-            : null;
 
+        final sections = <Widget>[
+          _hero(context),
+          _buddhistCalendar(context),
+          _moonAndWeekday(context),
+          if (completeDate.hasHolidays || completeDate.hasAnniversaryDays)
+            _holidays(context),
+          _astrology(context),
+          _aiPrompt(context),
+          _summary(context, eventCount: events.length),
+          _events(
+            context,
+            events,
+            loading: loading,
+            error: eventsSnapshot.hasError
+                ? eventsSnapshot.error.toString()
+                : null,
+          ),
+        ];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Hero Date Card with both calendars
-            _buildHeroDateCard(context, showShanCalendar),
-            const SizedBox(height: 16),
-
-            // Buddhist Calendar Info
-            _buildBuddhistCalendarCard(context),
-            const SizedBox(height: 16),
-
-            // Moon Phase & Weekday Info
-            Row(
-              children: [
-                Expanded(child: _buildMoonPhaseCard(context)),
-                const SizedBox(width: 12),
-                Expanded(child: _buildWeekdayCard(context)),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Holidays Section
-            if (completeDate.hasHolidays ||
-                completeDate.hasAnniversaryDays) ...[
-              _buildHolidaysCard(context),
-              const SizedBox(height: 16),
+            for (final (i, section) in sections.indexed) ...[
+              if (i > 0) const SizedBox(height: _spacing),
+              section,
             ],
-
-            // Astrological Information
-            _buildAstrologyCard(context),
-            const SizedBox(height: 16),
-
-            // AI Prompt Generation
-            _buildAIPromptSection(context),
-            const SizedBox(height: 16),
-
-            _buildQuickStatsCard(context, eventCount: dateEvents.length),
-            const SizedBox(height: 16),
-
-            // Events Section
-            _buildEventsSection(
-              context,
-              dateEvents: dateEvents,
-              isLoading: isEventsLoading,
-              errorMessage: eventsErrorMessage,
-            ),
-            const SizedBox(height: 24),
           ],
         );
       },
     );
   }
 
-  Widget _buildHeroDateCard(BuildContext context, bool showShanCalendar) {
-    final year =
-        (MyanmarCalendar.currentLanguage == Language.shan || showShanCalendar)
-        ? MyanmarDateTime.fromMyanmarDate(completeDate.myanmar).shanDate.year
-        : completeDate.myanmarYear;
+  int get _displayYear => (_language == Language.shan && showShanCalendar)
+      ? MyanmarDateTime.fromMyanmarDate(completeDate.myanmar).shanDate.year
+      : completeDate.myanmarYear;
 
+  /// The Myanmar date as the page's headline, with year, month, day and
+  /// year type beneath.
+  Widget _hero(BuildContext context) {
+    final t = context.tokens;
+    final l10n = AppLocalizations.of(context);
+    final title = _language == Language.shan && showShanCalendar
+        ? '${translateNumbers('$_displayYear', language: Language.shan)} '
+              '${MyanmarCalendar.formatMyanmar(completeDate.myanmar, pattern: '&M &P &f &Yat')}'
+        : MyanmarCalendar.formatMyanmar(
+            completeDate.myanmar,
+            pattern: '&y &M &P &f &Yat',
+          );
+    final tiles = [
+      (l10n?.year ?? 'Year', translateNumbers('$_displayYear')),
+      (
+        l10n?.month ?? 'Month',
+        TranslationService.getMonthName(
+          completeDate.myanmarMonth,
+          completeDate.yearType,
+          _language,
+        ),
+      ),
+      (l10n?.day ?? 'Day', translateNumbers('${completeDate.myanmarDay}')),
+      (
+        'Type',
+        TranslationService.getYearTypeName(completeDate.yearType, _language),
+      ),
+    ];
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(
-                context,
-              ).colorScheme.primaryContainer.withValues(alpha: 0.4),
-              Theme.of(
-                context,
-              ).colorScheme.secondaryContainer.withValues(alpha: 0.2),
-            ],
-          ),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Myanmar Date Section
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Myanmar Calendar',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  if (MyanmarCalendar.currentLanguage == Language.shan &&
-                      showShanCalendar)
-                    Text(
-                      '${translateNumbers(year.toString(), language: Language.shan)} '
-                      '${MyanmarCalendar.formatMyanmar(completeDate.myanmar, pattern: "&M &P &f &Yat")}',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                      textAlign: TextAlign.center,
-                    )
-                  else
-                    Text(
-                      MyanmarCalendar.formatMyanmar(
-                        completeDate.myanmar,
-                        pattern: '&y &M &P &f &Yat',
-                      ),
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Quick Info Grid
-            Row(
-              children: [
-                Expanded(
-                  child: _buildQuickInfo(
-                    context,
-                    Icons.calendar_month,
-                    AppLocalizations.of(context)?.year ?? 'Year',
-                    translateNumbers(year.toString()),
-                    Theme.of(context).colorScheme.tertiary,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildQuickInfo(
-                    context,
-                    Icons.event,
-                    AppLocalizations.of(context)?.month ?? 'Month',
-                    TranslationService.getMonthName(
-                      completeDate.myanmarMonth,
-                      completeDate.yearType,
-                      MyanmarCalendar.currentLanguage,
-                    ),
-                    Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildQuickInfo(
-                    context,
-                    Icons.today,
-                    AppLocalizations.of(context)?.day ?? 'Day',
-                    translateNumbers(completeDate.myanmarDay.toString()),
-                    Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildQuickInfo(
-                    context,
-                    Icons.settings,
-                    'Type',
-                    _getYearTypeName(completeDate.yearType),
-                    Colors.orange,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickInfo(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 20, color: color),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 10,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getYearTypeName(int yearType) {
-    return TranslationService.getYearTypeName(
-      yearType,
-      MyanmarCalendar.currentLanguage,
-    );
-  }
-
-  Widget _buildBuddhistCalendarCard(BuildContext context) {
-    final sasanaYear = completeDate.sasanaYear;
-    final buddhist = date.year + 543; // Buddhist Era
-
-    return ExpandableSection(
-      title: 'Buddhist Calendar',
-      icon: Icons.temple_buddhist,
-      iconColor: Colors.amber,
-      initiallyExpanded: true,
-      child: Column(
-        children: [
-          _buildInfoRow(
-            context,
-            AppLocalizations.of(context)?.buddhist_era ?? 'Buddhist Era (BE)',
-            translateNumbers(buddhist.toString()),
-            Icons.wb_sunny,
-            Colors.orange,
-          ),
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            context,
-            AppLocalizations.of(context)?.sasana_year ?? 'Sasana Year',
-            translateNumbers(sasanaYear.toString()),
-            Icons.auto_awesome,
-            Colors.amber,
-          ),
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            context,
-            AppLocalizations.of(context)?.myanmar_era ?? 'Myanmar Era (ME)',
-            MyanmarCalendar.formatMyanmar(
-              completeDate.myanmar,
-              pattern: "&yyyy",
-            ),
-            Icons.calendar_today,
-            Colors.deepOrange,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, size: 16, color: color),
-        ),
-        const SizedBox(width: 12),
-        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontSize: 20,
+                height: 1.6,
+                fontWeight: FontWeight.w700,
               ),
             ),
             Text(
-              value,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+              MaterialLocalizations.of(context).formatFullDate(date),
+              style: TextStyle(fontSize: 13, color: t.secondaryLabel),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                for (final (i, (label, value)) in tiles.indexed) ...[
+                  if (i > 0) const SizedBox(width: 6),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 7,
+                        horizontal: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: t.fill,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            label,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: t.tertiaryLabel,
+                            ),
+                          ),
+                          Text(
+                            value,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buddhistCalendar(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AppGroup(
+      label: 'Buddhist Calendar',
+      children: [
+        AppRow(
+          title: l10n?.buddhist_era ?? 'Buddhist Era (BE)',
+          value: translateNumbers('${date.year + 543}'),
+        ),
+        AppRow(
+          title: l10n?.sasana_year ?? 'Sasana Year',
+          value: translateNumbers('${completeDate.sasanaYear}'),
+        ),
+        AppRow(
+          title: l10n?.myanmar_era ?? 'Myanmar Era (ME)',
+          value: MyanmarCalendar.formatMyanmar(
+            completeDate.myanmar,
+            pattern: '&yyyy',
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildMoonPhaseCard(BuildContext context) {
-    final moon = MoonPhaseState.evening(
-      DateTime(
-        completeDate.westernYear,
-        completeDate.westernMonth,
-        completeDate.westernDay,
-      ),
+  Widget _moonAndWeekday(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final moon = MoonPhaseState.evening(date);
+    final phase = TranslationService.getMoonPhaseName(
+      completeDate.moonPhase,
+      _language,
     );
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            MoonGlyph(state: moon, size: 48),
-            const SizedBox(height: 12),
-            Semantics(
-              label: AppLocalizations.of(context)?.moon_phase ?? 'Moon Phase',
-              child: Text(
-                AppLocalizations.of(context)?.moon_phase ?? 'Moon Phase',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Semantics(
-              label: TranslationService.getMoonPhaseName(
-                completeDate.moonPhase,
-                MyanmarCalendar.currentLanguage,
-              ),
-              child: Text(
-                TranslationService.getMoonPhaseName(
-                  completeDate.moonPhase,
-                  MyanmarCalendar.currentLanguage,
-                ),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Day ${MyanmarCalendar.formatMyanmar(completeDate.myanmar, pattern: "&f")}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            Text(
-              translateNumbers('${moon.percentLit}% lit'),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+    final fortnight = MyanmarCalendar.formatMyanmar(
+      completeDate.myanmar,
+      pattern: '&f',
+    );
+    return AppGroup(
+      label:
+          '${l10n?.moon_phase ?? 'Moon Phase'} · ${l10n?.weekday ?? 'Weekday'}',
+      children: [
+        AppRow(
+          leading: MoonGlyph(state: moon, size: 30),
+          title: phase,
+          subtitle: completeDate.isFullMoon || completeDate.isNewMoon
+              ? translateNumbers('${moon.percentLit}% lit')
+              : translateNumbers('Day $fortnight · ${moon.percentLit}% lit'),
         ),
-      ),
-    );
-  }
-
-  Widget _buildWeekdayCard(BuildContext context) {
-    final weekdayName = TranslationService.getWeekdayName(
-      completeDate.weekday,
-      MyanmarCalendar.currentLanguage,
-    );
-
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.event_note,
-                color: Theme.of(context).colorScheme.secondary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Semantics(
-              label: AppLocalizations.of(context)?.weekday ?? 'Weekday',
-              child: Text(
-                AppLocalizations.of(context)?.weekday ?? 'Weekday',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Semantics(
-              label: weekdayName,
-              child: Text(
-                weekdayName,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              date.format('EEE'),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHolidaysCard(BuildContext context) {
-    return ExpandableSection(
-      title:
-          '${AppLocalizations.of(context)?.holidays ?? "Holidays"} & ${AppLocalizations.of(context)?.anniversary_days ?? "Anniversary Days"}',
-      icon: Icons.celebration,
-      iconColor: Theme.of(context).colorScheme.error,
-      initiallyExpanded: true,
-      child: Column(
-        children: [
-          ...completeDate.allHolidays.map((holiday) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 6),
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.error,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      holiday,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+        Builder(
+          builder: (context) {
+            final weekday = TranslationService.getWeekdayName(
+              completeDate.weekday,
+              _language,
             );
-          }),
-
-          ...completeDate.allAnniversaryDays.map((holiday) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 6),
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.error,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      holiday,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            final western = date.format('EEEE');
+            return AppRow(
+              icon: Icons.calendar_today_outlined,
+              iconColor: const Color(0xFF2F5BEA),
+              title: weekday,
+              // Only when the calendar language names it differently.
+              value: western == weekday ? null : western,
             );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAstrologyCard(BuildContext context) {
-    return ExpandableSection(
-      title:
-          AppLocalizations.of(context)?.astrological_information ??
-          'Astrological Information',
-      icon: Icons.stars_rounded,
-      iconColor: Theme.of(context).colorScheme.tertiary,
-      initiallyExpanded: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Astrological Details
-          if (completeDate.sabbath.isNotEmpty)
-            _buildAstroDetail(
-              context,
-              'Sabbath',
-              TranslationService.translateTo(
-                completeDate.sabbath,
-                MyanmarCalendar.currentLanguage,
-              ),
-              Icons.brightness_2,
-              Colors.orange,
-            ),
-          if (completeDate.yatyaza.isNotEmpty)
-            _buildAstroDetail(
-              context,
-              'Yatyaza',
-              TranslationService.translateTo(
-                completeDate.yatyaza,
-                MyanmarCalendar.currentLanguage,
-              ),
-              Icons.warning_amber,
-              Colors.red,
-            ),
-          if (completeDate.pyathada.isNotEmpty)
-            _buildAstroDetail(
-              context,
-              'Pyathada',
-              TranslationService.translateTo(
-                completeDate.pyathada,
-                MyanmarCalendar.currentLanguage,
-              ),
-              Icons.info_outline,
-              Colors.blue,
-            ),
-          if (completeDate.nagahle.isNotEmpty)
-            _buildAstroDetail(
-              context,
-              AppLocalizations.of(context)?.nagahle ?? 'Nagahle',
-              TranslationService.translateTo(
-                completeDate.nagahle,
-                MyanmarCalendar.currentLanguage,
-              ),
-              Icons.explore,
-              Colors.green,
-            ),
-          if (completeDate.mahabote.isNotEmpty)
-            _buildAstroDetail(
-              context,
-              'Mahabote',
-              TranslationService.translateTo(
-                completeDate.mahabote,
-                MyanmarCalendar.currentLanguage,
-              ),
-              Icons.star,
-              Colors.purple,
-            ),
-          if (completeDate.nakhat.isNotEmpty)
-            _buildAstroDetail(
-              context,
-              AppLocalizations.of(context)?.nakhat ?? 'Nakhat',
-              TranslationService.translateTo(
-                completeDate.nakhat,
-                MyanmarCalendar.currentLanguage,
-              ),
-              Icons.castle,
-              Colors.indigo,
-            ),
-          if (completeDate.yearName.isNotEmpty)
-            _buildAstroDetail(
-              context,
-              AppLocalizations.of(context)?.year_name ?? 'Year Name',
-              TranslationService.translateTo(
-                completeDate.yearName,
-                MyanmarCalendar.currentLanguage,
-              ),
-              Icons.pets,
-              Colors.teal,
-            ),
-
-          // Special Days
-          if (completeDate.astrologicalDays.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Divider(color: Theme.of(context).colorScheme.outlineVariant),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)?.special_days ?? 'Special Days',
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: completeDate.astrologicalDays.map((day) {
-                return Chip(
-                  label: Text(
-                    TranslationService.translateTo(
-                      day,
-                      MyanmarCalendar.currentLanguage,
-                    ),
-                  ),
-                  labelStyle: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.secondaryContainer,
-                  side: BorderSide.none,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAstroDetail(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 16, color: color),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                Text(
-                  value,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAIPromptSection(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+          },
         ),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(
-                context,
-              ).colorScheme.primaryContainer.withValues(alpha: 0.2),
-              Theme.of(context).colorScheme.surface,
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.auto_awesome,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'AI Horoscope Prompt',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Generate a prompt for AI analysis',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () => _showAIPromptDialog(context),
-                icon: const Icon(Icons.psychology_outlined),
-                label: const Text('Generate AI Prompt'),
-                style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 
-  void _showAIPromptDialog(BuildContext context) {
+  Widget _holidays(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = CalendarColors.of(context);
+    return AppGroup(
+      label:
+          '${l10n?.holidays ?? 'Holidays'} & ${l10n?.anniversary_days ?? 'Anniversary Days'}',
+      children: [
+        for (final holiday in completeDate.allHolidays)
+          AppRow(
+            icon: Icons.star_rounded,
+            iconColor: colors.holiday,
+            title: _t(holiday),
+          ),
+        for (final day in completeDate.allAnniversaryDays)
+          AppRow(
+            icon: Icons.celebration_outlined,
+            iconColor: colors.anniversary,
+            title: _t(day),
+          ),
+      ],
+    );
+  }
+
+  Widget _astrology(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final rows = <(String, String)>[
+      ('Sabbath', completeDate.sabbath),
+      ('Yatyaza', completeDate.yatyaza),
+      ('Pyathada', completeDate.pyathada),
+      (l10n?.nagahle ?? 'Nagahle', completeDate.nagahle),
+      ('Mahabote', completeDate.mahabote),
+      (l10n?.nakhat ?? 'Nakhat', completeDate.nakhat),
+      (l10n?.year_name ?? 'Year Name', completeDate.yearName),
+    ];
+    final special = completeDate.astrologicalDays.map(_t).join(', ');
+    return AppGroup(
+      label: l10n?.astrological_information ?? 'Astrological Information',
+      footer: special.isEmpty
+          ? null
+          : '${l10n?.special_days ?? 'Special Days'}: $special',
+      children: [
+        for (final (label, value) in rows)
+          AppRow(title: label, value: value.isEmpty ? '—' : _t(value)),
+      ],
+    );
+  }
+
+  Widget _aiPrompt(BuildContext context) => AppGroup(
+    children: [
+      AppRow(
+        icon: Icons.auto_awesome,
+        iconColor: const Color(0xFF8E6CEF),
+        title: 'AI Horoscope Prompt',
+        subtitle: 'Copy a ready-made prompt for this day',
+        chevron: true,
+        onTap: () => _showAIPrompt(context),
+      ),
+    ],
+  );
+
+  Future<void> _showAIPrompt(BuildContext context) {
     _analyticsService.logButtonClick(
       buttonName: 'generate_ai_prompt',
       buttonLocation: 'day_details_page',
     );
-
     final prompt = MyanmarCalendar.generateAIPrompt(
       completeDate,
-      language: MyanmarCalendar.currentLanguage,
+      language: _language,
       type: AIPromptType.horoscope,
     );
-
-    showDialog(
+    return showAppSheet<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(
-              Icons.auto_awesome,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(width: 12),
-            const Text('AI Prompt'),
-          ],
-        ),
-        content: SingleChildScrollView(
+      title: 'AI Horoscope Prompt',
+      cancelLabel: 'Close',
+      builder: (sheetContext) {
+        final t = sheetContext.tokens;
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Copy this prompt into your favorite AI (ChatGPT, Gemini, etc.) for a detailed astrological analysis.',
-                style: TextStyle(fontSize: 14),
+              Text(
+                'Paste this into any AI assistant (ChatGPT, Gemini, …) for a '
+                'reading of the day. Nothing is sent from this app.',
+                style: TextStyle(fontSize: 13, color: t.secondaryLabel),
               ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
+              const SizedBox(height: 12),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: SelectableText(
+                    prompt,
+                    style: const TextStyle(fontSize: 13, height: 1.55),
                   ),
                 ),
-                child: Text(
-                  prompt,
-                  style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+              ),
+              const SizedBox(height: 16),
+              AppButton(
+                label: 'Copy Prompt',
+                icon: Icons.copy_rounded,
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: prompt));
+                  Navigator.of(sheetContext).pop();
+                  context.showToast(
+                    'Prompt copied to clipboard',
+                    kind: AppToastKind.success,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              AppButton(
+                label: 'Share',
+                icon: Icons.ios_share,
+                kind: AppButtonKind.tinted,
+                onPressed: () => share(
+                  title: 'AI Horoscope Prompt',
+                  subject: 'AI Horoscope Prompt',
+                  content: prompt,
                 ),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-          FilledButton.icon(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: prompt));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Prompt copied to clipboard')),
-              );
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.copy),
-            label: const Text('Copy Prompt'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildQuickStatsCard(BuildContext context, {required int eventCount}) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+  Widget _summary(BuildContext context, {required int eventCount}) {
+    final t = context.tokens;
+    final colors = CalendarColors.of(context);
+    final stats = [
+      ('$eventCount', 'Events', t.accent),
+      (
+        '${completeDate.allHolidays.length + completeDate.allAnniversaryDays.length}',
+        'Holidays',
+        colors.holiday,
       ),
+      ('${completeDate.astrologicalDays.length}', 'Special', colors.astrology),
+    ];
+    return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Row(
           children: [
-            Text(
-              'Quick Summary',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem(
-                  context,
-                  Icons.event,
-                  eventCount.toString(),
-                  'Events',
-                  Theme.of(context).colorScheme.primary,
+            for (final (value, label, color) in stats)
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      translateNumbers(value),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                      ),
+                    ),
+                    Text(
+                      label,
+                      style: TextStyle(fontSize: 12, color: t.secondaryLabel),
+                    ),
+                  ],
                 ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-                _buildStatItem(
-                  context,
-                  Icons.celebration,
-                  (completeDate.allHolidays.length +
-                          completeDate.allAnniversaryDays.length)
-                      .toString(),
-                  'Holidays',
-                  Theme.of(context).colorScheme.error,
-                ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-                _buildStatItem(
-                  context,
-                  Icons.stars,
-                  completeDate.astrologicalDays.length.toString(),
-                  'Special',
-                  Theme.of(context).colorScheme.tertiary,
-                ),
-              ],
-            ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatItem(
+  Widget _events(
     BuildContext context,
-    IconData icon,
-    String value,
-    String label,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: color,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(label, style: Theme.of(context).textTheme.labelSmall),
-      ],
-    );
-  }
-
-  Widget _buildEventsSection(
-    BuildContext context, {
-    required List<Event> dateEvents,
-    required bool isLoading,
-    required String? errorMessage,
+    List<Event> events, {
+    required bool loading,
+    String? error,
   }) {
-    if (isLoading) {
-      return _buildEventsLoadingCard(context);
-    }
-
-    if (errorMessage != null) {
-      return _buildEventsErrorCard(context, errorMessage);
-    }
-
-    final sortedEvents = <Event>[...dateEvents]
-      ..sort((a, b) {
-        if (a.isAllDay && !b.isAllDay) return -1;
-        if (!a.isAllDay && b.isAllDay) return 1;
-        if (a.isAllDay && b.isAllDay) return 0;
-        return a.eventTime!.compareTo(b.eventTime!);
-      });
-
-    return _buildEventsCard(context, sortedEvents);
-  }
-
-  Widget _buildEventsCard(BuildContext context, List<Event> events) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.event_note,
-                    size: 20,
-                    color: colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Events',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w700),
-                      ),
-                      Text(
-                        '${events.length} ${events.length == 1 ? 'event' : 'events'} scheduled',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: () async {
-                    _analyticsService.logButtonClick(
-                      buttonName: 'add_event_from_day',
-                      buttonLocation: 'day_details_events_section',
-                    );
-                    await _eventActionsPort.openCreateEvent(
+    final colors = CalendarColors.of(context);
+    final rows = <Widget>[
+      if (loading)
+        const AppRow(
+          title: 'Loading events…',
+          trailing: SizedBox.square(
+            dimension: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        )
+      else if (error != null)
+        AppRow(
+          title: 'Error loading events',
+          subtitle: error,
+          tone: AppRowTone.destructive,
+        )
+      else
+        for (final event in events)
+          AppRow(
+            leading: _CompleteToggle(
+              done: event.isCompleted,
+              color: eventColor(event, colors),
+              onChanged: event.id == null
+                  ? null
+                  : (done) => _toggleEventCompletion(
                       context,
-                      initialDate: date,
-                    );
-                  },
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Add'),
-                ),
-              ],
+                      event: event,
+                      isCompleted: done,
+                    ),
             ),
-            const SizedBox(height: 16),
-            if (events.isEmpty)
-              _buildEventsEmptyState(context)
-            else
-              ...events.asMap().entries.map((entry) {
-                final index = entry.key;
-                final event = entry.value;
-                return _AnimatedEventItem(
-                  event: event,
-                  delay: Duration(milliseconds: index * 80),
-                  onTap: () async {
+            title: event.title,
+            subtitle: _eventSubtitle(context, event),
+            completed: event.isCompleted,
+            trailing: _EventMarks(event: event),
+            chevron: true,
+            onTap: event.id == null
+                ? null
+                : () {
                     _analyticsService.logButtonClick(
                       buttonName: 'view_event_detail',
                       buttonLocation: 'day_details_events_section',
                       additionalData: {'event_id': event.id.toString()},
                     );
-
-                    if (event.id != null) {
-                      await _eventActionsPort.openEventDetail(
-                        context,
-                        eventId: event.id!,
-                        occurrenceDate: event.eventDate,
-                      );
-                    }
+                    _eventActionsPort.openEventDetail(
+                      context,
+                      eventId: event.id!,
+                      occurrenceDate: event.eventDate,
+                    );
                   },
-                  onCheckboxChanged: (checked) async {
-                    if (event.id != null) {
-                      await _toggleEventCompletion(
-                        context,
-                        event: event,
-                        isCompleted: checked ?? false,
-                      );
-                    }
-                  },
-                );
-              }),
-          ],
-        ),
+          ),
+      AppRow(
+        title: events.isEmpty && !loading
+            ? 'No events · Add event'
+            : 'Add event',
+        tone: AppRowTone.accent,
+        onTap: () {
+          _analyticsService.logButtonClick(
+            buttonName: 'add_event_from_day',
+            buttonLocation: 'day_details_events_section',
+          );
+          _eventActionsPort.openCreateEvent(context, initialDate: date);
+        },
       ),
+    ];
+    return AppGroup(
+      label: events.isEmpty ? 'Events' : 'Events · ${events.length}',
+      children: rows,
     );
   }
 
-  Widget _buildEventsEmptyState(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.primaryContainer.withValues(alpha: 0.3),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.event_available,
-              size: 48,
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.6),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No events scheduled',
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Tap + to create an event',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEventsLoadingCard(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Center(
-          child: Column(
-            children: [
-              CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Loading events...',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEventsErrorCard(BuildContext context, String message) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Error loading events',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
+  String _eventSubtitle(BuildContext context, Event event) {
+    final time = event.isAllDay || event.eventTime == null
+        ? 'All day'
+        : TimeOfDay.fromDateTime(event.eventTime!).format(context);
+    return [
+      time,
+      event.category.name,
+      if ((event.location ?? '').isNotEmpty) event.location!,
+    ].join(' · ');
   }
 
   Future<void> _toggleEventCompletion(
@@ -1234,266 +519,65 @@ class DayDetailsContent extends StatelessWidget {
         occurrenceDate: event.eventDate,
       );
     } catch (error) {
-      if (!context.mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to update event: $error')));
+      if (!context.mounted) return;
+      context.showToast(
+        'Failed to update event: $error',
+        kind: AppToastKind.error,
+      );
     }
   }
 }
 
-class _AnimatedEventItem extends StatefulWidget {
-  final Event event;
-  final Duration delay;
-  final VoidCallback onTap;
-  final Function(bool?) onCheckboxChanged;
-
-  const _AnimatedEventItem({
-    required this.event,
-    this.delay = Duration.zero,
-    required this.onTap,
-    required this.onCheckboxChanged,
+/// The round "mark complete" control on an event row.
+class _CompleteToggle extends StatelessWidget {
+  const _CompleteToggle({
+    required this.done,
+    required this.color,
+    required this.onChanged,
   });
 
+  final bool done;
+  final Color color;
+  final ValueChanged<bool>? onChanged;
+
   @override
-  State<_AnimatedEventItem> createState() => _AnimatedEventItemState();
+  Widget build(BuildContext context) => Semantics(
+    checked: done,
+    label: done ? 'Mark not done' : 'Mark complete',
+    button: true,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onChanged == null
+          ? null
+          : () {
+              HapticFeedback.lightImpact();
+              onChanged!(!done);
+            },
+      child: Icon(
+        done ? Icons.check_circle : Icons.radio_button_unchecked,
+        color: done ? context.tokens.accent : color,
+        size: 26,
+      ),
+    ),
+  );
 }
 
-class _AnimatedEventItemState extends State<_AnimatedEventItem>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _fadeAnimation;
-  late final Animation<Offset> _slideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 320),
-      vsync: this,
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.08),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-
-    Future.delayed(widget.delay, () {
-      if (mounted) {
-        _controller.forward();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+class _EventMarks extends StatelessWidget {
+  const _EventMarks({required this.event});
+  final Event event;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final event = widget.event;
-    final eventColor = Color(event.effectiveColor);
-    final isCompleted = event.isCompleted;
-
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [eventColor.withValues(alpha: 0.08), Colors.transparent],
-            ),
-            border: Border(
-              bottom: BorderSide(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.45),
-              ),
-            ),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: widget.onTap,
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        widget.onCheckboxChanged(!event.isCompleted);
-                      },
-                      icon: Icon(
-                        isCompleted
-                            ? Icons.check_circle
-                            : Icons.radio_button_unchecked,
-                        color: isCompleted ? colorScheme.primary : eventColor,
-                      ),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    const SizedBox(width: 4),
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: eventColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  event.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.titleSmall
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                        decoration: isCompleted
-                                            ? TextDecoration.lineThrough
-                                            : null,
-                                        color: isCompleted
-                                            ? colorScheme.onSurfaceVariant
-                                            : colorScheme.onSurface,
-                                      ),
-                                ),
-                              ),
-                              if (event.isRecurring)
-                                Icon(
-                                  Icons.repeat,
-                                  size: 16,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              if (event.hasNotifications) ...[
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.notifications_active_outlined,
-                                  size: 16,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(
-                                event.isAllDay
-                                    ? Icons.event
-                                    : Icons.access_time,
-                                size: 14,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _timeLabel(context),
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
-                              ),
-                              const SizedBox(width: 10),
-                              Icon(
-                                _getCategoryIcon(event.category.iconName),
-                                size: 14,
-                                color: eventColor,
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  event.category.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          if ((event.location ?? '').isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on_outlined,
-                                  size: 14,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    event.location!,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: colorScheme.onSurfaceVariant,
-                                        ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right,
-                      size: 18,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    final color = context.tokens.tertiaryLabel;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (event.isRecurring) Icon(Icons.repeat, size: 16, color: color),
+        if (event.hasNotifications) ...[
+          const SizedBox(width: 4),
+          Icon(Icons.notifications_none_rounded, size: 16, color: color),
+        ],
+      ],
     );
-  }
-
-  String _timeLabel(BuildContext context) {
-    if (widget.event.isAllDay || widget.event.eventTime == null) {
-      return 'All day';
-    }
-    return TimeOfDay.fromDateTime(widget.event.eventTime!).format(context);
-  }
-
-  IconData _getCategoryIcon(String iconName) {
-    switch (iconName) {
-      case 'person':
-        return Icons.person;
-      case 'work':
-        return Icons.work;
-      case 'auto_awesome':
-        return Icons.auto_awesome;
-      case 'family_restroom':
-        return Icons.family_restroom;
-      case 'favorite':
-        return Icons.favorite;
-      default:
-        return Icons.event;
-    }
   }
 }

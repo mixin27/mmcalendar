@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/views_injection.dart';
+import '../../domain/entities/week_data.dart';
 import '../bloc/views_bloc.dart';
 import '../bloc/views_event.dart';
 import '../bloc/views_state.dart';
@@ -54,413 +55,154 @@ class _WeekViewPageState extends State<WeekViewPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocConsumer<ViewsBloc, ViewsState>(
-        listener: (context, state) {
-          if (state is ViewsError) {
-            _showErrorSnackBar(context, state.message);
-          }
-          if (state is WeekViewLoaded) {
-            _animationController.reset();
-            _animationController.forward();
-          }
-        },
-        builder: (context, state) {
-          if (state is ViewsInitial) {
-            context.read<ViewsBloc>().add(LoadWeekView(DateTime.now()));
-            return _buildLoadingState();
-          }
+    return BlocConsumer<ViewsBloc, ViewsState>(
+      listener: (context, state) {
+        if (state is ViewsError) {
+          context.showToast(state.message, kind: AppToastKind.error);
+        }
+        if (state is WeekViewLoaded) {
+          _animationController
+            ..reset()
+            ..forward();
+        }
+      },
+      builder: (context, state) {
+        if (state is ViewsInitial) {
+          context.read<ViewsBloc>().add(LoadWeekView(DateTime.now()));
+        }
+        void go(ViewsEvent event) {
+          HapticFeedback.lightImpact();
+          context.read<ViewsBloc>().add(event);
+        }
 
-          if (state is ViewsLoading) {
-            return _buildLoadingState();
-          }
-
-          if (state is ViewsError) {
-            return _buildErrorState(state.message);
-          }
-
-          if (state is WeekViewLoaded) {
-            return _buildWeekContent(state);
-          }
-
-          return const SizedBox.shrink();
-        },
-      ),
-    );
-  }
-
-  Widget _buildWeekContent(WeekViewLoaded state) {
-    return StreamBuilder<bool>(
-      stream: _displayPreferencesPort.watchShowShanCalendar(),
-      initialData: true,
-      builder: (context, snapshot) {
-        final showShanCalendar = snapshot.data ?? true;
-
-        return CustomScrollView(
-          slivers: [
-            // App Bar
-            _buildAppBar(state),
-
-            // Week Days List
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverFadeTransition(
-                opacity: _fadeAnimation,
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final dayInfo = state.weekData.days[index];
-                    final date = dayInfo.western.toDateTime();
-                    final isToday = date.isToday;
-
-                    return _buildDayCard(
-                      dayInfo,
-                      date,
-                      isToday,
-                      index,
-                      showShanCalendar,
-                    );
-                  }, childCount: state.weekData.days.length),
-                ),
-              ),
+        final week = state is WeekViewLoaded ? state.weekData : null;
+        return AppPage(
+          title: week == null ? 'Week' : 'Week ${week.weekNumber}',
+          previousTitle: 'Views',
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.chevron_left_rounded),
+              tooltip: 'Previous Week',
+              onPressed: () => go(const NavigateWeekPrevious()),
             ),
+            IconButton(
+              icon: const Icon(Icons.today_outlined),
+              tooltip: 'This Week',
+              onPressed: () => go(LoadWeekView(DateTime.now())),
+            ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right_rounded),
+              tooltip: 'Next Week',
+              onPressed: () => go(const NavigateWeekNext()),
+            ),
+          ],
+          children: [
+            if (week != null)
+              StreamBuilder<bool>(
+                stream: _displayPreferencesPort.watchShowShanCalendar(),
+                initialData: true,
+                builder: (context, snapshot) => FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: _weekGroup(context, week, snapshot.data ?? true),
+                ),
+              )
+            else if (state is ViewsError)
+              _buildErrorState(state.message)
+            else
+              _buildLoadingState(),
           ],
         );
       },
     );
   }
 
-  Widget _buildAppBar(WeekViewLoaded state) {
-    return SliverAppBar(
-      expandedHeight: 120,
-      floating: false,
-      pinned: true,
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 16, right: 16),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Week ${state.weekData.weekNumber}',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            Text(
-              '${state.weekData.weekStart.format('MMM d')} - ${state.weekData.weekEnd.format('MMM d')}',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                context.colorScheme.secondaryContainer,
-                context.colorScheme.secondaryContainer.withValues(alpha: 0.7),
-              ],
-            ),
+  Widget _weekGroup(BuildContext context, WeekData week, bool showShan) {
+    final t = context.tokens;
+    final shan = MyanmarCalendar.currentLanguage == Language.shan && showShan;
+    return AppGroup(
+      label:
+          '${week.weekStart.format('MMM d')} – ${week.weekEnd.format('MMM d, yyyy')}',
+      children: [
+        for (final day in week.days)
+          Builder(
+            builder: (context) {
+              final date = DateTime(
+                day.westernYear,
+                day.westernMonth,
+                day.westernDay,
+              );
+              final isToday = date.isToday;
+              final holidays = [...day.allHolidays, ...day.allAnniversaryDays];
+              final myanmar = MyanmarCalendar.formatMyanmar(
+                day.myanmar,
+                pattern: '&M &P &f &Yat',
+              );
+              final shanYear = MyanmarDateTime.fromMyanmarDate(
+                day.myanmar,
+              ).shanDate.year;
+              return AppRow(
+                leading: MoonGlyph(date: date, size: 28),
+                title: '${date.format('EEE')} ${date.day}',
+                subtitle: shan
+                    ? '${translateNumbers('$shanYear', language: Language.shan)} $myanmar'
+                    : myanmar,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (holidays.isNotEmpty)
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120),
+                        child: Text(
+                          holidays.length > 1
+                              ? '${TranslationService.translateTo(holidays.first, MyanmarCalendar.currentLanguage)} +${holidays.length - 1}'
+                              : TranslationService.translateTo(
+                                  holidays.first,
+                                  MyanmarCalendar.currentLanguage,
+                                ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: t.holiday,
+                          ),
+                        ),
+                      ),
+                    if (isToday)
+                      Container(
+                        margin: const EdgeInsets.only(left: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: t.accentSoft,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'Today',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: t.accent,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                chevron: true,
+                onTap: () => GoRouter.of(context).go('/views/day', extra: date),
+              );
+            },
           ),
-        ),
-      ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            context.read<ViewsBloc>().add(const NavigateWeekPrevious());
-          },
-          tooltip: 'Previous Week',
-        ),
-        IconButton(
-          icon: const Icon(Icons.today),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            context.read<ViewsBloc>().add(LoadWeekView(DateTime.now()));
-          },
-          tooltip: 'This Week',
-        ),
-        IconButton(
-          icon: const Icon(Icons.chevron_right),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            context.read<ViewsBloc>().add(const NavigateWeekNext());
-          },
-          tooltip: 'Next Week',
-        ),
       ],
     );
   }
 
-  Widget _buildDayCard(
-    CompleteDate dayInfo,
-    DateTime date,
-    bool isToday,
-    int index,
-    bool showShanCalendar,
-  ) {
-    final combinedHolidays = [
-      ...dayInfo.allHolidays,
-      ...dayInfo.allAnniversaryDays,
-    ];
-
-    final year =
-        (MyanmarCalendar.currentLanguage == Language.shan || showShanCalendar)
-        ? MyanmarDateTime.fromMyanmarDate(dayInfo.myanmar).shanDate.year
-        : dayInfo.myanmarYear;
-
-    return TweenAnimationBuilder<double>(
-      duration: Duration(milliseconds: 300 + (index * 50)),
-      tween: Tween(begin: 0.0, end: 1.0),
-      curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Transform.translate(
-          offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(opacity: value, child: child),
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 16),
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: isToday
-                ? context.colorScheme.primary
-                : context.colorScheme.outlineVariant,
-            width: isToday ? 2 : 1,
-          ),
-        ),
-        child: Container(
-          decoration: isToday
-              ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    colors: [
-                      context.colorScheme.primaryContainer.withValues(
-                        alpha: 0.3,
-                      ),
-                      context.colorScheme.primaryContainer.withValues(
-                        alpha: 0.1,
-                      ),
-                    ],
-                  ),
-                )
-              : null,
-          child: InkWell(
-            onTap: () {
-              // Navigate to day details
-              context.read<ViewsBloc>().add(LoadDayView(date));
-              GoRouter.of(context).go('/views/day', extra: date);
-            },
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Date Badge
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: isToday
-                          ? context.colorScheme.primary
-                          : context.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          date.day.toString(),
-                          style: context.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: isToday
-                                ? context.colorScheme.onPrimary
-                                : context.colorScheme.onSurface,
-                          ),
-                        ),
-                        Text(
-                          date.format('EEE'),
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: isToday
-                                ? context.colorScheme.onPrimary.withValues(
-                                    alpha: 0.8,
-                                  )
-                                : context.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-
-                  // Content
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          date.format('MMMM d, yyyy'),
-                          style: context.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        if (MyanmarCalendar.currentLanguage == Language.shan &&
-                            showShanCalendar)
-                          Text(
-                            '${translateNumbers(year.toString(), language: Language.shan)} '
-                            '${MyanmarCalendar.formatMyanmar(dayInfo.myanmar, pattern: "&M &P &f &Yat")}',
-                            style: context.textTheme.bodyMedium?.copyWith(
-                              color: context.colorScheme.primary,
-                            ),
-                          )
-                        else
-                          Text(
-                            MyanmarCalendar.formatMyanmar(
-                              dayInfo.myanmar,
-                              pattern: '&M &P &f &Yat',
-                            ),
-                            style: context.textTheme.bodyMedium?.copyWith(
-                              color: context.colorScheme.primary,
-                            ),
-                          ),
-
-                        // Moon Phase
-                        if (dayInfo.isFullMoon || dayInfo.isNewMoon) ...[
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              MoonGlyph(
-                                date: DateTime(
-                                  dayInfo.westernYear,
-                                  dayInfo.westernMonth,
-                                  dayInfo.westernDay,
-                                ),
-                                size: 24,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                dayInfo.isFullMoon
-                                    ? TranslationService.translateTo(
-                                        "Full Moon",
-                                        MyanmarCalendar.currentLanguage,
-                                      )
-                                    : TranslationService.translateTo(
-                                        'New Moon',
-                                        MyanmarCalendar.currentLanguage,
-                                      ),
-                                style: context.textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-
-                        // Holidays
-                        if (combinedHolidays.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: context.colorScheme.errorContainer
-                                  .withValues(alpha: 0.5),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.celebration,
-                                  size: 14,
-                                  color: context.colorScheme.onErrorContainer,
-                                ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: Text(
-                                    combinedHolidays.first,
-                                    style: context.textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: context
-                                              .colorScheme
-                                              .onErrorContainer,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                if (dayInfo.allHolidays.length > 1)
-                                  Text(
-                                    ' +${combinedHolidays.length - 1}',
-                                    style: context.textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: context
-                                              .colorScheme
-                                              .onErrorContainer,
-                                        ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-
-                  // Chevron
-                  Icon(
-                    Icons.chevron_right,
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                context.colorScheme.primary,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Loading week...',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildLoadingState() => const Padding(
+    padding: EdgeInsets.all(48),
+    child: Center(child: CircularProgressIndicator()),
+  );
 
   Widget _buildErrorState(String message) {
     return Center(
@@ -506,23 +248,6 @@ class _WeekViewPageState extends State<WeekViewPage>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white, size: 20),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: context.colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }

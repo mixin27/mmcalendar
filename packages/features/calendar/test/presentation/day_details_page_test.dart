@@ -1,0 +1,161 @@
+import 'dart:async';
+
+import 'package:calendar/calendar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
+import 'package:shared_core/shared_core.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
+
+class _Analytics implements AnalyticsPort {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => Future<void>.value();
+}
+
+class _Display implements DisplayPreferencesPort {
+  @override
+  Future<bool> getShowShanCalendar() async => false;
+  @override
+  Stream<bool> watchShowShanCalendar() => Stream.value(false);
+}
+
+class _Actions implements EventActionsPort {
+  final created = <DateTime?>[];
+  final opened = <int>[];
+
+  @override
+  Future<void> openCreateEvent(
+    BuildContext context, {
+    DateTime? initialDate,
+  }) async => created.add(initialDate);
+
+  @override
+  Future<void> openEventDetail(
+    BuildContext context, {
+    required int eventId,
+    DateTime? occurrenceDate,
+  }) async => opened.add(eventId);
+}
+
+class _Markers implements EventMarkersPort {
+  final toggled = <(int, bool)>[];
+
+  @override
+  Stream<List<CalendarEventItem>> watchEventsForDate(DateTime date) =>
+      Stream.value([
+        if (date.day == 22)
+          CalendarEventItem(
+            id: 7,
+            title: 'Grandma’s birthday',
+            eventDate: date,
+            isAllDay: true,
+            category: const CalendarEventCategory(
+              name: 'Family',
+              iconName: 'family_restroom',
+              colorCode: 0xFFE0457B,
+            ),
+            isRecurring: true,
+          ),
+      ]);
+
+  @override
+  Future<void> toggleEventCompletion({
+    required int eventId,
+    required bool isCompleted,
+    bool isRecurring = false,
+    DateTime? occurrenceDate,
+  }) async => toggled.add((eventId, isCompleted));
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+void main() {
+  late _Actions actions;
+  late _Markers markers;
+
+  Future<void> pump(WidgetTester tester, AppStyle style) async {
+    final getIt = GetIt.instance;
+    await getIt.reset();
+    actions = _Actions();
+    markers = _Markers();
+    getIt
+      ..registerSingleton<AnalyticsPort>(_Analytics())
+      ..registerSingleton<DisplayPreferencesPort>(_Display())
+      ..registerSingleton<EventActionsPort>(actions)
+      ..registerSingleton<EventMarkersPort>(markers);
+    tester.view
+      ..devicePixelRatio = 1
+      ..physicalSize = const Size(390, 2600);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.build(
+          style: style,
+          colorScheme: AppColorSchemes.modernLight,
+        ),
+        home: DayDetailsPage(date: DateTime(2026, 10, 22)),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  for (final style in [AppStyle.clear, AppStyle.material]) {
+    group('${style.name} style', () {
+      testWidgets('shows every section of the day', (tester) async {
+        await pump(tester, style);
+        expect(find.text('Thu, 22 Oct'), findsWidgets);
+        for (final label in [
+          'Buddhist Calendar',
+          'Mahabote',
+          'AI Horoscope Prompt',
+          'Grandma’s birthday',
+          'Add event',
+        ]) {
+          // Clear writes group labels in capitals.
+          expect(
+            find.textContaining(RegExp(label, caseSensitive: false)),
+            findsWidgets,
+            reason: label,
+          );
+        }
+        expect(find.byType(MoonGlyph), findsOneWidget);
+      });
+
+      testWidgets('events can be completed, opened and added', (tester) async {
+        await pump(tester, style);
+        await tester.tap(find.bySemanticsLabel('Mark complete'));
+        await tester.pump();
+        expect(markers.toggled, [(7, true)]);
+
+        await tester.tap(find.text('Grandma’s birthday'));
+        await tester.pump();
+        expect(actions.opened, [7]);
+
+        await tester.tap(find.text('Add event'));
+        await tester.pump();
+        expect(actions.created, [DateTime(2026, 10, 22)]);
+      });
+
+      testWidgets('the bar steps to the next day', (tester) async {
+        await pump(tester, style);
+        await tester.tap(find.byTooltip('Next Day'));
+        await tester.pumpAndSettle();
+        expect(find.text('Fri, 23 Oct'), findsWidgets);
+        expect(find.text('Grandma’s birthday'), findsNothing);
+      });
+
+      testWidgets('the AI prompt opens in a sheet with copy and share', (
+        tester,
+      ) async {
+        await pump(tester, style);
+        await tester.tap(find.text('AI Horoscope Prompt'));
+        await tester.pumpAndSettle();
+        expect(find.text('Copy Prompt'), findsOneWidget);
+        expect(find.text('Share'), findsOneWidget);
+      });
+    });
+  }
+
+  tearDown(() => GetIt.instance.reset());
+}
