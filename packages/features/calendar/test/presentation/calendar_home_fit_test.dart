@@ -70,6 +70,7 @@ class _Events implements EventMarkersPort {
 CalendarDisplayConfig _config(
   CalendarGridStyle style, {
   Language language = Language.english,
+  CalendarGridTheme theme = CalendarGridTheme.app,
 }) {
   final defaults = CalendarDisplayConfig.defaults();
   return CalendarDisplayConfig(
@@ -88,6 +89,7 @@ CalendarDisplayConfig _config(
     timezoneOffset: defaults.timezoneOffset,
     defaultLanguage: defaults.defaultLanguage,
     gridStyle: style,
+    gridTheme: theme,
   );
 }
 
@@ -97,13 +99,14 @@ Future<void> _pumpHome(
   required DateTime month,
   CalendarGridStyle style = CalendarGridStyle.detailed,
   Language language = Language.english,
+  CalendarGridTheme theme = CalendarGridTheme.app,
 }) async {
   final getIt = GetIt.instance;
   await getIt.reset();
   getIt
     ..registerSingleton<AnalyticsPort>(_Analytics())
     ..registerSingleton<CalendarDisplayConfigPort>(
-      _DisplayConfig(_config(style, language: language)),
+      _DisplayConfig(_config(style, language: language, theme: theme)),
     )
     ..registerSingleton<EventMarkersPort>(_Events());
 
@@ -323,6 +326,40 @@ void main() {
         style: style,
       );
       expect(find.byType(CalendarGrid), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  // Themes change colours, typefaces and the header motif, never the size
+  // of anything: every layout still fits, in a light and a dark theme.
+  for (final (i, style) in CalendarGridStyle.values.indexed) {
+    final theme = const [
+      CalendarGridTheme.pagoda,
+      CalendarGridTheme.lacquer,
+      CalendarGridTheme.deepField,
+      CalendarGridTheme.monsoon,
+      CalendarGridTheme.thadingyut,
+    ][i % 5];
+    testWidgets('${style.name} grid in ${theme.name} fits a small phone', (
+      tester,
+    ) async {
+      await _pumpHome(
+        tester,
+        size: const Size(320, 568),
+        month: DateTime(2027, 1),
+        style: style,
+        theme: theme,
+      );
+      final scaffold = tester.widget<Scaffold>(
+        find.descendant(
+          of: find.byType(CalendarHomePage),
+          matching: find.byType(Scaffold),
+        ),
+      );
+      expect(
+        scaffold.backgroundColor,
+        CalendarThemeLook.forTheme(theme)!.light.paper,
+      );
       expect(tester.takeException(), isNull);
     });
   }

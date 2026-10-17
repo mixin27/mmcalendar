@@ -99,11 +99,33 @@ class CalendarColors {
 
   /// [base] in the theme's number typeface (weight kept), or unchanged for
   /// app colours or when no font resolver is provided.
+  ///
+  /// The result doesn't inherit: the app's text styles carry the ui_kit font
+  /// package, and merging a fully qualified family into them would prefix
+  /// it twice. Myanmar glyphs (a Myanmar month title) fall back to Noto Sans
+  /// Myanmar, as everywhere else in the app.
   TextStyle numberStyle(TextStyle base) {
     final family = numberFamily;
     final resolve = fontResolver;
     if (family == null || resolve == null) return base;
-    return base.merge(resolve(family, base.fontWeight ?? FontWeight.w400));
+    final weight = base.fontWeight ?? FontWeight.w400;
+    final font = resolve(family, weight);
+    return TextStyle(
+      inherit: false,
+      fontFamily: font.fontFamily,
+      fontFamilyFallback: AppTextStyles.qualifiedFallback,
+      fontVariations: font.fontVariations,
+      fontWeight: weight,
+      fontSize: base.fontSize ?? 14,
+      height: base.height,
+      letterSpacing: base.letterSpacing,
+      color: base.color ?? label,
+      // Lining figures: some display faces (Cormorant) default to old-style
+      // numerals, which look uneven in a grid.
+      fontFeatures: [...?base.fontFeatures, const FontFeature.liningFigures()],
+      textBaseline: TextBaseline.alphabetic,
+      leadingDistribution: base.leadingDistribution,
+    );
   }
 
   final Color accent;

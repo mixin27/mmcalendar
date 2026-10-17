@@ -469,10 +469,10 @@ class CalendarThemeMotif extends StatelessWidget {
     }
     final dark = Theme.of(context).brightness == Brightness.dark;
     final palette = look.of(Theme.of(context).brightness);
-    final alpha = dark ? .2 : .14;
+    final alpha = dark ? .13 : .1;
     final size = switch (look.motifShape) {
-      CalendarMotifShape.square => const Size(92, 92),
-      CalendarMotifShape.wide => const Size(150, 56),
+      CalendarMotifShape.square => const Size(84, 84),
+      CalendarMotifShape.wide => const Size(140, 50),
     };
     return ExcludeSemantics(
       child: IgnorePointer(

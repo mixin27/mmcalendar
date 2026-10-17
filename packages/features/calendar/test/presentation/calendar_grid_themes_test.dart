@@ -1,8 +1,10 @@
 import 'package:calendar/calendar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_motifs/shared_motifs.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 double _contrast(Color a, Color b) {
   final la = a.computeLuminance();
@@ -117,5 +119,42 @@ void main() {
       ),
     );
     expect(app.paper, isNull);
+  });
+
+  testWidgets('theme numbers keep their family under the app text theme', (
+    tester,
+  ) async {
+    // The app's text styles carry the ui_kit font package; the theme font
+    // must not end up prefixed twice.
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.build(
+          style: AppStyle.clear,
+          colorScheme: AppColorSchemes.modernLight,
+        ),
+        home: CalendarFontScope(
+          resolve: (family, weight) =>
+              TextStyle(fontFamily: 'packages/calendar_studio/$family'),
+          child: CalendarThemeScope(
+            theme: CalendarGridTheme.pagoda,
+            child: Material(
+              child: Builder(
+                builder: (context) => Text(
+                  '17',
+                  style: CalendarColors.of(
+                    context,
+                  ).numberStyle(const TextStyle(fontSize: 14)),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final paragraph = tester.renderObject<RenderParagraph>(find.text('17'));
+    expect(
+      paragraph.text.style!.fontFamily,
+      'packages/calendar_studio/Crimson Pro',
+    );
   });
 }
