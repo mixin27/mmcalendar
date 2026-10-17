@@ -45,12 +45,14 @@ class _Number extends StatelessWidget {
         child: Text(
           data.options.showWesternDates ? '${data.info.westernDay}' : '',
           maxLines: 1,
-          style: TextStyle(
-            fontSize: size,
-            height: 1,
-            fontWeight: today ? FontWeight.w700 : weight,
-            color: color,
-            fontFeatures: const [FontFeature.tabularFigures()],
+          style: colors.numberStyle(
+            TextStyle(
+              fontSize: size,
+              height: 1,
+              fontWeight: today ? FontWeight.w700 : weight,
+              color: color,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
         ),
       ),

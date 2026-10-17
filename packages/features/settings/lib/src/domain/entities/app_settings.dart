@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
-import 'package:shared_core/shared_core.dart' show CalendarGridStyle;
+import 'package:shared_core/shared_core.dart'
+    show CalendarGridStyle, CalendarGridTheme;
 import 'package:shared_ui_kit/shared_ui_kit.dart' show AppStyle;
 
 class AppSettingsEntity extends Equatable {
@@ -21,6 +22,8 @@ class AppSettingsEntity extends Equatable {
   final bool showMyanmarDates;
   final int firstDayOfWeek;
   final CalendarGridStyle calendarGridStyle;
+  final CalendarGridTheme calendarGridTheme;
+  final bool showGridMotif;
   final bool enableAnalytics;
   final bool enableCrashlytics;
   final bool hasShownConsentDialog;
@@ -44,6 +47,8 @@ class AppSettingsEntity extends Equatable {
     required this.showMyanmarDates,
     required this.firstDayOfWeek,
     this.calendarGridStyle = CalendarGridStyle.defaultStyle,
+    this.calendarGridTheme = CalendarGridTheme.defaultTheme,
+    this.showGridMotif = true,
     this.enableAnalytics = true,
     this.enableCrashlytics = true,
     this.hasShownConsentDialog = false,
@@ -68,6 +73,8 @@ class AppSettingsEntity extends Equatable {
     bool? showMyanmarDates,
     int? firstDayOfWeek,
     CalendarGridStyle? calendarGridStyle,
+    CalendarGridTheme? calendarGridTheme,
+    bool? showGridMotif,
     bool? enableAnalytics,
     bool? enableCrashlytics,
     bool? hasShownConsentDialog,
@@ -91,6 +98,8 @@ class AppSettingsEntity extends Equatable {
       showMyanmarDates: showMyanmarDates ?? this.showMyanmarDates,
       firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
       calendarGridStyle: calendarGridStyle ?? this.calendarGridStyle,
+      calendarGridTheme: calendarGridTheme ?? this.calendarGridTheme,
+      showGridMotif: showGridMotif ?? this.showGridMotif,
       enableAnalytics: enableAnalytics ?? this.enableAnalytics,
       enableCrashlytics: enableCrashlytics ?? this.enableCrashlytics,
       hasShownConsentDialog:
@@ -119,6 +128,8 @@ class AppSettingsEntity extends Equatable {
     showMyanmarDates,
     firstDayOfWeek,
     calendarGridStyle,
+    calendarGridTheme,
+    showGridMotif,
     enableAnalytics,
     enableCrashlytics,
     hasShownConsentDialog,

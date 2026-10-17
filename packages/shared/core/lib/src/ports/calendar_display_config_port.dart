@@ -56,6 +56,32 @@ enum CalendarGridStyle {
   );
 }
 
+/// A look for the home calendar's header, weekday row and grid: paper,
+/// ink, accent, number typeface and a small motif. Independent of the
+/// [CalendarGridStyle] layout. [app] keeps the app's own colours.
+enum CalendarGridTheme {
+  app,
+  pagoda,
+  jade,
+  lacquer,
+  thadingyut,
+  thingyan,
+  botanical,
+  monsoon,
+  tidewater,
+  morningPour,
+  deepField,
+  moonlight,
+  nightChart;
+
+  static const defaultTheme = CalendarGridTheme.app;
+
+  static CalendarGridTheme fromName(String? name) => values.firstWhere(
+    (theme) => theme.name == name,
+    orElse: () => defaultTheme,
+  );
+}
+
 class CalendarDisplayConfig extends Equatable {
   const CalendarDisplayConfig({
     required this.calendarLanguage,
@@ -73,6 +99,8 @@ class CalendarDisplayConfig extends Equatable {
     required this.timezoneOffset,
     required this.defaultLanguage,
     this.gridStyle = CalendarGridStyle.defaultStyle,
+    this.gridTheme = CalendarGridTheme.defaultTheme,
+    this.showGridMotif = true,
   });
 
   factory CalendarDisplayConfig.defaults() {
@@ -110,6 +138,10 @@ class CalendarDisplayConfig extends Equatable {
   final double timezoneOffset;
   final String defaultLanguage;
   final CalendarGridStyle gridStyle;
+  final CalendarGridTheme gridTheme;
+
+  /// Whether a theme's motif shows in the header corner.
+  final bool showGridMotif;
 
   CalendarConfig get calendarConfig {
     return CalendarConfig(
@@ -146,6 +178,8 @@ class CalendarDisplayConfig extends Equatable {
     timezoneOffset,
     defaultLanguage,
     gridStyle,
+    gridTheme,
+    showGridMotif,
   ];
 }
 

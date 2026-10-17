@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
-import 'package:shared_core/shared_core.dart' show CalendarGridStyle;
+import 'package:shared_core/shared_core.dart'
+    show CalendarGridStyle, CalendarGridTheme;
 import 'package:shared_ui_kit/shared_ui_kit.dart' show AppStyle;
 
 sealed class SettingsEvent extends Equatable {
@@ -95,6 +96,15 @@ final class ChangeCalendarGridStyle extends SettingsEvent {
 
   @override
   List<Object?> get props => [style];
+}
+
+final class ChangeCalendarGridTheme extends SettingsEvent {
+  final CalendarGridTheme theme;
+
+  const ChangeCalendarGridTheme(this.theme);
+
+  @override
+  List<Object?> get props => [theme];
 }
 
 final class ResetAllSettings extends SettingsEvent {

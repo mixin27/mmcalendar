@@ -50,6 +50,15 @@ class RecordingSettingsRepository implements SettingsRepository {
   }
 
   CalendarGridStyle? gridStyle;
+  CalendarGridTheme? gridTheme;
+
+  @override
+  Future<Either<Failure, void>> updateCalendarGridTheme(
+    CalendarGridTheme theme,
+  ) async {
+    gridTheme = theme;
+    return _ok;
+  }
 
   @override
   Future<Either<Failure, void>> updateCalendarGridStyle(

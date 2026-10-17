@@ -4,6 +4,9 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
+import 'calendar_colors.dart';
+import 'calendar_grid_themes.dart';
+
 /// One compact row above the grid: the month title (tap for the month
 /// picker, long-press for today) with the Myanmar months and year beneath,
 /// then previous / next and Calendar Studio. Everything here is calendar
@@ -55,8 +58,9 @@ class CalendarHeader extends StatelessWidget {
     final colors = context.colorScheme;
     final format = CalendarFormat(language);
     final myanmarScript = language != Language.english;
+    final calendarColors = CalendarColors.of(context);
 
-    return Padding(
+    final header = Padding(
       padding: const EdgeInsets.fromLTRB(8, 2, 6, 2),
       child: Row(
         children: [
@@ -86,6 +90,7 @@ class CalendarHeader extends StatelessWidget {
                               : format.monthYear(currentMonth),
                           myanmarScript: myanmarScript,
                           arrowColor: colors.primary,
+                          colors: calendarColors,
                         ),
                       ),
                       Text(
@@ -119,6 +124,19 @@ class CalendarHeader extends StatelessWidget {
             ),
         ],
       ),
+    );
+    if (calendarColors.paper == null) return header;
+    // A grid theme's motif sits faintly behind the header's trailing corner.
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        const PositionedDirectional(
+          top: -6,
+          end: 0,
+          child: CalendarThemeMotif(),
+        ),
+        header,
+      ],
     );
   }
 
@@ -201,11 +219,13 @@ class _Title extends StatelessWidget {
     required this.text,
     required this.myanmarScript,
     required this.arrowColor,
+    required this.colors,
   });
 
   final String text;
   final bool myanmarScript;
   final Color arrowColor;
+  final CalendarColors colors;
 
   @override
   Widget build(BuildContext context) => FittedBox(
@@ -217,12 +237,16 @@ class _Title extends StatelessWidget {
         Text(
           text,
           maxLines: 1,
-          style: context.textTheme.titleLarge?.copyWith(
-            // Myanmar script is taller; a smaller size keeps the row height.
-            fontSize: myanmarScript ? 19 : 22,
-            fontWeight: myanmarScript ? FontWeight.w700 : FontWeight.w800,
-            letterSpacing: myanmarScript ? 0 : -.3,
-            height: myanmarScript ? 1.45 : 1.25,
+          style: colors.numberStyle(
+            context.textTheme.titleLarge!.copyWith(
+              // Myanmar script is taller; a smaller size keeps the row
+              // height.
+              fontSize: myanmarScript ? 19 : 22,
+              fontWeight: myanmarScript ? FontWeight.w700 : FontWeight.w800,
+              letterSpacing: myanmarScript ? 0 : -.3,
+              height: myanmarScript ? 1.45 : 1.25,
+              color: colors.paper == null ? null : colors.label,
+            ),
           ),
         ),
         Icon(Icons.keyboard_arrow_down_rounded, size: 22, color: arrowColor),
@@ -248,6 +272,7 @@ class _MonthStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final colors = CalendarColors.of(context);
     Widget button(IconData icon, VoidCallback onTap, String label) => Tooltip(
       message: label,
       child: InkWell(
@@ -256,13 +281,13 @@ class _MonthStepper extends StatelessWidget {
         child: SizedBox(
           width: 36,
           height: 34,
-          child: Icon(icon, size: 22, color: t.accent),
+          child: Icon(icon, size: 22, color: colors.accent),
         ),
       ),
     );
     return Container(
       decoration: BoxDecoration(
-        color: t.isClear ? t.fill : null,
+        color: t.isClear ? colors.fill : null,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

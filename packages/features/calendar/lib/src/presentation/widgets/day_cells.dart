@@ -251,14 +251,16 @@ class DetailedDayCell extends StatelessWidget {
                                 child: Text(
                                   '${data.info.westernDay}',
                                   maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    height: 1,
-                                    fontWeight: FontWeight.w600,
-                                    color: numberColor,
-                                    fontFeatures: const [
-                                      FontFeature.tabularFigures(),
-                                    ],
+                                  style: colors.numberStyle(
+                                    TextStyle(
+                                      fontSize: 14,
+                                      height: 1,
+                                      fontWeight: FontWeight.w600,
+                                      color: numberColor,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures(),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -378,16 +380,18 @@ class CleanDayCell extends StatelessWidget {
                           ? Text(
                               '${data.info.westernDay}',
                               maxLines: 1,
-                              style: TextStyle(
-                                fontSize: disc * .53,
-                                height: 1,
-                                fontWeight: filled
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: numberColor,
-                                fontFeatures: const [
-                                  FontFeature.tabularFigures(),
-                                ],
+                              style: colors.numberStyle(
+                                TextStyle(
+                                  fontSize: disc * .53,
+                                  height: 1,
+                                  fontWeight: filled
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  color: numberColor,
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures(),
+                                  ],
+                                ),
                               ),
                             )
                           : null,

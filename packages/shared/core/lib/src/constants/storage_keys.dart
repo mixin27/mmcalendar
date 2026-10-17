@@ -21,6 +21,8 @@ class StorageKeys {
   // Display Preferences
   static const String firstDayOfWeek = 'first_day_of_week';
   static const String calendarGridStyle = 'calendar_grid_style';
+  static const String calendarGridTheme = 'calendar_grid_theme';
+  static const String calendarGridMotif = 'calendar_grid_motif';
   static const String showWeekNumbers = 'show_week_numbers';
   static const String showHolidays = 'show_holidays';
   static const String showAnniversaryDays = 'show_anniversary_days';

@@ -133,6 +133,12 @@ class SettingsRepositoryImpl extends BaseRepository
           calendarGridStyle: CalendarGridStyle.fromName(
             settings[StorageKeys.calendarGridStyle],
           ),
+          calendarGridTheme: CalendarGridTheme.fromName(
+            settings[StorageKeys.calendarGridTheme],
+          ),
+          showGridMotif: _parseBool(
+            settings[StorageKeys.calendarGridMotif] ?? 'true',
+          ),
           enableAnalytics: enableAnalytics,
           enableCrashlytics: enableCrashlytics,
           hasShownConsentDialog: hasShownConsentDialog,
@@ -287,6 +293,23 @@ class SettingsRepositoryImpl extends BaseRepository
         await prefs.setBool(StorageKeys.useDeviceTimezone, value);
       }
 
+      return const Right(null);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message, e.code));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateCalendarGridTheme(
+    CalendarGridTheme theme,
+  ) async {
+    try {
+      await localDataSource.setSetting(
+        StorageKeys.calendarGridTheme,
+        theme.name,
+      );
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message, e.code));

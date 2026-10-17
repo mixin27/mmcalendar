@@ -14,4 +14,7 @@ class UpdateDisplayPreferences {
 
   Future<Either<Failure, void>> gridStyle(CalendarGridStyle style) =>
       repository.updateCalendarGridStyle(style);
+
+  Future<Either<Failure, void>> gridTheme(CalendarGridTheme theme) =>
+      repository.updateCalendarGridTheme(theme);
 }

@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:converter/converter.dart';
 import 'package:calendar/calendar.dart';
+import 'package:calendar_studio/calendar_studio.dart'
+    show CalendarStudioFontCatalog;
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
@@ -180,7 +182,11 @@ class _AppContentState extends State<_AppContent> {
                 language:
                     settings?.calendarLanguage ??
                     MyanmarCalendar.currentLanguage,
-                child: child ?? const SizedBox.shrink(),
+                // Grid themes draw numbers in Studio's bundled typefaces.
+                child: CalendarFontScope(
+                  resolve: _calendarFont,
+                  child: child ?? const SizedBox.shrink(),
+                ),
               ),
             );
             return _AppStartupGuard(child: content);
@@ -344,3 +350,6 @@ class _AppStartupGuardState extends State<_AppStartupGuard> {
     );
   }
 }
+
+TextStyle _calendarFont(String family, FontWeight weight) =>
+    CalendarStudioFontCatalog.style(family: family, weight: weight);

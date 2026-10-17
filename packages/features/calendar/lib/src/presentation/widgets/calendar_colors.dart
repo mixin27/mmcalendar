@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
+import 'calendar_grid_themes.dart';
+
 /// Calendar meaning colours, read from the app's design tokens plus the two
-/// marker hues only the calendar uses.
+/// marker hues only the calendar uses. Under a [CalendarThemeScope] with a
+/// grid theme, they come from that theme's palette instead.
 @immutable
 class CalendarColors {
   const CalendarColors._({
@@ -22,11 +26,23 @@ class CalendarColors {
     required this.fill,
     required this.surface,
     required this.moon,
+    this.paper,
+    this.numberFamily,
+    this.fontResolver,
   });
 
   factory CalendarColors.of(BuildContext context) {
-    final t = AppTokens.of(context);
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final look = CalendarThemeScope.lookOf(context);
+    if (look != null) {
+      return CalendarColors._themed(
+        look.of(Theme.of(context).brightness),
+        dark: dark,
+        numberFamily: look.numberFamily,
+        fontResolver: CalendarFontScope.maybeOf(context),
+      );
+    }
+    final t = AppTokens.of(context);
     return CalendarColors._(
       accent: t.accent,
       onAccent: t.onAccent,
@@ -45,6 +61,49 @@ class CalendarColors {
       surface: t.surface,
       moon: t.moon,
     );
+  }
+
+  factory CalendarColors._themed(
+    CalendarThemePalette p, {
+    required bool dark,
+    required String numberFamily,
+    CalendarFontResolver? fontResolver,
+  }) => CalendarColors._(
+    accent: p.accent,
+    onAccent: p.onAccent,
+    accentSoft: p.accent.withValues(alpha: dark ? .24 : .14),
+    label: p.ink,
+    secondaryLabel: p.inkMuted,
+    tertiaryLabel: Color.lerp(p.ink, p.paper, .55)!,
+    separator: p.ink.withValues(alpha: .15),
+    holiday: p.holiday,
+    holidaySoft: p.holiday.withValues(alpha: dark ? .16 : .11),
+    sabbath: p.sabbath,
+    sabbathSoft: p.moon.withValues(alpha: dark ? .16 : .2),
+    anniversary: dark ? const Color(0xFF3CC6C2) : const Color(0xFF0E8C88),
+    astrology: dark ? const Color(0xFFA48BFF) : const Color(0xFF7553E0),
+    fill: p.ink.withValues(alpha: .08),
+    surface: p.surface,
+    moon: p.moon,
+    paper: p.paper,
+    numberFamily: numberFamily,
+    fontResolver: fontResolver,
+  );
+
+  /// The theme's paper behind the header and grid; null for app colours.
+  final Color? paper;
+
+  /// The theme's typeface for day numbers and the month title.
+  final String? numberFamily;
+  final CalendarFontResolver? fontResolver;
+
+  /// [base] in the theme's number typeface (weight kept), or unchanged for
+  /// app colours or when no font resolver is provided.
+  TextStyle numberStyle(TextStyle base) {
+    final family = numberFamily;
+    final resolve = fontResolver;
+    if (family == null || resolve == null) return base;
+    return base.merge(resolve(family, base.fontWeight ?? FontWeight.w400));
   }
 
   final Color accent;

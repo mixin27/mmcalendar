@@ -21,6 +21,8 @@ class DatabaseDisplayPreferencesPort
       COALESCE((SELECT value FROM app_settings WHERE key = 'show_shan_calendar' LIMIT 1), 'true') AS show_shan_calendar,
       COALESCE((SELECT value FROM app_settings WHERE key = 'use_device_timezone' LIMIT 1), 'true') AS use_device_timezone,
       (SELECT value FROM app_settings WHERE key = 'calendar_grid_style' LIMIT 1) AS calendar_grid_style,
+      (SELECT value FROM app_settings WHERE key = 'calendar_grid_theme' LIMIT 1) AS calendar_grid_theme,
+      COALESCE((SELECT value FROM app_settings WHERE key = 'calendar_grid_motif' LIMIT 1), 'true') AS calendar_grid_motif,
       COALESCE((SELECT sasana_year_type FROM calendar_settings LIMIT 1), 0) AS sasana_year_type,
       COALESCE((SELECT calendar_type FROM calendar_settings LIMIT 1), 0) AS calendar_type,
       COALESCE((SELECT gregorian_start FROM calendar_settings LIMIT 1), 2361222) AS gregorian_start,
@@ -86,6 +88,10 @@ class DatabaseDisplayPreferencesPort
       gridStyle: CalendarGridStyle.fromName(
         row.data['calendar_grid_style'] as String?,
       ),
+      gridTheme: CalendarGridTheme.fromName(
+        row.data['calendar_grid_theme'] as String?,
+      ),
+      showGridMotif: _readBool(row, 'calendar_grid_motif'),
     );
   }
 

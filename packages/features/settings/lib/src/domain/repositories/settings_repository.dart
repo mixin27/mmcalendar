@@ -20,6 +20,9 @@ abstract class SettingsRepository {
   Future<Either<Failure, void>> updateCalendarGridStyle(
     CalendarGridStyle style,
   );
+  Future<Either<Failure, void>> updateCalendarGridTheme(
+    CalendarGridTheme theme,
+  );
   Future<Either<Failure, void>> resetSettings();
   Future<Either<Failure, void>> updateAnalyticsConsent(bool enableAnalytics);
   Future<Either<Failure, void>> updateCrashlyticsConsent(

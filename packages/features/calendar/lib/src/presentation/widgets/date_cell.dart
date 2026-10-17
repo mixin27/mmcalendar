@@ -275,11 +275,13 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
         if (widget.showWesternDates)
           Text(
             widget.dateInfo.westernDay.toString(),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: textColor.withValues(alpha: opacity),
-              fontWeight: widget.isToday ? FontWeight.bold : FontWeight.w600,
-              fontSize: 16,
-              height: 1.2,
+            style: CalendarColors.of(context).numberStyle(
+              Theme.of(context).textTheme.titleMedium!.copyWith(
+                color: textColor.withValues(alpha: opacity),
+                fontWeight: widget.isToday ? FontWeight.bold : FontWeight.w600,
+                fontSize: 16,
+                height: 1.2,
+              ),
             ),
           ),
 

@@ -55,6 +55,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<UpdateCalendarConfiguration>(_onUpdateCalendarConfiguration);
     on<ToggleDisplayPreference>(_onToggleDisplayPreference);
     on<ChangeCalendarGridStyle>(_onChangeCalendarGridStyle);
+    on<ChangeCalendarGridTheme>(_onChangeCalendarGridTheme);
     on<ResetAllSettings>(_onResetAllSettings);
     on<UpdateCustomColors>(_onUpdateCustomColors);
     on<UpdateAnalyticsConsent>(_onUpdateAnalyticsConsent);
@@ -359,6 +360,30 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     );
   }
 
+  Future<void> _onChangeCalendarGridTheme(
+    ChangeCalendarGridTheme event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state is! SettingsLoaded) return;
+    final currentState = state as SettingsLoaded;
+    final result = await updateDisplayPreferences.gridTheme(event.theme);
+    result.fold(
+      (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
+      (_) {
+        analyticsService.logSettingsChange(
+          settingName: StorageKeys.calendarGridTheme,
+          oldValue: currentState.settings.calendarGridTheme.name,
+          newValue: event.theme.name,
+        );
+        emit(
+          SettingsLoaded(
+            currentState.settings.copyWith(calendarGridTheme: event.theme),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _onResetAllSettings(
     ResetAllSettings event,
     Emitter<SettingsState> emit,
@@ -527,6 +552,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return settings.copyWith(showShanCalendar: value);
       case StorageKeys.useDeviceTimezone:
         return settings.copyWith(useDeviceTimezone: value);
+      case StorageKeys.calendarGridMotif:
+        return settings.copyWith(showGridMotif: value);
       default:
         return settings;
     }
