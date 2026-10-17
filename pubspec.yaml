@@ -14,6 +14,7 @@ workspace:
   - packages/shared/core
   - packages/shared/ui_kit
   - packages/shared/moon
+  - packages/shared/motifs
   - packages/shared/localizations
   - packages/features/calendar
   - packages/features/views

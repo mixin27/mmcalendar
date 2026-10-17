@@ -20,6 +20,8 @@ dependencies:
     path: ../../integrations/database
   shared_localizations:
     path: ../../shared/localizations
+  shared_motifs:
+    path: ../../shared/motifs
   telegram_web:
     path: ../../integrations/telegram_web
 

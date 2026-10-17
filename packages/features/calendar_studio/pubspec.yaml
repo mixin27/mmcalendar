@@ -19,6 +19,8 @@ dependencies:
   myanmar_calendar_dart: ^2.0.1
   shared_moon:
     path: ../../shared/moon
+  shared_motifs:
+    path: ../../shared/motifs
   file_picker: ^10.3.2
   image: ^4.5.4
 
