@@ -180,7 +180,9 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
                     icon: Icons.edit_calendar_outlined,
                     iconColor: const Color(0xFF4C5BD4),
                     title:
-                        l10n?.calendarMakeYourCalendar(widget.today.year + 1) ??
+                        l10n?.calendarMakeYourCalendar(
+                          context.uiNumber(widget.today.year + 1),
+                        ) ??
                         'Make your ${widget.today.year + 1} calendar',
                     subtitle: l10n?.calendarStudio ?? 'Calendar Studio',
                     chevron: true,
@@ -320,8 +322,9 @@ class _DayBadges extends StatelessWidget {
     final badges = <Widget>[
       _Badge(
         text:
-            l10n?.dayDetailsPercentLit(format.number(moon.percentLit)) ??
-            '${format.number(moon.percentLit)}% lit',
+            // Interface text, so the number follows the app language.
+            l10n?.dayDetailsPercentLit(context.uiNumber(moon.percentLit)) ??
+            '${moon.percentLit}% lit',
         color: colors.secondaryLabel,
       ),
       if (options.showHolidays)

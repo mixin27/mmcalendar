@@ -215,10 +215,6 @@ class DayDetailsContent extends StatelessWidget {
       completeDate.moonPhase,
       _language,
     );
-    final fortnight = MyanmarCalendar.formatMyanmar(
-      completeDate.myanmar,
-      pattern: '&f',
-    );
     return AppGroup(
       label:
           '${l10n?.moon_phase ?? 'Moon Phase'} · ${l10n?.weekday ?? 'Weekday'}',
@@ -226,18 +222,15 @@ class DayDetailsContent extends StatelessWidget {
         AppRow(
           leading: MoonGlyph(state: moon, size: 30),
           title: phase,
+          // One sentence, one language: the interface's, digits included.
           subtitle: completeDate.isFullMoon || completeDate.isNewMoon
-              ? translateNumbers(
-                  l10n?.dayDetailsPercentLit('${moon.percentLit}') ??
-                      '${moon.percentLit}% lit',
-                )
-              : translateNumbers(
-                  l10n?.dayDetailsFortnightDayPercentLit(
-                        fortnight,
-                        '${moon.percentLit}',
-                      ) ??
-                      'Day $fortnight · ${moon.percentLit}% lit',
-                ),
+              ? l10n?.dayDetailsPercentLit(context.uiNumber(moon.percentLit)) ??
+                    '${moon.percentLit}% lit'
+              : l10n?.dayDetailsFortnightDayPercentLit(
+                      context.uiNumber(completeDate.fortnightDay),
+                      context.uiNumber(moon.percentLit),
+                    ) ??
+                    'Day ${completeDate.fortnightDay} · ${moon.percentLit}% lit',
         ),
         Builder(
           builder: (context) {

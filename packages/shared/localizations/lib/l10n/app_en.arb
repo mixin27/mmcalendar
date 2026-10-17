@@ -104,7 +104,8 @@
     "description": "Localized text for calendarDaysAgo.",
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -113,7 +114,8 @@
     "description": "Localized text for calendarDaysFromToday.",
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -122,7 +124,8 @@
     "description": "Compact day count in the Upcoming list",
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -131,7 +134,8 @@
     "description": "Localized text for calendarEventCount.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -148,7 +152,8 @@
     "description": "Localized text for calendarInDays.",
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -174,7 +179,7 @@
     "description": "Localized text for calendarMakeYourCalendar.",
     "placeholders": {
       "year": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -340,7 +345,8 @@
     "description": "Localized text for converterInDays.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -738,7 +744,8 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -784,7 +791,8 @@
     "description": "Localized text for eventsEventCount.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -867,7 +875,8 @@
     "description": "Localized text for eventsReminderDays.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -876,7 +885,8 @@
     "description": "Localized text for eventsReminderHours.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -885,7 +895,8 @@
     "description": "Localized text for eventsReminderMinutes.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -906,7 +917,8 @@
     "description": "Localized text for eventsRepeatsEveryNDays.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -915,7 +927,8 @@
     "description": "Localized text for eventsRepeatsEveryNMonths.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -924,7 +937,8 @@
     "description": "Localized text for eventsRepeatsEveryNWeeks.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -933,7 +947,8 @@
     "description": "Localized text for eventsRepeatsEveryNYears.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1533,7 +1548,8 @@
     "description": "Localized text for weekNumber.",
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },

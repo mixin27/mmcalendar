@@ -88,25 +88,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calendarDaysAgo(int days) {
-    return '$days days ago';
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String daysString = daysNumberFormat.format(days);
+
+    return '$daysString days ago';
   }
 
   @override
   String calendarDaysFromToday(int days) {
-    return '$days days from today';
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String daysString = daysNumberFormat.format(days);
+
+    return '$daysString days from today';
   }
 
   @override
   String calendarDaysShort(int days) {
-    return '$days d';
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String daysString = daysNumberFormat.format(days);
+
+    return '$daysString d';
   }
 
   @override
   String calendarEventCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count events',
+      other: '$countString events',
       one: '1 event',
     );
     return '$_temp0';
@@ -121,7 +140,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calendarInDays(int days) {
-    return 'in $days days';
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String daysString = daysNumberFormat.format(days);
+
+    return 'in $daysString days';
   }
 
   @override
@@ -136,7 +160,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarLanguage => 'Calendar Language';
 
   @override
-  String calendarMakeYourCalendar(int year) {
+  String calendarMakeYourCalendar(String year) {
     return 'Make your $year calendar';
   }
 
@@ -269,10 +293,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String converterInDays(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'in $count days',
+      other: 'in $countString days',
       one: 'in 1 day',
     );
     return '$_temp0';
@@ -571,7 +599,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsDayEventsSemantics(String date, int count) {
-    return '$date, $count events';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$date, $countString events';
   }
 
   @override
@@ -604,10 +636,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsEventCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count events',
+      other: '$countString events',
       one: '1 event',
     );
     return '$_temp0';
@@ -668,23 +704,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsReminderDays(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count days',
-      one: '$count day',
+      other: '$countString days',
+      one: '$countString day',
     );
     return '$_temp0';
   }
 
   @override
   String eventsReminderHours(int count) {
-    return '$count h';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString h';
   }
 
   @override
   String eventsReminderMinutes(int count) {
-    return '$count min';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString min';
   }
 
   @override
@@ -698,22 +746,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsRepeatsEveryNDays(int count) {
-    return 'repeats every $count days';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'repeats every $countString days';
   }
 
   @override
   String eventsRepeatsEveryNMonths(int count) {
-    return 'repeats every $count months';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'repeats every $countString months';
   }
 
   @override
   String eventsRepeatsEveryNWeeks(int count) {
-    return 'repeats every $count weeks';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'repeats every $countString weeks';
   }
 
   @override
   String eventsRepeatsEveryNYears(int count) {
-    return 'repeats every $count years';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'repeats every $countString years';
   }
 
   @override
@@ -1172,7 +1236,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String weekNumber(int number) {
-    return 'Week $number';
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return 'Week $numberString';
   }
 
   @override

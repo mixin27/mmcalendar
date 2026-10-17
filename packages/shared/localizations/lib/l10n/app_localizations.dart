@@ -312,7 +312,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Make your {year} calendar'**
-  String calendarMakeYourCalendar(int year);
+  String calendarMakeYourCalendar(String year);
 
   /// Localized text for calendarNextYear.
   ///

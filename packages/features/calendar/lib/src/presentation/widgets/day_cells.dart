@@ -338,11 +338,13 @@ class CleanDayCell extends StatelessWidget {
           final disc = (box.maxHeight * .5).clamp(22.0, 32.0);
           var budget = box.maxHeight - 6 - disc;
           final inMonth = data.isInMonth;
+          // Myanmar script needs room below the line for its marks.
+          const lunarLine = 16.0;
           final lunar =
               inMonth &&
               data.options.showMyanmarDates &&
-              budget >= _labelLine * scale;
-          if (lunar) budget -= _labelLine * scale;
+              budget >= lunarLine * scale;
+          if (lunar) budget -= lunarLine * scale;
           final marks = inMonth && budget >= 6;
 
           final filled = data.isToday;
@@ -392,23 +394,28 @@ class CleanDayCell extends StatelessWidget {
                     ),
                     if (lunar)
                       SizedBox(
-                        height: _labelLine * scale,
+                        height: lunarLine * scale,
                         child: Center(
                           child: data.isMoonDay
-                              ? MoonGlyph(state: data.moon, size: 10)
-                              : Text(
-                                  data.lunarLabel,
-                                  maxLines: 1,
-                                  softWrap: false,
-                                  overflow: TextOverflow.fade,
-                                  style: _small(
-                                    context,
-                                    data.showsSabbath
-                                        ? colors.sabbath
-                                        : colors.tertiaryLabel,
-                                    weight: data.showsSabbath
-                                        ? FontWeight.w700
-                                        : null,
+                              ? MoonGlyph(state: data.moon, size: 11)
+                              // Shrinks to fit narrow cells rather than
+                              // fading out.
+                              : FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    data.lunarLabel,
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      height: 1.4,
+                                      fontWeight: data.showsSabbath
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: data.showsSabbath
+                                          ? colors.sabbath
+                                          : colors.secondaryLabel,
+                                    ),
                                   ),
                                 ),
                         ),
