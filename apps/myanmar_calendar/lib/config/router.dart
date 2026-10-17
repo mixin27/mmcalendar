@@ -154,6 +154,17 @@ final GoRouter router = GoRouter(
                     );
                   },
                 ),
+                // Categories management. Must come before ':id', which would
+                // otherwise match "categories" and fail to parse it as an id.
+                GoRoute(
+                  path: 'categories',
+                  builder: (context, state) => BlocProvider(
+                    create: (context) =>
+                        getIt<EventCategoriesBloc>()
+                          ..add(const LoadEventCategories()),
+                    child: const CategoriesPage(),
+                  ),
+                ),
                 // Edit event
                 GoRoute(
                   path: ':id',
@@ -188,17 +199,6 @@ final GoRouter router = GoRouter(
                       occurrenceDate: occurrenceDate,
                     );
                   },
-                ),
-
-                // Categories management
-                GoRoute(
-                  path: 'categories',
-                  builder: (context, state) => BlocProvider(
-                    create: (context) =>
-                        getIt<EventCategoriesBloc>()
-                          ..add(const LoadEventCategories()),
-                    child: const CategoriesPage(),
-                  ),
                 ),
               ],
             ),

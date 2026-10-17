@@ -6,6 +6,7 @@ import '../../domain/entities/event_category.dart';
 import '../bloc/event_categories_bloc.dart';
 import '../bloc/event_categories_event.dart';
 import '../bloc/event_categories_state.dart';
+import '../widgets/category_icon.dart';
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
@@ -25,7 +26,7 @@ class CategoriesPage extends StatelessWidget {
         final custom = categories.where((c) => !c.isDefault).toList();
 
         AppRow row(EventCategory category) => AppRow(
-          icon: _getIconData(category.iconName),
+          icon: categoryIcon(category.iconName),
           iconColor: Color(category.colorCode),
           title: category.name,
           trailing: category.isDefault
@@ -261,23 +262,6 @@ class CategoriesPage extends StatelessWidget {
         },
       ),
     );
-  }
-
-  IconData _getIconData(String iconName) {
-    switch (iconName) {
-      case 'person':
-        return Icons.person;
-      case 'work':
-        return Icons.work;
-      case 'auto_awesome':
-        return Icons.auto_awesome;
-      case 'family_restroom':
-        return Icons.family_restroom;
-      case 'favorite':
-        return Icons.favorite;
-      default:
-        return Icons.category;
-    }
   }
 
   List<MapEntry<String, IconData>> _getAvailableIcons() {

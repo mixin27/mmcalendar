@@ -37,7 +37,12 @@ class _Repository implements EventsRepository {
         id: 1,
         title: 'Team call',
         eventDate: DateUtils.dateOnly(date),
+        eventTime: DateUtils.dateOnly(date).add(const Duration(hours: 10)),
+        isAllDay: false,
         category: _family,
+        recurrenceRule: const RecurrenceRule(type: RecurrenceType.daily),
+        notifications: const [NotificationSetting(minutesBefore: 15)],
+        location: 'Online',
         createdAt: DateTime(2026),
         updatedAt: DateTime(2026),
       ),
@@ -138,10 +143,33 @@ void main() {
           expect(find.byTooltip('New Event'), findsOneWidget);
         }
 
+        // The row reads like the design: icon tile, then
+        // time · category · repeat · reminder · location.
+        expect(
+          find.textContaining(RegExp('today · 1 event', caseSensitive: false)),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining(
+            RegExp('10:00 · Family · repeats daily · .*15 min · Online'),
+            findRichText: true,
+          ),
+          findsOneWidget,
+        );
+        expect(find.byIcon(Icons.family_restroom), findsOneWidget);
+
+        // The More menu follows the app style, never a PopupMenuButton.
+        expect(find.byType(PopupMenuButton<VoidCallback>), findsNothing);
         await tester.tap(find.byTooltip('More'));
         await tester.pumpAndSettle();
+        expect(find.byType(MenuItemButton), findsNWidgets(4));
         expect(find.text('Categories'), findsOneWidget);
         expect(find.text('Pick a date'), findsOneWidget);
+        // Clear puts the icon after the label (iOS pull-down); Material
+        // leads with it.
+        final label = tester.getCenter(find.text('Categories'));
+        final icon = tester.getCenter(find.byIcon(Icons.sell_outlined));
+        expect(icon.dx > label.dx, style == AppStyle.clear);
       });
 
       testWidgets('Categories edits and deletes custom ones only', (

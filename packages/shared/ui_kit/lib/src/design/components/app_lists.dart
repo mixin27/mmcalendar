@@ -94,9 +94,11 @@ class AppRow extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
+    this.subtitleSpan,
     this.icon,
     this.iconColor,
     this.leading,
+    this.leadingWidth,
     this.value,
     this.trailing,
     this.chevron = false,
@@ -128,12 +130,19 @@ class AppRow extends StatelessWidget {
   final String title;
   final String? subtitle;
 
+  /// A rich subtitle (inline icons) in the subtitle style; used instead of
+  /// [subtitle] when given.
+  final InlineSpan? subtitleSpan;
+
   /// Drawn in a coloured tile in Clear, plain in Material.
   final IconData? icon;
   final Color? iconColor;
 
   /// Replaces [icon] with any widget (a moon glyph, an avatar).
   final Widget? leading;
+
+  /// Width of the leading slot; defaults to the icon tile width.
+  final double? leadingWidth;
   final String? value;
   final Widget? trailing;
   final bool chevron;
@@ -190,7 +199,7 @@ class AppRow extends StatelessWidget {
               children: [
                 if (lead != null) ...[
                   SizedBox(
-                    width: clear ? 30 : 24,
+                    width: leadingWidth ?? (clear ? 30 : 24),
                     child: Center(child: lead),
                   ),
                   SizedBox(width: clear ? 14 : 18),
@@ -210,9 +219,9 @@ class AppRow extends StatelessWidget {
                               : null,
                         ),
                       ),
-                      if (subtitle != null)
-                        Text(
-                          subtitle!,
+                      if (subtitleSpan != null || subtitle != null)
+                        Text.rich(
+                          subtitleSpan ?? TextSpan(text: subtitle),
                           style: TextStyle(
                             fontSize: clear ? 12.5 : 14,
                             color: t.secondaryLabel,

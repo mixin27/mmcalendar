@@ -148,7 +148,7 @@ class _EventsListPageState extends State<EventsListPage>
               else
                 AppGroup(
                   label:
-                      '${DateFormat('EEEE, MMM d').format(_selectedDate)} · '
+                      '${_isSameDay(_selectedDate, DateTime.now()) ? 'Today' : DateFormat('EEEE, MMM d').format(_selectedDate)} · '
                       '$count event${count == 1 ? '' : 's'}',
                   children: [
                     for (final event in events)
@@ -460,16 +460,32 @@ class _MoreMenu extends StatelessWidget {
   final VoidCallback onCategories;
 
   @override
-  Widget build(BuildContext context) => PopupMenuButton<VoidCallback>(
-    tooltip: 'More',
-    icon: Icon(context.isClearStyle ? Icons.more_horiz : Icons.more_vert),
-    onSelected: (action) => action(),
-    itemBuilder: (context) => [
-      PopupMenuItem(value: onPickDate, child: const Text('Pick a date')),
-      PopupMenuItem(value: onToday, child: const Text('Jump to today')),
-      PopupMenuItem(value: onRefresh, child: const Text('Refresh')),
-      const PopupMenuDivider(),
-      PopupMenuItem(value: onCategories, child: const Text('Categories')),
+  Widget build(BuildContext context) => AppMenuButton(
+    groups: [
+      [
+        AppMenuAction(
+          label: 'Pick a date',
+          icon: Icons.calendar_month_outlined,
+          onSelected: onPickDate,
+        ),
+        AppMenuAction(
+          label: 'Jump to today',
+          icon: Icons.today_outlined,
+          onSelected: onToday,
+        ),
+        AppMenuAction(
+          label: 'Refresh',
+          icon: Icons.refresh_rounded,
+          onSelected: onRefresh,
+        ),
+      ],
+      [
+        AppMenuAction(
+          label: 'Categories',
+          icon: Icons.sell_outlined,
+          onSelected: onCategories,
+        ),
+      ],
     ],
   );
 }

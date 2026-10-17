@@ -9,6 +9,7 @@ import '../../domain/entities/event.dart';
 import '../bloc/user_events_bloc.dart';
 import '../bloc/user_events_event.dart';
 import '../bloc/user_events_state.dart';
+import '../widgets/category_icon.dart';
 
 class EventDetailPage extends StatefulWidget {
   final int eventId;
@@ -279,7 +280,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
       AppGroup(
         children: [
           AppRow(
-            icon: _getCategoryIcon(event.category.iconName),
+            icon: categoryIcon(event.category.iconName),
             iconColor: Color(event.category.colorCode),
             title: 'Category',
             value: event.category.name,
@@ -337,23 +338,6 @@ class _EventDetailPageState extends State<EventDetailPage> {
         ],
       ),
     ];
-  }
-
-  IconData _getCategoryIcon(String iconName) {
-    switch (iconName) {
-      case 'person':
-        return Icons.person;
-      case 'work':
-        return Icons.work;
-      case 'auto_awesome':
-        return Icons.auto_awesome;
-      case 'family_restroom':
-        return Icons.family_restroom;
-      case 'favorite':
-        return Icons.favorite;
-      default:
-        return Icons.event;
-    }
   }
 
   Color _getPriorityColor(EventPriority priority) {

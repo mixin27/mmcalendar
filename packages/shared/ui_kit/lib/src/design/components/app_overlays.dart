@@ -161,3 +161,135 @@ Future<bool> showAppConfirm({
         );
   return result ?? false;
 }
+
+/// One choice in an [AppMenuButton].
+class AppMenuAction {
+  const AppMenuAction({
+    required this.label,
+    required this.onSelected,
+    this.icon,
+    this.destructive = false,
+  });
+
+  final String label;
+  final IconData? icon;
+  final VoidCallback onSelected;
+  final bool destructive;
+}
+
+/// A "more" button whose menu follows the app style.
+///
+/// Clear: an iOS pull-down menu, label on the left and icon on the right,
+/// with a thick gap between [groups]. Material: a Material 3 menu with
+/// leading icons and a divider between [groups].
+class AppMenuButton extends StatelessWidget {
+  const AppMenuButton({
+    super.key,
+    required this.groups,
+    this.tooltip = 'More',
+    this.icon,
+  });
+
+  final List<List<AppMenuAction>> groups;
+  final String tooltip;
+
+  /// Defaults to ⋯ in Clear and ⋮ in Material.
+  final IconData? icon;
+
+  static const double _clearWidth = 250;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final clear = t.isClear;
+    return MenuAnchor(
+      style: clear
+          ? MenuStyle(
+              backgroundColor: WidgetStatePropertyAll(t.surfaceRaised),
+              surfaceTintColor: const WidgetStatePropertyAll(
+                Colors.transparent,
+              ),
+              elevation: const WidgetStatePropertyAll(16),
+              shadowColor: WidgetStatePropertyAll(
+                Colors.black.withValues(alpha: .45),
+              ),
+              padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+              shape: WidgetStatePropertyAll(
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+              ),
+            )
+          : null,
+      menuChildren: [
+        for (var g = 0; g < groups.length; g++) ...[
+          if (g > 0)
+            clear
+                ? Container(width: _clearWidth, height: 8, color: t.fill)
+                : const Divider(height: 9),
+          for (var i = 0; i < groups[g].length; i++) ...[
+            if (clear && i > 0)
+              Container(width: _clearWidth, height: .5, color: t.separator),
+            clear
+                ? _clearItem(context, groups[g][i])
+                : _materialItem(context, groups[g][i]),
+          ],
+        ],
+      ],
+      builder: (context, controller, _) => IconButton(
+        tooltip: tooltip,
+        icon: Icon(icon ?? (clear ? Icons.more_horiz : Icons.more_vert)),
+        onPressed: () =>
+            controller.isOpen ? controller.close() : controller.open(),
+      ),
+    );
+  }
+
+  Widget _clearItem(BuildContext context, AppMenuAction action) {
+    final t = context.tokens;
+    final color = action.destructive ? t.holiday : t.label;
+    return MenuItemButton(
+      onPressed: action.onSelected,
+      style: ButtonStyle(
+        minimumSize: const WidgetStatePropertyAll(Size(_clearWidth, 44)),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(horizontal: 16),
+        ),
+        shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
+        overlayColor: WidgetStatePropertyAll(t.fill),
+        foregroundColor: WidgetStatePropertyAll(color),
+        iconColor: WidgetStatePropertyAll(color),
+      ),
+      child: SizedBox(
+        width: _clearWidth - 32,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                action.label,
+                style: TextStyle(fontSize: 16, color: color),
+              ),
+            ),
+            if (action.icon != null) Icon(action.icon, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _materialItem(BuildContext context, AppMenuAction action) {
+    final color = action.destructive ? context.tokens.holiday : null;
+    return MenuItemButton(
+      onPressed: action.onSelected,
+      leadingIcon: action.icon == null ? null : Icon(action.icon),
+      style: color == null
+          ? null
+          : ButtonStyle(
+              foregroundColor: WidgetStatePropertyAll(color),
+              iconColor: WidgetStatePropertyAll(color),
+            ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 140),
+        child: Text(action.label),
+      ),
+    );
+  }
+}

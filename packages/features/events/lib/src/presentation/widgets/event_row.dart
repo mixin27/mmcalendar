@@ -7,12 +7,16 @@ import 'package:shared_core/shared_core.dart' show RoutePaths;
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 
 import '../../domain/entities/event.dart';
+import '../../domain/entities/recurrence_rule.dart';
 import '../bloc/user_events_bloc.dart';
 import '../bloc/user_events_event.dart';
+import 'category_icon.dart';
 
-/// One event in a list: a complete toggle in the category colour, the
-/// title, time · category · location, repeat and reminder marks.
-/// Tap opens it; long-press shows its actions.
+/// One event in a list, as in the design's Events screen: an icon tile in
+/// the category colour (a gray check once completed, with the title struck
+/// through), then time · category · repeat · reminder · location.
+/// Tapping the tile completes the event; tapping the row opens it;
+/// long-press shows its actions.
 class EventRow extends StatelessWidget {
   const EventRow({
     super.key,
@@ -27,20 +31,45 @@ class EventRow extends StatelessWidget {
   /// Prefix the date (search results span many days).
   final bool showDate;
 
-  Color get _color => Color(event.colorCode ?? event.category.colorCode);
+  static const _completedGray = Color(0xFF8E8E93);
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final time = event.isAllDay || event.eventTime == null
-        ? 'All day'
-        : DateFormat.jm().format(event.eventDateTime);
-    final subtitle = [
-      if (showDate) DateFormat('EEE, MMM d').format(event.eventDate),
-      time,
-      event.category.name,
-      if ((event.location ?? '').isNotEmpty) event.location!,
-    ].join(' · ');
+    final color = Color(event.effectiveColor);
+    final done = event.isCompleted;
+
+    final tile = t.isClear
+        ? Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: done ? _completedGray : color,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              done
+                  ? Icons.check_rounded
+                  : categoryIcon(event.category.iconName),
+              size: 18,
+              color: Colors.white,
+            ),
+          )
+        : Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: done ? t.fill : color.withValues(alpha: .16),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              done
+                  ? Icons.check_rounded
+                  : categoryIcon(event.category.iconName),
+              size: 22,
+              color: done ? t.secondaryLabel : color,
+            ),
+          );
 
     return GestureDetector(
       onLongPress: event.id == null
@@ -50,10 +79,11 @@ class EventRow extends StatelessWidget {
               showEventActions(context, event);
             },
       child: AppRow(
+        leadingWidth: t.isClear ? 30 : 40,
         leading: Semantics(
-          checked: event.isCompleted,
+          checked: done,
           button: true,
-          label: event.isCompleted ? 'Mark as pending' : 'Mark complete',
+          label: done ? 'Mark as pending' : 'Mark complete',
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: event.id == null
@@ -62,47 +92,92 @@ class EventRow extends StatelessWidget {
                     HapticFeedback.lightImpact();
                     toggleEventComplete(context, event);
                   },
-            child: Icon(
-              event.isCompleted
-                  ? Icons.check_circle
-                  : Icons.radio_button_unchecked,
-              size: 26,
-              color: event.isCompleted ? t.accent : _color,
-            ),
+            child: tile,
           ),
         ),
         title: event.title,
-        subtitle: subtitle,
-        completed: event.isCompleted,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (event.priority.value >= 2)
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Icon(
-                  Icons.priority_high_rounded,
-                  size: 16,
-                  color: t.holiday,
-                ),
-              ),
-            if (event.isRecurring)
-              Icon(Icons.repeat, size: 16, color: t.tertiaryLabel),
-            if (event.hasNotifications)
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Icon(
-                  Icons.notifications_none_rounded,
-                  size: 16,
-                  color: t.tertiaryLabel,
-                ),
-              ),
-          ],
-        ),
-        chevron: true,
+        subtitleSpan: _details(t),
+        completed: done,
+        chevron: showDate,
         onTap: onOpen,
       ),
     );
+  }
+
+  InlineSpan _details(AppTokens t) {
+    final parts = <InlineSpan>[
+      if (showDate)
+        TextSpan(text: DateFormat('EEE d MMM').format(event.eventDate)),
+      TextSpan(
+        text: event.isAllDay || event.eventTime == null
+            ? 'All day'
+            : DateFormat.Hm().format(event.eventDateTime),
+      ),
+      TextSpan(text: event.category.name),
+      if (event.recurrenceRule case final rule?
+          when rule.type != RecurrenceType.none)
+        TextSpan(text: _repeatText(rule)),
+      if (event.hasNotifications)
+        TextSpan(
+          children: [
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 2),
+                child: Icon(
+                  Icons.notifications_none_rounded,
+                  size: 13,
+                  color: t.secondaryLabel,
+                ),
+              ),
+            ),
+            TextSpan(text: _reminderText()),
+          ],
+        ),
+      if ((event.location ?? '').isNotEmpty) TextSpan(text: event.location),
+      if (event.priority.value >= EventPriority.high.value)
+        TextSpan(
+          text: event.priority.displayName,
+          style: TextStyle(color: t.holiday, fontWeight: FontWeight.w600),
+        ),
+    ];
+    return TextSpan(
+      children: [
+        for (var i = 0; i < parts.length; i++) ...[
+          if (i > 0) const TextSpan(text: ' · '),
+          parts[i],
+        ],
+      ],
+    );
+  }
+
+  static String _repeatText(RecurrenceRule rule) {
+    const units = {
+      RecurrenceType.daily: ('daily', 'days'),
+      RecurrenceType.weekly: ('weekly', 'weeks'),
+      RecurrenceType.monthly: ('monthly', 'months'),
+      RecurrenceType.yearly: ('yearly', 'years'),
+    };
+    final (once, plural) = units[rule.type]!;
+    return rule.interval > 1
+        ? 'repeats every ${rule.interval} $plural'
+        : 'repeats $once';
+  }
+
+  /// The earliest reminder, short ("15 min", "1 h", "1 day"), plus how many
+  /// more there are.
+  String _reminderText() {
+    final minutes = event.notifications
+        .map((n) => n.minutesBefore)
+        .reduce((a, b) => a > b ? a : b);
+    final first = switch (minutes) {
+      0 => 'at start',
+      < 60 => '$minutes min',
+      < 1440 => '${minutes ~/ 60} h',
+      _ => '${minutes ~/ 1440} day${minutes >= 2880 ? 's' : ''}',
+    };
+    final more = event.notifications.length - 1;
+    return more > 0 ? '$first +$more' : first;
   }
 }
 
