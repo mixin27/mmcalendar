@@ -176,6 +176,30 @@ class CalendarGrid extends StatelessWidget {
         data: _data(info, date, events, options),
         onTap: onTap,
       ),
+      CalendarGridStyle.tiles => TilesDayCell(
+        data: _data(info, date, events, options),
+        onTap: onTap,
+      ),
+      CalendarGridStyle.moonlight => MoonlightDayCell(
+        data: _data(info, date, events, options),
+        onTap: onTap,
+      ),
+      CalendarGridStyle.split => SplitDayCell(
+        data: _data(info, date, events, options),
+        onTap: onTap,
+      ),
+      CalendarGridStyle.poster => PosterDayCell(
+        data: _data(info, date, events, options),
+        onTap: onTap,
+      ),
+      CalendarGridStyle.moonRing => MoonRingDayCell(
+        data: _data(info, date, events, options),
+        onTap: onTap,
+      ),
+      CalendarGridStyle.astrology => AstrologyDayCell(
+        data: _data(info, date, events, options),
+        onTap: onTap,
+      ),
     };
     return Hero(tag: 'date_${date.toIso8601String()}', child: cell);
   }

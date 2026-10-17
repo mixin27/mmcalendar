@@ -28,7 +28,25 @@ enum CalendarGridStyle {
   agenda,
 
   /// A ruled table like a printed wall calendar.
-  classicPrint;
+  classicPrint,
+
+  /// Every day a small card; holidays rose, Sabbath days gold.
+  tiles,
+
+  /// Each day glows with the moon, brightest at the full moon.
+  moonlight,
+
+  /// The date and the lunar day divided by a diagonal.
+  split,
+
+  /// Big bold numbers with a coloured bar for special days.
+  poster,
+
+  /// A ring around each date that fills with the moon's light.
+  moonRing,
+
+  /// Astrological days and holidays as tags.
+  astrology;
 
   static const defaultStyle = CalendarGridStyle.detailed;
 

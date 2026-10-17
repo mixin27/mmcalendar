@@ -22,6 +22,12 @@ extension CalendarGridStyleLabel on CalendarGridStyle {
     CalendarGridStyle.moonStrip => 'Moon strip',
     CalendarGridStyle.agenda => 'Agenda',
     CalendarGridStyle.classicPrint => 'Classic print',
+    CalendarGridStyle.tiles => 'Tiles',
+    CalendarGridStyle.moonlight => 'Moonlight',
+    CalendarGridStyle.split => 'Split',
+    CalendarGridStyle.poster => 'Poster',
+    CalendarGridStyle.moonRing => 'Moon ring',
+    CalendarGridStyle.astrology => 'Astrology',
   };
 
   String get description => switch (this) {
@@ -37,6 +43,13 @@ extension CalendarGridStyleLabel on CalendarGridStyle {
     CalendarGridStyle.moonStrip => 'Tonight’s moon in every day.',
     CalendarGridStyle.agenda => 'Event titles and holidays inside the days.',
     CalendarGridStyle.classicPrint => 'A ruled table like a wall calendar.',
+    CalendarGridStyle.tiles => 'Every day a card; holidays and Sabbath tinted.',
+    CalendarGridStyle.moonlight => 'Days glow brighter toward the full moon.',
+    CalendarGridStyle.split => 'The date and the lunar day, split diagonally.',
+    CalendarGridStyle.poster => 'Big, bold numbers you can read from afar.',
+    CalendarGridStyle.moonRing =>
+      'A ring around each date fills with moonlight.',
+    CalendarGridStyle.astrology => 'Astrological days and holidays as tags.',
   };
 }
 
