@@ -76,13 +76,15 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
     Color textColor = colorScheme.onSurface;
     double opacity = 1.0;
 
-    if (widget.isSelected) {
-      backgroundColor = colorScheme.primary;
-      textColor = colorScheme.onPrimary;
-    } else if (widget.isToday) {
-      backgroundColor = colorScheme.primaryContainer;
+    // The selected day gets a soft accent tint; today keeps its outline.
+    if (widget.isToday) {
+      backgroundColor = widget.isSelected
+          ? colors.accentSoft
+          : colorScheme.primaryContainer;
       textColor = colorScheme.onPrimaryContainer;
       borderColor = colorScheme.primary;
+    } else if (widget.isSelected) {
+      backgroundColor = colors.accentSoft;
     } else if (widget.dateInfo.isFullMoon) {
       backgroundColor = colors.sabbathSoft;
       borderColor = colors.sabbath.withValues(alpha: .35);
@@ -135,15 +137,6 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
                       color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                       width: 0.5,
                     ),
-              boxShadow: widget.isSelected
-                  ? [
-                      BoxShadow(
-                        color: colorScheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
             ),
             child: Stack(
               children: [
@@ -231,28 +224,28 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
         children: [
           if (widget.showHolidays && widget.dateInfo.hasHolidays)
             _buildDot(
-              widget.isSelected || widget.isToday
+              widget.isToday
                   ? textColor.withValues(alpha: 0.8)
                   : colors.holiday,
               opacity,
             ),
           if (widget.showAnniversaryDays && widget.dateInfo.hasAnniversaryDays)
             _buildDot(
-              widget.isSelected || widget.isToday
+              widget.isToday
                   ? textColor.withValues(alpha: 0.8)
                   : colors.anniversary,
               opacity,
             ),
           if (widget.showSabbaths && widget.dateInfo.isSabbath)
             _buildDot(
-              widget.isSelected || widget.isToday
+              widget.isToday
                   ? textColor.withValues(alpha: 0.8)
                   : colors.sabbath,
               opacity,
             ),
           if (widget.showAstrology && widget.dateInfo.hasAstrologicalDays)
             _buildDot(
-              widget.isSelected || widget.isToday
+              widget.isToday
                   ? textColor.withValues(alpha: 0.8)
                   : colors.astrology,
               opacity,
@@ -453,7 +446,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 0),
             decoration: BoxDecoration(
-              color: widget.isSelected || widget.isToday
+              color: widget.isToday
                   ? textColor.withValues(alpha: 0.9)
                   : Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(6),
@@ -463,7 +456,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
               style: TextStyle(
                 fontSize: 7,
                 fontWeight: FontWeight.bold,
-                color: widget.isSelected || widget.isToday
+                color: widget.isToday
                     ? Theme.of(context).colorScheme.primary
                     : Colors.white,
                 height: 1.2,

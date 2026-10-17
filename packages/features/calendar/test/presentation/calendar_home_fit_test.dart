@@ -67,10 +67,13 @@ class _Events implements EventMarkersPort {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-CalendarDisplayConfig _config(CalendarGridStyle style) {
+CalendarDisplayConfig _config(
+  CalendarGridStyle style, {
+  Language language = Language.english,
+}) {
   final defaults = CalendarDisplayConfig.defaults();
   return CalendarDisplayConfig(
-    calendarLanguage: defaults.calendarLanguage,
+    calendarLanguage: language,
     showHolidays: true,
     showAnniversaryDays: true,
     showSabbaths: true,
@@ -93,13 +96,14 @@ Future<void> _pumpHome(
   required Size size,
   required DateTime month,
   CalendarGridStyle style = CalendarGridStyle.detailed,
+  Language language = Language.english,
 }) async {
   final getIt = GetIt.instance;
   await getIt.reset();
   getIt
     ..registerSingleton<AnalyticsPort>(_Analytics())
     ..registerSingleton<CalendarDisplayConfigPort>(
-      _DisplayConfig(_config(style)),
+      _DisplayConfig(_config(style, language: language)),
     )
     ..registerSingleton<EventMarkersPort>(_Events());
 
@@ -118,10 +122,16 @@ Future<void> _pumpHome(
 
   await tester.pumpWidget(
     MaterialApp(
-      home: Scaffold(
-        body: BlocProvider.value(value: bloc, child: const CalendarHomePage()),
-        // Stands in for the app shell's navigation bar.
-        bottomNavigationBar: const SizedBox(height: 80),
+      home: CalendarLanguageScope(
+        language: language,
+        child: Scaffold(
+          body: BlocProvider.value(
+            value: bloc,
+            child: const CalendarHomePage(),
+          ),
+          // Stands in for the app shell's navigation bar.
+          bottomNavigationBar: const SizedBox(height: 80),
+        ),
       ),
     ),
   );
@@ -191,8 +201,50 @@ void main() {
     );
     final state = bloc.state as CalendarLoaded;
     expect(state.selectedDate?.date, DateTime(2026, 10, 22));
-    expect(find.textContaining('Oct 22'), findsWidgets);
+    expect(find.textContaining('22 Oct'), findsWidgets);
   });
+
+  for (final MapEntry(key: phone, value: size) in phones.entries) {
+    for (final language in [Language.english, Language.myanmar]) {
+      testWidgets('$phone, ${language.name}: the September title fits '
+          'without "…" and the peek stays compact', (tester) async {
+        await _pumpHome(
+          tester,
+          size: size,
+          month: DateTime(2026, 9),
+          language: language,
+        );
+        final format = CalendarFormat(language);
+        final full = format.monthYear(DateTime(2026, 9));
+        final short = format.shortMonthYear(DateTime(2026, 9));
+        final title = find.text(full).evaluate().isNotEmpty
+            ? find.text(full)
+            : find.text(short);
+        expect(title, findsOneWidget);
+        // Never truncated, and never shrunk below 17 pt.
+        final text = tester.widget<Text>(title);
+        expect(text.overflow, isNot(TextOverflow.ellipsis));
+        final fullSize = text.style!.fontSize! * text.style!.height!;
+        expect(
+          tester.getSize(title).height,
+          greaterThanOrEqualTo(fullSize * 17 / 22 - .5),
+        );
+
+        final sheetTop = tester
+            .getTopLeft(
+              find
+                  .descendant(
+                    of: find.byType(DraggableScrollableSheet),
+                    matching: find.byType(ListView),
+                  )
+                  .first,
+            )
+            .dy;
+        expect(size.height - 80 - sheetTop, lessThanOrEqualTo(72));
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
 
   testWidgets('the sheet expands when dragged up', (tester) async {
     await _pumpHome(

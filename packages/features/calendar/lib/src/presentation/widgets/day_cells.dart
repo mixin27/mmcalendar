@@ -192,92 +192,92 @@ class DetailedDayCell extends StatelessWidget {
                 top: BorderSide(color: colors.separator, width: .5),
               ),
             ),
-            foregroundDecoration: data.isSelected && !data.isToday
-                ? BoxDecoration(
-                    border: Border.all(color: colors.label, width: 1.5),
-                    borderRadius: BorderRadius.circular(8),
-                  )
-                : null,
-            padding: const EdgeInsets.fromLTRB(3, 4, 3, 4),
-            child: Opacity(
-              opacity: inMonth ? 1 : .3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    height: 22,
-                    child: Row(
-                      children: [
-                        if (data.options.showWesternDates)
-                          Container(
-                            width: 22,
-                            height: 22,
-                            alignment: Alignment.center,
-                            decoration: data.isToday
-                                ? BoxDecoration(
-                                    color: colors.accent,
-                                    shape: BoxShape.circle,
-                                  )
-                                : null,
-                            child: Text(
-                              '${data.info.westernDay}',
-                              maxLines: 1,
-                              style: TextStyle(
-                                fontSize: 14,
-                                height: 1,
-                                fontWeight: FontWeight.w600,
-                                color: numberColor,
-                                fontFeatures: const [
-                                  FontFeature.tabularFigures(),
-                                ],
+            child: _SelectedTint(
+              selected: data.isSelected,
+              color: colors.accentSoft,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(3, 4, 3, 4),
+                child: Opacity(
+                  opacity: inMonth ? 1 : .3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        height: 22,
+                        child: Row(
+                          children: [
+                            if (data.options.showWesternDates)
+                              Container(
+                                width: 22,
+                                height: 22,
+                                alignment: Alignment.center,
+                                decoration: data.isToday
+                                    ? BoxDecoration(
+                                        color: colors.accent,
+                                        shape: BoxShape.circle,
+                                      )
+                                    : null,
+                                child: Text(
+                                  '${data.info.westernDay}',
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1,
+                                    fontWeight: FontWeight.w600,
+                                    color: numberColor,
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
+                            const Spacer(),
+                            if (inMonth && room >= 18 && data.showsAnniversary)
+                              _Dot(color: colors.anniversary),
+                            if (inMonth && room >= 24 && data.showsAstrology)
+                              _Dot(color: colors.astrology),
+                            if (inMonth && room >= 12) ...[
+                              const SizedBox(width: 2),
+                              MoonGlyph(state: data.moon, size: 10),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (lunar)
+                        Text(
+                          data.lunarLabel,
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.fade,
+                          style: _small(
+                            context,
+                            data.showsSabbath
+                                ? colors.sabbath
+                                : colors.secondaryLabel,
+                            weight: data.showsSabbath ? FontWeight.w700 : null,
                           ),
-                        const Spacer(),
-                        if (inMonth && room >= 18 && data.showsAnniversary)
-                          _Dot(color: colors.anniversary),
-                        if (inMonth && room >= 24 && data.showsAstrology)
-                          _Dot(color: colors.astrology),
-                        if (inMonth && room >= 12) ...[
-                          const SizedBox(width: 2),
-                          MoonGlyph(state: data.moon, size: 10),
-                        ],
-                      ],
-                    ),
+                        ),
+                      if (holiday)
+                        Text(
+                          data.holidayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: _small(
+                            context,
+                            colors.holiday,
+                            weight: FontWeight.w600,
+                          ),
+                        ),
+                      if (eventBar)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: eventTitle
+                              ? _EventChip(events: data.events, colors: colors)
+                              : _EventBars(events: data.events, colors: colors),
+                        ),
+                    ],
                   ),
-                  if (lunar)
-                    Text(
-                      data.lunarLabel,
-                      maxLines: 1,
-                      softWrap: false,
-                      overflow: TextOverflow.fade,
-                      style: _small(
-                        context,
-                        data.showsSabbath
-                            ? colors.sabbath
-                            : colors.secondaryLabel,
-                        weight: data.showsSabbath ? FontWeight.w700 : null,
-                      ),
-                    ),
-                  if (holiday)
-                    Text(
-                      data.holidayName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: _small(
-                        context,
-                        colors.holiday,
-                        weight: FontWeight.w600,
-                      ),
-                    ),
-                  if (eventBar)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: eventTitle
-                          ? _EventChip(events: data.events, colors: colors)
-                          : _EventBars(events: data.events, colors: colors),
-                    ),
-                ],
+                ),
               ),
             ),
           );
@@ -314,88 +314,91 @@ class CleanDayCell extends StatelessWidget {
           if (lunar) budget -= _labelLine * scale;
           final marks = inMonth && budget >= 6;
 
-          final filled = data.isToday || data.isSelected;
+          final filled = data.isToday;
           final numberColor = filled
-              ? (data.isToday
-                    ? colors.onAccent
-                    : Theme.of(context).colorScheme.surface)
+              ? colors.onAccent
               : (data.showsHoliday || data.isSunday)
               ? colors.holiday
               : colors.label;
 
-          return Opacity(
-            opacity: inMonth ? 1 : .28,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 3),
-              child: Column(
-                children: [
-                  Container(
-                    width: disc,
-                    height: disc,
-                    alignment: Alignment.center,
-                    decoration: filled
-                        ? BoxDecoration(
-                            color: data.isToday ? colors.accent : colors.label,
-                            shape: BoxShape.circle,
-                          )
-                        : null,
-                    child: data.options.showWesternDates
-                        ? Text(
-                            '${data.info.westernDay}',
-                            maxLines: 1,
-                            style: TextStyle(
-                              fontSize: disc * .53,
-                              height: 1,
-                              fontWeight: filled
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                              color: numberColor,
-                              fontFeatures: const [
-                                FontFeature.tabularFigures(),
-                              ],
-                            ),
-                          )
-                        : null,
-                  ),
-                  if (lunar)
-                    SizedBox(
-                      height: _labelLine * scale,
-                      child: Center(
-                        child: data.isMoonDay
-                            ? MoonGlyph(state: data.moon, size: 10)
-                            : Text(
-                                data.lunarLabel,
-                                maxLines: 1,
-                                softWrap: false,
-                                overflow: TextOverflow.fade,
-                                style: _small(
-                                  context,
-                                  data.showsSabbath
-                                      ? colors.sabbath
-                                      : colors.tertiaryLabel,
-                                  weight: data.showsSabbath
-                                      ? FontWeight.w700
-                                      : null,
-                                ),
+          return _SelectedTint(
+            selected: data.isSelected,
+            color: colors.accentSoft,
+            radius: 10,
+            child: Opacity(
+              opacity: inMonth ? 1 : .28,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 3),
+                child: Column(
+                  children: [
+                    Container(
+                      width: disc,
+                      height: disc,
+                      alignment: Alignment.center,
+                      decoration: filled
+                          ? BoxDecoration(
+                              color: colors.accent,
+                              shape: BoxShape.circle,
+                            )
+                          : null,
+                      child: data.options.showWesternDates
+                          ? Text(
+                              '${data.info.westernDay}',
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: disc * .53,
+                                height: 1,
+                                fontWeight: filled
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: numberColor,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
                               ),
-                      ),
+                            )
+                          : null,
                     ),
-                  if (marks)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 1),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (data.events.isNotEmpty)
-                            _Dot(color: colors.accent),
-                          if (data.showsAnniversary)
-                            _Dot(color: colors.anniversary),
-                          if (data.showsAstrology)
-                            _Dot(color: colors.astrology),
-                        ],
+                    if (lunar)
+                      SizedBox(
+                        height: _labelLine * scale,
+                        child: Center(
+                          child: data.isMoonDay
+                              ? MoonGlyph(state: data.moon, size: 10)
+                              : Text(
+                                  data.lunarLabel,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.fade,
+                                  style: _small(
+                                    context,
+                                    data.showsSabbath
+                                        ? colors.sabbath
+                                        : colors.tertiaryLabel,
+                                    weight: data.showsSabbath
+                                        ? FontWeight.w700
+                                        : null,
+                                  ),
+                                ),
+                        ),
                       ),
-                    ),
-                ],
+                    if (marks)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (data.events.isNotEmpty)
+                              _Dot(color: colors.accent),
+                            if (data.showsAnniversary)
+                              _Dot(color: colors.anniversary),
+                            if (data.showsAstrology)
+                              _Dot(color: colors.astrology),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           );
@@ -467,4 +470,31 @@ class _EventChip extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The selected day: a soft accent tint over the whole cell, replacing
+/// outlines and filled discs. Today keeps its solid accent circle.
+class _SelectedTint extends StatelessWidget {
+  const _SelectedTint({
+    required this.selected,
+    required this.color,
+    required this.child,
+    this.radius = 8,
+  });
+
+  final bool selected;
+  final Color color;
+  final double radius;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => selected
+      ? DecoratedBox(
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          child: child,
+        )
+      : child;
 }

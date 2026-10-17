@@ -5,8 +5,9 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 /// One compact row above the grid: the month title (tap for the month
-/// picker) with the Myanmar months and year beneath, then Today, previous /
-/// next and Calendar Studio. Swiping the grid also changes the month.
+/// picker, long-press for today) with the Myanmar months and year beneath,
+/// then previous / next and Calendar Studio. Everything here is calendar
+/// data, so it follows [language]. Swiping the grid also changes the month.
 class CalendarHeader extends StatelessWidget {
   final DateTime currentMonth;
   final List<CompleteDate>? monthDates;
@@ -52,9 +53,11 @@ class CalendarHeader extends StatelessWidget {
         : myanmarYearLabel;
     final l10n = AppLocalizations.of(context);
     final colors = context.colorScheme;
+    final format = CalendarFormat(language);
+    final myanmarScript = language != Language.english;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 4, 4),
+      padding: const EdgeInsets.fromLTRB(8, 2, 6, 2),
       child: Row(
         children: [
           Expanded(
@@ -63,39 +66,27 @@ class CalendarHeader extends StatelessWidget {
               label: l10n?.calendarChooseMonth ?? 'Choose month',
               child: InkWell(
                 onTap: onMonthYearTap,
+                // Long-press jumps back to today.
+                onLongPress: onToday,
                 borderRadius: BorderRadius.circular(10),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
-                    vertical: 4,
+                    vertical: 2,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              MaterialLocalizations.of(
-                                context,
-                              ).formatMonthYear(currentMonth),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -.3,
-                                height: 1.25,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            size: 22,
-                            color: colors.primary,
-                          ),
-                        ],
+                      LayoutBuilder(
+                        builder: (context, box) => _Title(
+                          // Narrow phones get "Nov 2026" rather than "…".
+                          text: box.maxWidth < 220
+                              ? format.shortMonthYear(currentMonth)
+                              : format.monthYear(currentMonth),
+                          myanmarScript: myanmarScript,
+                          arrowColor: colors.primary,
+                        ),
                       ),
                       Text(
                         '$monthLabel · $yearLabel',
@@ -112,29 +103,11 @@ class CalendarHeader extends StatelessWidget {
               ),
             ),
           ),
-          if (onToday != null)
-            TextButton(
-              onPressed: onToday,
-              style: TextButton.styleFrom(
-                visualDensity: VisualDensity.compact,
-                backgroundColor: colors.onSurface.withValues(alpha: .06),
-                shape: const StadiumBorder(),
-              ),
-              child: Text(l10n?.today ?? 'Today'),
-            ),
-          IconButton(
-            icon: const Icon(Icons.chevron_left_rounded),
-            onPressed: onPreviousMonth,
-            color: colors.primary,
-            visualDensity: VisualDensity.compact,
-            tooltip: l10n?.previous_month ?? 'Previous Month',
-          ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right_rounded),
-            onPressed: onNextMonth,
-            color: colors.primary,
-            visualDensity: VisualDensity.compact,
-            tooltip: l10n?.next_month ?? 'Next Month',
+          _MonthStepper(
+            onPrevious: onPreviousMonth,
+            onNext: onNextMonth,
+            previousLabel: l10n?.previous_month ?? 'Previous Month',
+            nextLabel: l10n?.next_month ?? 'Next Month',
           ),
           if (onStudioTap != null)
             IconButton(
@@ -152,7 +125,11 @@ class CalendarHeader extends StatelessWidget {
   String _buildMyanmarMonthLabel(List<CompleteDate> dates) {
     final months = <String>[];
     for (final date in dates) {
-      final month = MyanmarCalendar.formatMyanmar(date.myanmar, pattern: '&M');
+      final month = MyanmarCalendar.formatMyanmar(
+        date.myanmar,
+        pattern: '&M',
+        language: language,
+      );
       if (!months.contains(month)) {
         months.add(month);
       }
@@ -170,7 +147,11 @@ class CalendarHeader extends StatelessWidget {
   String _buildMyanmarYearLabel(List<CompleteDate> dates) {
     final years = <String>[];
     for (final date in dates) {
-      final year = MyanmarCalendar.formatMyanmar(date.myanmar, pattern: '&y');
+      final year = MyanmarCalendar.formatMyanmar(
+        date.myanmar,
+        pattern: '&y',
+        language: language,
+      );
       if (!years.contains(year)) {
         years.add(year);
       }
@@ -211,5 +192,86 @@ class CalendarHeader extends StatelessWidget {
       language: Language.shan,
     );
     return '$firstYear - $lastYear';
+  }
+}
+
+/// The month title, shrinking to fit before it ever truncates.
+class _Title extends StatelessWidget {
+  const _Title({
+    required this.text,
+    required this.myanmarScript,
+    required this.arrowColor,
+  });
+
+  final String text;
+  final bool myanmarScript;
+  final Color arrowColor;
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    alignment: AlignmentDirectional.centerStart,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          text,
+          maxLines: 1,
+          style: context.textTheme.titleLarge?.copyWith(
+            // Myanmar script is taller; a smaller size keeps the row height.
+            fontSize: myanmarScript ? 19 : 22,
+            fontWeight: myanmarScript ? FontWeight.w700 : FontWeight.w800,
+            letterSpacing: myanmarScript ? 0 : -.3,
+            height: myanmarScript ? 1.45 : 1.25,
+          ),
+        ),
+        Icon(Icons.keyboard_arrow_down_rounded, size: 22, color: arrowColor),
+      ],
+    ),
+  );
+}
+
+/// Previous and next month as one compact control.
+class _MonthStepper extends StatelessWidget {
+  const _MonthStepper({
+    required this.onPrevious,
+    required this.onNext,
+    required this.previousLabel,
+    required this.nextLabel,
+  });
+
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+  final String previousLabel;
+  final String nextLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    Widget button(IconData icon, VoidCallback onTap, String label) => Tooltip(
+      message: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: SizedBox(
+          width: 36,
+          height: 34,
+          child: Icon(icon, size: 22, color: t.accent),
+        ),
+      ),
+    );
+    return Container(
+      decoration: BoxDecoration(
+        color: t.isClear ? t.fill : null,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          button(Icons.chevron_left_rounded, onPrevious, previousLabel),
+          button(Icons.chevron_right_rounded, onNext, nextLabel),
+        ],
+      ),
+    );
   }
 }

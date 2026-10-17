@@ -8,6 +8,8 @@ import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart' as material_ui;
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
+    show MyanmarCalendar;
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
@@ -172,7 +174,14 @@ class _AppContentState extends State<_AppContent> {
                   maxScaleFactor: maxTextScale,
                 ),
               ),
-              child: child ?? const SizedBox.shrink(),
+              // Calendar data follows the calendar language; the interface
+              // follows [locale].
+              child: CalendarLanguageScope(
+                language:
+                    settings?.calendarLanguage ??
+                    MyanmarCalendar.currentLanguage,
+                child: child ?? const SizedBox.shrink(),
+              ),
             );
             return _AppStartupGuard(child: content);
           },

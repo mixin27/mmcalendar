@@ -44,7 +44,7 @@ class HomeDaySheet extends StatefulWidget {
 
   /// Collapsed height in logical pixels for the current text scale.
   static double peekHeight(BuildContext context) =>
-      98 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.3);
+      66 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.3);
 
   @override
   State<HomeDaySheet> createState() => _HomeDaySheetState();
@@ -116,7 +116,7 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
                       Container(
                         width: 36,
                         height: 5,
-                        margin: const EdgeInsets.only(top: 7, bottom: 9),
+                        margin: const EdgeInsets.only(top: 6, bottom: 6),
                         decoration: BoxDecoration(
                           color: colors.tertiaryLabel,
                           borderRadius: BorderRadius.circular(3),
@@ -132,7 +132,8 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
+              _DayBadges(day: widget.day, options: widget.options),
+              const SizedBox(height: 14),
               AppGroup(
                 label: l10n?.events ?? 'Events',
                 children: [
@@ -207,6 +208,9 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
   }
 }
 
+/// The peek: the moon, then the date and the Myanmar date on two short
+/// lines, and the event count. Calendar data follows the calendar language;
+/// "Today" and "in 3 days" are interface words.
 class _Summary extends StatelessWidget {
   const _Summary({
     required this.day,
@@ -223,13 +227,12 @@ class _Summary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = CalendarColors.of(context);
-    final language = MyanmarCalendar.currentLanguage;
+    final format = context.calendarFormat;
     final date = DateTime(day.westernYear, day.westernMonth, day.westernDay);
     final moon = MoonPhaseState.evening(date);
     final days = DateUtils.dateOnly(
       date,
     ).difference(DateUtils.dateOnly(today)).inDays;
-    final localizations = MaterialLocalizations.of(context);
     final l10n = AppLocalizations.of(context);
     final when = switch (days) {
       0 => '${l10n?.today ?? 'Today'} · ',
@@ -240,72 +243,52 @@ class _Summary extends StatelessWidget {
     final distance = days.abs() > 1
         ? ' · ${days > 0 ? l10n?.calendarInDays(days) ?? 'in $days days' : l10n?.calendarDaysAgo(-days) ?? '${-days} days ago'}'
         : '';
-    final badges = <Widget>[
-      if (options.showHolidays)
-        for (final holiday in day.allHolidays)
-          _Badge(
-            text: TranslationService.translateTo(holiday, language),
-            color: colors.holiday,
-          ),
-      if (options.showSabbaths && day.isSabbath)
-        _Badge(
-          text: TranslationService.translateTo('Sabbath', language),
-          color: colors.sabbath,
-        ),
-      if (options.showAstrology)
-        for (final astro in day.astrologicalDays)
-          _Badge(
-            text: TranslationService.translateTo(astro, language),
-            color: colors.secondaryLabel,
-          ),
-    ];
+    final marker = options.showHolidays && day.allHolidays.isNotEmpty
+        ? (format.translate(day.allHolidays.first), colors.holiday)
+        : options.showSabbaths && day.isSabbath
+        ? (format.translate('Sabbath'), colors.sabbath)
+        : null;
 
     return Row(
       children: [
-        MoonGlyph(state: moon, size: 36),
+        MoonGlyph(state: moon, size: 28),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$when${localizations.formatShortMonthDay(date)}$distance · '
-                '${l10n?.dayDetailsPercentLit(translateNumbers('${moon.percentLit}')) ?? '${translateNumbers('${moon.percentLit}')}% lit'}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12, color: colors.secondaryLabel),
-              ),
-              Text(
-                MyanmarCalendar.formatMyanmar(
-                  day.myanmar,
-                  pattern: '&M &P &f',
-                  language: language,
-                ),
+                '$when${format.shortDate(date)}$distance',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 16,
-                  height: 1.55,
+                  fontSize: 12,
+                  height: 1.35,
+                  color: colors.secondaryLabel,
+                ),
+              ),
+              Text(
+                format.myanmar(day.myanmar, '&M &P &f'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.45,
                   fontWeight: FontWeight.w700,
                   color: colors.label,
                 ),
               ),
-              if (badges.isNotEmpty)
-                SizedBox(
-                  height: 22,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    physics: const ClampingScrollPhysics(),
-                    itemCount: badges.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 5),
-                    itemBuilder: (_, i) => badges[i],
-                  ),
-                ),
             ],
           ),
         ),
-        if (eventCount > 0) ...[
+        if (marker case (final text, final color)) ...[
           const SizedBox(width: 8),
+          Flexible(
+            child: _Badge(text: text, color: color),
+          ),
+        ],
+        if (eventCount > 0) ...[
+          const SizedBox(width: 6),
           _Badge(
             text:
                 l10n?.calendarEventCount(eventCount) ??
@@ -314,6 +297,43 @@ class _Summary extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Every holiday, Sabbath and astrological day, shown once the sheet opens.
+class _DayBadges extends StatelessWidget {
+  const _DayBadges({required this.day, required this.options});
+
+  final CompleteDate day;
+  final DayCellOptions options;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalendarColors.of(context);
+    final format = context.calendarFormat;
+    final date = DateTime(day.westernYear, day.westernMonth, day.westernDay);
+    final moon = MoonPhaseState.evening(date);
+    final l10n = AppLocalizations.of(context);
+    final badges = <Widget>[
+      _Badge(
+        text:
+            l10n?.dayDetailsPercentLit(format.number(moon.percentLit)) ??
+            '${format.number(moon.percentLit)}% lit',
+        color: colors.secondaryLabel,
+      ),
+      if (options.showHolidays)
+        for (final holiday in day.allHolidays)
+          _Badge(text: format.translate(holiday), color: colors.holiday),
+      if (options.showSabbaths && day.isSabbath)
+        _Badge(text: format.translate('Sabbath'), color: colors.sabbath),
+      if (options.showAstrology)
+        for (final astro in day.astrologicalDays)
+          _Badge(text: format.translate(astro), color: colors.secondaryLabel),
+    ];
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Wrap(spacing: 5, runSpacing: 5, children: badges),
     );
   }
 }

@@ -18,7 +18,6 @@ import '../widgets/calendar_grid.dart';
 import '../widgets/day_cells.dart';
 import '../widgets/day_details_content.dart';
 import '../widgets/home_day_sheet.dart';
-import '../../utils/utils.dart';
 
 // import '../widgets/astrology_expandable_card.dart';
 
@@ -375,16 +374,19 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                 rows: rows,
               );
               final gridHeight = rowHeight * rows;
-              final peekFraction =
-                  ((area.maxHeight - gridHeight) / area.maxHeight).clamp(
-                    .05,
-                    .9,
-                  );
+              // The sheet stays at its peek; when the grid hits its height
+              // cap on tall phones, the spare space goes around the grid
+              // instead of making the sheet taller.
+              final peekFraction = (peek / area.maxHeight).clamp(.05, .9);
+              final gridTop = ((area.maxHeight - peek - gridHeight) / 2).clamp(
+                0.0,
+                double.infinity,
+              );
 
               return Stack(
                 children: [
                   Positioned(
-                    top: 0,
+                    top: gridTop,
                     left: 0,
                     right: 0,
                     height: gridHeight,
@@ -829,7 +831,8 @@ class _MonthYearPickerBottomSheetState
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final selectedLabel = '${_getMonthName(selectedMonth)} $selectedYear';
+    final selectedLabel =
+        '${_getMonthName(selectedMonth)} ${context.calendarFormat.number(selectedYear)}';
     final l10n = AppLocalizations.of(context);
 
     return SafeArea(
@@ -1034,7 +1037,5 @@ class _MonthYearPickerBottomSheetState
     );
   }
 
-  String _getMonthName(int month) {
-    return getShortWesternMonthName(month, MyanmarCalendar.currentLanguage);
-  }
+  String _getMonthName(int month) => context.calendarFormat.shortMonth(month);
 }
