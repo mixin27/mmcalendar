@@ -2,13 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// App type: Inter for Latin text and numbers with Padauk for Myanmar,
-/// both bundled (SIL Open Font License). Line heights leave room for
+/// App type: Inter for Latin text and numbers with Noto Sans Myanmar for
+/// Myanmar, both bundled (SIL Open Font License). Line heights leave room for
 /// Myanmar marks stacked above and below.
 class AppTextStyles {
   static const package = 'shared_ui_kit';
   static const family = 'Inter';
-  static const myanmarFamily = 'Padauk';
+  static const myanmarFamily = 'Noto Sans Myanmar';
 
   /// Fully qualified names, for code that builds TextStyles without
   /// `package:` (e.g. ThemeData.fontFamily).
@@ -59,7 +59,10 @@ class AppTextStyles {
     LicenseRegistry.addLicense(() async* {
       for (final (name, path) in const [
         ('Inter', 'packages/$package/assets/fonts/inter/OFL.txt'),
-        ('Padauk', 'packages/$package/assets/fonts/padauk/OFL.txt'),
+        (
+          'Noto Sans Myanmar',
+          'packages/$package/assets/fonts/notosansmyanmar/OFL.txt',
+        ),
       ]) {
         yield LicenseEntryWithLineBreaks([
           name,

@@ -20,7 +20,7 @@ void main() {
       CalendarStudioTokens.light,
       chrome: CalendarStudioChrome.clear,
       fontFamily: 'Inter',
-      fontFamilyFallback: const ['Padauk'],
+      fontFamilyFallback: const ['Noto Sans Myanmar'],
     );
     expect(clear.appBarTheme.centerTitle, isTrue);
     expect(

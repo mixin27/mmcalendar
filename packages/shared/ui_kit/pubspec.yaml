@@ -27,7 +27,7 @@ dev_dependencies:
 
 flutter:
   assets:
-    - assets/fonts/padauk/OFL.txt
+    - assets/fonts/notosansmyanmar/OFL.txt
     - assets/fonts/inter/OFL.txt
   fonts:
     # Latin text and numbers. One variable file: Flutter maps FontWeight to
@@ -35,9 +35,14 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/inter/Inter-Variable.ttf
-    # Myanmar text (SIL Padauk), used as Inter's fallback.
-    - family: Padauk
+    # Myanmar text, used as Inter's fallback. No Medium file exists, so
+    # SemiBold also serves w500: Myanmar labels stay readable at that weight.
+    - family: Noto Sans Myanmar
       fonts:
-        - asset: assets/fonts/padauk/Padauk-Regular.ttf
-        - asset: assets/fonts/padauk/Padauk-Bold.ttf
+        - asset: assets/fonts/notosansmyanmar/NotoSansMyanmar-Regular.ttf
+        - asset: assets/fonts/notosansmyanmar/NotoSansMyanmar-SemiBold.ttf
+          weight: 500
+        - asset: assets/fonts/notosansmyanmar/NotoSansMyanmar-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/notosansmyanmar/NotoSansMyanmar-Bold.ttf
           weight: 700
