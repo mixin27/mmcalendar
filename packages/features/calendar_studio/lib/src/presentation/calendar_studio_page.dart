@@ -2014,6 +2014,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: DropdownButtonFormField<int>(
+                              isExpanded: true,
                               initialValue: draft.month,
                               decoration: const InputDecoration(
                                 labelText: 'From',
@@ -2254,6 +2255,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: DropdownButtonFormField<int>(
+                            isExpanded: true,
                             key: ValueKey('settings-month-${draft.month}'),
                             initialValue: draft.month,
                             decoration: const InputDecoration(
