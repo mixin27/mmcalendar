@@ -1,0 +1,473 @@
+<title>Calendar Grid Themes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Myanmar:wght@400;600;700&family=Crimson+Pro:wght@500;700&family=Libre+Caslon+Text:wght@400;700&family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Bitter:wght@600;800&family=Spectral:wght@500;700&family=Newsreader:opsz,wght@6..72,500;6..72,700&family=Lora:wght@600;700&family=Petrona:wght@600;800&family=Sora:wght@500;700&family=Cormorant+Garamond:wght@600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a review board of twelve grid themes. Each theme is shown in a real-size phone: the theme paints the header, weekday row and grid; the day sheet and tab bar keep the app's own colours. Board chrome follows the viewer's theme; the phones follow the board's Light/Dark switch. */
+:root{
+  --board:#E9EAEE; --board-2:#F6F6F9; --ink:#111216; --ink-2:#5D5F6A; --line:rgba(17,18,22,.13); --pick:#2F5BEA;
+  --f:'Inter','Noto Sans Myanmar','Myanmar Text',system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--board:#0C0C0F;--board-2:#16161A;--ink:#F1F1F4;--ink-2:#A2A3AD;--line:rgba(241,241,244,.14);--pick:#6E92FF;color-scheme:dark}}
+:root[data-theme="dark"]{--board:#0C0C0F;--board-2:#16161A;--ink:#F1F1F4;--ink-2:#A2A3AD;--line:rgba(241,241,244,.14);--pick:#6E92FF;color-scheme:dark}
+
+/* App tokens (Clear palette). The sheet and tab bar always use these. */
+.app{
+  --bg:#F2F2F7; --surface:#FFFFFF; --fill:rgba(118,118,128,.12); --sep:rgba(60,60,67,.16);
+  --label:#0A0A0F; --label-2:#6B6B73; --label-3:#A1A1A8;
+  --accent:#2F5BEA; --accent-soft:rgba(47,91,234,.12); --on-accent:#FFFFFF;
+  --holiday:#E5383B; --holiday-soft:rgba(229,56,59,.09);
+  --moon:#F2A900; --sabbath:#B7700B; --sabbath-soft:rgba(242,169,0,.14);
+  --bar:rgba(249,249,251,.92); --moonshade:rgba(118,118,128,.20); --moonrim:rgba(60,60,67,.22);
+  --rule:rgba(60,60,67,.22); --num:var(--f);
+  background:var(--bg); color:var(--label); font-family:var(--f);
+}
+.app.dark{
+  --bg:#000000; --surface:#1C1C1E; --fill:rgba(118,118,128,.26); --sep:rgba(84,84,88,.62);
+  --label:#F5F5F7; --label-2:#A1A1A8; --label-3:#6C6C72;
+  --accent:#5B83FF; --accent-soft:rgba(91,131,255,.22); --on-accent:#FFFFFF;
+  --holiday:#FF5A5F; --holiday-soft:rgba(255,90,95,.14);
+  --moon:#FFC530; --sabbath:#FFB840; --sabbath-soft:rgba(255,184,64,.16);
+  --bar:rgba(22,22,24,.92); --moonshade:rgba(255,255,255,.10); --moonrim:rgba(255,255,255,.20);
+  --rule:rgba(255,255,255,.18);
+}
+.app.md{ --accent-soft:rgba(47,91,234,.14); --bg:#F7F8FC; }
+.app.md.dark{ --bg:#111318; --surface:#1B1E25; --accent-soft:rgba(91,131,255,.24); }
+
+/* A theme sets nine base colours inline; everything else derives from them. */
+.themed{
+  --accent-soft:color-mix(in srgb,var(--accent) 15%,transparent);
+  --holiday-soft:color-mix(in srgb,var(--holiday) 11%,transparent);
+  --sabbath-soft:color-mix(in srgb,var(--moon) 18%,transparent);
+  --fill:color-mix(in srgb,var(--label) 8%,transparent);
+  --sep:color-mix(in srgb,var(--label) 15%,transparent);
+  --rule:color-mix(in srgb,var(--label) 24%,transparent);
+  --label-3:color-mix(in srgb,var(--label) 45%,var(--bg));
+  --moonshade:color-mix(in srgb,var(--label) 14%,transparent);
+  --moonrim:color-mix(in srgb,var(--label) 22%,transparent);
+  position:relative; background:var(--bg); color:var(--label); display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;
+}
+.themed .motif{position:absolute;top:30px;right:-14px;width:118px;height:118px;color:var(--accent);opacity:.17;pointer-events:none;z-index:0}
+.themed>*:not(.motif){position:relative;z-index:1}
+.themed .dn,.themed .hd .ti{font-family:var(--num)}
+
+*{box-sizing:border-box}
+body{background:var(--board);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-inline:clamp(16px,4vw,48px);padding-block:36px 96px;margin:0}
+.wrap{max-width:1500px;margin:0 auto;display:grid;gap:28px}
+h1{font-weight:800;font-size:clamp(30px,4vw,46px);line-height:1.08;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.intro{max-width:76ch;margin:8px 0 0;color:var(--ink-2)}
+.bar{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--board-2);box-shadow:inset 0 0 0 1px var(--line)}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ctl>span{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+.seg{display:inline-flex;flex-wrap:wrap;padding:2px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line)}
+.seg button{border:0;background:transparent;color:inherit;font:600 13px var(--f);padding:5px 11px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--board)}
+button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2)}
+.legend b{color:var(--ink);font-weight:600}
+
+.set{display:grid;gap:18px}
+.set>h2{margin:0;font-size:22px;letter-spacing:-.01em}
+.set>p{margin:0;max-width:72ch;color:var(--ink-2)}
+.board{display:flex;flex-wrap:wrap;gap:40px 28px;align-items:flex-start}
+.card{flex:none;width:var(--pw);max-width:100%;display:grid;gap:10px;min-width:0}
+.head{display:flex;gap:10px;align-items:center}
+.head h3{font-size:17px;margin:0;font-weight:700;letter-spacing:-.01em;flex:1;min-width:0}
+.sw{display:flex;gap:4px}
+.sw i{width:16px;height:16px;border-radius:5px;display:block;box-shadow:inset 0 0 0 1px var(--line)}
+.desc{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5;min-height:4.5em}
+.meta{margin:0;font-size:12px;color:var(--ink-2)}
+.meta b{color:var(--ink);font-weight:600}
+.picks{display:flex;gap:8px;flex-wrap:wrap}
+.pk-btn{border:0;font:600 13px var(--f);padding:7px 12px;border-radius:999px;cursor:pointer;color:inherit;background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.pk-btn[aria-pressed="true"]{background:var(--pick);color:#fff;box-shadow:none}
+
+/* ---------- phone ---------- */
+.phone{width:100%;padding:6px;border-radius:42px;background:#0a0a0c;box-shadow:0 24px 46px -24px rgba(0,0,0,.55)}
+.scr{position:relative;height:var(--ph);border-radius:36px;overflow:hidden;display:flex;flex-direction:column;font-size:14px;line-height:1.4}
+.status{height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:6px 26px 0;font-size:13px;font-weight:600}
+.hd{height:58px;flex:none;display:flex;align-items:center;gap:6px;padding:0 10px 0 16px}
+.hd .t{flex:1;min-width:0}
+.hd .ti{font-weight:800;font-size:22px;line-height:1.2;letter-spacing:-.01em;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.hd .ti.my{font-size:19px;letter-spacing:0;line-height:1.5;font-weight:700}
+.hd .ti svg{color:var(--accent);flex:none}
+.hd .su{font-size:12px;color:var(--label-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
+.pn{display:inline-flex;border-radius:10px;background:var(--fill);color:var(--accent)}
+.pn span{width:32px;height:30px;display:grid;place-items:center}
+.ib{width:36px;height:36px;display:grid;place-items:center;color:var(--accent)}
+.md .hd .ti{font-weight:700}
+.md .pn{background:transparent;gap:2px}
+.wds{display:grid;grid-template-columns:repeat(7,1fr);padding:0 6px;height:22px;flex:none;align-items:center;font-size:11px;font-weight:600;color:var(--label-2);text-align:center}
+.wds .sun{color:var(--holiday)}
+.wdsx{padding:0 10px}
+.gridwrap{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-bottom:4px}
+.g{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:var(--rh);padding:0 6px}
+.c{position:relative;min-width:0;overflow:hidden}
+.c.out{opacity:.3}
+.tnum{font-variant-numeric:tabular-nums}
+.sheet{flex:none;height:64px;border-radius:18px 18px 0 0;background:var(--surface);box-shadow:0 -6px 18px -12px rgba(0,0,0,.35);display:flex;flex-direction:column}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--label-3);opacity:.6;margin:6px auto 0}
+.pkrow{flex:1;display:flex;align-items:center;gap:10px;padding:0 16px;min-width:0}
+.pkrow .tx{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px}
+.pkrow .tx b{font-weight:700}
+.pkrow .when{flex:none;font-size:12px;color:var(--label-2)}
+.tabs{flex:none;height:74px;display:flex;justify-content:space-around;padding:6px 6px 0;background:var(--bar);border-top:.5px solid var(--sep)}
+.tab{display:grid;justify-items:center;gap:2px;font-size:10px;font-weight:600;color:var(--label-3);width:56px}
+.tab.on{color:var(--accent)}
+.md .tabs{border-top:0;height:78px;padding-top:10px}
+.md .tab{gap:4px;font-size:11px;color:var(--label-2)}
+.md .tab .pill{width:52px;height:28px;border-radius:14px;display:grid;place-items:center}
+.md .tab.on{color:var(--label)}
+.md .tab.on .pill{background:var(--accent-soft);color:var(--accent)}
+.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.i.s{width:18px;height:18px}
+.moon{display:block;flex:none}
+
+/* shared cell states */
+.c.sel::before{content:"";position:absolute;inset:1px;border-radius:9px;background:var(--accent-soft);z-index:0}
+.c>*{position:relative;z-index:1}
+.dn{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:11px;font-weight:700;font-size:13.5px;padding:0 3px}
+.c.today .dn{background:var(--accent);color:var(--on-accent)}
+.c.sun .dn,.c.hol .dn{color:var(--holiday)}
+.c.today.sun .dn,.c.today.hol .dn{color:var(--on-accent)}
+
+/* Detailed */
+.d1 .c{padding:3px 3px 2px;display:flex;flex-direction:column;gap:1px;border-radius:9px}
+.d1 .c.hol{background:var(--holiday-soft)}
+.d1 .top{display:flex;justify-content:space-between;align-items:center;height:22px}
+.d1 .lu{font-size:9.5px;line-height:1.5;color:var(--label-2);white-space:nowrap;overflow:hidden;padding-left:2px}
+.d1 .lu.s{color:var(--sabbath);font-weight:700}
+.d1 .hn{font-size:9px;line-height:1.5;color:var(--holiday);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:2px}
+.d1 .ev{margin-top:auto;font-size:9px;line-height:1.35;font-weight:600;padding:1px 4px;border-radius:4px;background:var(--accent-soft);color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d1 .evb{margin-top:auto;height:3px;border-radius:2px;background:var(--accent);width:60%;margin-left:3px}
+
+/* Tiles */
+.d7 .g{gap:3px;padding:0 8px}
+.d7 .c{border-radius:10px;background:var(--surface);padding:4px 4px 3px;display:flex;flex-direction:column;justify-content:space-between}
+.d7 .c.out{background:transparent}
+.d7 .c.hol{background:var(--holiday-soft)}
+.d7 .c.sab:not(.hol){background:var(--sabbath-soft)}
+.d7 .c.sel::before{inset:0;border-radius:inherit}
+.d7 .dn{font-size:15px}
+.d7 .lu{font-size:9px;color:var(--label-2);white-space:nowrap;overflow:hidden;text-align:right}
+.d7 .ev{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:3px;background:var(--accent)}
+
+/* Moonlight */
+.d8 .c{display:grid;justify-items:center;align-content:center;gap:2px;border-radius:10px;margin:1px}
+.d8 .c .shade{position:absolute;inset:0;border-radius:inherit;z-index:0}
+.d8 .dn{font-size:15px}
+.d8 .lu{font-size:9px;color:var(--label-2);white-space:nowrap}
+.d8 .c.full .lu,.d8 .c.new .lu{font-weight:700;color:var(--label)}
+.d8 .ev{width:4px;height:4px;border-radius:2px;background:var(--accent)}
+
+/* Classic print */
+.d6 .g{padding:0 10px}
+.d6 .c{padding:4px 4px 3px;display:flex;flex-direction:column;justify-content:space-between;border-right:.75px solid var(--rule);border-bottom:.75px solid var(--rule)}
+.d6 .c:nth-child(7n+1){border-left:.75px solid var(--rule)}
+.d6 .c:nth-child(-n+7){border-top:.75px solid var(--rule)}
+.d6 .c.sel::before{border-radius:0;inset:0}
+.d6 .c.hol{background:var(--holiday-soft)}
+.d6 .dn{font-size:16px;justify-self:start;min-width:24px;height:24px;border-radius:12px;padding:0 4px}
+.d6 .row1{display:flex;justify-content:space-between;align-items:flex-start}
+.d6 .lu{font-size:8.6px;line-height:1.45;color:var(--label-2);white-space:nowrap;overflow:hidden;text-align:right}
+.d6 .lu.s{color:var(--sabbath);font-weight:700}
+.d6 .ft{display:flex;gap:2px;align-items:center;height:6px}
+.d6 .ft i{width:12px;height:3px;border-radius:2px;display:block}
+
+.summary{display:grid;gap:10px;padding:16px;border-radius:14px;background:var(--board-2);box-shadow:inset 0 0 0 1px var(--line)}
+.summary h2{margin:0;font-size:18px}
+.summary output{display:block;font:500 14px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;padding:10px 12px;border-radius:10px;background:var(--board);white-space:pre-wrap;overflow-wrap:anywhere}
+.summary .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.copy{border:0;background:var(--ink);color:var(--board);font:600 13px var(--f);padding:8px 14px;border-radius:999px;cursor:pointer}
+@media (prefers-reduced-motion: no-preference){.pk-btn,.seg button{transition:background .15s,color .15s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Calendar Grid Themes</h1>
+    <p class="intro">Twelve themes for the home calendar, in the spirit of the Calendar Studio presets. A theme is a second choice next to the grid layout: it brings its own paper, ink, accent, number typeface and a small motif in the header corner, and works with every one of the 15 layouts. Each theme has a light and a dark version. The day sheet and tab bar keep the app’s colours. “App colours” stays the default, so nothing changes until you pick a theme. Mark which ones to build and whether motifs should be on by default, then copy your picks back to me.</p>
+  </header>
+
+  <div class="bar" role="group" aria-label="Preview options">
+    <div class="ctl"><span>Layout</span><div class="seg" data-k="layout"><button data-v="d1" aria-pressed="true">Detailed</button><button data-v="d7" aria-pressed="false">Tiles</button><button data-v="d8" aria-pressed="false">Moonlight</button><button data-v="d6" aria-pressed="false">Classic print</button></div></div>
+    <div class="ctl"><span>Phones</span><div class="seg" data-k="theme"><button data-v="light" aria-pressed="true">Light</button><button data-v="dark" aria-pressed="false">Dark</button></div></div>
+    <div class="ctl"><span>Calendar language</span><div class="seg" data-k="lang"><button data-v="my" aria-pressed="true">မြန်မာ</button><button data-v="en" aria-pressed="false">English</button></div></div>
+    <div class="ctl"><span>App style</span><div class="seg" data-k="style"><button data-v="clear" aria-pressed="true">Clear</button><button data-v="md" aria-pressed="false">Material</button></div></div>
+    <div class="ctl"><span>Motif</span><div class="seg" data-k="motif"><button data-v="on" aria-pressed="true">On</button><button data-v="off" aria-pressed="false">Off</button></div></div>
+    <div class="ctl"><span>Size</span><div class="seg" data-k="size"><button data-v="s" aria-pressed="true">360 × 640</button><button data-v="l" aria-pressed="false">390 × 844</button></div></div>
+  </div>
+
+  <div class="legend">
+    <span><b>17</b> today</span><span><b>22</b> selected</span><span><b>25–27</b> Thadingyut holidays</span><span><b>11</b> new moon</span><span><b>26</b> full moon</span><span><b>4, 11, 19, 26</b> Sabbath days</span><span><b>9, 16, 22, 30</b> events</span>
+  </div>
+
+  <div id="board" style="display:grid;gap:44px"></div>
+
+  <section class="summary" aria-labelledby="sumh">
+    <h2 id="sumh">Your picks</h2>
+    <output id="out" aria-live="polite"></output>
+    <div class="row"><button class="copy" id="copy">Copy picks</button><span id="copied" class="legend"></span></div>
+  </section>
+</div>
+
+<script>
+/* ---------- October 2026 (myanmar_calendar_dart) ----------
+   [day, Myanmar lunar label, phase 0 waxing / 1 full / 2 waning / 3 new, Sabbath, holiday] */
+const OCT = [[1,"လဆုတ် ၅",2,0,0],[2,"လဆုတ် ၆",2,0,0],[3,"လဆုတ် ၇",2,0,0],[4,"လဆုတ် ၈",2,1,0],[5,"လဆုတ် ၉",2,0,0],[6,"လဆုတ် ၁၀",2,0,0],[7,"လဆုတ် ၁၁",2,0,0],[8,"လဆုတ် ၁၂",2,0,0],[9,"လဆုတ် ၁၃",2,0,0],[10,"လဆုတ် ၁၄",2,0,0],[11,"လကွယ် ၁၅",3,1,0],[12,"လဆန်း ၁",0,0,0],[13,"လဆန်း ၂",0,0,0],[14,"လဆန်း ၃",0,0,0],[15,"လဆန်း ၄",0,0,0],[16,"လဆန်း ၅",0,0,0],[17,"လဆန်း ၆",0,0,0],[18,"လဆန်း ၇",0,0,0],[19,"လဆန်း ၈",0,1,0],[20,"လဆန်း ၉",0,0,0],[21,"လဆန်း ၁၀",0,0,0],[22,"လဆန်း ၁၁",0,0,0],[23,"လဆန်း ၁၂",0,0,0],[24,"လဆန်း ၁၃",0,0,0],[25,"လဆန်း ၁၄",0,0,1],[26,"လပြည့် ၁၅",1,1,1],[27,"လဆုတ် ၁",2,0,1],[28,"လဆုတ် ၂",2,0,0],[29,"လဆုတ် ၃",2,0,0],[30,"လဆုတ် ၄",2,0,0],[31,"လဆုတ် ၅",2,0,0]];
+const EVENTS = {9:['Rent'],16:['Team call','Gym'],22:['Grandma’s birthday'],30:['Dentist']};
+const FIRST = 4, TODAY = 17, SEL = 22, PREV = [27,28,29,30];
+const MMD = '၀၁၂၃၄၅၆၇၈၉';
+const T = {
+  my: {title:'အောက်တိုဘာ ၂၀၂၆', sub:'တော်သလင်း – သီတင်းကျွတ် · ၁၃၈၈', wd:['နွေ','လာ','ဂါ','ဟူး','ကြာ','သော','နေ'],
+       hol:'သီတင်းကျွတ်', sab:'ဥပုသ်', full:'လပြည့်', newm:'လကွယ်', wax:'ဆန်း', wan:'ဆုတ်', peek:'ကြာ ၂၂ · သီတင်းကျွတ် လဆန်း ၁၁'},
+  en: {title:'October 2026', sub:'Tawthalin – Thadingyut · ME 1388', wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+       hol:'Thadingyut', sab:'Sabbath', full:'Full moon', newm:'New moon', wax:'Waxing', wan:'Waning', peek:'Thu 22 Oct · Thadingyut, waxing 11'},
+};
+/* Interface words follow the app language, which stays English here. */
+const TABS_UI = ['Today','Views','Convert','Events','Settings'];
+
+/* ---------- real-sky moon (same maths as the app's MoonPainter) ---------- */
+const RAD = Math.PI / 180;
+function moonAt(y, m, d) {
+  const jd = Date.UTC(y, m - 1, d, 12) / 86400000 + 2440587.5, t = (jd - 2451545) / 36525;
+  const D = (297.8501921 + 445267.1114034 * t) % 360, M = (357.5291092 + 35999.0502909 * t) % 360, Mp = (134.9633964 + 477198.8675055 * t) % 360;
+  const i = 180 - D - 6.289 * Math.sin(Mp * RAD) + 2.1 * Math.sin(M * RAD) - 1.274 * Math.sin((2 * D - Mp) * RAD) - 0.658 * Math.sin(2 * D * RAD) - 0.214 * Math.sin(2 * Mp * RAD) - 0.11 * Math.sin(D * RAD);
+  return {k: (1 + Math.cos(i * RAD)) / 2, waxing: ((D % 360) + 360) % 360 < 180};
+}
+function moonSvg(day, size) {
+  const {k, waxing} = moonAt(2026, 10, day), R = 14;
+  let lit = '';
+  if (k > 0.985) lit = `<circle r="${R}" fill="var(--moon)"/>`;
+  else if (k >= 0.015) {
+    const rx = (R * Math.abs(1 - 2 * k)).toFixed(2);
+    lit = `<path d="M0 ${-R}A${R} ${R} 0 0 1 0 ${R}A${rx} ${R} 0 0 ${k < 0.5 ? 0 : 1} 0 ${-R}Z" fill="var(--moon)" transform="rotate(40)${waxing ? '' : ' scale(-1,1)'}"/>`;
+  }
+  return `<svg class="moon" width="${size}" height="${size}" viewBox="-15.5 -15.5 31 31" aria-hidden="true"><circle r="${R}" fill="var(--moonshade)"/>${lit}<circle r="${R}" fill="none" stroke="var(--moonrim)" stroke-width="${size < 16 ? 2 : 1}"/></svg>`;
+}
+
+/* ---------- icons ---------- */
+const P = {
+  today:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><rect x="8" y="13" width="4" height="4" rx="1"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/>',
+  swap:'<path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/>',
+  event:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M9 15h6"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+  back:'<path d="m15 18-6-6 6-6"/>', fwd:'<path d="m9 18 6-6-6-6"/>', down:'<path d="m6 9 6 6 6-6"/>',
+  edit:'<path d="M14.5 5.5 18.5 9.5M4 20l1-4.5L16 4.5a2.1 2.1 0 0 1 3 3L8 18.5z"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+
+/* ---------- motifs (line art in currentColor, 100×100) ---------- */
+function motif(kind) {
+  const ring = (n, r, f) => Array.from({length: n}, (_, i) => f(i * 2 * Math.PI / n, r)).join('');
+  const M = {
+    stupa:'<path d="M50 6v10M46 16h8M50 16c-3 8-6 12-6 18h12c0-6-3-10-6-18zM40 34h20M36 42c0-4 6-8 14-8s14 4 14 8zM30 42h40v6H30zM34 48c0 14 8 22 16 22s16-8 16-22M24 70h52M20 78h60M16 86h68"/>',
+    seal:'<rect x="14" y="14" width="72" height="72" rx="6"/><rect x="22" y="22" width="56" height="56" rx="3"/><path d="M36 36h28M36 50h28M36 64h28M50 36v28"/>',
+    weave:'<path d="M10 50 30 30 50 50 30 70zM50 50 70 30 90 50 70 70zM30 30 50 10 70 30M30 70 50 90 70 70M20 50h10M70 50h10M50 20v10M50 70v10"/><circle cx="50" cy="50" r="4"/>',
+    lantern:'<path d="M30 8v12M30 20c-12 4-14 14-14 22s2 18 14 22c12-4 14-14 14-22s-2-18-14-22M18 42h24M30 64v8M26 72h8M70 26v10M70 36c-9 3-11 10-11 17s2 14 11 17c9-3 11-10 11-17s-2-14-11-17M61 53h18M70 70v6"/>',
+    padauk:ring(7, 26, (a) => `<circle cx="${(50 + 26 * Math.cos(a)).toFixed(1)}" cy="${(50 + 26 * Math.sin(a)).toFixed(1)}" r="7"/><circle cx="${(50 + 12 * Math.cos(a + .4)).toFixed(1)}" cy="${(50 + 12 * Math.sin(a + .4)).toFixed(1)}" r="4"/>`) + '<circle cx="50" cy="50" r="4"/>',
+    leaf:'<path d="M20 90C40 70 55 45 82 12"/><path d="M38 66c-14-2-22-12-22-22 12 0 22 8 22 22zM52 48c-12-4-16-14-14-24 10 2 16 12 14 24zM44 60c12-6 24-4 30 4-10 6-22 6-30-4zM60 38c10-8 22-8 28-2-8 8-20 8-28 2z"/>',
+    rain:Array.from({length: 9}, (_, i) => { const x = 8 + (i % 3) * 30 + (i > 2 ? 8 : 0), y = 8 + Math.floor(i / 3) * 30; return `<path d="M${x} ${y}l-8 18"/>`; }).join('') + '<path d="M18 92c8-6 16-6 24 0s16 6 24 0 16-6 24 0"/>',
+    wave:'<path d="M6 40c10-10 20-10 30 0s20 10 30 0 20-10 30 0M6 58c10-10 20-10 30 0s20 10 30 0 20-10 30 0M6 76c10-10 20-10 30 0s20 10 30 0 20-10 30 0"/><circle cx="68" cy="18" r="9"/>',
+    steam:'<path d="M36 50c-8-10 8-16 0-28M52 50c-8-10 8-16 0-28M68 50c-8-10 8-16 0-28"/><path d="M22 58h60c0 18-12 30-30 30S22 76 22 58zM82 64h4a8 8 0 0 1 0 16h-6"/>',
+    stars:[[20,22,2.5],[48,12,1.5],[78,24,3],[30,48,1.5],[62,44,2],[86,56,1.5],[16,74,2],[46,78,3],[74,84,1.5],[52,30,1]].map(([x,y,r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="currentColor"/>`).join('') + '<path d="M78 24v-8M78 24v8M78 24h-8M78 24h8M46 78v-7M46 78v7M46 78h-7M46 78h7"/>',
+    crescent:'<path d="M62 14a36 36 0 1 0 24 58 30 30 0 1 1-24-58z"/><circle cx="24" cy="22" r="2" fill="currentColor"/><circle cx="84" cy="30" r="1.5" fill="currentColor"/>',
+    zodiac:'<circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="28"/><circle cx="50" cy="50" r="6"/>' + ring(12, 0, (a) => `<path d="M${(50 + 28 * Math.cos(a)).toFixed(1)} ${(50 + 28 * Math.sin(a)).toFixed(1)}L${(50 + 40 * Math.cos(a)).toFixed(1)} ${(50 + 40 * Math.sin(a)).toFixed(1)}"/>`) + ring(12, 0, (a) => `<circle cx="${(50 + 34 * Math.cos(a + Math.PI / 12)).toFixed(1)}" cy="${(50 + 34 * Math.sin(a + Math.PI / 12)).toFixed(1)}" r="1.6" fill="currentColor"/>`),
+  };
+  return `<svg class="motif" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${M[kind]}</svg>`;
+}
+
+/* ---------- themes: nine base colours each for light and dark ----------
+   [paper, surface, ink, ink-2, accent, on-accent, holiday, moon, sabbath] */
+const THEMES = [
+  {set:'heritage', id:'pagoda', name:'Pagoda', motif:'stupa', font:"'Crimson Pro'", fontName:'Crimson Pro',
+   desc:'Temple cream, deep maroon and pagoda gold, with a stupa in the corner. Sabbath days glow gold; the dark version is a candle-lit night.',
+   light:['#F7F0DE','#FFFAEE','#2E1B12','#6E5640','#6B1F23','#FFF7E6','#B8322A','#C9A227','#8A6210'],
+   dark: ['#1E1610','#2A2018','#F3E8D2','#C2AE8E','#E0B34A','#2A1A08','#F07468','#E8C25A','#E8C25A']},
+  {set:'heritage', id:'jade', name:'Jade', motif:'seal', font:"'Libre Caslon Text'", fontName:'Libre Caslon Text',
+   desc:'The Jade wall preset brought home: jade green on a cool white, with a square seal mark. Quiet and formal.',
+   light:['#F3F7F4','#FFFFFF','#10241F','#4E6660','#0E6B5C','#FFFFFF','#B23A3A','#C99A2E','#8A6A1A'],
+   dark: ['#0D1A17','#15241F','#E6F1EC','#9DB8AF','#4FC2A6','#04201A','#F07A72','#E5C268','#E5C268']},
+  {set:'heritage', id:'lacquer', name:'Lacquer', motif:'weave', font:"'Fraunces'", fontName:'Fraunces',
+   desc:'Bagan lacquerware: black lacquer, cinnabar red and gold leaf, with a woven diamond pattern. Today is a black lacquer disc.',
+   light:['#F4ECE4','#FBF5EF','#1F1311','#6A4F47','#1F1311','#F6E3C4','#A3221A','#C08A1E','#8E6413'],
+   dark: ['#140C0A','#21130F','#F2E3D0','#C1A58C','#D9A440','#1F1206','#EE6A55','#E3B455','#E3B455']},
+  {set:'heritage', id:'thadingyut', name:'Thadingyut', motif:'lantern', font:"'Bricolage Grotesque'", fontName:'Bricolage Grotesque',
+   desc:'The festival of lights. Lantern paper and warm orange by day; a deep indigo night with glowing lanterns in dark mode.',
+   light:['#FBF3E2','#FFF9EE','#2A1A10','#6F5643','#C2541A','#FFF6EC','#A4243B','#D99A1E','#9A6510'],
+   dark: ['#12142A','#1C1F3A','#F6EBD8','#B9B2C9','#F2A54A','#2A1505','#FF7A6E','#F6C760','#F6C760']},
+  {set:'heritage', id:'thingyan', name:'Thingyan', motif:'padauk', font:"'Bitter'", fontName:'Bitter',
+   desc:'The water festival: splash blue with padauk-flower yellow for moon and Sabbath days, and a padauk sprig in the corner.',
+   light:['#EEF6FA','#FFFFFF','#0F2A3A','#4D6878','#0B6FA4','#FFFFFF','#C2412D','#E0A800','#8F6700'],
+   dark: ['#0A1A24','#112634','#E4F2F9','#95B3C3','#5EC1F0','#04202E','#FF7F6A','#FFD042','#FFD042']},
+
+  {set:'nature', id:'botanical', name:'Botanical', motif:'leaf', font:"'Spectral'", fontName:'Spectral',
+   desc:'Pressed-leaf greens on herbarium paper, with a leaf sprig. Soft and calm; holidays in a dried-rose red.',
+   light:['#F4F1E8','#FBF9F2','#2B2A22','#66644F','#3F5E3A','#FFFFFF','#A1453F','#B58A2E','#866420'],
+   dark: ['#141712','#1D211A','#E9EADF','#A9AC98','#9CC48F','#15210F','#E58A7E','#DDB65E','#DDB65E']},
+  {set:'nature', id:'monsoon', name:'Monsoon', motif:'rain', font:"'Newsreader'", fontName:'Newsreader',
+   desc:'Rain-season slate with a rust accent for holidays and moon days, and falling rain lines. Cool, low-contrast colour with crisp text.',
+   light:['#EDF1F3','#FFFFFF','#26343F','#5E6E7A','#46586B','#FFFFFF','#B5482F','#D98B3F','#9A5A22'],
+   dark: ['#12181D','#1B232A','#E3E9ED','#9AA8B3','#9DB4CC','#0F1A24','#F0876E','#F0A65E','#F0A65E']},
+  {set:'nature', id:'tidewater', name:'Tidewater', motif:'wave', font:"'Lora'", fontName:'Lora',
+   desc:'Sea glass and deep teal, with a horizon of waves under a low sun. Fresh by day; the dark version is the sea at night.',
+   light:['#EAF4F4','#FFFFFF','#0E2A33','#4C6870','#1C7C77','#FFFFFF','#C1572E','#D49A2A','#8E6414'],
+   dark: ['#071D24','#0E2A33','#E2F2F1','#94B7B8','#5CC9C0','#032421','#FF8A62','#F2C25C','#F2C25C']},
+  {set:'nature', id:'morning', name:'Morning Pour', motif:'steam', font:"'Petrona'", fontName:'Petrona',
+   desc:'Coffee and cream, with a steaming cup. A warm, cosy theme for early risers; holidays in brick red.',
+   light:['#F5EDE1','#FBF6EE','#2E1D16','#6E574A','#5C3D2E','#FBF1E6','#A8402F','#C08552','#8A5530'],
+   dark: ['#19120E','#241A15','#F1E4D6','#BFA894','#D9A47A','#2A1810','#EE7B66','#E3B07E','#E3B07E']},
+
+  {set:'night', id:'deepfield', name:'Deep Field', motif:'stars', font:"'Space Grotesk'", fontName:'Space Grotesk',
+   desc:'Deep space with scattered stars. The light version is a lavender dusk; the dark one is the night sky, where moon days shine.',
+   light:['#ECEBF5','#F8F7FC','#1B1C3A','#575A7C','#5B47A0','#FFFFFF','#C8434E','#C99A2E','#8C6A1C'],
+   dark: ['#0A0E27','#141938','#F2F4FA','#A9AEC9','#A994E0','#120C2A','#FF8A7A','#F4D27A','#F4D27A']},
+  {set:'night', id:'moonlight', name:'Moonlight', motif:'crescent', font:"'Cormorant Garamond'", fontName:'Cormorant Garamond',
+   desc:'Silver-blue and moon gold, with a crescent. Elegant serif numbers; pairs best with the Moonlight and Moon ring layouts.',
+   light:['#F1F3F8','#FFFFFF','#1A1E2C','#565D73','#35466F','#FFFFFF','#C0453A','#D8A62A','#8E6A12'],
+   dark: ['#0E1220','#171C2E','#EEF1F8','#A3ABC2','#B9C7EA','#121A30','#FF8475','#F5D88A','#F5D88A']},
+  {set:'night', id:'nightchart', name:'Night Chart', motif:'zodiac', font:"'Sora'", fontName:'Sora',
+   desc:'An astrologer’s chart: violet ink and antique gold, with a zodiac wheel. Pairs best with the Astrology layout.',
+   light:['#F3EFE6','#FBF8F1','#241B3D','#62577A','#5A3F8C','#FFFFFF','#B8433C','#B88E3A','#86621E'],
+   dark: ['#1A1430','#241B3D','#EDE6D6','#B3A8C6','#D4AF6A','#241B3D','#F08A7A','#D4AF6A','#D4AF6A']},
+];
+const SETS = {
+  heritage:['Myanmar heritage', 'Pagodas, lacquerware and the two great festivals.'],
+  nature:['Nature and seasons', 'Soft papers and muted inks from the garden, the rains and the sea.'],
+  night:['Night and sky', 'Dark-first themes where the moon and stars do the work.'],
+};
+function themeVars(th, dark) {
+  const [bg, surface, label, label2, accent, onAccent, holiday, moon, sabbath] = dark ? th.dark : th.light;
+  return `--bg:${bg};--surface:${surface};--label:${label};--label-2:${label2};--accent:${accent};--on-accent:${onAccent};--holiday:${holiday};--moon:${moon};--sabbath:${sabbath};--num:${th.font},'Noto Sans Myanmar',Georgia,serif`;
+}
+
+/* ---------- state ---------- */
+const st = {layout:'d1', theme:'light', lang:'my', style:'clear', motif:'on', size:'s'};
+const picks = {build: new Set(), skip: new Set()};
+
+/* ---------- cell data ---------- */
+function days() {
+  const out = PREV.map(n => ({out: true, n}));
+  OCT.forEach(([n, my, ph, sab, hol], i) => out.push({n, my, ph, sab, hol, col: (FIRST + i) % 7}));
+  while (out.length % 7) out.push({out: true, n: out.length - 34});
+  return out;
+}
+function lunarParts(x, lang) {
+  const t = T[lang];
+  if (x.ph === 1) return {phase: t.full, num: lang === 'my' ? '၁၅' : '15', short: t.full};
+  if (x.ph === 3) return {phase: t.newm, num: lang === 'my' ? '၁၅' : '15', short: t.newm};
+  const num = x.my.split(' ')[1];
+  const n = lang === 'my' ? num : String(MMD.indexOf(num[0]) * (num.length > 1 ? 10 : 1) + (num.length > 1 ? MMD.indexOf(num[1]) : 0));
+  const phase = x.ph === 0 ? t.wax : t.wan;
+  return {phase, num: n, short: lang === 'my' ? `${phase} ${num}` : `${phase === 'Waxing' ? 'Wax' : 'Wan'} ${n}`};
+}
+const cls = (x) => ['c', x.out ? 'out' : '', x.n === TODAY && !x.out ? 'today' : '', x.n === SEL && !x.out ? 'sel' : '', x.hol ? 'hol' : '', x.col === 0 ? 'sun' : '', x.sab ? 'sab' : '', x.ph === 1 ? 'full' : '', x.ph === 3 ? 'new' : ''].filter(Boolean).join(' ');
+
+const LAYOUTS = {
+  d1(x, lang, rh) {
+    if (x.out) return `<div class="${cls(x)}"><div class="top"><span class="dn tnum">${x.n}</span></div></div>`;
+    const l = lunarParts(x, lang), roomy = rh >= 60, tall = rh >= 70;
+    const moon = x.ph === 1 || x.ph === 3 ? moonSvg(x.n, 12) : '';
+    const ev = EVENTS[x.n] ? (tall ? `<span class="ev">${EVENTS[x.n][0]}</span>` : '<span class="evb"></span>') : '';
+    return `<div class="${cls(x)}"><div class="top"><span class="dn tnum">${x.n}</span>${moon}</div><span class="lu${x.sab ? ' s' : ''}">${x.sab && x.ph !== 1 && x.ph !== 3 ? T[lang].sab : l.short}</span>${x.hol && roomy ? `<span class="hn">${T[lang].hol}</span>` : ''}${ev}</div>`;
+  },
+  d7(x, lang) {
+    if (x.out) return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span></div>`;
+    const l = lunarParts(x, lang);
+    return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span>${EVENTS[x.n] ? '<i class="ev"></i>' : ''}<span class="lu">${x.ph === 1 || x.ph === 3 ? l.phase : l.short}</span></div>`;
+  },
+  d8(x, lang) {
+    if (x.out) return `<div class="${cls(x)}"><span class="dn tnum">${x.n}</span></div>`;
+    const l = lunarParts(x, lang), k = moonAt(2026, 10, x.n).k;
+    const shade = `<span class="shade" style="background:color-mix(in srgb, var(--moon) ${Math.round(k * 30)}%, transparent)"></span>`;
+    return `<div class="${cls(x)}">${shade}<span class="dn tnum">${x.n}</span><span class="lu">${x.ph === 1 || x.ph === 3 ? l.phase : l.short}</span>${EVENTS[x.n] ? '<i class="ev"></i>' : ''}</div>`;
+  },
+  d6(x, lang) {
+    if (x.out) return `<div class="${cls(x)}"><div class="row1"><span class="dn tnum">${x.n}</span></div></div>`;
+    const l = lunarParts(x, lang);
+    const label = x.ph === 1 || x.ph === 3 ? l.phase : (lang === 'my' ? x.my : l.short);
+    const bars = [x.hol ? 'var(--holiday)' : '', EVENTS[x.n] ? 'var(--accent)' : ''].filter(Boolean).map(c => `<i style="background:${c}"></i>`).join('');
+    return `<div class="${cls(x)}"><div class="row1"><span class="dn tnum">${x.n}</span>${x.ph === 1 || x.ph === 3 ? moonSvg(x.n, 11) : ''}</div><div><div class="ft">${bars}</div><div class="lu${x.sab ? ' s' : ''}">${label}</div></div></div>`;
+  },
+};
+
+/* ---------- phone ---------- */
+function phoneHtml(th) {
+  const lang = st.lang, t = T[lang], small = st.size === 's', dark = st.theme === 'dark';
+  const W = small ? 360 : 390, H = small ? 640 : 844, print = st.layout === 'd6';
+  const avail = H - 12 - 44 - 58 - 22 - 4 - 64 - (st.style === 'md' ? 78 : 74);
+  const cellW = (W - 12 - (print ? 20 : 12)) / 7;
+  const rh = Math.floor(Math.min(avail / 5, cellW * 1.6));
+  const cells = days().map(x => LAYOUTS[st.layout](x, lang, rh)).join('');
+  const wds = t.wd.map((w, i) => `<span class="${i === 0 ? 'sun' : ''}">${w}</span>`).join('');
+  const tabs = TABS_UI.map((l, i) => `<span class="tab${i === 0 ? ' on' : ''}"><span class="pill">${ic(['today','grid','swap','event','gear'][i])}</span>${l}</span>`).join('');
+  const app = ['app', 'scr', dark ? 'dark' : '', st.style === 'md' ? 'md' : ''].join(' ');
+  return `<div class="phone"><div class="${app}" style="--ph:${H - 12}px">
+    <div class="themed" style="${th ? themeVars(th, dark) : ''}">
+      ${th && st.motif === 'on' ? motif(th.motif) : ''}
+      <div class="status"><span class="tnum">9:41</span><span aria-hidden="true">●●●</span></div>
+      <div class="hd"><div class="t"><div class="ti${lang === 'my' ? ' my' : ''}">${t.title}${ic('down','s')}</div><div class="su">${t.sub}</div></div>
+        <span class="pn"><span>${ic('back','s')}</span><span>${ic('fwd','s')}</span></span><span class="ib">${ic('edit')}</span></div>
+      <div class="wds ${print ? 'wdsx' : ''}">${wds}</div>
+      <div class="gridwrap"><div class="g ${st.layout}" style="--rh:${rh}px">${cells}</div></div>
+    </div>
+    <div class="sheet"><div class="grab"></div><div class="pkrow">${moonSvg(SEL, 24)}<span class="tx"><b>${t.peek}</b></span><span class="when">in 5 days</span></div></div>
+    <div class="tabs">${tabs}</div>
+  </div></div>`;
+}
+
+function card(th, pw) {
+  const pal = st.theme === 'dark' ? th.dark : th.light;
+  const sw = [0, 4, 6, 7, 2].map(i => `<i style="background:${pal[i]}"></i>`).join('');
+  return `
+    <article class="card" style="--pw:${pw}px" aria-labelledby="h-${th.id}">
+      <div class="head"><h3 id="h-${th.id}">${th.name}</h3><span class="sw" aria-hidden="true">${sw}</span></div>
+      <p class="desc">${th.desc}</p>
+      <p class="meta">Numbers in <b>${th.fontName}</b> · Myanmar text stays Noto Sans Myanmar</p>
+      ${phoneHtml(th)}
+      <div class="picks">
+        <button class="pk-btn" data-build="${th.id}" aria-pressed="${picks.build.has(th.id)}">Build</button>
+        <button class="pk-btn" data-skip="${th.id}" aria-pressed="${picks.skip.has(th.id)}">Leave out</button>
+      </div>
+    </article>`;
+}
+function render() {
+  const pw = st.size === 's' ? 360 : 390;
+  const ref = `<section class="set" aria-label="App colours"><h2>App colours</h2><p>Today’s look, for comparison. This stays the default.</p>
+    <div class="board"><article class="card" style="--pw:${pw}px"><div class="head"><h3>App colours</h3></div><p class="desc">The app’s own palette and Inter numbers. No motif.</p><p class="meta">Follows the app style and accent colour</p>${phoneHtml(null)}</article></div></section>`;
+  document.getElementById('board').innerHTML = ref + Object.entries(SETS).map(([k, [title, note]]) => `
+    <section class="set" aria-label="${title}"><h2>${title}</h2><p>${note}</p>
+      <div class="board">${THEMES.filter(th => th.set === k).map(th => card(th, pw)).join('')}</div>
+    </section>`).join('');
+  summary();
+}
+function summary() {
+  const name = id => THEMES.find(th => th.id === id).name;
+  const undecided = THEMES.filter(th => !picks.build.has(th.id) && !picks.skip.has(th.id)).map(th => th.name);
+  document.getElementById('out').textContent = [
+    `Build: ${picks.build.size ? [...picks.build].map(name).join(', ') : 'none yet'}`,
+    `Leave out: ${picks.skip.size ? [...picks.skip].map(name).join(', ') : 'none'}`,
+    `Not marked: ${undecided.length ? undecided.join(', ') : 'none'}`,
+    `Motifs by default: ${st.motif === 'on' ? 'on' : 'off'} (the Motif switch above)`,
+  ].join('\n');
+}
+
+document.querySelectorAll('.seg').forEach(seg => seg.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  st[seg.dataset.k] = b.dataset.v;
+  seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  render();
+}));
+document.addEventListener('click', e => {
+  const b = e.target.closest('.pk-btn'); if (!b) return;
+  const id = b.dataset.build || b.dataset.skip, mine = b.dataset.build ? picks.build : picks.skip, other = b.dataset.build ? picks.skip : picks.build;
+  if (mine.has(id)) mine.delete(id); else { mine.add(id); other.delete(id); }
+  render();
+});
+document.getElementById('copy').addEventListener('click', () => {
+  const text = document.getElementById('out').textContent, note = document.getElementById('copied');
+  const done = () => { note.textContent = 'Copied. Paste it into the chat.'; };
+  const fallback = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('out')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); note.textContent = 'Selected. Copy it and paste it into the chat.'; };
+  try { navigator.clipboard.writeText(text).then(done, fallback); } catch { fallback(); }
+});
+render();
+</script>
