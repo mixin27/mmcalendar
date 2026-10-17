@@ -8,7 +8,7 @@ import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 void main() {
   test(
-    'manual migration from v1 to v5 preserves data and adds Studio storage',
+    'manual migration from v1 to v6 preserves data and adds Studio storage',
     () async {
       final tempDir = await Directory.systemTemp.createTemp(
         'mmcalendar_migration_',
@@ -27,7 +27,7 @@ void main() {
             .customSelect('PRAGMA user_version')
             .map((row) => row.read<int>('user_version'))
             .getSingle();
-        expect(userVersion, 5);
+        expect(userVersion, 6);
 
         final calendarCount = await migratedDb
             .customSelect('SELECT COUNT(*) AS c FROM calendar_settings')
@@ -94,6 +94,16 @@ void main() {
             .map((row) => row.read<int>('c'))
             .getSingle();
         expect(hasCalendarStudioProjectsTable, 1);
+
+        final hasCalendarStudioTemplatesTable = await migratedDb
+            .customSelect('''
+            SELECT COUNT(*) AS c
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'calendar_studio_templates'
+            ''')
+            .map((row) => row.read<int>('c'))
+            .getSingle();
+        expect(hasCalendarStudioTemplatesTable, 1);
 
         final normalizedEventsCount = await migratedDb
             .customSelect('SELECT COUNT(*) AS c FROM calendar_events')

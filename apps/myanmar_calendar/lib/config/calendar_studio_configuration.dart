@@ -23,6 +23,9 @@ final CalendarStudioConfiguration calendarStudioConfiguration =
         CalendarStudioProjectDatabase(getIt<AppDatabase>()),
         getIt<SharedPreferences>(),
       ),
+      templates: _StudioTemplateStore(
+        CalendarStudioTemplateDatabase(getIt<AppDatabase>()),
+      ),
       calendarData: const MyanmarCalendarStudioDataProvider(),
       assets: createCalendarStudioAssetStore(getIt<SharedPreferences>()),
       exportDelivery: const _StudioExportDelivery(),
@@ -118,6 +121,46 @@ class _StudioProjectStore implements CalendarStudioProjectStore {
     await _ensureMigrated();
     await _saveToDatabase(project);
   }
+}
+
+/// User templates in Drift: the design as `template.json`, the preview PNG
+/// in its own column.
+class _StudioTemplateStore implements CalendarStudioTemplateStore {
+  _StudioTemplateStore(this._database);
+
+  final CalendarStudioTemplateDatabase _database;
+
+  @override
+  Future<List<CalendarStudioUserTemplate>> list() async => [
+    for (final row in await _database.list())
+      // A row this app can no longer read is skipped, not fatal.
+      ?_decode(row),
+  ];
+
+  CalendarStudioUserTemplate? _decode(CalendarStudioTemplateRow row) {
+    try {
+      return CalendarStudioTemplateBundle.decode(
+        Map<String, dynamic>.from(jsonDecode(row.documentJson) as Map),
+        preview: row.preview,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> save(CalendarStudioUserTemplate template) => _database.save(
+    id: template.id,
+    name: template.name,
+    formatVersion: CalendarStudioUserTemplate.formatVersion,
+    documentJson: jsonEncode(CalendarStudioTemplateBundle.encode(template)),
+    preview: template.preview,
+    createdAt: template.createdAt,
+    updatedAt: template.updatedAt,
+  );
+
+  @override
+  Future<void> delete(String id) => _database.delete(id);
 }
 
 class _StudioExportDelivery implements CalendarStudioExportDelivery {

@@ -123,15 +123,25 @@ abstract final class CalendarStudioDocumentCodec {
     'label': page.label,
     'year': page.year,
     'month': page.month,
-    'canvas': {
-      'width': page.canvas.width,
-      'height': page.canvas.height,
-      'safeInset': page.canvas.safeInset,
-      'bleed': page.canvas.bleed,
-      'backgroundColor': page.canvas.backgroundColor,
-    },
-    'blocks': page.blocks.map(_block).toList(),
+    'canvas': encodeCanvas(page.canvas),
+    'blocks': page.blocks.map(encodeBlock).toList(),
   };
+
+  static Map<String, Object?> encodeCanvas(StudioCanvas canvas) => {
+    'width': canvas.width,
+    'height': canvas.height,
+    'safeInset': canvas.safeInset,
+    'bleed': canvas.bleed,
+    'backgroundColor': canvas.backgroundColor,
+  };
+
+  static StudioCanvas decodeCanvas(Map<String, dynamic> canvas) => StudioCanvas(
+    width: (canvas['width'] as num).toDouble(),
+    height: (canvas['height'] as num).toDouble(),
+    safeInset: (canvas['safeInset'] as num?)?.toDouble() ?? .04,
+    bleed: (canvas['bleed'] as num?)?.toDouble() ?? 0,
+    backgroundColor: canvas['backgroundColor'] as int? ?? 0xFFFFFFFF,
+  );
   static List<CalendarStudioPage> _decodePages(
     List<dynamic> values,
     CalendarStudioSource source,
@@ -155,20 +165,14 @@ abstract final class CalendarStudioDocumentCodec {
       label: value['label'] as String,
       year: value['year'] as int? ?? fallbackYear,
       month: value['month'] as int? ?? fallbackMonth,
-      canvas: StudioCanvas(
-        width: (canvas['width'] as num).toDouble(),
-        height: (canvas['height'] as num).toDouble(),
-        safeInset: (canvas['safeInset'] as num?)?.toDouble() ?? .04,
-        bleed: (canvas['bleed'] as num?)?.toDouble() ?? 0,
-        backgroundColor: canvas['backgroundColor'] as int? ?? 0xFFFFFFFF,
-      ),
+      canvas: decodeCanvas(canvas),
       blocks: (value['blocks'] as List)
-          .map((item) => _decodeBlock(Map<String, dynamic>.from(item as Map)))
+          .map((item) => decodeBlock(Map<String, dynamic>.from(item as Map)))
           .toList(),
     );
   }
 
-  static Map<String, Object?> _block(CalendarStudioBlock block) => {
+  static Map<String, Object?> encodeBlock(CalendarStudioBlock block) => {
     'id': block.id,
     'type': block.type.name,
     'name': block.name,
@@ -185,7 +189,7 @@ abstract final class CalendarStudioDocumentCodec {
     'style': block.style,
     'content': block.content,
   };
-  static CalendarStudioBlock _decodeBlock(Map<String, dynamic> value) {
+  static CalendarStudioBlock decodeBlock(Map<String, dynamic> value) {
     final bounds = Map<String, dynamic>.from(value['bounds'] as Map);
     return CalendarStudioBlock(
       id: value['id'] as String,

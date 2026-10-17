@@ -2,6 +2,8 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart' as mm;
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
+import '../models/calendar_studio_user_template.dart';
+import 'calendar_studio_bindings.dart';
 import 'calendar_studio_preset_builder.dart';
 import 'calendar_studio_preset_specs.dart';
 
@@ -19,6 +21,7 @@ class CalendarStudioTemplate {
     this.collection,
     this.moods = const [],
     this.palette = const [],
+    this.user,
   });
   final String id;
   final String name;
@@ -34,6 +37,9 @@ class CalendarStudioTemplate {
 
   /// Swatches shown on the gallery card (paper, primary, accent, ink, holiday).
   final List<int> palette;
+
+  /// The saved design, for templates the user made or imported.
+  final CalendarStudioUserTemplate? user;
   final CalendarStudioProject Function({
     required String id,
     required CalendarStudioSource source,
@@ -103,6 +109,14 @@ abstract final class CalendarStudioTemplates {
 
   static CalendarStudioTemplate byId(String id) =>
       all.firstWhere((template) => template.id == id, orElse: () => all.first);
+
+  /// The built-in template with [id], or null (user templates are not here).
+  static CalendarStudioTemplate? byIdOrNull(String id) {
+    for (final template in all) {
+      if (template.id == id) return template;
+    }
+    return null;
+  }
 
   static CalendarStudioTemplate _template(
     String templateId,
@@ -213,7 +227,8 @@ abstract final class CalendarStudioTemplates {
         28,
         w,
         h,
-        _eraLine(year, month),
+        CalendarStudioBindings.eraLine(year, month),
+        binding: CalendarStudioBinding.eraLine,
         color: 0xFF0E6B5C,
         size: 10,
         align: 'right',
@@ -285,7 +300,8 @@ abstract final class CalendarStudioTemplates {
         30,
         w,
         h,
-        _eraLine(year, month),
+        CalendarStudioBindings.eraLine(year, month),
+        binding: CalendarStudioBinding.eraLine,
         color: 0xFFD9A93A,
         size: 10,
         z: 1,
@@ -708,13 +724,14 @@ abstract final class CalendarStudioTemplates {
     int weight = 500,
     double spacing = 0,
     int z = 0,
+    CalendarStudioBinding? binding,
   }) => CalendarStudioBlock(
     id: id,
     type: CalendarStudioBlockType.text,
     name: name,
     bounds: _rect(x, y, width, height, designWidth, designHeight),
     zIndex: z,
-    content: {'text': text},
+    content: {'text': text, CalendarStudioBindings.key: ?binding?.name},
     style: {
       'color': color,
       'fontSize': size,
@@ -849,70 +866,15 @@ abstract final class CalendarStudioTemplates {
     height: height / designHeight,
   );
 
-  static String _eraLine(int year, int month) {
-    final first = mm.MyanmarCalendar.getCompleteDate(DateTime(year, month, 1));
-    final last = mm.MyanmarCalendar.getCompleteDate(
-      DateTime(year, month + 1, 0),
-    );
-    final firstMonth = mm.MyanmarCalendar.formatMyanmar(
-      first.myanmar,
-      pattern: '&M',
-      language: mm.Language.myanmar,
-    );
-    final lastMonth = mm.MyanmarCalendar.formatMyanmar(
-      last.myanmar,
-      pattern: '&M',
-      language: mm.Language.myanmar,
-    );
-    final years = _eraYearsForDates(first.myanmar, last.myanmar);
-    return '${firstMonth == lastMonth ? firstMonth : '$firstMonth၊ $lastMonth'} $years';
-  }
-
   static String _eraYears(int year) {
     final first = mm.MyanmarCalendar.getCompleteDate(DateTime(year, 1, 1));
     final last = mm.MyanmarCalendar.getCompleteDate(DateTime(year, 12, 31));
-    return _eraYearsForDates(first.myanmar, last.myanmar);
-  }
-
-  static String _eraYearsForDates(mm.MyanmarDate first, mm.MyanmarDate last) {
-    final a = _myanmarNumber(first.year);
-    final b = _myanmarNumber(last.year);
-    return a == b ? a : '$a–$b';
+    return CalendarStudioBindings.eraYearsBetween(first.myanmar, last.myanmar);
   }
 
   static String _myanmarNumber(Object value) =>
-      value.toString().replaceAllMapped(
-        RegExp(r'\d'),
-        (match) => _myanmarDigits[int.parse(match[0]!)],
-      );
+      CalendarStudioBindings.myanmarNumber(value);
 
-  static const _myanmarDigits = '၀၁၂၃၄၅၆၇၈၉';
-  static const _myanmarMonths = [
-    'ဇန်နဝါရီ',
-    'ဖေဖော်ဝါရီ',
-    'မတ်',
-    'ဧပြီ',
-    'မေ',
-    'ဇွန်',
-    'ဇူလိုင်',
-    'ဩဂုတ်',
-    'စက်တင်ဘာ',
-    'အောက်တိုဘာ',
-    'နိုဝင်ဘာ',
-    'ဒီဇင်ဘာ',
-  ];
-  static const _englishMonths = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
+  static const _myanmarMonths = CalendarStudioBindings.myanmarMonths;
+  static const _englishMonths = CalendarStudioBindings.englishMonths;
 }

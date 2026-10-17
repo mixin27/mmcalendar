@@ -15,6 +15,7 @@ import 'tables/custom_holidays_table.dart';
 import 'tables/event_categories_table.dart';
 import 'tables/recurring_event_exceptions_table.dart';
 import 'tables/calendar_studio_projects_table.dart';
+import 'tables/calendar_studio_templates_table.dart';
 import 'daos/calendar_dao.dart';
 import 'daos/settings_dao.dart';
 import 'daos/holidays_dao.dart';
@@ -32,6 +33,7 @@ part 'app_database.g.dart';
     EventReminders,
     EventRecurrenceRules,
     CalendarStudioProjects,
+    CalendarStudioTemplates,
   ],
   daos: [
     CalendarDao,
@@ -54,7 +56,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -80,6 +82,9 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 5) {
           await m.create(calendarStudioProjects);
+        }
+        if (from < 6) {
+          await m.create(calendarStudioTemplates);
         }
       },
       beforeOpen: (details) async {

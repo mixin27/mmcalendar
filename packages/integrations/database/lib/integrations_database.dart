@@ -10,6 +10,8 @@ export 'src/database/tables/events_v2_tables.dart';
 export 'src/database/tables/custom_holidays_table.dart';
 export 'src/database/tables/calendar_studio_projects_table.dart';
 export 'src/database/calendar_studio_project_database.dart';
+export 'src/database/tables/calendar_studio_templates_table.dart';
+export 'src/database/calendar_studio_template_database.dart';
 export 'src/database/daos/calendar_dao.dart';
 export 'src/database/daos/settings_dao.dart';
 export 'src/database/daos/holidays_dao.dart';

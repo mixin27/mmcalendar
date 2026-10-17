@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
+import 'calendar_studio_bindings.dart';
 import 'calendar_studio_templates.dart';
 
 /// Builds a [CalendarStudioTemplate] from a round-2 preset spec
@@ -273,7 +274,13 @@ class _PageContext {
     return block(
       CalendarStudioBlockType.text,
       name,
-      content: {'text': text, 'subtitle': ?subtitle},
+      content: {
+        'text': text,
+        'subtitle': ?subtitle,
+        if (binding == 'monthTitle' || binding == 'yearTitle')
+          CalendarStudioBindings.key: binding,
+        if (binding == 'monthTitle') CalendarStudioBindings.subtitleKey: true,
+      },
       style: {
         'color': theme.color(style['color']),
         'fontSize': ((style['fontSize'] as num?)?.toDouble() ?? 20) * scale,

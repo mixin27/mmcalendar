@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
+import '../models/calendar_studio_user_template.dart';
 import '../templates/calendar_studio_templates.dart';
 import 'calendar_studio_contracts.dart';
 
@@ -17,6 +18,20 @@ class CalendarStudioController extends ChangeNotifier {
   CalendarStudioSaveState saveState = CalendarStudioSaveState.saved;
   String? selectedBlockId;
   int pageIndex = 0;
+
+  /// The user's saved templates, as gallery entries; set by the workspace.
+  List<CalendarStudioTemplate> userTemplates = const [];
+
+  /// The built-in or user template with [id]; null when a user template was
+  /// deleted after projects were made from it.
+  CalendarStudioTemplate? templateOf(String id) {
+    for (final template in userTemplates) {
+      if (template.id == id) return template;
+    }
+    if (CalendarStudioUserTemplate.isUserTemplateId(id)) return null;
+    return CalendarStudioTemplates.byId(id);
+  }
+
   final List<CalendarStudioProject> _undo = [];
   final List<CalendarStudioProject> _redo = [];
   CalendarStudioProject? _interactionStart;
@@ -63,7 +78,8 @@ class CalendarStudioController extends ChangeNotifier {
     CalendarStudioSource source,
   ) async {
     final now = configuration.now?.call() ?? DateTime.now();
-    final template = CalendarStudioTemplates.byId(templateId);
+    final template =
+        templateOf(templateId) ?? CalendarStudioTemplates.byId('blank');
     final project = template.create(
       id: now.microsecondsSinceEpoch.toString(),
       source: source,
@@ -102,7 +118,13 @@ class CalendarStudioController extends ChangeNotifier {
   void updateConfiguration(CalendarStudioSource source) {
     final value = _project;
     if (value == null || value.source == source) return;
-    final template = CalendarStudioTemplates.byId(value.templateId);
+    final template = templateOf(value.templateId);
+    if (template == null) {
+      // The template is gone, so its pages can't be regenerated; keep the
+      // design and change only the calendar settings.
+      updateSource(source);
+      return;
+    }
     final now = configuration.now?.call() ?? DateTime.now();
     final previousDefaults = template.create(
       id: value.id,

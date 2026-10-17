@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart' show BuildContext;
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
 import '../theme/calendar_studio_theme.dart';
+import 'calendar_studio_template_bundle.dart';
 
 /// Canonical data supplied by the host. Studio only decides whether to show it.
 class CalendarStudioDayData {
@@ -220,6 +221,7 @@ class CalendarStudioExportArtifact {
 class CalendarStudioConfiguration {
   const CalendarStudioConfiguration({
     required this.projects,
+    this.templates,
     this.calendarData,
     this.assets,
     this.exportDelivery,
@@ -227,6 +229,7 @@ class CalendarStudioConfiguration {
     this.imageEditor,
     this.ai = const CalendarStudioAiConfiguration(),
     this.pickProjectFile,
+    this.pickTemplateFile,
     this.featureName = 'Calendar Studio',
     this.now,
     this.appearance = CalendarStudioAppearance.system,
@@ -237,6 +240,10 @@ class CalendarStudioConfiguration {
     this.fontFamilyFallback,
   });
   final CalendarStudioProjectStore projects;
+
+  /// Where saved and imported templates live; without it Studio offers no
+  /// "Save as template" or "My templates".
+  final CalendarStudioTemplateStore? templates;
   final CalendarStudioDataProvider? calendarData;
   final CalendarStudioAssetStore? assets;
   final CalendarStudioExportDelivery? exportDelivery;
@@ -253,6 +260,10 @@ class CalendarStudioConfiguration {
   /// Optional; returns the bytes of a `.mmcstudio` file the user picked.
   /// Defaults to the system file picker.
   final Future<Uint8List?> Function()? pickProjectFile;
+
+  /// Optional; returns the bytes of a `.mmctemplate` file the user picked.
+  /// Defaults to the system file picker.
+  final Future<Uint8List?> Function()? pickTemplateFile;
   final String featureName;
   final DateTime Function()? now;
   final CalendarStudioAppearance appearance;
@@ -276,6 +287,7 @@ class CalendarStudioConfiguration {
     List<String>? fontFamilyFallback,
   }) => CalendarStudioConfiguration(
     projects: projects,
+    templates: templates,
     calendarData: calendarData,
     assets: assets,
     exportDelivery: exportDelivery,
@@ -283,6 +295,7 @@ class CalendarStudioConfiguration {
     imageEditor: imageEditor,
     ai: ai,
     pickProjectFile: pickProjectFile,
+    pickTemplateFile: pickTemplateFile,
     featureName: featureName,
     now: now,
     appearance: appearance ?? this.appearance,

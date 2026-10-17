@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
+import '../models/calendar_studio_user_template.dart';
 import '../services/calendar_studio_cache.dart';
 import '../services/calendar_studio_contracts.dart';
 import '../services/calendar_studio_controller.dart';
@@ -14,13 +15,16 @@ import '../services/calendar_studio_export_service.dart';
 import '../services/calendar_studio_image_import.dart';
 import '../services/calendar_studio_preflight.dart';
 import '../services/calendar_studio_project_bundle.dart';
+import '../services/calendar_studio_template_bundle.dart';
 import '../services/calendar_studio_transform.dart';
 import '../services/calendar_studio_raster_renderer.dart';
 import '../templates/calendar_studio_templates.dart';
+import '../templates/calendar_studio_user_templates.dart';
 import '../theme/calendar_studio_font_catalog.dart';
 import '../theme/calendar_studio_theme.dart';
 import '../widgets/calendar_studio_scene.dart';
 import 'calendar_studio_export_flow.dart';
+import 'calendar_studio_template_sheets.dart';
 import 'calendar_studio_toast.dart';
 
 class CalendarStudioWorkspace extends StatefulWidget {
@@ -73,6 +77,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       <(String, CalendarStudioSource), CalendarStudioProject>{};
   var view = _View.dashboard;
   var projects = <CalendarStudioProject>[];
+  var _userTemplates = <CalendarStudioUserTemplate>[];
   var loading = true;
   var source = CalendarStudioSource(year: DateTime.now().year + 1);
   var safeArea = true;
@@ -99,8 +104,45 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   Future<void> _load() async {
     projects = await widget.configuration.projects.list();
+    await _loadTemplates();
     if (mounted) setState(() => loading = false);
   }
+
+  Future<void> _loadTemplates() async {
+    final store = widget.configuration.templates;
+    if (store == null) return;
+    try {
+      _userTemplates = await store.list();
+    } catch (_) {
+      _userTemplates = const [];
+    }
+    controller.userTemplates = [
+      for (final template in _userTemplates)
+        CalendarStudioUserTemplates.toTemplate(template),
+    ];
+  }
+
+  /// The user's templates, then the built-in ones.
+  List<CalendarStudioTemplate> get _allTemplates => [
+    ...controller.userTemplates,
+    ...CalendarStudioTemplates.all,
+  ];
+
+  /// Built-in or user template; a placeholder when a user template behind
+  /// some projects was deleted.
+  CalendarStudioTemplate _templateById(String id) =>
+      controller.templateOf(id) ??
+      () {
+        final blank = CalendarStudioTemplates.byId('blank');
+        return CalendarStudioTemplate(
+          id: id,
+          name: 'Deleted template',
+          category: 'Custom',
+          canvas: blank.canvas,
+          monthly: true,
+          create: blank.create,
+        );
+      }();
 
   void _refresh() {
     if (mounted) setState(() {});
@@ -276,7 +318,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   );
 
   String _presetName(CalendarStudioProject project) =>
-      CalendarStudioTemplates.byId(project.templateId).name;
+      _templateById(project.templateId).name;
 
   String _period(CalendarStudioProject project) {
     final first = project.pages.first;
@@ -666,7 +708,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     final project = _detailProject;
     if (project == null) return _dashboard(context);
     final tokens = CalendarStudioTokens.of(context);
-    final template = CalendarStudioTemplates.byId(project.templateId);
+    final template = _templateById(project.templateId);
     final blocked = _pagesWithErrors(project);
     final warned = {
       for (final issue in CalendarStudioPreflight.check(project))
@@ -715,6 +757,13 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                   icon: const Icon(Icons.share_outlined),
                   label: const Text('Share file'),
                 ),
+                if (widget.configuration.templates != null)
+                  OutlinedButton.icon(
+                    key: const ValueKey('calendar-studio-save-template'),
+                    onPressed: () => _saveAsTemplate(project),
+                    icon: const Icon(Icons.bookmark_add_outlined),
+                    label: const Text('Save as template'),
+                  ),
               ],
             ),
             const SizedBox(height: 12),
@@ -839,31 +888,14 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   }
 
   Future<void> _renameProject(CalendarStudioProject project) async {
-    final field = TextEditingController(text: project.name);
     final name = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Rename project'),
-        content: TextField(
-          controller: field,
-          autofocus: true,
-          textInputAction: TextInputAction.done,
-          decoration: const InputDecoration(labelText: 'Project name'),
-          onSubmitted: (value) => Navigator.pop(dialogContext, value.trim()),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, field.text.trim()),
-            child: const Text('Rename'),
-          ),
-        ],
+      builder: (_) => _RenameDialog(
+        title: 'Rename project',
+        label: 'Project name',
+        initial: project.name,
       ),
     );
-    field.dispose();
     if (name == null || name.isEmpty || name == project.name) return;
     await widget.configuration.projects.save(
       project.copyWith(name: name, updatedAt: DateTime.now()),
@@ -999,33 +1031,287 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
     );
     if (confirmed != true) return;
     await widget.configuration.projects.delete(project.id);
+    await _deleteUnusedAssets();
+    await _load();
+  }
+
+  /// Removes stored images no project or template uses any more.
+  Future<void> _deleteUnusedAssets() async {
     final remaining = await widget.configuration.projects.list();
+    final templates = await widget.configuration.templates?.list() ?? const [];
     final usedAssets = <String>{
       for (final item in remaining)
-        for (final page in item.pages)
-          for (final block in page.blocks)
-            for (final key in const [
-              'assetId',
-              'originalAssetId',
-              'editBaseAssetId',
-            ])
-              if (block.content[key] case final String id) id,
+        ...CalendarStudioProjectBundle.referencedAssetIds(item),
+      for (final template in templates) ...template.assetIds,
     };
     await _assets?.deleteUnusedAssets(usedAssets);
-    await _load();
   }
 
   /// Dashboard filter for a project, from its template's category label
   /// ("Wall · A4 portrait", "Story · 9:16", …).
   String _projectCategory(CalendarStudioProject project) =>
-      switch (CalendarStudioTemplates.byId(
-        project.templateId,
-      ).category.split(' ').first) {
+      switch (_templateById(project.templateId).category.split(' ').first) {
         'Wall' => 'Wall',
         'Desk' => 'Desk',
         'Social' || 'Story' => 'Social',
         _ => 'Print',
       };
+
+  Widget _templateMenu(
+    CalendarStudioUserTemplate template, {
+    bool compact = false,
+  }) => PopupMenuButton<String>(
+    key: ValueKey('calendar-studio-template-menu-${template.id}'),
+    tooltip: 'Template actions',
+    padding: compact ? EdgeInsets.zero : const EdgeInsets.all(8),
+    iconSize: compact ? 18 : 24,
+    onSelected: (value) => _templateAction(value, template),
+    itemBuilder: (_) => const [
+      PopupMenuItem(value: 'share', child: Text('Share')),
+      PopupMenuItem(value: 'rename', child: Text('Rename')),
+      PopupMenuDivider(),
+      PopupMenuItem(value: 'delete', child: Text('Delete…')),
+    ],
+  );
+
+  Future<void> _templateAction(
+    String action,
+    CalendarStudioUserTemplate template,
+  ) => switch (action) {
+    'share' => _shareTemplate(template),
+    'rename' => _renameTemplate(template),
+    'delete' => _deleteTemplate(template),
+    _ => Future.value(),
+  };
+
+  /// "Save as template" (from project detail or the editor's settings).
+  Future<void> _saveAsTemplate(
+    CalendarStudioProject project, {
+    int page = 0,
+  }) async {
+    final store = widget.configuration.templates;
+    if (store == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final request =
+        await showModalBottomSheet<CalendarStudioSaveTemplateRequest>(
+          context: context,
+          isScrollControlled: true,
+          showDragHandle: true,
+          builder: (_) => FractionallySizedBox(
+            heightFactor: _sheetHeight,
+            child: CalendarStudioSaveTemplateSheet(
+              project: project,
+              initialPage: page,
+              moodOptions: _moods.take(10).toList(),
+              dataProvider: _calendarData,
+              assetStore: _assets,
+            ),
+          ),
+        );
+    if (request == null || !mounted) return;
+    final template = CalendarStudioUserTemplates.capture(
+      project,
+      project.pages[request.pageIndex],
+      name: request.name,
+      author: request.author,
+      blocks: request.blocks,
+      keepPhotos: request.keepPhotos,
+      moods: request.moods,
+      now: widget.configuration.now?.call() ?? DateTime.now(),
+    );
+    try {
+      await store.save(template);
+    } catch (_) {
+      messenger.toast(
+        "Couldn't save the template.",
+        kind: StudioToastKind.error,
+      );
+      return;
+    }
+    await _loadTemplates();
+    if (!mounted) return;
+    setState(() {});
+    messenger.toast(
+      'Saved “${template.name}” to My templates.',
+      actionLabel: 'View',
+      onAction: () => setState(() {
+        _galleryQuery = '';
+        _galleryMood = null;
+        _galleryPlace = 'All';
+        view = _View.templates;
+      }),
+    );
+    // The preview is for sharing; render it after saving so the sheet
+    // closes at once.
+    unawaited(_withPreview(template, source: project.source));
+  }
+
+  /// [template] with a rendered preview, saved; falls back to [template] when
+  /// rendering fails.
+  Future<CalendarStudioUserTemplate> _withPreview(
+    CalendarStudioUserTemplate template, {
+    CalendarStudioSource? source,
+  }) async {
+    if (template.preview != null) return template;
+    try {
+      final project = CalendarStudioUserTemplates.toTemplate(template).create(
+        id: 'template-preview',
+        source: (source ?? this.source).copyWith(
+          period: CalendarStudioPeriod.month,
+        ),
+        now: template.createdAt,
+      );
+      final page = project.pages.first;
+      final png =
+          await CalendarStudioRasterRenderer(
+            dataProvider: _calendarData,
+            assetStore: _assets,
+          ).renderPage(
+            project,
+            page,
+            width: 600,
+            height: (600 * page.canvas.height / page.canvas.width).round(),
+          );
+      final withPreview = template.copyWith(preview: png);
+      await widget.configuration.templates?.save(withPreview);
+      await _loadTemplates();
+      return withPreview;
+    } catch (_) {
+      return template;
+    }
+  }
+
+  Future<void> _shareTemplate(CalendarStudioUserTemplate template) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final delivery = widget.configuration.exportDelivery;
+    if (delivery == null) {
+      messenger.toast(
+        'No export destination is configured.',
+        kind: StudioToastKind.error,
+      );
+      return;
+    }
+    try {
+      final artifact = await CalendarStudioTemplateBundle.export(
+        await _withPreview(template),
+        assets: _assets,
+        fileName: _safeFileName(template.name),
+      );
+      await delivery.deliver(
+        artifact,
+        destination: CalendarStudioExportDestination.share,
+      );
+    } catch (_) {
+      messenger.toast(
+        "Couldn't create the template file.",
+        kind: StudioToastKind.error,
+      );
+    }
+  }
+
+  Future<void> _renameTemplate(CalendarStudioUserTemplate template) async {
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => _RenameDialog(
+        title: 'Rename template',
+        label: 'Template name',
+        initial: template.name,
+      ),
+    );
+    if (name == null || name.isEmpty || name == template.name) return;
+    await widget.configuration.templates?.save(
+      template.copyWith(
+        name: name,
+        updatedAt: widget.configuration.now?.call() ?? DateTime.now(),
+      ),
+    );
+    await _loadTemplates();
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _deleteTemplate(CalendarStudioUserTemplate template) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Delete “${template.name}”?'),
+        content: const Text(
+          'Calendars you already made from it keep their design.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await widget.configuration.templates?.delete(template.id);
+    await _deleteUnusedAssets();
+    await _loadTemplates();
+    if (!mounted) return;
+    setState(() {
+      if (_selectedPresetId == template.templateId) _selectedPresetId = null;
+    });
+  }
+
+  Future<void> _importTemplate() async {
+    final store = widget.configuration.templates;
+    if (store == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final pick =
+        widget.configuration.pickTemplateFile ??
+        CalendarStudioTemplateBundle.pickFile;
+    final CalendarStudioTemplateFile file;
+    try {
+      final bytes = await pick();
+      if (bytes == null) return;
+      file = await CalendarStudioTemplateBundle.read(bytes);
+    } on CalendarStudioProjectFileException catch (error) {
+      messenger.toast(error.message, kind: StudioToastKind.error);
+      return;
+    } catch (_) {
+      messenger.toast("Couldn't open that file.", kind: StudioToastKind.error);
+      return;
+    }
+    if (!mounted) return;
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * _sheetHeight,
+      ),
+      builder: (_) => CalendarStudioTemplateImportSummary(file: file),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      final template = await CalendarStudioTemplateBundle.import(
+        file,
+        templates: store,
+        assets: _assets,
+        now: widget.configuration.now?.call(),
+      );
+      await _loadTemplates();
+      if (!mounted) return;
+      setState(() {
+        _galleryQuery = '';
+        _galleryMood = null;
+        _galleryPlace = 'All';
+        view = _View.templates;
+      });
+      messenger.toast('Added “${template.name}” to My templates.');
+    } catch (_) {
+      messenger.toast(
+        "Couldn't import the template.",
+        kind: StudioToastKind.error,
+      );
+    }
+  }
 
   String _safeFileName(String value) {
     final normalized = value.trim().replaceAll(RegExp(r'[^A-Za-z0-9_-]+'), '_');
@@ -1047,7 +1333,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   List<String> get _moods {
     final counts = <String, int>{};
-    for (final template in CalendarStudioTemplates.all) {
+    for (final template in _allTemplates) {
       for (final mood in template.moods) {
         counts[mood] = (counts[mood] ?? 0) + 1;
       }
@@ -1128,12 +1414,27 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           const SizedBox(height: 6),
           if (template.palette.isNotEmpty) _palette(template),
           const SizedBox(height: 4),
-          Text(
-            template.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
+          if (template.user case final user?)
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    template.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                SizedBox(height: 24, child: _templateMenu(user, compact: true)),
+              ],
+            )
+          else
+            Text(
+              template.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
           Text(
             template.category,
             maxLines: 1,
@@ -1177,8 +1478,8 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         ChoiceChip(
           label: Text(
             place == 'All'
-                ? 'All ${CalendarStudioTemplates.all.length}'
-                : '$place ${CalendarStudioTemplates.all.where((t) => _placeOf(t) == place).length}',
+                ? 'All ${_allTemplates.length}'
+                : '$place ${_allTemplates.where((t) => _placeOf(t) == place).length}',
           ),
           selected: _galleryPlace == place,
           onSelected: (_) => setState(() => _galleryPlace = place),
@@ -1230,15 +1531,18 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   Widget _templates(BuildContext context) => LayoutBuilder(
     builder: (context, box) {
       final wide = box.maxWidth >= 1024;
-      final filtered = CalendarStudioTemplates.all
+      final filtered = _allTemplates
           .where((template) => _matchesGallery(template))
           .toList();
       final browsing =
           _galleryQuery.trim().isEmpty &&
           _galleryMood == null &&
           _galleryPlace == 'All';
+      final mine = filtered.where((t) => t.user != null).toList();
       final fresh = filtered.where((t) => t.collection != null).toList();
-      final classic = filtered.where((t) => t.collection == null).toList();
+      final classic = filtered
+          .where((t) => t.collection == null && t.user == null)
+          .toList();
       final columns = wide ? 4 : (box.maxWidth >= 600 ? 3 : 2);
       Widget heading(String text, String trailing) => Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
@@ -1269,6 +1573,23 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
               child: Center(child: Text('No presets match. Try another mood.')),
             )
           else if (browsing) ...[
+            if (mine.isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: heading(
+                  'My templates',
+                  '${mine.length} template${mine.length == 1 ? '' : 's'}',
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: _presetGrid(
+                  context,
+                  mine,
+                  columns: columns,
+                  wide: wide,
+                ),
+              ),
+            ],
             SliverToBoxAdapter(
               child: heading('New · Vol 1 & 2', '${fresh.length} presets'),
             ),
@@ -1303,9 +1624,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         ],
       );
       final selected = wide
-          ? CalendarStudioTemplates.all
-                .where((t) => t.id == _selectedPresetId)
-                .firstOrNull
+          ? _allTemplates.where((t) => t.id == _selectedPresetId).firstOrNull
           : null;
       return Scaffold(
         appBar: AppBar(
@@ -1313,6 +1632,14 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             onPressed: () => setState(() => view = _View.dashboard),
           ),
           title: const Text('Choose a preset'),
+          actions: [
+            if (widget.configuration.templates != null)
+              IconButton(
+                tooltip: 'Import template',
+                onPressed: _importTemplate,
+                icon: const Icon(Icons.file_open_outlined),
+              ),
+          ],
         ),
         body: wide
             ? Row(
@@ -1457,6 +1784,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                   ),
                   if (template.collection case final collection?)
                     ('Collection', collection),
+                  if (template.user?.author case final author?) ('By', author),
+                  if (template.user case final user?)
+                    ('Based on', _templateById(user.basePresetId).name),
                 ])
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1475,6 +1805,33 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
             ),
           ),
         ),
+        if (template.user case final user?) ...[
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => _templateAction('share', user),
+                icon: const Icon(Icons.share_outlined),
+                label: const Text('Share'),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => _templateAction('rename', user),
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Rename'),
+              ),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  if (!panel) Navigator.pop(context);
+                  await _templateAction('delete', user);
+                },
+                icon: const Icon(Icons.delete_outline),
+                label: const Text('Delete'),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 16),
         FilledButton(
           key: const ValueKey('calendar-studio-use-preset'),
@@ -1792,7 +2149,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
 
   void _showProjectSettings() {
     final project = controller.project!;
-    final template = CalendarStudioTemplates.byId(project.templateId);
+    final template = _templateById(project.templateId);
     var draft = project.source;
     showModalBottomSheet<void>(
       context: context,
@@ -2020,6 +2377,31 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                         ),
                       ],
                     ),
+                    if (widget.configuration.templates != null) ...[
+                      const Divider(height: 24),
+                      const Text(
+                        'Template',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const Text(
+                        'Reuse this design for other calendars, or share it.',
+                      ),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(sheetContext);
+                            _saveAsTemplate(
+                              controller.project!,
+                              page: controller.pageIndex,
+                            );
+                          },
+                          icon: const Icon(Icons.bookmark_add_outlined),
+                          label: const Text('Save as template'),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -4637,7 +5019,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
           year: page.year,
           month: page.month,
           pageLabel: page.label,
-          templateName: CalendarStudioTemplates.byId(project.templateId).name,
+          templateName: _templateById(project.templateId).name,
           currentText: currentText,
           holidays: [
             for (final day in days)
@@ -5738,6 +6120,54 @@ class _ImportSummary extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Asks for a new name. Owns its text controller, so it is disposed only
+/// after the dialog has finished closing.
+class _RenameDialog extends StatefulWidget {
+  const _RenameDialog({
+    required this.title,
+    required this.label,
+    required this.initial,
+  });
+  final String title;
+  final String label;
+  final String initial;
+
+  @override
+  State<_RenameDialog> createState() => _RenameDialogState();
+}
+
+class _RenameDialogState extends State<_RenameDialog> {
+  late final _field = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _field.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: Text(widget.title),
+    content: TextField(
+      controller: _field,
+      autofocus: true,
+      textInputAction: TextInputAction.done,
+      decoration: InputDecoration(labelText: widget.label),
+      onSubmitted: (value) => Navigator.pop(context, value.trim()),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Cancel'),
+      ),
+      FilledButton(
+        onPressed: () => Navigator.pop(context, _field.text.trim()),
+        child: const Text('Rename'),
+      ),
+    ],
+  );
 }
 
 /// Swipeable sample months with page dots (preset detail).

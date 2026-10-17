@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/calendar_studio_document.dart';
 import 'calendar_studio_contracts.dart';
 import 'calendar_studio_document_codec.dart';
+import 'calendar_studio_zip.dart';
 
 /// Why a project file could not be read; [message] is shown to the user.
 class CalendarStudioProjectFileException implements Exception {
@@ -85,7 +85,8 @@ abstract final class CalendarStudioProjectBundle {
       if (raw == null || raw.isEmpty) continue;
       final asset = await assets?.load(id);
       final name = asset?.name ?? id;
-      final path = 'assets/${_safeSegment(id)}${_extensionOf(name)}';
+      final path =
+          'assets/${CalendarStudioZip.safeSegment(id)}${CalendarStudioZip.extensionOf(name)}';
       files[path] = raw is Uint8List ? raw : Uint8List.fromList(raw);
       entries.add({
         'id': id,
@@ -104,7 +105,7 @@ abstract final class CalendarStudioProjectBundle {
       'pages': project.pages.length,
       'assets': entries,
     };
-    final bytes = await compute(_encodeZip, {
+    final bytes = await CalendarStudioZip.encode({
       'manifest.json': utf8.encode(jsonEncode(manifest)),
       'project.json': utf8.encode(
         jsonEncode(CalendarStudioDocumentCodec.encode(project)),
@@ -126,7 +127,11 @@ abstract final class CalendarStudioProjectBundle {
     }
     final Map<String, Uint8List> files;
     try {
-      files = await compute(_decodeZip, bytes);
+      files = await CalendarStudioZip.decode(
+        bytes,
+        names: const {'manifest.json', 'project.json'},
+        maxBytes: maxBytes,
+      );
     } catch (_) {
       throw const CalendarStudioProjectFileException(
         "This isn't a Calendar Studio project file.",
@@ -252,14 +257,6 @@ abstract final class CalendarStudioProjectBundle {
     };
   }
 
-  static String _safeSegment(String value) =>
-      value.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
-
-  static String _extensionOf(String name) {
-    final match = RegExp(r'\.[A-Za-z0-9]{1,5}$').firstMatch(name);
-    return match?.group(0)?.toLowerCase() ?? '';
-  }
-
   /// Lets the user pick a project file. Mobile pickers can't filter by an
   /// unregistered extension, so they show all files and the content is
   /// validated on read.
@@ -275,36 +272,4 @@ abstract final class CalendarStudioProjectBundle {
     );
     return result?.files.single.bytes;
   }
-}
-
-Uint8List _encodeZip(Map<String, List<int>> files) {
-  final archive = Archive();
-  for (final MapEntry(key: path, value: data) in files.entries) {
-    archive.addFile(ArchiveFile(path, data.length, data));
-  }
-  return Uint8List.fromList(ZipEncoder().encode(archive));
-}
-
-/// Only plain entries we know how to use are read: no directories, no
-/// absolute or parent paths, and the total stays under the size limit.
-Map<String, Uint8List> _decodeZip(Uint8List bytes) {
-  final archive = ZipDecoder().decodeBytes(bytes);
-  final files = <String, Uint8List>{};
-  var total = 0;
-  for (final file in archive.files) {
-    if (!file.isFile) continue;
-    final name = file.name;
-    final allowed =
-        name == 'manifest.json' ||
-        name == 'project.json' ||
-        RegExp(r'^assets/[A-Za-z0-9._-]+$').hasMatch(name);
-    if (!allowed || name.contains('..')) continue;
-    final data = file.content;
-    total += data.length;
-    if (total > CalendarStudioProjectBundle.maxBytes) {
-      throw StateError('Archive too large');
-    }
-    files[name] = data;
-  }
-  return files;
 }
