@@ -236,15 +236,14 @@ class _Summary extends StatelessWidget {
       date,
     ).difference(DateUtils.dateOnly(today)).inDays;
     final l10n = AppLocalizations.of(context);
+    // Interface words, in the app language, kept apart from the date.
     final when = switch (days) {
-      0 => '${l10n?.today ?? 'Today'} · ',
-      1 => '${l10n?.tomorrow ?? 'Tomorrow'} · ',
-      -1 => '${l10n?.yesterday ?? 'Yesterday'} · ',
-      _ => '',
+      0 => l10n?.today ?? 'Today',
+      1 => l10n?.tomorrow ?? 'Tomorrow',
+      -1 => l10n?.yesterday ?? 'Yesterday',
+      > 1 => l10n?.calendarInDays(days) ?? 'in $days days',
+      _ => l10n?.calendarDaysAgo(-days) ?? '${-days} days ago',
     };
-    final distance = days.abs() > 1
-        ? ' · ${days > 0 ? l10n?.calendarInDays(days) ?? 'in $days days' : l10n?.calendarDaysAgo(-days) ?? '${-days} days ago'}'
-        : '';
     final marker = options.showHolidays && day.allHolidays.isNotEmpty
         ? (format.translate(day.allHolidays.first), colors.holiday)
         : options.showSabbaths && day.isSabbath
@@ -255,12 +254,13 @@ class _Summary extends StatelessWidget {
       children: [
         MoonGlyph(state: moon, size: 28),
         const SizedBox(width: 12),
+        // Calendar data, all in the calendar language.
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$when${format.shortDate(date)}$distance',
+                format.shortDate(date),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -283,23 +283,46 @@ class _Summary extends StatelessWidget {
             ],
           ),
         ),
-        // The date reads first; the marker chip shortens instead.
-        if (marker case (final text, final color)) ...[
-          const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 96),
-            child: _Badge(text: text, color: color),
-          ),
-        ],
-        if (eventCount > 0) ...[
-          const SizedBox(width: 6),
-          _Badge(
-            text:
-                l10n?.calendarEventCount(eventCount) ??
-                (eventCount == 1 ? '1 event' : '$eventCount events'),
-            color: colors.accent,
-          ),
-        ],
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              when,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.35,
+                fontWeight: days == 0 ? FontWeight.w600 : FontWeight.w400,
+                color: days == 0 ? colors.accent : colors.secondaryLabel,
+              ),
+            ),
+            if (marker != null || eventCount > 0) ...[
+              const SizedBox(height: 3),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // The date reads first; the marker chip shortens instead.
+                  if (marker case (final text, final color))
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 96),
+                      child: _Badge(text: text, color: color),
+                    ),
+                  if (marker != null && eventCount > 0)
+                    const SizedBox(width: 4),
+                  if (eventCount > 0)
+                    _Badge(
+                      text:
+                          l10n?.calendarEventCount(eventCount) ??
+                          (eventCount == 1 ? '1 event' : '$eventCount events'),
+                      color: colors.accent,
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
       ],
     );
   }

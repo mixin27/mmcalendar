@@ -38,12 +38,62 @@ class CalendarStudioWorkspace extends StatefulWidget {
   const CalendarStudioWorkspace({required this.configuration, super.key});
   final CalendarStudioConfiguration configuration;
   @override
-  State<CalendarStudioWorkspace> createState() => _CalendarStudioPageState();
+  State<CalendarStudioWorkspace> createState() => _CalendarStudioThemeState();
+}
+
+/// Applies Studio's theme above the workspace, so every sheet and dialog the
+/// workspace opens (they capture the theme of the context that opens them)
+/// looks like Studio rather than the host app.
+class _CalendarStudioThemeState extends State<CalendarStudioWorkspace> {
+  ThemeData? _theme;
+  CalendarStudioTokens? _themeTokens;
+  Brightness? _themeBrightness;
+  CalendarStudioChrome? _themeChrome;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = switch (widget.configuration.appearance) {
+      CalendarStudioAppearance.light => Brightness.light,
+      CalendarStudioAppearance.dark => Brightness.dark,
+      CalendarStudioAppearance.system => MediaQuery.platformBrightnessOf(
+        context,
+      ),
+    };
+    final tokens = brightness == Brightness.dark
+        ? widget.configuration.darkTokens
+        : widget.configuration.lightTokens;
+    if (_theme == null ||
+        _themeTokens != tokens ||
+        _themeBrightness != brightness ||
+        _themeChrome != widget.configuration.chrome) {
+      _themeTokens = tokens;
+      _themeBrightness = brightness;
+      _themeChrome = widget.configuration.chrome;
+      _theme = CalendarStudioTheme.fromTokens(
+        tokens,
+        brightness: brightness,
+        chrome: widget.configuration.chrome,
+        fontFamily: widget.configuration.fontFamily,
+        fontFamilyFallback: widget.configuration.fontFamilyFallback,
+      );
+    }
+    return Theme(
+      data: _theme!,
+      child: _CalendarStudioBody(configuration: widget.configuration),
+    );
+  }
+}
+
+class _CalendarStudioBody extends StatefulWidget {
+  const _CalendarStudioBody({required this.configuration});
+  final CalendarStudioConfiguration configuration;
+  @override
+  State<_CalendarStudioBody> createState() => _CalendarStudioPageState();
 }
 
 enum _View { dashboard, project, templates, editor, preview }
 
-class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
+class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   static const _minCanvasZoom = .5;
   static const _maxCanvasZoom = 4.0;
   late final CalendarStudioController controller;
@@ -76,10 +126,6 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   var _canSuggestText = false;
   var _textFieldRevision = 0;
   PageController? _previewPages;
-  ThemeData? _theme;
-  CalendarStudioTokens? _themeTokens;
-  Brightness? _themeBrightness;
-  CalendarStudioChrome? _themeChrome;
   final _templatePreviews =
       <(String, CalendarStudioSource), CalendarStudioProject>{};
   var view = _View.dashboard;
@@ -266,39 +312,7 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final brightness = switch (widget.configuration.appearance) {
-      CalendarStudioAppearance.light => Brightness.light,
-      CalendarStudioAppearance.dark => Brightness.dark,
-      CalendarStudioAppearance.system => MediaQuery.platformBrightnessOf(
-        context,
-      ),
-    };
-    final tokens = brightness == Brightness.dark
-        ? widget.configuration.darkTokens
-        : widget.configuration.lightTokens;
-    if (_theme == null ||
-        _themeTokens != tokens ||
-        _themeBrightness != brightness ||
-        _themeChrome != widget.configuration.chrome) {
-      _themeTokens = tokens;
-      _themeBrightness = brightness;
-      _themeChrome = widget.configuration.chrome;
-      _theme = CalendarStudioTheme.fromTokens(
-        tokens,
-        brightness: brightness,
-        chrome: widget.configuration.chrome,
-        fontFamily: widget.configuration.fontFamily,
-        fontFamilyFallback: widget.configuration.fontFamilyFallback,
-      );
-    }
-    return Theme(
-      data: _theme!,
-      child: Builder(
-        builder: (studioContext) => _buildWorkspace(studioContext),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => _buildWorkspace(context);
 
   Widget _buildWorkspace(BuildContext context) => PopScope(
     canPop: view == _View.dashboard,
@@ -372,11 +386,19 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
       for (final language in CalendarStudioLanguage.values)
         ChoiceChip(
           key: ValueKey('calendar-studio-language-${language.name}'),
-          label: Text(switch (language) {
-            CalendarStudioLanguage.myanmar => 'မြန်မာ',
-            CalendarStudioLanguage.both => 'မြန်မာ + English',
-            _ => language.label,
-          }),
+          // One height for every chip: Myanmar script would otherwise make
+          // its chips taller than the Latin ones.
+          label: SizedBox(
+            height: 22,
+            child: Center(
+              widthFactor: 1,
+              child: Text(switch (language) {
+                CalendarStudioLanguage.myanmar => 'မြန်မာ',
+                CalendarStudioLanguage.both => 'မြန်မာ + English',
+                _ => language.label,
+              }, style: const TextStyle(height: 1.25)),
+            ),
+          ),
           selected: selected == language,
           onSelected: (_) => onSelected(language),
         ),
@@ -2078,6 +2100,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                               trailing: SizedBox(
                                 width: 150,
                                 child: SegmentedButton<bool>(
+                                  // Two short choices: the filled segment shows the pick; a check
+                                  // would squeeze "Sun" onto two lines.
+                                  showSelectedIcon: false,
                                   segments: const [
                                     ButtonSegment(
                                       value: false,
@@ -2305,6 +2330,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
                       children: [
                         const Expanded(child: Text('Week starts on')),
                         SegmentedButton<bool>(
+                          // Two short choices: the filled segment shows the pick; a check
+                          // would squeeze "Sun" onto two lines.
+                          showSelectedIcon: false,
                           segments: const [
                             ButtonSegment(value: false, label: Text('Sun')),
                             ButtonSegment(value: true, label: Text('Mon')),
@@ -3627,6 +3655,9 @@ class _CalendarStudioPageState extends State<CalendarStudioWorkspace> {
         children: [
           const Expanded(child: Text('Week starts')),
           SegmentedButton<bool>(
+            // Two short choices: the filled segment shows the pick; a check
+            // would squeeze "Sun" onto two lines.
+            showSelectedIcon: false,
             segments: const [
               ButtonSegment(value: false, label: Text('Sun')),
               ButtonSegment(value: true, label: Text('Mon')),
