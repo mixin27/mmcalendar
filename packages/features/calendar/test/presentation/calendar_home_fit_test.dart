@@ -274,6 +274,24 @@ void main() {
     });
   }
 
+  testWidgets('day badges are compact chips, not full-width blocks', (
+    tester,
+  ) async {
+    await _pumpHome(
+      tester,
+      size: const Size(402, 874),
+      month: DateTime(2026, 10),
+    );
+    // The full moon of Thadingyut: a holiday, a Sabbath and the moon badge.
+    await tester.tap(find.text('26').first);
+    await tester.pumpAndSettle();
+    final lit = find.textContaining('% lit', skipOffstage: false);
+    expect(lit, findsOneWidget);
+    final chip = find.ancestor(of: lit, matching: find.byType(Container)).first;
+    expect(tester.getSize(chip).width, lessThan(160));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('the sheet expands when dragged up', (tester) async {
     await _pumpHome(
       tester,

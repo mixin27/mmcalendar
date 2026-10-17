@@ -281,9 +281,11 @@ class _Summary extends StatelessWidget {
             ],
           ),
         ),
+        // The date reads first; the marker chip shortens instead.
         if (marker case (final text, final color)) ...[
           const SizedBox(width: 8),
-          Flexible(
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 96),
             child: _Badge(text: text, color: color),
           ),
         ],
@@ -479,10 +481,10 @@ class _UpcomingGroup extends StatelessWidget {
             iconColor: item.iconColor,
             title: item.title,
             subtitle: item.subtitle,
-            value: translateNumbers(
-              l10n?.calendarDaysShort(item.date.difference(start).inDays) ??
-                  '${item.date.difference(start).inDays} d',
-            ),
+            // "2 d" is interface text, in the app language's digits.
+            value:
+                l10n?.calendarDaysShort(item.date.difference(start).inDays) ??
+                '${item.date.difference(start).inDays} d',
             onTap: item.event != null
                 ? () => onOpenEvent(item.event!)
                 : () => onOpenDay(item.date),
@@ -499,9 +501,9 @@ class _Badge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 22,
-    padding: const EdgeInsets.symmetric(horizontal: 8),
-    alignment: Alignment.center,
+    // Sized to its text: a Container with an alignment would stretch the
+    // chip across the whole row.
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
     decoration: BoxDecoration(
       color: color.withValues(alpha: .13),
       borderRadius: BorderRadius.circular(11),
@@ -509,8 +511,10 @@ class _Badge extends StatelessWidget {
     child: Text(
       text,
       maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: TextStyle(
         fontSize: 11.5,
+        height: 1.35,
         fontWeight: FontWeight.w600,
         color: color,
       ),
