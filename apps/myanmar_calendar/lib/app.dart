@@ -208,6 +208,11 @@ class _AppContentState extends State<_AppContent> {
                       settings?.calendarLanguage ??
                       MyanmarCalendar.currentLanguage,
                   clearStyle: context.isClearStyle,
+                  colors: _calendarColors(context),
+                  firstDayOfWeek:
+                      AppMyanmarCalendarScope.weekdayFromMyanmarIndex(
+                        settings?.firstDayOfWeek ?? 1,
+                      ),
                   // Grid themes draw numbers in Studio's bundled typefaces.
                   child: CalendarFontScope(
                     resolve: _calendarFont,
@@ -397,3 +402,22 @@ class _AppStartupGuardState extends State<_AppStartupGuard> {
 
 TextStyle _calendarFont(String family, FontWeight weight) =>
     CalendarStudioFontCatalog.style(family: family, weight: weight);
+
+/// The app's design tokens as the colours flutter_mmcalendar widgets use.
+AppCalendarColors _calendarColors(BuildContext context) {
+  final t = context.tokens;
+  return AppCalendarColors(
+    brightness: Theme.of(context).brightness,
+    accent: t.accent,
+    onAccent: t.onAccent,
+    accentSoft: t.accentSoft,
+    surface: t.surface,
+    fill: t.fill,
+    label: t.label,
+    secondaryLabel: t.secondaryLabel,
+    separator: t.separator,
+    holiday: t.holiday,
+    sabbath: t.sabbath,
+    moon: t.moon,
+  );
+}
