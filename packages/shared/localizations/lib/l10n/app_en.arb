@@ -1588,5 +1588,262 @@
   "settingsCalendarLanguageFooter": "Dates, month and weekday names, lunar days, holidays and moon phases everywhere in the app, including widgets.",
   "@settingsCalendarLanguageFooter": {
     "description": "Footer under the calendar language choices on the Language page."
+  },
+  "settingsCalendarGrid": "Calendar grid",
+  "@settingsCalendarGrid": {
+    "description": "Settings row and page title for the calendar grid layout and theme."
+  },
+  "settingsGridLayoutTab": "Layout",
+  "@settingsGridLayoutTab": {
+    "description": "Segment for choosing the grid layout."
+  },
+  "settingsGridThemeTab": "Theme",
+  "@settingsGridThemeTab": {
+    "description": "Segment for choosing the grid theme."
+  },
+  "settingsGridFitNote": "Every style fits the screen: rows take the height that is left above the day sheet.",
+  "@settingsGridFitNote": {
+    "description": "Note under the grid layout choices."
+  },
+  "settingsGridThemeFooter": "A theme colours the month header, weekday row and grid, and works with every layout. The day sheet keeps the app’s colours.",
+  "@settingsGridThemeFooter": {
+    "description": "Footer under the grid theme choices."
+  },
+  "settingsGridShowMotif": "Show motif",
+  "@settingsGridShowMotif": {
+    "description": "Switch for the small drawing in the header corner of a grid theme."
+  },
+  "gridLayoutDetailedTitle": "Detailed",
+  "@gridLayoutDetailedTitle": {
+    "description": "Name of the Detailed calendar grid layout."
+  },
+  "gridLayoutDetailedDescription": "Lunar day, holiday name, moon and events in every day.",
+  "@gridLayoutDetailedDescription": {
+    "description": "One-line description of the Detailed calendar grid layout."
+  },
+  "gridLayoutCleanTitle": "Clean",
+  "@gridLayoutCleanTitle": {
+    "description": "Name of the Clean calendar grid layout."
+  },
+  "gridLayoutCleanDescription": "Numbers first; the moon only on moon days.",
+  "@gridLayoutCleanDescription": {
+    "description": "One-line description of the Clean calendar grid layout."
+  },
+  "gridLayoutClassicTitle": "Classic",
+  "@gridLayoutClassicTitle": {
+    "description": "Name of the Classic calendar grid layout."
+  },
+  "gridLayoutClassicDescription": "The original tiles and coloured dots.",
+  "@gridLayoutClassicDescription": {
+    "description": "One-line description of the Classic calendar grid layout."
+  },
+  "gridLayoutDetailedV2Title": "Detailed v2",
+  "@gridLayoutDetailedV2Title": {
+    "description": "Name of the Detailed v2 calendar grid layout."
+  },
+  "gridLayoutDetailedV2Description": "Detailed, calmer: no lines, the moon only on moon days.",
+  "@gridLayoutDetailedV2Description": {
+    "description": "One-line description of the Detailed v2 calendar grid layout."
+  },
+  "gridLayoutLunarFirstTitle": "Lunar first",
+  "@gridLayoutLunarFirstTitle": {
+    "description": "Name of the Lunar first calendar grid layout."
+  },
+  "gridLayoutLunarFirstDescription": "The lunar day large, the date small in the corner.",
+  "@gridLayoutLunarFirstDescription": {
+    "description": "One-line description of the Lunar first calendar grid layout."
+  },
+  "gridLayoutMinimalTitle": "Minimal",
+  "@gridLayoutMinimalTitle": {
+    "description": "Name of the Minimal calendar grid layout."
+  },
+  "gridLayoutMinimalDescription": "The date and one status dot.",
+  "@gridLayoutMinimalDescription": {
+    "description": "One-line description of the Minimal calendar grid layout."
+  },
+  "gridLayoutMoonStripTitle": "Moon strip",
+  "@gridLayoutMoonStripTitle": {
+    "description": "Name of the Moon strip calendar grid layout."
+  },
+  "gridLayoutMoonStripDescription": "Tonight’s moon in every day.",
+  "@gridLayoutMoonStripDescription": {
+    "description": "One-line description of the Moon strip calendar grid layout."
+  },
+  "gridLayoutAgendaTitle": "Agenda",
+  "@gridLayoutAgendaTitle": {
+    "description": "Name of the Agenda calendar grid layout."
+  },
+  "gridLayoutAgendaDescription": "Event titles and holidays inside the days.",
+  "@gridLayoutAgendaDescription": {
+    "description": "One-line description of the Agenda calendar grid layout."
+  },
+  "gridLayoutClassicPrintTitle": "Classic print",
+  "@gridLayoutClassicPrintTitle": {
+    "description": "Name of the Classic print calendar grid layout."
+  },
+  "gridLayoutClassicPrintDescription": "A ruled table like a wall calendar.",
+  "@gridLayoutClassicPrintDescription": {
+    "description": "One-line description of the Classic print calendar grid layout."
+  },
+  "gridLayoutTilesTitle": "Tiles",
+  "@gridLayoutTilesTitle": {
+    "description": "Name of the Tiles calendar grid layout."
+  },
+  "gridLayoutTilesDescription": "Every day a card; holidays and Sabbath tinted.",
+  "@gridLayoutTilesDescription": {
+    "description": "One-line description of the Tiles calendar grid layout."
+  },
+  "gridLayoutMoonlightTitle": "Moonlight",
+  "@gridLayoutMoonlightTitle": {
+    "description": "Name of the Moonlight calendar grid layout."
+  },
+  "gridLayoutMoonlightDescription": "Days glow brighter toward the full moon.",
+  "@gridLayoutMoonlightDescription": {
+    "description": "One-line description of the Moonlight calendar grid layout."
+  },
+  "gridLayoutSplitTitle": "Split",
+  "@gridLayoutSplitTitle": {
+    "description": "Name of the Split calendar grid layout."
+  },
+  "gridLayoutSplitDescription": "The date and the lunar day, split diagonally.",
+  "@gridLayoutSplitDescription": {
+    "description": "One-line description of the Split calendar grid layout."
+  },
+  "gridLayoutPosterTitle": "Poster",
+  "@gridLayoutPosterTitle": {
+    "description": "Name of the Poster calendar grid layout."
+  },
+  "gridLayoutPosterDescription": "Big, bold numbers you can read from afar.",
+  "@gridLayoutPosterDescription": {
+    "description": "One-line description of the Poster calendar grid layout."
+  },
+  "gridLayoutMoonRingTitle": "Moon ring",
+  "@gridLayoutMoonRingTitle": {
+    "description": "Name of the Moon ring calendar grid layout."
+  },
+  "gridLayoutMoonRingDescription": "A ring around each date fills with moonlight.",
+  "@gridLayoutMoonRingDescription": {
+    "description": "One-line description of the Moon ring calendar grid layout."
+  },
+  "gridLayoutAstrologyTitle": "Astrology",
+  "@gridLayoutAstrologyTitle": {
+    "description": "Name of the Astrology calendar grid layout."
+  },
+  "gridLayoutAstrologyDescription": "Astrological days and holidays as tags.",
+  "@gridLayoutAstrologyDescription": {
+    "description": "One-line description of the Astrology calendar grid layout."
+  },
+  "gridThemeAppTitle": "App colours",
+  "@gridThemeAppTitle": {
+    "description": "Name of the App colours calendar grid theme."
+  },
+  "gridThemeAppDescription": "The app’s own colours and accent.",
+  "@gridThemeAppDescription": {
+    "description": "One-line description of the App colours calendar grid theme."
+  },
+  "gridThemePagodaTitle": "Pagoda",
+  "@gridThemePagodaTitle": {
+    "description": "Name of the Pagoda calendar grid theme."
+  },
+  "gridThemePagodaDescription": "Temple cream, maroon and pagoda gold.",
+  "@gridThemePagodaDescription": {
+    "description": "One-line description of the Pagoda calendar grid theme."
+  },
+  "gridThemeJadeTitle": "Jade",
+  "@gridThemeJadeTitle": {
+    "description": "Name of the Jade calendar grid theme."
+  },
+  "gridThemeJadeDescription": "Jade green on cool white, with a seal.",
+  "@gridThemeJadeDescription": {
+    "description": "One-line description of the Jade calendar grid theme."
+  },
+  "gridThemeLacquerTitle": "Lacquer",
+  "@gridThemeLacquerTitle": {
+    "description": "Name of the Lacquer calendar grid theme."
+  },
+  "gridThemeLacquerDescription": "Black lacquer, cinnabar and gold leaf.",
+  "@gridThemeLacquerDescription": {
+    "description": "One-line description of the Lacquer calendar grid theme."
+  },
+  "gridThemeThadingyutTitle": "Thadingyut",
+  "@gridThemeThadingyutTitle": {
+    "description": "Name of the Thadingyut calendar grid theme."
+  },
+  "gridThemeThadingyutDescription": "Lantern paper by day, indigo by night.",
+  "@gridThemeThadingyutDescription": {
+    "description": "One-line description of the Thadingyut calendar grid theme."
+  },
+  "gridThemeThingyanTitle": "Thingyan",
+  "@gridThemeThingyanTitle": {
+    "description": "Name of the Thingyan calendar grid theme."
+  },
+  "gridThemeThingyanDescription": "Splash blue and padauk yellow.",
+  "@gridThemeThingyanDescription": {
+    "description": "One-line description of the Thingyan calendar grid theme."
+  },
+  "gridThemeBotanicalTitle": "Botanical",
+  "@gridThemeBotanicalTitle": {
+    "description": "Name of the Botanical calendar grid theme."
+  },
+  "gridThemeBotanicalDescription": "Pressed-leaf greens on herbarium paper.",
+  "@gridThemeBotanicalDescription": {
+    "description": "One-line description of the Botanical calendar grid theme."
+  },
+  "gridThemeMonsoonTitle": "Monsoon",
+  "@gridThemeMonsoonTitle": {
+    "description": "Name of the Monsoon calendar grid theme."
+  },
+  "gridThemeMonsoonDescription": "Rain-season slate with a rust accent.",
+  "@gridThemeMonsoonDescription": {
+    "description": "One-line description of the Monsoon calendar grid theme."
+  },
+  "gridThemeTidewaterTitle": "Tidewater",
+  "@gridThemeTidewaterTitle": {
+    "description": "Name of the Tidewater calendar grid theme."
+  },
+  "gridThemeTidewaterDescription": "Sea glass and deep teal.",
+  "@gridThemeTidewaterDescription": {
+    "description": "One-line description of the Tidewater calendar grid theme."
+  },
+  "gridThemeMorningPourTitle": "Morning Pour",
+  "@gridThemeMorningPourTitle": {
+    "description": "Name of the Morning Pour calendar grid theme."
+  },
+  "gridThemeMorningPourDescription": "Coffee and cream for early risers.",
+  "@gridThemeMorningPourDescription": {
+    "description": "One-line description of the Morning Pour calendar grid theme."
+  },
+  "gridThemeDeepFieldTitle": "Deep Field",
+  "@gridThemeDeepFieldTitle": {
+    "description": "Name of the Deep Field calendar grid theme."
+  },
+  "gridThemeDeepFieldDescription": "Lavender dusk, or deep space at night.",
+  "@gridThemeDeepFieldDescription": {
+    "description": "One-line description of the Deep Field calendar grid theme."
+  },
+  "gridThemeMoonlightTitle": "Moonlight",
+  "@gridThemeMoonlightTitle": {
+    "description": "Name of the Moonlight calendar grid theme."
+  },
+  "gridThemeMoonlightDescription": "Silver-blue and moon gold.",
+  "@gridThemeMoonlightDescription": {
+    "description": "One-line description of the Moonlight calendar grid theme."
+  },
+  "gridThemeNightChartTitle": "Night Chart",
+  "@gridThemeNightChartTitle": {
+    "description": "Name of the Night Chart calendar grid theme."
+  },
+  "gridThemeNightChartDescription": "Violet ink and antique gold.",
+  "@gridThemeNightChartDescription": {
+    "description": "One-line description of the Night Chart calendar grid theme."
+  },
+  "settingsGridDefault": "Default · {description}",
+  "@settingsGridDefault": {
+    "description": "A choice marked as the default, followed by its description.",
+    "placeholders": {
+      "description": {
+        "type": "String"
+      }
+    }
   }
 }

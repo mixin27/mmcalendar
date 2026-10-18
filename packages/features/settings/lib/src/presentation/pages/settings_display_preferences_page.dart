@@ -59,8 +59,15 @@ class _SettingsDisplayPreferencesPageState
               AppRow(
                 icon: Icons.grid_view_rounded,
                 iconColor: SettingsIconColors.blue,
-                title: 'Calendar grid',
-                value: settings.calendarGridStyle.title,
+                title: l10n?.settingsCalendarGrid ?? 'Calendar grid',
+                value: l10n == null
+                    ? null
+                    : [
+                        settings.calendarGridStyle.title(l10n),
+                        if (settings.calendarGridTheme !=
+                            CalendarGridTheme.defaultTheme)
+                          settings.calendarGridTheme.title(l10n),
+                      ].join(' · '),
                 chevron: true,
                 onTap: () => GoRouter.of(
                   context,

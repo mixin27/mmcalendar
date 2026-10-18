@@ -2195,6 +2195,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dates, month and weekday names, lunar days, holidays and moon phases everywhere in the app, including widgets.'**
   String get settingsCalendarLanguageFooter;
+
+  /// Settings row and page title for the calendar grid layout and theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar grid'**
+  String get settingsCalendarGrid;
+
+  /// Segment for choosing the grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get settingsGridLayoutTab;
+
+  /// Segment for choosing the grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsGridThemeTab;
+
+  /// Note under the grid layout choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Every style fits the screen: rows take the height that is left above the day sheet.'**
+  String get settingsGridFitNote;
+
+  /// Footer under the grid theme choices.
+  ///
+  /// In en, this message translates to:
+  /// **'A theme colours the month header, weekday row and grid, and works with every layout. The day sheet keeps the app’s colours.'**
+  String get settingsGridThemeFooter;
+
+  /// Switch for the small drawing in the header corner of a grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Show motif'**
+  String get settingsGridShowMotif;
+
+  /// Name of the Detailed calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed'**
+  String get gridLayoutDetailedTitle;
+
+  /// One-line description of the Detailed calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunar day, holiday name, moon and events in every day.'**
+  String get gridLayoutDetailedDescription;
+
+  /// Name of the Clean calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean'**
+  String get gridLayoutCleanTitle;
+
+  /// One-line description of the Clean calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers first; the moon only on moon days.'**
+  String get gridLayoutCleanDescription;
+
+  /// Name of the Classic calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get gridLayoutClassicTitle;
+
+  /// One-line description of the Classic calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'The original tiles and coloured dots.'**
+  String get gridLayoutClassicDescription;
+
+  /// Name of the Detailed v2 calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed v2'**
+  String get gridLayoutDetailedV2Title;
+
+  /// One-line description of the Detailed v2 calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed, calmer: no lines, the moon only on moon days.'**
+  String get gridLayoutDetailedV2Description;
+
+  /// Name of the Lunar first calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunar first'**
+  String get gridLayoutLunarFirstTitle;
+
+  /// One-line description of the Lunar first calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'The lunar day large, the date small in the corner.'**
+  String get gridLayoutLunarFirstDescription;
+
+  /// Name of the Minimal calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimal'**
+  String get gridLayoutMinimalTitle;
+
+  /// One-line description of the Minimal calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'The date and one status dot.'**
+  String get gridLayoutMinimalDescription;
+
+  /// Name of the Moon strip calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Moon strip'**
+  String get gridLayoutMoonStripTitle;
+
+  /// One-line description of the Moon strip calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonight’s moon in every day.'**
+  String get gridLayoutMoonStripDescription;
+
+  /// Name of the Agenda calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Agenda'**
+  String get gridLayoutAgendaTitle;
+
+  /// One-line description of the Agenda calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Event titles and holidays inside the days.'**
+  String get gridLayoutAgendaDescription;
+
+  /// Name of the Classic print calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic print'**
+  String get gridLayoutClassicPrintTitle;
+
+  /// One-line description of the Classic print calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'A ruled table like a wall calendar.'**
+  String get gridLayoutClassicPrintDescription;
+
+  /// Name of the Tiles calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiles'**
+  String get gridLayoutTilesTitle;
+
+  /// One-line description of the Tiles calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day a card; holidays and Sabbath tinted.'**
+  String get gridLayoutTilesDescription;
+
+  /// Name of the Moonlight calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonlight'**
+  String get gridLayoutMoonlightTitle;
+
+  /// One-line description of the Moonlight calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Days glow brighter toward the full moon.'**
+  String get gridLayoutMoonlightDescription;
+
+  /// Name of the Split calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Split'**
+  String get gridLayoutSplitTitle;
+
+  /// One-line description of the Split calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'The date and the lunar day, split diagonally.'**
+  String get gridLayoutSplitDescription;
+
+  /// Name of the Poster calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Poster'**
+  String get gridLayoutPosterTitle;
+
+  /// One-line description of the Poster calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Big, bold numbers you can read from afar.'**
+  String get gridLayoutPosterDescription;
+
+  /// Name of the Moon ring calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Moon ring'**
+  String get gridLayoutMoonRingTitle;
+
+  /// One-line description of the Moon ring calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'A ring around each date fills with moonlight.'**
+  String get gridLayoutMoonRingDescription;
+
+  /// Name of the Astrology calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Astrology'**
+  String get gridLayoutAstrologyTitle;
+
+  /// One-line description of the Astrology calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Astrological days and holidays as tags.'**
+  String get gridLayoutAstrologyDescription;
+
+  /// Name of the App colours calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'App colours'**
+  String get gridThemeAppTitle;
+
+  /// One-line description of the App colours calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'The app’s own colours and accent.'**
+  String get gridThemeAppDescription;
+
+  /// Name of the Pagoda calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Pagoda'**
+  String get gridThemePagodaTitle;
+
+  /// One-line description of the Pagoda calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Temple cream, maroon and pagoda gold.'**
+  String get gridThemePagodaDescription;
+
+  /// Name of the Jade calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Jade'**
+  String get gridThemeJadeTitle;
+
+  /// One-line description of the Jade calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Jade green on cool white, with a seal.'**
+  String get gridThemeJadeDescription;
+
+  /// Name of the Lacquer calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Lacquer'**
+  String get gridThemeLacquerTitle;
+
+  /// One-line description of the Lacquer calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Black lacquer, cinnabar and gold leaf.'**
+  String get gridThemeLacquerDescription;
+
+  /// Name of the Thadingyut calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Thadingyut'**
+  String get gridThemeThadingyutTitle;
+
+  /// One-line description of the Thadingyut calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Lantern paper by day, indigo by night.'**
+  String get gridThemeThadingyutDescription;
+
+  /// Name of the Thingyan calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Thingyan'**
+  String get gridThemeThingyanTitle;
+
+  /// One-line description of the Thingyan calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Splash blue and padauk yellow.'**
+  String get gridThemeThingyanDescription;
+
+  /// Name of the Botanical calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Botanical'**
+  String get gridThemeBotanicalTitle;
+
+  /// One-line description of the Botanical calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Pressed-leaf greens on herbarium paper.'**
+  String get gridThemeBotanicalDescription;
+
+  /// Name of the Monsoon calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Monsoon'**
+  String get gridThemeMonsoonTitle;
+
+  /// One-line description of the Monsoon calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Rain-season slate with a rust accent.'**
+  String get gridThemeMonsoonDescription;
+
+  /// Name of the Tidewater calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Tidewater'**
+  String get gridThemeTidewaterTitle;
+
+  /// One-line description of the Tidewater calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Sea glass and deep teal.'**
+  String get gridThemeTidewaterDescription;
+
+  /// Name of the Morning Pour calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning Pour'**
+  String get gridThemeMorningPourTitle;
+
+  /// One-line description of the Morning Pour calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee and cream for early risers.'**
+  String get gridThemeMorningPourDescription;
+
+  /// Name of the Deep Field calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep Field'**
+  String get gridThemeDeepFieldTitle;
+
+  /// One-line description of the Deep Field calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Lavender dusk, or deep space at night.'**
+  String get gridThemeDeepFieldDescription;
+
+  /// Name of the Moonlight calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonlight'**
+  String get gridThemeMoonlightTitle;
+
+  /// One-line description of the Moonlight calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver-blue and moon gold.'**
+  String get gridThemeMoonlightDescription;
+
+  /// Name of the Night Chart calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Night Chart'**
+  String get gridThemeNightChartTitle;
+
+  /// One-line description of the Night Chart calendar grid theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Violet ink and antique gold.'**
+  String get gridThemeNightChartDescription;
+
+  /// A choice marked as the default, followed by its description.
+  ///
+  /// In en, this message translates to:
+  /// **'Default · {description}'**
+  String settingsGridDefault(String description);
 }
 
 class _AppLocalizationsDelegate

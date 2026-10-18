@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../bloc/settings_bloc.dart';
@@ -18,81 +19,77 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../widgets/settings_widgets.dart';
 
-/// Names and one-line descriptions for each grid style.
+/// Names and one-line descriptions for each grid layout.
 extension CalendarGridStyleLabel on CalendarGridStyle {
-  String get title => switch (this) {
-    CalendarGridStyle.detailed => 'Detailed',
-    CalendarGridStyle.clean => 'Clean',
-    CalendarGridStyle.classic => 'Classic',
-    CalendarGridStyle.detailedV2 => 'Detailed v2',
-    CalendarGridStyle.lunarFirst => 'Lunar first',
-    CalendarGridStyle.minimal => 'Minimal',
-    CalendarGridStyle.moonStrip => 'Moon strip',
-    CalendarGridStyle.agenda => 'Agenda',
-    CalendarGridStyle.classicPrint => 'Classic print',
-    CalendarGridStyle.tiles => 'Tiles',
-    CalendarGridStyle.moonlight => 'Moonlight',
-    CalendarGridStyle.split => 'Split',
-    CalendarGridStyle.poster => 'Poster',
-    CalendarGridStyle.moonRing => 'Moon ring',
-    CalendarGridStyle.astrology => 'Astrology',
+  String title(AppLocalizations l10n) => switch (this) {
+    CalendarGridStyle.detailed => l10n.gridLayoutDetailedTitle,
+    CalendarGridStyle.clean => l10n.gridLayoutCleanTitle,
+    CalendarGridStyle.classic => l10n.gridLayoutClassicTitle,
+    CalendarGridStyle.detailedV2 => l10n.gridLayoutDetailedV2Title,
+    CalendarGridStyle.lunarFirst => l10n.gridLayoutLunarFirstTitle,
+    CalendarGridStyle.minimal => l10n.gridLayoutMinimalTitle,
+    CalendarGridStyle.moonStrip => l10n.gridLayoutMoonStripTitle,
+    CalendarGridStyle.agenda => l10n.gridLayoutAgendaTitle,
+    CalendarGridStyle.classicPrint => l10n.gridLayoutClassicPrintTitle,
+    CalendarGridStyle.tiles => l10n.gridLayoutTilesTitle,
+    CalendarGridStyle.moonlight => l10n.gridLayoutMoonlightTitle,
+    CalendarGridStyle.split => l10n.gridLayoutSplitTitle,
+    CalendarGridStyle.poster => l10n.gridLayoutPosterTitle,
+    CalendarGridStyle.moonRing => l10n.gridLayoutMoonRingTitle,
+    CalendarGridStyle.astrology => l10n.gridLayoutAstrologyTitle,
   };
 
-  String get description => switch (this) {
-    CalendarGridStyle.detailed =>
-      'Lunar day, holiday name, moon and events in every day.',
-    CalendarGridStyle.clean => 'Numbers first; the moon only on moon days.',
-    CalendarGridStyle.classic => 'The original tiles and coloured dots.',
-    CalendarGridStyle.detailedV2 =>
-      'Detailed, calmer: no lines, the moon only on moon days.',
-    CalendarGridStyle.lunarFirst =>
-      'The lunar day large, the date small in the corner.',
-    CalendarGridStyle.minimal => 'The date and one status dot.',
-    CalendarGridStyle.moonStrip => 'Tonight’s moon in every day.',
-    CalendarGridStyle.agenda => 'Event titles and holidays inside the days.',
-    CalendarGridStyle.classicPrint => 'A ruled table like a wall calendar.',
-    CalendarGridStyle.tiles => 'Every day a card; holidays and Sabbath tinted.',
-    CalendarGridStyle.moonlight => 'Days glow brighter toward the full moon.',
-    CalendarGridStyle.split => 'The date and the lunar day, split diagonally.',
-    CalendarGridStyle.poster => 'Big, bold numbers you can read from afar.',
-    CalendarGridStyle.moonRing =>
-      'A ring around each date fills with moonlight.',
-    CalendarGridStyle.astrology => 'Astrological days and holidays as tags.',
+  String description(AppLocalizations l10n) => switch (this) {
+    CalendarGridStyle.detailed => l10n.gridLayoutDetailedDescription,
+    CalendarGridStyle.clean => l10n.gridLayoutCleanDescription,
+    CalendarGridStyle.classic => l10n.gridLayoutClassicDescription,
+    CalendarGridStyle.detailedV2 => l10n.gridLayoutDetailedV2Description,
+    CalendarGridStyle.lunarFirst => l10n.gridLayoutLunarFirstDescription,
+    CalendarGridStyle.minimal => l10n.gridLayoutMinimalDescription,
+    CalendarGridStyle.moonStrip => l10n.gridLayoutMoonStripDescription,
+    CalendarGridStyle.agenda => l10n.gridLayoutAgendaDescription,
+    CalendarGridStyle.classicPrint => l10n.gridLayoutClassicPrintDescription,
+    CalendarGridStyle.tiles => l10n.gridLayoutTilesDescription,
+    CalendarGridStyle.moonlight => l10n.gridLayoutMoonlightDescription,
+    CalendarGridStyle.split => l10n.gridLayoutSplitDescription,
+    CalendarGridStyle.poster => l10n.gridLayoutPosterDescription,
+    CalendarGridStyle.moonRing => l10n.gridLayoutMoonRingDescription,
+    CalendarGridStyle.astrology => l10n.gridLayoutAstrologyDescription,
   };
 }
 
 /// Names and one-line descriptions for each grid theme.
 extension CalendarGridThemeLabel on CalendarGridTheme {
-  String get title => switch (this) {
-    CalendarGridTheme.app => 'App colours',
-    CalendarGridTheme.pagoda => 'Pagoda',
-    CalendarGridTheme.jade => 'Jade',
-    CalendarGridTheme.lacquer => 'Lacquer',
-    CalendarGridTheme.thadingyut => 'Thadingyut',
-    CalendarGridTheme.thingyan => 'Thingyan',
-    CalendarGridTheme.botanical => 'Botanical',
-    CalendarGridTheme.monsoon => 'Monsoon',
-    CalendarGridTheme.tidewater => 'Tidewater',
-    CalendarGridTheme.morningPour => 'Morning Pour',
-    CalendarGridTheme.deepField => 'Deep Field',
-    CalendarGridTheme.moonlight => 'Moonlight',
-    CalendarGridTheme.nightChart => 'Night Chart',
+  String title(AppLocalizations l10n) => switch (this) {
+    CalendarGridTheme.app => l10n.gridThemeAppTitle,
+    CalendarGridTheme.pagoda => l10n.gridThemePagodaTitle,
+    CalendarGridTheme.jade => l10n.gridThemeJadeTitle,
+    CalendarGridTheme.lacquer => l10n.gridThemeLacquerTitle,
+    CalendarGridTheme.thadingyut => l10n.gridThemeThadingyutTitle,
+    CalendarGridTheme.thingyan => l10n.gridThemeThingyanTitle,
+    CalendarGridTheme.botanical => l10n.gridThemeBotanicalTitle,
+    CalendarGridTheme.monsoon => l10n.gridThemeMonsoonTitle,
+    CalendarGridTheme.tidewater => l10n.gridThemeTidewaterTitle,
+    CalendarGridTheme.morningPour => l10n.gridThemeMorningPourTitle,
+    CalendarGridTheme.deepField => l10n.gridThemeDeepFieldTitle,
+    CalendarGridTheme.moonlight => l10n.gridThemeMoonlightTitle,
+    CalendarGridTheme.nightChart => l10n.gridThemeNightChartTitle,
   };
 
-  String get description => switch (this) {
-    CalendarGridTheme.app => 'The app’s own colours and accent.',
-    CalendarGridTheme.pagoda => 'Temple cream, maroon and pagoda gold.',
-    CalendarGridTheme.jade => 'Jade green on cool white, with a seal.',
-    CalendarGridTheme.lacquer => 'Black lacquer, cinnabar and gold leaf.',
-    CalendarGridTheme.thadingyut => 'Lantern paper by day, indigo by night.',
-    CalendarGridTheme.thingyan => 'Splash blue and padauk yellow.',
-    CalendarGridTheme.botanical => 'Pressed-leaf greens on herbarium paper.',
-    CalendarGridTheme.monsoon => 'Rain-season slate with a rust accent.',
-    CalendarGridTheme.tidewater => 'Sea glass and deep teal.',
-    CalendarGridTheme.morningPour => 'Coffee and cream for early risers.',
-    CalendarGridTheme.deepField => 'Lavender dusk, or deep space at night.',
-    CalendarGridTheme.moonlight => 'Silver-blue and moon gold.',
-    CalendarGridTheme.nightChart => 'Violet ink and antique gold.',
+  String description(AppLocalizations l10n) => switch (this) {
+    CalendarGridTheme.app => l10n.gridThemeAppDescription,
+    CalendarGridTheme.pagoda => l10n.gridThemePagodaDescription,
+    CalendarGridTheme.jade => l10n.gridThemeJadeDescription,
+    CalendarGridTheme.lacquer => l10n.gridThemeLacquerDescription,
+    CalendarGridTheme.thadingyut => l10n.gridThemeThadingyutDescription,
+    CalendarGridTheme.thingyan => l10n.gridThemeThingyanDescription,
+    CalendarGridTheme.botanical => l10n.gridThemeBotanicalDescription,
+    CalendarGridTheme.monsoon => l10n.gridThemeMonsoonDescription,
+    CalendarGridTheme.tidewater => l10n.gridThemeTidewaterDescription,
+    CalendarGridTheme.morningPour => l10n.gridThemeMorningPourDescription,
+    CalendarGridTheme.deepField => l10n.gridThemeDeepFieldDescription,
+    CalendarGridTheme.moonlight => l10n.gridThemeMoonlightDescription,
+    CalendarGridTheme.nightChart => l10n.gridThemeNightChartDescription,
   };
 }
 
@@ -114,9 +111,10 @@ class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SettingsSubPage(
-      title: 'Calendar grid',
-      previousTitle: 'Display',
+      title: l10n.settingsCalendarGrid,
+      previousTitle: l10n.display_preferences,
       builder: (context, settings) {
         final current = settings.calendarGridStyle;
         final month = DateTime.now();
@@ -125,7 +123,10 @@ class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
           firstDayOfWeek: 1,
         ).map(MyanmarCalendar.getCompleteDate).toList(growable: false);
         final tabs = AppSegmented<_Tab>(
-          segments: const {_Tab.layout: 'Layout', _Tab.theme: 'Theme'},
+          segments: {
+            _Tab.layout: l10n.settingsGridLayoutTab,
+            _Tab.theme: l10n.settingsGridThemeTab,
+          },
           value: _tab,
           onChanged: (tab) => setState(() => _tab = tab),
         );
@@ -148,8 +149,8 @@ class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
                 for (final style in CalendarGridStyle.values)
                   _GridChoice(
                     key: ValueKey('grid-style-${style.name}'),
-                    title: style.title,
-                    description: style.description,
+                    title: style.title(l10n),
+                    description: style.description(l10n),
                     isDefault: style == CalendarGridStyle.defaultStyle,
                     selected: style == current,
                     preview: _Preview(style: style, month: month, dates: dates),
@@ -161,8 +162,7 @@ class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
             ),
           ),
           Text(
-            'Every style fits the screen: rows take the height that is '
-            'left above the day sheet.',
+            l10n.settingsGridFitNote,
             style: TextStyle(
               fontSize: 12.5,
               color: context.tokens.secondaryLabel,
@@ -179,6 +179,7 @@ class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
     DateTime month,
     List<CompleteDate> dates,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final brightness = Theme.of(context).brightness;
     return [
       LayoutBuilder(
@@ -194,8 +195,8 @@ class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
             for (final theme in CalendarGridTheme.values)
               _GridChoice(
                 key: ValueKey('grid-theme-${theme.name}'),
-                title: theme.title,
-                description: theme.description,
+                title: theme.title(l10n),
+                description: theme.description(l10n),
                 isDefault: theme == CalendarGridTheme.defaultTheme,
                 selected: theme == settings.calendarGridTheme,
                 swatches: switch (CalendarThemeLook.forTheme(theme)) {
@@ -222,15 +223,13 @@ class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
         ),
       ),
       AppGroup(
-        footer:
-            'A theme colours the month header, weekday row and grid, and '
-            'works with every layout. The day sheet keeps the app’s colours.',
+        footer: l10n.settingsGridThemeFooter,
         children: [
           AppRow.toggle(
             key: const ValueKey('grid-theme-motif'),
             icon: Icons.auto_awesome_outlined,
             iconColor: SettingsIconColors.indigo,
-            title: 'Show motif',
+            title: l10n.settingsGridShowMotif,
             value: settings.showGridMotif,
             onChanged: (value) => context.read<SettingsBloc>().add(
               ToggleDisplayPreference(StorageKeys.calendarGridMotif, value),
@@ -326,7 +325,11 @@ class _GridChoice extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  isDefault ? 'Default · $description' : description,
+                  isDefault
+                      ? AppLocalizations.of(
+                          context,
+                        )!.settingsGridDefault(description)
+                      : description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

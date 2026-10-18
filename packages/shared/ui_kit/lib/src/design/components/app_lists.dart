@@ -231,13 +231,21 @@ class AppRow extends StatelessWidget {
                   ),
                 ),
                 if (value != null)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Text(
-                      value!,
-                      style: TextStyle(
-                        fontSize: clear ? 15 : 14,
-                        color: t.secondaryLabel,
+                  // Long values shorten rather than push past the edge.
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.sizeOf(context).width * .45,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Text(
+                        value!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: clear ? 15 : 14,
+                          color: t.secondaryLabel,
+                        ),
                       ),
                     ),
                   ),

@@ -59,6 +59,12 @@ void main() {
         );
         expect(find.text('Calendar grid'), findsOneWidget);
         expect(find.text('Detailed'), findsOneWidget);
+        // A chosen theme shows next to the layout.
+        harness.bloc.add(
+          const ChangeCalendarGridTheme(CalendarGridTheme.pagoda),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Detailed · Pagoda'), findsOneWidget);
         await tester.tap(find.text('Show Holidays'));
         await tester.pumpAndSettle();
         expect(

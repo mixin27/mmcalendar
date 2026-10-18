@@ -1270,4 +1270,218 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsCalendarLanguageFooter =>
       'Dates, month and weekday names, lunar days, holidays and moon phases everywhere in the app, including widgets.';
+
+  @override
+  String get settingsCalendarGrid => 'Calendar grid';
+
+  @override
+  String get settingsGridLayoutTab => 'Layout';
+
+  @override
+  String get settingsGridThemeTab => 'Theme';
+
+  @override
+  String get settingsGridFitNote =>
+      'Every style fits the screen: rows take the height that is left above the day sheet.';
+
+  @override
+  String get settingsGridThemeFooter =>
+      'A theme colours the month header, weekday row and grid, and works with every layout. The day sheet keeps the app’s colours.';
+
+  @override
+  String get settingsGridShowMotif => 'Show motif';
+
+  @override
+  String get gridLayoutDetailedTitle => 'Detailed';
+
+  @override
+  String get gridLayoutDetailedDescription =>
+      'Lunar day, holiday name, moon and events in every day.';
+
+  @override
+  String get gridLayoutCleanTitle => 'Clean';
+
+  @override
+  String get gridLayoutCleanDescription =>
+      'Numbers first; the moon only on moon days.';
+
+  @override
+  String get gridLayoutClassicTitle => 'Classic';
+
+  @override
+  String get gridLayoutClassicDescription =>
+      'The original tiles and coloured dots.';
+
+  @override
+  String get gridLayoutDetailedV2Title => 'Detailed v2';
+
+  @override
+  String get gridLayoutDetailedV2Description =>
+      'Detailed, calmer: no lines, the moon only on moon days.';
+
+  @override
+  String get gridLayoutLunarFirstTitle => 'Lunar first';
+
+  @override
+  String get gridLayoutLunarFirstDescription =>
+      'The lunar day large, the date small in the corner.';
+
+  @override
+  String get gridLayoutMinimalTitle => 'Minimal';
+
+  @override
+  String get gridLayoutMinimalDescription => 'The date and one status dot.';
+
+  @override
+  String get gridLayoutMoonStripTitle => 'Moon strip';
+
+  @override
+  String get gridLayoutMoonStripDescription => 'Tonight’s moon in every day.';
+
+  @override
+  String get gridLayoutAgendaTitle => 'Agenda';
+
+  @override
+  String get gridLayoutAgendaDescription =>
+      'Event titles and holidays inside the days.';
+
+  @override
+  String get gridLayoutClassicPrintTitle => 'Classic print';
+
+  @override
+  String get gridLayoutClassicPrintDescription =>
+      'A ruled table like a wall calendar.';
+
+  @override
+  String get gridLayoutTilesTitle => 'Tiles';
+
+  @override
+  String get gridLayoutTilesDescription =>
+      'Every day a card; holidays and Sabbath tinted.';
+
+  @override
+  String get gridLayoutMoonlightTitle => 'Moonlight';
+
+  @override
+  String get gridLayoutMoonlightDescription =>
+      'Days glow brighter toward the full moon.';
+
+  @override
+  String get gridLayoutSplitTitle => 'Split';
+
+  @override
+  String get gridLayoutSplitDescription =>
+      'The date and the lunar day, split diagonally.';
+
+  @override
+  String get gridLayoutPosterTitle => 'Poster';
+
+  @override
+  String get gridLayoutPosterDescription =>
+      'Big, bold numbers you can read from afar.';
+
+  @override
+  String get gridLayoutMoonRingTitle => 'Moon ring';
+
+  @override
+  String get gridLayoutMoonRingDescription =>
+      'A ring around each date fills with moonlight.';
+
+  @override
+  String get gridLayoutAstrologyTitle => 'Astrology';
+
+  @override
+  String get gridLayoutAstrologyDescription =>
+      'Astrological days and holidays as tags.';
+
+  @override
+  String get gridThemeAppTitle => 'App colours';
+
+  @override
+  String get gridThemeAppDescription => 'The app’s own colours and accent.';
+
+  @override
+  String get gridThemePagodaTitle => 'Pagoda';
+
+  @override
+  String get gridThemePagodaDescription =>
+      'Temple cream, maroon and pagoda gold.';
+
+  @override
+  String get gridThemeJadeTitle => 'Jade';
+
+  @override
+  String get gridThemeJadeDescription =>
+      'Jade green on cool white, with a seal.';
+
+  @override
+  String get gridThemeLacquerTitle => 'Lacquer';
+
+  @override
+  String get gridThemeLacquerDescription =>
+      'Black lacquer, cinnabar and gold leaf.';
+
+  @override
+  String get gridThemeThadingyutTitle => 'Thadingyut';
+
+  @override
+  String get gridThemeThadingyutDescription =>
+      'Lantern paper by day, indigo by night.';
+
+  @override
+  String get gridThemeThingyanTitle => 'Thingyan';
+
+  @override
+  String get gridThemeThingyanDescription => 'Splash blue and padauk yellow.';
+
+  @override
+  String get gridThemeBotanicalTitle => 'Botanical';
+
+  @override
+  String get gridThemeBotanicalDescription =>
+      'Pressed-leaf greens on herbarium paper.';
+
+  @override
+  String get gridThemeMonsoonTitle => 'Monsoon';
+
+  @override
+  String get gridThemeMonsoonDescription =>
+      'Rain-season slate with a rust accent.';
+
+  @override
+  String get gridThemeTidewaterTitle => 'Tidewater';
+
+  @override
+  String get gridThemeTidewaterDescription => 'Sea glass and deep teal.';
+
+  @override
+  String get gridThemeMorningPourTitle => 'Morning Pour';
+
+  @override
+  String get gridThemeMorningPourDescription =>
+      'Coffee and cream for early risers.';
+
+  @override
+  String get gridThemeDeepFieldTitle => 'Deep Field';
+
+  @override
+  String get gridThemeDeepFieldDescription =>
+      'Lavender dusk, or deep space at night.';
+
+  @override
+  String get gridThemeMoonlightTitle => 'Moonlight';
+
+  @override
+  String get gridThemeMoonlightDescription => 'Silver-blue and moon gold.';
+
+  @override
+  String get gridThemeNightChartTitle => 'Night Chart';
+
+  @override
+  String get gridThemeNightChartDescription => 'Violet ink and antique gold.';
+
+  @override
+  String settingsGridDefault(String description) {
+    return 'Default · $description';
+  }
 }

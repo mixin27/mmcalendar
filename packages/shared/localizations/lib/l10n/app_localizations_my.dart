@@ -1262,4 +1262,221 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String get settingsCalendarLanguageFooter =>
       'ရက်စွဲ၊ လနှင့် နေ့အမည်၊ လဆန်း လဆုတ်၊ ရုံးပိတ်ရက်နှင့် လအခြေအနေများကို ဝီဂျက်များ အပါအဝင် အက်ပ်တစ်ခုလုံးတွင် ပြောင်းပေးသည်။';
+
+  @override
+  String get settingsCalendarGrid => 'ပြက္ခဒိန်ဇယား';
+
+  @override
+  String get settingsGridLayoutTab => 'အပြင်အဆင်';
+
+  @override
+  String get settingsGridThemeTab => 'အရောင်အသွေး';
+
+  @override
+  String get settingsGridFitNote =>
+      'ပုံစံတိုင်း မျက်နှာပြင်နှင့် အံကိုက်ဖြစ်သည်။ အတန်းများသည် နေ့စာရွက်အပေါ်ရှိ ကျန်နေရာကို ယူသည်။';
+
+  @override
+  String get settingsGridThemeFooter =>
+      'အရောင်အသွေးသည် လခေါင်းစဉ်၊ နေ့အမည်တန်းနှင့် ဇယားကို အရောင်ခြယ်ပြီး အပြင်အဆင်တိုင်းနှင့် အသုံးပြုနိုင်သည်။ နေ့စာရွက်သည် အက်ပ်အရောင်ကို ဆက်သုံးသည်။';
+
+  @override
+  String get settingsGridShowMotif => 'အလှဆင်ပုံ ပြရန်';
+
+  @override
+  String get gridLayoutDetailedTitle => 'အသေးစိတ်';
+
+  @override
+  String get gridLayoutDetailedDescription =>
+      'နေ့တိုင်းတွင် လရက်၊ ရုံးပိတ်ရက်အမည်၊ လဝန်းနှင့် ပွဲများ။';
+
+  @override
+  String get gridLayoutCleanTitle => 'ရှင်းလင်း';
+
+  @override
+  String get gridLayoutCleanDescription =>
+      'ရက်စွဲကို ဦးစားပေး၍ လပြည့်၊ လကွယ်နေ့တွင်သာ လဝန်းပြသည်။';
+
+  @override
+  String get gridLayoutClassicTitle => 'ဂန္ထဝင်';
+
+  @override
+  String get gridLayoutClassicDescription =>
+      'မူလ အကွက်များနှင့် အရောင်စက်များ။';
+
+  @override
+  String get gridLayoutDetailedV2Title => 'အသေးစိတ် ၂';
+
+  @override
+  String get gridLayoutDetailedV2Description =>
+      'အသေးစိတ်ကို ပိုငြိမ်စေသည်။ မျဉ်းမပါ၊ လပြည့်၊ လကွယ်နေ့တွင်သာ လဝန်းပြသည်။';
+
+  @override
+  String get gridLayoutLunarFirstTitle => 'လရက် ဦးစား';
+
+  @override
+  String get gridLayoutLunarFirstDescription =>
+      'လရက်ကို ကြီးကြီး၊ ရက်စွဲကို ထောင့်တွင် သေးသေး ပြသည်။';
+
+  @override
+  String get gridLayoutMinimalTitle => 'အနည်းဆုံး';
+
+  @override
+  String get gridLayoutMinimalDescription => 'ရက်စွဲနှင့် အခြေအနေပြ စက်တစ်ခု။';
+
+  @override
+  String get gridLayoutMoonStripTitle => 'လဝန်းတန်း';
+
+  @override
+  String get gridLayoutMoonStripDescription => 'နေ့တိုင်းတွင် ထိုညရဲ့ လဝန်း။';
+
+  @override
+  String get gridLayoutAgendaTitle => 'အစီအစဉ်';
+
+  @override
+  String get gridLayoutAgendaDescription =>
+      'ပွဲအမည်များနှင့် ရုံးပိတ်ရက်များကို ရက်ကွက်ထဲတွင် ပြသည်။';
+
+  @override
+  String get gridLayoutClassicPrintTitle => 'နံရံပြက္ခဒိန်';
+
+  @override
+  String get gridLayoutClassicPrintDescription =>
+      'နံရံကပ်ပြက္ခဒိန်ကဲ့သို့ မျဉ်းကြောင်းဇယား။';
+
+  @override
+  String get gridLayoutTilesTitle => 'အကွက်များ';
+
+  @override
+  String get gridLayoutTilesDescription =>
+      'နေ့တိုင်း ကတ်တစ်ခု၊ ရုံးပိတ်ရက်နှင့် ဥပုသ်နေ့ကို အရောင်ခြယ်ထားသည်။';
+
+  @override
+  String get gridLayoutMoonlightTitle => 'လရောင်';
+
+  @override
+  String get gridLayoutMoonlightDescription =>
+      'လပြည့်နီးလေ ရက်ကွက်များ ပိုလင်းလေ။';
+
+  @override
+  String get gridLayoutSplitTitle => 'ထောင့်ဖြတ်';
+
+  @override
+  String get gridLayoutSplitDescription =>
+      'ရက်စွဲနှင့် လရက်ကို ထောင့်ဖြတ်မျဉ်းဖြင့် ခွဲပြသည်။';
+
+  @override
+  String get gridLayoutPosterTitle => 'ပိုစတာ';
+
+  @override
+  String get gridLayoutPosterDescription =>
+      'အဝေးမှ ဖတ်နိုင်သော ကြီးမားထင်ရှားသည့် ဂဏန်းများ။';
+
+  @override
+  String get gridLayoutMoonRingTitle => 'လဝန်းကွင်း';
+
+  @override
+  String get gridLayoutMoonRingDescription =>
+      'ရက်စွဲတိုင်းကို ဝိုင်းထားသော ကွင်းသည် လရောင်ဖြင့် ပြည့်လာသည်။';
+
+  @override
+  String get gridLayoutAstrologyTitle => 'ဗေဒင်';
+
+  @override
+  String get gridLayoutAstrologyDescription =>
+      'ဗေဒင်ရက်များနှင့် ရုံးပိတ်ရက်များကို တံဆိပ်များဖြင့် ပြသည်။';
+
+  @override
+  String get gridThemeAppTitle => 'အက်ပ်အရောင်';
+
+  @override
+  String get gridThemeAppDescription => 'အက်ပ်၏ မူလအရောင်များ။';
+
+  @override
+  String get gridThemePagodaTitle => 'စေတီ';
+
+  @override
+  String get gridThemePagodaDescription =>
+      'ဘုရားကျောင်း နို့နှစ်ရောင်၊ ရွှေနီရောင်နှင့် စေတီရွှေရောင်။';
+
+  @override
+  String get gridThemeJadeTitle => 'ကျောက်စိမ်း';
+
+  @override
+  String get gridThemeJadeDescription =>
+      'အဖြူရောင်ပေါ်ရှိ ကျောက်စိမ်းရောင်နှင့် တံဆိပ်တုံး။';
+
+  @override
+  String get gridThemeLacquerTitle => 'ယွန်းထည်';
+
+  @override
+  String get gridThemeLacquerDescription =>
+      'ယွန်းအနက်၊ ဟင်္သပဒါးနီနှင့် ရွှေဆိုင်း။';
+
+  @override
+  String get gridThemeThadingyutTitle => 'သီတင်းကျွတ်';
+
+  @override
+  String get gridThemeThadingyutDescription =>
+      'နေ့တွင် မီးပုံးစက္ကူရောင်၊ ညတွင် မဲနယ်ပြာရောင်။';
+
+  @override
+  String get gridThemeThingyanTitle => 'သင်္ကြန်';
+
+  @override
+  String get gridThemeThingyanDescription =>
+      'ရေပက်ပြာရောင်နှင့် ပိတောက်ဝါရောင်။';
+
+  @override
+  String get gridThemeBotanicalTitle => 'သစ်ပင်ပန်းမန်';
+
+  @override
+  String get gridThemeBotanicalDescription =>
+      'စက္ကူပေါ်ရှိ ခြောက်သွေ့သစ်ရွက် စိမ်းရောင်များ။';
+
+  @override
+  String get gridThemeMonsoonTitle => 'မိုးရာသီ';
+
+  @override
+  String get gridThemeMonsoonDescription =>
+      'မိုးရာသီ မီးခိုးပြာရောင်နှင့် သံချေးရောင်။';
+
+  @override
+  String get gridThemeTidewaterTitle => 'ဒီရေ';
+
+  @override
+  String get gridThemeTidewaterDescription =>
+      'ပင်လယ်ဖန်ရောင်နှင့် စိမ်းပြာရင့်ရောင်။';
+
+  @override
+  String get gridThemeMorningPourTitle => 'မနက်ခင်း ကော်ဖီ';
+
+  @override
+  String get gridThemeMorningPourDescription =>
+      'စောစောထသူများအတွက် ကော်ဖီနှင့် နို့ရောင်။';
+
+  @override
+  String get gridThemeDeepFieldTitle => 'ကြယ်စုံည';
+
+  @override
+  String get gridThemeDeepFieldDescription =>
+      'ညနေခင်း ခရမ်းနုရောင်၊ ညတွင် အာကာသနက်ရောင်။';
+
+  @override
+  String get gridThemeMoonlightTitle => 'လရောင်';
+
+  @override
+  String get gridThemeMoonlightDescription => 'ငွေပြာရောင်နှင့် လရွှေရောင်။';
+
+  @override
+  String get gridThemeNightChartTitle => 'ညဇာတာ';
+
+  @override
+  String get gridThemeNightChartDescription =>
+      'ခရမ်းရောင်မင်နှင့် ရှေးရွှေရောင်။';
+
+  @override
+  String settingsGridDefault(String description) {
+    return 'မူလ · $description';
+  }
 }
