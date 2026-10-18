@@ -98,9 +98,20 @@ class AppPage extends StatelessWidget {
     );
   }
 
-  Widget _materialBar(BuildContext context) => largeTitle
-      ? SliverAppBar.large(title: Text(title), actions: actions)
-      : SliverAppBar(pinned: true, title: Text(title), actions: actions);
+  /// One pinned row: the title sits beside the back button instead of
+  /// below an empty toolbar, so pages start right under the status bar.
+  /// Top-level pages ([largeTitle]) get a bigger title.
+  Widget _materialBar(BuildContext context) => SliverAppBar(
+    pinned: true,
+    toolbarHeight: largeTitle ? 64 : kToolbarHeight,
+    title: Text(
+      title,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: largeTitle ? Theme.of(context).textTheme.headlineSmall : null,
+    ),
+    actions: actions,
+  );
 }
 
 class _BarDelegate extends SliverPersistentHeaderDelegate {

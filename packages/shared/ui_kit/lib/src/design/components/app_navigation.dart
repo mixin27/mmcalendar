@@ -165,7 +165,11 @@ class AppNavRail extends StatelessWidget {
         labelType: extended
             ? NavigationRailLabelType.none
             : NavigationRailLabelType.all,
-        leading: header,
+        // NavigationRail lays its leading out with unbounded width, so a
+        // header that fills its row (logo + app name) needs a fixed one.
+        leading: header == null
+            ? null
+            : SizedBox(width: extended ? 232 : 56, child: header),
         destinations: [
           for (final d in destinations)
             NavigationRailDestination(

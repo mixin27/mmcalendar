@@ -110,119 +110,131 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return Scaffold(
       backgroundColor: t.background,
       body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 48,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  children: [
-                    if (inSetup)
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: _Steps(
-                            count: OnboardingPage.setupSteps,
-                            current: step,
+        // A readable column on tablets and desktop.
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 48,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      children: [
+                        if (inSetup)
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              child: _Steps(
+                                count: OnboardingPage.setupSteps,
+                                current: step,
+                              ),
+                            ),
+                          )
+                        else
+                          const Spacer(),
+                        if (inTour)
+                          TextButton(
+                            key: const ValueKey('onboarding-skip'),
+                            onPressed: () => _go(OnboardingPage.tourPages),
+                            child: Text(
+                              l10n.onboardingSkip,
+                              style: TextStyle(color: t.accent, fontSize: 16),
+                            ),
                           ),
-                        ),
-                      )
-                    else
-                      const Spacer(),
-                    if (inTour)
-                      TextButton(
-                        key: const ValueKey('onboarding-skip'),
-                        onPressed: () => _go(OnboardingPage.tourPages),
-                        child: Text(
-                          l10n.onboardingSkip,
-                          style: TextStyle(color: t.accent, fontSize: 16),
-                        ),
-                      ),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                Expanded(
+                  child: PageView(
+                    key: const ValueKey('onboarding-pages'),
+                    controller: _pages,
+                    onPageChanged: (i) => setState(() => _page = i),
+                    children: [
+                      _TourPage(
+                        art: _WelcomeArt(),
+                        title: l10n.onboardingWelcomeTitle,
+                        body: l10n.onboardingWelcomeBody,
+                      ),
+                      _TourPage(
+                        art: const _WeekArt(),
+                        title: l10n.onboardingCalendarsTitle,
+                        body: l10n.onboardingCalendarsBody,
+                      ),
+                      _TourPage(
+                        art: const _HolidayArt(),
+                        title: l10n.onboardingHolidaysTitle,
+                        body: l10n.onboardingHolidaysBody,
+                      ),
+                      _TourPage(
+                        art: const _YoursArt(),
+                        title: l10n.onboardingYoursTitle,
+                        body: l10n.onboardingYoursBody,
+                      ),
+                      _LanguagesStep(
+                        settings: widget.settings,
+                        actions: widget.actions,
+                      ),
+                      _LookStep(
+                        settings: widget.settings,
+                        actions: widget.actions,
+                      ),
+                      _PrivacyStep(
+                        analytics: _analytics,
+                        crashReports: _crashReports,
+                        onAnalytics: (v) => setState(() => _analytics = v),
+                        onCrashReports: (v) =>
+                            setState(() => _crashReports = v),
+                      ),
+                      _NotificationsStep(
+                        onAllow: () async {
+                          await widget.actions.requestNotifications();
+                          _next();
+                        },
+                      ),
+                      const _DoneStep(),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                  child: Column(
+                    children: [
+                      if (inTour) ...[
+                        _Dots(count: OnboardingPage.tourPages, current: _page),
+                        const SizedBox(height: 16),
+                      ],
+                      if (step == 3)
+                        const SizedBox.shrink()
+                      else
+                        AppButton(
+                          key: const ValueKey('onboarding-next'),
+                          label: _page == _total - 1
+                              ? l10n.onboardingStart
+                              : _page == OnboardingPage.tourPages - 1
+                              ? l10n.onboardingSetUp
+                              : l10n.onboardingContinue,
+                          onPressed: _page == _total - 1
+                              ? (_finishing ? null : _finish)
+                              : _next,
+                        ),
+                      if (step == 3)
+                        AppButton(
+                          key: const ValueKey('onboarding-not-now'),
+                          label: l10n.onboardingNotNow,
+                          kind: AppButtonKind.plain,
+                          onPressed: _next,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: PageView(
-                key: const ValueKey('onboarding-pages'),
-                controller: _pages,
-                onPageChanged: (i) => setState(() => _page = i),
-                children: [
-                  _TourPage(
-                    art: _WelcomeArt(),
-                    title: l10n.onboardingWelcomeTitle,
-                    body: l10n.onboardingWelcomeBody,
-                  ),
-                  _TourPage(
-                    art: const _WeekArt(),
-                    title: l10n.onboardingCalendarsTitle,
-                    body: l10n.onboardingCalendarsBody,
-                  ),
-                  _TourPage(
-                    art: const _HolidayArt(),
-                    title: l10n.onboardingHolidaysTitle,
-                    body: l10n.onboardingHolidaysBody,
-                  ),
-                  _TourPage(
-                    art: const _YoursArt(),
-                    title: l10n.onboardingYoursTitle,
-                    body: l10n.onboardingYoursBody,
-                  ),
-                  _LanguagesStep(
-                    settings: widget.settings,
-                    actions: widget.actions,
-                  ),
-                  _LookStep(settings: widget.settings, actions: widget.actions),
-                  _PrivacyStep(
-                    analytics: _analytics,
-                    crashReports: _crashReports,
-                    onAnalytics: (v) => setState(() => _analytics = v),
-                    onCrashReports: (v) => setState(() => _crashReports = v),
-                  ),
-                  _NotificationsStep(
-                    onAllow: () async {
-                      await widget.actions.requestNotifications();
-                      _next();
-                    },
-                  ),
-                  const _DoneStep(),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-              child: Column(
-                children: [
-                  if (inTour) ...[
-                    _Dots(count: OnboardingPage.tourPages, current: _page),
-                    const SizedBox(height: 16),
-                  ],
-                  if (step == 3)
-                    const SizedBox.shrink()
-                  else
-                    AppButton(
-                      key: const ValueKey('onboarding-next'),
-                      label: _page == _total - 1
-                          ? l10n.onboardingStart
-                          : _page == OnboardingPage.tourPages - 1
-                          ? l10n.onboardingSetUp
-                          : l10n.onboardingContinue,
-                      onPressed: _page == _total - 1
-                          ? (_finishing ? null : _finish)
-                          : _next,
-                    ),
-                  if (step == 3)
-                    AppButton(
-                      key: const ValueKey('onboarding-not-now'),
-                      label: l10n.onboardingNotNow,
-                      kind: AppButtonKind.plain,
-                      onPressed: _next,
-                    ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

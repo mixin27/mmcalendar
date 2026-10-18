@@ -147,10 +147,7 @@ void main() {
       expect(colors.seed, const Color(0xFF0E6B5C));
       expect(colors.light[CustomColorSlot.surface], const Color(0xFFF3F7F4));
       expect(colors.dark, isEmpty);
-      expect(
-        colors.scheme(Brightness.light).surface,
-        const Color(0xFFF3F7F4),
-      );
+      expect(colors.scheme(Brightness.light).surface, const Color(0xFFF3F7F4));
     });
 
     test('a new accent clears hand-set slots', () {

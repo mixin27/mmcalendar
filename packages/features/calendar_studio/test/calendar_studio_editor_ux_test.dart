@@ -2,8 +2,11 @@ import 'package:calendar_studio/calendar_studio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<void> _openPhoneEditor(WidgetTester tester) async {
-  tester.view.physicalSize = const Size(390, 844);
+Future<void> _openPhoneEditor(
+  WidgetTester tester, {
+  Size size = const Size(390, 844),
+}) async {
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -44,6 +47,23 @@ String? _selected(WidgetTester tester) => tester
     .selectedBlockId;
 
 void main() {
+  testWidgets('wide screens keep the add tools in a strip by the layers', (
+    tester,
+  ) async {
+    await _openPhoneEditor(tester, size: const Size(1440, 900));
+    for (final tool in ['add', 'text', 'image', 'elements', 'page']) {
+      expect(
+        find.byKey(ValueKey('calendar-studio-tool-$tool')),
+        findsOneWidget,
+        reason: tool,
+      );
+    }
+    final before = _layerCount(tester);
+    await tester.tap(find.byKey(const ValueKey('calendar-studio-tool-text')));
+    await tester.pumpAndSettle();
+    expect(_layerCount(tester), before + 1);
+  });
+
   testWidgets('tapping the board outside the page deselects', (tester) async {
     await _openPhoneEditor(tester);
     await _selectGrid(tester);
@@ -117,3 +137,9 @@ class _MemoryStore implements CalendarStudioProjectStore {
   Future<void> save(CalendarStudioProject project) async =>
       values[project.id] = project;
 }
+
+int _layerCount(WidgetTester tester) => tester
+    .widget<CalendarStudioScene>(find.byType(CalendarStudioScene))
+    .page
+    .blocks
+    .length;

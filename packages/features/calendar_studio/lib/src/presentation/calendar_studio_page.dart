@@ -2619,6 +2619,8 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
         final workspace = wide
             ? Row(
                 children: [
+                  SizedBox(width: 72, child: _tools(vertical: true)),
+                  const VerticalDivider(width: 1, thickness: 1),
                   SizedBox(width: 260, child: _layers()),
                   Expanded(child: canvas),
                   SizedBox(width: 320, child: _inspector()),
@@ -3004,46 +3006,70 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     );
   }
 
-  Widget _tools() => Material(
-    color: CalendarStudioTokens.of(context).surface,
-    child: SizedBox(
-      height: 60,
-      child: Row(
-        children: [
-          _StudioTool(
-            icon: Icons.add,
-            label: 'Add',
-            onTap: () => _showAdd(context),
-          ),
-          _StudioTool(
-            icon: Icons.text_fields,
-            label: 'Text',
-            onTap: () => controller.addBlock(CalendarStudioBlockType.text),
-          ),
-          _StudioTool(
-            icon: Icons.image_outlined,
-            label: 'Image',
-            onTap: () => _pickAsset(CalendarStudioBlockType.image),
-          ),
-          _StudioTool(
-            icon: Icons.interests_outlined,
-            label: 'Elements',
-            onTap: () => _showElements(context),
-          ),
-          _StudioTool(
-            icon: Icons.layers_outlined,
-            label: 'Layers',
-            onTap: () => _showLayers(context),
-          ),
-          _StudioTool(
-            icon: Icons.view_carousel_outlined,
-            label: 'Page',
-            onTap: () => _showPageOptions(context),
-          ),
-        ],
+  /// Add, Text, Image, Elements, Layers and Page: a bottom bar on phones
+  /// and tablets, a strip down the left edge on wide screens (where the
+  /// layers panel is already open, so Layers is left out).
+  Widget _tools({bool vertical = false}) {
+    final tools = [
+      _StudioTool(
+        key: const ValueKey('calendar-studio-tool-add'),
+        icon: Icons.add,
+        label: 'Add',
+        onTap: () => _showAdd(context),
+        expand: !vertical,
       ),
-    ),
-  );
+      _StudioTool(
+        key: const ValueKey('calendar-studio-tool-text'),
+        icon: Icons.text_fields,
+        label: 'Text',
+        onTap: () => controller.addBlock(CalendarStudioBlockType.text),
+        expand: !vertical,
+      ),
+      _StudioTool(
+        key: const ValueKey('calendar-studio-tool-image'),
+        icon: Icons.image_outlined,
+        label: 'Image',
+        onTap: () => _pickAsset(CalendarStudioBlockType.image),
+        expand: !vertical,
+      ),
+      _StudioTool(
+        key: const ValueKey('calendar-studio-tool-elements'),
+        icon: Icons.interests_outlined,
+        label: 'Elements',
+        onTap: () => _showElements(context),
+        expand: !vertical,
+      ),
+      if (!vertical)
+        _StudioTool(
+          icon: Icons.layers_outlined,
+          label: 'Layers',
+          onTap: () => _showLayers(context),
+        ),
+      _StudioTool(
+        key: const ValueKey('calendar-studio-tool-page'),
+        icon: Icons.view_carousel_outlined,
+        label: 'Page',
+        onTap: () => _showPageOptions(context),
+        expand: !vertical,
+      ),
+    ];
+    final tokens = CalendarStudioTokens.of(context);
+    if (vertical) {
+      return Material(
+        color: tokens.surface,
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            for (final tool in tools) SizedBox(height: 64, child: tool),
+          ],
+        ),
+      );
+    }
+    return Material(
+      color: tokens.surface,
+      child: SizedBox(height: 60, child: Row(children: tools)),
+    );
+  }
 
   void _updateSelectedBlock(
     CalendarStudioBlock Function(CalendarStudioBlock block) update,
@@ -5906,18 +5932,24 @@ class _ExportRequest {
 
 class _StudioTool extends StatelessWidget {
   const _StudioTool({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,
+    this.expand = true,
   });
   final IconData icon;
   final String label;
   final VoidCallback onTap;
 
+  /// Share a horizontal bar's width; false in the wide layout's strip.
+  final bool expand;
+
   @override
   Widget build(BuildContext context) {
     final tokens = CalendarStudioTokens.of(context);
-    return Expanded(
+    final button = Tooltip(
+      message: label,
       child: InkWell(
         onTap: onTap,
         child: Column(
@@ -5937,6 +5969,7 @@ class _StudioTool extends StatelessWidget {
         ),
       ),
     );
+    return expand ? Expanded(child: button) : button;
   }
 }
 

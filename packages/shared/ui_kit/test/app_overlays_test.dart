@@ -43,9 +43,7 @@ void main() {
           findsOneWidget,
         );
         await tester.enterText(
-          find.byType(
-            style == AppStyle.clear ? CupertinoTextField : TextField,
-          ),
+          find.byType(style == AppStyle.clear ? CupertinoTextField : TextField),
           '  New name ',
         );
         await tester.tap(find.text('Save'));
