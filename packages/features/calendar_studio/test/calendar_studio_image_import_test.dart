@@ -104,6 +104,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Add'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Images'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Photo from your gallery'));
     await tester.pumpAndSettle();
 

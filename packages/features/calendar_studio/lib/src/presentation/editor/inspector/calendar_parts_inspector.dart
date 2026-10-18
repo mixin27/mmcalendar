@@ -239,9 +239,17 @@ class StudioEventListInspector extends StatelessWidget {
             StudioTextField(
               key: ValueKey('studio-event-empty-${block.id}'),
               host: host,
-              label: 'When a month has no events',
-              value: block.content['placeholder'] as String? ?? '',
-              onChanged: (v) => host.setContent(block, 'placeholder', v),
+              label: 'Sample rows when a month has no events',
+              hint: 'One per line',
+              maxLines: 6,
+              value: [
+                ...?(block.content['placeholder'] as List?)
+                    ?.whereType<String>(),
+              ].join('\n'),
+              onChanged: (v) => host.setContent(block, 'placeholder', [
+                for (final line in v.split('\n'))
+                  if (line.trim().isNotEmpty) line.trim(),
+              ]),
             ),
           const SizedBox(height: 8),
           const Text(

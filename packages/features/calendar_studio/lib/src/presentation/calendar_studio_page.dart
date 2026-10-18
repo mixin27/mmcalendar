@@ -38,6 +38,7 @@ import '../theme/calendar_studio_theme.dart';
 import '../widgets/calendar_studio_scene.dart';
 import 'calendar_studio_export_flow.dart';
 import 'calendar_studio_strings.dart';
+import 'editor/calendar_studio_add_panel.dart';
 import 'editor/calendar_studio_contextual_bar.dart';
 import 'editor/inspector/calendar_studio_inspector.dart';
 import 'editor/inspector/studio_inspector_host.dart';
@@ -3588,359 +3589,53 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       child: _layers(modal: true),
     ),
   );
-  void _showAdd(BuildContext context) => showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (_) => FractionallySizedBox(
-      heightFactor: _sheetHeight,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 12, 8),
-            child: Row(
-              children: [
-                Text(
-                  'Add to page',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              childAspectRatio: 1.85,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-              children: [
-                for (final type in CalendarStudioBlockType.values)
-                  _addBlockTile(type),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
 
-  Widget _addBlockTile(CalendarStudioBlockType type) {
-    final (title, subtitle) = switch (type) {
-      CalendarStudioBlockType.text => ('Text', 'Title, note or quote'),
-      CalendarStudioBlockType.image => ('Image', 'Photo from your gallery'),
-      CalendarStudioBlockType.logo => ('Logo', 'Your brand mark'),
-      CalendarStudioBlockType.calendarGrid => (
-        'Calendar grid',
-        'A month, with Myanmar dates',
-      ),
-      CalendarStudioBlockType.eventList => ('Event list', 'From your Events'),
-      CalendarStudioBlockType.holidayLegend => (
-        'Holiday legend',
-        'Explains marks and colours',
-      ),
-      CalendarStudioBlockType.shape => ('Shape', 'Rectangle, circle, line'),
-      CalendarStudioBlockType.decoration => (
-        'Decoration',
-        'Lotus, borders, motifs',
-      ),
-    };
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-        if (type == CalendarStudioBlockType.image ||
-            type == CalendarStudioBlockType.logo) {
-          _pickAsset(type);
-        } else if (type == CalendarStudioBlockType.shape ||
-            type == CalendarStudioBlockType.decoration) {
-          _showElements(context);
-        } else {
-          controller.addBlock(type);
-        }
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Ink(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          border: Border.all(color: CalendarStudioTokens.of(context).line),
-          borderRadius: BorderRadius.circular(16),
+  /// Items added in this session, newest first, for the Recent tab.
+  final _recentAdds = <StudioAddItem>[];
+
+  void _showAdd(BuildContext context, {StudioAddTab tab = StudioAddTab.text}) =>
+      showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (sheetContext) => FractionallySizedBox(
+          heightFactor: _sheetHeight,
+          child: CalendarStudioAddPanel(
+            theme: CalendarStudioProjectThemes.of(controller.project!),
+            page: controller.currentPage,
+            recent: List.unmodifiable(_recentAdds),
+            initialTab: tab,
+            onClose: () => Navigator.pop(sheetContext),
+            onAdd: (item) {
+              Navigator.pop(sheetContext);
+              _addItem(item);
+            },
+          ),
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: CalendarStudioTokens.of(context).primaryContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(_icon(type)),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  Text(
-                    subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      );
+
+  Future<void> _showElements(BuildContext context) async =>
+      _showAdd(context, tab: StudioAddTab.elements);
+
+  void _addItem(StudioAddItem item) {
+    _recentAdds
+      ..removeWhere((value) => value.id == item.id)
+      ..insert(0, item);
+    if (_recentAdds.length > 12) _recentAdds.removeLast();
+    _endTextEdit();
+    if (item.pick) {
+      _pickAsset(item.type);
+      return;
+    }
+    controller.addBlock(
+      item.type,
+      name: item.id.startsWith('emoji-') ? 'Emoji' : item.label,
+      bounds: item.bounds,
+      content: item.content,
+      style: item.style,
     );
   }
 
-  Future<void> _showElements(BuildContext context) async {
-    const shapes = [
-      ('rectangle', 'Rectangle', Icons.rectangle_outlined),
-      ('rounded', 'Rounded', Icons.crop_16_9_rounded),
-      ('circle', 'Circle', Icons.circle_outlined),
-      ('oval', 'Oval', Icons.circle_outlined),
-      ('triangle', 'Triangle', Icons.change_history),
-      ('diamond', 'Diamond', Icons.diamond_outlined),
-      ('pentagon', 'Pentagon', Icons.pentagon_outlined),
-      ('hexagon', 'Hexagon', Icons.hexagon_outlined),
-      ('octagon', 'Octagon', Icons.stop_outlined),
-      ('star', 'Star', Icons.star_outline),
-      ('heart', 'Heart', Icons.favorite_border),
-      ('arrow', 'Arrow', Icons.arrow_forward),
-      ('line', 'Line', Icons.horizontal_rule),
-    ];
-    const emojis = [
-      '😀',
-      '😂',
-      '🥰',
-      '😍',
-      '😎',
-      '🤩',
-      '🥳',
-      '😊',
-      '🙏',
-      '👏',
-      '👍',
-      '❤️',
-      '🧡',
-      '💛',
-      '💚',
-      '💙',
-      '⭐',
-      '✨',
-      '🔥',
-      '🎉',
-      '🎁',
-      '🎂',
-      '🏆',
-      '💡',
-      '🌞',
-      '🌙',
-      '🌕',
-      '🌸',
-      '🌺',
-      '🌿',
-      '🍀',
-      '🌈',
-      '🐘',
-      '🦚',
-      '🦋',
-      '🐉',
-      '🍜',
-      '☕',
-      '🚗',
-      '✈️',
-      '🏠',
-      '🏯',
-      '🛕',
-      '📅',
-      '📌',
-      '✅',
-      '⚠️',
-      '💬',
-    ];
-    final customEmoji = TextEditingController();
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (sheetContext) => FractionallySizedBox(
-        heightFactor: _sheetHeight,
-        child: DefaultTabController(
-          length: 2,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
-                child: Row(
-                  children: [
-                    Text(
-                      'Elements',
-                      style: Theme.of(sheetContext).textTheme.titleLarge,
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () => Navigator.pop(sheetContext),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ),
-              const TabBar(
-                tabs: [
-                  Tab(text: 'Shapes'),
-                  Tab(text: 'Emojis'),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    GridView.builder(
-                      padding: const EdgeInsets.all(16),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10,
-                          ),
-                      itemCount: shapes.length,
-                      itemBuilder: (_, index) {
-                        final shape = shapes[index];
-                        return InkWell(
-                          onTap: () {
-                            Navigator.pop(sheetContext);
-                            controller.addBlock(
-                              CalendarStudioBlockType.shape,
-                              name: shape.$2,
-                              bounds: shape.$1 == 'line'
-                                  ? const StudioRect(
-                                      left: .2,
-                                      top: .3,
-                                      width: .6,
-                                      height: .025,
-                                    )
-                                  : const StudioRect(
-                                      left: .25,
-                                      top: .2,
-                                      width: .5,
-                                      height: .25,
-                                    ),
-                              content: {'shape': shape.$1},
-                              style: const {
-                                'color': 0xFF0E6B5C,
-                                'strokeColor': 0xFF15201D,
-                                'strokeWidth': 0.0,
-                                'opacity': 1.0,
-                              },
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(14),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: CalendarStudioTokens.of(
-                                sheetContext,
-                              ).surface2,
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(shape.$3, size: 34),
-                                const SizedBox(height: 6),
-                                Text(shape.$2),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
-                          child: TextField(
-                            controller: customEmoji,
-                            decoration: InputDecoration(
-                              labelText: 'Type or paste any emoji',
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  final value = customEmoji.text.trim();
-                                  if (value.isEmpty) return;
-                                  Navigator.pop(sheetContext);
-                                  _addEmoji(value);
-                                },
-                                icon: const Icon(Icons.add_circle_outline),
-                              ),
-                            ),
-                            onSubmitted: (value) {
-                              if (value.trim().isEmpty) return;
-                              Navigator.pop(sheetContext);
-                              _addEmoji(value.trim());
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: GridView.builder(
-                            padding: const EdgeInsets.all(16),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 6,
-                                  mainAxisSpacing: 8,
-                                  crossAxisSpacing: 8,
-                                ),
-                            itemCount: emojis.length,
-                            itemBuilder: (_, index) => InkWell(
-                              onTap: () {
-                                Navigator.pop(sheetContext);
-                                _addEmoji(emojis[index]);
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Center(
-                                child: Text(
-                                  emojis[index],
-                                  style: const TextStyle(fontSize: 30),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    customEmoji.dispose();
-  }
-
-  void _addEmoji(String emoji) => controller.addBlock(
-    CalendarStudioBlockType.text,
-    name: 'Emoji',
-    bounds: const StudioRect(left: .35, top: .25, width: .3, height: .18),
-    content: {'text': emoji},
-    style: const {
-      'fontSize': 72.0,
-      'fontWeight': 400,
-      'align': 'center',
-      'color': 0xFF15201D,
-    },
-  );
   void _showPageOptions(BuildContext context) => showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
