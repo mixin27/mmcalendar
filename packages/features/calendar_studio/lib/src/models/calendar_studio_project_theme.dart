@@ -267,7 +267,7 @@ abstract final class CalendarStudioRetheme {
       key.endsWith('Color');
 
   /// [project] with every colour that matched a role of [from] changed to
-  /// that role in [to], every heading in [from]'s display font set to
+  /// that role in [to], text in [from]'s display and body fonts set to
   /// [to]'s, and [to] stored as the project theme.
   static CalendarStudioProject apply(
     CalendarStudioProject project,
@@ -291,12 +291,12 @@ abstract final class CalendarStudioRetheme {
         Object? next = value;
         if (value is int && isColorKey(key)) {
           next = map(value);
-        } else if (key == 'fontFamily' &&
-            value is String &&
-            from.displayFont != null &&
-            to.displayFont != null &&
-            value == from.displayFont) {
-          next = to.displayFont;
+        } else if (key == 'fontFamily' && value is String) {
+          if (value == from.displayFont && to.displayFont != null) {
+            next = to.displayFont;
+          } else if (value == from.bodyFont && to.bodyFont != null) {
+            next = to.bodyFont;
+          }
         }
         if (next != value) changed = true;
         out[key] = next;

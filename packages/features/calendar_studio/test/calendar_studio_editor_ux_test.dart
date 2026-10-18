@@ -109,14 +109,14 @@ void main() {
     expect(_selected(tester), 'grid');
   });
 
-  testWidgets('page and theme sheet opens tall and scrolls', (tester) async {
+  testWidgets('page settings sheet opens tall and scrolls', (tester) async {
     await _openPhoneEditor(tester);
     await tester.tap(find.text('Page'));
     await tester.pumpAndSettle();
-    expect(find.text('Page and theme'), findsOneWidget);
+    expect(find.text('Page settings'), findsOneWidget);
     expect(
       find.ancestor(
-        of: find.text('Page and theme'),
+        of: find.text('Page settings'),
         matching: find.byType(SingleChildScrollView),
       ),
       findsOneWidget,

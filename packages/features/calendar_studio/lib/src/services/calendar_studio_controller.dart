@@ -281,6 +281,39 @@ class CalendarStudioController extends ChangeNotifier {
     _scheduleSave();
   }
 
+  /// Changes the canvas of every page (or only the current one) as one undo
+  /// step: page size, bleed, safe margin. Elements keep their place as
+  /// fractions of the page, so they follow a new size.
+  void updateCanvases(
+    StudioCanvas Function(StudioCanvas canvas) edit, {
+    bool allPages = true,
+  }) {
+    final value = _project;
+    if (value == null) return;
+    var changed = false;
+    final pages = [
+      for (var i = 0; i < value.pages.length; i++)
+        if (allPages || i == pageIndex)
+          () {
+            final page = value.pages[i];
+            final canvas = edit(page.canvas);
+            if (canvas == page.canvas) return page;
+            changed = true;
+            return page.copyWith(canvas: canvas);
+          }()
+        else
+          value.pages[i],
+    ];
+    if (!changed) return;
+    _pushUndo(value);
+    _project = value.copyWith(
+      pages: pages,
+      updatedAt: configuration.now?.call() ?? DateTime.now(),
+    );
+    notifyListeners();
+    _scheduleSave();
+  }
+
   void updateCurrentCanvas(StudioCanvas canvas) {
     if (currentPage.canvas == canvas) return;
     _edit((page) => page.copyWith(canvas: canvas));

@@ -40,11 +40,12 @@ import 'calendar_studio_export_flow.dart';
 import 'calendar_studio_strings.dart';
 import 'editor/calendar_studio_add_panel.dart';
 import 'editor/calendar_studio_contextual_bar.dart';
+import 'editor/calendar_studio_project_settings.dart';
+import 'editor/inspector/studio_inspector_controls.dart';
 import 'editor/inspector/calendar_studio_inspector.dart';
 import 'editor/inspector/studio_inspector_host.dart';
 import 'calendar_studio_shimmer.dart';
 import 'calendar_studio_template_sheets.dart';
-import 'calendar_studio_year_field.dart';
 import 'calendar_studio_toast.dart';
 
 // Layout breakpoints, the same as the app's ResponsiveUtils (600 / 1024).
@@ -558,36 +559,6 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   }
 
   String _languageLabel(CalendarStudioLanguage language) => language.label;
-
-  /// Every calendar language a project can use, as chips.
-  Widget _languageChips({
-    required CalendarStudioLanguage selected,
-    required ValueChanged<CalendarStudioLanguage> onSelected,
-  }) => Wrap(
-    spacing: 8,
-    runSpacing: 8,
-    children: [
-      for (final language in CalendarStudioLanguage.values)
-        ChoiceChip(
-          key: ValueKey('calendar-studio-language-${language.name}'),
-          // One height for every chip: Myanmar script would otherwise make
-          // its chips taller than the Latin ones.
-          label: SizedBox(
-            height: 22,
-            child: Center(
-              widthFactor: 1,
-              child: Text(switch (language) {
-                CalendarStudioLanguage.myanmar => 'မြန်မာ',
-                CalendarStudioLanguage.both => 'မြန်မာ + English',
-                _ => language.label,
-              }, style: const TextStyle(height: 1.25)),
-            ),
-          ),
-          selected: selected == language,
-          onSelected: (_) => onSelected(language),
-        ),
-    ],
-  );
 
   /// A page of [project]: its cached image, or a shimmer until the live
   /// page has its turn to build (one per frame).
@@ -2179,552 +2150,103 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   }
 
   void _showSetup(BuildContext context, CalendarStudioTemplate template) {
-    var draft = source;
+    final now = widget.configuration.now?.call() ?? DateTime.now();
+    final sample = template.create(id: 'setup', source: source, now: now);
+    final canvas = sample.pages.first.canvas;
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (sheetContext) => FractionallySizedBox(
         heightFactor: .9,
-        child: StatefulBuilder(
-          builder: (_, setSheet) => Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 38,
-                      height: 52,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: CalendarStudioTokens.of(sheetContext).surface2,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _templatePreview(template),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Set up ${template.name}',
-                            style: Theme.of(sheetContext).textTheme.titleLarge,
-                          ),
-                          Text(
-                            template.category,
-                            style: Theme.of(sheetContext).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(sheetContext),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _sectionLabel('Period'),
-                      SegmentedButton<CalendarStudioPeriod>(
-                        segments: const [
-                          ButtonSegment(
-                            value: CalendarStudioPeriod.month,
-                            label: Text('Month'),
-                          ),
-                          ButtonSegment(
-                            value: CalendarStudioPeriod.year,
-                            label: Text('Year'),
-                          ),
-                        ],
-                        selected: {draft.period},
-                        onSelectionChanged: (value) => setSheet(
-                          () => draft = draft.copyWith(period: value.first),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CalendarStudioYearField(
-                              year: draft.year,
-                              onChanged: (value) => setSheet(
-                                () => draft = draft.copyWith(year: value),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: CalendarStudioMonthField(
-                              label: 'From',
-                              month: draft.month,
-                              names: [
-                                for (var m = 1; m <= 12; m++) _monthName(m),
-                              ],
-                              onChanged: (value) => setSheet(
-                                () => draft = draft.copyWith(month: value),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _sectionLabel('Language on the calendar'),
-                      _languageChips(
-                        selected: draft.language,
-                        onSelected: (value) => setSheet(
-                          () => draft = draft.copyWith(language: value),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _sectionLabel('Show on each day'),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _setupChip(
-                            'Myanmar date',
-                            draft.showMyanmarDate,
-                            (value) => setSheet(
-                              () => draft = draft.copyWith(
-                                showMyanmarDate: value,
-                              ),
-                            ),
-                          ),
-                          _setupChip(
-                            'Moon phases',
-                            draft.showMoonPhases,
-                            (value) => setSheet(
-                              () =>
-                                  draft = draft.copyWith(showMoonPhases: value),
-                            ),
-                          ),
-                          _setupChip(
-                            'Holidays',
-                            draft.showHolidays,
-                            (value) => setSheet(
-                              () => draft = draft.copyWith(showHolidays: value),
-                            ),
-                          ),
-                          _setupChip(
-                            'Astrology',
-                            draft.showAstrology,
-                            (value) => setSheet(
-                              () =>
-                                  draft = draft.copyWith(showAstrology: value),
-                            ),
-                          ),
-                          _setupChip(
-                            'My events',
-                            draft.showEvents,
-                            (value) => setSheet(
-                              () => draft = draft.copyWith(showEvents: value),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: CalendarStudioTokens.of(sheetContext).surface2,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          children: [
-                            _setupRow(
-                              title: 'Week starts on',
-                              trailing: SizedBox(
-                                width: 150,
-                                child: SegmentedButton<bool>(
-                                  // Two short choices: the filled segment shows the pick; a check
-                                  // would squeeze "Sun" onto two lines.
-                                  showSelectedIcon: false,
-                                  segments: const [
-                                    ButtonSegment(
-                                      value: false,
-                                      label: Text('Sun'),
-                                    ),
-                                    ButtonSegment(
-                                      value: true,
-                                      label: Text('Mon'),
-                                    ),
-                                  ],
-                                  selected: {draft.weekStartsMonday},
-                                  onSelectionChanged: (value) => setSheet(
-                                    () => draft = draft.copyWith(
-                                      weekStartsMonday: value.first,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const Divider(height: 1),
-                            _setupRow(
-                              title: 'Time zone',
-                              subtitle: draft.timeZoneLabel,
-                              trailing: const Icon(Icons.chevron_right),
-                            ),
-                            const Divider(height: 1),
-                            _setupRow(
-                              title: 'Output',
-                              subtitle:
-                                  '${template.category} · ${draft.period == CalendarStudioPeriod.year ? '12 pages' : '1 page'}',
-                              trailing: const Icon(Icons.chevron_right),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: CalendarStudioTokens.of(sheetContext).surface,
-                  border: Border(
-                    top: BorderSide(
-                      color: CalendarStudioTokens.of(sheetContext).line,
-                    ),
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    16,
-                    10,
-                    16,
-                    12 + MediaQuery.paddingOf(sheetContext).bottom,
-                  ),
-                  child: FilledButton(
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(48),
-                    ),
-                    onPressed: () {
-                      source = draft;
-                      Navigator.pop(sheetContext);
-                      _create(template.id);
-                    },
-                    child: const Text('Create project'),
-                  ),
-                ),
-              ),
-            ],
+        child: CalendarStudioSetupSheet(
+          title: 'Set up ${template.name}',
+          subtitle: template.category,
+          preview: _templatePreview(template),
+          initial: StudioSettingsDraft(
+            source: source,
+            theme: CalendarStudioProjectThemes.of(sample),
+            width: canvas.width,
+            height: canvas.height,
+            bleed: canvas.bleed > 0,
+            safeInset: canvas.safeInset,
+            output: sample.defaultExportPreset,
           ),
+          onCreate: (draft) async {
+            source = draft.source;
+            await _create(template.id);
+            if (!mounted) return;
+            _applySettings(draft);
+          },
         ),
       ),
     );
   }
 
-  void _showProjectSettings() {
+  /// Applies project settings as one undo step: calendar data, theme, page
+  /// size and print margins; the output choice isn't a design edit.
+  void _applySettings(StudioSettingsDraft draft) {
+    _endTextEdit();
+    controller
+      ..beginEditGroup()
+      ..updateConfiguration(draft.source);
+    if (CalendarStudioProjectThemes.of(controller.project!) != draft.theme) {
+      controller.applyTheme(draft.theme);
+    }
+    controller
+      ..updateCanvases(
+        (canvas) => canvas.copyWith(width: draft.width, height: draft.height),
+        allPages: draft.resizeAll,
+      )
+      ..updateCanvases(
+        (canvas) => canvas.copyWith(
+          bleed: draft.bleed ? 3 : 0,
+          safeInset: draft.safeInset,
+        ),
+      )
+      ..endEditGroup()
+      ..updateDefaultExportPreset(draft.output);
+    _fitCanvas();
+  }
+
+  Future<void> _showProjectSettings() async {
     final project = controller.project!;
-    final template = _templateById(project.templateId);
-    var draft = project.source;
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (sheetContext) => FractionallySizedBox(
-        heightFactor: .88,
-        child: StatefulBuilder(
-          builder: (_, setSheet) => Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-                child: Row(
-                  children: [
-                    const Icon(Icons.tune),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Calendar settings',
-                            style: Theme.of(sheetContext).textTheme.titleLarge,
-                          ),
-                          Text(
-                            template.name,
-                            style: Theme.of(sheetContext).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(sheetContext),
-                      icon: const Icon(Icons.close),
-                      tooltip: 'Close',
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
-                  children: [
-                    _sectionLabel('Period'),
-                    SegmentedButton<CalendarStudioPeriod>(
-                      segments: const [
-                        ButtonSegment(
-                          value: CalendarStudioPeriod.month,
-                          label: Text('Month'),
-                        ),
-                        ButtonSegment(
-                          value: CalendarStudioPeriod.year,
-                          label: Text('Year'),
-                        ),
-                      ],
-                      selected: {draft.period},
-                      onSelectionChanged: (value) => setSheet(
-                        () => draft = draft.copyWith(period: value.first),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CalendarStudioYearField(
-                            year: draft.year,
-                            onChanged: (value) => setSheet(
-                              () => draft = draft.copyWith(year: value),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: CalendarStudioMonthField(
-                            key: ValueKey('settings-month-${draft.month}'),
-                            label: 'Starts from',
-                            month: draft.month,
-                            names: [
-                              for (var m = 1; m <= 12; m++) _monthName(m),
-                            ],
-                            onChanged: (value) => setSheet(
-                              () => draft = draft.copyWith(month: value),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    _sectionLabel('Language on the calendar'),
-                    _languageChips(
-                      selected: draft.language,
-                      onSelected: (value) => setSheet(
-                        () => draft = draft.copyWith(language: value),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    _sectionLabel('Show on each day'),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _setupChip(
-                          'Myanmar date',
-                          draft.showMyanmarDate,
-                          (value) => setSheet(
-                            () =>
-                                draft = draft.copyWith(showMyanmarDate: value),
-                          ),
-                        ),
-                        _setupChip(
-                          'Moon phases',
-                          draft.showMoonPhases,
-                          (value) => setSheet(
-                            () => draft = draft.copyWith(showMoonPhases: value),
-                          ),
-                        ),
-                        _setupChip(
-                          'Holidays',
-                          draft.showHolidays,
-                          (value) => setSheet(
-                            () => draft = draft.copyWith(showHolidays: value),
-                          ),
-                        ),
-                        _setupChip(
-                          'Astrology',
-                          draft.showAstrology,
-                          (value) => setSheet(
-                            () => draft = draft.copyWith(showAstrology: value),
-                          ),
-                        ),
-                        _setupChip(
-                          'My events',
-                          draft.showEvents,
-                          (value) => setSheet(
-                            () => draft = draft.copyWith(showEvents: value),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    Row(
-                      children: [
-                        const Expanded(child: Text('Week starts on')),
-                        SegmentedButton<bool>(
-                          // Two short choices: the filled segment shows the pick; a check
-                          // would squeeze "Sun" onto two lines.
-                          showSelectedIcon: false,
-                          segments: const [
-                            ButtonSegment(value: false, label: Text('Sun')),
-                            ButtonSegment(value: true, label: Text('Mon')),
-                          ],
-                          selected: {draft.weekStartsMonday},
-                          onSelectionChanged: (value) => setSheet(
-                            () => draft = draft.copyWith(
-                              weekStartsMonday: value.first,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Time zone'),
-                      subtitle: Text(draft.timeZoneLabel),
-                    ),
-                    const Divider(height: 24),
-                    const Text(
-                      'Project file',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const Text(
-                      'A copy with its images, to move this calendar to another '
-                      'device or keep a backup.',
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 8,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: () => _exportProjectFile(
-                            controller.project!,
-                            CalendarStudioExportDestination.save,
-                          ),
-                          icon: const Icon(Icons.save_alt_outlined),
-                          label: const Text('Save project file'),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => _exportProjectFile(
-                            controller.project!,
-                            CalendarStudioExportDestination.share,
-                          ),
-                          icon: const Icon(Icons.share_outlined),
-                          label: const Text('Share'),
-                        ),
-                      ],
-                    ),
-                    if (widget.configuration.templates != null) ...[
-                      const Divider(height: 24),
-                      const Text(
-                        'Template',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const Text(
-                        'Reuse this design for other calendars, or share it.',
-                      ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            Navigator.pop(sheetContext);
-                            _saveAsTemplate(
-                              controller.project!,
-                              page: controller.pageIndex,
-                            );
-                          },
-                          icon: const Icon(Icons.bookmark_add_outlined),
-                          label: const Text('Save as template'),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  10,
-                  16,
-                  12 + MediaQuery.paddingOf(sheetContext).bottom,
-                ),
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                  onPressed: () {
-                    controller.updateConfiguration(draft);
-                    Navigator.pop(sheetContext);
-                    _fitCanvas();
-                  },
-                  child: const Text('Apply settings'),
-                ),
-              ),
-            ],
+    final canvas = controller.currentPage.canvas;
+    final theme = CalendarStudioProjectThemes.of(project);
+    final draft = await Navigator.of(context).push<StudioSettingsDraft>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => CalendarStudioProjectSettingsPage(
+          projectName: project.name,
+          pageCount: project.pages.length,
+          originalTheme: theme,
+          initial: StudioSettingsDraft(
+            source: project.source,
+            theme: theme,
+            width: canvas.width,
+            height: canvas.height,
+            bleed: canvas.bleed > 0,
+            safeInset: canvas.safeInset,
+            output: project.defaultExportPreset,
           ),
+          onSaveFile: () => _exportProjectFile(
+            controller.project!,
+            CalendarStudioExportDestination.save,
+          ),
+          onShareFile: () => _exportProjectFile(
+            controller.project!,
+            CalendarStudioExportDestination.share,
+          ),
+          onSaveTemplate: widget.configuration.templates == null
+              ? null
+              : () => _saveAsTemplate(
+                  controller.project!,
+                  page: controller.pageIndex,
+                ),
         ),
       ),
     );
+    if (draft != null && mounted) _applySettings(draft);
   }
-
-  Widget _sectionLabel(String value) => Padding(
-    padding: const EdgeInsets.only(bottom: 6),
-    child: Text(
-      value,
-      style: TextStyle(
-        color: CalendarStudioTokens.of(context).ink2,
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-      ),
-    ),
-  );
-
-  Widget _setupChip(
-    String label,
-    bool selected,
-    ValueChanged<bool> onSelected,
-  ) => FilterChip(
-    selected: selected,
-    showCheckmark: true,
-    label: Text(label),
-    onSelected: onSelected,
-  );
-
-  Widget _setupRow({
-    required String title,
-    String? subtitle,
-    required Widget trailing,
-  }) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    child: Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-              if (subtitle != null)
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: CalendarStudioTokens.of(context).ink3,
-                    fontSize: 12,
-                  ),
-                ),
-            ],
-          ),
-        ),
-        trailing,
-      ],
-    ),
-  );
 
   Widget _editor(BuildContext context) {
     final project = controller.project!;
@@ -3636,6 +3158,8 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     );
   }
 
+  /// The current page: its background, print margins and editing guides.
+  /// Page size and theme live in Project settings.
   void _showPageOptions(BuildContext context) => showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -3643,106 +3167,106 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     constraints: BoxConstraints(
       maxHeight: MediaQuery.sizeOf(context).height * _sheetHeight,
     ),
-    builder: (_) => StatefulBuilder(
+    builder: (sheetContext) => StatefulBuilder(
       builder: (_, setSheet) {
         final canvas = controller.currentPage.canvas;
-        const backgrounds = [
-          0xFFFFFFFF,
-          0xFFF3EBD8,
-          0xFFE4F2EE,
-          0xFF151B3F,
-          0xFFF4F7F5,
-        ];
+        final host = _inspectorHost(controller.project!);
+        void edit(StudioCanvas next) {
+          controller.updateCurrentCanvas(next);
+          setSheet(() {});
+        }
+
         return SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
                   children: [
                     Expanded(
                       child: Text(
-                        'Page and theme',
+                        'Page settings',
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleLarge,
+                        style: Theme.of(sheetContext).textTheme.titleLarge,
                       ),
                     ),
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.pop(sheetContext),
                       child: const Text('Done'),
                     ),
                   ],
                 ),
                 Text(
-                  'Page size · ${canvas.width.round()} × ${canvas.height.round()}',
+                  '${controller.currentPage.label} · '
+                  '${StudioPageSize.of(canvas)?.label ?? '${canvas.width.round()} × ${canvas.height.round()}'}',
                 ),
-                const SizedBox(height: 14),
-                const Text('Page background'),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 12,
+                StudioSection(
+                  title: 'Background',
                   children: [
-                    for (final color in backgrounds)
-                      InkWell(
-                        onTap: () {
-                          controller.updateCurrentCanvas(
-                            canvas.copyWith(backgroundColor: color),
-                          );
-                          setSheet(() {});
-                        },
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          width: 34,
-                          height: 34,
-                          decoration: BoxDecoration(
-                            color: Color(color),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: canvas.backgroundColor == color
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).dividerColor,
-                              width: canvas.backgroundColor == color ? 3 : 1,
-                            ),
-                          ),
-                        ),
-                      ),
+                    StudioColorField(
+                      id: 'page-background',
+                      label: 'Page colour',
+                      value: canvas.backgroundColor,
+                      host: host,
+                      pageColors: host.pageColors(controller.currentPage),
+                      onChanged: (color) =>
+                          edit(canvas.copyWith(backgroundColor: color)),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: safeArea,
-                  onChanged: (value) {
-                    setState(() => safeArea = value);
-                    setSheet(() {});
-                  },
-                  title: const Text('Show safe area'),
-                  subtitle: const Text(
-                    'Keep important content inside the guide',
-                  ),
+                StudioSection(
+                  title: 'Print',
+                  children: [
+                    StudioSwitch(
+                      label: 'Bleed',
+                      subtitle: '3 mm extra edge for trimming',
+                      value: canvas.bleed > 0,
+                      onChanged: (value) =>
+                          edit(canvas.copyWith(bleed: value ? 3 : 0)),
+                    ),
+                    StudioStepper(
+                      label: 'Safe margin',
+                      unit: '%',
+                      value: canvas.safeInset * 100,
+                      max: 12,
+                      onChanged: (value) =>
+                          edit(canvas.copyWith(safeInset: value / 100)),
+                    ),
+                  ],
                 ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: canvas.bleed > 0,
-                  onChanged: (value) {
-                    controller.updateCurrentCanvas(
-                      canvas.copyWith(bleed: value ? 3 : 0),
-                    );
-                    setSheet(() {});
-                  },
-                  title: const Text('Show bleed'),
-                  subtitle: const Text('3 mm extra edge for print'),
+                StudioSection(
+                  title: 'While editing',
+                  children: [
+                    StudioSwitch(
+                      label: 'Show safe area',
+                      subtitle: 'Keep important content inside the guide',
+                      value: safeArea,
+                      onChanged: (value) {
+                        setState(() => safeArea = value);
+                        setSheet(() {});
+                      },
+                    ),
+                    StudioSwitch(
+                      label: 'Snap to grid',
+                      value: snapToGrid,
+                      onChanged: (value) {
+                        setState(() => snapToGrid = value);
+                        setSheet(() {});
+                      },
+                    ),
+                  ],
                 ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: snapToGrid,
-                  onChanged: (value) {
-                    setState(() => snapToGrid = value);
-                    setSheet(() {});
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const ValueKey('studio-page-project-settings'),
+                  onPressed: () {
+                    Navigator.pop(sheetContext);
+                    _showProjectSettings();
                   },
-                  title: const Text('Snap to grid'),
+                  icon: const Icon(Icons.tune),
+                  label: const Text('Page size, theme and calendar'),
                 ),
               ],
             ),
