@@ -35,6 +35,12 @@
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
+            <!-- Widget links (mmcalendar://) are routed by the home_widget
+                 handler in app.dart; Flutter's own deep linking would push
+                 their path as a route and flash the error page. -->
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="false" />
         </activity>
 
         <activity-alias

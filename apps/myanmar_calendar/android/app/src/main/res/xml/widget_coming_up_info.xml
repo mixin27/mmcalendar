@@ -2,6 +2,7 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="dev.mixin27.mmcalendar.widgets.WidgetConfigActivity"
     android:description="@string/widget_coming_up_description"
+    android:previewImage="@drawable/widget_preview_coming_up"
     android:initialLayout="@layout/glance_default_loading_layout"
     android:minWidth="250dp"
     android:minHeight="110dp"
