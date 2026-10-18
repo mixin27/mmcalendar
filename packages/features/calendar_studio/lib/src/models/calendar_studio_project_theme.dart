@@ -261,7 +261,10 @@ abstract final class CalendarStudioProjectThemes {
 abstract final class CalendarStudioRetheme {
   /// Style keys that hold colours.
   static bool isColorKey(String key) =>
-      key == 'color' || key == 'fill' || key.endsWith('Color');
+      key == 'color' ||
+      key == 'fill' ||
+      key == 'accent' ||
+      key.endsWith('Color');
 
   /// [project] with every colour that matched a role of [from] changed to
   /// that role in [to], every heading in [from]'s display font set to

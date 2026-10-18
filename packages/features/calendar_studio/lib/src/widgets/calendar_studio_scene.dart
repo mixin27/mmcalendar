@@ -1,9 +1,10 @@
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show listEquals;
-import 'package:flutter/gestures.dart' show PointerDeviceKind, kTouchSlop;
+import 'package:flutter/gestures.dart'
+    show DragStartBehavior, PointerDeviceKind, kTouchSlop;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
     show TranslationService;
 import 'package:shared_moon/shared_moon.dart';
@@ -24,6 +25,7 @@ class CalendarStudioScene extends StatelessWidget {
     required this.page,
     required this.source,
     this.selectedBlockId,
+    this.selectedBlockIds = const {},
     this.showSafeArea = false,
     this.onSelect,
     this.dataProvider,
@@ -41,11 +43,21 @@ class CalendarStudioScene extends StatelessWidget {
     this.onDelete,
     this.guides = const [],
     this.displayWidth,
+    this.onToggleSelect,
+    this.onGroupMove,
+    this.onMarquee,
+    this.editingBlockId,
+    this.onTextChanged,
+    this.onTextDone,
     super.key,
   });
   final CalendarStudioPage page;
   final CalendarStudioSource source;
   final String? selectedBlockId;
+
+  /// Every selected block when several are; [selectedBlockId] is the one
+  /// with handles.
+  final Set<String> selectedBlockIds;
   final bool showSafeArea;
   final ValueChanged<CalendarStudioBlock?>? onSelect;
   final CalendarStudioDataProvider? dataProvider;
@@ -68,6 +80,22 @@ class CalendarStudioScene extends StatelessWidget {
   /// The page's width on screen, when the caller knows it (thumbnails).
   /// Photos then decode near that size instead of the full page size.
   final double? displayWidth;
+
+  /// Shift/Ctrl/Cmd-click or long-press: add or remove a block from the
+  /// selection.
+  final ValueChanged<CalendarStudioBlock>? onToggleSelect;
+
+  /// Dragging one of several selected blocks: the pointer's travel in
+  /// design pixels since the drag began.
+  final ValueChanged<Offset>? onGroupMove;
+
+  /// A mouse drag across the page, as a rect in page fractions.
+  final ValueChanged<Rect>? onMarquee;
+
+  /// The text block being typed into on the page.
+  final String? editingBlockId;
+  final ValueChanged<String>? onTextChanged;
+  final VoidCallback? onTextDone;
 
   static const double designWidth = 595;
 
@@ -107,63 +135,67 @@ class CalendarStudioScene extends StatelessWidget {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: onSelect == null ? null : () => onSelect!(null),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Color(page.canvas.backgroundColor),
-                ),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    for (final block in blocks)
-                      if (block.visible)
-                        _buildBlock(context, designSize, block),
-                    if (showSafeArea)
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: Padding(
-                            padding: EdgeInsets.all(
-                              designSize.width * page.canvas.safeInset,
-                            ),
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: .75),
+              child: _Marquee(
+                onMarquee: onMarquee,
+                designSize: designSize,
+                blocked: (point) => _onSelection(point, designSize),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Color(page.canvas.backgroundColor),
+                  ),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      for (final block in blocks)
+                        if (block.visible)
+                          _buildBlock(context, designSize, block),
+                      if (showSafeArea)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Padding(
+                              padding: EdgeInsets.all(
+                                designSize.width * page.canvas.safeInset,
+                              ),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: .75),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    if (guides.isNotEmpty)
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: CustomPaint(
-                            painter: _GuidePainter(
-                              guides,
-                              const Color(0xFFD6336C),
+                      if (guides.isNotEmpty)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: CustomPaint(
+                              painter: _GuidePainter(
+                                guides,
+                                const Color(0xFFD6336C),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    if (page.canvas.bleed > 0)
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: Padding(
-                            padding: const EdgeInsets.all(3),
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0xFFA96300),
-                                  width: 1,
+                      if (page.canvas.bleed > 0)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Padding(
+                              padding: const EdgeInsets.all(3),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: const Color(0xFFA96300),
+                                    width: 1,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -179,30 +211,52 @@ class CalendarStudioScene extends StatelessWidget {
     CalendarStudioBlock block,
   ) {
     final interactive = onSelect != null || onTransform != null;
+    final multi = selectedBlockIds.length > 1;
     final selected = selectedBlockId == block.id;
-    final editable = selected && !block.locked && onTransform != null;
+    final inGroup = multi && selectedBlockIds.contains(block.id);
+    final editing = editingBlockId == block.id;
+    final editable =
+        selected && !multi && !editing && !block.locked && onTransform != null;
+    final groupDrag = inGroup && !block.locked && onGroupMove != null;
     final rect = block.bounds.resolve(size);
+    final contents = editing
+        ? CalendarStudioInlineText(
+            key: ValueKey('calendar-studio-inline-text-${block.id}'),
+            block: block,
+            onChanged: onTextChanged,
+            onDone: onTextDone,
+          )
+        : _contents(block);
     final body = _DesignDrag(
       key: ValueKey('calendar-studio-block-${block.id}'),
       value: block,
-      enabled: editable,
+      enabled: editable || groupDrag,
       onStart: onTransformStart,
-      onUpdate: (start, from, to) => onTransform?.call(
-        start.copyWith(
-          bounds: CalendarStudioTransform.move(start.bounds, to - from, size),
-        ),
-      ),
+      onUpdate: groupDrag
+          ? (start, from, to) => onGroupMove!(to - from)
+          : (start, from, to) => onTransform?.call(
+              start.copyWith(
+                bounds: CalendarStudioTransform.move(
+                  start.bounds,
+                  to - from,
+                  size,
+                ),
+              ),
+            ),
       onEnd: onTransformEnd,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => onSelect?.call(block),
+        onTap: editing ? null : () => _tap(block),
+        onLongPress: onToggleSelect == null || editing
+            ? null
+            : () => onToggleSelect!(block),
         child: Transform.rotate(
           angle: block.rotation,
           child: interactive
               // Static content keeps its own layer, so moving a block or
               // its selection chrome never repaints it.
-              ? RepaintBoundary(child: _contents(block))
-              : _contents(block),
+              ? RepaintBoundary(child: contents)
+              : contents,
         ),
       ),
     );
@@ -235,12 +289,64 @@ class CalendarStudioScene extends StatelessWidget {
                 child: body,
               ),
             ),
-            if (selected) _chrome(context, size, block, rect, editable),
+            if (selected && !multi)
+              _chrome(context, size, block, rect, editable)
+            else if (inGroup)
+              _outline(context, block, rect),
           ],
         ),
       ),
     );
   }
+
+  void _tap(CalendarStudioBlock block) {
+    final keys = HardwareKeyboard.instance;
+    if (onToggleSelect != null &&
+        (keys.isShiftPressed || keys.isMetaPressed || keys.isControlPressed)) {
+      onToggleSelect!(block);
+    } else {
+      onSelect?.call(block);
+    }
+  }
+
+  /// Whether [point] (design pixels) is on a selected block or its
+  /// handles, where a drag moves the block instead of starting a marquee.
+  bool _onSelection(Offset point, Size size) {
+    for (final block in page.blocks) {
+      if (!block.visible) continue;
+      final primary = block.id == selectedBlockId;
+      if (!primary && !selectedBlockIds.contains(block.id)) continue;
+      if (block.bounds
+          .resolve(size)
+          .inflate(primary ? 48 : 0)
+          .contains(point)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// A thinner outline for blocks in a multiple selection.
+  Widget _outline(BuildContext context, CalendarStudioBlock block, Rect rect) =>
+      Positioned(
+        left: _chromeMargin,
+        top: _chromeMargin,
+        width: rect.width,
+        height: rect.height,
+        child: IgnorePointer(
+          child: Transform.rotate(
+            angle: block.rotation,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
 
   Widget _chrome(
     BuildContext context,
@@ -438,6 +544,87 @@ const double _chromeMargin = 64;
 /// Pointer tracking in page design pixels. Positions are mapped through the
 /// page box, so the result is correct at any zoom or fitted scale, and every
 /// update is measured from the gesture's start rather than accumulated.
+/// A mouse drag across empty page draws a selection rectangle. Touch keeps
+/// its pan and zoom; there, long-press adds blocks to the selection.
+class _Marquee extends StatefulWidget {
+  const _Marquee({
+    required this.onMarquee,
+    required this.designSize,
+    required this.blocked,
+    required this.child,
+  });
+  final ValueChanged<Rect>? onMarquee;
+  final Size designSize;
+  final bool Function(Offset point) blocked;
+  final Widget child;
+
+  @override
+  State<_Marquee> createState() => _MarqueeState();
+}
+
+class _MarqueeState extends State<_Marquee> {
+  Offset? _from;
+  Offset? _to;
+
+  @override
+  Widget build(BuildContext context) {
+    final onMarquee = widget.onMarquee;
+    if (onMarquee == null) return widget.child;
+    final from = _from, to = _to;
+    return GestureDetector(
+      supportedDevices: const {PointerDeviceKind.mouse},
+      // The rectangle starts where the button went down, not after slop.
+      dragStartBehavior: DragStartBehavior.down,
+      onPanStart: (details) {
+        if (widget.blocked(details.localPosition)) return;
+        setState(() => _from = _to = details.localPosition);
+      },
+      onPanUpdate: (details) {
+        if (_from != null) setState(() => _to = details.localPosition);
+      },
+      onPanEnd: (_) {
+        final a = _from, b = _to;
+        setState(() => _from = _to = null);
+        if (a == null || b == null || (a - b).distance < 4) return;
+        final size = widget.designSize;
+        final r = Rect.fromPoints(a, b);
+        onMarquee(
+          Rect.fromLTRB(
+            r.left / size.width,
+            r.top / size.height,
+            r.right / size.width,
+            r.bottom / size.height,
+          ),
+        );
+      },
+      onPanCancel: () => setState(() => _from = _to = null),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          widget.child,
+          if (from != null && to != null)
+            Positioned.fromRect(
+              key: const ValueKey('calendar-studio-marquee'),
+              rect: Rect.fromPoints(from, to),
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: .08),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _DesignDrag extends StatefulWidget {
   const _DesignDrag({
     required this.value,
@@ -905,35 +1092,51 @@ class _TextBlock extends StatelessWidget {
   const _TextBlock({required this.block});
   final CalendarStudioBlock block;
 
+  static TextAlign textAlignOf(CalendarStudioBlock block) =>
+      switch (block.style['align']) {
+        'center' => TextAlign.center,
+        'right' => TextAlign.right,
+        _ => TextAlign.left,
+      };
+
+  static Alignment alignmentOf(CalendarStudioBlock block) {
+    final top = block.style['vAlign'] == 'top';
+    return switch (block.style['align']) {
+      'center' => top ? Alignment.topCenter : Alignment.center,
+      'right' => top ? Alignment.topRight : Alignment.centerRight,
+      _ => top ? Alignment.topLeft : Alignment.centerLeft,
+    };
+  }
+
+  /// The main line's style; the inline editor types in the same one.
+  static TextStyle mainStyle(CalendarStudioBlock block) {
+    final style = block.style;
+    // Myanmar stacks marks above and below the base line, so themed titles
+    // set a taller line height; italic is for Latin-only text.
+    return CalendarStudioFontCatalog.style(
+      family: style['fontFamily'] as String? ?? 'Noto Sans Myanmar',
+      weight: _fontWeight(style['fontWeight'] as int? ?? 700),
+      italic: style['italic'] == true,
+    ).copyWith(
+      fontSize: (style['fontSize'] as num?)?.toDouble() ?? 20,
+      letterSpacing: (style['letterSpacing'] as num?)?.toDouble(),
+      color: Color((style['color'] as int?) ?? 0xFF15201D),
+      height: (style['lineHeight'] as num?)?.toDouble(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final style = block.style;
     final align = style['align'] as String?;
-    final top = style['vAlign'] == 'top';
-    final textAlign = switch (align) {
-      'center' => TextAlign.center,
-      'right' => TextAlign.right,
-      _ => TextAlign.left,
-    };
+    final textAlign = textAlignOf(block);
     final size = (style['fontSize'] as num?)?.toDouble() ?? 20;
     final color = Color((style['color'] as int?) ?? 0xFF15201D);
     final family = style['fontFamily'] as String? ?? 'Noto Sans Myanmar';
-    // Myanmar stacks marks above and below the base line, so themed titles
-    // set a taller line height; italic is for Latin-only text.
     final main = Text(
       (block.content['text'] as String?) ?? '',
       textAlign: textAlign,
-      style:
-          CalendarStudioFontCatalog.style(
-            family: family,
-            weight: _fontWeight(style['fontWeight'] as int? ?? 700),
-            italic: style['italic'] == true,
-          ).copyWith(
-            fontSize: size,
-            letterSpacing: (style['letterSpacing'] as num?)?.toDouble(),
-            color: color,
-            height: (style['lineHeight'] as num?)?.toDouble(),
-          ),
+      style: mainStyle(block),
     );
     final subtitle = block.content['subtitle'] as String?;
     // A bilingual title: the English line sits under the Myanmar one.
@@ -968,12 +1171,88 @@ class _TextBlock extends StatelessWidget {
           );
     return FittedBox(
       fit: BoxFit.scaleDown,
-      alignment: switch (align) {
-        'center' => top ? Alignment.topCenter : Alignment.center,
-        'right' => top ? Alignment.topRight : Alignment.centerRight,
-        _ => top ? Alignment.topLeft : Alignment.centerLeft,
-      },
+      alignment: alignmentOf(block),
       child: child,
+    );
+  }
+}
+
+/// Typing into a text block on the page, in the block's own font, size and
+/// colour. Esc or Cmd/Ctrl+Enter finishes, as does tapping elsewhere.
+class CalendarStudioInlineText extends StatefulWidget {
+  const CalendarStudioInlineText({
+    required this.block,
+    this.onChanged,
+    this.onDone,
+    super.key,
+  });
+  final CalendarStudioBlock block;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onDone;
+
+  @override
+  State<CalendarStudioInlineText> createState() =>
+      _CalendarStudioInlineTextState();
+}
+
+class _CalendarStudioInlineTextState extends State<CalendarStudioInlineText> {
+  late final _text = TextEditingController(
+    text: widget.block.content['text'] as String? ?? '',
+  );
+  final _focus = FocusNode(debugLabel: 'calendar-studio-inline-text');
+  var _done = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _text.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: _text.text.length,
+    );
+    _focus.addListener(() {
+      if (!_focus.hasFocus) _finish();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focus.requestFocus();
+    });
+  }
+
+  void _finish() {
+    if (_done) return;
+    _done = true;
+    widget.onDone?.call();
+  }
+
+  @override
+  void dispose() {
+    _text.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final style = _TextBlock.mainStyle(widget.block);
+    return Align(
+      alignment: _TextBlock.alignmentOf(widget.block),
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): _finish,
+          const SingleActivator(LogicalKeyboardKey.enter, meta: true): _finish,
+          const SingleActivator(LogicalKeyboardKey.enter, control: true):
+              _finish,
+        },
+        child: TextField(
+          controller: _text,
+          focusNode: _focus,
+          style: style,
+          textAlign: _TextBlock.textAlignOf(widget.block),
+          maxLines: null,
+          cursorColor: style.color,
+          decoration: const InputDecoration.collapsed(hintText: ''),
+          onChanged: widget.onChanged,
+        ),
+      ),
     );
   }
 }

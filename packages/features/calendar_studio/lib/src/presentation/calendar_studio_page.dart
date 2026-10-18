@@ -17,6 +17,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart'
         showAppPrompt;
 
 import '../models/calendar_studio_document.dart';
+import '../models/calendar_studio_project_theme.dart';
 import '../models/calendar_studio_types.dart';
 import '../models/calendar_studio_user_template.dart';
 import '../services/calendar_studio_cache.dart';
@@ -36,6 +37,8 @@ import '../theme/calendar_studio_font_catalog.dart';
 import '../theme/calendar_studio_theme.dart';
 import '../widgets/calendar_studio_scene.dart';
 import 'calendar_studio_export_flow.dart';
+import 'calendar_studio_strings.dart';
+import 'editor/calendar_studio_contextual_bar.dart';
 import 'calendar_studio_shimmer.dart';
 import 'calendar_studio_template_sheets.dart';
 import 'calendar_studio_year_field.dart';
@@ -169,6 +172,11 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   var canvasZoom = 1.0;
   var calendarInspectorTab = 0;
   var _inspectorVisible = false;
+
+  /// The text block being typed into on the page, if any.
+  String? _editingTextId;
+  String? _lastTapId;
+  DateTime? _lastTapAt;
   var _canvasPointerCount = 0;
   var _canvasPinching = false;
 
@@ -342,12 +350,33 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   }
 
   void _changePage(int index) {
+    _endTextEdit();
     controller.setPage(index);
     _inspectorVisible = false;
     _fitCanvas();
   }
 
   void _selectBlock(CalendarStudioBlock? block) {
+    // A second tap on a selected text block within half a second types
+    // into it on the page.
+    final now = DateTime.now();
+    final lastTapAt = _lastTapAt;
+    final again =
+        block != null &&
+        block.id == _lastTapId &&
+        lastTapAt != null &&
+        now.difference(lastTapAt) < const Duration(milliseconds: 500);
+    _lastTapId = block?.id;
+    _lastTapAt = now;
+    if (block?.id != _editingTextId) _endTextEdit();
+    if (again &&
+        block.type == CalendarStudioBlockType.text &&
+        !block.locked &&
+        controller.selectedBlockId == block.id &&
+        controller.selectedBlockIds.length == 1) {
+      _startTextEdit(block);
+      return;
+    }
     controller.select(block?.id);
     // Canvas taps take keyboard focus back from inspector fields.
     if (!_editorFocus.hasPrimaryFocus) _editorFocus.requestFocus();
@@ -356,7 +385,102 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     }
   }
 
+  void _startTextEdit(CalendarStudioBlock block) {
+    if (block.type != CalendarStudioBlockType.text || block.locked) return;
+    if (_editingTextId == block.id) return;
+    _endTextEdit();
+    controller
+      ..select(block.id)
+      // Typing is one undo step, however many characters.
+      ..beginEditGroup();
+    setState(() {
+      _editingTextId = block.id;
+      _inspectorVisible = false;
+    });
+  }
+
+  void _endTextEdit() {
+    if (_editingTextId == null) return;
+    controller.endEditGroup();
+    _editingTextId = null;
+    if (mounted) {
+      setState(() {});
+      if (!_editorFocus.hasPrimaryFocus) _editorFocus.requestFocus();
+    }
+  }
+
+  void _typeText(String text) {
+    final block = controller.currentPage.blocks
+        .where((value) => value.id == _editingTextId)
+        .firstOrNull;
+    if (block == null) return;
+    controller.updateBlock(
+      block.copyWith(content: {...block.content, 'text': text}),
+    );
+  }
+
+  void _undo() {
+    _endTextEdit();
+    controller.undo();
+  }
+
+  /// Moves every selected block by the drag's travel from where each was
+  /// when the drag began.
+  void _moveSelection(Offset delta) {
+    final size = CalendarStudioScene.designSizeFor(
+      controller.currentPage.canvas,
+    );
+    controller.updateBlocksDuringInteraction([
+      for (final id in controller.selectedBlockIds)
+        if (controller.interactionStartBlock(id) case final start?
+            when !start.locked)
+          start.copyWith(
+            bounds: CalendarStudioTransform.move(start.bounds, delta, size),
+          ),
+    ]);
+  }
+
+  /// Selects the blocks a marquee touches, leaving out ones it sits inside
+  /// (full-page backgrounds would otherwise always join).
+  void _selectInRect(Rect area) {
+    _endTextEdit();
+    final ordered = [...controller.currentPage.blocks]
+      ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
+    controller.selectMany([
+      for (final block in ordered)
+        if (block.visible && !block.locked)
+          if (Rect.fromLTWH(
+                block.bounds.left,
+                block.bounds.top,
+                block.bounds.width,
+                block.bounds.height,
+              )
+              case final rect
+              when rect.overlaps(area) &&
+                  !(rect.contains(area.topLeft) &&
+                      rect.contains(area.bottomRight)))
+            block.id,
+    ]);
+  }
+
+  void _applyToAllPages() {
+    final block = controller.selectedBlocks.lastOrNull;
+    if (block == null) return;
+    final changed = controller.applyToAllPages(block);
+    final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
+    if (changed == 0) {
+      messenger.toast(StudioStrings.alreadyMatches);
+    } else {
+      messenger.toast(
+        StudioStrings.appliedToMonths(changed),
+        actionLabel: 'Undo',
+        onAction: controller.undo,
+      );
+    }
+  }
+
   void _openInspector({int? tab}) {
+    _endTextEdit();
     setState(() {
       if (tab != null) calendarInspectorTab = tab;
       _inspectorVisible = true;
@@ -2682,7 +2806,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
             ),
             actions: [
               IconButton(
-                onPressed: controller.canUndo ? controller.undo : null,
+                onPressed: controller.canUndo ? _undo : null,
                 icon: const Icon(Icons.undo),
               ),
               IconButton(
@@ -2772,20 +2896,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
         Positioned.fill(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final availableWidth = (constraints.maxWidth - 56).clamp(
-                120.0,
-                double.infinity,
-              );
-              final availableHeight = (constraints.maxHeight - 76).clamp(
-                120.0,
-                double.infinity,
-              );
-              final ratio = controller.currentPage.canvas.aspectRatio;
-              final width = (availableHeight * ratio).clamp(
-                120.0,
-                availableWidth,
-              );
-              final height = width / ratio;
+              final Size(:width, :height) = _pageSizeIn(constraints);
               return InteractiveViewer(
                 transformationController: canvasController,
                 minScale: _minCanvasZoom,
@@ -2819,8 +2930,21 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                                 dataProvider: _calendarData,
                                 assetStore: _assets,
                                 selectedBlockId: controller.selectedBlockId,
+                                selectedBlockIds: controller.selectedBlockIds
+                                    .toSet(),
                                 showSafeArea: safeArea,
                                 onSelect: _selectBlock,
+                                onToggleSelect: (block) {
+                                  _endTextEdit();
+                                  controller.toggleSelection(block.id);
+                                },
+                                onGroupMove: _spacePanning
+                                    ? null
+                                    : _moveSelection,
+                                onMarquee: _spacePanning ? null : _selectInRect,
+                                editingBlockId: _editingTextId,
+                                onTextChanged: _typeText,
+                                onTextDone: _endTextEdit,
                                 onTransform: _spacePanning
                                     ? null
                                     : _updateBlockTransform,
@@ -2883,8 +3007,8 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
             ),
           ),
         ),
-        if (controller.selectedBlockId != null)
-          Positioned(right: 12, top: 66, child: _selectionToolbar()),
+        if (controller.selectedBlockIds.isNotEmpty)
+          Positioned.fill(child: _contextualBar(project)),
         Positioned(
           left: 12,
           bottom: 12,
@@ -2935,72 +3059,104 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     ),
   );
 
-  Widget _selectionToolbar() {
-    final block = controller.currentPage.blocks
-        .where((value) => value.id == controller.selectedBlockId)
-        .firstOrNull;
-    if (block == null) return const SizedBox();
-    return Material(
-      elevation: 5,
-      borderRadius: BorderRadius.circular(18),
-      color: CalendarStudioTokens.of(context).surface,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              onPressed: _openInspector,
-              icon: const Icon(Icons.tune),
-              tooltip: 'Edit item',
+  /// The page's fitted size on the board before zoom.
+  Size _pageSizeIn(BoxConstraints constraints) {
+    final availableWidth = (constraints.maxWidth - 56).clamp(
+      120.0,
+      double.infinity,
+    );
+    final availableHeight = (constraints.maxHeight - 76).clamp(
+      120.0,
+      double.infinity,
+    );
+    final ratio = controller.currentPage.canvas.aspectRatio;
+    final width = (availableHeight * ratio).clamp(120.0, availableWidth);
+    return Size(width, width / ratio);
+  }
+
+  /// The contextual bar, floating above the selection on screen (below it
+  /// when there's no room), following zoom and pan. Hidden mid-drag.
+  Widget _contextualBar(CalendarStudioProject project) => LayoutBuilder(
+    builder: (context, constraints) => ListenableBuilder(
+      listenable: Listenable.merge([canvasController, _canvasListenable]),
+      builder: (context, _) {
+        final selection = controller.selectedBlocks;
+        if (selection.isEmpty || controller.isInteracting) {
+          return const SizedBox.shrink();
+        }
+        final area = constraints.biggest;
+        final pageSize = _pageSizeIn(constraints);
+        final page = Rect.fromCenter(
+          center: area.center(Offset.zero),
+          width: pageSize.width,
+          height: pageSize.height,
+        );
+        Rect? anchor;
+        for (final block in selection) {
+          final rect = _screenRectOf(block, page);
+          anchor = anchor?.expandToInclude(rect) ?? rect;
+        }
+        final single = selection.length == 1;
+        return CustomSingleChildLayout(
+          delegate: _AnchoredBarLayout(
+            anchor: MatrixUtils.transformRect(canvasController.value, anchor!),
+            // Leave room for the rotate handle above a single selection.
+            gap: single && !selection.single.locked ? 52 : 12,
+            minTop: 60,
+          ),
+          child: CalendarStudioContextualBar(
+            selection: selection,
+            theme: CalendarStudioProjectThemes.of(project),
+            editingText: _editingTextId != null,
+            actions: CalendarStudioBarActions(
+              update: controller.updateBlock,
+              editText: () => _startTextEdit(selection.last),
+              openInspector: _openInspector,
+              duplicate: controller.duplicateSelected,
+              delete: _deleteSelectedWithUndo,
+              arrange: controller.moveSelectedLayer,
+              align: controller.alignSelected,
+              distribute: controller.distributeSelected,
+              applyToAllPages: project.pages.length > 1
+                  ? _applyToAllPages
+                  : null,
             ),
-            IconButton(
-              onPressed: controller.duplicateSelected,
-              icon: const Icon(Icons.copy_outlined),
-              tooltip: 'Duplicate',
-            ),
-            IconButton(
-              onPressed: () => _updateSelectedBlock(
-                (value) => value.copyWith(locked: !value.locked),
-              ),
-              icon: Icon(
-                block.locked ? Icons.lock_outline : Icons.lock_open_outlined,
-              ),
-              tooltip: block.locked ? 'Unlock' : 'Lock',
-            ),
-            IconButton(
-              onPressed: () => _updateSelectedBlock(
-                (value) => value.copyWith(visible: !value.visible),
-              ),
-              icon: Icon(
-                block.visible
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-              ),
-              tooltip: block.visible ? 'Hide' : 'Show',
-            ),
-            IconButton(
-              onPressed: _deleteSelectedWithUndo,
-              color: CalendarStudioTokens.of(context).error,
-              icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete',
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
+    ),
+  );
+
+  /// [block]'s rotated bounding box on the unzoomed board.
+  static Rect _screenRectOf(CalendarStudioBlock block, Rect page) {
+    final b = block.bounds;
+    final rect = Rect.fromLTWH(
+      page.left + b.left * page.width,
+      page.top + b.top * page.height,
+      b.width * page.width,
+      b.height * page.height,
+    );
+    if (block.rotation == 0) return rect;
+    final cos = math.cos(block.rotation).abs();
+    final sin = math.sin(block.rotation).abs();
+    return Rect.fromCenter(
+      center: rect.center,
+      width: rect.width * cos + rect.height * sin,
+      height: rect.width * sin + rect.height * cos,
     );
   }
 
   void _deleteSelectedWithUndo() {
-    final block = controller.currentPage.blocks
-        .where((value) => value.id == controller.selectedBlockId)
-        .firstOrNull;
-    if (block == null) return;
+    final blocks = controller.selectedBlocks;
+    if (blocks.isEmpty) return;
+    _endTextEdit();
     controller.deleteSelected();
     setState(() => _inspectorVisible = false);
     final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
     messenger.toast(
-      '${block.name} deleted',
+      blocks.length == 1
+          ? '${blocks.single.name} deleted'
+          : '${blocks.length} items deleted',
       actionLabel: 'Undo',
       onAction: controller.undo,
     );
@@ -3069,17 +3225,6 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       color: tokens.surface,
       child: SizedBox(height: 60, child: Row(children: tools)),
     );
-  }
-
-  void _updateSelectedBlock(
-    CalendarStudioBlock Function(CalendarStudioBlock block) update,
-  ) {
-    final id = controller.selectedBlockId;
-    if (id == null) return;
-    final matches = controller.currentPage.blocks.where(
-      (block) => block.id == id,
-    );
-    if (matches.isNotEmpty) controller.updateBlock(update(matches.first));
   }
 
   Widget _layers({bool modal = false}) {
@@ -4095,11 +4240,13 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     final shift = keyboard.isShiftPressed;
     if (command) {
       if (key == LogicalKeyboardKey.keyZ) {
-        shift ? controller.redo() : controller.undo();
+        shift ? controller.redo() : _undo();
       } else if (key == LogicalKeyboardKey.keyY) {
         controller.redo();
       } else if (key == LogicalKeyboardKey.keyD) {
         controller.duplicateSelected();
+      } else if (key == LogicalKeyboardKey.keyA) {
+        controller.selectAll();
       } else if (key == LogicalKeyboardKey.bracketRight) {
         controller.moveSelectedLayer(1);
       } else if (key == LogicalKeyboardKey.bracketLeft) {
@@ -4111,6 +4258,17 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       } else {
         return KeyEventResult.ignored;
       }
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter) {
+      final selected = controller.selectedBlocks;
+      if (selected.length != 1 ||
+          selected.single.type != CalendarStudioBlockType.text ||
+          selected.single.locked) {
+        return KeyEventResult.ignored;
+      }
+      _startTextEdit(selected.single);
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.escape) {
@@ -6361,4 +6519,39 @@ class _DashboardSkeleton extends StatelessWidget {
       );
     },
   );
+}
+
+/// Places the contextual bar centred above [anchor], or below it when the
+/// space above is taken by the page switcher, always inside the board.
+class _AnchoredBarLayout extends SingleChildLayoutDelegate {
+  const _AnchoredBarLayout({
+    required this.anchor,
+    required this.gap,
+    required this.minTop,
+  });
+  final Rect anchor;
+  final double gap;
+  final double minTop;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      BoxConstraints(maxWidth: math.max(0, constraints.maxWidth - 16));
+
+  @override
+  Offset getPositionForChild(Size size, Size child) {
+    var top = anchor.top - gap - child.height;
+    if (top < minTop) top = anchor.bottom + 12;
+    final maxTop = math.max(8.0, size.height - child.height - 8);
+    final maxLeft = math.max(8.0, size.width - child.width - 8);
+    return Offset(
+      (anchor.center.dx - child.width / 2).clamp(8.0, maxLeft),
+      top.clamp(8.0, maxTop),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_AnchoredBarLayout oldDelegate) =>
+      anchor != oldDelegate.anchor ||
+      gap != oldDelegate.gap ||
+      minTop != oldDelegate.minTop;
 }
