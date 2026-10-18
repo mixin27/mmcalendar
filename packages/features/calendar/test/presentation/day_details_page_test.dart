@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:calendar/calendar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as mm;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
@@ -169,6 +170,36 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Copy Prompt'), findsOneWidget);
         expect(find.text('Share'), findsOneWidget);
+
+        // Horoscope, fortune-telling or divination.
+        expect(find.textContaining('horoscope reading'), findsOneWidget);
+        await tester.tap(find.text('Fortune'));
+        await tester.pumpAndSettle();
+        expect(find.textContaining('fortune-telling reading'), findsOneWidget);
+      });
+
+      testWidgets('coming up counts to the next moons and Sabbath', (
+        tester,
+      ) async {
+        await pump(tester, style);
+        expect(
+          find.byKey(const ValueKey('day-details-moon-countdown')),
+          findsOneWidget,
+        );
+        // 22 October 2026: full moon and Sabbath on the 26th, new moon on
+        // 9 November.
+        expect(find.text('in 4 days'), findsNWidgets(2));
+        expect(find.text('in 18 days'), findsOneWidget);
+        expect(find.byType(mm.MoonGlyph), findsNWidgets(3));
+      });
+
+      testWidgets('the dragon\'s head shows as a compass', (tester) async {
+        await pump(tester, style);
+        expect(
+          find.byKey(const ValueKey('day-details-nagahle-compass')),
+          findsOneWidget,
+        );
+        expect(find.bySemanticsLabel(RegExp('East')), findsWidgets);
       });
     });
   }

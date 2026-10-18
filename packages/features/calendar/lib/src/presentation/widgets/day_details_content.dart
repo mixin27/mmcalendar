@@ -1,6 +1,7 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as mm;
 import 'package:go_router/go_router.dart';
 import 'package:holidays/holidays.dart';
 import 'package:myanmar_calendar_dart/ai.dart';
@@ -62,9 +63,11 @@ class DayDetailsContent extends StatelessWidget {
           _hero(context),
           _buddhistCalendar(context),
           _moonAndWeekday(context),
+          _comingUp(context),
           if (completeDate.hasHolidays || completeDate.hasAnniversaryDays)
             _holidays(context),
           _astrology(context),
+          if (completeDate.nagahle.isNotEmpty) _nagahle(context),
           _aiPrompt(context),
           _summary(context, eventCount: events.length),
           _events(
@@ -297,13 +300,73 @@ class DayDetailsContent extends StatelessWidget {
     );
   }
 
+  /// The next full moon, new moon and Sabbath, counted from this day.
+  Widget _comingUp(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AppGroup(
+      label: l10n?.dayDetailsComingUp ?? 'Coming up',
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+          child: mm.NextMoonCountdown(
+            key: const ValueKey('day-details-moon-countdown'),
+            from: date,
+            surface: false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Which way the dragon's head turns this month, as a compass.
+  Widget _nagahle(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final t = context.tokens;
+    return AppGroup(
+      label: l10n?.dayDetailsNagahleCompass ?? "Dragon's head",
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          child: Row(
+            children: [
+              mm.NagahleCompass.forDirection(
+                completeDate.nagahle,
+                key: const ValueKey('day-details-nagahle-compass'),
+                size: 96,
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n?.nagahle ?? 'Nagahle',
+                      style: TextStyle(fontSize: 13, color: t.secondaryLabel),
+                    ),
+                    Text(
+                      _t(completeDate.nagahle),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: t.label,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _astrology(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final rows = <(String, String)>[
       (l10n?.sabbath ?? 'Sabbath', completeDate.sabbath),
       (l10n?.dayDetailsYatyaza ?? 'Yatyaza', completeDate.yatyaza),
       (l10n?.dayDetailsPyathada ?? 'Pyathada', completeDate.pyathada),
-      (l10n?.nagahle ?? 'Nagahle', completeDate.nagahle),
       (l10n?.mahabote ?? 'Mahabote', completeDate.mahabote),
       (l10n?.nakhat ?? 'Nakhat', completeDate.nakhat),
       (l10n?.year_name ?? 'Year Name', completeDate.yearName),
@@ -344,70 +407,94 @@ class DayDetailsContent extends StatelessWidget {
       buttonName: 'generate_ai_prompt',
       buttonLocation: 'day_details_page',
     );
-    final prompt = AIPromptService.generatePrompt(
-      completeDate,
-      language: _language,
-      type: AIPromptType.horoscope,
-    );
     final l10n = AppLocalizations.of(context);
+    final strings = mm.MmStrings.of(_language);
     final promptTitle =
         l10n?.dayDetailsAiHoroscopePrompt ?? 'AI Horoscope Prompt';
+    var type = AIPromptType.horoscope;
     return showAppSheet<void>(
       context: context,
       title: promptTitle,
       cancelLabel: l10n?.close ?? 'Close',
-      builder: (sheetContext) {
-        final t = sheetContext.tokens;
-        return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                l10n?.dayDetailsAiPromptHint ??
-                    'Paste this into any AI assistant (ChatGPT, Gemini, …) for a '
-                        'reading of the day. Nothing is sent from this app.',
-                style: TextStyle(fontSize: 13, color: t.secondaryLabel),
-              ),
-              const SizedBox(height: 12),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: SelectableText(
-                    prompt,
-                    style: const TextStyle(fontSize: 13, height: 1.55),
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (sheetContext, setSheet) {
+          final t = sheetContext.tokens;
+          final prompt = AIPromptService.generatePrompt(
+            completeDate,
+            language: _language,
+            type: type,
+          );
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n?.dayDetailsAiPromptHint ??
+                      'Paste this into any AI assistant (ChatGPT, Gemini, …) for a '
+                          'reading of the day. Nothing is sent from this app.',
+                  style: TextStyle(fontSize: 13, color: t.secondaryLabel),
+                ),
+                const SizedBox(height: 12),
+                // Horoscope, fortune-telling or divination.
+                Center(
+                  child: mm.MmSegmented<AIPromptType>(
+                    key: const ValueKey('day-details-ai-kind'),
+                    segments: {
+                      AIPromptType.horoscope: strings.horoscope,
+                      AIPromptType.fortuneTelling: strings.fortune,
+                      AIPromptType.divination: strings.divination,
+                    },
+                    selected: type,
+                    onChanged: (next) {
+                      _analyticsService.logWidgetInteraction(
+                        widgetName: 'ai_prompt_kind',
+                        actionType: next.name,
+                      );
+                      setSheet(() => type = next);
+                    },
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              AppButton(
-                label: l10n?.dayDetailsCopyPrompt ?? 'Copy Prompt',
-                icon: Icons.copy_rounded,
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: prompt));
-                  Navigator.of(sheetContext).pop();
-                  context.showToast(
-                    l10n?.dayDetailsPromptCopied ??
-                        'Prompt copied to clipboard',
-                    kind: AppToastKind.success,
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-              AppButton(
-                label: l10n?.share ?? 'Share',
-                icon: Icons.ios_share,
-                kind: AppButtonKind.tinted,
-                onPressed: () => share(
-                  title: promptTitle,
-                  subject: promptTitle,
-                  content: prompt,
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: SelectableText(
+                      prompt,
+                      style: const TextStyle(fontSize: 13, height: 1.55),
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+                const SizedBox(height: 16),
+                AppButton(
+                  label: l10n?.dayDetailsCopyPrompt ?? 'Copy Prompt',
+                  icon: Icons.copy_rounded,
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: prompt));
+                    Navigator.of(sheetContext).pop();
+                    context.showToast(
+                      l10n?.dayDetailsPromptCopied ??
+                          'Prompt copied to clipboard',
+                      kind: AppToastKind.success,
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                AppButton(
+                  label: l10n?.share ?? 'Share',
+                  icon: Icons.ios_share,
+                  kind: AppButtonKind.tinted,
+                  onPressed: () => share(
+                    title: promptTitle,
+                    subject: promptTitle,
+                    content: prompt,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
