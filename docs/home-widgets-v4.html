@@ -27,6 +27,10 @@ h3{font-size:17px;margin:0;font-weight:700}
 button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
 
 /* current state */
+.shot.wide{grid-column:1/-1}
+.shot.wide img{width:100%;height:auto}
+.built{padding:18px;border-radius:18px;background:var(--board-2);box-shadow:inset 0 0 0 1px var(--line)}
+.built ul.notes{margin:0;padding-left:18px;color:var(--ink-2);max-width:90ch}
 .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
 .shot{display:grid;gap:8px;min-width:0;align-content:start}
 .shot img{width:100%;border-radius:14px;box-shadow:0 0 0 1px var(--line);display:block}
@@ -92,6 +96,26 @@ button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
     <h1>Home Widgets v4</h1>
     <p class="intro">What the home-screen widgets look like today, run on an iPhone 17 Pro simulator and a Pixel 9 Pro emulator, and a full catalog of widgets we could build next, for iOS 17+ (WidgetKit with buttons and per-widget settings) and Android (Jetpack Glance, resizable). Data is today, Sunday 18 October 2026: Thadingyut waxing 7, Sabbath tomorrow, full moon on the 26th, Thadingyut holidays 25–27. Mark each widget and style Build or Leave out, then copy your picks back to me.</p>
   </header>
+
+  <section class="part built" aria-labelledby="p0">
+    <h2 id="p0">0 · As built</h2>
+    <p class="lede">Built and running: nine home-screen widgets on both platforms, four iPhone lock-screen widgets, and five styles. Each widget's style is set per widget. Captures are real, on the same data as below: iPhone 17 Pro simulator (iOS 17 WidgetKit) and an Android 15 emulator (Jetpack Glance).</p>
+    <div class="shots">
+      <figure class="shot wide" style="margin:0"><img src="home-widgets-v4/built-ios-gallery-1.jpg" alt="iOS widget gallery, Today, Moon, Month and Week widgets"><b>iPhone · widget gallery: Today, Moon, Month, Week</b></figure>
+      <figure class="shot wide" style="margin:0"><img src="home-widgets-v4/built-ios-gallery-2.jpg" alt="iOS widget gallery, Coming up, Agenda, Countdown, Astrology and Myanmar year"><b>iPhone · Coming up, Agenda, Countdown, Astrology day, Myanmar year</b></figure>
+      <figure class="shot" style="margin:0"><img src="home-widgets-v4/built-ios-today-large.jpg" alt="iOS Today widget, large, in Myanmar"><b>iPhone · Today · large, Myanmar</b></figure>
+      <figure class="shot" style="margin:0"><img src="home-widgets-v4/built-android-today-large.jpg" alt="Android Today widget, large, dark"><b>Android · Today · 4×4, dark</b></figure>
+      <figure class="shot" style="margin:0"><img src="home-widgets-v4/built-android-glance-line.jpg" alt="Android Today widget as a one-row line"><b>Android · Today · 4×1 line, in place of At a Glance</b></figure>
+      <figure class="shot wide" style="margin:0"><img src="home-widgets-v4/built-android-light.jpg" alt="Android widgets on three home screen pages, light"><b>Android · light: Month (moved to November with ›), Moon, Countdown in Pagoda counting to Thingyan, Week, Coming up, Agenda, Astrology day, Myanmar year</b></figure>
+      <figure class="shot wide" style="margin:0"><img src="home-widgets-v4/built-android-dark.jpg" alt="Android widgets on three home screen pages, dark"><b>Android · dark: colours switch with the system</b></figure>
+    </div>
+    <ul class="notes">
+      <li>Taps open the day, month, event or new-event screen. The Month arrows move the month inside the widget.</li>
+      <li>Edit Widget (iPhone) or the widget's settings (Android) sets its style and, for Countdown, its target. Settings › Widgets sets the default style and what widgets show, and on Android adds any widget to the home screen.</li>
+      <li>The date rolls over at midnight without opening the app. iPhone uses daily timeline entries; Android schedules a refresh for each of the next seven midnights.</li>
+      <li>Not built: Android lock-screen widgets (no public API) and Pixel's At a Glance (closed to apps; the 4×1 Today line replaces it). Per-widget language and per-widget show toggles are app-wide settings for now.</li>
+    </ul>
+  </section>
 
   <section class="part" aria-labelledby="p1">
     <h2 id="p1">1 · Today’s widgets</h2>
