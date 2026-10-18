@@ -9,6 +9,7 @@ export 'src/models/calendar_studio_document.dart';
 export 'src/models/calendar_studio_project_theme.dart';
 export 'src/models/calendar_studio_types.dart';
 export 'src/models/calendar_studio_user_template.dart';
+export 'src/services/calendar_studio_arrange.dart';
 export 'src/services/calendar_studio_cache.dart';
 export 'src/services/calendar_studio_contracts.dart';
 export 'src/services/calendar_studio_controller.dart';

@@ -7,6 +7,7 @@ import '../models/calendar_studio_project_theme.dart';
 import '../models/calendar_studio_types.dart';
 import '../models/calendar_studio_user_template.dart';
 import '../templates/calendar_studio_templates.dart';
+import 'calendar_studio_arrange.dart';
 import 'calendar_studio_contracts.dart';
 
 enum CalendarStudioSaveState { saved, saving, failed }
@@ -17,8 +18,24 @@ class CalendarStudioController extends ChangeNotifier {
   CalendarStudioProject? _project;
   CalendarStudioProject? get project => _project;
   CalendarStudioSaveState saveState = CalendarStudioSaveState.saved;
-  String? selectedBlockId;
   int pageIndex = 0;
+
+  /// Selected block ids in the order they were picked; the last is the
+  /// primary selection that the toolbar and inspector edit.
+  List<String> _selection = const [];
+  List<String> get selectedBlockIds => _selection;
+  String? get selectedBlockId => _selection.isEmpty ? null : _selection.last;
+  set selectedBlockId(String? id) => _selection = id == null ? const [] : [id];
+  bool isSelected(String id) => _selection.contains(id);
+
+  /// The selected blocks on the current page, in page order.
+  List<CalendarStudioBlock> get selectedBlocks {
+    if (_project == null || _selection.isEmpty) return const [];
+    return [
+      for (final block in currentPage.blocks)
+        if (_selection.contains(block.id)) block,
+    ];
+  }
 
   /// The user's saved templates, as gallery entries; set by the workspace.
   List<CalendarStudioTemplate> userTemplates = const [];
@@ -94,6 +111,40 @@ class CalendarStudioController extends ChangeNotifier {
   void select(String? id) {
     selectedBlockId = id;
     notifyListeners();
+  }
+
+  /// Adds [id] to the selection, or removes it when already selected
+  /// (Shift-click, or long-press then tap on touch).
+  void toggleSelection(String id) {
+    _selection = _selection.contains(id)
+        ? [..._selection.where((value) => value != id)]
+        : [..._selection, id];
+    notifyListeners();
+  }
+
+  /// Replaces the selection, for marquee drags and Select all.
+  void selectMany(Iterable<String> ids) {
+    _selection = [...ids];
+    notifyListeners();
+  }
+
+  void selectAll() => selectMany([
+    for (final block in currentPage.blocks)
+      if (block.visible && !block.locked) block.id,
+  ]);
+
+  int _groupDepth = 0;
+  bool _groupRecorded = false;
+
+  /// Edits between [beginEditGroup] and [endEditGroup] (a typing session,
+  /// a run of stepper taps) share one undo step.
+  void beginEditGroup() {
+    if (_groupDepth++ == 0) _groupRecorded = false;
+  }
+
+  void endEditGroup() {
+    if (_groupDepth == 0) return;
+    _groupDepth--;
   }
 
   void setPage(int index) {
@@ -304,14 +355,128 @@ class CalendarStudioController extends ChangeNotifier {
   }
 
   void deleteSelected() {
-    final id = selectedBlockId;
-    if (id == null) return;
+    final ids = _selection.toSet();
+    if (ids.isEmpty) return;
     _edit(
       (page) => page.copyWith(
-        blocks: page.blocks.where((block) => block.id != id).toList(),
+        blocks: page.blocks.where((block) => !ids.contains(block.id)).toList(),
       ),
     );
     selectedBlockId = null;
+    notifyListeners();
+  }
+
+  /// Several blocks changed as one undo step (group move, align).
+  void updateBlocks(Iterable<CalendarStudioBlock> blocks) {
+    final byId = {for (final block in blocks) block.id: block};
+    if (byId.isEmpty) return;
+    _edit(
+      (page) => page.copyWith(
+        blocks: [for (final value in page.blocks) byId[value.id] ?? value],
+      ),
+    );
+  }
+
+  /// Live frames of a group drag; pair with [beginBlockInteraction].
+  void updateBlocksDuringInteraction(Iterable<CalendarStudioBlock> blocks) {
+    final value = _project;
+    if (value == null) return;
+    final byId = {for (final block in blocks) block.id: block};
+    final page = currentPage;
+    _project = value.copyWith(
+      pages: [
+        for (var i = 0; i < value.pages.length; i++)
+          if (i == pageIndex)
+            page.copyWith(
+              blocks: [for (final b in page.blocks) byId[b.id] ?? b],
+            )
+          else
+            value.pages[i],
+      ],
+    );
+    if (_interactionStart == null) {
+      notifyListeners();
+    } else {
+      _canvasRevision.value++;
+    }
+  }
+
+  void alignSelected(CalendarStudioAlign edge) {
+    final blocks = selectedBlocks;
+    if (blocks.isEmpty) return;
+    updateBlocks(CalendarStudioArrange.align(blocks, edge));
+  }
+
+  void distributeSelected(CalendarStudioDistribute axis) {
+    final blocks = selectedBlocks;
+    if (blocks.length < 3) return;
+    updateBlocks(CalendarStudioArrange.distribute(blocks, axis));
+  }
+
+  void renameBlock(String id, String name) {
+    final trimmed = name.trim();
+    final block = currentPage.blocks.where((b) => b.id == id).firstOrNull;
+    if (block == null || trimmed.isEmpty || block.name == trimmed) return;
+    updateBlock(block.copyWith(name: trimmed));
+  }
+
+  /// Moves block [id] to position [index] in back-to-front order, as the
+  /// layers list drags it.
+  void reorderLayer(String id, int index) {
+    final ordered = [...currentPage.blocks]
+      ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
+    final from = ordered.indexWhere((block) => block.id == id);
+    if (from < 0) return;
+    final to = index.clamp(0, ordered.length - 1);
+    if (from == to) return;
+    ordered.insert(to, ordered.removeAt(from));
+    _edit(
+      (page) => page.copyWith(
+        blocks: [
+          for (var i = 0; i < ordered.length; i++)
+            ordered[i].copyWith(zIndex: i),
+        ],
+      ),
+    );
+  }
+
+  /// Copies [block]'s style (and its size and place when [layout]) to the
+  /// block with the same id on every other page. Returns how many pages
+  /// changed.
+  int applyToAllPages(CalendarStudioBlock block, {bool layout = false}) {
+    final value = _project;
+    if (value == null) return 0;
+    var changed = 0;
+    final pages = [
+      for (final page in value.pages)
+        page.copyWith(
+          blocks: [
+            for (final b in page.blocks)
+              if (b.id == block.id &&
+                  (!mapEquals(b.style, block.style) ||
+                      (layout && b.bounds != block.bounds)))
+                () {
+                  changed++;
+                  return b.copyWith(
+                    style: block.style,
+                    bounds: layout ? block.bounds : null,
+                    rotation: layout ? block.rotation : null,
+                  );
+                }()
+              else
+                b,
+          ],
+        ),
+    ];
+    if (changed == 0) return 0;
+    _pushUndo(value);
+    _project = value.copyWith(
+      pages: pages,
+      updatedAt: configuration.now?.call() ?? DateTime.now(),
+    );
+    notifyListeners();
+    _scheduleSave();
+    return changed;
   }
 
   String addBlock(
@@ -348,28 +513,35 @@ class CalendarStudioController extends ChangeNotifier {
   }
 
   void duplicateSelected() {
-    final selected = _selectedBlock;
-    if (selected == null) return;
-    final id = '${selected.type.name}-${DateTime.now().microsecondsSinceEpoch}';
-    final bounds = selected.bounds;
-    final copy = CalendarStudioBlock(
+    final selected = selectedBlocks;
+    if (selected.isEmpty) return;
+    final stamp = DateTime.now().microsecondsSinceEpoch;
+    final copies = [
+      for (var i = 0; i < selected.length; i++)
+        _copyOf(selected[i], '${selected[i].type.name}-$stamp-$i', i),
+    ];
+    _edit((page) => page.copyWith(blocks: [...page.blocks, ...copies]));
+    _selection = [for (final copy in copies) copy.id];
+    notifyListeners();
+  }
+
+  CalendarStudioBlock _copyOf(CalendarStudioBlock block, String id, int i) {
+    final bounds = block.bounds;
+    return CalendarStudioBlock(
       id: id,
-      type: selected.type,
-      name: '${selected.name} copy',
+      type: block.type,
+      name: '${block.name} copy',
       bounds: bounds.copyWith(
         left: (bounds.left + .02).clamp(0, 1 - bounds.width),
         top: (bounds.top + .02).clamp(0, 1 - bounds.height),
       ),
-      rotation: selected.rotation,
-      zIndex: currentPage.blocks.length,
-      visible: selected.visible,
+      rotation: block.rotation,
+      zIndex: currentPage.blocks.length + i,
+      visible: block.visible,
       locked: false,
-      style: selected.style,
-      content: selected.content,
+      style: block.style,
+      content: block.content,
     );
-    _edit((page) => page.copyWith(blocks: [...page.blocks, copy]));
-    selectedBlockId = id;
-    notifyListeners();
   }
 
   void moveSelectedLayer(int delta) {
@@ -400,6 +572,10 @@ class CalendarStudioController extends ChangeNotifier {
   }
 
   void _pushUndo(CalendarStudioProject value) {
+    if (_groupDepth > 0) {
+      if (_groupRecorded) return;
+      _groupRecorded = true;
+    }
     _undo.add(value);
     if (_undo.length > historyLimit) _undo.removeAt(0);
     _redo.clear();
