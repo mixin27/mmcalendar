@@ -51,6 +51,29 @@ void main() {
         expect(harness.repository.resets, 1);
       });
 
+      testWidgets('Settings reads in Myanmar', (tester) async {
+        await SettingsHarness.pump(
+          tester,
+          style: style,
+          locale: const Locale('my'),
+          page: const SettingsPage(),
+        );
+        expect(find.text('ပြက္ခဒိန် စတူဒီယို'), findsOneWidget);
+        expect(find.text('ဒီဇိုင်းဆွဲ၍ ပုံနှိပ်ရန်'), findsOneWidget);
+        for (final english in ['Calendar Studio', 'Light', 'Dark', 'System']) {
+          expect(find.text(english), findsNothing, reason: english);
+        }
+
+        await SettingsHarness.pump(
+          tester,
+          style: style,
+          locale: const Locale('my'),
+          page: const SettingsDisplayPreferencesPage(),
+        );
+        expect(find.text('ပြက္ခဒိန်တွင် ပြရန်'), findsOneWidget);
+        expect(find.text('ရက်စွဲများ'), findsOneWidget);
+      });
+
       testWidgets('Display toggles write the preference', (tester) async {
         final harness = await SettingsHarness.pump(
           tester,

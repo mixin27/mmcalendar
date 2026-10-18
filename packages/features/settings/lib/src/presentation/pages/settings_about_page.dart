@@ -58,7 +58,7 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
     final version = widget.appVersion ?? AppConstants.appVersion;
     return AppPage(
       title: l10n?.about ?? 'About',
-      previousTitle: 'Settings',
+      previousTitle: l10n?.settings ?? 'Settings',
       children: [
         Column(
           children: [
@@ -120,7 +120,7 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
         ),
         if (kDebugMode)
           AppGroup(
-            footer: 'Debug builds only.',
+            footer: l10n?.settingsDebugBuildsOnly ?? 'Debug builds only.',
             children: [
               AppRow(
                 title: l10n?.clearPromoDataDebug ?? 'Clear Promo Data (Debug)',

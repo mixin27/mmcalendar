@@ -77,8 +77,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.palette_outlined,
                   iconColor: SettingsIconColors.indigo,
                   title: l10n?.appearance ?? 'Appearance',
-                  value:
-                      (settings?.themeMode ?? ThemeMode.system).name.capitalize,
+                  value: switch (settings?.themeMode ?? ThemeMode.system) {
+                    ThemeMode.light => l10n?.light ?? 'Light',
+                    ThemeMode.dark => l10n?.dark ?? 'Dark',
+                    ThemeMode.system => l10n?.system ?? 'System',
+                  },
                   chevron: true,
                   onTap: () => _open(RoutePaths.themeSettings),
                 ),
@@ -107,8 +110,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 AppRow(
                   icon: Icons.edit_calendar_outlined,
                   iconColor: SettingsIconColors.purple,
-                  title: 'Calendar Studio',
-                  value: 'Design and print',
+                  title: l10n?.calendarStudio ?? 'Calendar Studio',
+                  value:
+                      l10n?.settingsCalendarStudioValue ?? 'Design and print',
                   chevron: true,
                   onTap: () => GoRouter.of(context).push(RoutePaths.studio),
                 ),

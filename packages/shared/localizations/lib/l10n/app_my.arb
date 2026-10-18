@@ -27,7 +27,7 @@
   "@alwaysUseLightTheme": {
     "description": "Localized text for alwaysUseLightTheme."
   },
-  "analytics": "Analytics",
+  "analytics": "အသုံးပြုမှု စာရင်းအင်း",
   "@analytics": {
     "description": "Localized text for analytics."
   },
@@ -191,7 +191,7 @@
   "@calendarPreviousYear": {
     "description": "Localized text for calendarPreviousYear."
   },
-  "calendarStudio": "Calendar Studio",
+  "calendarStudio": "ပြက္ခဒိန် စတူဒီယို",
   "@calendarStudio": {
     "description": "Localized text for calendarStudio."
   },
@@ -428,7 +428,7 @@
   "@copy": {
     "description": "Localized text for copy."
   },
-  "crashReports": "Crash Reports",
+  "crashReports": "ပျက်ကျမှု အစီရင်ခံစာများ",
   "@crashReports": {
     "description": "Localized text for crashReports."
   },
@@ -696,7 +696,7 @@
   "@event": {
     "description": "Localized text for event."
   },
-  "events": "Events",
+  "events": "ပွဲစဉ်များ",
   "@events": {
     "description": "Events label"
   },
@@ -1048,7 +1048,7 @@
       "disabledCount": {}
     }
   },
-  "holidayConfigRemote": "Holiday Config (Remote)",
+  "holidayConfigRemote": "အားလပ်ရက် ဆက်တင် (Remote)",
   "@holidayConfigRemote": {
     "description": "Localized text for holidayConfigRemote."
   },
@@ -1651,5 +1651,40 @@
   "gridThemeMoonlightDescription": "ငွေပြာရောင်နှင့် လရွှေရောင်။",
   "gridThemeNightChartTitle": "ညဇာတာ",
   "gridThemeNightChartDescription": "ခရမ်းရောင်မင်နှင့် ရှေးရွှေရောင်။",
-  "settingsGridDefault": "မူလ · {description}"
+  "settingsGridDefault": "မူလ · {description}",
+  "settingsCalendarStudioValue": "ဒီဇိုင်းဆွဲ၍ ပုံနှိပ်ရန်",
+  "settingsShowInCalendar": "ပြက္ခဒိန်တွင် ပြရန်",
+  "settingsDates": "ရက်စွဲများ",
+  "settingsUseDeviceTimezone": "စက်၏ အချိန်ဇုန်ကို သုံးရန်",
+  "settingsRefreshHolidayData": "အားလပ်ရက် ဒေတာ ပြန်ယူရန်",
+  "settingsDebugBuildsOnly": "Debug build များတွင်သာ။",
+  "settingsCustomColours": "စိတ်ကြိုက် အရောင်များ…",
+  "settingsThemePresetDefault": "{name} (မူလ)",
+  "settingsAppStyle": "အက်ပ် ပုံစံ",
+  "settingsAppStyleAutomatic": "အလိုအလျောက်",
+  "settingsAppStyleClear": "Clear",
+  "settingsAppStyleMaterial": "Material",
+  "settingsAppStyleFooter": "အလိုအလျောက်သည် Android တွင် Material ကို၊ iPhone၊ iPad၊ Mac နှင့် web တွင် Clear ကို သုံးသည် (ဤနေရာတွင်: {style})။ အရောင်နှင့် အကြောင်းအရာ မပြောင်းဘဲ ဘား၊ စာရင်းနှင့် ခလုတ်များသာ ပြောင်းသည်။",
+  "settingsAppIcon": "အက်ပ် အိုင်ကွန်",
+  "settingsChooseAppIcon": "အက်ပ် အိုင်ကွန် ရွေးရန်",
+  "settingsChooseAppIconSubtitle": "နှစ်သက်ရာ launcher အိုင်ကွန် ပုံစံကို ရွေးပါ။",
+  "settingsAppIconApplying": "ခဏစောင့်ပါ၊ အက်ပ် အိုင်ကွန် ပြောင်းနေသည်...",
+  "settingsAppIconUnsupported": "ဤနေရာတွင် အက်ပ် အိုင်ကွန် ပြောင်း၍ မရပါ။",
+  "settingsAppIconFailed": "အက်ပ် အိုင်ကွန် ပြောင်း၍ မရပါ။",
+  "settingsAppIconUpdated": "အက်ပ် အိုင်ကွန် ပြောင်းပြီးပါပြီ။",
+  "settingsAppIconCurrent": "လက်ရှိ အိုင်ကွန်",
+  "settingsAppIconTapApply": "ဤအိုင်ကွန်ကို သုံးရန် အသုံးပြုမည် ကိုနှိပ်ပါ",
+  "settingsAppIconActive": "သုံးနေသည်",
+  "settingsAppIconCurrentShort": "လက်ရှိ",
+  "settingsAppIconStandard": "ပုံမှန် အိုင်ကွန်",
+  "settingsAppIconAlternate": "အစားထိုး အိုင်ကွန်",
+  "appIconMoon": "လ",
+  "appIconForest": "တောအုပ်",
+  "appIconMinimalFlat": "ရိုးရှင်း",
+  "appIconPremiumDark": "အမှောင် ပရီမီယံ",
+  "appIconTraditionalMyanmar": "မြန်မာ ရိုးရာ ပန်းချီ",
+  "languageZawgyi": "ဇော်ဂျီ",
+  "languageMon": "မွန်",
+  "languageShan": "ရှမ်း",
+  "languageKaren": "ကရင်"
 }

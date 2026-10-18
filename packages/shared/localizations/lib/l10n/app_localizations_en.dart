@@ -1484,4 +1484,115 @@ class AppLocalizationsEn extends AppLocalizations {
   String settingsGridDefault(String description) {
     return 'Default · $description';
   }
+
+  @override
+  String get settingsCalendarStudioValue => 'Design and print';
+
+  @override
+  String get settingsShowInCalendar => 'Show in calendar';
+
+  @override
+  String get settingsDates => 'Dates';
+
+  @override
+  String get settingsUseDeviceTimezone => 'Use Device Timezone';
+
+  @override
+  String get settingsRefreshHolidayData => 'Refresh holiday data';
+
+  @override
+  String get settingsDebugBuildsOnly => 'Debug builds only.';
+
+  @override
+  String get settingsCustomColours => 'Custom colours…';
+
+  @override
+  String settingsThemePresetDefault(String name) {
+    return '$name (default)';
+  }
+
+  @override
+  String get settingsAppStyle => 'App style';
+
+  @override
+  String get settingsAppStyleAutomatic => 'Automatic';
+
+  @override
+  String get settingsAppStyleClear => 'Clear';
+
+  @override
+  String get settingsAppStyleMaterial => 'Material';
+
+  @override
+  String settingsAppStyleFooter(String style) {
+    return 'Automatic uses Material on Android and Clear on iPhone, iPad, Mac and web (here: $style). Colours and content stay the same; bars, lists and controls change.';
+  }
+
+  @override
+  String get settingsAppIcon => 'App Icon';
+
+  @override
+  String get settingsChooseAppIcon => 'Choose App Icon';
+
+  @override
+  String get settingsChooseAppIconSubtitle =>
+      'Select your preferred launcher icon style.';
+
+  @override
+  String get settingsAppIconApplying => 'Please wait, applying app icon...';
+
+  @override
+  String get settingsAppIconUnsupported =>
+      'App icon switching is not supported here.';
+
+  @override
+  String get settingsAppIconFailed => 'Failed to switch app icon.';
+
+  @override
+  String get settingsAppIconUpdated => 'App icon updated.';
+
+  @override
+  String get settingsAppIconCurrent => 'Current icon';
+
+  @override
+  String get settingsAppIconTapApply => 'Tap Apply to use this icon';
+
+  @override
+  String get settingsAppIconActive => 'Active';
+
+  @override
+  String get settingsAppIconCurrentShort => 'Current';
+
+  @override
+  String get settingsAppIconStandard => 'Standard icon';
+
+  @override
+  String get settingsAppIconAlternate => 'Alternate icon';
+
+  @override
+  String get appIconMoon => 'Moon';
+
+  @override
+  String get appIconForest => 'Forest';
+
+  @override
+  String get appIconMinimalFlat => 'Minimal Flat';
+
+  @override
+  String get appIconPremiumDark => 'Premium Dark';
+
+  @override
+  String get appIconTraditionalMyanmar => 'Traditional Myanmar Motif';
+
+  @override
+  String get languageZawgyi => 'Zawgyi';
+
+  @override
+  String get languageMon => 'Mon';
+
+  @override
+  String get languageShan => 'Shan';
+
+  @override
+  String get languageKaren => 'Karen';
 }

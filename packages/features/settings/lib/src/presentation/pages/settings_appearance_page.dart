@@ -76,7 +76,8 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
             AppRow(
               leading: _Swatch(color: preset.lightColors.primary),
               title: preset.id == 'modern'
-                  ? '${preset.name} (default)'
+                  ? (l10n?.settingsThemePresetDefault(preset.name) ??
+                        '${preset.name} (default)')
                   : preset.name,
               selected: settings.themePreset == preset.id,
               onTap: () => bloc.add(ChangeThemePreset(preset.id)),
@@ -87,7 +88,7 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
                     settings.customColors != null
                 ? _Swatch(color: settings.customColors!.primary)
                 : const Icon(Icons.colorize_outlined, size: 20),
-            title: 'Custom colours…',
+            title: l10n?.settingsCustomColours ?? 'Custom colours…',
             selected: settings.themePreset == 'custom',
             chevron: true,
             onTap: () => showCustomColorsEditor(context, settings),
@@ -102,8 +103,8 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
               iconSize: 22,
               borderRadius: 7,
             ),
-            title: 'App Icon',
-            value: _getAppIconName(settings.appIcon),
+            title: l10n?.settingsAppIcon ?? 'App Icon',
+            value: _getAppIconName(l10n, settings.appIcon),
             chevron: true,
             onTap: () => _showAppIconDialog(context, settings),
           ),
@@ -116,8 +117,12 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
     BuildContext context,
     AppSettingsEntity settings,
   ) async {
+    final l10n = AppLocalizations.of(context);
     if (_isApplyingAppIcon) {
-      showErrorSnackBar(context, 'Please wait, applying app icon...');
+      showErrorSnackBar(
+        context,
+        l10n?.settingsAppIconApplying ?? 'Please wait, applying app icon...',
+      );
       return;
     }
 
@@ -125,8 +130,11 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
     if (!context.mounted) return;
     if (!supported) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('App icon switching is not supported here.'),
+        SnackBar(
+          content: Text(
+            l10n?.settingsAppIconUnsupported ??
+                'App icon switching is not supported here.',
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -179,7 +187,7 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 6, 20, 2),
                       child: Text(
-                        'Choose App Icon',
+                        l10n?.settingsChooseAppIcon ?? 'Choose App Icon',
                         style: Theme.of(sheetContext).textTheme.titleLarge
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
@@ -187,7 +195,8 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                       child: Text(
-                        'Select your preferred launcher icon style.',
+                        l10n?.settingsChooseAppIconSubtitle ??
+                            'Select your preferred launcher icon style.',
                         style: Theme.of(sheetContext).textTheme.bodyMedium
                             ?.copyWith(
                               color: Theme.of(
@@ -237,7 +246,7 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () => Navigator.pop(sheetContext),
-                              child: const Text('Cancel'),
+                              child: Text(l10n?.cancel ?? 'Cancel'),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -246,7 +255,7 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
                               onPressed: selected == currentIconId
                                   ? null
                                   : () => Navigator.pop(sheetContext, selected),
-                              child: const Text('Apply'),
+                              child: Text(l10n?.apply ?? 'Apply'),
                             ),
                           ),
                         ],
@@ -287,14 +296,18 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
       if (!context.mounted) {
         return;
       }
+      final l10n = AppLocalizations.of(context);
       if (!applied) {
-        showErrorSnackBar(context, 'Failed to switch app icon.');
+        showErrorSnackBar(
+          context,
+          l10n?.settingsAppIconFailed ?? 'Failed to switch app icon.',
+        );
         return;
       }
       context.read<SettingsBloc>().add(ChangeAppIcon(iconId));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('App icon updated.'),
+        SnackBar(
+          content: Text(l10n?.settingsAppIconUpdated ?? 'App icon updated.'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -315,13 +328,13 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
 
   // Helper methods
 
-  String _getAppIconName(String iconId) {
+  String _getAppIconName(AppLocalizations? l10n, String iconId) {
     for (final option in _appIconPort.availableIcons) {
       if (option.id == iconId) {
-        return option.label;
+        return _appIconLabel(l10n, option);
       }
     }
-    return 'Default';
+    return l10n?.defaultLabel ?? 'Default';
   }
 }
 
@@ -339,6 +352,7 @@ class _SelectedIconPreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
@@ -355,14 +369,17 @@ class _SelectedIconPreviewCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  option.label,
+                  _appIconLabel(l10n, option),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  isCurrent ? 'Current icon' : 'Tap Apply to use this icon',
+                  isCurrent
+                      ? (l10n?.settingsAppIconCurrent ?? 'Current icon')
+                      : (l10n?.settingsAppIconTapApply ??
+                            'Tap Apply to use this icon'),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -378,7 +395,7 @@ class _SelectedIconPreviewCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
-                'Active',
+                l10n?.settingsAppIconActive ?? 'Active',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w700,
@@ -409,6 +426,7 @@ class _AppIconOptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -467,7 +485,7 @@ class _AppIconOptionCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                option.label,
+                _appIconLabel(l10n, option),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.labelLarge?.copyWith(
@@ -477,10 +495,11 @@ class _AppIconOptionCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 isCurrent
-                    ? 'Current'
+                    ? (l10n?.settingsAppIconCurrentShort ?? 'Current')
                     : (option.id == 'default'
-                          ? 'Standard icon'
-                          : 'Alternate icon'),
+                          ? (l10n?.settingsAppIconStandard ?? 'Standard icon')
+                          : (l10n?.settingsAppIconAlternate ??
+                                'Alternate icon')),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.labelSmall?.copyWith(
@@ -555,18 +574,21 @@ class _AppStylePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l10n = AppLocalizations.of(context);
+    final clear = l10n?.settingsAppStyleClear ?? 'Clear';
+    final material = l10n?.settingsAppStyleMaterial ?? 'Material';
     final automatic = AppStyle.automatic.resolve() == AppStyle.clear
-        ? 'Clear'
-        : 'Material';
+        ? clear
+        : material;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppGroupLabel('App style'),
+        AppGroupLabel(l10n?.settingsAppStyle ?? 'App style'),
         AppSegmented<AppStyle>(
-          segments: const {
-            AppStyle.automatic: 'Automatic',
-            AppStyle.clear: 'Clear',
-            AppStyle.material: 'Material',
+          segments: {
+            AppStyle.automatic: l10n?.settingsAppStyleAutomatic ?? 'Automatic',
+            AppStyle.clear: clear,
+            AppStyle.material: material,
           },
           value: value,
           onChanged: onChanged,
@@ -574,9 +596,10 @@ class _AppStylePicker extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
           child: Text(
-            'Automatic uses Material on Android and Clear on iPhone, iPad, '
-            'Mac and web (here: $automatic). Colours and content stay the '
-            'same; bars, lists and controls change.',
+            l10n?.settingsAppStyleFooter(automatic) ??
+                'Automatic uses Material on Android and Clear on iPhone, iPad, '
+                    'Mac and web (here: $automatic). Colours and content stay '
+                    'the same; bars, lists and controls change.',
             style: TextStyle(fontSize: 12.5, color: t.secondaryLabel),
           ),
         ),
@@ -612,3 +635,16 @@ class _Swatch extends StatelessWidget {
     ),
   );
 }
+
+/// An app icon's name in the app language, by its id.
+String _appIconLabel(AppLocalizations? l10n, AppIconOption option) =>
+    switch (option.id) {
+      'default' => l10n?.defaultLabel,
+      'moon' => l10n?.appIconMoon,
+      'forest' => l10n?.appIconForest,
+      'minimal_flat' => l10n?.appIconMinimalFlat,
+      'premium_dark' => l10n?.appIconPremiumDark,
+      'traditional_myanmar' => l10n?.appIconTraditionalMyanmar,
+      _ => null,
+    } ??
+    option.label;

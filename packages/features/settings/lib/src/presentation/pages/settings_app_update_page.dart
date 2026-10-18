@@ -39,7 +39,7 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
 
     return AppPage(
       title: l10n?.appUpdates ?? 'App Updates',
-      previousTitle: 'Settings',
+      previousTitle: l10n?.settings ?? 'Settings',
       children: [
         AppGroup(
           children: [

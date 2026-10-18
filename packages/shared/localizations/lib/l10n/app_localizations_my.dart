@@ -30,7 +30,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get alwaysUseLightTheme => 'အလင်း Theme ကို အမြဲသုံးမည်';
 
   @override
-  String get analytics => 'Analytics';
+  String get analytics => 'အသုံးပြုမှု စာရင်းအင်း';
 
   @override
   String get analyticsDisabledChangeInSettings =>
@@ -170,7 +170,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get calendarPreviousYear => 'ယခင်နှစ်';
 
   @override
-  String get calendarStudio => 'Calendar Studio';
+  String get calendarStudio => 'ပြက္ခဒိန် စတူဒီယို';
 
   @override
   String get calendarToggleDayDetails =>
@@ -368,7 +368,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get copy => 'ကူးယူမည်';
 
   @override
-  String get crashReports => 'Crash Reports';
+  String get crashReports => 'ပျက်ကျမှု အစီရင်ခံစာများ';
 
   @override
   String get create => 'ဖန်တီးမည်';
@@ -565,7 +565,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get event => 'Event';
 
   @override
-  String get events => 'Events';
+  String get events => 'ပွဲစဉ်များ';
 
   @override
   String get eventsAddReminder => 'သတိပေးချက် ထည့်မည်';
@@ -849,7 +849,7 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
-  String get holidayConfigRemote => 'Holiday Config (Remote)';
+  String get holidayConfigRemote => 'အားလပ်ရက် ဆက်တင် (Remote)';
 
   @override
   String get holidays => 'ရုံးပိတ်ရက်များ';
@@ -1479,4 +1479,117 @@ class AppLocalizationsMy extends AppLocalizations {
   String settingsGridDefault(String description) {
     return 'မူလ · $description';
   }
+
+  @override
+  String get settingsCalendarStudioValue => 'ဒီဇိုင်းဆွဲ၍ ပုံနှိပ်ရန်';
+
+  @override
+  String get settingsShowInCalendar => 'ပြက္ခဒိန်တွင် ပြရန်';
+
+  @override
+  String get settingsDates => 'ရက်စွဲများ';
+
+  @override
+  String get settingsUseDeviceTimezone => 'စက်၏ အချိန်ဇုန်ကို သုံးရန်';
+
+  @override
+  String get settingsRefreshHolidayData => 'အားလပ်ရက် ဒေတာ ပြန်ယူရန်';
+
+  @override
+  String get settingsDebugBuildsOnly => 'Debug build များတွင်သာ။';
+
+  @override
+  String get settingsCustomColours => 'စိတ်ကြိုက် အရောင်များ…';
+
+  @override
+  String settingsThemePresetDefault(String name) {
+    return '$name (မူလ)';
+  }
+
+  @override
+  String get settingsAppStyle => 'အက်ပ် ပုံစံ';
+
+  @override
+  String get settingsAppStyleAutomatic => 'အလိုအလျောက်';
+
+  @override
+  String get settingsAppStyleClear => 'Clear';
+
+  @override
+  String get settingsAppStyleMaterial => 'Material';
+
+  @override
+  String settingsAppStyleFooter(String style) {
+    return 'အလိုအလျောက်သည် Android တွင် Material ကို၊ iPhone၊ iPad၊ Mac နှင့် web တွင် Clear ကို သုံးသည် (ဤနေရာတွင်: $style)။ အရောင်နှင့် အကြောင်းအရာ မပြောင်းဘဲ ဘား၊ စာရင်းနှင့် ခလုတ်များသာ ပြောင်းသည်။';
+  }
+
+  @override
+  String get settingsAppIcon => 'အက်ပ် အိုင်ကွန်';
+
+  @override
+  String get settingsChooseAppIcon => 'အက်ပ် အိုင်ကွန် ရွေးရန်';
+
+  @override
+  String get settingsChooseAppIconSubtitle =>
+      'နှစ်သက်ရာ launcher အိုင်ကွန် ပုံစံကို ရွေးပါ။';
+
+  @override
+  String get settingsAppIconApplying =>
+      'ခဏစောင့်ပါ၊ အက်ပ် အိုင်ကွန် ပြောင်းနေသည်...';
+
+  @override
+  String get settingsAppIconUnsupported =>
+      'ဤနေရာတွင် အက်ပ် အိုင်ကွန် ပြောင်း၍ မရပါ။';
+
+  @override
+  String get settingsAppIconFailed => 'အက်ပ် အိုင်ကွန် ပြောင်း၍ မရပါ။';
+
+  @override
+  String get settingsAppIconUpdated => 'အက်ပ် အိုင်ကွန် ပြောင်းပြီးပါပြီ။';
+
+  @override
+  String get settingsAppIconCurrent => 'လက်ရှိ အိုင်ကွန်';
+
+  @override
+  String get settingsAppIconTapApply =>
+      'ဤအိုင်ကွန်ကို သုံးရန် အသုံးပြုမည် ကိုနှိပ်ပါ';
+
+  @override
+  String get settingsAppIconActive => 'သုံးနေသည်';
+
+  @override
+  String get settingsAppIconCurrentShort => 'လက်ရှိ';
+
+  @override
+  String get settingsAppIconStandard => 'ပုံမှန် အိုင်ကွန်';
+
+  @override
+  String get settingsAppIconAlternate => 'အစားထိုး အိုင်ကွန်';
+
+  @override
+  String get appIconMoon => 'လ';
+
+  @override
+  String get appIconForest => 'တောအုပ်';
+
+  @override
+  String get appIconMinimalFlat => 'ရိုးရှင်း';
+
+  @override
+  String get appIconPremiumDark => 'အမှောင် ပရီမီယံ';
+
+  @override
+  String get appIconTraditionalMyanmar => 'မြန်မာ ရိုးရာ ပန်းချီ';
+
+  @override
+  String get languageZawgyi => 'ဇော်ဂျီ';
+
+  @override
+  String get languageMon => 'မွန်';
+
+  @override
+  String get languageShan => 'ရှမ်း';
+
+  @override
+  String get languageKaren => 'ကရင်';
 }

@@ -1845,5 +1845,155 @@
         "type": "String"
       }
     }
+  },
+  "settingsCalendarStudioValue": "Design and print",
+  "@settingsCalendarStudioValue": {
+    "description": "Value shown next to the Calendar Studio row on the Settings home page."
+  },
+  "settingsShowInCalendar": "Show in calendar",
+  "@settingsShowInCalendar": {
+    "description": "Group label on Display Preferences for what the calendar shows."
+  },
+  "settingsDates": "Dates",
+  "@settingsDates": {
+    "description": "Group label on Display Preferences for which dates the calendar shows."
+  },
+  "settingsUseDeviceTimezone": "Use Device Timezone",
+  "@settingsUseDeviceTimezone": {
+    "description": "Toggle on Calendar Configuration to follow the device time zone."
+  },
+  "settingsRefreshHolidayData": "Refresh holiday data",
+  "@settingsRefreshHolidayData": {
+    "description": "Row on Calendar Configuration that refreshes holiday data from the server."
+  },
+  "settingsDebugBuildsOnly": "Debug builds only.",
+  "@settingsDebugBuildsOnly": {
+    "description": "Footer under the debug-only group on the About page."
+  },
+  "settingsCustomColours": "Custom colours…",
+  "@settingsCustomColours": {
+    "description": "Row on Appearance that opens the custom colour editor."
+  },
+  "settingsThemePresetDefault": "{name} (default)",
+  "@settingsThemePresetDefault": {
+    "description": "Theme preset name marked as the default preset.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppStyle": "App style",
+  "@settingsAppStyle": {
+    "description": "Group label on Appearance for the Automatic / Clear / Material choice."
+  },
+  "settingsAppStyleAutomatic": "Automatic",
+  "@settingsAppStyleAutomatic": {
+    "description": "App style that picks Clear or Material by platform."
+  },
+  "settingsAppStyleClear": "Clear",
+  "@settingsAppStyleClear": {
+    "description": "Name of the Clear app style (iOS-like)."
+  },
+  "settingsAppStyleMaterial": "Material",
+  "@settingsAppStyleMaterial": {
+    "description": "Name of the Material app style (Android-like)."
+  },
+  "settingsAppStyleFooter": "Automatic uses Material on Android and Clear on iPhone, iPad, Mac and web (here: {style}). Colours and content stay the same; bars, lists and controls change.",
+  "@settingsAppStyleFooter": {
+    "description": "Footer under the App style choice; style is the style Automatic resolves to here.",
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppIcon": "App Icon",
+  "@settingsAppIcon": {
+    "description": "Row on Appearance that opens the app icon chooser."
+  },
+  "settingsChooseAppIcon": "Choose App Icon",
+  "@settingsChooseAppIcon": {
+    "description": "Title of the app icon chooser sheet."
+  },
+  "settingsChooseAppIconSubtitle": "Select your preferred launcher icon style.",
+  "@settingsChooseAppIconSubtitle": {
+    "description": "Subtitle of the app icon chooser sheet."
+  },
+  "settingsAppIconApplying": "Please wait, applying app icon...",
+  "@settingsAppIconApplying": {
+    "description": "Shown when the user opens the icon chooser while an icon change is in progress."
+  },
+  "settingsAppIconUnsupported": "App icon switching is not supported here.",
+  "@settingsAppIconUnsupported": {
+    "description": "Shown when the platform cannot change the app icon."
+  },
+  "settingsAppIconFailed": "Failed to switch app icon.",
+  "@settingsAppIconFailed": {
+    "description": "Shown when changing the app icon failed."
+  },
+  "settingsAppIconUpdated": "App icon updated.",
+  "@settingsAppIconUpdated": {
+    "description": "Shown after the app icon changed."
+  },
+  "settingsAppIconCurrent": "Current icon",
+  "@settingsAppIconCurrent": {
+    "description": "Preview card note when the selected icon is the one in use."
+  },
+  "settingsAppIconTapApply": "Tap Apply to use this icon",
+  "@settingsAppIconTapApply": {
+    "description": "Preview card note when the selected icon is not yet in use."
+  },
+  "settingsAppIconActive": "Active",
+  "@settingsAppIconActive": {
+    "description": "Badge on the preview card for the icon in use."
+  },
+  "settingsAppIconCurrentShort": "Current",
+  "@settingsAppIconCurrentShort": {
+    "description": "Caption under the icon in use in the icon grid."
+  },
+  "settingsAppIconStandard": "Standard icon",
+  "@settingsAppIconStandard": {
+    "description": "Caption under the default icon in the icon grid."
+  },
+  "settingsAppIconAlternate": "Alternate icon",
+  "@settingsAppIconAlternate": {
+    "description": "Caption under an alternate icon in the icon grid."
+  },
+  "appIconMoon": "Moon",
+  "@appIconMoon": {
+    "description": "Name of the Moon app icon."
+  },
+  "appIconForest": "Forest",
+  "@appIconForest": {
+    "description": "Name of the Forest app icon."
+  },
+  "appIconMinimalFlat": "Minimal Flat",
+  "@appIconMinimalFlat": {
+    "description": "Name of the Minimal Flat app icon."
+  },
+  "appIconPremiumDark": "Premium Dark",
+  "@appIconPremiumDark": {
+    "description": "Name of the Premium Dark app icon."
+  },
+  "appIconTraditionalMyanmar": "Traditional Myanmar Motif",
+  "@appIconTraditionalMyanmar": {
+    "description": "Name of the Traditional Myanmar Motif app icon."
+  },
+  "languageZawgyi": "Zawgyi",
+  "@languageZawgyi": {
+    "description": "Name of the Zawgyi calendar language option."
+  },
+  "languageMon": "Mon",
+  "@languageMon": {
+    "description": "Name of the Mon calendar language option."
+  },
+  "languageShan": "Shan",
+  "@languageShan": {
+    "description": "Name of the Shan calendar language option."
+  },
+  "languageKaren": "Karen",
+  "@languageKaren": {
+    "description": "Name of the Karen calendar language option."
   }
 }

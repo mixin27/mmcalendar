@@ -136,7 +136,7 @@ class _CalendarConfigurationGroups {
         ],
       ),
       AppGroup(
-        label: 'Time',
+        label: l10n?.time ?? 'Time',
         children: [
           AppRow(
             icon: Icons.lock_outline,
@@ -147,7 +147,7 @@ class _CalendarConfigurationGroups {
           AppRow.toggle(
             icon: Icons.access_time,
             iconColor: SettingsIconColors.blue,
-            title: 'Use Device Timezone',
+            title: l10n?.settingsUseDeviceTimezone ?? 'Use Device Timezone',
             value: settings.useDeviceTimezone,
             onChanged: (value) => context.read<SettingsBloc>().add(
               ToggleDisplayPreference(StorageKeys.useDeviceTimezone, value),
@@ -168,7 +168,7 @@ class _CalendarConfigurationGroups {
             'Force refresh and apply holiday overrides from Remote Config',
         children: [
           AppRow(
-            title: 'Refresh holiday data',
+            title: l10n?.settingsRefreshHolidayData ?? 'Refresh holiday data',
             tone: AppRowTone.accent,
             trailing: isRefreshingHolidayConfig
                 ? const SizedBox.square(

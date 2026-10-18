@@ -60,9 +60,7 @@ class _SettingsLanguagePageState extends State<SettingsLanguagePage> {
           children: [
             for (final language in Language.values)
               AppRow(
-                title: language == Language.myanmar
-                    ? 'မြန်မာ'
-                    : language.name.capitalize,
+                title: _calendarLanguageName(l10n, language),
                 selected: settings.calendarLanguage == language,
                 onTap: () => context.read<SettingsBloc>().add(
                   ChangeCalendarLanguage(language),
@@ -74,3 +72,15 @@ class _SettingsLanguagePageState extends State<SettingsLanguagePage> {
     );
   }
 }
+
+/// A calendar language's name in the app language; Myanmar is always
+/// written in Myanmar, as in the app language list.
+String _calendarLanguageName(AppLocalizations? l10n, Language language) =>
+    switch (language) {
+      Language.english => l10n?.english ?? 'English',
+      Language.myanmar => 'မြန်မာ',
+      Language.zawgyi => l10n?.languageZawgyi ?? 'Zawgyi',
+      Language.mon => l10n?.languageMon ?? 'Mon',
+      Language.shan => l10n?.languageShan ?? 'Shan',
+      Language.karen => l10n?.languageKaren ?? 'Karen',
+    };

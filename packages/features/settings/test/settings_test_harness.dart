@@ -165,6 +165,7 @@ class SettingsHarness {
     required AppStyle style,
     required Widget page,
     Brightness brightness = Brightness.light,
+    Locale? locale,
   }) async {
     final getIt = GetIt.instance;
     await getIt.reset();
@@ -207,6 +208,7 @@ class SettingsHarness {
         ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
+        locale: locale,
         home: BlocProvider.value(value: bloc, child: page),
       ),
     );

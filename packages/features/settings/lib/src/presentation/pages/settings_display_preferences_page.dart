@@ -76,7 +76,7 @@ class _SettingsDisplayPreferencesPageState
             ],
           ),
           AppGroup(
-            label: 'Show in calendar',
+            label: l10n?.settingsShowInCalendar ?? 'Show in calendar',
             children: [
               toggle(
                 l10n?.showHolidays ?? 'Show Holidays',
@@ -109,7 +109,7 @@ class _SettingsDisplayPreferencesPageState
             ],
           ),
           AppGroup(
-            label: 'Dates',
+            label: l10n?.settingsDates ?? 'Dates',
             footer:
                 l10n?.preferShanYearDescription ??
                 'Prefer Shan year: show the Shan calendar year instead of '

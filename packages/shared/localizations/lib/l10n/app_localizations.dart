@@ -2573,6 +2573,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default · {description}'**
   String settingsGridDefault(String description);
+
+  /// Value shown next to the Calendar Studio row on the Settings home page.
+  ///
+  /// In en, this message translates to:
+  /// **'Design and print'**
+  String get settingsCalendarStudioValue;
+
+  /// Group label on Display Preferences for what the calendar shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Show in calendar'**
+  String get settingsShowInCalendar;
+
+  /// Group label on Display Preferences for which dates the calendar shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get settingsDates;
+
+  /// Toggle on Calendar Configuration to follow the device time zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Device Timezone'**
+  String get settingsUseDeviceTimezone;
+
+  /// Row on Calendar Configuration that refreshes holiday data from the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh holiday data'**
+  String get settingsRefreshHolidayData;
+
+  /// Footer under the debug-only group on the About page.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug builds only.'**
+  String get settingsDebugBuildsOnly;
+
+  /// Row on Appearance that opens the custom colour editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom colours…'**
+  String get settingsCustomColours;
+
+  /// Theme preset name marked as the default preset.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (default)'**
+  String settingsThemePresetDefault(String name);
+
+  /// Group label on Appearance for the Automatic / Clear / Material choice.
+  ///
+  /// In en, this message translates to:
+  /// **'App style'**
+  String get settingsAppStyle;
+
+  /// App style that picks Clear or Material by platform.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get settingsAppStyleAutomatic;
+
+  /// Name of the Clear app style (iOS-like).
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get settingsAppStyleClear;
+
+  /// Name of the Material app style (Android-like).
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get settingsAppStyleMaterial;
+
+  /// Footer under the App style choice; style is the style Automatic resolves to here.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic uses Material on Android and Clear on iPhone, iPad, Mac and web (here: {style}). Colours and content stay the same; bars, lists and controls change.'**
+  String settingsAppStyleFooter(String style);
+
+  /// Row on Appearance that opens the app icon chooser.
+  ///
+  /// In en, this message translates to:
+  /// **'App Icon'**
+  String get settingsAppIcon;
+
+  /// Title of the app icon chooser sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose App Icon'**
+  String get settingsChooseAppIcon;
+
+  /// Subtitle of the app icon chooser sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your preferred launcher icon style.'**
+  String get settingsChooseAppIconSubtitle;
+
+  /// Shown when the user opens the icon chooser while an icon change is in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait, applying app icon...'**
+  String get settingsAppIconApplying;
+
+  /// Shown when the platform cannot change the app icon.
+  ///
+  /// In en, this message translates to:
+  /// **'App icon switching is not supported here.'**
+  String get settingsAppIconUnsupported;
+
+  /// Shown when changing the app icon failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to switch app icon.'**
+  String get settingsAppIconFailed;
+
+  /// Shown after the app icon changed.
+  ///
+  /// In en, this message translates to:
+  /// **'App icon updated.'**
+  String get settingsAppIconUpdated;
+
+  /// Preview card note when the selected icon is the one in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Current icon'**
+  String get settingsAppIconCurrent;
+
+  /// Preview card note when the selected icon is not yet in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Apply to use this icon'**
+  String get settingsAppIconTapApply;
+
+  /// Badge on the preview card for the icon in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get settingsAppIconActive;
+
+  /// Caption under the icon in use in the icon grid.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get settingsAppIconCurrentShort;
+
+  /// Caption under the default icon in the icon grid.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard icon'**
+  String get settingsAppIconStandard;
+
+  /// Caption under an alternate icon in the icon grid.
+  ///
+  /// In en, this message translates to:
+  /// **'Alternate icon'**
+  String get settingsAppIconAlternate;
+
+  /// Name of the Moon app icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Moon'**
+  String get appIconMoon;
+
+  /// Name of the Forest app icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest'**
+  String get appIconForest;
+
+  /// Name of the Minimal Flat app icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimal Flat'**
+  String get appIconMinimalFlat;
+
+  /// Name of the Premium Dark app icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Dark'**
+  String get appIconPremiumDark;
+
+  /// Name of the Traditional Myanmar Motif app icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditional Myanmar Motif'**
+  String get appIconTraditionalMyanmar;
+
+  /// Name of the Zawgyi calendar language option.
+  ///
+  /// In en, this message translates to:
+  /// **'Zawgyi'**
+  String get languageZawgyi;
+
+  /// Name of the Mon calendar language option.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get languageMon;
+
+  /// Name of the Shan calendar language option.
+  ///
+  /// In en, this message translates to:
+  /// **'Shan'**
+  String get languageShan;
+
+  /// Name of the Karen calendar language option.
+  ///
+  /// In en, this message translates to:
+  /// **'Karen'**
+  String get languageKaren;
 }
 
 class _AppLocalizationsDelegate

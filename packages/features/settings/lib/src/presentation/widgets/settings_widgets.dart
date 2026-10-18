@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/app_settings.dart';
@@ -30,11 +31,13 @@ class SettingsSubPage extends StatelessWidget {
     super.key,
     required this.title,
     required this.builder,
-    this.previousTitle = 'Settings',
+    this.previousTitle,
   });
 
   final String title;
-  final String previousTitle;
+
+  /// The back label; defaults to the localized "Settings".
+  final String? previousTitle;
   final List<Widget> Function(BuildContext context, AppSettingsEntity settings)
   builder;
 
@@ -68,7 +71,10 @@ class SettingsSubPage extends StatelessWidget {
         };
         return AppPage(
           title: title,
-          previousTitle: previousTitle,
+          previousTitle:
+              previousTitle ??
+              AppLocalizations.of(context)?.settings ??
+              'Settings',
           children: children,
         );
       },
