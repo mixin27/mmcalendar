@@ -1,6 +1,10 @@
+import 'dart:ui' show Locale;
+
+import 'package:holidays/holidays.dart';
 import 'package:intl/intl.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' show MoonPhaseState;
 
 import 'widget_strings.dart';
@@ -99,7 +103,7 @@ abstract final class WidgetPayloadBuilder {
           ),
       },
       'upcoming': _upcoming(start, language, t),
-      'thingyan': _thingyan(start, t),
+      'thingyan': _thingyan(start, language),
       'events': [
         for (final event in events.take(40))
           {
@@ -205,17 +209,24 @@ abstract final class WidgetPayloadBuilder {
     Language language,
     String Function(String) t,
   ) {
-    final items = <Map<String, Object?>>[];
-    String? previousHoliday;
-    for (var i = 0; i < 120 && items.length < 16; i++) {
+    final l10n = _l10n(language);
+    final items = <Map<String, Object?>>[
+      // Holidays as whole runs (Thadingyut 25–27), titled from the catalog.
+      for (final o in HolidayYears.between(
+        start,
+        DateTime(start.year, start.month, start.day + 119),
+        language,
+      ))
+        if (o.entry.kind != HolidayKind.anniversary)
+          {
+            'd': _key(o.start.isBefore(start) ? start : o.start),
+            'k': 'holiday',
+            'n': o.entry.title(l10n),
+          },
+    ];
+    for (var i = 0; i < 120; i++) {
       final date = DateTime(start.year, start.month, start.day + i);
       final mdt = MyanmarCalendar.fromWestern(date.year, date.month, date.day);
-      final holiday = mdt.allHolidays.firstOrNull;
-      // A run of days with the same holiday (Thadingyut 25–27) counts once.
-      if (holiday != null && holiday != previousHoliday) {
-        items.add({'d': _key(date), 'k': 'holiday', 'n': t(holiday)});
-      }
-      previousHoliday = holiday;
       if (mdt.isFullMoon) {
         items.add({
           'd': _key(date),
@@ -233,23 +244,32 @@ abstract final class WidgetPayloadBuilder {
         items.add({'d': _key(date), 'k': 'sabbath', 'n': t('Sabbath')});
       }
     }
-    return items;
+    // Stable: on the same day holidays stay before the moon and Sabbath.
+    final order = {for (final (i, item) in items.indexed) item: i};
+    items.sort((a, b) {
+      final byDate = (a['d'] as String).compareTo(b['d'] as String);
+      return byDate != 0 ? byDate : order[a]!.compareTo(order[b]!);
+    });
+    return items.take(16).toList();
   }
 
-  static Map<String, Object?>? _thingyan(
-    DateTime start,
-    String Function(String) t,
-  ) {
-    for (var i = 0; i < 400; i++) {
-      final date = DateTime(start.year, start.month, start.day + i);
-      final mdt = MyanmarCalendar.fromWestern(date.year, date.month, date.day);
-      final name = mdt.allHolidays
-          .where((h) => h.contains('Thingyan'))
-          .firstOrNull;
-      if (name != null) return {'d': _key(date), 'n': t(name)};
+  static Map<String, Object?>? _thingyan(DateTime start, Language language) {
+    for (final year in [start.year, start.year + 1]) {
+      final o = HolidayYears.find(HolidayCatalog.thingyan.id, year, language);
+      if (o == null || o.end.isBefore(start)) continue;
+      return {
+        'd': _key(o.start.isBefore(start) ? start : o.start),
+        'n': o.entry.title(_l10n(language)),
+      };
     }
     return null;
   }
+
+  /// Interface text for widgets: Myanmar for Myanmar, English otherwise
+  /// (as in [WidgetStrings]).
+  static AppLocalizations _l10n(Language language) => lookupAppLocalizations(
+    Locale(language == Language.myanmar ? 'my' : 'en'),
+  );
 
   static Map<String, Object?> _year(
     DateTime start,

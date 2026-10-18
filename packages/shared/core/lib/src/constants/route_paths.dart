@@ -15,6 +15,17 @@ class RoutePaths {
   static const String yearView = 'year';
   static const String weekView = 'week';
   static const String dayView = 'day';
+  static const String holidays = 'holidays';
+  static const String holidayDetail = ':id';
+
+  /// A holiday inside Home (from the day sheet or day details).
+  static const String homeHoliday = 'holiday/:id';
+
+  static String holidaysPath() => '$views/$holidays';
+  static String holidayInViews(String id, int year) =>
+      '$views/$holidays/${Uri.encodeComponent(id)}?year=$year';
+  static String holidayInHome(String id, int year) =>
+      '$home/holiday/${Uri.encodeComponent(id)}?year=$year';
 
   // Events sub-routes - NEW
   static const String createEvent = 'create';

@@ -2222,5 +2222,526 @@
   "widgetKindYear": "Myanmar year",
   "@widgetKindYear": {
     "description": "A home screen widget's name."
+  },
+  "holidayNameNewYear": "New Year's Day",
+  "holidayAboutNewYear": "The first day of the Gregorian year, a public holiday in Myanmar since 2018.",
+  "@holidayNameNewYear": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutNewYear": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameIndependence": "Independence Day",
+  "holidayAboutIndependence": "Marks Myanmar's independence from British rule on 4 January 1948. Flags go up across the country, and many towns hold fairs and sports.",
+  "@holidayNameIndependence": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutIndependence": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameUnion": "Union Day",
+  "holidayAboutUnion": "Commemorates the Panglong Agreement of 12 February 1947, when leaders of the Bamar, Shan, Kachin and Chin peoples agreed to form a union.",
+  "@holidayNameUnion": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutUnion": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNamePeasants": "Peasants' Day",
+  "holidayAboutPeasants": "Honours the farmers who grow the country's food. It falls on 2 March.",
+  "@holidayNamePeasants": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutPeasants": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameResistance": "Resistance Day",
+  "holidayAboutResistance": "Recalls the armed uprising against the Japanese occupation that began on 27 March 1945. It is also called Armed Forces Day.",
+  "@holidayNameResistance": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutResistance": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameLabour": "Labour Day",
+  "holidayAboutLabour": "International Workers' Day on 1 May, honouring working people.",
+  "@holidayNameLabour": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutLabour": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMartyrs": "Martyrs' Day",
+  "holidayAboutMartyrs": "Remembers General Aung San and the cabinet members assassinated on 19 July 1947. Sirens sound at 10:37 am, the time of the attack.",
+  "@holidayNameMartyrs": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMartyrs": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameNationalDay": "National Day",
+  "holidayAboutNationalDay": "Commemorates the 1920 university students' strike against the colonial education law, the start of the national movement. It falls on the 10th day of the waning moon of Tazaungmon.",
+  "@holidayNameNationalDay": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutNationalDay": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameNewYearsEve": "New Year's Eve",
+  "holidayAboutNewYearsEve": "The last day of the Gregorian year, a public holiday since 2018.",
+  "@holidayNameNewYearsEve": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutNewYearsEve": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNamePublicHoliday": "Public holiday",
+  "holidayAboutPublicHoliday": "An extra day off announced by the government, often to replace a holiday that fell on a weekend.",
+  "@holidayNamePublicHoliday": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutPublicHoliday": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameTabaung": "Full Moon of Tabaung",
+  "holidayAboutTabaung": "The full moon of Tabaung, the last month of the Myanmar year. Pagoda festivals are held across the country, the best known at Shwedagon.",
+  "@holidayNameTabaung": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutTabaung": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameBuddhaDay": "Buddha Day",
+  "holidayAboutBuddhaDay": "The full moon of Kason marks the Buddha's birth, enlightenment and passing. People pour water on the Bodhi trees at pagodas.",
+  "@holidayNameBuddhaDay": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutBuddhaDay": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameLentStart": "Start of Buddhist Lent",
+  "holidayAboutLentStart": "The full moon of Waso begins the three-month Buddhist Lent. Monks stay in their monasteries, and many people keep extra precepts.",
+  "@holidayNameLentStart": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutLentStart": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameThadingyut": "Thadingyut",
+  "holidayAboutThadingyut": "The full moon of Thadingyut ends the three-month Buddhist Lent. Homes and pagodas are lit with candles and lanterns for three nights, and younger people pay respects to parents, teachers and elders.",
+  "@holidayNameThadingyut": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutThadingyut": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameTazaungdaing": "Tazaungdaing",
+  "holidayAboutTazaungdaing": "The full moon of Tazaungmon closes the robe-offering season. It is a festival of lights, with fire balloons in Taunggyi and overnight contests weaving monks' robes.",
+  "@holidayNameTazaungdaing": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutTazaungdaing": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameChristmas": "Christmas",
+  "holidayAboutChristmas": "Christians celebrate the birth of Jesus on 25 December.",
+  "@holidayNameChristmas": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutChristmas": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameDiwali": "Diwali",
+  "holidayAboutDiwali": "The Hindu festival of lights, celebrated with oil lamps, sweets and prayers.",
+  "@holidayNameDiwali": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutDiwali": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameEidAlAdha": "Eid al-Adha",
+  "holidayAboutEidAlAdha": "The Muslim festival of sacrifice, at the end of the Hajj pilgrimage. Its date follows the Islamic lunar calendar.",
+  "@holidayNameEidAlAdha": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutEidAlAdha": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameGoodFriday": "Good Friday",
+  "holidayAboutGoodFriday": "Christians remember the crucifixion of Jesus on the Friday before Easter.",
+  "@holidayNameGoodFriday": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutGoodFriday": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameEaster": "Easter",
+  "holidayAboutEaster": "Christians celebrate the resurrection of Jesus.",
+  "@holidayNameEaster": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutEaster": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameEidAlFitr": "Eid al-Fitr",
+  "holidayAboutEidAlFitr": "The Muslim festival that ends the fasting month of Ramadan. Its date follows the Islamic lunar calendar.",
+  "@holidayNameEidAlFitr": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutEidAlFitr": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMahathamaya": "Mahathamaya Day",
+  "holidayAboutMahathamaya": "The full moon of Nayon recalls the Buddha teaching the Mahasamaya Sutta to a great gathering of devas.",
+  "@holidayNameMahathamaya": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMahathamaya": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameGarudhamma": "Garudhamma Day",
+  "holidayAboutGarudhamma": "The full moon of Tawthalin recalls the Buddha giving the eight Garudhamma rules to the first nuns.",
+  "@holidayNameGarudhamma": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutGarudhamma": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMetta": "Metta Day",
+  "holidayAboutMetta": "The full moon of Wagaung, a day for practising loving-kindness.",
+  "@holidayNameMetta": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMetta": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameThingyan": "Thingyan and Myanmar New Year",
+  "holidayAboutThingyan": "The water festival that ends the Myanmar year: Akyo, Akya, Akyat and Atat, then New Year's Day. People splash water to wash away the old year, and offices stay closed through the festival and the days after New Year.",
+  "@holidayNameThingyan": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutThingyan": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameKarenNewYear": "Karen New Year",
+  "holidayAboutKarenNewYear": "The Karen New Year, on the first day of the month of Pyatho, celebrated with traditional dances and music.",
+  "@holidayNameKarenNewYear": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutKarenNewYear": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameChineseNewYear": "Chinese New Year",
+  "holidayAboutChineseNewYear": "The Lunar New Year, celebrated by Chinese communities with family reunions, lion dances and red envelopes.",
+  "@holidayNameChineseNewYear": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutChineseNewYear": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameShanNewYear": "Shan New Year",
+  "holidayAboutShanNewYear": "The Shan New Year, on the first day of the waxing moon of Nadaw.",
+  "@holidayNameShanNewYear": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutShanNewYear": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameTaungpyone": "Taungpyone Festival",
+  "holidayAboutTaungpyone": "The nat festival at Taungpyone near Mandalay, held in Wagaung for the two Taungpyone brother spirits.",
+  "@holidayNameTaungpyone": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutTaungpyone": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameYadanagu": "Yadanagu Festival",
+  "holidayAboutYadanagu": "The nat festival at Yadanagu near Amarapura, held in Tawthalin for the mother of the Taungpyone brothers.",
+  "@holidayNameYadanagu": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutYadanagu": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMonNational": "Mon National Day",
+  "holidayAboutMonNational": "Falls on the full moon of Tabodwe and recalls the founding of Hanthawaddy (Bago).",
+  "@holidayNameMonNational": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMonNational": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMothers": "Mother's Day",
+  "holidayAboutMothers": "A day to thank and honour mothers.",
+  "@holidayNameMothers": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMothers": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameFathers": "Father's Day",
+  "holidayAboutFathers": "A day to thank and honour fathers.",
+  "@holidayNameFathers": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutFathers": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameAuthors": "Authors' Day",
+  "holidayAboutAuthors": "Honours Myanmar writers and poets, with literary talks and book fairs.",
+  "@holidayNameAuthors": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutAuthors": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameAungSanBirthday": "General Aung San's Birthday",
+  "holidayAboutAungSanBirthday": "General Aung San, the father of Myanmar's independence, was born on 13 February 1915. The day is also Children's Day.",
+  "@holidayNameAungSanBirthday": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutAungSanBirthday": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameValentines": "Valentine's Day",
+  "holidayAboutValentines": "A day for sweethearts, on 14 February.",
+  "@holidayNameValentines": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutValentines": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameAprilFools": "April Fools' Day",
+  "holidayAboutAprilFools": "A day for practical jokes, on 1 April.",
+  "@holidayNameAprilFools": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutAprilFools": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameEarth": "Earth Day",
+  "holidayAboutEarth": "A worldwide day for protecting the environment, on 22 April.",
+  "@holidayNameEarth": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutEarth": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameRedCross": "Red Cross Day",
+  "holidayAboutRedCross": "World Red Cross Day, on 8 May, the birthday of its founder Henry Dunant.",
+  "@holidayNameRedCross": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutRedCross": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameUnitedNations": "United Nations Day",
+  "holidayAboutUnitedNations": "Marks the founding of the United Nations on 24 October 1945.",
+  "@holidayNameUnitedNations": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutUnitedNations": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameWorldTeachers": "World Teachers' Day",
+  "holidayAboutWorldTeachers": "UNESCO's day for teachers, on 5 October.",
+  "@holidayNameWorldTeachers": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutWorldTeachers": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameHalloween": "Halloween",
+  "holidayAboutHalloween": "An evening of costumes and treats, on 31 October.",
+  "@holidayNameHalloween": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutHalloween": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidaysSearchHint": "Search holidays",
+  "@holidaysSearchHint": {
+    "description": "Search field on the Holidays page."
+  },
+  "holidaysFilterAll": "All",
+  "@holidaysFilterAll": {
+    "description": "Holidays filter chip."
+  },
+  "holidaysFilterPublic": "Public",
+  "@holidaysFilterPublic": {
+    "description": "Holidays filter chip: days offices close."
+  },
+  "holidaysFilterReligious": "Religious",
+  "@holidaysFilterReligious": {
+    "description": "Holidays filter chip."
+  },
+  "holidaysFilterCultural": "Cultural",
+  "@holidaysFilterCultural": {
+    "description": "Holidays filter chip."
+  },
+  "holidaysFilterAnniversary": "Anniversaries",
+  "@holidaysFilterAnniversary": {
+    "description": "Holidays filter chip."
+  },
+  "holidaysPublicHoliday": "Public holiday",
+  "@holidaysPublicHoliday": {
+    "description": "A day offices close."
+  },
+  "holidaysObservance": "Observance",
+  "@holidaysObservance": {
+    "description": "A holiday that is not a day off."
+  },
+  "holidaysKindNational": "National",
+  "@holidaysKindNational": {
+    "description": "Holiday kind."
+  },
+  "holidaysKindReligious": "Religious",
+  "@holidaysKindReligious": {
+    "description": "Holiday kind."
+  },
+  "holidaysKindCultural": "Cultural",
+  "@holidaysKindCultural": {
+    "description": "Holiday kind."
+  },
+  "holidaysKindAnniversary": "Anniversary",
+  "@holidaysKindAnniversary": {
+    "description": "Holiday kind."
+  },
+  "holidaysNextUp": "Next holiday",
+  "@holidaysNextUp": {
+    "description": "Label above the next holiday card."
+  },
+  "holidaysDaysOff": "{count, plural, =1{1 day off} other{{count} days off}}",
+  "@holidaysDaysOff": {
+    "description": "How many days a holiday lasts.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "holidaysDayCount": "{count, plural, =1{1 day} other{{count} days}}",
+  "@holidaysDayCount": {
+    "description": "Length of a holiday.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "holidaysDaysShort": "{count} d",
+  "@holidaysDaysShort": {
+    "description": "Days until a holiday, in a narrow column.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysInDays": "{count, plural, =0{Today} =1{Tomorrow} other{in {count} days}}",
+  "@holidaysInDays": {
+    "description": "When a holiday starts.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "holidaysNow": "Now",
+  "@holidaysNow": {
+    "description": "A holiday that is happening today."
+  },
+  "holidaysResults": "{count, plural, =0{No holidays} =1{1 holiday} other{{count} holidays}} in {year}",
+  "@holidaysResults": {
+    "description": "Search result count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysNoResults": "Nothing in {year} matches “{query}”.",
+  "@holidaysNoResults": {
+    "description": "Empty search.",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysSearchAllYears": "Search all years",
+  "@holidaysSearchAllYears": {
+    "description": "Row that widens the search."
+  },
+  "holidaysYearsRange": "{from} to {to}",
+  "@holidaysYearsRange": {
+    "description": "Year range searched.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysEarlier": "Earlier this year",
+  "@holidaysEarlier": {
+    "description": "Search results already past."
+  },
+  "holidaysComingUp": "Coming up",
+  "@holidaysComingUp": {
+    "description": "Search results still ahead."
+  },
+  "holidaysNextYear": "Next",
+  "@holidaysNextYear": {
+    "description": "The next time a holiday comes round, in search."
+  },
+  "holidaysOtherYears": "Other years",
+  "@holidaysOtherYears": {
+    "description": "Holiday detail group label."
+  },
+  "holidaysOpenInCalendar": "Open in calendar",
+  "@holidaysOpenInCalendar": {
+    "description": "Holiday detail button."
+  },
+  "holidaysNotThisYear": "Not in {year}",
+  "@holidaysNotThisYear": {
+    "description": "A holiday that does not fall in the chosen year.",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysViewsSubtitle": "Every holiday of the year, with reminders",
+  "@holidaysViewsSubtitle": {
+    "description": "Views row subtitle."
+  },
+  "holidaysViewsFooter": "{count} public holidays in {year}.",
+  "@holidaysViewsFooter": {
+    "description": "Views group footer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "viewsCalendarGroup": "Calendar",
+  "@viewsCalendarGroup": {
+    "description": "Views group label."
+  },
+  "viewsExploreGroup": "Explore",
+  "@viewsExploreGroup": {
+    "description": "Views group label."
   }
 }

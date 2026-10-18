@@ -1770,4 +1770,420 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get widgetKindYear => 'မြန်မာနှစ်';
+
+  @override
+  String get holidayNameNewYear => 'နှစ်သစ်ကူးနေ့';
+
+  @override
+  String get holidayAboutNewYear =>
+      'ခရစ်နှစ်သစ်၏ ပထမဆုံးနေ့ ဖြစ်ပြီး ၂၀၁၈ ခုနှစ်မှစ၍ ရုံးပိတ်ရက် ဖြစ်သည်။';
+
+  @override
+  String get holidayNameIndependence => 'လွတ်လပ်ရေးနေ့';
+
+  @override
+  String get holidayAboutIndependence =>
+      '၁၉၄၈ ခုနှစ် ဇန်နဝါရီ ၄ ရက်တွင် ဗြိတိသျှ ကိုလိုနီ အုပ်ချုပ်မှုမှ လွတ်လပ်ရေး ရရှိခဲ့ခြင်းကို အထိမ်းအမှတ်ပြုသည်။ နိုင်ငံအနှံ့ အလံလွှင့်ထူကာ ပွဲတော်များ၊ အားကစားပြိုင်ပွဲများ ကျင်းပကြသည်။';
+
+  @override
+  String get holidayNameUnion => 'ပြည်ထောင်စုနေ့';
+
+  @override
+  String get holidayAboutUnion =>
+      '၁၉၄၇ ခုနှစ် ဖေဖော်ဝါရီ ၁၂ ရက်တွင် ဗမာ၊ ရှမ်း၊ ကချင်၊ ချင်း ခေါင်းဆောင်များ ပြည်ထောင်စု ထူထောင်ရန် သဘောတူခဲ့သည့် ပင်လုံစာချုပ်ကို အောက်မေ့သည်။';
+
+  @override
+  String get holidayNamePeasants => 'တောင်သူလယ်သမားနေ့';
+
+  @override
+  String get holidayAboutPeasants =>
+      'နိုင်ငံ၏ စားနပ်ရိက္ခာကို စိုက်ပျိုးထုတ်လုပ်ပေးသော တောင်သူလယ်သမားများကို ဂုဏ်ပြုသည့်နေ့ ဖြစ်ပြီး မတ်လ ၂ ရက်နေ့တွင် ကျရောက်သည်။';
+
+  @override
+  String get holidayNameResistance => 'တော်လှန်ရေးနေ့';
+
+  @override
+  String get holidayAboutResistance =>
+      '၁၉၄၅ ခုနှစ် မတ်လ ၂၇ ရက်တွင် စတင်ခဲ့သော ဂျပန်ဖက်ဆစ် တော်လှန်ရေးကို အောက်မေ့သည့်နေ့ ဖြစ်သည်။ တပ်မတော်နေ့ ဟုလည်း ခေါ်သည်။';
+
+  @override
+  String get holidayNameLabour => 'အလုပ်သမားနေ့';
+
+  @override
+  String get holidayAboutLabour =>
+      'မေလ ၁ ရက်နေ့တွင် ကျရောက်သော အပြည်ပြည်ဆိုင်ရာ အလုပ်သမားနေ့ ဖြစ်ပြီး လုပ်သားပြည်သူများကို ဂုဏ်ပြုသည်။';
+
+  @override
+  String get holidayNameMartyrs => 'အာဇာနည်နေ့';
+
+  @override
+  String get holidayAboutMartyrs =>
+      '၁၉၄၇ ခုနှစ် ဇူလိုင် ၁၉ ရက်တွင် လုပ်ကြံခံခဲ့ရသော ဗိုလ်ချုပ်အောင်ဆန်းနှင့် အစိုးရအဖွဲ့ဝင်များကို အောက်မေ့သည်။ နံနက် ၁၀ နာရီ ၃၇ မိနစ်တွင် ဥဩဆွဲ၍ ငြိမ်သက်စွာ ဂါရဝပြုကြသည်။';
+
+  @override
+  String get holidayNameNationalDay => 'အမျိုးသားနေ့';
+
+  @override
+  String get holidayAboutNationalDay =>
+      'ကိုလိုနီ ပညာရေးဥပဒေကို ဆန့်ကျင်ခဲ့သော ၁၉၂၀ ပြည့်နှစ် ပထမ ကျောင်းသားသပိတ်ကို အောက်မေ့သည့်နေ့ ဖြစ်သည်။ တန်ဆောင်မုန်း လဆုတ် ၁၀ ရက်နေ့တွင် ကျရောက်သည်။';
+
+  @override
+  String get holidayNameNewYearsEve => 'နှစ်ကုန်ရက်';
+
+  @override
+  String get holidayAboutNewYearsEve =>
+      'ခရစ်နှစ်၏ နောက်ဆုံးနေ့ ဖြစ်ပြီး ၂၀၁၈ ခုနှစ်မှစ၍ ရုံးပိတ်ရက် ဖြစ်သည်။';
+
+  @override
+  String get holidayNamePublicHoliday => 'ရုံးပိတ်ရက်';
+
+  @override
+  String get holidayAboutPublicHoliday =>
+      'အစိုးရက ထပ်မံ ကြေညာသော ရုံးပိတ်ရက် ဖြစ်ပြီး စနေ၊ တနင်္ဂနွေနှင့် တိုက်ဆိုင်သော ရုံးပိတ်ရက်အစား ပေးလေ့ရှိသည်။';
+
+  @override
+  String get holidayNameTabaung => 'တပေါင်းလပြည့်နေ့';
+
+  @override
+  String get holidayAboutTabaung =>
+      'မြန်မာနှစ်၏ နောက်ဆုံးလ ဖြစ်သော တပေါင်းလ၏ လပြည့်နေ့ ဖြစ်သည်။ နိုင်ငံအနှံ့ ဘုရားပွဲတော်များ ကျင်းပကြပြီး ရွှေတိဂုံဘုရားပွဲသည် အထင်ရှားဆုံး ဖြစ်သည်။';
+
+  @override
+  String get holidayNameBuddhaDay => 'ကဆုန်လပြည့် ဗုဒ္ဓနေ့';
+
+  @override
+  String get holidayAboutBuddhaDay =>
+      'ကဆုန်လပြည့်နေ့သည် မြတ်စွာဘုရား ဖွားမြင်တော်မူခြင်း၊ ဘုရားဖြစ်တော်မူခြင်းနှင့် ပရိနိဗ္ဗာန်စံဝင်တော်မူခြင်းကို အထိမ်းအမှတ်ပြုသည်။ ဘုရားများရှိ ဗောဓိညောင်ပင်များကို ရေသွန်းလောင်းကြသည်။';
+
+  @override
+  String get holidayNameLentStart => 'ဝါဆိုလပြည့် ဓမ္မစကြာနေ့';
+
+  @override
+  String get holidayAboutLentStart =>
+      'ဝါဆိုလပြည့်နေ့တွင် သုံးလကြာ ဝါတွင်းကာလ စတင်သည်။ ရဟန်းတော်များ ကျောင်းတွင် ဝါကပ်ကြပြီး လူအများ သီလ ပိုမို စောင့်ထိန်းကြသည်။';
+
+  @override
+  String get holidayNameThadingyut => 'သီတင်းကျွတ် မီးထွန်းပွဲ';
+
+  @override
+  String get holidayAboutThadingyut =>
+      'သီတင်းကျွတ်လပြည့်နေ့တွင် သုံးလကြာ ဝါတွင်းကာလ ကုန်ဆုံးသည်။ အိမ်များနှင့် ဘုရားများကို သုံးညတိုင်တိုင် ဆီမီး၊ မီးအိမ်များ ထွန်းညှိကြပြီး လူငယ်များက မိဘ၊ ဆရာသမားနှင့် သက်ကြီးဝါကြီးများကို ကန်တော့ကြသည်။';
+
+  @override
+  String get holidayNameTazaungdaing => 'တန်ဆောင်တိုင်';
+
+  @override
+  String get holidayAboutTazaungdaing =>
+      'တန်ဆောင်မုန်းလပြည့်နေ့သည် ကထိန်ကာလ ပြီးဆုံးရာ မီးထွန်းပွဲတော် ဖြစ်သည်။ တောင်ကြီးတွင် မီးပုံးပျံပွဲ ကျင်းပပြီး ညလုံးပေါက် မသိုးသင်္ကန်း ရက်လုပ်ပြိုင်ပွဲများ ကျင်းပကြသည်။';
+
+  @override
+  String get holidayNameChristmas => 'ခရစ္စမတ်';
+
+  @override
+  String get holidayAboutChristmas =>
+      'ခရစ်ယာန်များက ဒီဇင်ဘာ ၂၅ ရက်နေ့တွင် ယေရှုခရစ် မွေးဖွားခြင်းကို ကျင်းပကြသည်။';
+
+  @override
+  String get holidayNameDiwali => 'ဒီဝါလီ';
+
+  @override
+  String get holidayAboutDiwali =>
+      'ဟိန္ဒူဘာသာဝင်တို့၏ မီးထွန်းပွဲတော် ဖြစ်ပြီး ဆီမီးများ ထွန်းညှိကာ မုန့်များ ဝေငှ၍ ဆုတောင်းကြသည်။';
+
+  @override
+  String get holidayNameEidAlAdha => 'အိဒ်နေ့ (Eid al-Adha)';
+
+  @override
+  String get holidayAboutEidAlAdha =>
+      'ဟဂ်ျခရီး ပြီးဆုံးချိန်တွင် ကျင်းပသော မွတ်စလင်တို့၏ ပူဇော်ပွဲ ဖြစ်သည်။ ရက်စွဲသည် အစ္စလာမ် ပြက္ခဒိန်အတိုင်း ပြောင်းလဲသည်။';
+
+  @override
+  String get holidayNameGoodFriday => 'သောကြာနေ့ကြီး';
+
+  @override
+  String get holidayAboutGoodFriday =>
+      'ထမြောက်ရာနေ့ မတိုင်မီ သောကြာနေ့တွင် ယေရှုခရစ် လက်ဝါးကပ်တိုင်ပေါ်တွင် အသေခံခြင်းကို ခရစ်ယာန်များ အောက်မေ့ကြသည်။';
+
+  @override
+  String get holidayNameEaster => 'ထမြောက်ရာနေ့';
+
+  @override
+  String get holidayAboutEaster =>
+      'ယေရှုခရစ် ရှင်ပြန်ထမြောက်ခြင်းကို ခရစ်ယာန်များ ကျင်းပကြသည်။';
+
+  @override
+  String get holidayNameEidAlFitr => 'အိဒ်နေ့ (Eid al-Fitr)';
+
+  @override
+  String get holidayAboutEidAlFitr =>
+      'ရမ်ဇာန် ဥပုသ်လ ကုန်ဆုံးချိန်တွင် ကျင်းပသော မွတ်စလင်တို့၏ ပွဲတော် ဖြစ်သည်။ ရက်စွဲသည် အစ္စလာမ် ပြက္ခဒိန်အတိုင်း ပြောင်းလဲသည်။';
+
+  @override
+  String get holidayNameMahathamaya => 'မဟာသမယနေ့';
+
+  @override
+  String get holidayAboutMahathamaya =>
+      'နယုန်လပြည့်နေ့တွင် မြတ်စွာဘုရား နတ်ဗြဟ္မာ အစည်းအဝေးကြီးအား မဟာသမယသုတ်ကို ဟောကြားတော်မူခဲ့ခြင်းကို အောက်မေ့သည်။';
+
+  @override
+  String get holidayNameGarudhamma => 'ဂရုဓမ္မနေ့';
+
+  @override
+  String get holidayAboutGarudhamma =>
+      'တော်သလင်းလပြည့်နေ့တွင် မြတ်စွာဘုရား ပထမဆုံး ဘိက္ခုနီများအား ဂရုဓမ္မ ရှစ်ပါးကို ပေးတော်မူခဲ့ခြင်းကို အောက်မေ့သည်။';
+
+  @override
+  String get holidayNameMetta => 'မေတ္တာနေ့';
+
+  @override
+  String get holidayAboutMetta =>
+      'ဝါခေါင်လပြည့်နေ့ ဖြစ်ပြီး မေတ္တာ ပွားများရန် အထူးသတ်မှတ်ထားသောနေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameThingyan => 'သင်္ကြန်နှင့် နှစ်ဆန်းတစ်ရက်';
+
+  @override
+  String get holidayAboutThingyan =>
+      'မြန်မာနှစ်ကုန်တွင် ကျင်းပသော ရေသဘင်ပွဲတော် ဖြစ်ပြီး အကြိုနေ့၊ အကျနေ့၊ အကြတ်နေ့၊ အတက်နေ့ ပြီးနောက် နှစ်ဆန်းတစ်ရက်နေ့ ရောက်ရှိသည်။ နှစ်ဟောင်း၏ အညစ်အကြေးများ ဆေးကြောရန် ရေပက်ကြပြီး ပွဲတော်ကာလနှင့် နှစ်ဆန်းရက်များတွင် ရုံးများ ပိတ်သည်။';
+
+  @override
+  String get holidayNameKarenNewYear => 'ကရင်နှစ်သစ်ကူးနေ့';
+
+  @override
+  String get holidayAboutKarenNewYear =>
+      'ပြာသိုလဆန်း ၁ ရက်နေ့တွင် ကျရောက်သော ကရင်နှစ်သစ်ကူးနေ့ ဖြစ်ပြီး ရိုးရာ ကခုန်ဖျော်ဖြေမှုများဖြင့် ကျင်းပကြသည်။';
+
+  @override
+  String get holidayNameChineseNewYear => 'တရုတ်နှစ်သစ်ကူး';
+
+  @override
+  String get holidayAboutChineseNewYear =>
+      'တရုတ်လူမျိုးများ မိသားစု စုံညီကြပြီး ခြင်္သေ့က၊ အနီရောင် စာအိတ်များဖြင့် ကျင်းပကြသော နှစ်သစ်ကူးပွဲ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameShanNewYear => 'ရှမ်းနှစ်သစ်ကူး';
+
+  @override
+  String get holidayAboutShanNewYear =>
+      'နတ်တော်လဆန်း ၁ ရက်နေ့တွင် ကျရောက်သော ရှမ်းနှစ်သစ်ကူးနေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameTaungpyone => 'တောင်ပြုန်းပွဲတော်';
+
+  @override
+  String get holidayAboutTaungpyone =>
+      'မန္တလေးအနီး တောင်ပြုန်း၌ ဝါခေါင်လတွင် ကျင်းပသော တောင်ပြုန်း မင်းညီနောင် နတ်ပွဲတော် ဖြစ်သည်။';
+
+  @override
+  String get holidayNameYadanagu => 'ရတနာ့ဂူပွဲတော်';
+
+  @override
+  String get holidayAboutYadanagu =>
+      'အမရပူရအနီး ရတနာ့ဂူ၌ တော်သလင်းလတွင် ကျင်းပသော ပုပ္ပါးမယ်တော် နတ်ပွဲတော် ဖြစ်သည်။';
+
+  @override
+  String get holidayNameMonNational => 'မွန်အမျိုးသားနေ့';
+
+  @override
+  String get holidayAboutMonNational =>
+      'တပို့တွဲလပြည့်နေ့တွင် ကျရောက်ပြီး ဟံသာဝတီ (ပဲခူး) တည်ထောင်ခြင်းကို အောက်မေ့သည့် မွန်အမျိုးသားနေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameMothers => 'အမေများနေ့';
+
+  @override
+  String get holidayAboutMothers =>
+      'မိခင်များကို ကျေးဇူးတင်ဂုဏ်ပြုသည့်နေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameFathers => 'အဖေများနေ့';
+
+  @override
+  String get holidayAboutFathers =>
+      'ဖခင်များကို ကျေးဇူးတင်ဂုဏ်ပြုသည့်နေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameAuthors => 'စာဆိုတော်နေ့';
+
+  @override
+  String get holidayAboutAuthors =>
+      'မြန်မာ စာရေးဆရာ၊ စာဆိုတော်များကို ဂုဏ်ပြုသည့်နေ့ ဖြစ်ပြီး စာပေဟောပြောပွဲ၊ စာအုပ်ပြပွဲများ ကျင်းပကြသည်။';
+
+  @override
+  String get holidayNameAungSanBirthday => 'ဗိုလ်ချုပ်အောင်ဆန်း မွေးနေ့';
+
+  @override
+  String get holidayAboutAungSanBirthday =>
+      'မြန်မာ့လွတ်လပ်ရေး ဖခင် ဗိုလ်ချုပ်အောင်ဆန်း ၁၉၁၅ ခုနှစ် ဖေဖော်ဝါရီ ၁၃ ရက်တွင် မွေးဖွားခဲ့သည်။ ကလေးများနေ့ အဖြစ်လည်း ကျင်းပသည်။';
+
+  @override
+  String get holidayNameValentines => 'ချစ်သူများနေ့';
+
+  @override
+  String get holidayAboutValentines =>
+      'ဖေဖော်ဝါရီ ၁၄ ရက်နေ့တွင် ကျရောက်သော ချစ်သူများနေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameAprilFools => 'ဧပြီအရူးနေ့';
+
+  @override
+  String get holidayAboutAprilFools =>
+      'ဧပြီ ၁ ရက်နေ့တွင် ကျရောက်ပြီး ပျော်စရာ နောက်ပြောင်ကြသည့်နေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameEarth => 'ကမ္ဘာမြေနေ့';
+
+  @override
+  String get holidayAboutEarth =>
+      'ဧပြီ ၂၂ ရက်နေ့တွင် ကမ္ဘာတစ်ဝန်း သဘာဝပတ်ဝန်းကျင် ထိန်းသိမ်းရေးကို အားပေးသည့်နေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameRedCross => 'ကြက်ခြေနီနေ့';
+
+  @override
+  String get holidayAboutRedCross =>
+      'ကြက်ခြေနီ တည်ထောင်သူ ဟင်နရီ ဒူနန့် မွေးနေ့ ဖြစ်သော မေလ ၈ ရက်တွင် ကျရောက်သည့် ကမ္ဘာ့ကြက်ခြေနီနေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameUnitedNations => 'ကုလသမဂ္ဂနေ့';
+
+  @override
+  String get holidayAboutUnitedNations =>
+      '၁၉၄၅ ခုနှစ် အောက်တိုဘာ ၂၄ ရက်တွင် ကုလသမဂ္ဂ ဖွဲ့စည်းတည်ထောင်ခြင်းကို အထိမ်းအမှတ်ပြုသည်။';
+
+  @override
+  String get holidayNameWorldTeachers => 'ကမ္ဘာ့ဆရာများနေ့';
+
+  @override
+  String get holidayAboutWorldTeachers =>
+      'အောက်တိုဘာ ၅ ရက်နေ့တွင် ကျရောက်သော ယူနက်စကို၏ ကမ္ဘာ့ဆရာများနေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidayNameHalloween => 'ဟယ်လိုဝင်း';
+
+  @override
+  String get holidayAboutHalloween =>
+      'အောက်တိုဘာ ၃၁ ရက်နေ့ ညတွင် ဝတ်စုံများ ဝတ်ဆင်ကာ ပျော်ရွှင်ကြသည့်နေ့ ဖြစ်သည်။';
+
+  @override
+  String get holidaysSearchHint => 'ပိတ်ရက်များ ရှာရန်';
+
+  @override
+  String get holidaysFilterAll => 'အားလုံး';
+
+  @override
+  String get holidaysFilterPublic => 'ရုံးပိတ်ရက်';
+
+  @override
+  String get holidaysFilterReligious => 'ဘာသာရေး';
+
+  @override
+  String get holidaysFilterCultural => 'ယဉ်ကျေးမှု';
+
+  @override
+  String get holidaysFilterAnniversary => 'နှစ်ပတ်လည်နေ့များ';
+
+  @override
+  String get holidaysPublicHoliday => 'ရုံးပိတ်ရက်';
+
+  @override
+  String get holidaysObservance => 'အထိမ်းအမှတ်နေ့';
+
+  @override
+  String get holidaysKindNational => 'အမျိုးသား';
+
+  @override
+  String get holidaysKindReligious => 'ဘာသာရေး';
+
+  @override
+  String get holidaysKindCultural => 'ယဉ်ကျေးမှု';
+
+  @override
+  String get holidaysKindAnniversary => 'နှစ်ပတ်လည်နေ့';
+
+  @override
+  String get holidaysNextUp => 'နောက်ရုံးပိတ်ရက်';
+
+  @override
+  String holidaysDaysOff(int count) {
+    return '$count ရက် ပိတ်သည်';
+  }
+
+  @override
+  String holidaysDayCount(int count) {
+    return '$count ရက်';
+  }
+
+  @override
+  String holidaysDaysShort(String count) {
+    return '$count ရက်';
+  }
+
+  @override
+  String holidaysInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'နောက် $count ရက်',
+      one: 'မနက်ဖြန်',
+      zero: 'ယနေ့',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get holidaysNow => 'ယခု';
+
+  @override
+  String holidaysResults(int count, String year) {
+    return '$year တွင် ပိတ်ရက် $count ခု';
+  }
+
+  @override
+  String holidaysNoResults(String year, String query) {
+    return '$year တွင် “$query” နှင့် ကိုက်ညီသည်များ မရှိပါ။';
+  }
+
+  @override
+  String get holidaysSearchAllYears => 'နှစ်အားလုံးတွင် ရှာရန်';
+
+  @override
+  String holidaysYearsRange(String from, String to) {
+    return '$from မှ $to အထိ';
+  }
+
+  @override
+  String get holidaysEarlier => 'ယခုနှစ် အစောပိုင်း';
+
+  @override
+  String get holidaysComingUp => 'လာမည့်ရက်များ';
+
+  @override
+  String get holidaysNextYear => 'နောက်တစ်ကြိမ်';
+
+  @override
+  String get holidaysOtherYears => 'အခြားနှစ်များ';
+
+  @override
+  String get holidaysOpenInCalendar => 'ပြက္ခဒိန်တွင် ဖွင့်ရန်';
+
+  @override
+  String holidaysNotThisYear(String year) {
+    return '$year တွင် မရှိပါ';
+  }
+
+  @override
+  String get holidaysViewsSubtitle =>
+      'နှစ်တစ်နှစ်၏ ပိတ်ရက်အားလုံးနှင့် သတိပေးချက်များ';
+
+  @override
+  String holidaysViewsFooter(int count, String year) {
+    return '$year တွင် ရုံးပိတ်ရက် $count ခု ရှိသည်။';
+  }
+
+  @override
+  String get viewsCalendarGroup => 'ပြက္ခဒိန်';
+
+  @override
+  String get viewsExploreGroup => 'ရှာဖွေရန်';
 }

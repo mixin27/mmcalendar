@@ -3101,6 +3101,702 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Myanmar year'**
   String get widgetKindYear;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'New Year\'s Day'**
+  String get holidayNameNewYear;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The first day of the Gregorian year, a public holiday in Myanmar since 2018.'**
+  String get holidayAboutNewYear;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Independence Day'**
+  String get holidayNameIndependence;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks Myanmar\'s independence from British rule on 4 January 1948. Flags go up across the country, and many towns hold fairs and sports.'**
+  String get holidayAboutIndependence;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Union Day'**
+  String get holidayNameUnion;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Commemorates the Panglong Agreement of 12 February 1947, when leaders of the Bamar, Shan, Kachin and Chin peoples agreed to form a union.'**
+  String get holidayAboutUnion;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Peasants\' Day'**
+  String get holidayNamePeasants;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Honours the farmers who grow the country\'s food. It falls on 2 March.'**
+  String get holidayAboutPeasants;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Resistance Day'**
+  String get holidayNameResistance;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Recalls the armed uprising against the Japanese occupation that began on 27 March 1945. It is also called Armed Forces Day.'**
+  String get holidayAboutResistance;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Labour Day'**
+  String get holidayNameLabour;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'International Workers\' Day on 1 May, honouring working people.'**
+  String get holidayAboutLabour;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Martyrs\' Day'**
+  String get holidayNameMartyrs;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Remembers General Aung San and the cabinet members assassinated on 19 July 1947. Sirens sound at 10:37 am, the time of the attack.'**
+  String get holidayAboutMartyrs;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'National Day'**
+  String get holidayNameNationalDay;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Commemorates the 1920 university students\' strike against the colonial education law, the start of the national movement. It falls on the 10th day of the waning moon of Tazaungmon.'**
+  String get holidayAboutNationalDay;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'New Year\'s Eve'**
+  String get holidayNameNewYearsEve;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The last day of the Gregorian year, a public holiday since 2018.'**
+  String get holidayAboutNewYearsEve;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Public holiday'**
+  String get holidayNamePublicHoliday;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'An extra day off announced by the government, often to replace a holiday that fell on a weekend.'**
+  String get holidayAboutPublicHoliday;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Moon of Tabaung'**
+  String get holidayNameTabaung;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The full moon of Tabaung, the last month of the Myanmar year. Pagoda festivals are held across the country, the best known at Shwedagon.'**
+  String get holidayAboutTabaung;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Buddha Day'**
+  String get holidayNameBuddhaDay;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The full moon of Kason marks the Buddha\'s birth, enlightenment and passing. People pour water on the Bodhi trees at pagodas.'**
+  String get holidayAboutBuddhaDay;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Start of Buddhist Lent'**
+  String get holidayNameLentStart;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The full moon of Waso begins the three-month Buddhist Lent. Monks stay in their monasteries, and many people keep extra precepts.'**
+  String get holidayAboutLentStart;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Thadingyut'**
+  String get holidayNameThadingyut;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The full moon of Thadingyut ends the three-month Buddhist Lent. Homes and pagodas are lit with candles and lanterns for three nights, and younger people pay respects to parents, teachers and elders.'**
+  String get holidayAboutThadingyut;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Tazaungdaing'**
+  String get holidayNameTazaungdaing;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The full moon of Tazaungmon closes the robe-offering season. It is a festival of lights, with fire balloons in Taunggyi and overnight contests weaving monks\' robes.'**
+  String get holidayAboutTazaungdaing;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Christmas'**
+  String get holidayNameChristmas;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Christians celebrate the birth of Jesus on 25 December.'**
+  String get holidayAboutChristmas;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Diwali'**
+  String get holidayNameDiwali;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The Hindu festival of lights, celebrated with oil lamps, sweets and prayers.'**
+  String get holidayAboutDiwali;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Eid al-Adha'**
+  String get holidayNameEidAlAdha;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The Muslim festival of sacrifice, at the end of the Hajj pilgrimage. Its date follows the Islamic lunar calendar.'**
+  String get holidayAboutEidAlAdha;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Friday'**
+  String get holidayNameGoodFriday;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Christians remember the crucifixion of Jesus on the Friday before Easter.'**
+  String get holidayAboutGoodFriday;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Easter'**
+  String get holidayNameEaster;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Christians celebrate the resurrection of Jesus.'**
+  String get holidayAboutEaster;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Eid al-Fitr'**
+  String get holidayNameEidAlFitr;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The Muslim festival that ends the fasting month of Ramadan. Its date follows the Islamic lunar calendar.'**
+  String get holidayAboutEidAlFitr;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Mahathamaya Day'**
+  String get holidayNameMahathamaya;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The full moon of Nayon recalls the Buddha teaching the Mahasamaya Sutta to a great gathering of devas.'**
+  String get holidayAboutMahathamaya;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Garudhamma Day'**
+  String get holidayNameGarudhamma;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The full moon of Tawthalin recalls the Buddha giving the eight Garudhamma rules to the first nuns.'**
+  String get holidayAboutGarudhamma;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Metta Day'**
+  String get holidayNameMetta;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The full moon of Wagaung, a day for practising loving-kindness.'**
+  String get holidayAboutMetta;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Thingyan and Myanmar New Year'**
+  String get holidayNameThingyan;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The water festival that ends the Myanmar year: Akyo, Akya, Akyat and Atat, then New Year\'s Day. People splash water to wash away the old year, and offices stay closed through the festival and the days after New Year.'**
+  String get holidayAboutThingyan;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Karen New Year'**
+  String get holidayNameKarenNewYear;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The Karen New Year, on the first day of the month of Pyatho, celebrated with traditional dances and music.'**
+  String get holidayAboutKarenNewYear;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese New Year'**
+  String get holidayNameChineseNewYear;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The Lunar New Year, celebrated by Chinese communities with family reunions, lion dances and red envelopes.'**
+  String get holidayAboutChineseNewYear;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Shan New Year'**
+  String get holidayNameShanNewYear;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The Shan New Year, on the first day of the waxing moon of Nadaw.'**
+  String get holidayAboutShanNewYear;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Taungpyone Festival'**
+  String get holidayNameTaungpyone;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The nat festival at Taungpyone near Mandalay, held in Wagaung for the two Taungpyone brother spirits.'**
+  String get holidayAboutTaungpyone;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Yadanagu Festival'**
+  String get holidayNameYadanagu;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The nat festival at Yadanagu near Amarapura, held in Tawthalin for the mother of the Taungpyone brothers.'**
+  String get holidayAboutYadanagu;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon National Day'**
+  String get holidayNameMonNational;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Falls on the full moon of Tabodwe and recalls the founding of Hanthawaddy (Bago).'**
+  String get holidayAboutMonNational;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Mother\'s Day'**
+  String get holidayNameMothers;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'A day to thank and honour mothers.'**
+  String get holidayAboutMothers;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Father\'s Day'**
+  String get holidayNameFathers;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'A day to thank and honour fathers.'**
+  String get holidayAboutFathers;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Authors\' Day'**
+  String get holidayNameAuthors;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Honours Myanmar writers and poets, with literary talks and book fairs.'**
+  String get holidayAboutAuthors;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'General Aung San\'s Birthday'**
+  String get holidayNameAungSanBirthday;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'General Aung San, the father of Myanmar\'s independence, was born on 13 February 1915. The day is also Children\'s Day.'**
+  String get holidayAboutAungSanBirthday;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Valentine\'s Day'**
+  String get holidayNameValentines;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'A day for sweethearts, on 14 February.'**
+  String get holidayAboutValentines;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'April Fools\' Day'**
+  String get holidayNameAprilFools;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'A day for practical jokes, on 1 April.'**
+  String get holidayAboutAprilFools;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Earth Day'**
+  String get holidayNameEarth;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'A worldwide day for protecting the environment, on 22 April.'**
+  String get holidayAboutEarth;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Cross Day'**
+  String get holidayNameRedCross;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'World Red Cross Day, on 8 May, the birthday of its founder Henry Dunant.'**
+  String get holidayAboutRedCross;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'United Nations Day'**
+  String get holidayNameUnitedNations;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks the founding of the United Nations on 24 October 1945.'**
+  String get holidayAboutUnitedNations;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'World Teachers\' Day'**
+  String get holidayNameWorldTeachers;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'UNESCO\'s day for teachers, on 5 October.'**
+  String get holidayAboutWorldTeachers;
+
+  /// A holiday name.
+  ///
+  /// In en, this message translates to:
+  /// **'Halloween'**
+  String get holidayNameHalloween;
+
+  /// What a holiday marks, two or three sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'An evening of costumes and treats, on 31 October.'**
+  String get holidayAboutHalloween;
+
+  /// Search field on the Holidays page.
+  ///
+  /// In en, this message translates to:
+  /// **'Search holidays'**
+  String get holidaysSearchHint;
+
+  /// Holidays filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get holidaysFilterAll;
+
+  /// Holidays filter chip: days offices close.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get holidaysFilterPublic;
+
+  /// Holidays filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Religious'**
+  String get holidaysFilterReligious;
+
+  /// Holidays filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Cultural'**
+  String get holidaysFilterCultural;
+
+  /// Holidays filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Anniversaries'**
+  String get holidaysFilterAnniversary;
+
+  /// A day offices close.
+  ///
+  /// In en, this message translates to:
+  /// **'Public holiday'**
+  String get holidaysPublicHoliday;
+
+  /// A holiday that is not a day off.
+  ///
+  /// In en, this message translates to:
+  /// **'Observance'**
+  String get holidaysObservance;
+
+  /// Holiday kind.
+  ///
+  /// In en, this message translates to:
+  /// **'National'**
+  String get holidaysKindNational;
+
+  /// Holiday kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Religious'**
+  String get holidaysKindReligious;
+
+  /// Holiday kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Cultural'**
+  String get holidaysKindCultural;
+
+  /// Holiday kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Anniversary'**
+  String get holidaysKindAnniversary;
+
+  /// Label above the next holiday card.
+  ///
+  /// In en, this message translates to:
+  /// **'Next holiday'**
+  String get holidaysNextUp;
+
+  /// How many days a holiday lasts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day off} other{{count} days off}}'**
+  String holidaysDaysOff(int count);
+
+  /// Length of a holiday.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String holidaysDayCount(int count);
+
+  /// Days until a holiday, in a narrow column.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} d'**
+  String holidaysDaysShort(String count);
+
+  /// When a holiday starts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Today} =1{Tomorrow} other{in {count} days}}'**
+  String holidaysInDays(int count);
+
+  /// A holiday that is happening today.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get holidaysNow;
+
+  /// Search result count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No holidays} =1{1 holiday} other{{count} holidays}} in {year}'**
+  String holidaysResults(int count, String year);
+
+  /// Empty search.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in {year} matches “{query}”.'**
+  String holidaysNoResults(String year, String query);
+
+  /// Row that widens the search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search all years'**
+  String get holidaysSearchAllYears;
+
+  /// Year range searched.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String holidaysYearsRange(String from, String to);
+
+  /// Search results already past.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier this year'**
+  String get holidaysEarlier;
+
+  /// Search results still ahead.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get holidaysComingUp;
+
+  /// The next time a holiday comes round, in search.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get holidaysNextYear;
+
+  /// Holiday detail group label.
+  ///
+  /// In en, this message translates to:
+  /// **'Other years'**
+  String get holidaysOtherYears;
+
+  /// Holiday detail button.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in calendar'**
+  String get holidaysOpenInCalendar;
+
+  /// A holiday that does not fall in the chosen year.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in {year}'**
+  String holidaysNotThisYear(String year);
+
+  /// Views row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every holiday of the year, with reminders'**
+  String get holidaysViewsSubtitle;
+
+  /// Views group footer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} public holidays in {year}.'**
+  String holidaysViewsFooter(int count, String year);
+
+  /// Views group label.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get viewsCalendarGroup;
+
+  /// Views group label.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get viewsExploreGroup;
 }
 
 class _AppLocalizationsDelegate

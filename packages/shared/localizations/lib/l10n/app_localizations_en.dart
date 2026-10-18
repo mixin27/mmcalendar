@@ -1775,4 +1775,435 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get widgetKindYear => 'Myanmar year';
+
+  @override
+  String get holidayNameNewYear => 'New Year\'s Day';
+
+  @override
+  String get holidayAboutNewYear =>
+      'The first day of the Gregorian year, a public holiday in Myanmar since 2018.';
+
+  @override
+  String get holidayNameIndependence => 'Independence Day';
+
+  @override
+  String get holidayAboutIndependence =>
+      'Marks Myanmar\'s independence from British rule on 4 January 1948. Flags go up across the country, and many towns hold fairs and sports.';
+
+  @override
+  String get holidayNameUnion => 'Union Day';
+
+  @override
+  String get holidayAboutUnion =>
+      'Commemorates the Panglong Agreement of 12 February 1947, when leaders of the Bamar, Shan, Kachin and Chin peoples agreed to form a union.';
+
+  @override
+  String get holidayNamePeasants => 'Peasants\' Day';
+
+  @override
+  String get holidayAboutPeasants =>
+      'Honours the farmers who grow the country\'s food. It falls on 2 March.';
+
+  @override
+  String get holidayNameResistance => 'Resistance Day';
+
+  @override
+  String get holidayAboutResistance =>
+      'Recalls the armed uprising against the Japanese occupation that began on 27 March 1945. It is also called Armed Forces Day.';
+
+  @override
+  String get holidayNameLabour => 'Labour Day';
+
+  @override
+  String get holidayAboutLabour =>
+      'International Workers\' Day on 1 May, honouring working people.';
+
+  @override
+  String get holidayNameMartyrs => 'Martyrs\' Day';
+
+  @override
+  String get holidayAboutMartyrs =>
+      'Remembers General Aung San and the cabinet members assassinated on 19 July 1947. Sirens sound at 10:37 am, the time of the attack.';
+
+  @override
+  String get holidayNameNationalDay => 'National Day';
+
+  @override
+  String get holidayAboutNationalDay =>
+      'Commemorates the 1920 university students\' strike against the colonial education law, the start of the national movement. It falls on the 10th day of the waning moon of Tazaungmon.';
+
+  @override
+  String get holidayNameNewYearsEve => 'New Year\'s Eve';
+
+  @override
+  String get holidayAboutNewYearsEve =>
+      'The last day of the Gregorian year, a public holiday since 2018.';
+
+  @override
+  String get holidayNamePublicHoliday => 'Public holiday';
+
+  @override
+  String get holidayAboutPublicHoliday =>
+      'An extra day off announced by the government, often to replace a holiday that fell on a weekend.';
+
+  @override
+  String get holidayNameTabaung => 'Full Moon of Tabaung';
+
+  @override
+  String get holidayAboutTabaung =>
+      'The full moon of Tabaung, the last month of the Myanmar year. Pagoda festivals are held across the country, the best known at Shwedagon.';
+
+  @override
+  String get holidayNameBuddhaDay => 'Buddha Day';
+
+  @override
+  String get holidayAboutBuddhaDay =>
+      'The full moon of Kason marks the Buddha\'s birth, enlightenment and passing. People pour water on the Bodhi trees at pagodas.';
+
+  @override
+  String get holidayNameLentStart => 'Start of Buddhist Lent';
+
+  @override
+  String get holidayAboutLentStart =>
+      'The full moon of Waso begins the three-month Buddhist Lent. Monks stay in their monasteries, and many people keep extra precepts.';
+
+  @override
+  String get holidayNameThadingyut => 'Thadingyut';
+
+  @override
+  String get holidayAboutThadingyut =>
+      'The full moon of Thadingyut ends the three-month Buddhist Lent. Homes and pagodas are lit with candles and lanterns for three nights, and younger people pay respects to parents, teachers and elders.';
+
+  @override
+  String get holidayNameTazaungdaing => 'Tazaungdaing';
+
+  @override
+  String get holidayAboutTazaungdaing =>
+      'The full moon of Tazaungmon closes the robe-offering season. It is a festival of lights, with fire balloons in Taunggyi and overnight contests weaving monks\' robes.';
+
+  @override
+  String get holidayNameChristmas => 'Christmas';
+
+  @override
+  String get holidayAboutChristmas =>
+      'Christians celebrate the birth of Jesus on 25 December.';
+
+  @override
+  String get holidayNameDiwali => 'Diwali';
+
+  @override
+  String get holidayAboutDiwali =>
+      'The Hindu festival of lights, celebrated with oil lamps, sweets and prayers.';
+
+  @override
+  String get holidayNameEidAlAdha => 'Eid al-Adha';
+
+  @override
+  String get holidayAboutEidAlAdha =>
+      'The Muslim festival of sacrifice, at the end of the Hajj pilgrimage. Its date follows the Islamic lunar calendar.';
+
+  @override
+  String get holidayNameGoodFriday => 'Good Friday';
+
+  @override
+  String get holidayAboutGoodFriday =>
+      'Christians remember the crucifixion of Jesus on the Friday before Easter.';
+
+  @override
+  String get holidayNameEaster => 'Easter';
+
+  @override
+  String get holidayAboutEaster =>
+      'Christians celebrate the resurrection of Jesus.';
+
+  @override
+  String get holidayNameEidAlFitr => 'Eid al-Fitr';
+
+  @override
+  String get holidayAboutEidAlFitr =>
+      'The Muslim festival that ends the fasting month of Ramadan. Its date follows the Islamic lunar calendar.';
+
+  @override
+  String get holidayNameMahathamaya => 'Mahathamaya Day';
+
+  @override
+  String get holidayAboutMahathamaya =>
+      'The full moon of Nayon recalls the Buddha teaching the Mahasamaya Sutta to a great gathering of devas.';
+
+  @override
+  String get holidayNameGarudhamma => 'Garudhamma Day';
+
+  @override
+  String get holidayAboutGarudhamma =>
+      'The full moon of Tawthalin recalls the Buddha giving the eight Garudhamma rules to the first nuns.';
+
+  @override
+  String get holidayNameMetta => 'Metta Day';
+
+  @override
+  String get holidayAboutMetta =>
+      'The full moon of Wagaung, a day for practising loving-kindness.';
+
+  @override
+  String get holidayNameThingyan => 'Thingyan and Myanmar New Year';
+
+  @override
+  String get holidayAboutThingyan =>
+      'The water festival that ends the Myanmar year: Akyo, Akya, Akyat and Atat, then New Year\'s Day. People splash water to wash away the old year, and offices stay closed through the festival and the days after New Year.';
+
+  @override
+  String get holidayNameKarenNewYear => 'Karen New Year';
+
+  @override
+  String get holidayAboutKarenNewYear =>
+      'The Karen New Year, on the first day of the month of Pyatho, celebrated with traditional dances and music.';
+
+  @override
+  String get holidayNameChineseNewYear => 'Chinese New Year';
+
+  @override
+  String get holidayAboutChineseNewYear =>
+      'The Lunar New Year, celebrated by Chinese communities with family reunions, lion dances and red envelopes.';
+
+  @override
+  String get holidayNameShanNewYear => 'Shan New Year';
+
+  @override
+  String get holidayAboutShanNewYear =>
+      'The Shan New Year, on the first day of the waxing moon of Nadaw.';
+
+  @override
+  String get holidayNameTaungpyone => 'Taungpyone Festival';
+
+  @override
+  String get holidayAboutTaungpyone =>
+      'The nat festival at Taungpyone near Mandalay, held in Wagaung for the two Taungpyone brother spirits.';
+
+  @override
+  String get holidayNameYadanagu => 'Yadanagu Festival';
+
+  @override
+  String get holidayAboutYadanagu =>
+      'The nat festival at Yadanagu near Amarapura, held in Tawthalin for the mother of the Taungpyone brothers.';
+
+  @override
+  String get holidayNameMonNational => 'Mon National Day';
+
+  @override
+  String get holidayAboutMonNational =>
+      'Falls on the full moon of Tabodwe and recalls the founding of Hanthawaddy (Bago).';
+
+  @override
+  String get holidayNameMothers => 'Mother\'s Day';
+
+  @override
+  String get holidayAboutMothers => 'A day to thank and honour mothers.';
+
+  @override
+  String get holidayNameFathers => 'Father\'s Day';
+
+  @override
+  String get holidayAboutFathers => 'A day to thank and honour fathers.';
+
+  @override
+  String get holidayNameAuthors => 'Authors\' Day';
+
+  @override
+  String get holidayAboutAuthors =>
+      'Honours Myanmar writers and poets, with literary talks and book fairs.';
+
+  @override
+  String get holidayNameAungSanBirthday => 'General Aung San\'s Birthday';
+
+  @override
+  String get holidayAboutAungSanBirthday =>
+      'General Aung San, the father of Myanmar\'s independence, was born on 13 February 1915. The day is also Children\'s Day.';
+
+  @override
+  String get holidayNameValentines => 'Valentine\'s Day';
+
+  @override
+  String get holidayAboutValentines => 'A day for sweethearts, on 14 February.';
+
+  @override
+  String get holidayNameAprilFools => 'April Fools\' Day';
+
+  @override
+  String get holidayAboutAprilFools => 'A day for practical jokes, on 1 April.';
+
+  @override
+  String get holidayNameEarth => 'Earth Day';
+
+  @override
+  String get holidayAboutEarth =>
+      'A worldwide day for protecting the environment, on 22 April.';
+
+  @override
+  String get holidayNameRedCross => 'Red Cross Day';
+
+  @override
+  String get holidayAboutRedCross =>
+      'World Red Cross Day, on 8 May, the birthday of its founder Henry Dunant.';
+
+  @override
+  String get holidayNameUnitedNations => 'United Nations Day';
+
+  @override
+  String get holidayAboutUnitedNations =>
+      'Marks the founding of the United Nations on 24 October 1945.';
+
+  @override
+  String get holidayNameWorldTeachers => 'World Teachers\' Day';
+
+  @override
+  String get holidayAboutWorldTeachers =>
+      'UNESCO\'s day for teachers, on 5 October.';
+
+  @override
+  String get holidayNameHalloween => 'Halloween';
+
+  @override
+  String get holidayAboutHalloween =>
+      'An evening of costumes and treats, on 31 October.';
+
+  @override
+  String get holidaysSearchHint => 'Search holidays';
+
+  @override
+  String get holidaysFilterAll => 'All';
+
+  @override
+  String get holidaysFilterPublic => 'Public';
+
+  @override
+  String get holidaysFilterReligious => 'Religious';
+
+  @override
+  String get holidaysFilterCultural => 'Cultural';
+
+  @override
+  String get holidaysFilterAnniversary => 'Anniversaries';
+
+  @override
+  String get holidaysPublicHoliday => 'Public holiday';
+
+  @override
+  String get holidaysObservance => 'Observance';
+
+  @override
+  String get holidaysKindNational => 'National';
+
+  @override
+  String get holidaysKindReligious => 'Religious';
+
+  @override
+  String get holidaysKindCultural => 'Cultural';
+
+  @override
+  String get holidaysKindAnniversary => 'Anniversary';
+
+  @override
+  String get holidaysNextUp => 'Next holiday';
+
+  @override
+  String holidaysDaysOff(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days off',
+      one: '1 day off',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String holidaysDayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String holidaysDaysShort(String count) {
+    return '$count d';
+  }
+
+  @override
+  String holidaysInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'in $count days',
+      one: 'Tomorrow',
+      zero: 'Today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get holidaysNow => 'Now';
+
+  @override
+  String holidaysResults(int count, String year) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count holidays',
+      one: '1 holiday',
+      zero: 'No holidays',
+    );
+    return '$_temp0 in $year';
+  }
+
+  @override
+  String holidaysNoResults(String year, String query) {
+    return 'Nothing in $year matches “$query”.';
+  }
+
+  @override
+  String get holidaysSearchAllYears => 'Search all years';
+
+  @override
+  String holidaysYearsRange(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String get holidaysEarlier => 'Earlier this year';
+
+  @override
+  String get holidaysComingUp => 'Coming up';
+
+  @override
+  String get holidaysNextYear => 'Next';
+
+  @override
+  String get holidaysOtherYears => 'Other years';
+
+  @override
+  String get holidaysOpenInCalendar => 'Open in calendar';
+
+  @override
+  String holidaysNotThisYear(String year) {
+    return 'Not in $year';
+  }
+
+  @override
+  String get holidaysViewsSubtitle =>
+      'Every holiday of the year, with reminders';
+
+  @override
+  String holidaysViewsFooter(int count, String year) {
+    return '$count public holidays in $year.';
+  }
+
+  @override
+  String get viewsCalendarGroup => 'Calendar';
+
+  @override
+  String get viewsExploreGroup => 'Explore';
 }

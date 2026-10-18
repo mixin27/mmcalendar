@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:holidays/holidays.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_localizations/shared_localizations.dart';
@@ -376,6 +378,7 @@ class _Upcoming {
     this.icon,
     this.iconColor,
     this.event,
+    this.holiday,
   });
 
   final DateTime date;
@@ -385,6 +388,7 @@ class _Upcoming {
   final IconData? icon;
   final Color? iconColor;
   final CalendarEventItem? event;
+  final HolidayOccurrence? holiday;
 }
 
 class _UpcomingGroup extends StatelessWidget {
@@ -408,47 +412,14 @@ class _UpcomingGroup extends StatelessWidget {
   List<_Upcoming> _collect(BuildContext context, CalendarColors colors) {
     final language = context.calendarLanguage;
     final format = context.calendarFormat;
+    final l10n =
+        AppLocalizations.of(context) ??
+        lookupAppLocalizations(const Locale('en'));
     final items = <_Upcoming>[];
-    String? runName;
-    DateTime? runStart;
-    DateTime? runEnd;
-
-    void closeRun() {
-      final name = runName, from = runStart, to = runEnd;
-      if (name == null || from == null || to == null) return;
-      final range = from == to
-          ? format.dayMonth(from)
-          : '${format.dayMonth(from)} – '
-                '${format.dayMonth(to)}';
-      items.add(
-        _Upcoming(
-          date: from,
-          title: name,
-          subtitle: range,
-          icon: Icons.star_rounded,
-          iconColor: colors.holiday,
-        ),
-      );
-      runName = null;
-    }
-
     final start = DateUtils.dateOnly(today);
     for (var i = 1; i <= _days; i++) {
       final date = start.add(Duration(days: i));
       final day = MyanmarCalendar.getCompleteDate(date);
-      final holiday = options.showHolidays && day.allHolidays.isNotEmpty
-          ? TranslationService.translateTo(day.allHolidays.first, language)
-          : null;
-      if (holiday != null && holiday == runName) {
-        runEnd = date;
-      } else {
-        closeRun();
-        if (holiday != null) {
-          runName = holiday;
-          runStart = date;
-          runEnd = date;
-        }
-      }
       if ((options.showSabbaths && day.isSabbath) ||
           day.isFullMoon ||
           day.isNewMoon) {
@@ -485,7 +456,29 @@ class _UpcomingGroup extends StatelessWidget {
         );
       }
     }
-    closeRun();
+    // Holidays as whole runs (Thadingyut 25–27), titled from the catalog.
+    if (options.showHolidays) {
+      final first = start.add(const Duration(days: 1));
+      for (final o in HolidayYears.between(
+        first,
+        start.add(const Duration(days: _days)),
+        language,
+      )) {
+        if (o.entry.kind == HolidayKind.anniversary) continue;
+        items.add(
+          _Upcoming(
+            date: o.start.isBefore(first) ? first : o.start,
+            title: o.entry.title(l10n),
+            subtitle:
+                '${format.holidayRange(o)} · '
+                '${o.entry.officeClosed ? l10n.holidaysPublicHoliday : o.entry.kind.label(l10n)}',
+            icon: Icons.star_rounded,
+            iconColor: colors.holiday,
+            holiday: o,
+          ),
+        );
+      }
+    }
     items.sort((a, b) => a.date.compareTo(b.date));
     return items.take(_limit).toList();
   }
@@ -513,6 +506,13 @@ class _UpcomingGroup extends StatelessWidget {
                 '${item.date.difference(start).inDays} d',
             onTap: item.event != null
                 ? () => onOpenEvent(item.event!)
+                : item.holiday != null
+                ? () => GoRouter.of(context).push(
+                    RoutePaths.holidayInHome(
+                      item.holiday!.entry.id,
+                      item.holiday!.start.year,
+                    ),
+                  )
                 : () => onOpenDay(item.date),
           ),
       ],

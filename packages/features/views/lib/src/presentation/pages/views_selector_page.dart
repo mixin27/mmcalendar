@@ -2,6 +2,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:holidays/holidays.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
@@ -31,10 +32,16 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final year = DateTime.now().year;
+    final publicHolidays = HolidayYears.of(
+      year,
+      context.calendarLanguage,
+    ).where((o) => o.entry.officeClosed).length;
     return AppPage(
       title: l10n?.views ?? 'Views',
       children: [
         AppGroup(
+          label: l10n?.viewsCalendarGroup,
           children: [
             AppRow(
               icon: Icons.calendar_view_month,
@@ -72,6 +79,22 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
                   l10n?.viewsDayViewSubtitle ?? 'Everything about one day',
               chevron: true,
               onTap: () => context.go('/views/day'),
+            ),
+          ],
+        ),
+        AppGroup(
+          label: l10n?.viewsExploreGroup,
+          footer: l10n?.holidaysViewsFooter(publicHolidays, '$year'),
+          children: [
+            AppRow(
+              key: const ValueKey('views-holidays'),
+              icon: Icons.star_rounded,
+              iconColor: const Color(0xFFE5383B),
+              title: l10n?.holidays ?? 'Holidays',
+              subtitle: l10n?.holidaysViewsSubtitle,
+              value: '$publicHolidays',
+              chevron: true,
+              onTap: () => context.go(RoutePaths.holidaysPath()),
             ),
           ],
         ),

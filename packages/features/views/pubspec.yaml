@@ -20,6 +20,8 @@ dependencies:
     path: ../../integrations/database
   shared_localizations:
     path: ../../shared/localizations
+  holidays:
+    path: ../holidays
 
   # Myanmar Calendar Package
   myanmar_calendar_dart: ^2.0.1

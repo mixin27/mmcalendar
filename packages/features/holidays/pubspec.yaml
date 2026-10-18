@@ -15,6 +15,12 @@ dependencies:
   flutter_mmcalendar: ^3.3.1
   shared_core:
     path: ../../shared/core
+  shared_localizations:
+    path: ../../shared/localizations
+  shared_ui_kit:
+    path: ../../shared/ui_kit
+  flutter_bloc: ^9.1.1
+  go_router: ^18.0.1
 
 dev_dependencies:
   flutter_test:

@@ -6,6 +6,7 @@ import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:holidays/holidays.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:mmcalendar/src/build_number.dart';
 import 'package:settings/settings.dart';
@@ -78,6 +79,14 @@ final GoRouter router = GoRouter(
                     return DayDetailsPage(date: date);
                   },
                 ),
+                GoRoute(
+                  path: RoutePaths.homeHoliday,
+                  builder: (context, state) => HolidayDetailPage(
+                    id: Uri.decodeComponent(state.pathParameters['id']!),
+                    year: _yearOf(state),
+                    previousTitle: AppLocalizations.of(context)?.home,
+                  ),
+                ),
               ],
             ),
           ],
@@ -99,6 +108,21 @@ final GoRouter router = GoRouter(
                 GoRoute(
                   path: RoutePaths.weekView,
                   builder: (context, state) => const WeekViewPage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.holidays,
+                  builder: (context, state) => HolidaysPage(
+                    year: int.tryParse(state.uri.queryParameters['year'] ?? ''),
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: RoutePaths.holidayDetail,
+                      builder: (context, state) => HolidayDetailPage(
+                        id: Uri.decodeComponent(state.pathParameters['id']!),
+                        year: _yearOf(state),
+                      ),
+                    ),
+                  ],
                 ),
                 // Views › Day is the Day Details screen (events, share and
                 // the AI prompt included), not a separate copy.
@@ -336,3 +360,8 @@ final GoRouter router = GoRouter(
     );
   },
 );
+
+/// The `year` query parameter, or this year.
+int _yearOf(GoRouterState state) =>
+    int.tryParse(state.uri.queryParameters['year'] ?? '') ??
+    DateTime.now().year;

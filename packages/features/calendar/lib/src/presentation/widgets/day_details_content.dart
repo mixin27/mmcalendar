@@ -1,6 +1,8 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:holidays/holidays.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
@@ -250,23 +252,45 @@ class DayDetailsContent extends StatelessWidget {
   }
 
   Widget _holidays(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n =
+        AppLocalizations.of(context) ??
+        lookupAppLocalizations(const Locale('en'));
     final colors = CalendarColors.of(context);
+    final day = DateTime(date.year, date.month, date.day);
+    final holidays = HolidayYears.of(
+      day.year,
+      context.calendarLanguage,
+    ).where((o) => o.contains(day));
+    // Inside Views the holiday opens in Views, otherwise in Home.
+    final inViews = GoRouterState.of(
+      context,
+    ).uri.path.startsWith(RoutePaths.views);
     return AppGroup(
-      label:
-          '${l10n?.holidays ?? 'Holidays'} & ${l10n?.anniversary_days ?? 'Anniversary Days'}',
+      label: '${l10n.holidays} & ${l10n.anniversary_days}',
       children: [
-        for (final holiday in completeDate.allHolidays)
+        for (final o in holidays)
           AppRow(
-            icon: Icons.star_rounded,
-            iconColor: colors.holiday,
-            title: _t(holiday),
-          ),
-        for (final day in completeDate.allAnniversaryDays)
-          AppRow(
-            icon: Icons.celebration_outlined,
-            iconColor: colors.anniversary,
-            title: _t(day),
+            key: ValueKey('day-holiday-${o.entry.id}'),
+            icon: o.entry.kind == HolidayKind.anniversary
+                ? Icons.celebration_outlined
+                : Icons.star_rounded,
+            iconColor: o.entry.kind == HolidayKind.anniversary
+                ? colors.anniversary
+                : colors.holiday,
+            title: o.entry.title(l10n),
+            subtitle: [
+              ...o.days
+                  .firstWhere((d) => d.date == day)
+                  .labels
+                  .where((label) => label != o.entry.title(l10n)),
+              if (o.length > 1) context.calendarFormat.holidayRange(o),
+            ].join(' · '),
+            chevron: true,
+            onTap: () => GoRouter.of(context).push(
+              inViews
+                  ? RoutePaths.holidayInViews(o.entry.id, day.year)
+                  : RoutePaths.holidayInHome(o.entry.id, day.year),
+            ),
           ),
       ],
     );
