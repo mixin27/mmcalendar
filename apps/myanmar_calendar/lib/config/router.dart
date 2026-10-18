@@ -138,7 +138,12 @@ final GoRouter router = GoRouter(
                 GoRoute(
                   path: 'create',
                   builder: (context, state) {
-                    final initialDate = state.extra as DateTime?;
+                    // From the app (extra) or a widget link (?date=).
+                    final initialDate =
+                        state.extra as DateTime? ??
+                        DateTime.tryParse(
+                          state.uri.queryParameters['date'] ?? '',
+                        );
                     return MultiBlocProvider(
                       providers: [
                         BlocProvider(

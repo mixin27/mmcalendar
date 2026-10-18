@@ -2084,5 +2084,99 @@
   "done": "Done",
   "@done": {
     "description": "Confirms a sheet or picker."
+  },
+  "widgetsStyle": "Style",
+  "@widgetsStyle": {
+    "description": "Group label for the widgets' default style."
+  },
+  "widgetsStyleFooter": "New widgets start with this style. To change one widget, touch and hold it and choose Edit Widget (iPhone) or Reconfigure (Android).",
+  "@widgetsStyleFooter": {
+    "description": "Footer under the widget styles."
+  },
+  "widgetStyleApp": "Follow app",
+  "@widgetStyleApp": {
+    "description": "Widget style that uses the app's colours."
+  },
+  "widgetStyleAppDescription": "The app's colours, light or dark with the system.",
+  "@widgetStyleAppDescription": {
+    "description": "Description of the Follow app widget style."
+  },
+  "widgetStylePlain": "Plain",
+  "@widgetStylePlain": {
+    "description": "Black-and-white widget style."
+  },
+  "widgetStylePlainDescription": "Black and white, with red for holidays.",
+  "@widgetStylePlainDescription": {
+    "description": "Description of the Plain widget style."
+  },
+  "widgetsShow": "Show on widgets",
+  "@widgetsShow": {
+    "description": "Group label for what widgets show."
+  },
+  "widgetsCountdown": "Countdown counts to",
+  "@widgetsCountdown": {
+    "description": "Group label for the Countdown widget's default target."
+  },
+  "widgetCountdownFullMoon": "Next full moon",
+  "@widgetCountdownFullMoon": {
+    "description": "Countdown target."
+  },
+  "widgetCountdownNewMoon": "Next new moon",
+  "@widgetCountdownNewMoon": {
+    "description": "Countdown target."
+  },
+  "widgetCountdownSabbath": "Next Sabbath",
+  "@widgetCountdownSabbath": {
+    "description": "Countdown target."
+  },
+  "widgetCountdownThingyan": "Thingyan",
+  "@widgetCountdownThingyan": {
+    "description": "Countdown target."
+  },
+  "widgetsOnScreen": "On your home screen",
+  "@widgetsOnScreen": {
+    "description": "Group label for installed widgets."
+  },
+  "widgetsInstalled": "{count, plural, =0{None yet} =1{1 widget} other{{count} widgets}}",
+  "@widgetsInstalled": {
+    "description": "How many widgets are on the home screen.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetsInstalledTitle": "Widgets added",
+  "@widgetsInstalledTitle": {
+    "description": "Row title for the installed widget count."
+  },
+  "widgetsRefresh": "Refresh widgets",
+  "@widgetsRefresh": {
+    "description": "Button that rewrites widget data."
+  },
+  "widgetsRefreshed": "Widgets refreshed",
+  "@widgetsRefreshed": {
+    "description": "Toast after refreshing widgets."
+  },
+  "widgetsHowToAdd": "How to add a widget",
+  "@widgetsHowToAdd": {
+    "description": "Group label for instructions."
+  },
+  "widgetsHowToAddIos": "Touch and hold an empty spot on the Home Screen, tap Edit, then Add Widget, and search for Myanmar Calendar. On the Lock Screen, touch and hold it and tap Customize.",
+  "@widgetsHowToAddIos": {
+    "description": "iPhone instructions."
+  },
+  "widgetsHowToAddAndroid": "Touch and hold an empty spot on the home screen, tap Widgets, and find Myanmar Calendar. Drag a widget to resize it.",
+  "@widgetsHowToAddAndroid": {
+    "description": "Android instructions."
+  },
+  "widgetsLanguageNote": "Widgets use the calendar language: {language}.",
+  "@widgetsLanguageNote": {
+    "description": "Footer explaining the widget language.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
   }
 }

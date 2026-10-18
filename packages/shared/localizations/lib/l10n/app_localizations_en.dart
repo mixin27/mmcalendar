@@ -1662,4 +1662,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get done => 'Done';
+
+  @override
+  String get widgetsStyle => 'Style';
+
+  @override
+  String get widgetsStyleFooter =>
+      'New widgets start with this style. To change one widget, touch and hold it and choose Edit Widget (iPhone) or Reconfigure (Android).';
+
+  @override
+  String get widgetStyleApp => 'Follow app';
+
+  @override
+  String get widgetStyleAppDescription =>
+      'The app\'s colours, light or dark with the system.';
+
+  @override
+  String get widgetStylePlain => 'Plain';
+
+  @override
+  String get widgetStylePlainDescription =>
+      'Black and white, with red for holidays.';
+
+  @override
+  String get widgetsShow => 'Show on widgets';
+
+  @override
+  String get widgetsCountdown => 'Countdown counts to';
+
+  @override
+  String get widgetCountdownFullMoon => 'Next full moon';
+
+  @override
+  String get widgetCountdownNewMoon => 'Next new moon';
+
+  @override
+  String get widgetCountdownSabbath => 'Next Sabbath';
+
+  @override
+  String get widgetCountdownThingyan => 'Thingyan';
+
+  @override
+  String get widgetsOnScreen => 'On your home screen';
+
+  @override
+  String widgetsInstalled(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count widgets',
+      one: '1 widget',
+      zero: 'None yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get widgetsInstalledTitle => 'Widgets added';
+
+  @override
+  String get widgetsRefresh => 'Refresh widgets';
+
+  @override
+  String get widgetsRefreshed => 'Widgets refreshed';
+
+  @override
+  String get widgetsHowToAdd => 'How to add a widget';
+
+  @override
+  String get widgetsHowToAddIos =>
+      'Touch and hold an empty spot on the Home Screen, tap Edit, then Add Widget, and search for Myanmar Calendar. On the Lock Screen, touch and hold it and tap Customize.';
+
+  @override
+  String get widgetsHowToAddAndroid =>
+      'Touch and hold an empty spot on the home screen, tap Widgets, and find Myanmar Calendar. Drag a widget to resize it.';
+
+  @override
+  String widgetsLanguageNote(String language) {
+    return 'Widgets use the calendar language: $language.';
+  }
 }

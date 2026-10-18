@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:converter/converter.dart';
@@ -9,6 +10,8 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_widget/home_widget.dart';
+import 'package:home_widgets/home_widgets.dart';
 import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
     show MyanmarCalendar;
@@ -65,11 +68,28 @@ class _AppContent extends StatefulWidget {
 }
 
 class _AppContentState extends State<_AppContent> {
+  StreamSubscription<Uri?>? _widgetClicks;
+
   @override
   void initState() {
     super.initState();
     // Request notification permissions
     _requestNotificationPermissions();
+    // Widget taps open the app at the right place (mmcalendar:// links).
+    HomeWidget.initiallyLaunchedFromHomeWidget().then(_openWidgetLink);
+    _widgetClicks = HomeWidget.widgetClicked.listen(_openWidgetLink);
+  }
+
+  @override
+  void dispose() {
+    _widgetClicks?.cancel();
+    super.dispose();
+  }
+
+  void _openWidgetLink(Uri? uri) {
+    final location = WidgetLinks.locationFor(uri);
+    if (location == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) => router.go(location));
   }
 
   Future<void> _requestNotificationPermissions() async {
@@ -143,6 +163,11 @@ class _AppContentState extends State<_AppContent> {
         final darkTheme = AppTheme.build(
           style: appStyle,
           colorScheme: schemes.dark,
+        );
+        // "Follow app" widgets use these colours.
+        getIt<WidgetSync>().updateAppPalette(
+          lightTheme.extension<AppTokens>()!,
+          darkTheme.extension<AppTokens>()!,
         );
 
         final locale = settingsState is SettingsLoaded

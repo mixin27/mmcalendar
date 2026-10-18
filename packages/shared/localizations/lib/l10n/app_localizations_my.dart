@@ -1659,4 +1659,81 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get done => 'ပြီးပြီ';
+
+  @override
+  String get widgetsStyle => 'ပုံစံ';
+
+  @override
+  String get widgetsStyleFooter =>
+      'ဝစ်ဂျက်အသစ်များသည် ဤပုံစံဖြင့် စတင်မည်။ ဝစ်ဂျက်တစ်ခုကိုသာ ပြောင်းလိုလျှင် ၎င်းကို ဖိထားပြီး Edit Widget (iPhone) သို့မဟုတ် Reconfigure (Android) ကို ရွေးပါ။';
+
+  @override
+  String get widgetStyleApp => 'အက်ပ်အတိုင်း';
+
+  @override
+  String get widgetStyleAppDescription =>
+      'အက်ပ်၏ အရောင်များ၊ စနစ်အလိုက် အလင်း သို့မဟုတ် အမှောင်။';
+
+  @override
+  String get widgetStylePlain => 'ရိုးရိုး';
+
+  @override
+  String get widgetStylePlainDescription => 'အဖြူအမည်း၊ ပိတ်ရက်များ အနီရောင်။';
+
+  @override
+  String get widgetsShow => 'ဝစ်ဂျက်တွင် ပြရန်';
+
+  @override
+  String get widgetsCountdown => 'ရေတွက်မည့်နေ့';
+
+  @override
+  String get widgetCountdownFullMoon => 'နောက်လပြည့်';
+
+  @override
+  String get widgetCountdownNewMoon => 'နောက်လကွယ်';
+
+  @override
+  String get widgetCountdownSabbath => 'နောက်ဥပုသ်';
+
+  @override
+  String get widgetCountdownThingyan => 'သင်္ကြန်';
+
+  @override
+  String get widgetsOnScreen => 'ပင်မစာမျက်နှာပေါ်တွင်';
+
+  @override
+  String widgetsInstalled(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ဝစ်ဂျက် $count ခု',
+      zero: 'မရှိသေးပါ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get widgetsInstalledTitle => 'ထည့်ထားသော ဝစ်ဂျက်';
+
+  @override
+  String get widgetsRefresh => 'ဝစ်ဂျက်များ ပြန်ဆွဲရန်';
+
+  @override
+  String get widgetsRefreshed => 'ဝစ်ဂျက်များ ပြန်ဆွဲပြီးပါပြီ';
+
+  @override
+  String get widgetsHowToAdd => 'ဝစ်ဂျက် ထည့်နည်း';
+
+  @override
+  String get widgetsHowToAddIos =>
+      'ပင်မစာမျက်နှာ၏ နေရာလွတ်ကို ဖိထားပြီး Edit၊ ထို့နောက် Add Widget ကို နှိပ်ကာ Myanmar Calendar ကို ရှာပါ။ Lock Screen အတွက် ၎င်းကို ဖိထားပြီး Customize ကို နှိပ်ပါ။';
+
+  @override
+  String get widgetsHowToAddAndroid =>
+      'ပင်မစာမျက်နှာ၏ နေရာလွတ်ကို ဖိထားပြီး Widgets ကို နှိပ်ကာ Myanmar Calendar ကို ရှာပါ။ အရွယ်အစားပြောင်းရန် ဝစ်ဂျက်ကို ဆွဲပါ။';
+
+  @override
+  String widgetsLanguageNote(String language) {
+    return 'ဝစ်ဂျက်များသည် ပြက္ခဒိန်ဘာသာစကား ($language) ကို သုံးသည်။';
+  }
 }

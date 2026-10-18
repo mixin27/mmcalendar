@@ -2909,6 +2909,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get done;
+
+  /// Group label for the widgets' default style.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get widgetsStyle;
+
+  /// Footer under the widget styles.
+  ///
+  /// In en, this message translates to:
+  /// **'New widgets start with this style. To change one widget, touch and hold it and choose Edit Widget (iPhone) or Reconfigure (Android).'**
+  String get widgetsStyleFooter;
+
+  /// Widget style that uses the app's colours.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow app'**
+  String get widgetStyleApp;
+
+  /// Description of the Follow app widget style.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s colours, light or dark with the system.'**
+  String get widgetStyleAppDescription;
+
+  /// Black-and-white widget style.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain'**
+  String get widgetStylePlain;
+
+  /// Description of the Plain widget style.
+  ///
+  /// In en, this message translates to:
+  /// **'Black and white, with red for holidays.'**
+  String get widgetStylePlainDescription;
+
+  /// Group label for what widgets show.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on widgets'**
+  String get widgetsShow;
+
+  /// Group label for the Countdown widget's default target.
+  ///
+  /// In en, this message translates to:
+  /// **'Countdown counts to'**
+  String get widgetsCountdown;
+
+  /// Countdown target.
+  ///
+  /// In en, this message translates to:
+  /// **'Next full moon'**
+  String get widgetCountdownFullMoon;
+
+  /// Countdown target.
+  ///
+  /// In en, this message translates to:
+  /// **'Next new moon'**
+  String get widgetCountdownNewMoon;
+
+  /// Countdown target.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Sabbath'**
+  String get widgetCountdownSabbath;
+
+  /// Countdown target.
+  ///
+  /// In en, this message translates to:
+  /// **'Thingyan'**
+  String get widgetCountdownThingyan;
+
+  /// Group label for installed widgets.
+  ///
+  /// In en, this message translates to:
+  /// **'On your home screen'**
+  String get widgetsOnScreen;
+
+  /// How many widgets are on the home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None yet} =1{1 widget} other{{count} widgets}}'**
+  String widgetsInstalled(int count);
+
+  /// Row title for the installed widget count.
+  ///
+  /// In en, this message translates to:
+  /// **'Widgets added'**
+  String get widgetsInstalledTitle;
+
+  /// Button that rewrites widget data.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh widgets'**
+  String get widgetsRefresh;
+
+  /// Toast after refreshing widgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Widgets refreshed'**
+  String get widgetsRefreshed;
+
+  /// Group label for instructions.
+  ///
+  /// In en, this message translates to:
+  /// **'How to add a widget'**
+  String get widgetsHowToAdd;
+
+  /// iPhone instructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Touch and hold an empty spot on the Home Screen, tap Edit, then Add Widget, and search for Myanmar Calendar. On the Lock Screen, touch and hold it and tap Customize.'**
+  String get widgetsHowToAddIos;
+
+  /// Android instructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Touch and hold an empty spot on the home screen, tap Widgets, and find Myanmar Calendar. Drag a widget to resize it.'**
+  String get widgetsHowToAddAndroid;
+
+  /// Footer explaining the widget language.
+  ///
+  /// In en, this message translates to:
+  /// **'Widgets use the calendar language: {language}.'**
+  String widgetsLanguageNote(String language);
 }
 
 class _AppLocalizationsDelegate

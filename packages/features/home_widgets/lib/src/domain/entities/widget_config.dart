@@ -1,103 +1,124 @@
 import 'package:equatable/equatable.dart';
 
-enum WidgetSize { small, medium, large }
+import '../../data/payload/widget_palettes.dart';
 
-enum WidgetTheme {
-  light,
-  dark,
-  traditional,
-  auto,
-  gradientBlue,
-  gradientPurple,
-  gradientTeal,
+export '../../data/payload/widget_palettes.dart' show WidgetStyleId;
+
+/// What a Countdown widget counts to unless set on the widget itself.
+enum CountdownTarget {
+  fullMoon,
+  newMoon,
+  sabbath,
+  thingyan;
+
+  static CountdownTarget fromName(String? name) =>
+      values.firstWhere((t) => t.name == name, orElse: () => fullMoon);
 }
 
+/// The defaults every widget starts from. Each widget can override them
+/// (Edit Widget on iPhone, Reconfigure on Android).
 class WidgetConfig extends Equatable {
-  final WidgetSize size;
-  final WidgetTheme theme;
+  final WidgetStyleId style;
   final bool showHolidays;
+  final bool showSabbath;
   final bool showAstrology;
-  final bool showMyanmarDate;
-  final bool showWesternDate;
-  final String language; // Mirrors app calendar language code
+  final bool showEvents;
+  final CountdownTarget countdownTarget;
+
+  /// Mirrors the app's calendar language code.
+  final String language;
 
   const WidgetConfig({
-    required this.size,
-    required this.theme,
+    required this.style,
     required this.showHolidays,
+    required this.showSabbath,
     required this.showAstrology,
-    required this.showMyanmarDate,
-    required this.showWesternDate,
+    required this.showEvents,
+    required this.countdownTarget,
     required this.language,
   });
 
   const WidgetConfig.defaults()
-    : size = WidgetSize.medium,
-      theme = WidgetTheme.auto,
+    : style = WidgetStyleId.app,
       showHolidays = true,
+      showSabbath = true,
       showAstrology = true,
-      showMyanmarDate = true,
-      showWesternDate = true,
+      showEvents = true,
+      countdownTarget = CountdownTarget.fullMoon,
       language = 'en';
 
   @override
   List<Object?> get props => [
-    size,
-    theme,
+    style,
     showHolidays,
+    showSabbath,
     showAstrology,
-    showMyanmarDate,
-    showWesternDate,
+    showEvents,
+    countdownTarget,
     language,
   ];
 
   WidgetConfig copyWith({
-    WidgetSize? size,
-    WidgetTheme? theme,
+    WidgetStyleId? style,
     bool? showHolidays,
+    bool? showSabbath,
     bool? showAstrology,
-    bool? showMyanmarDate,
-    bool? showWesternDate,
+    bool? showEvents,
+    CountdownTarget? countdownTarget,
     String? language,
   }) {
     return WidgetConfig(
-      size: size ?? this.size,
-      theme: theme ?? this.theme,
+      style: style ?? this.style,
       showHolidays: showHolidays ?? this.showHolidays,
+      showSabbath: showSabbath ?? this.showSabbath,
       showAstrology: showAstrology ?? this.showAstrology,
-      showMyanmarDate: showMyanmarDate ?? this.showMyanmarDate,
-      showWesternDate: showWesternDate ?? this.showWesternDate,
+      showEvents: showEvents ?? this.showEvents,
+      countdownTarget: countdownTarget ?? this.countdownTarget,
       language: language ?? this.language,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'size': size.name,
-      'theme': theme.name,
-      'showHolidays': showHolidays,
-      'showAstrology': showAstrology,
-      'showMyanmarDate': showMyanmarDate,
-      'showWesternDate': showWesternDate,
-      'language': language,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'style': style.name,
+    'showHolidays': showHolidays,
+    'showSabbath': showSabbath,
+    'showAstrology': showAstrology,
+    'showEvents': showEvents,
+    'countdownTarget': countdownTarget.name,
+    'language': language,
+  };
+
+  /// What the native widgets read as `prefs`.
+  Map<String, Object?> toPayload() => {
+    'style': style.name,
+    'hol': showHolidays,
+    'sab': showSabbath,
+    'ast': showAstrology,
+    'ev': showEvents,
+    'cd': countdownTarget.name,
+  };
 
   factory WidgetConfig.fromJson(Map<String, dynamic> json) {
     return WidgetConfig(
-      size: WidgetSize.values.firstWhere(
-        (e) => e.name == json['size'],
-        orElse: () => WidgetSize.medium,
-      ),
-      theme: WidgetTheme.values.firstWhere(
-        (e) => e.name == json['theme'],
-        orElse: () => WidgetTheme.auto,
-      ),
+      style: json['style'] is String
+          ? WidgetStyleId.fromName(json['style'] as String)
+          : _styleFromTheme(json['theme'] as String?),
       showHolidays: json['showHolidays'] as bool? ?? true,
+      showSabbath: json['showSabbath'] as bool? ?? true,
       showAstrology: json['showAstrology'] as bool? ?? true,
-      showMyanmarDate: json['showMyanmarDate'] as bool? ?? true,
-      showWesternDate: json['showWesternDate'] as bool? ?? true,
+      showEvents: json['showEvents'] as bool? ?? true,
+      countdownTarget: CountdownTarget.fromName(
+        json['countdownTarget'] as String?,
+      ),
       language: json['language'] as String? ?? 'my',
     );
   }
+
+  /// v1 themes: Traditional becomes Pagoda, plain light and dark become
+  /// Plain, and Auto and the gradients follow the app.
+  static WidgetStyleId _styleFromTheme(String? theme) => switch (theme) {
+    'traditional' => WidgetStyleId.pagoda,
+    'light' || 'dark' => WidgetStyleId.plain,
+    _ => WidgetStyleId.app,
+  };
 }

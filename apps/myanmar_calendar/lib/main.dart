@@ -210,6 +210,22 @@ Future<void> _initializeMyanmarCalendar() async {
       cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
     );
 
+    // Background widget refreshes can't open Remote Config or the
+    // database; give them the same calendar settings and overrides.
+    await WidgetBackgroundCache.save(
+      await SharedPreferences.getInstance(),
+      calendarConfig: CalendarConfig(
+        timezoneOffset: calendarSettings.timezoneOffset,
+        sasanaYearType: calendarSettings.sasanaYearType,
+        calendarType: calendarSettings.calendarType,
+        gregorianStart: calendarSettings.gregorianStart,
+        defaultLanguage: calendarSettings.defaultLanguage.isEmpty
+            ? Language.english.code
+            : calendarSettings.defaultLanguage,
+      ),
+      holidayConfig: app_di.getIt<HolidayConfigPort>().getHolidayConfig(),
+    );
+
     debugPrint('✅ Myanmar Calendar initialized with saved settings');
   } catch (e) {
     // If loading fails, use defaults
@@ -278,6 +294,8 @@ Future<void> _initializeWidgetUpdates() async {
     // Prime widget data/timeline on every startup so first-time widget adds
     // already have content without requiring manual refresh.
     await widgetRepository.refreshWidget();
+    // From now on, colour and event changes rewrite the widgets' data.
+    app_di.getIt<WidgetSync>().start();
 
     final isWidgetActive = await widgetRepository.isWidgetActive();
 

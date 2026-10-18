@@ -19,6 +19,12 @@ dependencies:
     path: ../../shared/ui_kit
   integrations_database:
     path: ../../integrations/database
+  shared_localizations:
+    path: ../../shared/localizations
+  calendar:
+    path: ../calendar
+  holidays:
+    path: ../holidays
 
   # Myanmar calendar
   myanmar_calendar_dart: ^2.0.1

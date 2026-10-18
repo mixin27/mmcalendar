@@ -11,31 +11,134 @@ import 'package:workmanager/workmanager.dart';
 
 import '../../domain/entities/widget_config.dart';
 import '../../home_widget_configuration.dart';
-import '../services/myanmar_month_widget_service.dart';
+import '../payload/widget_palettes.dart';
+import '../payload/widget_payload_builder.dart';
 import '../services/widget_update_service.dart';
+
+/// Loads the next two weeks of events for the Agenda widget.
+typedef WidgetEventsLoader =
+    Future<List<WidgetAgendaEvent>> Function(DateTime start, DateTime end);
 
 class WidgetLocalDataSource {
   static const String _configKey = 'widget_config';
   static const String _periodicTaskName = homeWidgetPeriodicTaskId;
-  static const String _timelineGeneratedAtKey = 'widget_timeline_generated_at';
-  static const String _timelineLanguageKey = 'widget_timeline_language';
-  static const String _timelineEndDateKey = 'widget_timeline_end_date';
-  static const int _timelineHorizonDays = 180;
-  static const int _timelineMinimumRemainingDays = 30;
+  static const String _payloadEndKey = 'widget_payload_end_date';
+  static const String _legacyClearedKey = 'widget_legacy_cleared_v2';
 
   final SharedPreferences sharedPreferences;
 
-  WidgetLocalDataSource(this.sharedPreferences);
+  /// Null in the background isolate, where the events database isn't open;
+  /// the last written events are kept instead.
+  final WidgetEventsLoader? loadEvents;
 
-  /// Update widget with custom configuration
-  Future<void> updateWidgetWithConfig(
-    WidgetData data,
-    WidgetConfig config,
-  ) async {
-    final effectiveConfig = config.copyWith(
+  WidgetLocalDataSource(this.sharedPreferences, {this.loadEvents});
+
+  /// Builds and saves the widgets' data (see [WidgetPayloadBuilder]) and
+  /// redraws every widget.
+  Future<void> writePayload({WidgetConfig? config}) async {
+    final effective = (config ?? await getWidgetConfig()).copyWith(
       language: resolveCalendarLanguageCode(),
     );
-    await WidgetUpdateService.updateAllWidgets(data, effectiveConfig);
+    final today = _dateOnly(DateTime.now());
+    final events = await _events(today);
+    final payload = WidgetPayloadBuilder.build(
+      today: today,
+      language: Language.fromCode(effective.language),
+      events: events,
+      styles: WidgetPalettes.all(app: _appPalette()),
+      prefs: effective.toPayload(),
+    );
+    await WidgetUpdateService.savePayload(payload);
+    await sharedPreferences.setString(
+      _payloadEndKey,
+      today
+          .add(const Duration(days: WidgetPayloadBuilder.horizonDays - 1))
+          .toIso8601String(),
+    );
+    if (!(sharedPreferences.getBool(_legacyClearedKey) ?? false)) {
+      await WidgetUpdateService.clearLegacyData();
+      await sharedPreferences.setBool(_legacyClearedKey, true);
+    }
+    await WidgetUpdateService.reloadAll();
+  }
+
+  /// Days of data left before the widgets run out.
+  int remainingPayloadDays() {
+    final end = DateTime.tryParse(
+      sharedPreferences.getString(_payloadEndKey) ?? '',
+    );
+    if (end == null) return 0;
+    return _dateOnly(end).difference(_dateOnly(DateTime.now())).inDays;
+  }
+
+  /// Saves the app's light and dark look for the "Follow app" style, so a
+  /// background refresh keeps it.
+  Future<void> saveAppPalette(WidgetPalette light, WidgetPalette dark) =>
+      sharedPreferences.setString(
+        WidgetPalettes.appPaletteKey,
+        json.encode({'light': light.toJson(), 'dark': dark.toJson()}),
+      );
+
+  ({WidgetPalette light, WidgetPalette dark})? _appPalette() {
+    final raw = sharedPreferences.getString(WidgetPalettes.appPaletteKey);
+    if (raw == null) return null;
+    try {
+      final map = json.decode(raw) as Map<String, dynamic>;
+      return (
+        light: WidgetPalette.fromJson(map['light'] as Map<String, dynamic>),
+        dark: WidgetPalette.fromJson(map['dark'] as Map<String, dynamic>),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static const _eventsCacheKey = 'widget_events_cache_v2';
+
+  Future<List<WidgetAgendaEvent>> _events(DateTime today) async {
+    final loader = loadEvents;
+    if (loader == null) return _cachedEvents(today);
+    try {
+      final events = await loader(today, today.add(const Duration(days: 14)));
+      await sharedPreferences.setString(
+        _eventsCacheKey,
+        json.encode([
+          for (final e in events)
+            {
+              'id': e.id,
+              'd': e.date.toIso8601String(),
+              'ti': e.title,
+              'c': e.color,
+              't': e.time?.toIso8601String(),
+              'done': e.done,
+            },
+        ]),
+      );
+      return events;
+    } catch (e) {
+      debugPrint('Widget events unavailable: $e');
+      return _cachedEvents(today);
+    }
+  }
+
+  List<WidgetAgendaEvent> _cachedEvents(DateTime today) {
+    final raw = sharedPreferences.getString(_eventsCacheKey);
+    if (raw == null) return const [];
+    try {
+      return [
+        for (final e in json.decode(raw) as List)
+          WidgetAgendaEvent(
+            id: e['id'] as int?,
+            date: DateTime.parse(e['d'] as String),
+            title: e['ti'] as String,
+            color: e['c'] as int,
+            time: e['t'] == null ? null : DateTime.parse(e['t'] as String),
+            done: e['done'] as bool? ?? false,
+          ),
+      ].where((e) => !e.date.isBefore(today)).toList();
+    } catch (_) {
+      return const [];
+    }
   }
 
   /// Generate widget data with specific language
@@ -173,131 +276,6 @@ class WidgetLocalDataSource {
     debugPrint('Widget config saved');
   }
 
-  /// Build a timeline cache used by native widget providers to serve daily
-  /// data changes even when Dart background tasks do not run.
-  Future<void> warmupTimeline(WidgetConfig config, {bool force = false}) async {
-    final effectiveConfig = config.copyWith(
-      language: resolveCalendarLanguageCode(),
-    );
-    final shouldRegenerate =
-        force || _shouldRegenerateTimeline(effectiveConfig);
-    if (!shouldRegenerate) {
-      debugPrint('Widget timeline is still fresh');
-      return;
-    }
-
-    final today = _dateOnly(DateTime.now());
-    final entries = <String, Map<String, Object?>>{};
-    final monthKeyByDate = <String, String>{};
-    final monthEntries = <String, Map<String, dynamic>>{};
-    final largeMoonImageCache = <String, String?>{};
-    final smallMoonImageCache = <String, String?>{};
-
-    debugPrint('Generating widget timeline for $_timelineHorizonDays days...');
-
-    for (var i = 0; i < _timelineHorizonDays; i++) {
-      final date = today.add(Duration(days: i));
-      final data = await generateWidgetDataWithLanguage(
-        date,
-        effectiveConfig.language,
-      );
-      final dateKey = _dateKey(date);
-      final moonKey =
-          '${data.moonState.percentLit}_${data.moonIsWaxing ? 'wax' : 'wane'}';
-      final monthKey = MyanmarMonthWidgetService.monthPayloadKeyForDate(date);
-
-      monthKeyByDate[dateKey] = monthKey;
-      if (!monthEntries.containsKey(monthKey)) {
-        final monthSnapshot =
-            await MyanmarMonthWidgetService.generateMonthTimelineSnapshot(
-              date,
-              effectiveConfig.language,
-            );
-        monthEntries[monthSnapshot.monthKey] = monthSnapshot.monthPayload;
-      }
-
-      if (!largeMoonImageCache.containsKey(moonKey)) {
-        largeMoonImageCache[moonKey] =
-            await WidgetUpdateService.renderMoonPhaseImage(
-              data.moonState,
-              storageKey: 'moon_phase_large_$moonKey',
-            );
-      }
-      if (!smallMoonImageCache.containsKey(moonKey)) {
-        smallMoonImageCache[moonKey] =
-            await WidgetUpdateService.renderMoonPhaseImage(
-              data.moonState,
-              size: 90,
-              storageKey: 'moon_phase_small_$moonKey',
-            );
-      }
-
-      entries[dateKey] = {
-        'myanmar_date': data.myanmarDate,
-        'western_date': data.westernDate,
-        'moon_phase': data.moonPhase,
-        'moon_phase_value': data.moonPhaseValue,
-        'moon_illumination': data.moonIllumination,
-        'moon_is_waxing': data.moonIsWaxing,
-        'fortnight_day': data.fortnightDay.toString(),
-        'fortnight_day_text': data.fortnightDayText,
-        'holidays': data.holidays.join(', '),
-        'sabbath_info': data.sabbathInfo ?? '',
-        'yatyaza_info': data.yatyazaInfo ?? '',
-        'pyathada_info': data.pyathadaInfo ?? '',
-        'astrological_days': data.astrologicalDays.join(', '),
-        'next_moon_phase': data.nextMoonPhase,
-        'moon_phase_image_path': smallMoonImageCache[moonKey] ?? '',
-        'full_moon_phase_image_path': largeMoonImageCache[moonKey] ?? '',
-      };
-    }
-
-    final timelinePayload = json.encode({
-      'version': 1,
-      'language': effectiveConfig.language,
-      'generated_at': DateTime.now().toIso8601String(),
-      'entries': entries,
-    });
-
-    await WidgetUpdateService.saveTimelinePayload(timelinePayload);
-
-    final monthTimelinePayload = json.encode({
-      'version': 1,
-      'language': effectiveConfig.language,
-      'generated_at': DateTime.now().toIso8601String(),
-      'date_to_month_key': monthKeyByDate,
-      'month_entries': monthEntries,
-    });
-    await WidgetUpdateService.saveMonthTimelinePayload(monthTimelinePayload);
-
-    final todayKey = _dateKey(today);
-    final todayMonthKey = monthKeyByDate[todayKey];
-    if (todayMonthKey != null && monthEntries.containsKey(todayMonthKey)) {
-      await HomeWidget.saveWidgetData<String>(
-        'myanmar_month_data',
-        MyanmarMonthWidgetService.monthDataToJson(monthEntries[todayMonthKey]!),
-      );
-    }
-
-    final timelineEndDate = today.add(
-      const Duration(days: _timelineHorizonDays - 1),
-    );
-    await sharedPreferences.setString(
-      _timelineGeneratedAtKey,
-      DateTime.now().toIso8601String(),
-    );
-    await sharedPreferences.setString(
-      _timelineLanguageKey,
-      effectiveConfig.language,
-    );
-    await sharedPreferences.setString(
-      _timelineEndDateKey,
-      timelineEndDate.toIso8601String(),
-    );
-
-    debugPrint('Widget timeline generated successfully');
-  }
-
   /// Schedule periodic best-effort background refreshes. Daily date rollover is
   /// primarily handled natively by Android receivers + timeline cache.
   Future<void> scheduleUpdates() async {
@@ -360,48 +338,8 @@ class WidgetLocalDataSource {
     }
   }
 
-  bool _shouldRegenerateTimeline(WidgetConfig config) {
-    final generatedAtRaw = sharedPreferences.getString(_timelineGeneratedAtKey);
-    final languageRaw = sharedPreferences.getString(_timelineLanguageKey);
-    final endDateRaw = sharedPreferences.getString(_timelineEndDateKey);
-
-    if (generatedAtRaw == null || languageRaw == null || endDateRaw == null) {
-      return true;
-    }
-
-    if (languageRaw != config.language) {
-      return true;
-    }
-
-    final endDate = DateTime.tryParse(endDateRaw);
-    if (endDate == null) {
-      return true;
-    }
-
-    final remainingDays = _dateOnly(
-      endDate,
-    ).difference(_dateOnly(DateTime.now())).inDays;
-    if (remainingDays < _timelineMinimumRemainingDays) {
-      return true;
-    }
-
-    final generatedAt = DateTime.tryParse(generatedAtRaw);
-    if (generatedAt == null) {
-      return true;
-    }
-
-    return DateTime.now().difference(generatedAt) > const Duration(days: 14);
-  }
-
   DateTime _dateOnly(DateTime input) =>
       DateTime(input.year, input.month, input.day);
-
-  String _dateKey(DateTime date) {
-    final d = _dateOnly(date);
-    final month = d.month.toString().padLeft(2, '0');
-    final day = d.day.toString().padLeft(2, '0');
-    return '${d.year}-$month-$day';
-  }
 
   /// Check if widget is active on home screen
   Future<bool> isWidgetActive() async {
