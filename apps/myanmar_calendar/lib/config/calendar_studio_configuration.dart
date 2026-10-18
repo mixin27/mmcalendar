@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:calendar_studio/calendar_studio.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:file_picker/file_picker.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:printing/printing.dart';
@@ -81,9 +82,7 @@ class _StudioProjectStore implements CalendarStudioProjectStore {
   }
 
   CalendarStudioProject _decode(String documentJson) =>
-      CalendarStudioDocumentCodec.decode(
-        Map<String, dynamic>.from(jsonDecode(documentJson) as Map),
-      );
+      _decodeProject(documentJson);
 
   Future<void> _saveToDatabase(CalendarStudioProject project) => _database.save(
     id: project.id,
@@ -104,9 +103,14 @@ class _StudioProjectStore implements CalendarStudioProjectStore {
   @override
   Future<List<CalendarStudioProject>> list() async {
     await _ensureMigrated();
-    return (await _database.list())
-        .map((row) => _decode(row.documentJson))
-        .toList(growable: false);
+    final documents = [
+      for (final row in await _database.list()) row.documentJson,
+    ];
+    // Many projects take long enough to decode to drop frames; do it on a
+    // background isolate when there are more than a few.
+    return documents.length <= 4
+        ? documents.map(_decodeProject).toList(growable: false)
+        : compute(_decodeProjects, documents);
   }
 
   @override
@@ -206,3 +210,11 @@ class _StudioExportDelivery implements CalendarStudioExportDelivery {
     }
   }
 }
+
+CalendarStudioProject _decodeProject(String documentJson) =>
+    CalendarStudioDocumentCodec.decode(
+      Map<String, dynamic>.from(jsonDecode(documentJson) as Map),
+    );
+
+List<CalendarStudioProject> _decodeProjects(List<String> documents) =>
+    documents.map(_decodeProject).toList(growable: false);

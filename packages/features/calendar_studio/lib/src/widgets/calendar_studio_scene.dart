@@ -40,6 +40,7 @@ class CalendarStudioScene extends StatelessWidget {
     this.onMove,
     this.onDelete,
     this.guides = const [],
+    this.displayWidth,
     super.key,
   });
   final CalendarStudioPage page;
@@ -64,6 +65,10 @@ class CalendarStudioScene extends StatelessWidget {
   /// Smart-guide lines to draw while a block snaps to them.
   final List<StudioGuide> guides;
 
+  /// The page's width on screen, when the caller knows it (thumbnails).
+  /// Photos then decode near that size instead of the full page size.
+  final double? displayWidth;
+
   static const double designWidth = 595;
 
   static Size designSizeFor(StudioCanvas canvas) {
@@ -79,6 +84,19 @@ class CalendarStudioScene extends StatelessWidget {
     final blocks = [...page.blocks]
       ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
     final designSize = designSizeFor(page.canvas);
+    final scene = _scene(context, designSize, blocks);
+    final width = displayWidth;
+    // How big one design unit is on screen; photos decode to match.
+    return width == null
+        ? scene
+        : _SceneScale(scale: width / designSize.width, child: scene);
+  }
+
+  Widget _scene(
+    BuildContext context,
+    Size designSize,
+    List<CalendarStudioBlock> blocks,
+  ) {
     return AspectRatio(
       aspectRatio: page.canvas.aspectRatio,
       child: FittedBox(
@@ -495,6 +513,18 @@ class _DesignDragState extends State<_DesignDrag> {
 
 /// Marks the page's design-size box so descendants can map global pointer
 /// positions into design pixels.
+/// The on-screen size of one design unit for the scene below.
+class _SceneScale extends InheritedWidget {
+  const _SceneScale({required this.scale, required super.child});
+  final double scale;
+
+  static double of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_SceneScale>()?.scale ?? 1;
+
+  @override
+  bool updateShouldNotify(_SceneScale oldWidget) => scale != oldWidget.scale;
+}
+
 class _DesignSpace extends StatelessWidget {
   const _DesignSpace({required this.child});
   final Widget child;
@@ -836,8 +866,11 @@ class _AssetImageBlockState extends State<_AssetImageBlock> {
       builder: (context, constraints) {
         // Decode near display size (with headroom for zoom) instead of the
         // full print-resolution original.
+        // Constraints are in design units; the scene's scale turns them into
+        // screen size, so a tiny thumbnail never decodes a full-size photo.
         final cacheWidth = constrainDecode && constraints.hasBoundedWidth
             ? (constraints.maxWidth *
+                      _SceneScale.of(context) *
                       MediaQuery.devicePixelRatioOf(context) *
                       2)
                   .round()

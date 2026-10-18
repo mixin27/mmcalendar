@@ -36,6 +36,7 @@ import '../theme/calendar_studio_font_catalog.dart';
 import '../theme/calendar_studio_theme.dart';
 import '../widgets/calendar_studio_scene.dart';
 import 'calendar_studio_export_flow.dart';
+import 'calendar_studio_shimmer.dart';
 import 'calendar_studio_template_sheets.dart';
 import 'calendar_studio_year_field.dart';
 import 'calendar_studio_toast.dart';
@@ -178,13 +179,40 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       ..addListener(_refresh);
     canvasController = TransformationController()
       ..addListener(_onCanvasTransformChanged);
-    _load();
+    // Load once the page has slid in, so the transition stays smooth.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _routeSettled();
+      if (mounted) await _load();
+    });
     _resolveAi();
   }
 
+  /// Completes when this page's push transition has finished.
+  Future<void> _routeSettled() {
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation == null || animation.isCompleted) return Future.value();
+    final done = Completer<void>();
+    void listener(AnimationStatus status) {
+      if (status == AnimationStatus.completed && !done.isCompleted) {
+        animation.removeStatusListener(listener);
+        done.complete();
+      }
+    }
+
+    animation.addStatusListener(listener);
+    // Never wait forever (e.g. a route that is not animated).
+    return done.future.timeout(
+      const Duration(milliseconds: 600),
+      onTimeout: () => animation.removeStatusListener(listener),
+    );
+  }
+
   Future<void> _load() async {
-    projects = await widget.configuration.projects.list();
-    await _loadTemplates();
+    final (loaded, _) = await (
+      widget.configuration.projects.list(),
+      _loadTemplates(),
+    ).wait;
+    projects = loaded;
     if (mounted) setState(() => loading = false);
   }
 
@@ -429,15 +457,25 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     ],
   );
 
-  Widget _projectThumb(CalendarStudioProject project, {int page = 0}) =>
-      IgnorePointer(
-        child: CalendarStudioScene(
-          page: project.pages[page],
-          source: project.source,
-          dataProvider: _calendarData,
-          assetStore: _assets,
-        ),
-      );
+  /// A page of [project]: its cached image, or a shimmer until the live
+  /// page has its turn to build (one per frame).
+  Widget _projectThumb(
+    CalendarStudioProject project, {
+    int page = 0,
+    double displayWidth = 200,
+  }) => StudioThumbnail(
+    cacheKey: '${project.id}@${project.updatedAt.microsecondsSinceEpoch}#$page',
+    aspectRatio: project.pages[page].canvas.aspectRatio,
+    builder: (_) => IgnorePointer(
+      child: CalendarStudioScene(
+        page: project.pages[page],
+        source: project.source,
+        dataProvider: _calendarData,
+        assetStore: _assets,
+        displayWidth: displayWidth,
+      ),
+    ),
+  );
 
   Widget _dashboard(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -457,100 +495,123 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
             icon: const Icon(Icons.add),
             label: const Text('New calendar'),
           ),
-    body: loading
-        ? const Center(child: CircularProgressIndicator())
-        : projects.isEmpty
-        ? _emptyDashboard(context)
-        : LayoutBuilder(
-            builder: (context, box) {
-              final count = box.maxWidth >= _desktopWidth
-                  ? 4
-                  : (box.maxWidth >= _tabletWidth ? 3 : 2);
-              final visible = _filteredProjects;
-              return ListView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-                children: [
-                  _continueCard(context, projects.first),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              for (final filter in const [
-                                'All',
-                                'Wall',
-                                'Desk',
-                                'Social',
-                                'Print',
-                              ])
-                                ChoiceChip(
-                                  label: Text(filter),
-                                  selected: projectFilter == filter,
-                                  onSelected: (_) =>
-                                      setState(() => projectFilter = filter),
-                                ),
-                            ],
+    body: AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      child: loading
+          ? const _DashboardSkeleton(key: ValueKey('loading'))
+          : projects.isEmpty
+          ? KeyedSubtree(
+              key: const ValueKey('empty'),
+              child: _emptyDashboard(context),
+            )
+          : LayoutBuilder(
+              key: const ValueKey('projects'),
+              builder: (context, box) {
+                final count = box.maxWidth >= _desktopWidth
+                    ? 4
+                    : (box.maxWidth >= _tabletWidth ? 3 : 2);
+                final visible = _filteredProjects;
+                // Slivers, so only the cards on screen are built.
+                return CustomScrollView(
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                      sliver: SliverList.list(
+                        children: [
+                          _continueCard(context, projects.first),
+                          const SizedBox(height: 16),
+                          _projectFilters(),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Your projects',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (visible.isEmpty)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: Text(
+                            'No ${projectFilter.toLowerCase()} projects yet.',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    else if (_projectsAsList)
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                        sliver: DecoratedSliver(
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).cardTheme.color ??
+                                Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          sliver: SliverList.builder(
+                            itemCount: visible.length,
+                            itemBuilder: (_, index) =>
+                                _projectRow(context, visible[index]),
+                          ),
+                        ),
+                      )
+                    else
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                        sliver: SliverGrid.builder(
+                          itemCount: visible.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: count,
+                                childAspectRatio: .68,
+                                mainAxisSpacing: 12,
+                                crossAxisSpacing: 12,
+                              ),
+                          itemBuilder: (_, index) => RepaintBoundary(
+                            child: _projectCard(context, visible[index]),
                           ),
                         ),
                       ),
-                      IconButton(
-                        tooltip: _projectsAsList ? 'Grid view' : 'List view',
-                        onPressed: () =>
-                            setState(() => _projectsAsList = !_projectsAsList),
-                        icon: Icon(
-                          _projectsAsList
-                              ? Icons.grid_view_outlined
-                              : Icons.view_list_outlined,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Your projects',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  if (visible.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: Text(
-                        'No ${projectFilter.toLowerCase()} projects yet.',
-                        textAlign: TextAlign.center,
-                      ),
-                    )
-                  else if (_projectsAsList)
-                    Card(
-                      margin: EdgeInsets.zero,
-                      child: Column(
-                        children: [
-                          for (final project in visible)
-                            _projectRow(context, project),
-                        ],
-                      ),
-                    )
-                  else
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: visible.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: count,
-                        childAspectRatio: .68,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                      ),
-                      itemBuilder: (_, index) =>
-                          _projectCard(context, visible[index]),
-                    ),
-                ],
-              );
-            },
+                  ],
+                );
+              },
+            ),
+    ),
+  );
+
+  Widget _projectFilters() => Row(
+    children: [
+      Expanded(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            spacing: 8,
+            children: [
+              for (final filter in const [
+                'All',
+                'Wall',
+                'Desk',
+                'Social',
+                'Print',
+              ])
+                ChoiceChip(
+                  label: Text(filter),
+                  selected: projectFilter == filter,
+                  onSelected: (_) => setState(() => projectFilter = filter),
+                ),
+            ],
           ),
+        ),
+      ),
+      IconButton(
+        tooltip: _projectsAsList ? 'Grid view' : 'List view',
+        onPressed: () => setState(() => _projectsAsList = !_projectsAsList),
+        icon: Icon(
+          _projectsAsList ? Icons.grid_view_outlined : Icons.view_list_outlined,
+        ),
+      ),
+    ],
   );
 
   /// First visit (mockup 6): a fan of presets, then start fresh or import.
@@ -632,7 +693,10 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            SizedBox(width: 96, child: _projectThumb(project)),
+            SizedBox(
+              width: 96,
+              child: _projectThumb(project, displayWidth: 96),
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -791,7 +855,10 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   Widget _projectRow(BuildContext context, CalendarStudioProject project) =>
       ListTile(
         onTap: () => _openProjectDetail(project),
-        leading: SizedBox(width: 40, child: _projectThumb(project)),
+        leading: SizedBox(
+          width: 40,
+          child: _projectThumb(project, displayWidth: 40),
+        ),
         title: Text(project.name, overflow: TextOverflow.ellipsis),
         subtitle: _projectSubtitle(project),
         trailing: _projectMenu(project),
@@ -6206,5 +6273,59 @@ class _PresetCarouselState extends State<_PresetCarousel> {
         ],
       ),
     ],
+  );
+}
+
+/// The dashboard's shape while projects load: the continue card, the
+/// filters and a grid of cards, each sweeping with light.
+class _DashboardSkeleton extends StatelessWidget {
+  const _DashboardSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final count = box.maxWidth >= _desktopWidth
+          ? 4
+          : (box.maxWidth >= _tabletWidth ? 3 : 2);
+      return ExcludeSemantics(
+        child: IgnorePointer(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              const SizedBox(height: 150, child: StudioShimmer(radius: 12)),
+              const SizedBox(height: 16),
+              const Row(
+                spacing: 8,
+                children: [
+                  StudioShimmer(width: 52, height: 32, radius: 8),
+                  StudioShimmer(width: 60, height: 32, radius: 8),
+                  StudioShimmer(width: 60, height: 32, radius: 8),
+                  StudioShimmer(width: 66, height: 32, radius: 8),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: StudioShimmer(width: 140, height: 22, radius: 6),
+              ),
+              const SizedBox(height: 12),
+              GridView.count(
+                crossAxisCount: count,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                childAspectRatio: .68,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                children: [
+                  for (var i = 0; i < count * 3; i++)
+                    const StudioShimmer(radius: 12),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
   );
 }
