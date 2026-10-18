@@ -132,8 +132,8 @@ class CalendarHeader extends StatelessWidget {
       children: [
         // Partly past the edge, so it reads as decoration, not a control.
         const PositionedDirectional(
-          top: -14,
-          end: -26,
+          top: -4,
+          end: -22,
           child: CalendarThemeMotif(),
         ),
         header,

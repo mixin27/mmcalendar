@@ -428,30 +428,36 @@ class _CalendarHomePageState extends State<CalendarHomePage>
                   StreamBuilder<Map<DateTime, List<CalendarEventItem>>>(
                     stream: _upcomingEventsStream(state.today),
                     initialData: const <DateTime, List<CalendarEventItem>>{},
-                    builder: (context, upcoming) => HomeDaySheet(
-                      key: ValueKey(peekFraction.toStringAsFixed(3)),
-                      peekFraction: peekFraction,
-                      day: day,
-                      today: state.today,
-                      events:
-                          eventsByDate[dayDate] ?? const <CalendarEventItem>[],
-                      upcomingEvents:
-                          upcoming.data ??
-                          const <DateTime, List<CalendarEventItem>>{},
-                      options: options,
-                      onOpenDetails: (date) =>
-                          _navigateToDayDetails(context, date),
-                      onOpenDay: (date) => _navigateToDayDetails(context, date),
-                      onOpenEvent: (event) => event.id == null
-                          ? _navigateToDayDetails(context, event.eventDate)
-                          : GoRouter.of(
-                              context,
-                            ).push('${RoutePaths.events}/${event.id}/detail'),
-                      onAddEvent: (date) => GoRouter.of(
-                        context,
-                      ).push('${RoutePaths.events}/create', extra: date),
-                      onStudioTap: () =>
-                          GoRouter.of(context).push(RoutePaths.studio),
+                    // The sheet keeps the app's colours under a grid theme.
+                    builder: (context, upcoming) => CalendarThemeScope(
+                      theme: CalendarGridTheme.app,
+                      child: HomeDaySheet(
+                        key: ValueKey(peekFraction.toStringAsFixed(3)),
+                        peekFraction: peekFraction,
+                        day: day,
+                        today: state.today,
+                        events:
+                            eventsByDate[dayDate] ??
+                            const <CalendarEventItem>[],
+                        upcomingEvents:
+                            upcoming.data ??
+                            const <DateTime, List<CalendarEventItem>>{},
+                        options: options,
+                        onOpenDetails: (date) =>
+                            _navigateToDayDetails(context, date),
+                        onOpenDay: (date) =>
+                            _navigateToDayDetails(context, date),
+                        onOpenEvent: (event) => event.id == null
+                            ? _navigateToDayDetails(context, event.eventDate)
+                            : GoRouter.of(
+                                context,
+                              ).push('${RoutePaths.events}/${event.id}/detail'),
+                        onAddEvent: (date) => GoRouter.of(
+                          context,
+                        ).push('${RoutePaths.events}/create', extra: date),
+                        onStudioTap: () =>
+                            GoRouter.of(context).push(RoutePaths.studio),
+                      ),
                     ),
                   ),
                 ],
