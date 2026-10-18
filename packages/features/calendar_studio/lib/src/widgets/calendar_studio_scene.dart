@@ -1274,6 +1274,10 @@ class _CalendarStudioInlineTextState extends State<CalendarStudioInlineText> {
           style: style,
           textAlign: _TextBlock.textAlignOf(widget.block),
           maxLines: null,
+          // iOS draws its autocorrect highlight in unscaled page space,
+          // so it lands off the text; titles don't need correcting.
+          autocorrect: false,
+          enableSuggestions: false,
           cursorColor: style.color,
           decoration: const InputDecoration.collapsed(hintText: ''),
           onChanged: widget.onChanged,
