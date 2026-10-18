@@ -1,5 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as mm;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
@@ -736,334 +737,75 @@ class _CalendarHomePageState extends State<CalendarHomePage>
     _haptics?.hapticSelectionChanged();
   }
 
+  /// Jumps to a month with flutter_mmcalendar's month-year picker, in a
+  /// sheet that follows the app's style.
   void _showMonthYearPicker(BuildContext context, DateTime currentMonth) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (dialogContext) => _MonthYearPickerBottomSheet(
-        currentMonth: currentMonth,
-        analyticsService: _analyticsService,
-        onMonthSelected: (month) {
-          _analyticsService.logSettingsChange(
-            settingName: 'calendar_month',
-            oldValue: currentMonth.month,
-            newValue: month.month,
-          );
-
-          context.read<CalendarBloc>().add(LoadCalendarMonth(month));
-          Navigator.of(dialogContext).pop();
+    final bloc = context.read<CalendarBloc>();
+    final l10n = AppLocalizations.of(context);
+    _analyticsService.logWidgetInteraction(
+      widgetName: 'month_year_picker',
+      actionType: 'opened',
+    );
+    void go(BuildContext sheetContext, DateTime month, String action) {
+      _analyticsService.logWidgetInteraction(
+        widgetName: 'month_year_picker',
+        actionType: action,
+        metadata: {
+          'year': month.year.toString(),
+          'month': month.month.toString(),
         },
+      );
+      _analyticsService.logSettingsChange(
+        settingName: 'calendar_month',
+        oldValue: currentMonth.month,
+        newValue: month.month,
+      );
+      bloc.add(LoadCalendarMonth(month));
+      Navigator.of(sheetContext).pop();
+    }
+
+    mm.showMmSheet<void>(
+      context: context,
+      // Over the tab bar, not under it.
+      useRootNavigator: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              mm.MyanmarMonthYearPicker(
+                key: const ValueKey('calendar-month-year-picker'),
+                selectedMonth: currentMonth,
+                firstDate: DateTime(1900),
+                lastDate: DateTime(2100, 12, 31),
+                onChanged: (month) => go(sheetContext, month, 'applied'),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                child: mm.MmButton(
+                  label: l10n?.today ?? 'Today',
+                  icon: Icons.today_outlined,
+                  variant: mm.MmButtonVariant.tonal,
+                  onPressed: () {
+                    final now = DateTime.now();
+                    go(
+                      sheetContext,
+                      DateTime(now.year, now.month),
+                      'jump_to_today',
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   void _showErrorSnackBar(BuildContext context, String message) =>
       context.showToast(message, kind: AppToastKind.error);
-}
-
-class _MonthYearPickerBottomSheet extends StatefulWidget {
-  final DateTime currentMonth;
-  final AnalyticsPort analyticsService;
-  final Function(DateTime) onMonthSelected;
-
-  const _MonthYearPickerBottomSheet({
-    required this.currentMonth,
-    required this.analyticsService,
-    required this.onMonthSelected,
-  });
-
-  @override
-  State<_MonthYearPickerBottomSheet> createState() =>
-      _MonthYearPickerBottomSheetState();
-}
-
-class _MonthYearPickerBottomSheetState
-    extends State<_MonthYearPickerBottomSheet> {
-  static const int _minYear = 1900;
-  static const int _maxYear = 2100;
-
-  late int selectedYear;
-  late int selectedMonth;
-  late final FixedExtentScrollController _yearController;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedYear = widget.currentMonth.year;
-    selectedMonth = widget.currentMonth.month;
-    _yearController = FixedExtentScrollController(
-      initialItem: selectedYear - _minYear,
-    );
-
-    widget.analyticsService.logWidgetInteraction(
-      widgetName: 'month_year_picker',
-      actionType: 'opened',
-    );
-  }
-
-  @override
-  void dispose() {
-    _yearController.dispose();
-    super.dispose();
-  }
-
-  void _shiftYear(int delta) {
-    final nextYear = (selectedYear + delta).clamp(_minYear, _maxYear);
-    if (nextYear == selectedYear) return;
-    setState(() {
-      selectedYear = nextYear;
-    });
-    _yearController.animateToItem(
-      selectedYear - _minYear,
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-    );
-  }
-
-  void _selectToday() {
-    final now = DateTime.now();
-    setState(() {
-      selectedYear = now.year;
-      selectedMonth = now.month;
-    });
-    _yearController.animateToItem(
-      selectedYear - _minYear,
-      duration: const Duration(milliseconds: 260),
-      curve: Curves.easeOutCubic,
-    );
-    widget.analyticsService.logWidgetInteraction(
-      widgetName: 'month_year_picker',
-      actionType: 'jump_to_today',
-      metadata: {
-        'year': selectedYear.toString(),
-        'month': selectedMonth.toString(),
-      },
-    );
-  }
-
-  void _applySelection() {
-    widget.analyticsService.logWidgetInteraction(
-      widgetName: 'month_year_picker',
-      actionType: 'applied',
-      metadata: {
-        'year': selectedYear.toString(),
-        'month': selectedMonth.toString(),
-      },
-    );
-    widget.onMonthSelected(DateTime(selectedYear, selectedMonth, 1));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final selectedLabel =
-        '${_getMonthName(selectedMonth)} ${context.calendarFormat.number(selectedYear)}';
-    final l10n = AppLocalizations.of(context);
-
-    return SafeArea(
-      top: false,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-        decoration: BoxDecoration(
-          color: context.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 44,
-              height: 4,
-              decoration: BoxDecoration(
-                color: context.colorScheme.onSurfaceVariant.withValues(
-                  alpha: 0.32,
-                ),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n?.calendarJumpToMonth ?? 'Jump to month',
-                      style: context.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      selectedLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              height: 120,
-              decoration: BoxDecoration(
-                color: context.colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.6,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    tooltip: l10n?.calendarPreviousYear ?? 'Previous year',
-                    onPressed: () => _shiftYear(-1),
-                    icon: const Icon(Icons.chevron_left),
-                  ),
-                  Expanded(
-                    child: ListWheelScrollView.useDelegate(
-                      controller: _yearController,
-                      itemExtent: 40,
-                      physics: const FixedExtentScrollPhysics(),
-                      perspective: 0.004,
-                      onSelectedItemChanged: (index) {
-                        final year = _minYear + index;
-                        if (year == selectedYear) return;
-                        setState(() {
-                          selectedYear = year;
-                        });
-                      },
-                      childDelegate: ListWheelChildBuilderDelegate(
-                        childCount: _maxYear - _minYear + 1,
-                        builder: (context, index) {
-                          final year = _minYear + index;
-                          final isSelected = year == selectedYear;
-                          return Center(
-                            child: AnimatedDefaultTextStyle(
-                              duration: const Duration(milliseconds: 160),
-                              style: context.textTheme.titleMedium!.copyWith(
-                                fontWeight: isSelected
-                                    ? FontWeight.w800
-                                    : FontWeight.w500,
-                                color: isSelected
-                                    ? context.colorScheme.primary
-                                    : context.colorScheme.onSurfaceVariant,
-                              ),
-                              child: Text(year.toString()),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: l10n?.calendarNextYear ?? 'Next year',
-                    onPressed: () => _shiftYear(1),
-                    icon: const Icon(Icons.chevron_right),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton.tonalIcon(
-                onPressed: _selectToday,
-                icon: const Icon(Icons.today, size: 18),
-                label: Text(l10n?.today ?? 'Today'),
-              ),
-            ),
-            const SizedBox(height: 12),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 12,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                childAspectRatio: 1.9,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-              ),
-              itemBuilder: (context, index) {
-                final month = index + 1;
-                final isSelected = month == selectedMonth;
-                final isCurrentMonth =
-                    selectedYear == now.year && month == now.month;
-
-                return Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        selectedMonth = month;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 160),
-                      curve: Curves.easeOutCubic,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? context.colorScheme.primaryContainer
-                            : context.colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? context.colorScheme.primary
-                              : (isCurrentMonth
-                                    ? context.colorScheme.primary.withValues(
-                                        alpha: 0.6,
-                                      )
-                                    : context.colorScheme.outlineVariant),
-                          width: isSelected ? 1.8 : 1.0,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          _getMonthName(month),
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            color: isSelected
-                                ? context.colorScheme.onPrimaryContainer
-                                : context.colorScheme.onSurface,
-                            fontWeight: isSelected
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(l10n?.cancel ?? 'Cancel'),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _applySelection,
-                    child: Text(l10n?.apply ?? 'Apply'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _getMonthName(int month) => context.calendarFormat.shortMonth(month);
 }
