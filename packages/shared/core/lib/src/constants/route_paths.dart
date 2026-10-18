@@ -51,4 +51,6 @@ class RoutePaths {
   static const String customColors = 'custom-colors';
   static const String appUpdate = 'app-update';
   static const String about = 'about';
+  static const String whatsNew = 'whats-new';
+  static String whatsNewPath() => '$settings/$about/$whatsNew';
 }

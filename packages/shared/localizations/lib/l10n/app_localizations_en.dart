@@ -2270,4 +2270,108 @@ class AppLocalizationsEn extends AppLocalizations {
   String holidayReminderBodyPublic(String dates) {
     return 'Public holiday · $dates';
   }
+
+  @override
+  String get whatsNewTitle => 'What\'s new';
+
+  @override
+  String whatsNewBadge(String version) {
+    return 'New in $version';
+  }
+
+  @override
+  String whatsNewFromVersion(String version) {
+    return 'From $version';
+  }
+
+  @override
+  String whatsNewPageOf(int page, int count) {
+    return '$page of $count';
+  }
+
+  @override
+  String get whatsNewNext => 'Next';
+
+  @override
+  String get whatsNewDone => 'Done';
+
+  @override
+  String get whatsNewSeeAll => 'See all updates';
+
+  @override
+  String whatsNewThisUpdate(String version) {
+    return 'Version $version · this update';
+  }
+
+  @override
+  String whatsNewVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get whatsNewHolidaysTitle => 'Holidays';
+
+  @override
+  String get whatsNewHolidaysBody =>
+      'Every holiday of the year in one place. Search in Myanmar or English, see what each day marks, and get a reminder the evening before.';
+
+  @override
+  String get whatsNewHolidaysAction => 'Explore holidays';
+
+  @override
+  String get whatsNewWidgetsTitle => 'New home-screen widgets';
+
+  @override
+  String get whatsNewWidgetsBody =>
+      'Nine widgets in five styles, from today\'s date to a countdown to Thingyan. Tap any day to open it in the app.';
+
+  @override
+  String get whatsNewWidgetsAction => 'Widget settings';
+
+  @override
+  String get whatsNewWelcomeTitle => 'A new welcome';
+
+  @override
+  String get whatsNewWelcomeBody =>
+      'New users get a short tour and a quick setup for language, look, privacy and reminders.';
+
+  @override
+  String get whatsNewThemesTitle => 'Calendar themes';
+
+  @override
+  String get whatsNewThemesBody =>
+      'Twelve themes for the month grid, from Pagoda and Jade to Deep Field, each with light and dark colours.';
+
+  @override
+  String get whatsNewThemesAction => 'Choose a theme';
+
+  @override
+  String get whatsNewColorsTitle => 'Custom colours';
+
+  @override
+  String get whatsNewColorsBody =>
+      'Pick one accent colour for the whole app, or fine-tune every colour in Advanced.';
+
+  @override
+  String get whatsNewColorsAction => 'Pick colours';
+
+  @override
+  String get whatsNewIconsTitle => 'App icons';
+
+  @override
+  String get whatsNewIconsBody =>
+      'Choose from six app icons, including Moon, Forest and Traditional.';
+
+  @override
+  String get whatsNewIconsAction => 'Change icon';
+
+  @override
+  String get whatsNewStudioTitle => 'Calendar Studio';
+
+  @override
+  String get whatsNewStudioBody =>
+      'Design wall, desk and social calendars from presets, then export print-ready PDFs and images.';
+
+  @override
+  String get whatsNewStudioAction => 'Open Studio';
 }

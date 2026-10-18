@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:holidays/holidays.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:whats_new/whats_new.dart';
 import 'package:integrations_app_update/integrations_app_update.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:integrations_firebase/integrations_firebase.dart';
@@ -31,6 +33,17 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   // Initialize SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerSingleton<SharedPreferences>(sharedPreferences);
+
+  // The installed version, for About, App Update and What's new.
+  final packageInfo = await PackageInfo.fromPlatform();
+  final versionInfo = AppVersionInfo(
+    version: packageInfo.version,
+    buildNumber: int.tryParse(packageInfo.buildNumber) ?? 0,
+  );
+  getIt.registerSingleton<AppVersionInfo>(versionInfo);
+  getIt.registerSingleton<WhatsNewStore>(
+    WhatsNewStore(sharedPreferences, currentVersion: versionInfo.version),
+  );
   await removeCalendarGenerationData(sharedPreferences);
 
   // App icon switch support (Android/iOS method-channel implementation).

@@ -24,8 +24,6 @@ dependencies:
     path: ../calendar
   telegram_web:
     path: ../../integrations/telegram_web
-  promo:
-    path: ../promo
 
   home_widgets:
     path: ../home_widgets

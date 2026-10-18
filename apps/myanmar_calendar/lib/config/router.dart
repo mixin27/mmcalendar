@@ -8,16 +8,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:holidays/holidays.dart';
 import 'package:home_widgets/home_widgets.dart';
-import 'package:mmcalendar/src/build_number.dart';
 import 'package:settings/settings.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:views/views.dart';
+import 'package:whats_new/whats_new.dart';
 
 import '../presentation/pages/consent_page.dart';
 import '../presentation/pages/privacy_policy_page.dart';
 import '../presentation/shell/app_shell.dart';
 import '../presentation/widgets/promo_initializer.dart';
 import 'di_setup.dart';
+import 'introductions.dart';
 import 'calendar_studio_look.dart';
 
 final GoRouter router = GoRouter(
@@ -280,18 +281,28 @@ final GoRouter router = GoRouter(
                 ),
                 GoRoute(
                   path: RoutePaths.appUpdate,
-                  builder: (context, state) {
-                    final version = appVersion();
-                    return SettingsAppUpdatePage(appVersion: version);
-                  },
+                  builder: (context, state) => SettingsAppUpdatePage(
+                    appVersion: getIt<AppVersionInfo>().version,
+                  ),
                 ),
                 GoRoute(
                   path: RoutePaths.about,
-                  builder: (context, state) {
-                    final version = appVersion();
-                    return SettingsAboutPage(appVersion: version);
-                  },
+                  builder: (context, state) => SettingsAboutPage(
+                    appVersion: getIt<AppVersionInfo>().version,
+                    onResetIntro: resetIntroductions,
+                  ),
                   routes: [
+                    GoRoute(
+                      path: RoutePaths.whatsNew,
+                      builder: (context, state) {
+                        final store = getIt<WhatsNewStore>();
+                        return WhatsNewPage(
+                          releases: store.history(),
+                          currentVersion: store.currentVersion,
+                          onOpen: GoRouter.of(context).go,
+                        );
+                      },
+                    ),
                     GoRoute(
                       path: RoutePaths.privacyPolicy,
                       builder: (context, state) => PrivacyPolicyPage(

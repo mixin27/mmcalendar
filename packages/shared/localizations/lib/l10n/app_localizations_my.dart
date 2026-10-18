@@ -2250,4 +2250,108 @@ class AppLocalizationsMy extends AppLocalizations {
   String holidayReminderBodyPublic(String dates) {
     return 'ရုံးပိတ်ရက် · $dates';
   }
+
+  @override
+  String get whatsNewTitle => 'အသစ်များ';
+
+  @override
+  String whatsNewBadge(String version) {
+    return '$version တွင် အသစ်';
+  }
+
+  @override
+  String whatsNewFromVersion(String version) {
+    return '$version မှ';
+  }
+
+  @override
+  String whatsNewPageOf(int page, int count) {
+    return '$count ခုအနက် $page';
+  }
+
+  @override
+  String get whatsNewNext => 'နောက်တစ်ခု';
+
+  @override
+  String get whatsNewDone => 'ပြီးပါပြီ';
+
+  @override
+  String get whatsNewSeeAll => 'အပ်ဒိတ်အားလုံး ကြည့်ရန်';
+
+  @override
+  String whatsNewThisUpdate(String version) {
+    return 'ဗားရှင်း $version · ယခုအပ်ဒိတ်';
+  }
+
+  @override
+  String whatsNewVersion(String version) {
+    return 'ဗားရှင်း $version';
+  }
+
+  @override
+  String get whatsNewHolidaysTitle => 'ရုံးပိတ်ရက်များ';
+
+  @override
+  String get whatsNewHolidaysBody =>
+      'နှစ်တစ်နှစ်၏ ပိတ်ရက်အားလုံးကို တစ်နေရာတည်းတွင် ကြည့်နိုင်သည်။ မြန်မာ သို့မဟုတ် အင်္ဂလိပ်လို ရှာနိုင်ပြီး နေ့တစ်နေ့ချင်း၏ အဓိပ္ပာယ်ကို ဖတ်ကာ အကြိုညနေတွင် သတိပေးချက် ရယူနိုင်သည်။';
+
+  @override
+  String get whatsNewHolidaysAction => 'ပိတ်ရက်များ ကြည့်ရန်';
+
+  @override
+  String get whatsNewWidgetsTitle => 'ပင်မစာမျက်နှာ ဝစ်ဂျက်အသစ်များ';
+
+  @override
+  String get whatsNewWidgetsBody =>
+      'ယနေ့ရက်စွဲမှ သင်္ကြန်အထိ ရက်ရေတွက်ခြင်းအထိ ဝစ်ဂျက် ကိုးမျိုး၊ ပုံစံ ငါးမျိုး။ မည်သည့်နေ့ကိုမဆို နှိပ်၍ အက်ပ်တွင် ဖွင့်နိုင်သည်။';
+
+  @override
+  String get whatsNewWidgetsAction => 'ဝစ်ဂျက် ဆက်တင်';
+
+  @override
+  String get whatsNewWelcomeTitle => 'ကြိုဆိုမှု အသစ်';
+
+  @override
+  String get whatsNewWelcomeBody =>
+      'အသုံးပြုသူအသစ်များအတွက် အက်ပ်မိတ်ဆက်နှင့် ဘာသာစကား၊ အသွင်အပြင်၊ ကိုယ်ရေးလုံခြုံမှု၊ သတိပေးချက်များကို အမြန်သတ်မှတ်နိုင်သည်။';
+
+  @override
+  String get whatsNewThemesTitle => 'ပြက္ခဒိန် ပုံစံများ';
+
+  @override
+  String get whatsNewThemesBody =>
+      'စေတီ၊ ကျောက်စိမ်းမှ ကြယ်စုံညအထိ လ ပြက္ခဒိန်အတွက် ပုံစံ ဆယ့်နှစ်မျိုး၊ အလင်းနှင့် အမှောင် အရောင်များဖြင့်။';
+
+  @override
+  String get whatsNewThemesAction => 'ပုံစံ ရွေးရန်';
+
+  @override
+  String get whatsNewColorsTitle => 'စိတ်ကြိုက် အရောင်များ';
+
+  @override
+  String get whatsNewColorsBody =>
+      'အက်ပ်တစ်ခုလုံးအတွက် အဓိကအရောင် တစ်ခု ရွေးနိုင်သည် သို့မဟုတ် အဆင့်မြင့်တွင် အရောင်တိုင်းကို ချိန်ညှိနိုင်သည်။';
+
+  @override
+  String get whatsNewColorsAction => 'အရောင် ရွေးရန်';
+
+  @override
+  String get whatsNewIconsTitle => 'အက်ပ် အိုင်ကွန်များ';
+
+  @override
+  String get whatsNewIconsBody =>
+      'လ၊ သစ်တော၊ ရိုးရာ အပါအဝင် အက်ပ်အိုင်ကွန် ခြောက်မျိုးမှ ရွေးနိုင်သည်။';
+
+  @override
+  String get whatsNewIconsAction => 'အိုင်ကွန် ပြောင်းရန်';
+
+  @override
+  String get whatsNewStudioTitle => 'Calendar Studio';
+
+  @override
+  String get whatsNewStudioBody =>
+      'နံရံကပ်၊ စားပွဲတင်နှင့် ဆိုရှယ်မီဒီယာ ပြက္ခဒိန်များကို ပုံစံများမှ ဒီဇိုင်းဆွဲပြီး ပုံနှိပ်ရန် PDF နှင့် ပုံများအဖြစ် ထုတ်ယူနိုင်သည်။';
+
+  @override
+  String get whatsNewStudioAction => 'Studio ဖွင့်ရန်';
 }

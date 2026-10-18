@@ -1,12 +1,14 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
+import 'package:whats_new/whats_new.dart';
 
 import '../../config/di_setup.dart';
 
-/// Wrapper widget that shows promo carousels after the app is fully initialized
+/// Shows onboarding, then What's new after an update, once the app is ready.
 class PromoInitializer extends StatefulWidget {
   final Widget child;
 
@@ -29,20 +31,27 @@ class _PromoInitializerState extends State<PromoInitializer> {
     if (!mounted) return;
 
     try {
-      final promoService = getIt<PromoService>();
+      final store = getIt<WhatsNewStore>();
+      // A first run is introduced by onboarding, not What's new.
+      final firstRun = store.lastSeen == null;
 
-      // Show onboarding for first-time users
-      await promoService.showOnboardingIfNeeded(context);
-
+      await getIt<PromoService>().showOnboardingIfNeeded(context);
       if (!mounted) return;
 
-      // Show feature announcements for new version
-      await promoService.showFeatureAnnouncementsIfNeeded(
-        context,
-        AppConstants.appVersion,
-      );
+      final pending = firstRun ? const <PendingWhatsNew>[] : store.pending();
+      if (pending.isNotEmpty) {
+        final router = GoRouter.of(context);
+        await showWhatsNewSheet(
+          context,
+          items: pending,
+          currentVersion: store.currentVersion,
+          onOpen: router.go,
+          onSeeAll: () => router.go(RoutePaths.whatsNewPath()),
+        );
+      }
+      await store.markSeen();
     } catch (e) {
-      debugPrint('⚠️ Error showing promos: $e');
+      debugPrint("⚠️ Error showing onboarding or What's new: $e");
     }
   }
 

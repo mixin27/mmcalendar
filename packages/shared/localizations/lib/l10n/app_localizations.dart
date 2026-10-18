@@ -3905,6 +3905,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Public holiday · {dates}'**
   String holidayReminderBodyPublic(String dates);
+
+  /// What's new sheet and page title.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new'**
+  String get whatsNewTitle;
+
+  /// Badge on the What's new sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'New in {version}'**
+  String whatsNewBadge(String version);
+
+  /// Badge for a feature from an earlier version.
+  ///
+  /// In en, this message translates to:
+  /// **'From {version}'**
+  String whatsNewFromVersion(String version);
+
+  /// Page position in the sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'{page} of {count}'**
+  String whatsNewPageOf(int page, int count);
+
+  /// Next feature.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get whatsNewNext;
+
+  /// Close the sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get whatsNewDone;
+
+  /// Opens the history page.
+  ///
+  /// In en, this message translates to:
+  /// **'See all updates'**
+  String get whatsNewSeeAll;
+
+  /// History group label for the current version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} · this update'**
+  String whatsNewThisUpdate(String version);
+
+  /// History group label.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String whatsNewVersion(String version);
+
+  /// Feature title.
+  ///
+  /// In en, this message translates to:
+  /// **'Holidays'**
+  String get whatsNewHolidaysTitle;
+
+  /// Feature description.
+  ///
+  /// In en, this message translates to:
+  /// **'Every holiday of the year in one place. Search in Myanmar or English, see what each day marks, and get a reminder the evening before.'**
+  String get whatsNewHolidaysBody;
+
+  /// Feature button.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore holidays'**
+  String get whatsNewHolidaysAction;
+
+  /// Feature title.
+  ///
+  /// In en, this message translates to:
+  /// **'New home-screen widgets'**
+  String get whatsNewWidgetsTitle;
+
+  /// Feature description.
+  ///
+  /// In en, this message translates to:
+  /// **'Nine widgets in five styles, from today\'s date to a countdown to Thingyan. Tap any day to open it in the app.'**
+  String get whatsNewWidgetsBody;
+
+  /// Feature button.
+  ///
+  /// In en, this message translates to:
+  /// **'Widget settings'**
+  String get whatsNewWidgetsAction;
+
+  /// Feature title.
+  ///
+  /// In en, this message translates to:
+  /// **'A new welcome'**
+  String get whatsNewWelcomeTitle;
+
+  /// Feature description.
+  ///
+  /// In en, this message translates to:
+  /// **'New users get a short tour and a quick setup for language, look, privacy and reminders.'**
+  String get whatsNewWelcomeBody;
+
+  /// Feature title.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar themes'**
+  String get whatsNewThemesTitle;
+
+  /// Feature description.
+  ///
+  /// In en, this message translates to:
+  /// **'Twelve themes for the month grid, from Pagoda and Jade to Deep Field, each with light and dark colours.'**
+  String get whatsNewThemesBody;
+
+  /// Feature button.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a theme'**
+  String get whatsNewThemesAction;
+
+  /// Feature title.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom colours'**
+  String get whatsNewColorsTitle;
+
+  /// Feature description.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one accent colour for the whole app, or fine-tune every colour in Advanced.'**
+  String get whatsNewColorsBody;
+
+  /// Feature button.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick colours'**
+  String get whatsNewColorsAction;
+
+  /// Feature title.
+  ///
+  /// In en, this message translates to:
+  /// **'App icons'**
+  String get whatsNewIconsTitle;
+
+  /// Feature description.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from six app icons, including Moon, Forest and Traditional.'**
+  String get whatsNewIconsBody;
+
+  /// Feature button.
+  ///
+  /// In en, this message translates to:
+  /// **'Change icon'**
+  String get whatsNewIconsAction;
+
+  /// Feature title.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar Studio'**
+  String get whatsNewStudioTitle;
+
+  /// Feature description.
+  ///
+  /// In en, this message translates to:
+  /// **'Design wall, desk and social calendars from presets, then export print-ready PDFs and images.'**
+  String get whatsNewStudioBody;
+
+  /// Feature button.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Studio'**
+  String get whatsNewStudioAction;
 }
 
 class _AppLocalizationsDelegate

@@ -3,16 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
-import 'package:promo/promo.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/settings_injection.dart';
 import '../widgets/settings_widgets.dart';
 
 class SettingsAboutPage extends StatefulWidget {
-  const SettingsAboutPage({super.key, this.appVersion});
+  const SettingsAboutPage({super.key, this.appVersion, this.onResetIntro});
 
   final String? appVersion;
+
+  /// Debug builds: shows onboarding and What's new again on next launch.
+  final Future<void> Function()? onResetIntro;
 
   @override
   State<SettingsAboutPage> createState() => _SettingsAboutPageState();
@@ -30,14 +32,14 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
     super.initState();
   }
 
-  Future<void> _clearPromoData(BuildContext context) async {
+  Future<void> _resetIntro(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     try {
-      await getIt<PromoRepository>().clearAllData();
+      await widget.onResetIntro?.call();
       if (context.mounted) {
         context.showToast(
           l10n?.promoDataClearedRestartApp ??
-              'Promo data cleared! Restart app to see onboarding.',
+              'Cleared. Restart the app to see onboarding.',
           kind: AppToastKind.success,
         );
       }
@@ -55,7 +57,7 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final t = context.tokens;
-    final version = widget.appVersion ?? AppConstants.appVersion;
+    final version = widget.appVersion ?? '';
     return AppPage(
       title: l10n?.about ?? 'About',
       previousTitle: l10n?.settings ?? 'Settings',
@@ -90,6 +92,14 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
         ),
         AppGroup(
           children: [
+            AppRow(
+              key: const ValueKey('about-whats-new'),
+              icon: Icons.auto_awesome_outlined,
+              iconColor: SettingsIconColors.blue,
+              title: l10n?.whatsNewTitle ?? "What's new",
+              chevron: true,
+              onTap: () => GoRouter.of(context).go(RoutePaths.whatsNewPath()),
+            ),
             if (!(kIsWeb || kIsWasm))
               AppRow(
                 icon: Icons.system_update_alt_outlined,
@@ -118,7 +128,7 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
             ),
           ],
         ),
-        if (kDebugMode)
+        if (kDebugMode && widget.onResetIntro != null)
           AppGroup(
             footer: l10n?.settingsDebugBuildsOnly ?? 'Debug builds only.',
             children: [
@@ -128,7 +138,7 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
                     l10n?.resetOnboardingAnnouncements ??
                     'Reset onboarding & announcements',
                 tone: AppRowTone.destructive,
-                onTap: () => _clearPromoData(context),
+                onTap: () => _resetIntro(context),
               ),
             ],
           ),

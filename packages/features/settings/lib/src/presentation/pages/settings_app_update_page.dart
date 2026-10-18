@@ -45,7 +45,7 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
           children: [
             AppRow(
               title: l10n?.currentVersion ?? 'Current Version',
-              value: widget.appVersion ?? AppConstants.appVersion,
+              value: widget.appVersion ?? '',
             ),
           ],
         ),

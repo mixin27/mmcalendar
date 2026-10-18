@@ -2838,5 +2838,149 @@
         "type": "String"
       }
     }
+  },
+  "whatsNewTitle": "What's new",
+  "@whatsNewTitle": {
+    "description": "What's new sheet and page title."
+  },
+  "whatsNewBadge": "New in {version}",
+  "@whatsNewBadge": {
+    "description": "Badge on the What's new sheet.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsNewFromVersion": "From {version}",
+  "@whatsNewFromVersion": {
+    "description": "Badge for a feature from an earlier version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsNewPageOf": "{page} of {count}",
+  "@whatsNewPageOf": {
+    "description": "Page position in the sheet.",
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "whatsNewNext": "Next",
+  "@whatsNewNext": {
+    "description": "Next feature."
+  },
+  "whatsNewDone": "Done",
+  "@whatsNewDone": {
+    "description": "Close the sheet."
+  },
+  "whatsNewSeeAll": "See all updates",
+  "@whatsNewSeeAll": {
+    "description": "Opens the history page."
+  },
+  "whatsNewThisUpdate": "Version {version} · this update",
+  "@whatsNewThisUpdate": {
+    "description": "History group label for the current version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsNewVersion": "Version {version}",
+  "@whatsNewVersion": {
+    "description": "History group label.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsNewHolidaysTitle": "Holidays",
+  "@whatsNewHolidaysTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewHolidaysBody": "Every holiday of the year in one place. Search in Myanmar or English, see what each day marks, and get a reminder the evening before.",
+  "@whatsNewHolidaysBody": {
+    "description": "Feature description."
+  },
+  "whatsNewHolidaysAction": "Explore holidays",
+  "@whatsNewHolidaysAction": {
+    "description": "Feature button."
+  },
+  "whatsNewWidgetsTitle": "New home-screen widgets",
+  "@whatsNewWidgetsTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewWidgetsBody": "Nine widgets in five styles, from today's date to a countdown to Thingyan. Tap any day to open it in the app.",
+  "@whatsNewWidgetsBody": {
+    "description": "Feature description."
+  },
+  "whatsNewWidgetsAction": "Widget settings",
+  "@whatsNewWidgetsAction": {
+    "description": "Feature button."
+  },
+  "whatsNewWelcomeTitle": "A new welcome",
+  "@whatsNewWelcomeTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewWelcomeBody": "New users get a short tour and a quick setup for language, look, privacy and reminders.",
+  "@whatsNewWelcomeBody": {
+    "description": "Feature description."
+  },
+  "whatsNewThemesTitle": "Calendar themes",
+  "@whatsNewThemesTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewThemesBody": "Twelve themes for the month grid, from Pagoda and Jade to Deep Field, each with light and dark colours.",
+  "@whatsNewThemesBody": {
+    "description": "Feature description."
+  },
+  "whatsNewThemesAction": "Choose a theme",
+  "@whatsNewThemesAction": {
+    "description": "Feature button."
+  },
+  "whatsNewColorsTitle": "Custom colours",
+  "@whatsNewColorsTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewColorsBody": "Pick one accent colour for the whole app, or fine-tune every colour in Advanced.",
+  "@whatsNewColorsBody": {
+    "description": "Feature description."
+  },
+  "whatsNewColorsAction": "Pick colours",
+  "@whatsNewColorsAction": {
+    "description": "Feature button."
+  },
+  "whatsNewIconsTitle": "App icons",
+  "@whatsNewIconsTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewIconsBody": "Choose from six app icons, including Moon, Forest and Traditional.",
+  "@whatsNewIconsBody": {
+    "description": "Feature description."
+  },
+  "whatsNewIconsAction": "Change icon",
+  "@whatsNewIconsAction": {
+    "description": "Feature button."
+  },
+  "whatsNewStudioTitle": "Calendar Studio",
+  "@whatsNewStudioTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewStudioBody": "Design wall, desk and social calendars from presets, then export print-ready PDFs and images.",
+  "@whatsNewStudioBody": {
+    "description": "Feature description."
+  },
+  "whatsNewStudioAction": "Open Studio",
+  "@whatsNewStudioAction": {
+    "description": "Feature button."
   }
 }
