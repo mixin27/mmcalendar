@@ -2178,5 +2178,49 @@
         "type": "String"
       }
     }
+  },
+  "widgetsAddToHome": "Add to home screen",
+  "@widgetsAddToHome": {
+    "description": "Settings › Widgets: add to home screen."
+  },
+  "widgetsAddToHomeFooter": "Your launcher asks where to put it. You can resize it there.",
+  "@widgetsAddToHomeFooter": {
+    "description": "Settings › Widgets: add to home screen."
+  },
+  "widgetKindToday": "Today",
+  "@widgetKindToday": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindMoon": "Moon",
+  "@widgetKindMoon": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindMonth": "Month",
+  "@widgetKindMonth": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindWeek": "Week",
+  "@widgetKindWeek": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindComingUp": "Coming up",
+  "@widgetKindComingUp": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindAgenda": "Agenda",
+  "@widgetKindAgenda": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindCountdown": "Countdown",
+  "@widgetKindCountdown": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindAstrology": "Astrology day",
+  "@widgetKindAstrology": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindYear": "Myanmar year",
+  "@widgetKindYear": {
+    "description": "A home screen widget's name."
   }
 }

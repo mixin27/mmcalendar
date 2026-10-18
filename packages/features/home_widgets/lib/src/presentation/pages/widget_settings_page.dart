@@ -8,6 +8,7 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../data/payload/widget_palettes.dart';
+import '../../data/services/widget_update_service.dart';
 import '../../domain/entities/widget_config.dart';
 import '../bloc/widget_bloc.dart';
 import '../bloc/widget_event.dart';
@@ -25,6 +26,16 @@ class WidgetSettingsPage extends StatefulWidget {
 class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
   WidgetLoaded? _loaded;
   late Future<int> _installed = _countInstalled();
+  final Future<bool> _canPin = _pinSupported();
+
+  static Future<bool> _pinSupported() async {
+    if (defaultTargetPlatform != TargetPlatform.android) return false;
+    try {
+      return await HomeWidget.isRequestPinWidgetSupported() ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
 
   static Future<int> _countInstalled() async {
     try {
@@ -193,6 +204,28 @@ class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
           ),
         ],
       ),
+      FutureBuilder<bool>(
+        future: _canPin,
+        builder: (context, canPin) => canPin.data != true
+            ? const SizedBox.shrink()
+            : AppGroup(
+                label: l10n.widgetsAddToHome,
+                footer: l10n.widgetsAddToHomeFooter,
+                children: [
+                  for (final (receiver, title) in _kinds(l10n))
+                    AppRow(
+                      key: ValueKey('widget-pin-$receiver'),
+                      icon: Icons.add_circle_outline,
+                      iconColor: context.tokens.accent,
+                      title: title,
+                      onTap: () => HomeWidget.requestPinWidget(
+                        qualifiedAndroidName:
+                            WidgetUpdateService.androidReceiver(receiver),
+                      ),
+                    ),
+                ],
+              ),
+      ),
       AppGroup(
         label: l10n.widgetsHowToAdd,
         children: [
@@ -213,6 +246,19 @@ class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
       ),
     ];
   }
+
+  /// The Android widgets, in the order of the widget picker.
+  static List<(String, String)> _kinds(AppLocalizations l10n) => [
+    ('TodayWidgetReceiver', l10n.widgetKindToday),
+    ('MoonWidgetReceiver', l10n.widgetKindMoon),
+    ('MonthWidgetReceiver', l10n.widgetKindMonth),
+    ('WeekWidgetReceiver', l10n.widgetKindWeek),
+    ('ComingUpWidgetReceiver', l10n.widgetKindComingUp),
+    ('AgendaWidgetReceiver', l10n.widgetKindAgenda),
+    ('CountdownWidgetReceiver', l10n.widgetKindCountdown),
+    ('AstrologyWidgetReceiver', l10n.widgetKindAstrology),
+    ('YearWidgetReceiver', l10n.widgetKindYear),
+  ];
 
   static String _styleTitle(WidgetStyleId style, AppLocalizations l10n) =>
       switch (style) {

@@ -1728,5 +1728,16 @@
   "widgetsHowToAdd": "ဝစ်ဂျက် ထည့်နည်း",
   "widgetsHowToAddIos": "ပင်မစာမျက်နှာ၏ နေရာလွတ်ကို ဖိထားပြီး Edit၊ ထို့နောက် Add Widget ကို နှိပ်ကာ Myanmar Calendar ကို ရှာပါ။ Lock Screen အတွက် ၎င်းကို ဖိထားပြီး Customize ကို နှိပ်ပါ။",
   "widgetsHowToAddAndroid": "ပင်မစာမျက်နှာ၏ နေရာလွတ်ကို ဖိထားပြီး Widgets ကို နှိပ်ကာ Myanmar Calendar ကို ရှာပါ။ အရွယ်အစားပြောင်းရန် ဝစ်ဂျက်ကို ဆွဲပါ။",
-  "widgetsLanguageNote": "ဝစ်ဂျက်များသည် ပြက္ခဒိန်ဘာသာစကား ({language}) ကို သုံးသည်။"
+  "widgetsLanguageNote": "ဝစ်ဂျက်များသည် ပြက္ခဒိန်ဘာသာစကား ({language}) ကို သုံးသည်။",
+  "widgetsAddToHome": "ပင်မစာမျက်နှာသို့ ထည့်ရန်",
+  "widgetsAddToHomeFooter": "မည်သည့်နေရာတွင် ထားမည်ကို launcher က မေးပါမည်။ ထိုနေရာတွင် အရွယ်အစား ပြောင်းနိုင်သည်။",
+  "widgetKindToday": "ယနေ့",
+  "widgetKindMoon": "လ",
+  "widgetKindMonth": "လ ပြက္ခဒိန်",
+  "widgetKindWeek": "ရက်သတ္တပတ်",
+  "widgetKindComingUp": "လာမည့်နေ့များ",
+  "widgetKindAgenda": "ပွဲစဉ်များ",
+  "widgetKindCountdown": "ရက်ရေတွက်",
+  "widgetKindAstrology": "ရက်ကောင်း ရက်ဆိုး",
+  "widgetKindYear": "မြန်မာနှစ်"
 }

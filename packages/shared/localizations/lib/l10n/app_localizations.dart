@@ -3035,6 +3035,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Widgets use the calendar language: {language}.'**
   String widgetsLanguageNote(String language);
+
+  /// Settings › Widgets: add to home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to home screen'**
+  String get widgetsAddToHome;
+
+  /// Settings › Widgets: add to home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your launcher asks where to put it. You can resize it there.'**
+  String get widgetsAddToHomeFooter;
+
+  /// A home screen widget's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get widgetKindToday;
+
+  /// A home screen widget's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Moon'**
+  String get widgetKindMoon;
+
+  /// A home screen widget's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get widgetKindMonth;
+
+  /// A home screen widget's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get widgetKindWeek;
+
+  /// A home screen widget's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get widgetKindComingUp;
+
+  /// A home screen widget's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Agenda'**
+  String get widgetKindAgenda;
+
+  /// A home screen widget's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Countdown'**
+  String get widgetKindCountdown;
+
+  /// A home screen widget's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Astrology day'**
+  String get widgetKindAstrology;
+
+  /// A home screen widget's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Myanmar year'**
+  String get widgetKindYear;
 }
 
 class _AppLocalizationsDelegate

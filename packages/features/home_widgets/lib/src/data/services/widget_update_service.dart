@@ -41,6 +41,10 @@ abstract final class WidgetUpdateService {
 
   static const _androidPackage = 'dev.mixin27.mmcalendar.widgets';
 
+  /// The fully qualified name of an Android widget [receiver].
+  static String androidReceiver(String receiver) =>
+      '$_androidPackage.$receiver';
+
   /// Keys the v1 widgets used; cleared once v2 is written.
   static const _legacyKeys = [
     'widget_timeline_v1',
@@ -97,7 +101,7 @@ abstract final class WidgetUpdateService {
       for (final receiver in androidReceivers) {
         await _reload(
           () => HomeWidget.updateWidget(
-            qualifiedAndroidName: '$_androidPackage.$receiver',
+            qualifiedAndroidName: androidReceiver(receiver),
           ),
         );
       }

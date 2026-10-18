@@ -1736,4 +1736,38 @@ class AppLocalizationsMy extends AppLocalizations {
   String widgetsLanguageNote(String language) {
     return 'ဝစ်ဂျက်များသည် ပြက္ခဒိန်ဘာသာစကား ($language) ကို သုံးသည်။';
   }
+
+  @override
+  String get widgetsAddToHome => 'ပင်မစာမျက်နှာသို့ ထည့်ရန်';
+
+  @override
+  String get widgetsAddToHomeFooter =>
+      'မည်သည့်နေရာတွင် ထားမည်ကို launcher က မေးပါမည်။ ထိုနေရာတွင် အရွယ်အစား ပြောင်းနိုင်သည်။';
+
+  @override
+  String get widgetKindToday => 'ယနေ့';
+
+  @override
+  String get widgetKindMoon => 'လ';
+
+  @override
+  String get widgetKindMonth => 'လ ပြက္ခဒိန်';
+
+  @override
+  String get widgetKindWeek => 'ရက်သတ္တပတ်';
+
+  @override
+  String get widgetKindComingUp => 'လာမည့်နေ့များ';
+
+  @override
+  String get widgetKindAgenda => 'ပွဲစဉ်များ';
+
+  @override
+  String get widgetKindCountdown => 'ရက်ရေတွက်';
+
+  @override
+  String get widgetKindAstrology => 'ရက်ကောင်း ရက်ဆိုး';
+
+  @override
+  String get widgetKindYear => 'မြန်မာနှစ်';
 }

@@ -2,24 +2,38 @@
 <resources>
     <string name="app_name">Myanmar Calendar</string>
 
-    <string name="widget_name">Myanmar Calendar</string>
-    <string name="widget_description">Myanmar Calendar with dates, moon phases, holidays, and astrological information</string>
+    <!-- Home screen widgets -->
+    <string name="widget_today_name">Today</string>
+    <string name="widget_today_description">The date, the Myanmar date, the moon and what makes today special. Make it one row high for a line at the top of your screen.</string>
+    <string name="widget_moon_name">Moon</string>
+    <string name="widget_moon_description">Tonight\'s moon, the lunar day and the next full or new moon.</string>
+    <string name="widget_month_name">Month</string>
+    <string name="widget_month_description">The month with Western and Myanmar days. Use the arrows to see other months.</string>
+    <string name="widget_week_name">Week</string>
+    <string name="widget_week_description">Seven days with moons and Sabbath days, and today\'s first event.</string>
+    <string name="widget_coming_up_name">Coming up</string>
+    <string name="widget_coming_up_description">The next holidays, Sabbath days and full moons, with how far away they are.</string>
+    <string name="widget_agenda_name">Agenda</string>
+    <string name="widget_agenda_description">Today\'s and tomorrow\'s events with the Myanmar date.</string>
+    <string name="widget_countdown_name">Countdown</string>
+    <string name="widget_countdown_description">Days until the next full moon, Sabbath or Thingyan.</string>
+    <string name="widget_astrology_name">Astrology day</string>
+    <string name="widget_astrology_description">Today\'s good and inauspicious days, and the next good day.</string>
+    <string name="widget_year_name">Myanmar year</string>
+    <string name="widget_year_description">How far through the Myanmar year we are.</string>
 
-    <string name="widget_description_small">Myanmar Calendar - Compact</string>
-    <string name="widget_description_medium">Myanmar Calendar - Standard</string>
-    <string name="widget_description_large">Myanmar Calendar - Detailed</string>
-
-    <!-- Widget Descriptions -->
-    <string name="compact_widget_description">Compact Myanmar date display</string>
-    <string name="full_calendar_widget_description">Complete calendar with moon phase</string>
-    <string name="moon_phase_widget_description">Beautiful moon phase display</string>
-    <string name="monthly_calendar_widget_description">Monthly calendar grid view</string>
-    <string name="myanmar_month_widget_description">Myanmar calendar month grid</string>
-
-    <!-- Widget Names -->
-    <string name="compact_widget_name">Myanmar Date (Compact)</string>
-    <string name="full_calendar_widget_name">Myanmar Calendar (Full)</string>
-    <string name="moon_phase_widget_name">Moon Phase</string>
-    <string name="monthly_calendar_widget_name">Monthly Calendar</string>
-    <string name="myanmar_month_widget_name">Myanmar Calendar Month</string>
+    <!-- Edit widget -->
+    <string name="widget_config_title">Edit widget</string>
+    <string name="widget_config_style">Style</string>
+    <string name="widget_config_countdown">Countdown counts to</string>
+    <string name="widget_style_default">Default (Settings › Widgets)</string>
+    <string name="widget_style_app">Follow app</string>
+    <string name="widget_style_plain">Plain</string>
+    <string name="widget_style_pagoda">Pagoda</string>
+    <string name="widget_style_jade">Jade</string>
+    <string name="widget_style_deep_field">Deep Field</string>
+    <string name="widget_countdown_full_moon">Next full moon</string>
+    <string name="widget_countdown_new_moon">Next new moon</string>
+    <string name="widget_countdown_sabbath">Next Sabbath</string>
+    <string name="widget_countdown_thingyan">Thingyan</string>
 </resources>

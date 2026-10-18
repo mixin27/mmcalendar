@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Home screen widgets -->
+    <string name="widget_today_name">ယနေ့</string>
+    <string name="widget_today_description">ရက်စွဲ၊ မြန်မာရက်စွဲ၊ လနှင့် ယနေ့ ထူးခြားချက်များ။ အမြင့် တစ်တန်းထားလျှင် ဖန်သားပြင်ထိပ်တွင် တစ်ကြောင်းတည်း ပြသည်။</string>
+    <string name="widget_moon_name">လ</string>
+    <string name="widget_moon_description">ယနေ့ည လ၊ လဆန်း လဆုတ် ရက်နှင့် နောက်လာမည့် လပြည့် သို့မဟုတ် လကွယ်။</string>
+    <string name="widget_month_name">လ ပြက္ခဒိန်</string>
+    <string name="widget_month_description">အင်္ဂလိပ်နှင့် မြန်မာ ရက်များပါသော လ ပြက္ခဒိန်။ မြားများဖြင့် အခြားလများကို ကြည့်နိုင်သည်။</string>
+    <string name="widget_week_name">ရက်သတ္တပတ်</string>
+    <string name="widget_week_description">လနှင့် ဥပုသ်နေ့များပါသော ခုနစ်ရက်နှင့် ယနေ့ ပထမ ပွဲစဉ်။</string>
+    <string name="widget_coming_up_name">လာမည့်နေ့များ</string>
+    <string name="widget_coming_up_description">လာမည့် ရုံးပိတ်ရက်၊ ဥပုသ်နေ့နှင့် လပြည့်နေ့များ၊ ရက်မည်မျှ လိုသေးသည်နှင့်အတူ။</string>
+    <string name="widget_agenda_name">ပွဲစဉ်များ</string>
+    <string name="widget_agenda_description">ယနေ့နှင့် မနက်ဖြန် ပွဲစဉ်များ၊ မြန်မာရက်စွဲနှင့်အတူ။</string>
+    <string name="widget_countdown_name">ရက်ရေတွက်</string>
+    <string name="widget_countdown_description">နောက်လာမည့် လပြည့်၊ ဥပုသ် သို့မဟုတ် သင်္ကြန်အထိ ရက်များ။</string>
+    <string name="widget_astrology_name">ရက်ကောင်း ရက်ဆိုး</string>
+    <string name="widget_astrology_description">ယနေ့ ရက်ကောင်း ရက်ဆိုးနှင့် နောက်လာမည့် ရက်ကောင်း။</string>
+    <string name="widget_year_name">မြန်မာနှစ်</string>
+    <string name="widget_year_description">မြန်မာနှစ် မည်မျှ ကုန်ဆုံးပြီလဲ။</string>
+
+    <!-- Edit widget -->
+    <string name="widget_config_title">ဝစ်ဂျက် ပြင်ရန်</string>
+    <string name="widget_config_style">ပုံစံ</string>
+    <string name="widget_config_countdown">ရေတွက်မည့်နေ့</string>
+    <string name="widget_style_default">မူလ (ဆက်တင် › ဝစ်ဂျက်များ)</string>
+    <string name="widget_style_app">အက်ပ်အတိုင်း</string>
+    <string name="widget_style_plain">ရိုးရိုး</string>
+    <string name="widget_style_pagoda">စေတီ</string>
+    <string name="widget_style_jade">ကျောက်စိမ်း</string>
+    <string name="widget_style_deep_field">ကြယ်စုံည</string>
+    <string name="widget_countdown_full_moon">နောက်လပြည့်</string>
+    <string name="widget_countdown_new_moon">နောက်လကွယ်</string>
+    <string name="widget_countdown_sabbath">နောက်ဥပုသ်</string>
+    <string name="widget_countdown_thingyan">သင်္ကြန်</string>
+</resources>

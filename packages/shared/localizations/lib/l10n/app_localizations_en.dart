@@ -1741,4 +1741,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String widgetsLanguageNote(String language) {
     return 'Widgets use the calendar language: $language.';
   }
+
+  @override
+  String get widgetsAddToHome => 'Add to home screen';
+
+  @override
+  String get widgetsAddToHomeFooter =>
+      'Your launcher asks where to put it. You can resize it there.';
+
+  @override
+  String get widgetKindToday => 'Today';
+
+  @override
+  String get widgetKindMoon => 'Moon';
+
+  @override
+  String get widgetKindMonth => 'Month';
+
+  @override
+  String get widgetKindWeek => 'Week';
+
+  @override
+  String get widgetKindComingUp => 'Coming up';
+
+  @override
+  String get widgetKindAgenda => 'Agenda';
+
+  @override
+  String get widgetKindCountdown => 'Countdown';
+
+  @override
+  String get widgetKindAstrology => 'Astrology day';
+
+  @override
+  String get widgetKindYear => 'Myanmar year';
 }
