@@ -8,6 +8,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../domain/holiday_search.dart';
 import '../domain/holiday_year.dart';
+import '../reminders/holiday_reminder_widgets.dart';
 import 'holiday_text.dart';
 import 'holiday_widgets.dart';
 import 'holidays_cubit.dart';
@@ -152,7 +153,19 @@ class _HolidaysViewState extends State<_HolidaysView> {
 
     return AppPage(
       title: l10n.holidays,
-      actions: widget.actions,
+      actions: [
+        ...widget.actions,
+        if (holidayReminders != null)
+          IconButton(
+            key: const ValueKey('holidays-reminders'),
+            tooltip: l10n.holidayRemindersTitle,
+            icon: Icon(
+              Icons.notifications_outlined,
+              color: context.tokens.accent,
+            ),
+            onPressed: () => showHolidayReminderSheet(context),
+          ),
+      ],
       children: children,
     );
   }

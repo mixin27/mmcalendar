@@ -2186,4 +2186,68 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get viewsExploreGroup => 'ရှာဖွေရန်';
+
+  @override
+  String get holidayRemindMe => 'သတိပေးရန်';
+
+  @override
+  String get holidayReminderEvening => 'အကြိုညနေ ၆ နာရီ';
+
+  @override
+  String get holidayReminderMorning => 'ထိုနေ့ နံနက် ၈ နာရီ';
+
+  @override
+  String get holidayReminderBoth => 'အကြိုညနေနှင့် ထိုနေ့ နံနက်';
+
+  @override
+  String get holidayRemindersTitle => 'သတိပေးချက်များ';
+
+  @override
+  String get holidayRemindersWhen => 'အချိန်';
+
+  @override
+  String get holidayRemindersEveningOption => 'အကြိုညနေ';
+
+  @override
+  String get holidayRemindersMorningOption => 'ထိုနေ့ နံနက်';
+
+  @override
+  String get holidayRemindersBothOption => 'နှစ်ခုလုံး';
+
+  @override
+  String get holidayRemindersFollow => 'လိုက်ကြည့်ရန်';
+
+  @override
+  String get holidayRemindersAllPublic => 'ရုံးပိတ်ရက်အားလုံး';
+
+  @override
+  String holidayRemindersAllPublicSubtitle(int count, String year) {
+    return '$year တွင် $count ရက်';
+  }
+
+  @override
+  String get holidayRemindersFooter =>
+      'သတိပေးချက်များသည် နောက် ရက် ၆၀ အတွက် ဖြစ်ပြီး အက်ပ်ဖွင့်တိုင်း အသစ်ပြင်ဆင်သည်။';
+
+  @override
+  String get holidayRemindersIncluded => 'ရုံးပိတ်ရက်အားလုံးတွင် ပါဝင်သည်';
+
+  @override
+  String get holidayRemindersPermissionDenied =>
+      'Myanmar Calendar အတွက် အသိပေးချက်များ ပိတ်ထားသည်။ သတိပေးချက်များ ရရှိရန် ဖုန်း၏ ဆက်တင်တွင် ဖွင့်ပါ။';
+
+  @override
+  String holidayReminderTomorrow(String holiday) {
+    return 'မနက်ဖြန်: $holiday';
+  }
+
+  @override
+  String holidayReminderToday(String holiday) {
+    return 'ယနေ့: $holiday';
+  }
+
+  @override
+  String holidayReminderBodyPublic(String dates) {
+    return 'ရုံးပိတ်ရက် · $dates';
+  }
 }

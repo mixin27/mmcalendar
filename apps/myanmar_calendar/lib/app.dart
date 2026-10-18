@@ -9,6 +9,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
+import 'package:holidays/holidays.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:home_widgets/home_widgets.dart';
@@ -109,6 +110,7 @@ class _AppContentState extends State<_AppContent> {
         }
         return prev.settings.calendarLanguage !=
                 curr.settings.calendarLanguage ||
+            prev.settings.appLanguage != curr.settings.appLanguage ||
             prev.settings.calendarConfig != curr.settings.calendarConfig;
       },
       listener: (context, state) {
@@ -234,6 +236,14 @@ class _AppContentState extends State<_AppContent> {
       disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
       disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
       cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
+    );
+    // Holiday reminders are written in these languages; rescheduling also
+    // picks up holiday rule changes.
+    unawaited(
+      getIt<HolidayReminders>().configure(
+        calendarLanguage: settings.calendarLanguage,
+        appLocale: Locale(settings.appLanguage),
+      ),
     );
   }
 }

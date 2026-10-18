@@ -2743,5 +2743,100 @@
   "viewsExploreGroup": "Explore",
   "@viewsExploreGroup": {
     "description": "Views group label."
+  },
+  "holidayRemindMe": "Remind me",
+  "@holidayRemindMe": {
+    "description": "Holiday reminder switch."
+  },
+  "holidayReminderEvening": "The evening before, at 6 pm",
+  "@holidayReminderEvening": {
+    "description": "When a holiday reminder comes."
+  },
+  "holidayReminderMorning": "On the day, at 8 am",
+  "@holidayReminderMorning": {
+    "description": "When a holiday reminder comes."
+  },
+  "holidayReminderBoth": "The evening before and on the day",
+  "@holidayReminderBoth": {
+    "description": "When a holiday reminder comes."
+  },
+  "holidayRemindersTitle": "Reminders",
+  "@holidayRemindersTitle": {
+    "description": "Holiday reminders sheet title."
+  },
+  "holidayRemindersWhen": "When",
+  "@holidayRemindersWhen": {
+    "description": "Reminder sheet group label."
+  },
+  "holidayRemindersEveningOption": "The evening before",
+  "@holidayRemindersEveningOption": {
+    "description": "Reminder time option."
+  },
+  "holidayRemindersMorningOption": "On the morning",
+  "@holidayRemindersMorningOption": {
+    "description": "Reminder time option."
+  },
+  "holidayRemindersBothOption": "Both",
+  "@holidayRemindersBothOption": {
+    "description": "Reminder time option."
+  },
+  "holidayRemindersFollow": "Follow",
+  "@holidayRemindersFollow": {
+    "description": "Reminder sheet group label."
+  },
+  "holidayRemindersAllPublic": "All public holidays",
+  "@holidayRemindersAllPublic": {
+    "description": "Follow every public holiday."
+  },
+  "holidayRemindersAllPublicSubtitle": "{count} in {year}",
+  "@holidayRemindersAllPublicSubtitle": {
+    "description": "How many public holidays.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "holidayRemindersFooter": "Reminders cover the next 60 days and refresh each time you open the app.",
+  "@holidayRemindersFooter": {
+    "description": "Reminder sheet footer."
+  },
+  "holidayRemindersIncluded": "Included in all public holidays",
+  "@holidayRemindersIncluded": {
+    "description": "A holiday covered by following all public holidays."
+  },
+  "holidayRemindersPermissionDenied": "Notifications are off for Myanmar Calendar. Turn them on in your phone's Settings to get reminders.",
+  "@holidayRemindersPermissionDenied": {
+    "description": "Shown when notification permission is refused."
+  },
+  "holidayReminderTomorrow": "Tomorrow: {holiday}",
+  "@holidayReminderTomorrow": {
+    "description": "Holiday notification title the evening before.",
+    "placeholders": {
+      "holiday": {
+        "type": "String"
+      }
+    }
+  },
+  "holidayReminderToday": "Today: {holiday}",
+  "@holidayReminderToday": {
+    "description": "Holiday notification title on the day.",
+    "placeholders": {
+      "holiday": {
+        "type": "String"
+      }
+    }
+  },
+  "holidayReminderBodyPublic": "Public holiday · {dates}",
+  "@holidayReminderBodyPublic": {
+    "description": "Holiday notification body.",
+    "placeholders": {
+      "dates": {
+        "type": "String"
+      }
+    }
   }
 }

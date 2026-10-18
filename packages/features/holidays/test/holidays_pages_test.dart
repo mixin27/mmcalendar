@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:holidays/holidays.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 Future<void> _pump(WidgetTester tester, AppStyle style, String location) async {
@@ -106,4 +108,58 @@ void main() {
       });
     });
   }
+
+  group('reminders', () {
+    late HolidayReminders reminders;
+    var asked = 0;
+
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      asked = 0;
+      reminders = HolidayReminders(
+        preferences: await SharedPreferences.getInstance(),
+        requestPermission: () async {
+          asked++;
+          return true;
+        },
+      );
+      GetIt.instance.registerSingleton<HolidayReminders>(reminders);
+    });
+    tearDown(() => GetIt.instance.reset());
+
+    testWidgets('Remind me follows the holiday and asks permission once on', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        AppStyle.clear,
+        '/views/holidays/thadingyut?year=2026',
+      );
+      await tester.tap(find.byType(AppSwitch));
+      await tester.pumpAndSettle();
+      expect(reminders.followed, {'thadingyut'});
+      expect(asked, 1);
+      expect(find.text('The evening before, at 6 pm'), findsOneWidget);
+    });
+
+    testWidgets('the sheet sets the time and follows all public holidays', (
+      tester,
+    ) async {
+      await _pump(tester, AppStyle.material, '/views/holidays?year=2030');
+      await tester.tap(find.byKey(const ValueKey('holidays-reminders')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('holiday-reminder-time-both')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('holiday-reminder-all-public')),
+      );
+      await tester.pumpAndSettle();
+      expect(reminders.time, HolidayReminderTime.both);
+      expect(reminders.allPublic, isTrue);
+      expect(reminders.isOn(HolidayCatalog.thingyan), isTrue);
+      expect(reminders.isOn(HolidayCatalog.halloween), isFalse);
+    });
+  });
 }

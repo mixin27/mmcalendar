@@ -141,10 +141,16 @@ class NotificationServiceImpl implements NotificationService {
     await _notificationsPlugin.cancel(id: notificationId);
   }
 
+  /// Cancels every event notification. Holiday reminders (payload
+  /// `holiday_…`) are scheduled by the holidays feature and stay.
   @override
   Future<void> cancelAllNotifications() async {
     if (!_isInitialized) await initialize();
-    await _notificationsPlugin.cancelAll();
+    final pending = await _notificationsPlugin.pendingNotificationRequests();
+    for (final request in pending) {
+      if (request.payload?.startsWith('holiday_') ?? false) continue;
+      await _notificationsPlugin.cancel(id: request.id);
+    }
   }
 
   @override

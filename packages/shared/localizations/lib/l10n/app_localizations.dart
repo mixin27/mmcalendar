@@ -3797,6 +3797,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Explore'**
   String get viewsExploreGroup;
+
+  /// Holiday reminder switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get holidayRemindMe;
+
+  /// When a holiday reminder comes.
+  ///
+  /// In en, this message translates to:
+  /// **'The evening before, at 6 pm'**
+  String get holidayReminderEvening;
+
+  /// When a holiday reminder comes.
+  ///
+  /// In en, this message translates to:
+  /// **'On the day, at 8 am'**
+  String get holidayReminderMorning;
+
+  /// When a holiday reminder comes.
+  ///
+  /// In en, this message translates to:
+  /// **'The evening before and on the day'**
+  String get holidayReminderBoth;
+
+  /// Holiday reminders sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get holidayRemindersTitle;
+
+  /// Reminder sheet group label.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get holidayRemindersWhen;
+
+  /// Reminder time option.
+  ///
+  /// In en, this message translates to:
+  /// **'The evening before'**
+  String get holidayRemindersEveningOption;
+
+  /// Reminder time option.
+  ///
+  /// In en, this message translates to:
+  /// **'On the morning'**
+  String get holidayRemindersMorningOption;
+
+  /// Reminder time option.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get holidayRemindersBothOption;
+
+  /// Reminder sheet group label.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get holidayRemindersFollow;
+
+  /// Follow every public holiday.
+  ///
+  /// In en, this message translates to:
+  /// **'All public holidays'**
+  String get holidayRemindersAllPublic;
+
+  /// How many public holidays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in {year}'**
+  String holidayRemindersAllPublicSubtitle(int count, String year);
+
+  /// Reminder sheet footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders cover the next 60 days and refresh each time you open the app.'**
+  String get holidayRemindersFooter;
+
+  /// A holiday covered by following all public holidays.
+  ///
+  /// In en, this message translates to:
+  /// **'Included in all public holidays'**
+  String get holidayRemindersIncluded;
+
+  /// Shown when notification permission is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off for Myanmar Calendar. Turn them on in your phone\'s Settings to get reminders.'**
+  String get holidayRemindersPermissionDenied;
+
+  /// Holiday notification title the evening before.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow: {holiday}'**
+  String holidayReminderTomorrow(String holiday);
+
+  /// Holiday notification title on the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {holiday}'**
+  String holidayReminderToday(String holiday);
+
+  /// Holiday notification body.
+  ///
+  /// In en, this message translates to:
+  /// **'Public holiday · {dates}'**
+  String holidayReminderBodyPublic(String dates);
 }
 
 class _AppLocalizationsDelegate

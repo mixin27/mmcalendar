@@ -2206,4 +2206,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewsExploreGroup => 'Explore';
+
+  @override
+  String get holidayRemindMe => 'Remind me';
+
+  @override
+  String get holidayReminderEvening => 'The evening before, at 6 pm';
+
+  @override
+  String get holidayReminderMorning => 'On the day, at 8 am';
+
+  @override
+  String get holidayReminderBoth => 'The evening before and on the day';
+
+  @override
+  String get holidayRemindersTitle => 'Reminders';
+
+  @override
+  String get holidayRemindersWhen => 'When';
+
+  @override
+  String get holidayRemindersEveningOption => 'The evening before';
+
+  @override
+  String get holidayRemindersMorningOption => 'On the morning';
+
+  @override
+  String get holidayRemindersBothOption => 'Both';
+
+  @override
+  String get holidayRemindersFollow => 'Follow';
+
+  @override
+  String get holidayRemindersAllPublic => 'All public holidays';
+
+  @override
+  String holidayRemindersAllPublicSubtitle(int count, String year) {
+    return '$count in $year';
+  }
+
+  @override
+  String get holidayRemindersFooter =>
+      'Reminders cover the next 60 days and refresh each time you open the app.';
+
+  @override
+  String get holidayRemindersIncluded => 'Included in all public holidays';
+
+  @override
+  String get holidayRemindersPermissionDenied =>
+      'Notifications are off for Myanmar Calendar. Turn them on in your phone\'s Settings to get reminders.';
+
+  @override
+  String holidayReminderTomorrow(String holiday) {
+    return 'Tomorrow: $holiday';
+  }
+
+  @override
+  String holidayReminderToday(String holiday) {
+    return 'Today: $holiday';
+  }
+
+  @override
+  String holidayReminderBodyPublic(String dates) {
+    return 'Public holiday · $dates';
+  }
 }

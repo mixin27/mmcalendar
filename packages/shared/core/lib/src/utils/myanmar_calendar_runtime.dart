@@ -15,6 +15,10 @@ extension MyanmarCalendarCacheProfileX on MyanmarCalendarCacheProfile {
 
 const double kMyanmarTimezoneOffset = 6.5;
 
+/// Bumped each time [applyMyanmarCalendarRuntimeConfig] runs, so caches of
+/// computed calendar data (holiday years) know to rebuild.
+int myanmarCalendarConfigGeneration = 0;
+
 double getDeviceTimezoneOffsetHours() {
   final offset = DateTime.now().timeZoneOffset;
   return offset.inMinutes / 60.0;
@@ -61,4 +65,5 @@ void applyMyanmarCalendarRuntimeConfig({
   );
 
   MyanmarCalendar.configureCache(cacheProfile.cacheConfig);
+  myanmarCalendarConfigGeneration++;
 }

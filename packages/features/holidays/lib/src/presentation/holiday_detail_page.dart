@@ -7,6 +7,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../catalog/holiday_catalog.dart';
 import '../domain/holiday_year.dart';
+import '../reminders/holiday_reminder_widgets.dart';
 import 'holiday_text.dart';
 import 'holiday_widgets.dart';
 
@@ -17,15 +18,11 @@ class HolidayDetailPage extends StatelessWidget {
     super.key,
     required this.id,
     required this.year,
-    this.reminder,
     this.previousTitle,
   });
 
   final String id;
   final int year;
-
-  /// The Remind me row (from the reminders feature), if available.
-  final Widget Function(BuildContext context, HolidayEntry entry)? reminder;
 
   final String? previousTitle;
 
@@ -156,7 +153,7 @@ class HolidayDetailPage extends StatelessWidget {
                 ),
             ],
           ),
-        ?reminder?.call(context, entry),
+        if (occurrence != null) HolidayReminderGroup(entry: entry),
         if (about != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),

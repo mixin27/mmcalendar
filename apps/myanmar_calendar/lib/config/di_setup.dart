@@ -87,6 +87,14 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   await initViewsDependencies();
   await initConverterDependencies();
   await initEventsDependencies();
+  // Holiday reminders share the notification plugin Events initialised.
+  getIt.registerSingleton<HolidayReminders>(
+    HolidayReminders(
+      preferences: sharedPreferences,
+      requestPermission: () =>
+          getIt<NotificationService>().requestPermissions(),
+    ),
+  );
   await initHomeWidgetsDependencies();
   await initializePromoDependencies();
 

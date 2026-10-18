@@ -1,4 +1,5 @@
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../catalog/holiday_catalog.dart';
 
@@ -53,8 +54,13 @@ abstract final class HolidayYears {
 
   static void clearCache() => _cache.clear();
 
-  static List<HolidayOccurrence> of(int year, Language language) => _cache
-      .putIfAbsent('$year|${language.code}', () => _build(year, language));
+  /// Cached per year and language, and rebuilt after the calendar's
+  /// configuration (holiday rules) changes.
+  static List<HolidayOccurrence> of(int year, Language language) =>
+      _cache.putIfAbsent(
+        '$year|${language.code}|$myanmarCalendarConfigGeneration',
+        () => _build(year, language),
+      );
 
   /// Holidays overlapping [from]..[to] (inclusive), across years.
   static List<HolidayOccurrence> between(
