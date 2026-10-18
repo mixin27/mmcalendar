@@ -38,6 +38,12 @@ abstract final class StudioStrings {
       count == 1 ? 'Applied to 1 more page' : 'Applied to $count more pages';
   static const alreadyMatches = 'Every month already matches';
 
+  // Layers.
+  static const renameLayer = 'Rename layer';
+  static const layerName = 'Layer name';
+  static const rename = 'Rename';
+  static const dragLayer = 'Drag to change the order';
+
   // Pages.
   static const pageActions = 'Page actions';
   static const thisPage = 'This page';

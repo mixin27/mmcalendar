@@ -2439,10 +2439,12 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
             ),
             actions: [
               IconButton(
+                tooltip: 'Undo',
                 onPressed: controller.canUndo ? _undo : null,
                 icon: const Icon(Icons.undo),
               ),
               IconButton(
+                tooltip: 'Redo',
                 onPressed: controller.canRedo ? controller.redo : null,
                 icon: const Icon(Icons.redo),
               ),
@@ -2981,8 +2983,22 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     );
   }
 
+  Future<void> _renameLayer(CalendarStudioBlock block) async {
+    final name = await showAppPrompt(
+      context: context,
+      title: StudioStrings.renameLayer,
+      initial: block.name,
+      placeholder: StudioStrings.layerName,
+      confirmLabel: StudioStrings.rename,
+    );
+    if (name != null) controller.renameBlock(block.id, name);
+  }
+
   Widget _layers({bool modal = false}) {
-    final blocks = controller.currentPage.blocks;
+    // Front to back, as the page draws them.
+    final blocks = [...controller.currentPage.blocks]
+      ..sort((a, b) => b.zIndex.compareTo(a.zIndex));
+    final selectedId = controller.selectedBlockId;
     return Material(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3011,46 +3027,84 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
             ),
           ),
           Expanded(
-            child: ListView(
-              children: [
-                for (final block in blocks.reversed)
-                  ListTile(
-                    selected: controller.selectedBlockId == block.id,
-                    leading: Icon(_icon(block.type)),
-                    title: Text(block.name),
-                    subtitle: Text(
-                      block.locked ? 'Locked to app data' : block.type.name,
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () => controller.updateBlock(
-                            block.copyWith(visible: !block.visible),
-                          ),
-                          icon: Icon(
-                            block.visible
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
-                          tooltip: block.visible ? 'Hide' : 'Show',
-                        ),
-                        IconButton(
-                          onPressed: () => controller.updateBlock(
-                            block.copyWith(locked: !block.locked),
-                          ),
-                          icon: Icon(
-                            block.locked
-                                ? Icons.lock_outline
-                                : Icons.lock_open_outlined,
-                          ),
-                          tooltip: block.locked ? 'Unlock' : 'Lock',
-                        ),
-                      ],
-                    ),
-                    onTap: () => _selectBlock(block),
+            child: ReorderableListView.builder(
+              key: const ValueKey('calendar-studio-layers'),
+              buildDefaultDragHandles: false,
+              itemCount: blocks.length,
+              // The list runs front to back; the controller counts back to
+              // front.
+              onReorderItem: (from, to) => controller.reorderLayer(
+                blocks[from].id,
+                blocks.length - 1 - to,
+              ),
+              itemBuilder: (context, index) {
+                final block = blocks[index];
+                return ListTile(
+                  key: ValueKey('calendar-studio-layer-row-${block.id}'),
+                  selected: selectedId == block.id,
+                  contentPadding: const EdgeInsetsDirectional.only(
+                    start: 4,
+                    end: 4,
                   ),
-              ],
+                  leading: ReorderableDragStartListener(
+                    index: index,
+                    child: Tooltip(
+                      message: StudioStrings.dragLayer,
+                      child: SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.drag_indicator, size: 18),
+                            Icon(_icon(block.type), size: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    block.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    block.locked ? 'Locked to app data' : block.type.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () => controller.updateBlock(
+                          block.copyWith(visible: !block.visible),
+                        ),
+                        icon: Icon(
+                          block.visible
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
+                        tooltip: block.visible ? 'Hide' : 'Show',
+                      ),
+                      IconButton(
+                        onPressed: () => controller.updateBlock(
+                          block.copyWith(locked: !block.locked),
+                        ),
+                        icon: Icon(
+                          block.locked
+                              ? Icons.lock_outline
+                              : Icons.lock_open_outlined,
+                        ),
+                        tooltip: block.locked ? 'Unlock' : 'Lock',
+                      ),
+                    ],
+                  ),
+                  onTap: () => _selectBlock(block),
+                  // Long-press a layer to rename it.
+                  onLongPress: () => _renameLayer(block),
+                );
+              },
             ),
           ),
           if (controller.selectedBlockId != null)
@@ -3086,6 +3140,18 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                       icon: const Icon(Icons.arrow_downward, size: 18),
                       label: const Text('Back', maxLines: 1, softWrap: false),
                     ),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    key: const ValueKey('calendar-studio-rename-layer'),
+                    tooltip: StudioStrings.renameLayer,
+                    onPressed: () {
+                      final block = controller.currentPage.blocks
+                          .where((b) => b.id == controller.selectedBlockId)
+                          .firstOrNull;
+                      if (block != null) _renameLayer(block);
+                    },
+                    icon: const Icon(Icons.drive_file_rename_outline),
                   ),
                 ],
               ),
@@ -3349,7 +3415,11 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     isScrollControlled: true,
     builder: (_) => FractionallySizedBox(
       heightFactor: _sheetHeight,
-      child: _layers(modal: true),
+      // Reordering, hiding and locking change the list while it is open.
+      child: ListenableBuilder(
+        listenable: controller,
+        builder: (_, _) => _layers(modal: true),
+      ),
     ),
   );
 
