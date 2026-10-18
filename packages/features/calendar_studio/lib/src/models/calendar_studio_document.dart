@@ -91,9 +91,26 @@ class CalendarStudioPage extends Equatable {
     canvas: canvas ?? this.canvas,
     blocks: blocks ?? this.blocks,
   );
+
+  /// The same page under a different [id], e.g. a duplicate.
+  CalendarStudioPage withId(String id) => CalendarStudioPage(
+    id: id,
+    label: label,
+    year: year,
+    month: month,
+    canvas: canvas,
+    blocks: blocks,
+  );
+
   @override
   List<Object> get props => [id, label, year, month, canvas, blocks];
 }
+
+/// A page's slot in its project: how many months its month comes after the
+/// project's start month. A template's pages fill slots 0, 1, 2... in order;
+/// duplicates share their original's slot, and reordering doesn't change it.
+int studioPageSlot(CalendarStudioPage page, CalendarStudioSource source) =>
+    (page.year * 12 + page.month) - (source.year * 12 + source.month);
 
 /// What a project's most recent export produced, for its detail page.
 class CalendarStudioExportRecord extends Equatable {

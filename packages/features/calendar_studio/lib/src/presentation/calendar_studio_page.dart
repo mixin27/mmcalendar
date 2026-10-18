@@ -492,6 +492,72 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     }
   }
 
+  void _duplicatePage(int index) {
+    controller.duplicatePage(index);
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..toast(
+        StudioStrings.pageDuplicated,
+        actionLabel: 'Undo',
+        onAction: controller.undo,
+      );
+  }
+
+  void _deletePage(int index) {
+    final label = controller.project!.pages[index].label;
+    controller.deletePage(index);
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..toast(
+        StudioStrings.pageDeleted(label),
+        actionLabel: 'Undo',
+        onAction: controller.undo,
+      );
+  }
+
+  /// Duplicate, move and delete for the page at [index]. [after] runs once
+  /// an action is chosen, e.g. to refresh a sheet.
+  List<List<AppMenuAction>> _pageActions(int index, {VoidCallback? after}) {
+    final count = controller.project!.pages.length;
+    void run(VoidCallback action) {
+      action();
+      after?.call();
+    }
+
+    return [
+      [
+        AppMenuAction(
+          label: StudioStrings.duplicatePage,
+          icon: Icons.copy_outlined,
+          onSelected: () => run(() => _duplicatePage(index)),
+        ),
+      ],
+      [
+        if (index > 0)
+          AppMenuAction(
+            label: StudioStrings.moveEarlier,
+            icon: Icons.arrow_back,
+            onSelected: () => run(() => controller.movePage(index, index - 1)),
+          ),
+        if (index < count - 1)
+          AppMenuAction(
+            label: StudioStrings.moveLater,
+            icon: Icons.arrow_forward,
+            onSelected: () => run(() => controller.movePage(index, index + 1)),
+          ),
+      ],
+      if (controller.canDeletePage(index))
+        [
+          AppMenuAction(
+            label: StudioStrings.deletePage,
+            icon: Icons.delete_outline,
+            destructive: true,
+            onSelected: () => run(() => _deletePage(index)),
+          ),
+        ],
+    ].where((group) => group.isNotEmpty).toList();
+  }
+
   void _openInspector({int? tab}) {
     _endTextEdit();
     setState(() {
@@ -535,11 +601,15 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       _templateById(project.templateId).name;
 
   String _period(CalendarStudioProject project) {
-    final first = project.pages.first;
-    final last = project.pages.last;
+    // Pages can be reordered, so the range runs from the earliest month to
+    // the latest, not from the first page to the last.
+    int key(CalendarStudioPage page) => page.year * 12 + page.month;
+    final sorted = [...project.pages]..sort((a, b) => key(a).compareTo(key(b)));
+    final first = sorted.first;
+    final last = sorted.last;
     String short(CalendarStudioPage page) =>
         page.label.substring(0, math.min(3, page.label.length));
-    if (project.pages.length == 1) return '${first.label} ${first.year}';
+    if (key(first) == key(last)) return '${first.label} ${first.year}';
     return first.year == last.year
         ? '${short(first)}–${short(last)} ${first.year}'
         : '${short(first)} ${first.year}–${short(last)} ${last.year}';
@@ -2630,61 +2700,94 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       key: const ValueKey('calendar-studio-page-strip'),
       color: tokens.surface,
       child: SizedBox(
-        height: 104,
-        child: ListView.separated(
+        height: 120,
+        child: ReorderableListView.builder(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          buildDefaultDragHandles: false,
           itemCount: project.pages.length,
-          separatorBuilder: (_, _) => const SizedBox(width: 10),
+          onReorderItem: controller.movePage,
           itemBuilder: (context, index) {
             final page = project.pages[index];
             final selected = index == controller.pageIndex;
-            return InkWell(
-              key: ValueKey('calendar-studio-strip-page-$index'),
-              onTap: selected ? null : () => _changePage(index),
-              borderRadius: BorderRadius.circular(8),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: selected ? tokens.primary : tokens.line,
-                          width: selected ? 2.5 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: StudioThumbnail(
-                        // Unchanged pages keep their instance, so only the
-                        // edited page draws again.
-                        cacheKey:
-                            '${project.id}#$index@${identityHashCode(page)}',
-                        aspectRatio: page.canvas.aspectRatio,
-                        builder: (_) => IgnorePointer(
-                          child: CalendarStudioScene(
-                            page: page,
-                            source: project.source,
-                            dataProvider: _calendarData,
-                            assetStore: _assets,
-                            displayWidth: 60,
+            return Padding(
+              key: ValueKey('calendar-studio-strip-item-${page.id}'),
+              padding: const EdgeInsets.only(right: 10),
+              child: Tooltip(
+                message: StudioStrings.dragToReorder,
+                waitDuration: const Duration(seconds: 1),
+                child: ReorderableDragStartListener(
+                  index: index,
+                  child: InkWell(
+                    key: ValueKey('calendar-studio-strip-page-$index'),
+                    onTap: selected ? null : () => _changePage(index),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: selected ? tokens.primary : tokens.line,
+                                width: selected ? 2.5 : 1,
+                              ),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: StudioThumbnail(
+                              // Unchanged pages keep their instance, so only
+                              // the edited page draws again.
+                              cacheKey:
+                                  '${project.id}#${page.id}@${identityHashCode(page)}',
+                              aspectRatio: page.canvas.aspectRatio,
+                              builder: (_) => IgnorePointer(
+                                child: CalendarStudioScene(
+                                  page: page,
+                                  source: project.source,
+                                  dataProvider: _calendarData,
+                                  assetStore: _assets,
+                                  displayWidth: 60,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        SizedBox(
+                          height: 26,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                page.label.length > 3
+                                    ? page.label.substring(0, 3)
+                                    : page.label,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: selected ? FontWeight.w700 : null,
+                                  color: selected
+                                      ? tokens.primary
+                                      : tokens.ink2,
+                                ),
+                              ),
+                              if (selected)
+                                SizedBox(
+                                  width: 26,
+                                  height: 26,
+                                  child: AppMenuButton(
+                                    key: const ValueKey(
+                                      'calendar-studio-strip-menu',
+                                    ),
+                                    tooltip: StudioStrings.pageActions,
+                                    groups: _pageActions(index),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    page.label.length > 3
-                        ? page.label.substring(0, 3)
-                        : page.label,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: selected ? FontWeight.w700 : null,
-                      color: selected ? tokens.primary : tokens.ink2,
-                    ),
-                  ),
-                ],
+                ),
               ),
             );
           },
@@ -3396,6 +3499,41 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                     ),
                   ],
                 ),
+                StudioSection(
+                  title: StudioStrings.thisPage,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final action in _pageActions(
+                          controller.pageIndex,
+                          after: () => setSheet(() {}),
+                        ).expand((group) => group))
+                          OutlinedButton.icon(
+                            key: ValueKey('studio-page-action-${action.label}'),
+                            onPressed: () {
+                              // Deleting changes the page this sheet is
+                              // about, so the sheet closes first.
+                              if (action.destructive) {
+                                Navigator.pop(sheetContext);
+                              }
+                              action.onSelected();
+                            },
+                            style: action.destructive
+                                ? OutlinedButton.styleFrom(
+                                    foregroundColor: Theme.of(
+                                      sheetContext,
+                                    ).colorScheme.error,
+                                  )
+                                : null,
+                            icon: Icon(action.icon, size: 18),
+                            label: Text(action.label),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   key: const ValueKey('studio-page-project-settings'),
@@ -3418,101 +3556,128 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
-    builder: (sheetContext) {
-      final project = controller.project!;
-      return FractionallySizedBox(
-        heightFactor: _sheetHeight,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 12, 8),
-              child: Row(
-                children: [
-                  Text('Pages', style: Theme.of(context).textTheme.titleLarge),
-                  const Spacer(),
-                  Text(
-                    '${project.pages.length} ${project.pages.length == 1 ? 'page' : 'months'}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () => Navigator.pop(sheetContext),
-                    child: const Text('Done'),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  childAspectRatio: .55,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 12,
+    builder: (sheetContext) => ListenableBuilder(
+      // Duplicating, moving and deleting change the grid while it is open.
+      listenable: controller,
+      builder: (_, _) {
+        final project = controller.project!;
+        final tokens = CalendarStudioTokens.of(context);
+        return FractionallySizedBox(
+          heightFactor: _sheetHeight,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 12, 8),
+                child: Row(
+                  children: [
+                    Text(
+                      'Pages',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${project.pages.length} '
+                      '${project.pages.length == 1 ? 'page' : 'pages'}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      child: const Text('Done'),
+                    ),
+                  ],
                 ),
-                itemCount: project.pages.length,
-                itemBuilder: (_, index) {
-                  final page = project.pages[index];
-                  final selected = index == controller.pageIndex;
-                  return InkWell(
-                    onTap: () {
-                      controller.setPage(index);
-                      Navigator.pop(sheetContext);
-                    },
-                    borderRadius: BorderRadius.circular(10),
-                    child: Column(
+              ),
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    childAspectRatio: .5,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 12,
+                  ),
+                  itemCount: project.pages.length,
+                  itemBuilder: (_, index) {
+                    final page = project.pages[index];
+                    final selected = index == controller.pageIndex;
+                    return Column(
+                      key: ValueKey('calendar-studio-pages-tile-${page.id}'),
                       children: [
                         Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? CalendarStudioTokens.of(context).primary
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x22000000),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 3),
+                          child: InkWell(
+                            onTap: () {
+                              controller.setPage(index);
+                              Navigator.pop(sheetContext);
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                color: selected
+                                    ? tokens.primary
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x22000000),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: IgnorePointer(
+                                child: CalendarStudioScene(
+                                  page: page,
+                                  source: project.source,
+                                  dataProvider: _calendarData,
+                                  assetStore: _assets,
                                 ),
-                              ],
-                            ),
-                            child: IgnorePointer(
-                              child: CalendarStudioScene(
-                                page: page,
-                                source: project.source,
-                                dataProvider: _calendarData,
-                                assetStore: _assets,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          page.label.length > 3
-                              ? page.label.substring(0, 3)
-                              : page.label,
-                          style: TextStyle(
-                            color: selected
-                                ? CalendarStudioTokens.of(context).primary
-                                : CalendarStudioTokens.of(context).ink3,
-                            fontWeight: selected
-                                ? FontWeight.w700
-                                : FontWeight.w400,
-                          ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                page.label.length > 3
+                                    ? page.label.substring(0, 3)
+                                    : page.label,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: selected
+                                      ? tokens.primary
+                                      : tokens.ink3,
+                                  fontWeight: selected
+                                      ? FontWeight.w700
+                                      : FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 32,
+                              height: 32,
+                              child: AppMenuButton(
+                                key: ValueKey(
+                                  'calendar-studio-pages-menu-$index',
+                                ),
+                                tooltip: StudioStrings.pageActions,
+                                groups: _pageActions(index),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    },
+            ],
+          ),
+        );
+      },
+    ),
   );
 
   /// "Choose image" sheet from the mockup; skipped when the host offers a

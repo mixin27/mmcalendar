@@ -38,6 +38,17 @@ abstract final class StudioStrings {
       count == 1 ? 'Applied to 1 more page' : 'Applied to $count more pages';
   static const alreadyMatches = 'Every month already matches';
 
+  // Pages.
+  static const pageActions = 'Page actions';
+  static const thisPage = 'This page';
+  static const duplicatePage = 'Duplicate page';
+  static const moveEarlier = 'Move earlier';
+  static const moveLater = 'Move later';
+  static const deletePage = 'Delete page';
+  static const pageDuplicated = 'Page duplicated';
+  static String pageDeleted(String label) => 'Deleted $label';
+  static const dragToReorder = 'Drag a page to move it';
+
   static String fitLabel(String fit) => switch (fit) {
     'fit' => 'Fit: whole image',
     'fill' => 'Fit: stretch',

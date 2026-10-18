@@ -210,16 +210,17 @@ class CalendarStudioController extends ChangeNotifier {
       source: source,
       now: value.createdAt,
     );
-    final pages = <CalendarStudioPage>[];
-    for (var index = 0; index < refreshed.pages.length; index++) {
-      final freshPage = refreshed.pages[index];
-      final oldPage = index < value.pages.length ? value.pages[index] : null;
-      final oldDefaults = index < previousDefaults.pages.length
-          ? previousDefaults.pages[index]
-          : null;
-      if (oldPage == null || oldDefaults == null) {
-        pages.add(freshPage);
-        continue;
+    // Pages are paired by slot (their month's offset from the start month),
+    // not by position, so pages the user reordered, duplicated or deleted
+    // keep their own edits. An untouched project pairs exactly as by index.
+    int slotOf(CalendarStudioPage page) => studioPageSlot(page, value.source);
+    CalendarStudioPage regenerate(
+      CalendarStudioPage oldPage,
+      CalendarStudioPage freshPage,
+      CalendarStudioPage? oldDefaults,
+    ) {
+      if (oldDefaults == null) {
+        return freshPage.copyWith(canvas: oldPage.canvas).withId(oldPage.id);
       }
       final defaultIds = oldDefaults.blocks.map((block) => block.id).toSet();
       final oldById = {for (final block in oldPage.blocks) block.id: block};
@@ -241,15 +242,50 @@ class CalendarStudioController extends ChangeNotifier {
           else
             freshBlock,
       ];
+      return freshPage
+          .copyWith(
+            canvas: oldPage.canvas,
+            blocks: [
+              ...templateBlocks,
+              ...oldPage.blocks.where(
+                (block) => !defaultIds.contains(block.id),
+              ),
+            ],
+          )
+          .withId(oldPage.id);
+    }
+
+    final pages = <CalendarStudioPage>[];
+    final slots = <int>[];
+    for (final oldPage in value.pages) {
+      final slot = slotOf(oldPage);
+      // Months that fall outside the new period are dropped.
+      if (slot < 0 || slot >= refreshed.pages.length) continue;
       pages.add(
-        freshPage.copyWith(
-          canvas: oldPage.canvas,
-          blocks: [
-            ...templateBlocks,
-            ...oldPage.blocks.where((block) => !defaultIds.contains(block.id)),
-          ],
+        regenerate(
+          oldPage,
+          refreshed.pages[slot],
+          slot < previousDefaults.pages.length
+              ? previousDefaults.pages[slot]
+              : null,
         ),
       );
+      slots.add(slot);
+    }
+    // Months the period gained come in at their place in the year. Months
+    // the old period had but the user deleted stay deleted.
+    for (var slot = 0; slot < refreshed.pages.length; slot++) {
+      if (slots.contains(slot) || slot < previousDefaults.pages.length) {
+        continue;
+      }
+      final at = slots.indexWhere((s) => s > slot);
+      final index = at < 0 ? pages.length : at;
+      pages.insert(index, refreshed.pages[slot].withId(_newPageId()));
+      slots.insert(index, slot);
+    }
+    if (pages.isEmpty) {
+      // Every page fell outside the new period: start from the template.
+      pages.addAll(refreshed.pages);
     }
     _pushUndo(value);
     _project = value.copyWith(
@@ -618,6 +654,7 @@ class CalendarStudioController extends ChangeNotifier {
     if (_undo.isEmpty) return;
     _redo.add(_project!);
     _project = _undo.removeLast();
+    _clampPage();
     notifyListeners();
     _scheduleSave();
   }
@@ -626,6 +663,89 @@ class CalendarStudioController extends ChangeNotifier {
     if (_redo.isEmpty) return;
     _undo.add(_project!);
     _project = _redo.removeLast();
+    _clampPage();
+    notifyListeners();
+    _scheduleSave();
+  }
+
+  // Undoing a page add or redoing a delete changes the page count.
+  void _clampPage() {
+    final count = _project!.pages.length;
+    if (pageIndex >= count) {
+      pageIndex = count - 1;
+      selectedBlockId = null;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Pages
+  // ---------------------------------------------------------------------------
+
+  static int _pageIdCounter = 0;
+
+  String _newPageId() =>
+      'page-${DateTime.now().microsecondsSinceEpoch}-${_pageIdCounter++}';
+
+  /// Adds a copy of the page at [index] right after it and shows the copy.
+  /// It covers the same month, so it suits an extra photo page or a second
+  /// design for that month.
+  void duplicatePage(int index) {
+    final value = _project;
+    if (value == null || index < 0 || index >= value.pages.length) return;
+    _pushUndo(value);
+    final copy = value.pages[index].withId(_newPageId());
+    _project = value.copyWith(
+      pages: [...value.pages]..insert(index + 1, copy),
+      updatedAt: configuration.now?.call() ?? DateTime.now(),
+    );
+    pageIndex = index + 1;
+    selectedBlockId = null;
+    notifyListeners();
+    _scheduleSave();
+  }
+
+  /// Moves the page at [from] to [to] (both indexes in the current list);
+  /// the moved page stays on screen.
+  void movePage(int from, int to) {
+    final value = _project;
+    if (value == null) return;
+    final count = value.pages.length;
+    if (from < 0 || from >= count) return;
+    final target = to.clamp(0, count - 1);
+    if (target == from) return;
+    _pushUndo(value);
+    final pages = [...value.pages];
+    final page = pages.removeAt(from);
+    pages.insert(target, page);
+    final current = value.pages[pageIndex];
+    _project = value.copyWith(
+      pages: pages,
+      updatedAt: configuration.now?.call() ?? DateTime.now(),
+    );
+    pageIndex = pages.indexOf(current);
+    notifyListeners();
+    _scheduleSave();
+  }
+
+  /// Whether the page at [index] can be deleted: a project keeps at least
+  /// one page.
+  bool canDeletePage(int index) =>
+      _project != null && _project!.pages.length > 1;
+
+  /// Deletes the page at [index]. Undo brings it back.
+  void deletePage(int index) {
+    final value = _project;
+    if (value == null || !canDeletePage(index)) return;
+    if (index < 0 || index >= value.pages.length) return;
+    _pushUndo(value);
+    _project = value.copyWith(
+      pages: [...value.pages]..removeAt(index),
+      updatedAt: configuration.now?.call() ?? DateTime.now(),
+    );
+    if (pageIndex > index || pageIndex >= _project!.pages.length) {
+      pageIndex = (pageIndex - 1).clamp(0, _project!.pages.length - 1);
+    }
+    selectedBlockId = null;
     notifyListeners();
     _scheduleSave();
   }
