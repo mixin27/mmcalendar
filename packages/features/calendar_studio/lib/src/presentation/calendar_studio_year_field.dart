@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' show showAppSheet;
 
 /// Years Studio offers: the range the app's month picker uses and the
 /// calendar data covers with holidays.
@@ -21,12 +22,11 @@ class CalendarStudioYearField extends StatelessWidget {
   final String label;
 
   Future<void> _pick(BuildContext context) async {
-    final picked = await showModalBottomSheet<int>(
+    final picked = await showAppSheet<int>(
       context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (sheetContext) => FractionallySizedBox(
-        heightFactor: .7,
+      title: label,
+      builder: (sheetContext) => SizedBox(
+        height: MediaQuery.sizeOf(sheetContext).height * .6,
         child: _YearGrid(selected: year),
       ),
     );
@@ -90,10 +90,6 @@ class _YearGridState extends State<_YearGrid> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-          child: Text('Year', style: Theme.of(context).textTheme.titleLarge),
-        ),
-        Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
           child: Text(
             'Holiday data is most complete from 1950 on.',
@@ -141,4 +137,88 @@ class _YearGridState extends State<_YearGrid> {
       ],
     );
   }
+}
+
+/// A month field like [CalendarStudioYearField]: tapping it opens the twelve
+/// months as a grid in the app's sheet.
+class CalendarStudioMonthField extends StatelessWidget {
+  const CalendarStudioMonthField({
+    super.key,
+    required this.month,
+    required this.names,
+    required this.onChanged,
+    required this.label,
+  });
+
+  /// 1–12.
+  final int month;
+
+  /// Twelve month names, January first.
+  final List<String> names;
+  final ValueChanged<int> onChanged;
+  final String label;
+
+  Future<void> _pick(BuildContext context) async {
+    final picked = await showAppSheet<int>(
+      context: context,
+      title: label,
+      builder: (sheetContext) {
+        final scheme = Theme.of(sheetContext).colorScheme;
+        return GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 2.6,
+          children: [
+            for (var m = 1; m <= 12; m++)
+              Material(
+                color: m == month
+                    ? scheme.primary
+                    : scheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  key: ValueKey('calendar-studio-month-$m'),
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => Navigator.pop(sheetContext, m),
+                  child: Center(
+                    child: Text(
+                      names[m - 1],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: m == month
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: m == month ? scheme.onPrimary : null,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+    if (picked != null && picked != month) onChanged(picked);
+  }
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    key: const ValueKey('calendar-studio-month-field'),
+    borderRadius: BorderRadius.circular(4),
+    onTap: () => _pick(context),
+    child: InputDecorator(
+      decoration: InputDecoration(
+        labelText: label,
+        suffixIcon: const Icon(Icons.arrow_drop_down),
+      ),
+      child: Text(
+        names[month - 1],
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    ),
+  );
 }

@@ -162,6 +162,167 @@ Future<bool> showAppConfirm({
   return result ?? false;
 }
 
+/// Asks for one line of text (a name): an iOS alert with a text field in
+/// Clear, a Material dialog otherwise. Resolves to the trimmed text when
+/// [confirmLabel] was chosen and it isn't empty, else null.
+Future<String?> showAppPrompt({
+  required BuildContext context,
+  required String title,
+  String? message,
+  String initial = '',
+  String? placeholder,
+  required String confirmLabel,
+  String cancelLabel = 'Cancel',
+}) async {
+  final t = context.tokens;
+  final controller = TextEditingController(text: initial)
+    ..selection = TextSelection(baseOffset: 0, extentOffset: initial.length);
+  void done(BuildContext dialogContext) {
+    final text = controller.text.trim();
+    Navigator.of(dialogContext).pop(text.isEmpty ? null : text);
+  }
+
+  final result = t.isClear
+      ? await showCupertinoDialog<String>(
+          context: context,
+          barrierDismissible: true,
+          builder: (dialogContext) => CupertinoAlertDialog(
+            title: Text(title),
+            content: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (message != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Text(message),
+                    ),
+                  CupertinoTextField(
+                    controller: controller,
+                    autofocus: true,
+                    placeholder: placeholder,
+                    textCapitalization: TextCapitalization.sentences,
+                    onSubmitted: (_) => done(dialogContext),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(cancelLabel),
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                onPressed: () => done(dialogContext),
+                child: Text(confirmLabel),
+              ),
+            ],
+          ),
+        )
+      : await showDialog<String>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: Text(title),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (message != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(message),
+                  ),
+                TextField(
+                  controller: controller,
+                  autofocus: true,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(hintText: placeholder),
+                  onSubmitted: (_) => done(dialogContext),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(cancelLabel),
+              ),
+              TextButton(
+                onPressed: () => done(dialogContext),
+                child: Text(confirmLabel),
+              ),
+            ],
+          ),
+        );
+  WidgetsBinding.instance.addPostFrameCallback((_) => controller.dispose());
+  return result;
+}
+
+/// A list of actions from the bottom: an iOS action sheet in Clear, a
+/// Material bottom sheet list otherwise. Runs the chosen action.
+Future<void> showAppActionSheet({
+  required BuildContext context,
+  String? title,
+  String? message,
+  required List<AppMenuAction> actions,
+  String cancelLabel = 'Cancel',
+}) async {
+  final t = context.tokens;
+  final chosen = t.isClear
+      ? await showCupertinoModalPopup<AppMenuAction>(
+          context: context,
+          builder: (sheetContext) => CupertinoActionSheet(
+            title: title == null ? null : Text(title),
+            message: message == null ? null : Text(message),
+            actions: [
+              for (final action in actions)
+                CupertinoActionSheetAction(
+                  isDestructiveAction: action.destructive,
+                  onPressed: () => Navigator.of(sheetContext).pop(action),
+                  child: Text(action.label),
+                ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              isDefaultAction: true,
+              onPressed: () => Navigator.of(sheetContext).pop(),
+              child: Text(cancelLabel),
+            ),
+          ),
+        )
+      : await showModalBottomSheet<AppMenuAction>(
+          context: context,
+          showDragHandle: true,
+          useSafeArea: true,
+          builder: (sheetContext) => SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (title != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                    child: Text(
+                      title,
+                      style: Theme.of(sheetContext).textTheme.titleMedium,
+                    ),
+                  ),
+                for (final action in actions)
+                  ListTile(
+                    leading: action.icon == null ? null : Icon(action.icon),
+                    iconColor: action.destructive ? t.holiday : null,
+                    textColor: action.destructive ? t.holiday : null,
+                    title: Text(action.label),
+                    onTap: () => Navigator.of(sheetContext).pop(action),
+                  ),
+              ],
+            ),
+          ),
+        );
+  chosen?.onSelected();
+}
+
 /// One choice in an [AppMenuButton].
 class AppMenuAction {
   const AppMenuAction({

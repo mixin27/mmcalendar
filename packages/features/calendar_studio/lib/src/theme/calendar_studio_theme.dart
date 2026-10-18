@@ -375,6 +375,9 @@ abstract final class CalendarStudioTheme {
         modalBackgroundColor: tokens.surface,
         modalBarrierColor: tokens.scrim,
         showDragHandle: true,
+        // Clear: the iOS grabber, like the app's own sheets.
+        dragHandleSize: clear ? const Size(36, 5) : null,
+        dragHandleColor: clear ? tokens.ink3.withValues(alpha: .5) : null,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(clear ? 14 : 28),

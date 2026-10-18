@@ -21,6 +21,8 @@ dependencies:
     path: ../../shared/moon
   shared_motifs:
     path: ../../shared/motifs
+  shared_ui_kit:
+    path: ../../shared/ui_kit
   file_picker: ^10.3.2
   image: ^4.5.4
 

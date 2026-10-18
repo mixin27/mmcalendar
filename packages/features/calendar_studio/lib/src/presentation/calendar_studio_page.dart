@@ -1,9 +1,20 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/cupertino.dart'
+    show CupertinoActivityIndicator, CupertinoAlertDialog;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart'
+    show
+        AppMenuAction,
+        AppMenuButton,
+        AppStyle,
+        AppTokens,
+        showAppConfirm,
+        showAppActionSheet,
+        showAppPrompt;
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
@@ -69,12 +80,25 @@ class _CalendarStudioThemeState extends State<CalendarStudioWorkspace> {
       _themeTokens = tokens;
       _themeBrightness = brightness;
       _themeChrome = widget.configuration.chrome;
-      _theme = CalendarStudioTheme.fromTokens(
+      final base = CalendarStudioTheme.fromTokens(
         tokens,
         brightness: brightness,
         chrome: widget.configuration.chrome,
         fontFamily: widget.configuration.fontFamily,
         fontFamilyFallback: widget.configuration.fontFamilyFallback,
+      );
+      // The app's menus, sheets and alerts read AppTokens; give them Studio's
+      // colours in the app style Studio was opened with.
+      _theme = base.copyWith(
+        extensions: [
+          ...base.extensions.values,
+          AppTokens.resolve(
+            style: widget.configuration.chrome == CalendarStudioChrome.clear
+                ? AppStyle.clear
+                : AppStyle.material,
+            scheme: base.colorScheme,
+          ),
+        ],
       );
     }
     return Theme(
@@ -647,16 +671,48 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     );
   }
 
-  Widget _projectMenu(CalendarStudioProject project) => PopupMenuButton<String>(
-    onSelected: (value) => _projectAction(value, project),
-    itemBuilder: (_) => const [
-      PopupMenuItem(value: 'rename', child: Text('Rename')),
-      PopupMenuItem(value: 'duplicate', child: Text('Duplicate')),
-      PopupMenuItem(value: 'export', child: Text('Export…')),
-      PopupMenuItem(value: 'save-file', child: Text('Save project file')),
-      PopupMenuItem(value: 'share-file', child: Text('Share project file')),
-      PopupMenuDivider(),
-      PopupMenuItem(value: 'delete', child: Text('Delete…')),
+  /// The app's menu: an iOS pull-down in Clear, a Material menu otherwise.
+  Widget _projectMenu(CalendarStudioProject project) => AppMenuButton(
+    key: ValueKey('calendar-studio-project-menu-${project.id}'),
+    tooltip: 'Project actions',
+    groups: [
+      [
+        AppMenuAction(
+          label: 'Rename',
+          icon: Icons.edit_outlined,
+          onSelected: () => _projectAction('rename', project),
+        ),
+        AppMenuAction(
+          label: 'Duplicate',
+          icon: Icons.copy_outlined,
+          onSelected: () => _projectAction('duplicate', project),
+        ),
+      ],
+      [
+        AppMenuAction(
+          label: 'Export…',
+          icon: Icons.ios_share_outlined,
+          onSelected: () => _projectAction('export', project),
+        ),
+        AppMenuAction(
+          label: 'Save project file',
+          icon: Icons.download_outlined,
+          onSelected: () => _projectAction('save-file', project),
+        ),
+        AppMenuAction(
+          label: 'Share project file',
+          icon: Icons.share_outlined,
+          onSelected: () => _projectAction('share-file', project),
+        ),
+      ],
+      [
+        AppMenuAction(
+          label: 'Delete…',
+          icon: Icons.delete_outline,
+          destructive: true,
+          onSelected: () => _projectAction('delete', project),
+        ),
+      ],
     ],
   );
 
@@ -940,15 +996,14 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   }
 
   Future<void> _renameProject(CalendarStudioProject project) async {
-    final name = await showDialog<String>(
+    final name = await showAppPrompt(
       context: context,
-      builder: (_) => _RenameDialog(
-        title: 'Rename project',
-        label: 'Project name',
-        initial: project.name,
-      ),
+      title: 'Rename project',
+      initial: project.name,
+      placeholder: 'Project name',
+      confirmLabel: 'Rename',
     );
-    if (name == null || name.isEmpty || name == project.name) return;
+    if (name == null || name == project.name) return;
     await widget.configuration.projects.save(
       project.copyWith(name: name, updatedAt: DateTime.now()),
     );
@@ -1061,27 +1116,16 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   }
 
   Future<void> _deleteProject(CalendarStudioProject project) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirm(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('Delete “${project.name}”?'),
-        content: Text(
+      title: 'Delete “${project.name}”?',
+      message:
           'This removes the project and its ${project.pages.length} pages from this device. '
           'Images used only by this project are removed too. Files you already exported are not affected.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Delete',
+      destructive: true,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     await widget.configuration.projects.delete(project.id);
     await _deleteUnusedAssets();
     await _load();
@@ -1112,18 +1156,36 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   Widget _templateMenu(
     CalendarStudioUserTemplate template, {
     bool compact = false,
-  }) => PopupMenuButton<String>(
-    key: ValueKey('calendar-studio-template-menu-${template.id}'),
-    tooltip: 'Template actions',
-    padding: compact ? EdgeInsets.zero : const EdgeInsets.all(8),
-    iconSize: compact ? 18 : 24,
-    onSelected: (value) => _templateAction(value, template),
-    itemBuilder: (_) => const [
-      PopupMenuItem(value: 'share', child: Text('Share')),
-      PopupMenuItem(value: 'rename', child: Text('Rename')),
-      PopupMenuDivider(),
-      PopupMenuItem(value: 'delete', child: Text('Delete…')),
-    ],
+  }) => SizedBox.square(
+    dimension: compact ? 32 : 48,
+    child: FittedBox(
+      child: AppMenuButton(
+        key: ValueKey('calendar-studio-template-menu-${template.id}'),
+        tooltip: 'Template actions',
+        groups: [
+          [
+            AppMenuAction(
+              label: 'Share',
+              icon: Icons.share_outlined,
+              onSelected: () => _templateAction('share', template),
+            ),
+            AppMenuAction(
+              label: 'Rename',
+              icon: Icons.edit_outlined,
+              onSelected: () => _templateAction('rename', template),
+            ),
+          ],
+          [
+            AppMenuAction(
+              label: 'Delete…',
+              icon: Icons.delete_outline,
+              destructive: true,
+              onSelected: () => _templateAction('delete', template),
+            ),
+          ],
+        ],
+      ),
+    ),
   );
 
   Future<void> _templateAction(
@@ -1262,15 +1324,14 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   }
 
   Future<void> _renameTemplate(CalendarStudioUserTemplate template) async {
-    final name = await showDialog<String>(
+    final name = await showAppPrompt(
       context: context,
-      builder: (_) => _RenameDialog(
-        title: 'Rename template',
-        label: 'Template name',
-        initial: template.name,
-      ),
+      title: 'Rename template',
+      initial: template.name,
+      placeholder: 'Template name',
+      confirmLabel: 'Rename',
     );
-    if (name == null || name.isEmpty || name == template.name) return;
+    if (name == null || name == template.name) return;
     await widget.configuration.templates?.save(
       template.copyWith(
         name: name,
@@ -1282,26 +1343,14 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   }
 
   Future<void> _deleteTemplate(CalendarStudioUserTemplate template) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirm(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('Delete “${template.name}”?'),
-        content: const Text(
-          'Calendars you already made from it keep their design.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete “${template.name}”?',
+      message: 'Calendars you already made from it keep their design.',
+      confirmLabel: 'Delete',
+      destructive: true,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     await widget.configuration.templates?.delete(template.id);
     await _deleteUnusedAssets();
     await _loadTemplates();
@@ -2013,19 +2062,12 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                           ),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: DropdownButtonFormField<int>(
-                              isExpanded: true,
-                              initialValue: draft.month,
-                              decoration: const InputDecoration(
-                                labelText: 'From',
-                              ),
-                              items: List.generate(
-                                12,
-                                (index) => DropdownMenuItem(
-                                  value: index + 1,
-                                  child: Text(_monthName(index + 1)),
-                                ),
-                              ),
+                            child: CalendarStudioMonthField(
+                              label: 'From',
+                              month: draft.month,
+                              names: [
+                                for (var m = 1; m <= 12; m++) _monthName(m),
+                              ],
                               onChanged: (value) => setSheet(
                                 () => draft = draft.copyWith(month: value),
                               ),
@@ -2254,20 +2296,13 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: DropdownButtonFormField<int>(
-                            isExpanded: true,
+                          child: CalendarStudioMonthField(
                             key: ValueKey('settings-month-${draft.month}'),
-                            initialValue: draft.month,
-                            decoration: const InputDecoration(
-                              labelText: 'Starts from',
-                            ),
-                            items: List.generate(
-                              12,
-                              (index) => DropdownMenuItem(
-                                value: index + 1,
-                                child: Text(_monthName(index + 1)),
-                              ),
-                            ),
+                            label: 'Starts from',
+                            month: draft.month,
+                            names: [
+                              for (var m = 1; m <= 12; m++) _monthName(m),
+                            ],
                             onChanged: (value) => setSheet(
                               () => draft = draft.copyWith(month: value),
                             ),
@@ -4626,58 +4661,31 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   ) async {
     if (sources.isEmpty) return null;
     if (sources.length == 1) return sources.single;
-    return showModalBottomSheet<CalendarStudioImageSource>(
+    CalendarStudioImageSource? chosen;
+    await showAppActionSheet(
       context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(24, 0, 24, 8),
-              child: Text(
-                'Choose image',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              ),
-            ),
-            for (final source in sources)
-              ListTile(
-                minTileHeight: 56,
-                leading: Icon(switch (source) {
-                  CalendarStudioImageSource.gallery =>
-                    Icons.photo_library_outlined,
-                  CalendarStudioImageSource.camera =>
-                    Icons.photo_camera_outlined,
-                  CalendarStudioImageSource.files => Icons.folder_outlined,
-                }),
-                title: Text(switch (source) {
-                  CalendarStudioImageSource.gallery => 'Gallery',
-                  CalendarStudioImageSource.camera => 'Camera',
-                  CalendarStudioImageSource.files => 'Files',
-                }),
-                subtitle: Text(switch (source) {
-                  CalendarStudioImageSource.gallery => 'Photos on this device',
-                  CalendarStudioImageSource.camera => 'Take a new photo',
-                  CalendarStudioImageSource.files => 'Browse files',
-                }),
-                onTap: () => Navigator.pop(context, source),
-              ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: Text(
-                "A copy is kept inside the app, so moving or deleting the "
-                "original won't change your calendar.",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: CalendarStudioTokens.of(context).ink3,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      title: 'Choose image',
+      message:
+          "A copy is kept inside the app, so moving or deleting the original "
+          "won't change your calendar.",
+      actions: [
+        for (final source in sources)
+          AppMenuAction(
+            label: switch (source) {
+              CalendarStudioImageSource.gallery => 'Gallery',
+              CalendarStudioImageSource.camera => 'Camera',
+              CalendarStudioImageSource.files => 'Files',
+            },
+            icon: switch (source) {
+              CalendarStudioImageSource.gallery => Icons.photo_library_outlined,
+              CalendarStudioImageSource.camera => Icons.photo_camera_outlined,
+              CalendarStudioImageSource.files => Icons.folder_outlined,
+            },
+            onSelected: () => chosen = source,
+          ),
+      ],
     );
+    return chosen;
   }
 
   Future<void> _pickAsset(
@@ -4919,20 +4927,30 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       showDialog<void>(
         context: context,
         barrierDismissible: false,
-        builder: (_) => const PopScope(
+        builder: (dialogContext) => PopScope(
           canPop: false,
-          child: AlertDialog(
-            content: Row(
-              children: [
-                SizedBox.square(
-                  dimension: 24,
-                  child: CircularProgressIndicator(strokeWidth: 3),
+          child: widget.configuration.chrome == CalendarStudioChrome.clear
+              ? const CupertinoAlertDialog(
+                  content: Column(
+                    children: [
+                      CupertinoActivityIndicator(radius: 13),
+                      SizedBox(height: 12),
+                      Text('Removing background…'),
+                    ],
+                  ),
+                )
+              : const AlertDialog(
+                  content: Row(
+                    children: [
+                      SizedBox.square(
+                        dimension: 24,
+                        child: CircularProgressIndicator(strokeWidth: 3),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(child: Text('Removing background…')),
+                    ],
+                  ),
                 ),
-                SizedBox(width: 16),
-                Expanded(child: Text('Removing background…')),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -6136,52 +6154,6 @@ class _ImportSummary extends StatelessWidget {
 
 /// Asks for a new name. Owns its text controller, so it is disposed only
 /// after the dialog has finished closing.
-class _RenameDialog extends StatefulWidget {
-  const _RenameDialog({
-    required this.title,
-    required this.label,
-    required this.initial,
-  });
-  final String title;
-  final String label;
-  final String initial;
-
-  @override
-  State<_RenameDialog> createState() => _RenameDialogState();
-}
-
-class _RenameDialogState extends State<_RenameDialog> {
-  late final _field = TextEditingController(text: widget.initial);
-
-  @override
-  void dispose() {
-    _field.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(widget.title),
-    content: TextField(
-      controller: _field,
-      autofocus: true,
-      textInputAction: TextInputAction.done,
-      decoration: InputDecoration(labelText: widget.label),
-      onSubmitted: (value) => Navigator.pop(context, value.trim()),
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
-      ),
-      FilledButton(
-        onPressed: () => Navigator.pop(context, _field.text.trim()),
-        child: const Text('Rename'),
-      ),
-    ],
-  );
-}
-
 /// Swipeable sample months with page dots (preset detail).
 class _PresetCarousel extends StatefulWidget {
   const _PresetCarousel({required this.children});

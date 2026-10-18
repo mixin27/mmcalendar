@@ -160,7 +160,7 @@ void main() {
       ),
       'Rose wall',
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Rename'));
+    await tester.tap(find.widgetWithText(TextButton, 'Rename'));
     await tester.pumpAndSettle();
     expect(templates.values.values.single.name, 'Rose wall');
     expect(find.text('Rose wall'), findsOneWidget);
@@ -169,7 +169,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete…'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(TextButton, 'Delete'));
     await tester.pumpAndSettle();
     expect(templates.values, isEmpty);
     expect(find.text('MY TEMPLATES'), findsNothing);
