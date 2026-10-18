@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import 'calendar_studio_project_theme.dart';
 import 'calendar_studio_types.dart';
 
 class CalendarStudioBlock extends Equatable {
@@ -131,6 +132,7 @@ class CalendarStudioProject extends Equatable {
     this.schemaVersion = 3,
     this.defaultExportPreset = CalendarStudioExportPreset.a4Pdf,
     this.lastExport,
+    this.theme,
   });
   final String id;
   final String name;
@@ -142,6 +144,10 @@ class CalendarStudioProject extends Equatable {
   final DateTime updatedAt;
   final CalendarStudioExportPreset defaultExportPreset;
   final CalendarStudioExportRecord? lastExport;
+
+  /// The stored theme; null for projects made before themes, which use
+  /// [CalendarStudioProjectThemes.of] to derive one.
+  final CalendarStudioProjectTheme? theme;
   CalendarStudioProject copyWith({
     String? name,
     CalendarStudioSource? source,
@@ -149,6 +155,7 @@ class CalendarStudioProject extends Equatable {
     DateTime? updatedAt,
     CalendarStudioExportPreset? defaultExportPreset,
     CalendarStudioExportRecord? lastExport,
+    CalendarStudioProjectTheme? theme,
   }) => CalendarStudioProject(
     id: id,
     name: name ?? this.name,
@@ -160,6 +167,7 @@ class CalendarStudioProject extends Equatable {
     schemaVersion: schemaVersion,
     defaultExportPreset: defaultExportPreset ?? this.defaultExportPreset,
     lastExport: lastExport ?? this.lastExport,
+    theme: theme ?? this.theme,
   );
   @override
   List<Object?> get props => [
@@ -173,5 +181,6 @@ class CalendarStudioProject extends Equatable {
     updatedAt,
     defaultExportPreset,
     lastExport,
+    theme,
   ];
 }

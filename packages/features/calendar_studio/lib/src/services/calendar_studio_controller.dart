@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../models/calendar_studio_document.dart';
+import '../models/calendar_studio_project_theme.dart';
 import '../models/calendar_studio_types.dart';
 import '../models/calendar_studio_user_template.dart';
 import '../templates/calendar_studio_templates.dart';
@@ -109,6 +110,28 @@ class CalendarStudioController extends ChangeNotifier {
       source: source,
       updatedAt: configuration.now?.call() ?? DateTime.now(),
     );
+    notifyListeners();
+    _scheduleSave();
+  }
+
+  /// The theme the project uses now (stored, or derived for older projects).
+  CalendarStudioProjectTheme? get theme {
+    final value = _project;
+    return value == null ? null : CalendarStudioProjectThemes.of(value);
+  }
+
+  /// Recolours every page from the current theme to [next] as one undo step.
+  void applyTheme(CalendarStudioProjectTheme next) {
+    final value = _project;
+    if (value == null) return;
+    final current = CalendarStudioProjectThemes.of(value);
+    if (current == next && value.theme == next) return;
+    _pushUndo(value);
+    _project = CalendarStudioRetheme.apply(
+      value,
+      current,
+      next,
+    ).copyWith(updatedAt: configuration.now?.call() ?? DateTime.now());
     notifyListeners();
     _scheduleSave();
   }

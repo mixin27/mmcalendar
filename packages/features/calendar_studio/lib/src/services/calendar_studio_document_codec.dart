@@ -1,4 +1,5 @@
 import '../models/calendar_studio_document.dart';
+import '../models/calendar_studio_project_theme.dart';
 import '../models/calendar_studio_types.dart';
 
 /// Versioned JSON representation used by storage adapters and future migrations.
@@ -20,6 +21,7 @@ abstract final class CalendarStudioDocumentCodec {
         'pageCount': record.pageCount,
         'fileName': record.fileName,
       },
+    if (project.theme case final theme?) 'theme': theme.toJson(),
     'pages': project.pages.map(_page).toList(),
   };
 
@@ -84,6 +86,7 @@ abstract final class CalendarStudioDocumentCodec {
         ),
         defaultExportPreset: _decodePreset(value['defaultExportPreset']),
         lastExport: _decodeRecord(value['lastExport']),
+        theme: CalendarStudioProjectTheme.fromJson(value['theme']),
       );
 
   static Map<String, Object?> _source(CalendarStudioSource source) => {
