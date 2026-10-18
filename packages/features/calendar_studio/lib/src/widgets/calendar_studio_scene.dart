@@ -496,17 +496,19 @@ class CalendarStudioScene extends StatelessWidget {
     ),
     CalendarStudioBlockType.text => _TextBlock(block: block),
     CalendarStudioBlockType.shape => _ShapeBlock(block: block),
-    CalendarStudioBlockType.image ||
-    CalendarStudioBlockType.logo => _AssetImageBlock(
-      assetId: block.content['assetId'] as String?,
-      assetStore: assetStore,
-      resolvedBytes: resolvedAssets[block.content['assetId']],
-      fit: switch (block.style['imageFit'] as String? ?? 'crop') {
-        'fill' => BoxFit.fill,
-        'fit' => BoxFit.contain,
-        _ => BoxFit.cover,
-      },
-      opacity: (block.style['opacity'] as num?)?.toDouble() ?? 1,
+    CalendarStudioBlockType.image || CalendarStudioBlockType.logo => _framed(
+      block,
+      _AssetImageBlock(
+        assetId: block.content['assetId'] as String?,
+        assetStore: assetStore,
+        resolvedBytes: resolvedAssets[block.content['assetId']],
+        fit: switch (block.style['imageFit'] as String? ?? 'crop') {
+          'fill' => BoxFit.fill,
+          'fit' => BoxFit.contain,
+          _ => BoxFit.cover,
+        },
+        opacity: (block.style['opacity'] as num?)?.toDouble() ?? 1,
+      ),
     ),
     CalendarStudioBlockType.eventList =>
       block.content.containsKey('title') ||
@@ -528,6 +530,30 @@ class CalendarStudioScene extends StatelessWidget {
           : _TemplateLegend(block: block),
     CalendarStudioBlockType.decoration => _TemplateDecoration(block: block),
   };
+
+  /// Rounded corners and a border for images (`cornerRadius`,
+  /// `borderWidth`, `borderColor`, in design pixels).
+  static Widget _framed(CalendarStudioBlock block, Widget image) {
+    final radius = (block.style['cornerRadius'] as num?)?.toDouble() ?? 0;
+    final border = (block.style['borderWidth'] as num?)?.toDouble() ?? 0;
+    if (radius <= 0 && border <= 0) return image;
+    final shape = BorderRadius.circular(radius);
+    return DecoratedBox(
+      position: DecorationPosition.foreground,
+      decoration: BoxDecoration(
+        borderRadius: shape,
+        border: border <= 0
+            ? null
+            : Border.all(
+                color:
+                    _color(block.style['borderColor']) ??
+                    const Color(0xFFFFFFFF),
+                width: border,
+              ),
+      ),
+      child: ClipRRect(borderRadius: shape, child: image),
+    );
+  }
 
   List<CalendarStudioDayData>? _resolvedDaysFor(CalendarStudioBlock block) {
     final month = block.content['month'] as int? ?? page.month;

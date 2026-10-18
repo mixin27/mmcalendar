@@ -159,7 +159,13 @@ void main() {
     await tester.longPress(_blockFinder(text));
     await tester.pumpAndSettle();
     expect(_scene(tester).selectedBlockIds, {grid.id, text});
-    expect(find.text('2 selected'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('calendar-studio-contextual-bar')),
+        matching: find.text('2 selected'),
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byKey(const ValueKey('calendar-studio-bar-align')));
     await tester.pumpAndSettle();

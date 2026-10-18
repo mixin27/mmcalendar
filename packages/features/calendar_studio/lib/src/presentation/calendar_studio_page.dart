@@ -39,6 +39,8 @@ import '../widgets/calendar_studio_scene.dart';
 import 'calendar_studio_export_flow.dart';
 import 'calendar_studio_strings.dart';
 import 'editor/calendar_studio_contextual_bar.dart';
+import 'editor/inspector/calendar_studio_inspector.dart';
+import 'editor/inspector/studio_inspector_host.dart';
 import 'calendar_studio_shimmer.dart';
 import 'calendar_studio_template_sheets.dart';
 import 'calendar_studio_year_field.dart';
@@ -414,8 +416,15 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
         .where((value) => value.id == _editingTextId)
         .firstOrNull;
     if (block == null) return;
+    // Typed text replaces a month binding, so it stays as written.
     controller.updateBlock(
-      block.copyWith(content: {...block.content, 'text': text}),
+      block.copyWith(
+        content: {
+          for (final entry in block.content.entries)
+            if (entry.key != CalendarStudioBindings.key) entry.key: entry.value,
+          'text': text,
+        },
+      ),
     );
   }
 
@@ -463,10 +472,8 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     ]);
   }
 
-  void _applyToAllPages() {
-    final block = controller.selectedBlocks.lastOrNull;
-    if (block == null) return;
-    final changed = controller.applyToAllPages(block);
+  void _applyToAllPages(CalendarStudioBlock block, {bool layout = false}) {
+    final changed = controller.applyToAllPages(block, layout: layout);
     final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
     if (changed == 0) {
       messenger.toast(StudioStrings.alreadyMatches);
@@ -482,7 +489,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   void _openInspector({int? tab}) {
     _endTextEdit();
     setState(() {
-      if (tab != null) calendarInspectorTab = tab;
+      calendarInspectorTab = tab ?? 0;
       _inspectorVisible = true;
     });
   }
@@ -3118,7 +3125,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
               align: controller.alignSelected,
               distribute: controller.distributeSelected,
               applyToAllPages: project.pages.length > 1
-                  ? _applyToAllPages
+                  ? () => _applyToAllPages(selection.last)
                   : null,
             ),
           ),
@@ -3368,816 +3375,62 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     );
   }
 
+  /// Colours picked in this session, newest first, offered in every colour
+  /// field.
+  final _recentColors = <int>[];
+
+  StudioInspectorHost _inspectorHost(CalendarStudioProject project) =>
+      StudioInspectorHost(
+        controller: controller,
+        theme: CalendarStudioProjectThemes.of(project),
+        recentColors: List.unmodifiable(_recentColors),
+        rememberColor: (color) {
+          _recentColors
+            ..remove(color)
+            ..insert(0, color);
+          if (_recentColors.length > 8) _recentColors.removeLast();
+        },
+        designSize: CalendarStudioScene.designSizeFor(
+          controller.currentPage.canvas,
+        ),
+        replaceImage: (block) => _pickAsset(block.type, replace: block),
+        revertImage: _revertImage,
+        editImage: widget.configuration.imageEditor == null ? null : _editImage,
+        removeBackground: _canRemoveBackground ? _removeBackground : null,
+        suggestText: _canSuggestText ? _suggestText : null,
+        textFieldRevision: _textFieldRevision,
+        editOnPage: _startTextEdit,
+        applyToAllPages: project.pages.length > 1
+            ? (block, {layout = false}) =>
+                  _applyToAllPages(block, layout: layout)
+            : null,
+      );
+
   Widget _inspector({ScrollController? scrollController, bool sheet = false}) {
-    final matches = controller.currentPage.blocks.where(
-      (block) => block.id == controller.selectedBlockId,
-    );
-    if (matches.isEmpty) {
-      return const Material(
-        child: Center(child: Text('Select a block to edit')),
+    final block = controller.selectedBlocks.lastOrNull;
+    if (block == null || controller.selectedBlockIds.length > 1) {
+      return Material(
+        child: Center(
+          child: Text(
+            block == null
+                ? 'Select a block to edit'
+                : StudioStrings.selected(controller.selectedBlockIds.length),
+          ),
+        ),
       );
     }
-    final block = matches.first;
-    return Material(
-      child: ListView(
-        controller: scrollController,
-        padding: EdgeInsets.fromLTRB(16, sheet ? 8 : 16, 16, 24),
-        children: [
-          if (sheet)
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: CalendarStudioTokens.of(context).ink3,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-          Row(
-            children: [
-              Icon(_icon(block.type)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      block.name,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    if (block.type == CalendarStudioBlockType.calendarGrid)
-                      Text(
-                        'Dates come from the app calendar',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: () => setState(() => _inspectorVisible = false),
-                icon: const Icon(Icons.keyboard_arrow_down),
-                tooltip: 'Close inspector',
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed:
-                    controller.saveState == CalendarStudioSaveState.saving
-                    ? null
-                    : controller.saveNow,
-                child: const Text('Save'),
-              ),
-              IconButton(
-                onPressed: controller.duplicateSelected,
-                icon: const Icon(Icons.copy_outlined),
-                tooltip: 'Duplicate',
-              ),
-              IconButton(
-                onPressed: () => controller.updateBlock(
-                  block.copyWith(locked: !block.locked),
-                ),
-                icon: Icon(
-                  block.locked ? Icons.lock_outline : Icons.lock_open_outlined,
-                ),
-                tooltip: block.locked ? 'Unlock' : 'Lock',
-              ),
-              IconButton(
-                onPressed: () => controller.updateBlock(
-                  block.copyWith(visible: !block.visible),
-                ),
-                icon: Icon(
-                  block.visible
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                ),
-                tooltip: block.visible ? 'Hide' : 'Show',
-              ),
-              IconButton(
-                onPressed: _deleteSelectedWithUndo,
-                color: CalendarStudioTokens.of(context).error,
-                icon: const Icon(Icons.delete_outline),
-                tooltip: 'Delete',
-              ),
-            ],
-          ),
-          const Divider(),
-          if (block.type == CalendarStudioBlockType.text) _textInspector(block),
-          if (block.type == CalendarStudioBlockType.shape)
-            _shapeInspector(block),
-          if (block.type == CalendarStudioBlockType.calendarGrid)
-            _calendarGridInspector(block),
-          if (block.type == CalendarStudioBlockType.image ||
-              block.type == CalendarStudioBlockType.logo)
-            _imageInspector(block),
-          if (block.type != CalendarStudioBlockType.calendarGrid) ...[
-            SwitchListTile(
-              value: block.locked,
-              onChanged: (value) =>
-                  controller.updateBlock(block.copyWith(locked: value)),
-              title: const Text('Lock layer'),
-            ),
-            SwitchListTile(
-              value: block.visible,
-              onChanged: (value) =>
-                  controller.updateBlock(block.copyWith(visible: value)),
-              title: const Text('Visible'),
-            ),
-            _layerOrderControls(),
-          ],
-        ],
-      ),
+    return CalendarStudioInspector(
+      key: ValueKey('calendar-studio-inspector-body-${block.id}'),
+      block: block,
+      host: _inspectorHost(controller.project!),
+      tab: calendarInspectorTab,
+      onTab: (value) => setState(() => calendarInspectorTab = value),
+      onClose: () => setState(() => _inspectorVisible = false),
+      onDelete: _deleteSelectedWithUndo,
+      scrollController: scrollController,
+      sheet: sheet,
     );
   }
-
-  Widget _imageInspector(CalendarStudioBlock block) {
-    final width = (block.content['pixelWidth'] as num?)?.toInt() ?? 0;
-    final height = (block.content['pixelHeight'] as num?)?.toInt() ?? 0;
-    final fit = block.style['imageFit'] as String? ?? 'crop';
-    final opacity = (block.style['opacity'] as num?)?.toDouble() ?? 1;
-    final requiredPixels = (block.bounds.width * 2480).clamp(1, 2480);
-    final dpi = width == 0 ? 0 : (width / requiredPixels * 300).round();
-    final goodQuality = dpi >= 240;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: CalendarStudioTokens.of(context).primaryContainer,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.image_outlined),
-          ),
-          title: Text(block.content['assetName'] as String? ?? 'Image'),
-          subtitle: Text('$width × $height px'),
-          trailing: OutlinedButton(
-            onPressed: () => _pickAsset(block.type, replace: block),
-            child: const Text('Replace'),
-          ),
-        ),
-        if (block.content['assetId'] != null &&
-            (widget.configuration.imageEditor != null ||
-                _canRemoveBackground ||
-                block.content['originalAssetId'] != null))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Wrap(
-              spacing: 10,
-              runSpacing: 8,
-              children: [
-                if (widget.configuration.imageEditor != null)
-                  FilledButton.tonalIcon(
-                    key: const ValueKey('calendar-studio-edit-image'),
-                    onPressed: () => _editImage(block),
-                    icon: const Icon(Icons.auto_fix_high_outlined),
-                    label: const Text('Edit image'),
-                  ),
-                if (_canRemoveBackground)
-                  FilledButton.tonalIcon(
-                    key: const ValueKey('calendar-studio-remove-background'),
-                    onPressed: () => _removeBackground(block),
-                    icon: const Icon(Icons.auto_awesome_outlined),
-                    label: const Text('Remove background'),
-                  ),
-                if (block.content['originalAssetId'] != null)
-                  OutlinedButton.icon(
-                    onPressed: () => _revertImage(block),
-                    icon: const Icon(Icons.restore),
-                    label: const Text('Revert to original'),
-                  ),
-              ],
-            ),
-          ),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: CalendarStudioTokens.of(context).surface2,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Print quality at A4',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-              Text(
-                width == 0
-                    ? 'Image required'
-                    : goodQuality
-                    ? '✓ Good · $dpi dpi'
-                    : 'Check · $dpi dpi',
-                style: TextStyle(
-                  color: goodQuality
-                      ? CalendarStudioTokens.of(context).ok
-                      : CalendarStudioTokens.of(context).warning,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            const SizedBox(width: 70, child: Text('Fit')),
-            Expanded(
-              child: SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'fill', label: Text('Fill')),
-                  ButtonSegment(value: 'fit', label: Text('Fit')),
-                  ButtonSegment(value: 'crop', label: Text('Crop')),
-                ],
-                selected: {fit},
-                onSelectionChanged: (value) => controller.updateBlock(
-                  block.copyWith(
-                    style: {...block.style, 'imageFit': value.first},
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            const SizedBox(width: 70, child: Text('Opacity')),
-            Expanded(
-              child: Slider(
-                value: opacity.clamp(0, 1),
-                onChangeStart: (_) => controller.beginBlockInteraction(),
-                onChangeEnd: (_) => controller.endBlockInteraction(),
-                onChanged: (value) => controller.updateBlockLive(
-                  block.copyWith(style: {...block.style, 'opacity': value}),
-                ),
-              ),
-            ),
-            SizedBox(width: 46, child: Text('${(opacity * 100).round()}%')),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _textInspector(CalendarStudioBlock block) {
-    final size = (block.style['fontSize'] as num?)?.toDouble() ?? 20;
-    final alignment = block.style['align'] as String? ?? 'left';
-    const colors = [0xFF0E6B5C, 0xFF15201D, 0xFFB8322A, 0xFFB98A25, 0xFFFFFFFF];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextFormField(
-          // Re-keyed when a suggestion is applied so the field shows it.
-          key: ValueKey('calendar-studio-text-${block.id}-$_textFieldRevision'),
-          initialValue: block.content['text'] as String? ?? '',
-          decoration: const InputDecoration(labelText: 'Text'),
-          onChanged: (value) => controller.updateBlock(
-            block.copyWith(content: {...block.content, 'text': value}),
-          ),
-        ),
-        if (_canSuggestText)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              key: const ValueKey('calendar-studio-suggest-text'),
-              onPressed: () => _suggestText(block),
-              icon: const Icon(Icons.auto_awesome_outlined),
-              label: const Text('Suggest text'),
-            ),
-          ),
-        const SizedBox(height: 12),
-        Text(
-          'Font · ${block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar'}',
-        ),
-        Text(
-          'ကခ Aa · Myanmar supported',
-          style: TextStyle(color: Theme.of(context).colorScheme.primary),
-        ),
-        Row(
-          children: [
-            const Text('Size'),
-            Expanded(
-              child: Slider(
-                value: size.clamp(10, 96),
-                min: 10,
-                max: 96,
-                divisions: 86,
-                label: size.round().toString(),
-                onChangeStart: (_) => controller.beginBlockInteraction(),
-                onChangeEnd: (_) => controller.endBlockInteraction(),
-                onChanged: (value) => controller.updateBlockLive(
-                  block.copyWith(style: {...block.style, 'fontSize': value}),
-                ),
-              ),
-            ),
-            Text('${size.round()}'),
-          ],
-        ),
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment(value: 'left', icon: Icon(Icons.format_align_left)),
-            ButtonSegment(
-              value: 'center',
-              icon: Icon(Icons.format_align_center),
-            ),
-            ButtonSegment(value: 'right', icon: Icon(Icons.format_align_right)),
-          ],
-          selected: {alignment},
-          onSelectionChanged: (value) => controller.updateBlock(
-            block.copyWith(style: {...block.style, 'align': value.first}),
-          ),
-        ),
-        const SizedBox(height: 12),
-        const Text('Colour'),
-        Wrap(
-          spacing: 10,
-          children: [
-            for (final color in colors)
-              InkWell(
-                onTap: () => controller.updateBlock(
-                  block.copyWith(style: {...block.style, 'color': color}),
-                ),
-                borderRadius: BorderRadius.circular(18),
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: Color(color),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: block.style['color'] == color
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).dividerColor,
-                      width: block.style['color'] == color ? 3 : 1,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _shapeInspector(CalendarStudioBlock block) {
-    const shapes = [
-      'rectangle',
-      'rounded',
-      'circle',
-      'oval',
-      'triangle',
-      'diamond',
-      'pentagon',
-      'hexagon',
-      'octagon',
-      'star',
-      'heart',
-      'arrow',
-      'line',
-    ];
-    const colors = [
-      0xFF0E6B5C,
-      0xFFD9A93A,
-      0xFFB8322A,
-      0xFF3F51B5,
-      0xFF151B19,
-      0xFFFFFFFF,
-    ];
-    final shape = block.content['shape'] as String? ?? 'rectangle';
-    final strokeWidth = (block.style['strokeWidth'] as num?)?.toDouble() ?? 0;
-    final opacity = (block.style['opacity'] as num?)?.toDouble() ?? 1;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Shape'),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final value in shapes)
-              ChoiceChip(
-                label: Text(value[0].toUpperCase() + value.substring(1)),
-                selected: shape == value,
-                onSelected: (_) => controller.updateBlock(
-                  block.copyWith(content: {...block.content, 'shape': value}),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        const Text('Fill colour'),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 10,
-          children: [
-            for (final color in colors)
-              InkWell(
-                onTap: () => controller.updateBlock(
-                  block.copyWith(style: {...block.style, 'color': color}),
-                ),
-                borderRadius: BorderRadius.circular(18),
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: Color(color),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: block.style['color'] == color
-                          ? CalendarStudioTokens.of(context).ink
-                          : CalendarStudioTokens.of(context).line,
-                      width: block.style['color'] == color ? 3 : 1,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        Row(
-          children: [
-            const Text('Outline'),
-            Expanded(
-              child: Slider(
-                min: 0,
-                max: 12,
-                divisions: 12,
-                value: strokeWidth.clamp(0, 12),
-                label: '${strokeWidth.round()} px',
-                onChangeStart: (_) => controller.beginBlockInteraction(),
-                onChangeEnd: (_) => controller.endBlockInteraction(),
-                onChanged: (value) => controller.updateBlockLive(
-                  block.copyWith(style: {...block.style, 'strokeWidth': value}),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const Text('Outline colour'),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 10,
-          children: [
-            for (final color in colors)
-              InkWell(
-                onTap: () => controller.updateBlock(
-                  block.copyWith(style: {...block.style, 'strokeColor': color}),
-                ),
-                child: Container(
-                  width: 26,
-                  height: 26,
-                  decoration: BoxDecoration(
-                    color: Color(color),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: block.style['strokeColor'] == color
-                          ? CalendarStudioTokens.of(context).ink
-                          : CalendarStudioTokens.of(context).line,
-                      width: block.style['strokeColor'] == color ? 3 : 1,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        Row(
-          children: [
-            const Text('Opacity'),
-            Expanded(
-              child: Slider(
-                min: .1,
-                max: 1,
-                divisions: 9,
-                value: opacity.clamp(.1, 1),
-                label: '${(opacity * 100).round()}%',
-                onChangeStart: (_) => controller.beginBlockInteraction(),
-                onChangeEnd: (_) => controller.endBlockInteraction(),
-                onChanged: (value) => controller.updateBlockLive(
-                  block.copyWith(style: {...block.style, 'opacity': value}),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _calendarGridInspector(CalendarStudioBlock block) {
-    final current = controller.project!.source;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SegmentedButton<int>(
-          segments: const [
-            ButtonSegment(value: 0, label: Text('Data')),
-            ButtonSegment(value: 1, label: Text('Style')),
-            ButtonSegment(value: 2, label: Text('Layout')),
-          ],
-          selected: {calendarInspectorTab},
-          onSelectionChanged: (value) =>
-              setState(() => calendarInspectorTab = value.first),
-        ),
-        const SizedBox(height: 12),
-        if (calendarInspectorTab == 0) _calendarDataInspector(current),
-        if (calendarInspectorTab == 1) _calendarStyleInspector(block),
-        if (calendarInspectorTab == 2) _calendarLayoutInspector(block),
-      ],
-    );
-  }
-
-  Widget _calendarDataInspector(CalendarStudioSource current) => Column(
-    children: [
-      _compactSwitch(
-        'Myanmar dates',
-        current.showMyanmarDate,
-        (value) =>
-            controller.updateSource(current.copyWith(showMyanmarDate: value)),
-      ),
-      _compactSwitch(
-        'Moon phases',
-        current.showMoonPhases,
-        (value) =>
-            controller.updateSource(current.copyWith(showMoonPhases: value)),
-      ),
-      _compactSwitch(
-        'Public holidays',
-        current.showHolidays,
-        (value) =>
-            controller.updateSource(current.copyWith(showHolidays: value)),
-      ),
-      _compactSwitch(
-        'Astrology days',
-        current.showAstrology,
-        (value) =>
-            controller.updateSource(current.copyWith(showAstrology: value)),
-      ),
-      _compactSwitch(
-        'My events',
-        current.showEvents,
-        (value) => controller.updateSource(current.copyWith(showEvents: value)),
-      ),
-      const SizedBox(height: 8),
-      Row(
-        children: [
-          const Expanded(child: Text('Week starts')),
-          SegmentedButton<bool>(
-            // Two short choices: the filled segment shows the pick; a check
-            // would squeeze "Sun" onto two lines.
-            showSelectedIcon: false,
-            segments: const [
-              ButtonSegment(value: false, label: Text('Sun')),
-              ButtonSegment(value: true, label: Text('Mon')),
-            ],
-            selected: {current.weekStartsMonday},
-            onSelectionChanged: (value) => controller.updateSource(
-              current.copyWith(weekStartsMonday: value.first),
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-
-  Widget _compactSwitch(
-    String label,
-    bool value,
-    ValueChanged<bool> onChanged,
-  ) => SwitchListTile(
-    dense: true,
-    contentPadding: EdgeInsets.zero,
-    visualDensity: VisualDensity.compact,
-    value: value,
-    onChanged: onChanged,
-    title: Text(label),
-  );
-
-  Widget _calendarStyleInspector(CalendarStudioBlock block) {
-    final gridLines = block.style['gridLines'] as String? ?? 'light';
-    final numberFont = block.style['numberFont'] as String? ?? 'sans';
-    final holidayColor =
-        block.style['holidayColor'] as int? ??
-        CalendarStudioTheme.holiday.toARGB32();
-    final rowHeight = (block.style['rowHeight'] as num?)?.toDouble() ?? 1;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Grid lines'),
-        const SizedBox(height: 6),
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment(value: 'none', label: Text('None')),
-            ButtonSegment(value: 'light', label: Text('Light')),
-            ButtonSegment(value: 'full', label: Text('Full')),
-          ],
-          selected: {gridLines},
-          onSelectionChanged: (value) => controller.updateBlock(
-            block.copyWith(style: {...block.style, 'gridLines': value.first}),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            const Expanded(child: Text('Number font')),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'serif', label: Text('Serif')),
-                ButtonSegment(value: 'sans', label: Text('Sans')),
-              ],
-              selected: {numberFont},
-              onSelectionChanged: (value) => controller.updateBlock(
-                block.copyWith(
-                  style: {...block.style, 'numberFont': value.first},
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            const Expanded(child: Text('Holiday colour')),
-            for (final color in const [
-              CalendarStudioTheme.holiday,
-              Color(0xFF278B5D),
-              Color(0xFFD79B22),
-            ])
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: InkWell(
-                  onTap: () => controller.updateBlock(
-                    block.copyWith(
-                      style: {...block.style, 'holidayColor': color.toARGB32()},
-                    ),
-                  ),
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: holidayColor == color.toARGB32()
-                            ? CalendarStudioTokens.of(context).ink
-                            : Colors.transparent,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        Row(
-          children: [
-            const Text('Row height'),
-            Expanded(
-              child: Slider(
-                min: .75,
-                max: 1.35,
-                divisions: 12,
-                value: rowHeight.clamp(.75, 1.35),
-                label: '${(rowHeight * 100).round()}%',
-                onChangeStart: (_) => controller.beginBlockInteraction(),
-                onChangeEnd: (_) => controller.endBlockInteraction(),
-                onChanged: (value) => controller.updateBlockLive(
-                  block.copyWith(style: {...block.style, 'rowHeight': value}),
-                ),
-              ),
-            ),
-            Text('${(rowHeight * 100).round()}%'),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _calendarLayoutInspector(CalendarStudioBlock block) {
-    final designSize = CalendarStudioScene.designSizeFor(
-      controller.currentPage.canvas,
-    );
-    final canvasWidth = designSize.width;
-    final canvasHeight = designSize.height;
-    final bounds = block.bounds;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GridView.count(
-          crossAxisCount: 2,
-          childAspectRatio: 3.15,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            _layoutField('X', bounds.left * canvasWidth, (value) {
-              controller.updateBlock(
-                block.copyWith(
-                  bounds: bounds.copyWith(
-                    left: (value / canvasWidth).clamp(0, 1 - bounds.width),
-                  ),
-                ),
-              );
-            }),
-            _layoutField('Y', bounds.top * canvasHeight, (value) {
-              controller.updateBlock(
-                block.copyWith(
-                  bounds: bounds.copyWith(
-                    top: (value / canvasHeight).clamp(0, 1 - bounds.height),
-                  ),
-                ),
-              );
-            }),
-            _layoutField('W', bounds.width * canvasWidth, (value) {
-              controller.updateBlock(
-                block.copyWith(
-                  bounds: bounds.copyWith(
-                    width: (value / canvasWidth).clamp(.06, 1 - bounds.left),
-                  ),
-                ),
-              );
-            }),
-            _layoutField('H', bounds.height * canvasHeight, (value) {
-              controller.updateBlock(
-                block.copyWith(
-                  bounds: bounds.copyWith(
-                    height: (value / canvasHeight).clamp(.04, 1 - bounds.top),
-                  ),
-                ),
-              );
-            }),
-          ],
-        ),
-        Row(
-          children: [
-            const Text('Rotation'),
-            Expanded(
-              child: Slider(
-                min: -3.141592653589793,
-                max: 3.141592653589793,
-                divisions: 72,
-                value: block.rotation.clamp(
-                  -3.141592653589793,
-                  3.141592653589793,
-                ),
-                label: '${(block.rotation * 180 / 3.141592653589793).round()}°',
-                onChangeStart: (_) => controller.beginBlockInteraction(),
-                onChangeEnd: (_) => controller.endBlockInteraction(),
-                onChanged: (value) =>
-                    controller.updateBlockLive(block.copyWith(rotation: value)),
-              ),
-            ),
-          ],
-        ),
-        const Text('Layer order'),
-        const SizedBox(height: 6),
-        _layerOrderControls(),
-      ],
-    );
-  }
-
-  Widget _layoutField(
-    String label,
-    double value,
-    ValueChanged<double> onSubmitted,
-  ) => TextFormField(
-    key: ValueKey('$label-${value.round()}'),
-    initialValue: value.round().toString(),
-    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-    decoration: InputDecoration(labelText: label, suffixText: 'px'),
-    onFieldSubmitted: (text) {
-      final number = double.tryParse(text);
-      if (number != null) onSubmitted(number);
-    },
-  );
-
-  Widget _layerOrderControls() => Row(
-    children: [
-      Expanded(
-        child: OutlinedButton.icon(
-          onPressed: () => controller.moveSelectedLayer(1),
-          icon: const Icon(Icons.flip_to_front_outlined),
-          label: const Text('Forward'),
-        ),
-      ),
-      const SizedBox(width: 8),
-      Expanded(
-        child: OutlinedButton.icon(
-          onPressed: () => controller.moveSelectedLayer(-1),
-          icon: const Icon(Icons.flip_to_back_outlined),
-          label: const Text('Back'),
-        ),
-      ),
-    ],
-  );
 
   void _updateBlockTransform(CalendarStudioBlock block) {
     if (_canvasPinching) return;
