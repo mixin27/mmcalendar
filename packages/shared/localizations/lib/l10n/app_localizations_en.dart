@@ -2374,4 +2374,140 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get whatsNewStudioAction => 'Open Studio';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingContinue => 'Continue';
+
+  @override
+  String get onboardingSetUp => 'Set up the app';
+
+  @override
+  String get onboardingNotNow => 'Not now';
+
+  @override
+  String get onboardingStart => 'Start';
+
+  @override
+  String onboardingStep(int step, int count) {
+    return 'Step $step of $count';
+  }
+
+  @override
+  String get onboardingWelcomeTitle => 'Welcome to Myanmar Calendar';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Myanmar and Western dates side by side, for every day of the year.';
+
+  @override
+  String get onboardingCalendarsTitle => 'Two calendars in one';
+
+  @override
+  String get onboardingCalendarsBody =>
+      'Every day shows its Myanmar date, moon phase and Sabbath, with astrology one tap away.';
+
+  @override
+  String get onboardingHolidaysTitle => 'Never miss a holiday';
+
+  @override
+  String get onboardingHolidaysBody =>
+      'Browse and search every holiday, add your own events, and get a reminder the evening before.';
+
+  @override
+  String get onboardingYoursTitle => 'Make it yours';
+
+  @override
+  String get onboardingYoursBody =>
+      'Choose colours and calendar themes, add home-screen widgets, and design printable calendars in Calendar Studio.';
+
+  @override
+  String get onboardingLanguagesTitle => 'Choose your languages';
+
+  @override
+  String get onboardingAppLanguage => 'App language';
+
+  @override
+  String get onboardingCalendarLanguageFooter =>
+      'Month names, holidays and moon phases use the calendar language.';
+
+  @override
+  String get onboardingLookTitle => 'Pick a look';
+
+  @override
+  String get onboardingThemeAutomatic => 'Automatic';
+
+  @override
+  String get onboardingThemeLight => 'Light';
+
+  @override
+  String get onboardingThemeDark => 'Dark';
+
+  @override
+  String get onboardingColour => 'Colour';
+
+  @override
+  String get onboardingColourFooter =>
+      'More colours and calendar themes are in Settings › Appearance.';
+
+  @override
+  String get onboardingPrivacyTitle => 'Your calendar stays on your phone';
+
+  @override
+  String get onboardingPrivacyBody =>
+      'Events and notes never leave your device. You can help improve the app by sharing anonymous data.';
+
+  @override
+  String get onboardingUsageStats => 'Usage statistics';
+
+  @override
+  String get onboardingUsageStatsSubtitle =>
+      'Which screens are used, never what\'s on them';
+
+  @override
+  String get onboardingCrashReports => 'Crash reports';
+
+  @override
+  String get onboardingCrashReportsSubtitle => 'Sent only when the app crashes';
+
+  @override
+  String get onboardingPrivacyFooter =>
+      'Change this any time in Settings › Privacy & Data.';
+
+  @override
+  String get onboardingNotificationsTitle => 'Reminders when they matter';
+
+  @override
+  String get onboardingEventReminders => 'Event reminders';
+
+  @override
+  String get onboardingEventRemindersSubtitle =>
+      'At the time you choose for each event';
+
+  @override
+  String get onboardingHolidayReminders => 'Holiday reminders';
+
+  @override
+  String get onboardingHolidayRemindersSubtitle =>
+      'The evening before holidays you follow';
+
+  @override
+  String get onboardingAllowNotifications => 'Allow notifications';
+
+  @override
+  String get onboardingDoneTitle => 'You\'re all set';
+
+  @override
+  String onboardingDoneToday(String date) {
+    return 'Today is $date.';
+  }
+
+  @override
+  String get onboardingWidgetTipTitle => 'Tip: add a widget';
+
+  @override
+  String get onboardingWidgetTipBody =>
+      'See the Myanmar date on your home screen. Touch and hold an empty spot, then add Myanmar Calendar.';
 }

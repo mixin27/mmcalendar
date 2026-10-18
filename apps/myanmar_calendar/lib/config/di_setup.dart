@@ -8,11 +8,11 @@ import 'package:get_it/get_it.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:holidays/holidays.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:onboarding/onboarding.dart';
 import 'package:whats_new/whats_new.dart';
 import 'package:integrations_app_update/integrations_app_update.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:integrations_firebase/integrations_firebase.dart';
-import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,6 +44,7 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   getIt.registerSingleton<WhatsNewStore>(
     WhatsNewStore(sharedPreferences, currentVersion: versionInfo.version),
   );
+  getIt.registerSingleton<OnboardingStore>(OnboardingStore(sharedPreferences));
   await removeCalendarGenerationData(sharedPreferences);
 
   // App icon switch support (Android/iOS method-channel implementation).
@@ -109,7 +110,6 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
     ),
   );
   await initHomeWidgetsDependencies();
-  await initializePromoDependencies();
 
   debugPrint('✅ All dependencies initialized');
 }

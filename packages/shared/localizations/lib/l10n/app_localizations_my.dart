@@ -2354,4 +2354,141 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get whatsNewStudioAction => 'Studio ဖွင့်ရန်';
+
+  @override
+  String get onboardingSkip => 'ကျော်ရန်';
+
+  @override
+  String get onboardingContinue => 'ဆက်ရန်';
+
+  @override
+  String get onboardingSetUp => 'အက်ပ်ကို ပြင်ဆင်ရန်';
+
+  @override
+  String get onboardingNotNow => 'နောက်မှ';
+
+  @override
+  String get onboardingStart => 'စတင်ရန်';
+
+  @override
+  String onboardingStep(int step, int count) {
+    return 'အဆင့် $count ခုအနက် $step';
+  }
+
+  @override
+  String get onboardingWelcomeTitle => 'မြန်မာ ပြက္ခဒိန်မှ ကြိုဆိုပါသည်';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'မြန်မာ ရက်စွဲနှင့် အင်္ဂလိပ် ရက်စွဲကို နေ့စဉ် ယှဉ်ကြည့်နိုင်ပါသည်။';
+
+  @override
+  String get onboardingCalendarsTitle => 'ပြက္ခဒိန် နှစ်ခု တစ်နေရာတည်း';
+
+  @override
+  String get onboardingCalendarsBody =>
+      'နေ့တိုင်းတွင် မြန်မာရက်စွဲ၊ လ၏ အနေအထားနှင့် ဥပုသ်နေ့ကို ပြပြီး ဗေဒင် အချက်အလက်များကို တစ်ချက်နှိပ်ရုံဖြင့် ကြည့်နိုင်သည်။';
+
+  @override
+  String get onboardingHolidaysTitle => 'ပိတ်ရက် မလွတ်စေရ';
+
+  @override
+  String get onboardingHolidaysBody =>
+      'ပိတ်ရက်အားလုံးကို ကြည့်ရှု ရှာဖွေနိုင်ပြီး ကိုယ်ပိုင် ပွဲစဉ်များ ထည့်ကာ အကြိုညနေတွင် သတိပေးချက် ရယူနိုင်သည်။';
+
+  @override
+  String get onboardingYoursTitle => 'ကိုယ်ပိုင်ပုံစံ ပြုလုပ်ပါ';
+
+  @override
+  String get onboardingYoursBody =>
+      'အရောင်နှင့် ပြက္ခဒိန်ပုံစံများ ရွေးချယ်ပြီး ပင်မစာမျက်နှာ ဝစ်ဂျက်များ ထည့်ကာ Calendar Studio တွင် ပုံနှိပ်ရန် ပြက္ခဒိန်များ ဒီဇိုင်းဆွဲနိုင်သည်။';
+
+  @override
+  String get onboardingLanguagesTitle => 'ဘာသာစကား ရွေးချယ်ပါ';
+
+  @override
+  String get onboardingAppLanguage => 'အက်ပ် ဘာသာစကား';
+
+  @override
+  String get onboardingCalendarLanguageFooter =>
+      'လအမည်များ၊ ပိတ်ရက်များနှင့် လ၏ အနေအထားများသည် ပြက္ခဒိန် ဘာသာစကားကို သုံးသည်။';
+
+  @override
+  String get onboardingLookTitle => 'အသွင်အပြင် ရွေးပါ';
+
+  @override
+  String get onboardingThemeAutomatic => 'အလိုအလျောက်';
+
+  @override
+  String get onboardingThemeLight => 'အလင်း';
+
+  @override
+  String get onboardingThemeDark => 'အမှောင်';
+
+  @override
+  String get onboardingColour => 'အရောင်';
+
+  @override
+  String get onboardingColourFooter =>
+      'အရောင်နှင့် ပြက္ခဒိန်ပုံစံ ပိုမိုသည် ဆက်တင် › အသွင်အပြင် တွင် ရှိသည်။';
+
+  @override
+  String get onboardingPrivacyTitle =>
+      'သင့်ပြက္ခဒိန်သည် သင့်ဖုန်းထဲတွင်သာ ရှိသည်';
+
+  @override
+  String get onboardingPrivacyBody =>
+      'ပွဲစဉ်များနှင့် မှတ်စုများသည် သင့်ဖုန်းမှ ဘယ်တော့မှ ထွက်မသွားပါ။ အမည်မဖော်သော အချက်အလက်များ မျှဝေ၍ အက်ပ်ကို တိုးတက်အောင် ကူညီနိုင်သည်။';
+
+  @override
+  String get onboardingUsageStats => 'အသုံးပြုမှု စာရင်း';
+
+  @override
+  String get onboardingUsageStatsSubtitle =>
+      'မည်သည့်စာမျက်နှာ သုံးသည်ကိုသာ၊ ပါဝင်သည့် အကြောင်းအရာ မဟုတ်ပါ';
+
+  @override
+  String get onboardingCrashReports => 'ပျက်ယွင်းမှု အစီရင်ခံစာ';
+
+  @override
+  String get onboardingCrashReportsSubtitle => 'အက်ပ် ပျက်သွားမှသာ ပို့သည်';
+
+  @override
+  String get onboardingPrivacyFooter =>
+      'ဆက်တင် › ကိုယ်ရေးလုံခြုံမှုနှင့် ဒေတာ တွင် အချိန်မရွေး ပြောင်းနိုင်သည်။';
+
+  @override
+  String get onboardingNotificationsTitle => 'လိုအပ်ချိန်တွင် သတိပေးချက်';
+
+  @override
+  String get onboardingEventReminders => 'ပွဲစဉ် သတိပေးချက်';
+
+  @override
+  String get onboardingEventRemindersSubtitle =>
+      'ပွဲစဉ်တစ်ခုချင်းအတွက် သင်ရွေးသည့်အချိန်တွင်';
+
+  @override
+  String get onboardingHolidayReminders => 'ပိတ်ရက် သတိပေးချက်';
+
+  @override
+  String get onboardingHolidayRemindersSubtitle =>
+      'သင်လိုက်ကြည့်သော ပိတ်ရက်များ၏ အကြိုညနေတွင်';
+
+  @override
+  String get onboardingAllowNotifications => 'အသိပေးချက်များ ခွင့်ပြုရန်';
+
+  @override
+  String get onboardingDoneTitle => 'အားလုံး အဆင်သင့်ပါ';
+
+  @override
+  String onboardingDoneToday(String date) {
+    return 'ယနေ့သည် $date ဖြစ်သည်။';
+  }
+
+  @override
+  String get onboardingWidgetTipTitle => 'အကြံပြုချက် - ဝစ်ဂျက် ထည့်ပါ';
+
+  @override
+  String get onboardingWidgetTipBody =>
+      'မြန်မာရက်စွဲကို ပင်မစာမျက်နှာတွင် ကြည့်ပါ။ နေရာလွတ်ကို ဖိထားပြီး Myanmar Calendar ကို ထည့်ပါ။';
 }

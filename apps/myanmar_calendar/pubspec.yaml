@@ -46,12 +46,12 @@ dependencies:
     path: ../../packages/features/home_widgets
   telegram_web:
     path: ../../packages/integrations/telegram_web
-  promo:
-    path: ../../packages/features/promo
   holidays:
     path: ../../packages/features/holidays
   whats_new:
     path: ../../packages/features/whats_new
+  onboarding:
+    path: ../../packages/features/onboarding
   package_info_plus: ^9.0.0
 
   # Myanmar calendar

@@ -4079,6 +4079,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Studio'**
   String get whatsNewStudioAction;
+
+  /// Skip the tour.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// Next onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboardingContinue;
+
+  /// Last tour page button.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up the app'**
+  String get onboardingSetUp;
+
+  /// Skip a setup step.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get onboardingNotNow;
+
+  /// Finish onboarding.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get onboardingStart;
+
+  /// Setup progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {count}'**
+  String onboardingStep(int step, int count);
+
+  /// Tour page 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Myanmar Calendar'**
+  String get onboardingWelcomeTitle;
+
+  /// Tour page 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Myanmar and Western dates side by side, for every day of the year.'**
+  String get onboardingWelcomeBody;
+
+  /// Tour page 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Two calendars in one'**
+  String get onboardingCalendarsTitle;
+
+  /// Tour page 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day shows its Myanmar date, moon phase and Sabbath, with astrology one tap away.'**
+  String get onboardingCalendarsBody;
+
+  /// Tour page 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Never miss a holiday'**
+  String get onboardingHolidaysTitle;
+
+  /// Tour page 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse and search every holiday, add your own events, and get a reminder the evening before.'**
+  String get onboardingHolidaysBody;
+
+  /// Tour page 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Make it yours'**
+  String get onboardingYoursTitle;
+
+  /// Tour page 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose colours and calendar themes, add home-screen widgets, and design printable calendars in Calendar Studio.'**
+  String get onboardingYoursBody;
+
+  /// Setup step 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your languages'**
+  String get onboardingLanguagesTitle;
+
+  /// Setup group label.
+  ///
+  /// In en, this message translates to:
+  /// **'App language'**
+  String get onboardingAppLanguage;
+
+  /// Setup group footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Month names, holidays and moon phases use the calendar language.'**
+  String get onboardingCalendarLanguageFooter;
+
+  /// Setup step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a look'**
+  String get onboardingLookTitle;
+
+  /// Theme follows the system.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get onboardingThemeAutomatic;
+
+  /// Light theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get onboardingThemeLight;
+
+  /// Dark theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get onboardingThemeDark;
+
+  /// Setup group label.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get onboardingColour;
+
+  /// Setup group footer.
+  ///
+  /// In en, this message translates to:
+  /// **'More colours and calendar themes are in Settings › Appearance.'**
+  String get onboardingColourFooter;
+
+  /// Setup step 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Your calendar stays on your phone'**
+  String get onboardingPrivacyTitle;
+
+  /// Setup step 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Events and notes never leave your device. You can help improve the app by sharing anonymous data.'**
+  String get onboardingPrivacyBody;
+
+  /// Analytics switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage statistics'**
+  String get onboardingUsageStats;
+
+  /// Analytics switch subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which screens are used, never what\'s on them'**
+  String get onboardingUsageStatsSubtitle;
+
+  /// Crash report switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Crash reports'**
+  String get onboardingCrashReports;
+
+  /// Crash report switch subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent only when the app crashes'**
+  String get onboardingCrashReportsSubtitle;
+
+  /// Setup group footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Change this any time in Settings › Privacy & Data.'**
+  String get onboardingPrivacyFooter;
+
+  /// Setup step 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders when they matter'**
+  String get onboardingNotificationsTitle;
+
+  /// Notification kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Event reminders'**
+  String get onboardingEventReminders;
+
+  /// Notification kind.
+  ///
+  /// In en, this message translates to:
+  /// **'At the time you choose for each event'**
+  String get onboardingEventRemindersSubtitle;
+
+  /// Notification kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Holiday reminders'**
+  String get onboardingHolidayReminders;
+
+  /// Notification kind.
+  ///
+  /// In en, this message translates to:
+  /// **'The evening before holidays you follow'**
+  String get onboardingHolidayRemindersSubtitle;
+
+  /// Ask for notification permission.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications'**
+  String get onboardingAllowNotifications;
+
+  /// Last onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set'**
+  String get onboardingDoneTitle;
+
+  /// Last onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'Today is {date}.'**
+  String onboardingDoneToday(String date);
+
+  /// Last onboarding page tip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: add a widget'**
+  String get onboardingWidgetTipTitle;
+
+  /// Last onboarding page tip.
+  ///
+  /// In en, this message translates to:
+  /// **'See the Myanmar date on your home screen. Touch and hold an empty spot, then add Myanmar Calendar.'**
+  String get onboardingWidgetTipBody;
 }
 
 class _AppLocalizationsDelegate

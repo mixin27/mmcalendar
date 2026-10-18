@@ -13,10 +13,10 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:views/views.dart';
 import 'package:whats_new/whats_new.dart';
 
-import '../presentation/pages/consent_page.dart';
+import '../presentation/pages/welcome_page.dart';
 import '../presentation/pages/privacy_policy_page.dart';
 import '../presentation/shell/app_shell.dart';
-import '../presentation/widgets/promo_initializer.dart';
+import '../presentation/widgets/whats_new_presenter.dart';
 import 'di_setup.dart';
 import 'introductions.dart';
 import 'calendar_studio_look.dart';
@@ -26,8 +26,8 @@ final GoRouter router = GoRouter(
   debugLogDiagnostics: true,
   routes: [
     GoRoute(
-      path: RoutePaths.consent,
-      builder: (context, state) => const ConsentPage(),
+      path: RoutePaths.welcome,
+      builder: (context, state) => const WelcomePage(),
     ),
     GoRoute(
       path: RoutePaths.studio,
@@ -42,7 +42,7 @@ final GoRouter router = GoRouter(
     // Main App Shell with Bottom Navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return PromoInitializer(
+        return WhatsNewPresenter(
           child: AppShell(navigationShell: navigationShell),
         );
       },

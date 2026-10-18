@@ -14,7 +14,6 @@ import 'package:home_widgets/home_widgets.dart';
 import 'package:home_widget/home_widget.dart' show HomeWidget;
 import 'package:integrations_database/integrations_database.dart';
 import 'package:integrations_firebase/integrations_firebase.dart';
-import 'package:promo/promo.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' show AppTextStyles;
@@ -33,9 +32,6 @@ void main() async {
   if (!kIsWeb && Platform.isIOS) {
     await HomeWidget.setAppGroupId(homeWidgetAppGroupId);
   }
-
-  // Enable debug mode for promo carousel
-  PromoCarousel.debugMode = kDebugMode;
 
   LicenseRegistry.addLicense(() async* {
     final String license = await rootBundle.loadString(

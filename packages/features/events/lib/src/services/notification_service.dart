@@ -29,10 +29,12 @@ class NotificationServiceImpl implements NotificationService {
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
+    // Permission is asked when it's needed (onboarding, or the first
+    // reminder), not when the app starts.
     const darwinSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const initSettings = InitializationSettings(

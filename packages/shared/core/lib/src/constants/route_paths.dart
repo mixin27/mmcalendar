@@ -5,7 +5,7 @@ class RoutePaths {
   static const String events = '/events';
   static const String converter = '/converter';
   static const String settings = '/settings';
-  static const String consent = '/consent';
+  static const String welcome = '/welcome';
   static const String studio = '/studio';
 
   // Calendar Routes

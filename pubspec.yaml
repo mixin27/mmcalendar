@@ -29,9 +29,9 @@ workspace:
   - packages/integrations/database
   - packages/integrations/firebase
   - packages/integrations/app_update
-  - packages/features/promo
   - packages/features/holidays
   - packages/features/whats_new
+  - packages/features/onboarding
 
 # Workspace-level dependencies (shared across all packages)
 dependencies:

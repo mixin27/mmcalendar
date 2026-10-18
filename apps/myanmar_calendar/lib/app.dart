@@ -10,6 +10,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:holidays/holidays.dart';
+import 'package:onboarding/onboarding.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:home_widgets/home_widgets.dart';
@@ -17,7 +18,6 @@ import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
     show MyanmarCalendar;
 import 'package:shared_localizations/shared_localizations.dart';
-import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
 
@@ -74,8 +74,6 @@ class _AppContentState extends State<_AppContent> {
   @override
   void initState() {
     super.initState();
-    // Request notification permissions
-    _requestNotificationPermissions();
     // Widget taps open the app at the right place (mmcalendar:// links).
     HomeWidget.initiallyLaunchedFromHomeWidget().then(_openWidgetLink);
     _widgetClicks = HomeWidget.widgetClicked.listen(_openWidgetLink);
@@ -91,11 +89,6 @@ class _AppContentState extends State<_AppContent> {
     final location = WidgetLinks.locationFor(uri);
     if (location == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) => router.go(location));
-  }
-
-  Future<void> _requestNotificationPermissions() async {
-    final notificationService = getIt<NotificationService>();
-    await notificationService.requestPermissions();
   }
 
   @override
@@ -185,7 +178,6 @@ class _AppContentState extends State<_AppContent> {
           darkTheme: darkTheme,
           themeMode: themeMode,
           localizationsDelegates: [
-            PromoLocalizationsDelegate(),
             ...AppLocalizations.localizationsDelegates,
             // pro_image_editor (Calendar Studio "Edit image") is built on
             // material_ui, which needs its own localizations.
@@ -261,7 +253,7 @@ class _AppStartupGuardState extends State<_AppStartupGuard> {
   bool _didStartUpdateCheck = false;
   bool _updateCheckCompleted = false;
   bool _requiredUpdateDialogOpen = false;
-  bool _routedToConsent = false;
+  bool _routedToWelcome = false;
 
   @override
   void didChangeDependencies() {
@@ -286,7 +278,7 @@ class _AppStartupGuardState extends State<_AppStartupGuard> {
     }
 
     _updateCheckCompleted = true;
-    _maybeRouteToConsent();
+    _maybeRouteToWelcome();
   }
 
   Future<void> _showRequiredUpdateDialog(
@@ -359,28 +351,37 @@ class _AppStartupGuardState extends State<_AppStartupGuard> {
     );
   }
 
-  void _maybeRouteToConsent() {
+  void _maybeRouteToWelcome() {
     if (!mounted || !_updateCheckCompleted || _requiredUpdateDialogOpen) {
       return;
     }
 
     final settingsState = context.read<SettingsBloc>().state;
     if (settingsState is! SettingsLoaded) return;
-    if (settingsState.settings.hasShownConsentDialog) return;
-    if (_routedToConsent) return;
+    if (_routedToWelcome) return;
+    _routedToWelcome = true;
 
-    final currentPath = router.routeInformationProvider.value.uri.path;
-    if (currentPath == RoutePaths.consent) return;
-
-    _routedToConsent = true;
-    router.go(RoutePaths.consent);
+    final onboarding = getIt<OnboardingStore>();
+    unawaited(
+      onboarding
+          .migrate(
+            madeConsentChoice: settingsState.settings.hasShownConsentDialog,
+          )
+          .then((_) {
+            if (onboarding.completed) return;
+            final currentPath = router.routeInformationProvider.value.uri.path;
+            if (currentPath != RoutePaths.welcome) {
+              router.go(RoutePaths.welcome);
+            }
+          }),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<SettingsBloc, SettingsState>(
       listenWhen: (_, state) => state is SettingsLoaded,
-      listener: (context, _) => _maybeRouteToConsent(),
+      listener: (context, _) => _maybeRouteToWelcome(),
       child: widget.child,
     );
   }

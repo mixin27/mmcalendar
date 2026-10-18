@@ -2982,5 +2982,178 @@
   "whatsNewStudioAction": "Open Studio",
   "@whatsNewStudioAction": {
     "description": "Feature button."
+  },
+  "onboardingSkip": "Skip",
+  "@onboardingSkip": {
+    "description": "Skip the tour."
+  },
+  "onboardingContinue": "Continue",
+  "@onboardingContinue": {
+    "description": "Next onboarding page."
+  },
+  "onboardingSetUp": "Set up the app",
+  "@onboardingSetUp": {
+    "description": "Last tour page button."
+  },
+  "onboardingNotNow": "Not now",
+  "@onboardingNotNow": {
+    "description": "Skip a setup step."
+  },
+  "onboardingStart": "Start",
+  "@onboardingStart": {
+    "description": "Finish onboarding."
+  },
+  "onboardingStep": "Step {step} of {count}",
+  "@onboardingStep": {
+    "description": "Setup progress.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingWelcomeTitle": "Welcome to Myanmar Calendar",
+  "@onboardingWelcomeTitle": {
+    "description": "Tour page 1."
+  },
+  "onboardingWelcomeBody": "Myanmar and Western dates side by side, for every day of the year.",
+  "@onboardingWelcomeBody": {
+    "description": "Tour page 1."
+  },
+  "onboardingCalendarsTitle": "Two calendars in one",
+  "@onboardingCalendarsTitle": {
+    "description": "Tour page 2."
+  },
+  "onboardingCalendarsBody": "Every day shows its Myanmar date, moon phase and Sabbath, with astrology one tap away.",
+  "@onboardingCalendarsBody": {
+    "description": "Tour page 2."
+  },
+  "onboardingHolidaysTitle": "Never miss a holiday",
+  "@onboardingHolidaysTitle": {
+    "description": "Tour page 3."
+  },
+  "onboardingHolidaysBody": "Browse and search every holiday, add your own events, and get a reminder the evening before.",
+  "@onboardingHolidaysBody": {
+    "description": "Tour page 3."
+  },
+  "onboardingYoursTitle": "Make it yours",
+  "@onboardingYoursTitle": {
+    "description": "Tour page 4."
+  },
+  "onboardingYoursBody": "Choose colours and calendar themes, add home-screen widgets, and design printable calendars in Calendar Studio.",
+  "@onboardingYoursBody": {
+    "description": "Tour page 4."
+  },
+  "onboardingLanguagesTitle": "Choose your languages",
+  "@onboardingLanguagesTitle": {
+    "description": "Setup step 1."
+  },
+  "onboardingAppLanguage": "App language",
+  "@onboardingAppLanguage": {
+    "description": "Setup group label."
+  },
+  "onboardingCalendarLanguageFooter": "Month names, holidays and moon phases use the calendar language.",
+  "@onboardingCalendarLanguageFooter": {
+    "description": "Setup group footer."
+  },
+  "onboardingLookTitle": "Pick a look",
+  "@onboardingLookTitle": {
+    "description": "Setup step 2."
+  },
+  "onboardingThemeAutomatic": "Automatic",
+  "@onboardingThemeAutomatic": {
+    "description": "Theme follows the system."
+  },
+  "onboardingThemeLight": "Light",
+  "@onboardingThemeLight": {
+    "description": "Light theme."
+  },
+  "onboardingThemeDark": "Dark",
+  "@onboardingThemeDark": {
+    "description": "Dark theme."
+  },
+  "onboardingColour": "Colour",
+  "@onboardingColour": {
+    "description": "Setup group label."
+  },
+  "onboardingColourFooter": "More colours and calendar themes are in Settings › Appearance.",
+  "@onboardingColourFooter": {
+    "description": "Setup group footer."
+  },
+  "onboardingPrivacyTitle": "Your calendar stays on your phone",
+  "@onboardingPrivacyTitle": {
+    "description": "Setup step 3."
+  },
+  "onboardingPrivacyBody": "Events and notes never leave your device. You can help improve the app by sharing anonymous data.",
+  "@onboardingPrivacyBody": {
+    "description": "Setup step 3."
+  },
+  "onboardingUsageStats": "Usage statistics",
+  "@onboardingUsageStats": {
+    "description": "Analytics switch."
+  },
+  "onboardingUsageStatsSubtitle": "Which screens are used, never what's on them",
+  "@onboardingUsageStatsSubtitle": {
+    "description": "Analytics switch subtitle."
+  },
+  "onboardingCrashReports": "Crash reports",
+  "@onboardingCrashReports": {
+    "description": "Crash report switch."
+  },
+  "onboardingCrashReportsSubtitle": "Sent only when the app crashes",
+  "@onboardingCrashReportsSubtitle": {
+    "description": "Crash report switch subtitle."
+  },
+  "onboardingPrivacyFooter": "Change this any time in Settings › Privacy & Data.",
+  "@onboardingPrivacyFooter": {
+    "description": "Setup group footer."
+  },
+  "onboardingNotificationsTitle": "Reminders when they matter",
+  "@onboardingNotificationsTitle": {
+    "description": "Setup step 4."
+  },
+  "onboardingEventReminders": "Event reminders",
+  "@onboardingEventReminders": {
+    "description": "Notification kind."
+  },
+  "onboardingEventRemindersSubtitle": "At the time you choose for each event",
+  "@onboardingEventRemindersSubtitle": {
+    "description": "Notification kind."
+  },
+  "onboardingHolidayReminders": "Holiday reminders",
+  "@onboardingHolidayReminders": {
+    "description": "Notification kind."
+  },
+  "onboardingHolidayRemindersSubtitle": "The evening before holidays you follow",
+  "@onboardingHolidayRemindersSubtitle": {
+    "description": "Notification kind."
+  },
+  "onboardingAllowNotifications": "Allow notifications",
+  "@onboardingAllowNotifications": {
+    "description": "Ask for notification permission."
+  },
+  "onboardingDoneTitle": "You're all set",
+  "@onboardingDoneTitle": {
+    "description": "Last onboarding page."
+  },
+  "onboardingDoneToday": "Today is {date}.",
+  "@onboardingDoneToday": {
+    "description": "Last onboarding page.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingWidgetTipTitle": "Tip: add a widget",
+  "@onboardingWidgetTipTitle": {
+    "description": "Last onboarding page tip."
+  },
+  "onboardingWidgetTipBody": "See the Myanmar date on your home screen. Touch and hold an empty spot, then add Myanmar Calendar.",
+  "@onboardingWidgetTipBody": {
+    "description": "Last onboarding page tip."
   }
 }
