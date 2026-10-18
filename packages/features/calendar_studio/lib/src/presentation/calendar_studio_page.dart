@@ -177,6 +177,9 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   var calendarInspectorTab = 0;
   var _inspectorVisible = false;
 
+  /// The tablet inspector was closed; it opens again on the next selection.
+  var _dockHidden = false;
+
   /// The text block being typed into on the page, if any.
   String? _editingTextId;
   String? _lastTapId;
@@ -382,6 +385,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       return;
     }
     controller.select(block?.id);
+    if (block != null) _dockHidden = false;
     // Canvas taps take keyboard focus back from inspector fields.
     if (!_editorFocus.hasPrimaryFocus) _editorFocus.requestFocus();
     if (block == null && _inspectorVisible) {
@@ -491,6 +495,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
   void _openInspector({int? tab}) {
     _endTextEdit();
     setState(() {
+      _dockHidden = false;
       calendarInspectorTab = tab ?? 0;
       _inspectorVisible = true;
     });
@@ -2269,15 +2274,43 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     return LayoutBuilder(
       builder: (context, box) {
         final wide = box.maxWidth >= _desktopWidth;
+        final tablet = !wide && box.maxWidth >= _tabletWidth;
         final canvas = _canvas(context, project);
+        final docked =
+            tablet && controller.selectedBlockIds.isNotEmpty && !_dockHidden;
         final workspace = wide
             ? Row(
                 children: [
                   SizedBox(width: 72, child: _tools(vertical: true)),
                   const VerticalDivider(width: 1, thickness: 1),
                   SizedBox(width: 260, child: _layers()),
-                  Expanded(child: canvas),
+                  Expanded(
+                    child: project.pages.length > 1
+                        ? Column(
+                            children: [
+                              Expanded(child: canvas),
+                              _pageStrip(project),
+                            ],
+                          )
+                        : canvas,
+                  ),
                   SizedBox(width: 320, child: _inspector()),
+                ],
+              )
+            : tablet
+            // Tablets keep the inspector beside the page while something
+            // is selected; layers stay in their sheet.
+            ? Row(
+                children: [
+                  Expanded(child: canvas),
+                  if (docked) ...[
+                    const VerticalDivider(width: 1, thickness: 1),
+                    SizedBox(
+                      key: const ValueKey('calendar-studio-docked-inspector'),
+                      width: 320,
+                      child: _inspector(),
+                    ),
+                  ],
                 ],
               )
             : Stack(
@@ -2588,6 +2621,76 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       ],
     ),
   );
+
+  /// Every page as a small picture under the canvas, on wide screens.
+  Widget _pageStrip(CalendarStudioProject project) {
+    final tokens = CalendarStudioTokens.of(context);
+    return Material(
+      key: const ValueKey('calendar-studio-page-strip'),
+      color: tokens.surface,
+      child: SizedBox(
+        height: 104,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          itemCount: project.pages.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 10),
+          itemBuilder: (context, index) {
+            final page = project.pages[index];
+            final selected = index == controller.pageIndex;
+            return InkWell(
+              key: ValueKey('calendar-studio-strip-page-$index'),
+              onTap: selected ? null : () => _changePage(index),
+              borderRadius: BorderRadius.circular(8),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: selected ? tokens.primary : tokens.line,
+                          width: selected ? 2.5 : 1,
+                        ),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: StudioThumbnail(
+                        // Unchanged pages keep their instance, so only the
+                        // edited page draws again.
+                        cacheKey:
+                            '${project.id}#$index@${identityHashCode(page)}',
+                        aspectRatio: page.canvas.aspectRatio,
+                        builder: (_) => IgnorePointer(
+                          child: CalendarStudioScene(
+                            page: page,
+                            source: project.source,
+                            dataProvider: _calendarData,
+                            assetStore: _assets,
+                            displayWidth: 60,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    page.label.length > 3
+                        ? page.label.substring(0, 3)
+                        : page.label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: selected ? FontWeight.w700 : null,
+                      color: selected ? tokens.primary : tokens.ink2,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
   /// The page's fitted size on the board before zoom.
   Size _pageSizeIn(BoxConstraints constraints) {
@@ -2948,7 +3051,10 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       host: _inspectorHost(controller.project!),
       tab: calendarInspectorTab,
       onTab: (value) => setState(() => calendarInspectorTab = value),
-      onClose: () => setState(() => _inspectorVisible = false),
+      onClose: () => setState(() {
+        _inspectorVisible = false;
+        _dockHidden = true;
+      }),
       onDelete: _deleteSelectedWithUndo,
       scrollController: scrollController,
       sheet: sheet,
