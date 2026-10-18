@@ -125,6 +125,8 @@ void main() {
     expect(bar.bottom, lessThanOrEqualTo(block.top));
     expect(bar.left, greaterThanOrEqualTo(0));
     expect(bar.right, lessThanOrEqualTo(390));
+    // Every tool fits without scrolling the bar.
+    expect(bar.width, lessThan(374));
 
     await tester.tap(find.byKey(const ValueKey('calendar-studio-bar-color')));
     await tester.pumpAndSettle();

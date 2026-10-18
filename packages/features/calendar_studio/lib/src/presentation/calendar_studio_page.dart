@@ -2472,6 +2472,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                   pageSize: Size(width, height),
                   child: Center(
                     child: SizedBox(
+                      key: _pageBoxKey,
                       width: width,
                       height: height,
                       child: Material(
@@ -2717,13 +2718,15 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
         if (selection.isEmpty || controller.isInteracting) {
           return const SizedBox.shrink();
         }
-        final area = constraints.biggest;
-        final pageSize = _pageSizeIn(constraints);
-        final page = Rect.fromCenter(
-          center: area.center(Offset.zero),
-          width: pageSize.width,
-          height: pageSize.height,
-        );
+        // Where the page is drawn, zoom and pan included.
+        final page = _pageRectIn(context);
+        if (page == null) {
+          // Not laid out yet; place the bar on the next frame.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() {});
+          });
+          return const SizedBox.shrink();
+        }
         Rect? anchor;
         for (final block in selection) {
           final rect = _screenRectOf(block, page);
@@ -2732,7 +2735,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
         final single = selection.length == 1;
         return CustomSingleChildLayout(
           delegate: _AnchoredBarLayout(
-            anchor: MatrixUtils.transformRect(canvasController.value, anchor!),
+            anchor: anchor!,
             // Leave room for the rotate handle above a single selection.
             gap: single && !selection.single.locked ? 52 : 12,
             minTop: 60,
@@ -2760,7 +2763,22 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     ),
   );
 
-  /// [block]'s rotated bounding box on the unzoomed board.
+  final _pageBoxKey = GlobalKey(debugLabel: 'calendar-studio-page');
+
+  /// The page's drawn rect in [context]'s coordinates, or null before the
+  /// first layout.
+  Rect? _pageRectIn(BuildContext context) {
+    final page = _pageBoxKey.currentContext?.findRenderObject();
+    final here = context.findRenderObject();
+    if (page is! RenderBox || here is! RenderBox) return null;
+    if (!page.attached || !page.hasSize) return null;
+    return MatrixUtils.transformRect(
+      page.getTransformTo(here),
+      Offset.zero & page.size,
+    );
+  }
+
+  /// [block]'s rotated bounding box inside [page].
   static Rect _screenRectOf(CalendarStudioBlock block, Rect page) {
     final b = block.bounds;
     final rect = Rect.fromLTWH(
@@ -2939,17 +2957,31 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
+                      // Narrow side padding keeps the label on one line
+                      // in the 260 px layers panel.
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
                       onPressed: () => controller.moveSelectedLayer(1),
-                      icon: const Icon(Icons.arrow_upward),
-                      label: const Text('Forward'),
+                      icon: const Icon(Icons.arrow_upward, size: 18),
+                      label: const Text(
+                        'Forward',
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: OutlinedButton.icon(
+                      // Narrow side padding keeps the label on one line
+                      // in the 260 px layers panel.
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
                       onPressed: () => controller.moveSelectedLayer(-1),
-                      icon: const Icon(Icons.arrow_downward),
-                      label: const Text('Back'),
+                      icon: const Icon(Icons.arrow_downward, size: 18),
+                      label: const Text('Back', maxLines: 1, softWrap: false),
                     ),
                   ),
                 ],

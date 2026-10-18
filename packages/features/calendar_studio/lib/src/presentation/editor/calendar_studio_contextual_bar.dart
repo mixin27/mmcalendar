@@ -78,6 +78,8 @@ class CalendarStudioContextualBar extends StatelessWidget {
               visualDensity: VisualDensity.compact,
               iconSize: 20,
               minimumSize: const Size(36, 36),
+              // Tight targets keep the bar on a phone screen.
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: children),
@@ -92,12 +94,6 @@ class CalendarStudioContextualBar extends StatelessWidget {
       if (enabled) ..._typeTools(context, block),
       if (enabled) const _Divider(),
       if (!editingText) ...[
-        _button(
-          'duplicate',
-          Icons.copy_outlined,
-          StudioStrings.duplicate,
-          actions.duplicate,
-        ),
         _button(
           'delete',
           Icons.delete_outline,
@@ -370,11 +366,13 @@ class CalendarStudioContextualBar extends StatelessWidget {
     onSelected: (value) => switch (value) {
       'lock' => actions.update(block.copyWith(locked: !block.locked)),
       'hide' => actions.update(block.copyWith(visible: !block.visible)),
+      'duplicate' => actions.duplicate(),
       'forward' => actions.arrange(1),
       'backward' => actions.arrange(-1),
       _ => null,
     },
     itemBuilder: (context) => [
+      _menuItem('duplicate', Icons.copy_outlined, StudioStrings.duplicate),
       _menuItem(
         'lock',
         block.locked ? Icons.lock_open_outlined : Icons.lock_outline,
