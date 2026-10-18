@@ -7,6 +7,7 @@ import '../../templates/calendar_studio_bindings.dart';
 import '../../theme/calendar_studio_theme.dart';
 import '../calendar_studio_year_field.dart';
 import 'inspector/studio_inspector_controls.dart';
+import '../calendar_studio_strings.dart';
 
 /// A page size Studio lays out well.
 class StudioPageSize {
@@ -26,21 +27,27 @@ class StudioPageSize {
   static const all = [
     StudioPageSize(
       'a4',
-      'A4 portrait',
-      'Wall or desk · 21 × 29.7 cm',
+      StudioStrings.a4Portrait,
+      StudioStrings.a4PortraitHint,
       210,
       297,
     ),
     StudioPageSize(
       'a4-landscape',
-      'A4 landscape',
-      'Wide wall · 29.7 × 21 cm',
+      StudioStrings.a4Landscape,
+      StudioStrings.a4LandscapeHint,
       297,
       210,
     ),
-    StudioPageSize('a3', 'A3 portrait', 'Large wall · 29.7 × 42 cm', 297, 420),
-    StudioPageSize('square', 'Square', 'Social posts', 600, 600),
-    StudioPageSize('story', 'Story 9:16', 'Phone screens', 360, 640),
+    StudioPageSize(
+      'a3',
+      StudioStrings.a3Portrait,
+      StudioStrings.a3PortraitHint,
+      297,
+      420,
+    ),
+    StudioPageSize('square', StudioStrings.square, 'Social posts', 600, 600),
+    StudioPageSize('story', StudioStrings.story916, 'Phone screens', 360, 640),
   ];
 
   static StudioPageSize? of(StudioCanvas canvas) {
@@ -94,11 +101,6 @@ class StudioSettingsDraft {
     output: output ?? this.output,
   );
 }
-
-const _monthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June', //
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
 
 /// Every calendar language a project can use, as chips.
 class StudioLanguageChips extends StatelessWidget {
@@ -159,12 +161,12 @@ class StudioCalendarSettings extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Calendar',
+          title: StudioStrings.calendar,
           children: [
             StudioSegmented<CalendarStudioPeriod>(
               segments: const [
-                (CalendarStudioPeriod.month, 'One month', null),
-                (CalendarStudioPeriod.year, 'Twelve months', null),
+                (CalendarStudioPeriod.month, StudioStrings.oneMonth, null),
+                (CalendarStudioPeriod.year, StudioStrings.twelveMonths, null),
               ],
               value: source.period,
               onChanged: (v) => set(source.copyWith(period: v)),
@@ -183,19 +185,22 @@ class StudioCalendarSettings extends StatelessWidget {
                   child: CalendarStudioMonthField(
                     key: ValueKey('settings-month-${source.month}'),
                     label: source.period == CalendarStudioPeriod.year
-                        ? 'Starts from'
-                        : 'Month',
+                        ? StudioStrings.startsFrom
+                        : StudioStrings.month,
                     month: source.month,
-                    names: _monthNames,
+                    names: StudioStrings.months,
                     onChanged: (v) => set(source.copyWith(month: v)),
                   ),
                 ),
               ],
             ),
             StudioFieldRow(
-              label: 'Week starts',
+              label: StudioStrings.weekStarts,
               child: StudioSegmented<bool>(
-                segments: const [(false, 'Sun', null), (true, 'Mon', null)],
+                segments: const [
+                  (false, StudioStrings.sun, null),
+                  (true, StudioStrings.mon, null),
+                ],
                 value: source.weekStartsMonday,
                 onChanged: (v) => set(source.copyWith(weekStartsMonday: v)),
               ),
@@ -203,7 +208,7 @@ class StudioCalendarSettings extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Language on the calendar',
+          title: StudioStrings.calendarLanguage,
           children: [
             StudioLanguageChips(
               selected: source.language,
@@ -212,30 +217,30 @@ class StudioCalendarSettings extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Days show',
+          title: StudioStrings.daysShow,
           children: [
             StudioSwitch(
-              label: 'Myanmar dates',
+              label: StudioStrings.myanmarDates,
               value: source.showMyanmarDate,
               onChanged: (v) => set(source.copyWith(showMyanmarDate: v)),
             ),
             StudioSwitch(
-              label: 'Moon phases',
+              label: StudioStrings.moonPhases,
               value: source.showMoonPhases,
               onChanged: (v) => set(source.copyWith(showMoonPhases: v)),
             ),
             StudioSwitch(
-              label: 'Public holidays',
+              label: StudioStrings.publicHolidays,
               value: source.showHolidays,
               onChanged: (v) => set(source.copyWith(showHolidays: v)),
             ),
             StudioSwitch(
-              label: 'Astrology days',
+              label: StudioStrings.astrologyDays,
               value: source.showAstrology,
               onChanged: (v) => set(source.copyWith(showAstrology: v)),
             ),
             StudioSwitch(
-              label: 'My events',
+              label: StudioStrings.myEvents,
               value: source.showEvents,
               onChanged: (v) => set(source.copyWith(showEvents: v)),
             ),
@@ -279,7 +284,7 @@ class StudioThemeSettings extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Theme',
+          title: StudioStrings.theme,
           children: [
             SizedBox(
               height: 86,
@@ -299,12 +304,12 @@ class StudioThemeSettings extends StatelessWidget {
             if (current.id == 'custom')
               Padding(
                 padding: const EdgeInsets.only(top: 6),
-                child: Text('Custom: ${current.name}'),
+                child: Text(StudioStrings.customTheme(current.name)),
               ),
             ExpansionTile(
               key: const ValueKey('studio-theme-customize'),
               tilePadding: EdgeInsets.zero,
-              title: const Text('Customise colours'),
+              title: const Text(StudioStrings.customiseColours),
               children: [
                 for (final role in CalendarStudioProjectTheme.roles)
                   ListTile(
@@ -331,7 +336,7 @@ class StudioThemeSettings extends StatelessWidget {
                         title:
                             CalendarStudioProjectTheme.roleLabels[role] ?? role,
                         initial: Color(current.color(role)),
-                        doneLabel: 'Done',
+                        doneLabel: StudioStrings.done,
                       );
                       if (color != null) {
                         pick(current.withColor(role, color.toARGB32()));
@@ -343,15 +348,15 @@ class StudioThemeSettings extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Fonts',
+          title: StudioStrings.fonts,
           children: [
             StudioFontField(
-              label: 'Headings',
+              label: StudioStrings.headings,
               value: current.displayFont ?? 'Fraunces',
               onChanged: (v) => pick(_custom(current).copyWith(displayFont: v)),
             ),
             StudioFontField(
-              label: 'Body',
+              label: StudioStrings.body,
               value: current.bodyFont ?? 'Noto Sans Myanmar',
               onChanged: (v) => pick(_custom(current).copyWith(bodyFont: v)),
             ),
@@ -453,7 +458,7 @@ class StudioFormatSettings extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Page size',
+          title: StudioStrings.pageSize,
           children: [
             RadioGroup<String>(
               groupValue: custom
@@ -491,7 +496,7 @@ class StudioFormatSettings extends StatelessWidget {
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                       value: 'custom',
-                      title: const Text('This template’s own size'),
+                      title: const Text(StudioStrings.templateOwnSize),
                       subtitle: Text(
                         '${draft.width.round()} × ${draft.height.round()}',
                       ),
@@ -501,14 +506,13 @@ class StudioFormatSettings extends StatelessWidget {
             ),
             if (pageCount > 1)
               StudioSwitch(
-                label: 'Resize every page',
-                subtitle: 'Off changes only the page you are on',
+                label: StudioStrings.resizeEveryPage,
+                subtitle: StudioStrings.resizeEveryPageHint,
                 value: draft.resizeAll,
                 onChanged: (v) => onChanged(draft.copyWith(resizeAll: v)),
               ),
             Text(
-              'Elements keep their place as a share of the page, so they '
-              'follow a new size. Check the pages after changing shape.',
+              StudioStrings.pageSizeNote,
               style: TextStyle(
                 fontSize: 12,
                 color: CalendarStudioTokens.of(context).ink3,
@@ -517,16 +521,16 @@ class StudioFormatSettings extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Print',
+          title: StudioStrings.printHeading,
           children: [
             StudioSwitch(
-              label: 'Bleed',
-              subtitle: '3 mm extra edge for trimming',
+              label: StudioStrings.bleed,
+              subtitle: StudioStrings.bleedHint,
               value: draft.bleed,
               onChanged: (v) => onChanged(draft.copyWith(bleed: v)),
             ),
             StudioStepper(
-              label: 'Safe margin',
+              label: StudioStrings.safeMargin,
               unit: '%',
               value: draft.safeInset * 100,
               max: 12,
@@ -560,7 +564,7 @@ class StudioOutputSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => StudioSection(
-    title: 'Output',
+    title: StudioStrings.output,
     children: [
       RadioGroup<String>(
         groupValue: draft.output.id,
@@ -577,8 +581,12 @@ class StudioOutputSettings extends StatelessWidget {
                 value: preset.id,
                 title: Text(preset.label),
                 subtitle: Text(
-                  '${preset.format.name.toUpperCase()} · ${preset.dpi} dpi · '
-                  '${preset.width} × ${preset.height} px',
+                  StudioStrings.outputDetail(
+                    preset.format.name.toUpperCase(),
+                    preset.dpi,
+                    preset.width,
+                    preset.height,
+                  ),
                 ),
               ),
           ],
@@ -595,17 +603,13 @@ class StudioTimeZoneNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => StudioSection(
-    title: 'Time zone',
+    title: StudioStrings.timeZone,
     children: [
       ListTile(
         contentPadding: EdgeInsets.zero,
         leading: const Icon(Icons.schedule_outlined),
         title: Text(label),
-        subtitle: const Text(
-          'A printed calendar shows whole days, which are the same in every '
-          'time zone. Myanmar dates and moon days follow the Myanmar '
-          'calendar.',
-        ),
+        subtitle: const Text(StudioStrings.timeZoneNote),
       ),
     ],
   );
@@ -648,14 +652,14 @@ class _CalendarStudioProjectSettingsPageState
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: IconButton(
-        tooltip: 'Close',
+        tooltip: StudioStrings.close,
         onPressed: () => Navigator.pop(context),
         icon: const Icon(Icons.close),
       ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Project settings'),
+          const Text(StudioStrings.projectSettings),
           Text(
             widget.projectName,
             style: Theme.of(context).textTheme.bodySmall,
@@ -668,7 +672,7 @@ class _CalendarStudioProjectSettingsPageState
           child: FilledButton(
             key: const ValueKey('studio-settings-apply'),
             onPressed: () => Navigator.pop(context, _draft),
-            child: const Text('Apply'),
+            child: const Text(StudioStrings.apply),
           ),
         ),
       ],
@@ -693,12 +697,9 @@ class _CalendarStudioProjectSettingsPageState
             StudioOutputSettings(draft: _draft, onChanged: _set),
             StudioTimeZoneNote(label: _draft.source.timeZoneLabel),
             StudioSection(
-              title: 'Project file',
+              title: StudioStrings.projectFile,
               children: [
-                const Text(
-                  'A copy with its images, to move this calendar to another '
-                  'device or keep a backup.',
-                ),
+                const Text(StudioStrings.projectFileNote),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 10,
@@ -707,12 +708,12 @@ class _CalendarStudioProjectSettingsPageState
                     OutlinedButton.icon(
                       onPressed: widget.onSaveFile,
                       icon: const Icon(Icons.save_alt_outlined),
-                      label: const Text('Save project file'),
+                      label: const Text(StudioStrings.saveProjectFile),
                     ),
                     OutlinedButton.icon(
                       onPressed: widget.onShareFile,
                       icon: const Icon(Icons.share_outlined),
-                      label: const Text('Share'),
+                      label: const Text(StudioStrings.share),
                     ),
                     if (widget.onSaveTemplate case final save?)
                       OutlinedButton.icon(
@@ -721,7 +722,7 @@ class _CalendarStudioProjectSettingsPageState
                           save();
                         },
                         icon: const Icon(Icons.bookmark_add_outlined),
-                        label: const Text('Save as template'),
+                        label: const Text(StudioStrings.saveAsTemplate),
                       ),
                   ],
                 ),
@@ -759,7 +760,11 @@ class _CalendarStudioSetupSheetState extends State<CalendarStudioSetupSheet> {
   late var _draft = widget.initial;
   var _step = 0;
 
-  static const _steps = ['Calendar', 'Theme', 'Format'];
+  static const _steps = [
+    StudioStrings.calendar,
+    StudioStrings.theme,
+    StudioStrings.format,
+  ];
 
   void _set(StudioSettingsDraft draft) => setState(() => _draft = draft);
 
@@ -799,7 +804,7 @@ class _CalendarStudioSetupSheetState extends State<CalendarStudioSetupSheet> {
                 ),
               ),
               IconButton(
-                tooltip: 'Close',
+                tooltip: StudioStrings.close,
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.close),
               ),
@@ -815,7 +820,10 @@ class _CalendarStudioSetupSheetState extends State<CalendarStudioSetupSheet> {
               showSelectedIcon: false,
               segments: [
                 for (var i = 0; i < _steps.length; i++)
-                  ButtonSegment(value: i, label: Text('${i + 1} ${_steps[i]}')),
+                  ButtonSegment(
+                    value: i,
+                    label: Text(StudioStrings.step(i + 1, _steps[i])),
+                  ),
               ],
               selected: {_step},
               onSelectionChanged: (value) =>
@@ -862,7 +870,7 @@ class _CalendarStudioSetupSheetState extends State<CalendarStudioSetupSheet> {
                 if (_step > 0) ...[
                   TextButton(
                     onPressed: () => setState(() => _step--),
-                    child: const Text('Back'),
+                    child: const Text(StudioStrings.back),
                   ),
                   const SizedBox(width: 4),
                 ],
@@ -871,7 +879,7 @@ class _CalendarStudioSetupSheetState extends State<CalendarStudioSetupSheet> {
                     child: OutlinedButton(
                       key: const ValueKey('studio-setup-next'),
                       onPressed: () => setState(() => _step++),
-                      child: const Text('Next'),
+                      child: const Text(StudioStrings.next),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -884,7 +892,7 @@ class _CalendarStudioSetupSheetState extends State<CalendarStudioSetupSheet> {
                       Navigator.pop(context);
                       widget.onCreate(_draft);
                     },
-                    child: const Text('Create project'),
+                    child: const Text(StudioStrings.createProject),
                   ),
                 ),
               ],

@@ -4,6 +4,7 @@ import '../../../models/calendar_studio_document.dart';
 import '../../../widgets/calendar_studio_decorations.dart';
 import 'studio_inspector_controls.dart';
 import 'studio_inspector_host.dart';
+import '../../calendar_studio_strings.dart';
 
 const _shapes = [
   'rectangle',
@@ -33,7 +34,7 @@ Widget _opacity(CalendarStudioBlock block, StudioInspectorHost host) {
   final opacity = (block.style['opacity'] as num?)?.toDouble() ?? 1;
   return Row(
     children: [
-      const SizedBox(width: 70, child: Text('Opacity')),
+      const SizedBox(width: 70, child: Text(StudioStrings.opacity)),
       Expanded(
         child: Slider(
           min: .1,
@@ -72,7 +73,7 @@ class StudioShapeInspector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Shape',
+          title: StudioStrings.shape,
           children: [
             Wrap(
               spacing: 6,
@@ -89,10 +90,10 @@ class StudioShapeInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Fill',
+          title: StudioStrings.fill,
           children: [
             StudioSwitch(
-              label: 'Filled',
+              label: StudioStrings.filled,
               value: filled,
               onChanged: (value) => host.update(
                 block.copyWith(
@@ -108,7 +109,7 @@ class StudioShapeInspector extends StatelessWidget {
             if (filled)
               StudioColorField(
                 id: 'fill',
-                label: 'Fill colour',
+                label: StudioStrings.fillColour,
                 value: block.style['color'] as int?,
                 host: host,
                 pageColors: page,
@@ -118,10 +119,10 @@ class StudioShapeInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Outline',
+          title: StudioStrings.outlineHeading,
           children: [
             StudioStepper(
-              label: 'Width',
+              label: StudioStrings.width,
               unit: 'px',
               value: strokeWidth,
               max: 40,
@@ -130,7 +131,7 @@ class StudioShapeInspector extends StatelessWidget {
             if (strokeWidth > 0)
               StudioColorField(
                 id: 'stroke',
-                label: 'Outline colour',
+                label: StudioStrings.outlineColour,
                 value: block.style['strokeColor'] as int?,
                 host: host,
                 pageColors: page,
@@ -164,7 +165,7 @@ class StudioDecorationInspector extends StatelessWidget {
       children: [
         if (motif)
           StudioSection(
-            title: 'Motif',
+            title: StudioStrings.motif,
             children: [
               Wrap(
                 spacing: 6,
@@ -181,12 +182,12 @@ class StudioDecorationInspector extends StatelessWidget {
             ],
           ),
         StudioSection(
-          title: 'Colour',
+          title: StudioStrings.colour,
           children: [
             if (motif) ...[
               StudioColorField(
                 id: 'motif',
-                label: 'Main colour',
+                label: StudioStrings.mainColour,
                 value: block.style['color'] as int?,
                 host: host,
                 pageColors: page,
@@ -194,7 +195,7 @@ class StudioDecorationInspector extends StatelessWidget {
               ),
               StudioColorField(
                 id: 'accent',
-                label: 'Accent colour',
+                label: StudioStrings.accentColour,
                 value: block.style['accent'] as int?,
                 host: host,
                 pageColors: page,
@@ -204,7 +205,7 @@ class StudioDecorationInspector extends StatelessWidget {
             ] else
               const Padding(
                 padding: EdgeInsets.only(bottom: 8),
-                child: Text('This artwork keeps the template’s own colours.'),
+                child: Text(StudioStrings.templateArtNote),
               ),
           ],
         ),

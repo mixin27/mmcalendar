@@ -4,6 +4,7 @@ import '../../../models/calendar_studio_document.dart';
 import '../../../theme/calendar_studio_theme.dart';
 import 'studio_inspector_controls.dart';
 import 'studio_inspector_host.dart';
+import '../../calendar_studio_strings.dart';
 
 /// Image and logo: the photo, its print quality, fit and frame.
 class StudioImageInspector extends StatelessWidget {
@@ -43,11 +44,13 @@ class StudioImageInspector extends StatelessWidget {
             ),
             child: const Icon(Icons.image_outlined),
           ),
-          title: Text(block.content['assetName'] as String? ?? 'Image'),
+          title: Text(
+            block.content['assetName'] as String? ?? StudioStrings.image,
+          ),
           subtitle: Text('$width × $height px'),
           trailing: OutlinedButton(
             onPressed: () => host.replaceImage(block),
-            child: const Text('Replace'),
+            child: const Text(StudioStrings.replace),
           ),
         ),
         if (hasImage &&
@@ -65,20 +68,20 @@ class StudioImageInspector extends StatelessWidget {
                     key: const ValueKey('calendar-studio-edit-image'),
                     onPressed: () => editImage(block),
                     icon: const Icon(Icons.auto_fix_high_outlined),
-                    label: const Text('Edit image'),
+                    label: const Text(StudioStrings.editImage),
                   ),
                 if (removeBackground != null)
                   FilledButton.tonalIcon(
                     key: const ValueKey('calendar-studio-remove-background'),
                     onPressed: () => removeBackground(block),
                     icon: const Icon(Icons.auto_awesome_outlined),
-                    label: const Text('Remove background'),
+                    label: const Text(StudioStrings.removeBackground),
                   ),
                 if (block.content['originalAssetId'] != null)
                   OutlinedButton.icon(
                     onPressed: () => host.revertImage(block),
                     icon: const Icon(Icons.restore),
-                    label: const Text('Revert to original'),
+                    label: const Text(StudioStrings.revertToOriginal),
                   ),
               ],
             ),
@@ -93,16 +96,16 @@ class StudioImageInspector extends StatelessWidget {
             children: [
               const Expanded(
                 child: Text(
-                  'Print quality at A4',
+                  StudioStrings.printQuality,
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
               Text(
                 width == 0
-                    ? 'Image required'
+                    ? StudioStrings.imageRequired
                     : goodQuality
-                    ? '✓ Good · $dpi dpi'
-                    : 'Check · $dpi dpi',
+                    ? StudioStrings.qualityGood(dpi)
+                    : StudioStrings.qualityCheck(dpi),
                 style: TextStyle(
                   color: goodQuality ? tokens.ok : tokens.warning,
                   fontWeight: FontWeight.w700,
@@ -112,20 +115,20 @@ class StudioImageInspector extends StatelessWidget {
           ),
         ),
         StudioSection(
-          title: 'Fit',
+          title: StudioStrings.imageFit,
           children: [
             StudioSegmented<String>(
               segments: const [
-                ('crop', 'Crop', null),
-                ('fit', 'Fit', null),
-                ('fill', 'Stretch', null),
+                ('crop', StudioStrings.crop, null),
+                ('fit', StudioStrings.imageFit, null),
+                ('fill', StudioStrings.stretch, null),
               ],
               value: fit,
               onChanged: (value) => host.setStyle(block, 'imageFit', value),
             ),
             Row(
               children: [
-                const SizedBox(width: 70, child: Text('Opacity')),
+                const SizedBox(width: 70, child: Text(StudioStrings.opacity)),
                 Expanded(
                   child: Slider(
                     value: opacity.clamp(0, 1),
@@ -143,10 +146,10 @@ class StudioImageInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Frame',
+          title: StudioStrings.frame,
           children: [
             StudioStepper(
-              label: 'Corner radius',
+              label: StudioStrings.cornerRadius,
               unit: 'px',
               value: (block.style['cornerRadius'] as num?)?.toDouble() ?? 0,
               max: 200,
@@ -154,7 +157,7 @@ class StudioImageInspector extends StatelessWidget {
               onChanged: (value) => host.setStyle(block, 'cornerRadius', value),
             ),
             StudioStepper(
-              label: 'Border',
+              label: StudioStrings.border,
               unit: 'px',
               value: borderWidth,
               max: 40,
@@ -163,7 +166,7 @@ class StudioImageInspector extends StatelessWidget {
             if (borderWidth > 0)
               StudioColorField(
                 id: 'border',
-                label: 'Border colour',
+                label: StudioStrings.borderColour,
                 value: block.style['borderColor'] as int?,
                 host: host,
                 pageColors: host.pageColors(host.controller.currentPage),

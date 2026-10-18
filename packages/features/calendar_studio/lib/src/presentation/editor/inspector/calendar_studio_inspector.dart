@@ -10,6 +10,7 @@ import 'shape_inspector.dart';
 import 'studio_inspector_host.dart';
 import 'studio_layout_section.dart';
 import 'text_inspector.dart';
+import '../../calendar_studio_strings.dart';
 
 /// The full settings for one block: a header with its actions, tabs for
 /// its kind, and Layout last.
@@ -43,20 +44,27 @@ class CalendarStudioInspector extends StatelessWidget {
     _ => true,
   };
 
+  static const _content = StudioStrings.content;
+  static const _style = StudioStrings.style;
+  static const _layout = StudioStrings.layout;
+
   /// Tab names for [block]; the last is always Layout.
-  static List<String> tabsFor(
-    CalendarStudioBlock block,
-  ) => switch (block.type) {
-    CalendarStudioBlockType.text => const ['Content', 'Style', 'Layout'],
-    CalendarStudioBlockType.image ||
-    CalendarStudioBlockType.logo => const ['Image', 'Layout'],
-    CalendarStudioBlockType.shape ||
-    CalendarStudioBlockType.decoration => const ['Style', 'Layout'],
-    CalendarStudioBlockType.calendarGrid => const ['Data', 'Style', 'Layout'],
-    CalendarStudioBlockType.eventList ||
-    CalendarStudioBlockType.holidayLegend =>
-      _themed(block) ? const ['Content', 'Style', 'Layout'] : const ['Layout'],
-  };
+  static List<String> tabsFor(CalendarStudioBlock block) =>
+      switch (block.type) {
+        CalendarStudioBlockType.text => const [_content, _style, _layout],
+        CalendarStudioBlockType.image ||
+        CalendarStudioBlockType.logo => const [StudioStrings.image, _layout],
+        CalendarStudioBlockType.shape ||
+        CalendarStudioBlockType.decoration => const [_style, _layout],
+        CalendarStudioBlockType.calendarGrid => const [
+          StudioStrings.data,
+          _style,
+          _layout,
+        ],
+        CalendarStudioBlockType.eventList ||
+        CalendarStudioBlockType.holidayLegend =>
+          _themed(block) ? const [_content, _style, _layout] : const [_layout],
+      };
 
   static IconData iconFor(CalendarStudioBlockType type) => switch (type) {
     CalendarStudioBlockType.calendarGrid => Icons.calendar_month_outlined,
@@ -107,7 +115,7 @@ class CalendarStudioInspector extends StatelessWidget {
                     ),
                     if (block.type == CalendarStudioBlockType.calendarGrid)
                       Text(
-                        'Dates come from the app calendar',
+                        StudioStrings.gridDataNote,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                   ],
@@ -116,7 +124,7 @@ class CalendarStudioInspector extends StatelessWidget {
               IconButton(
                 onPressed: onClose,
                 icon: const Icon(Icons.keyboard_arrow_down),
-                tooltip: 'Close inspector',
+                tooltip: StudioStrings.closeInspector,
               ),
             ],
           ),
@@ -128,12 +136,12 @@ class CalendarStudioInspector extends StatelessWidget {
                     controller.saveState == CalendarStudioSaveState.saving
                     ? null
                     : controller.saveNow,
-                child: const Text('Save'),
+                child: const Text(StudioStrings.save),
               ),
               IconButton(
                 onPressed: controller.duplicateSelected,
                 icon: const Icon(Icons.copy_outlined),
-                tooltip: 'Duplicate',
+                tooltip: StudioStrings.duplicate,
               ),
               IconButton(
                 onPressed: () =>
@@ -141,7 +149,9 @@ class CalendarStudioInspector extends StatelessWidget {
                 icon: Icon(
                   block.locked ? Icons.lock_outline : Icons.lock_open_outlined,
                 ),
-                tooltip: block.locked ? 'Unlock' : 'Lock',
+                tooltip: block.locked
+                    ? StudioStrings.unlock
+                    : StudioStrings.lock,
               ),
               IconButton(
                 onPressed: () =>
@@ -151,13 +161,15 @@ class CalendarStudioInspector extends StatelessWidget {
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
                 ),
-                tooltip: block.visible ? 'Hide' : 'Show',
+                tooltip: block.visible
+                    ? StudioStrings.hide
+                    : StudioStrings.show,
               ),
               IconButton(
                 onPressed: onDelete,
                 color: tokens.error,
                 icon: const Icon(Icons.delete_outline),
-                tooltip: 'Delete',
+                tooltip: StudioStrings.delete,
               ),
             ],
           ),

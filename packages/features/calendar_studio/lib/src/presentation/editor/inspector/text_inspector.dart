@@ -6,6 +6,7 @@ import '../../../templates/calendar_studio_text_styles.dart';
 import '../../../theme/calendar_studio_theme.dart';
 import 'studio_inspector_controls.dart';
 import 'studio_inspector_host.dart';
+import '../../calendar_studio_strings.dart';
 
 /// Text: Content, Style (tabs 0 and 1; Layout is shared).
 class StudioTextInspector extends StatelessWidget {
@@ -89,7 +90,7 @@ class StudioTextInspector extends StatelessWidget {
             'calendar-studio-text-${block.id}-${host.textFieldRevision}',
           ),
           host: host,
-          label: 'Text',
+          label: StudioStrings.text,
           maxLines: 5,
           value: block.content['text'] as String? ?? '',
           onChanged: _setText,
@@ -101,19 +102,19 @@ class StudioTextInspector extends StatelessWidget {
               key: const ValueKey('studio-edit-on-page'),
               onPressed: () => host.editOnPage(block),
               icon: const Icon(Icons.edit_note),
-              label: const Text('Type on the page'),
+              label: const Text(StudioStrings.typeOnThePage),
             ),
             if (host.suggestText case final suggest?)
               TextButton.icon(
                 key: const ValueKey('calendar-studio-suggest-text'),
                 onPressed: () => suggest(block),
                 icon: const Icon(Icons.auto_awesome_outlined),
-                label: const Text('Suggest text'),
+                label: const Text(StudioStrings.suggestText),
               ),
           ],
         ),
         StudioSection(
-          title: 'Shows',
+          title: StudioStrings.shows,
           children: [
             Wrap(
               spacing: 6,
@@ -132,7 +133,7 @@ class StudioTextInspector extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
-                  'Changes with each page’s month and the project language.',
+                  StudioStrings.bindingNote,
                   style: TextStyle(
                     color: CalendarStudioTokens.of(context).ink3,
                     fontSize: 12,
@@ -142,13 +143,13 @@ class StudioTextInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Second line',
+          title: StudioStrings.secondLine,
           children: [
             StudioTextField(
               key: ValueKey('studio-subtitle-${block.id}'),
               host: host,
-              label: 'Subtitle',
-              hint: 'An English line under a Myanmar title',
+              label: StudioStrings.subtitle,
+              hint: StudioStrings.subtitleHint,
               value: subtitle ?? '',
               onChanged: (value) => host.update(
                 block.copyWith(
@@ -176,7 +177,7 @@ class StudioTextInspector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Text style',
+          title: StudioStrings.textStyle,
           children: [
             Wrap(
               spacing: 6,
@@ -197,15 +198,15 @@ class StudioTextInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Font',
+          title: StudioStrings.font,
           children: [
             StudioFontField(
-              label: 'Font',
+              label: StudioStrings.font,
               value: family,
               onChanged: (value) => host.setStyle(block, 'fontFamily', value),
             ),
             StudioFieldRow(
-              label: 'Weight',
+              label: StudioStrings.weight,
               child: DropdownButton<int>(
                 key: const ValueKey('studio-font-weight'),
                 value: _weights.any((w) => w.$1 == weight) ? weight : 700,
@@ -218,20 +219,20 @@ class StudioTextInspector extends StatelessWidget {
               ),
             ),
             StudioSwitch(
-              label: 'Italic',
-              subtitle: 'For Latin text',
+              label: StudioStrings.italic,
+              subtitle: StudioStrings.forLatinText,
               value: style['italic'] == true,
               onChanged: (value) => host.setStyle(block, 'italic', value),
             ),
             StudioStepper(
-              label: 'Size',
+              label: StudioStrings.size,
               value: (style['fontSize'] as num?)?.toDouble() ?? 20,
               min: 6,
               max: 400,
               onChanged: (value) => host.setStyle(block, 'fontSize', value),
             ),
             StudioStepper(
-              label: 'Line height',
+              label: StudioStrings.lineHeight,
               value: (style['lineHeight'] as num?)?.toDouble() ?? 1.2,
               min: .8,
               max: 3,
@@ -240,7 +241,7 @@ class StudioTextInspector extends StatelessWidget {
               onChanged: (value) => host.setStyle(block, 'lineHeight', value),
             ),
             StudioStepper(
-              label: 'Letter spacing',
+              label: StudioStrings.letterSpacing,
               value: (style['letterSpacing'] as num?)?.toDouble() ?? 0,
               min: -5,
               max: 30,
@@ -252,7 +253,7 @@ class StudioTextInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Alignment',
+          title: StudioStrings.alignment,
           children: [
             Row(
               children: [
@@ -284,11 +285,11 @@ class StudioTextInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Colour',
+          title: StudioStrings.colour,
           children: [
             StudioColorField(
               id: 'text',
-              label: 'Text colour',
+              label: StudioStrings.textColour,
               value: style['color'] as int?,
               host: host,
               pageColors: page,
@@ -297,7 +298,7 @@ class StudioTextInspector extends StatelessWidget {
             if (hasSubtitle) ...[
               StudioColorField(
                 id: 'subtitle',
-                label: 'Subtitle colour',
+                label: StudioStrings.subtitleColour,
                 value: style['subtitleColor'] as int?,
                 host: host,
                 pageColors: page,
@@ -305,7 +306,7 @@ class StudioTextInspector extends StatelessWidget {
                     host.setStyle(block, 'subtitleColor', value),
               ),
               StudioStepper(
-                label: 'Subtitle size',
+                label: StudioStrings.subtitleSize,
                 unit: '%',
                 value:
                     ((style['subtitleScale'] as num?)?.toDouble() ?? .38) * 100,

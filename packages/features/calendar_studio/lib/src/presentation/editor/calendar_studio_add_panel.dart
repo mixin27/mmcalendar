@@ -7,6 +7,7 @@ import '../../templates/calendar_studio_text_styles.dart';
 import '../../theme/calendar_studio_font_catalog.dart';
 import '../../theme/calendar_studio_theme.dart';
 import '../../widgets/calendar_studio_decorations.dart';
+import '../calendar_studio_strings.dart';
 
 /// Something the Add panel can put on the page.
 class StudioAddItem {
@@ -39,19 +40,19 @@ enum StudioAddTab { text, elements, images, calendar, recent }
 /// Every item, coloured from the project theme.
 abstract final class StudioAddCatalog {
   static const _shapes = [
-    ('rectangle', 'Rectangle', Icons.rectangle_outlined),
-    ('rounded', 'Rounded', Icons.crop_16_9_rounded),
-    ('circle', 'Circle', Icons.circle_outlined),
-    ('oval', 'Oval', Icons.circle_outlined),
-    ('triangle', 'Triangle', Icons.change_history),
-    ('diamond', 'Diamond', Icons.diamond_outlined),
-    ('pentagon', 'Pentagon', Icons.pentagon_outlined),
-    ('hexagon', 'Hexagon', Icons.hexagon_outlined),
-    ('octagon', 'Octagon', Icons.stop_outlined),
-    ('star', 'Star', Icons.star_outline),
-    ('heart', 'Heart', Icons.favorite_border),
-    ('arrow', 'Arrow', Icons.arrow_forward),
-    ('line', 'Line', Icons.horizontal_rule),
+    ('rectangle', StudioStrings.rectangle, Icons.rectangle_outlined),
+    ('rounded', StudioStrings.rounded, Icons.crop_16_9_rounded),
+    ('circle', StudioStrings.circle, Icons.circle_outlined),
+    ('oval', StudioStrings.oval, Icons.circle_outlined),
+    ('triangle', StudioStrings.triangle, Icons.change_history),
+    ('diamond', StudioStrings.diamond, Icons.diamond_outlined),
+    ('pentagon', StudioStrings.pentagon, Icons.pentagon_outlined),
+    ('hexagon', StudioStrings.hexagon, Icons.hexagon_outlined),
+    ('octagon', StudioStrings.octagon, Icons.stop_outlined),
+    ('star', StudioStrings.star, Icons.star_outline),
+    ('heart', StudioStrings.heart, Icons.favorite_border),
+    ('arrow', StudioStrings.arrow, Icons.arrow_forward),
+    ('line', StudioStrings.line, Icons.horizontal_rule),
   ];
 
   static const emojis = [
@@ -138,16 +139,16 @@ abstract final class StudioAddCatalog {
   static const images = [
     StudioAddItem(
       id: 'image',
-      label: 'Photo from your gallery',
-      subtitle: 'Or take one with the camera',
+      label: StudioStrings.photoFromYourGallery,
+      subtitle: StudioStrings.photoHint,
       icon: Icons.image_outlined,
       type: CalendarStudioBlockType.image,
       pick: true,
     ),
     StudioAddItem(
       id: 'logo',
-      label: 'Logo',
-      subtitle: 'Your brand mark',
+      label: StudioStrings.logo,
+      subtitle: StudioStrings.yourBrandMark,
       icon: Icons.verified_outlined,
       type: CalendarStudioBlockType.logo,
       pick: true,
@@ -168,8 +169,8 @@ abstract final class StudioAddCatalog {
     };
     StudioAddItem mini(int month, String label, double left) => StudioAddItem(
       id: 'mini-$label',
-      label: 'Mini month · $label',
-      subtitle: 'A small ${_months[month - 1]}',
+      label: StudioStrings.miniMonth(label),
+      subtitle: StudioStrings.miniMonthHint(StudioStrings.months[month - 1]),
       icon: Icons.calendar_view_month_outlined,
       type: CalendarStudioBlockType.calendarGrid,
       bounds: StudioRect(left: left, top: .06, width: .26, height: .18),
@@ -179,20 +180,20 @@ abstract final class StudioAddCatalog {
     return [
       StudioAddItem(
         id: 'grid',
-        label: 'Calendar grid',
-        subtitle: 'This page’s month, with Myanmar dates',
+        label: StudioStrings.calendarGrid,
+        subtitle: StudioStrings.calendarGridHint,
         icon: Icons.calendar_month_outlined,
         type: CalendarStudioBlockType.calendarGrid,
         bounds: const StudioRect(left: .06, top: .45, width: .88, height: .42),
         content: const {'calendarStyle': 'standard'},
         style: gridStyle,
       ),
-      if (page.month > 1) mini(page.month - 1, 'previous', .06),
-      if (page.month < 12) mini(page.month + 1, 'next', .68),
+      if (page.month > 1) mini(page.month - 1, StudioStrings.previous, .06),
+      if (page.month < 12) mini(page.month + 1, StudioStrings.nextMonth, .68),
       StudioAddItem(
         id: 'events',
-        label: 'Event list',
-        subtitle: 'Holidays and your events this month',
+        label: StudioStrings.eventList,
+        subtitle: StudioStrings.eventListHint,
         icon: Icons.event_note_outlined,
         type: CalendarStudioBlockType.eventList,
         bounds: const StudioRect(left: .06, top: .72, width: .5, height: .2),
@@ -207,8 +208,8 @@ abstract final class StudioAddCatalog {
       ),
       StudioAddItem(
         id: 'legend',
-        label: 'Holiday legend',
-        subtitle: 'Explains the marks and colours',
+        label: StudioStrings.holidayLegend,
+        subtitle: StudioStrings.legendHint,
         icon: Icons.label_outline,
         type: CalendarStudioBlockType.holidayLegend,
         bounds: const StudioRect(left: .06, top: .92, width: .88, height: .04),
@@ -224,11 +225,6 @@ abstract final class StudioAddCatalog {
       ),
     ];
   }
-
-  static const _months = [
-    'January', 'February', 'March', 'April', 'May', 'June', //
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
 
   /// Every item, for looking up recent ones by id.
   static List<StudioAddItem> all(
@@ -296,13 +292,13 @@ class _CalendarStudioAddPanelState extends State<CalendarStudioAddPanel>
             child: Row(
               children: [
                 Text(
-                  'Add to page',
+                  StudioStrings.addToPage,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const Spacer(),
                 if (widget.onClose case final close?)
                   IconButton(
-                    tooltip: 'Close',
+                    tooltip: StudioStrings.close,
                     onPressed: close,
                     icon: const Icon(Icons.close),
                   ),
@@ -314,11 +310,11 @@ class _CalendarStudioAddPanelState extends State<CalendarStudioAddPanel>
             // Five short tabs share the width, so none hides off-screen.
             labelPadding: const EdgeInsets.symmetric(horizontal: 4),
             tabs: const [
-              Tab(text: 'Text'),
-              Tab(text: 'Elements'),
-              Tab(text: 'Images'),
-              Tab(text: 'Calendar'),
-              Tab(text: 'Recent'),
+              Tab(text: StudioStrings.text),
+              Tab(text: StudioStrings.elements),
+              Tab(text: StudioStrings.images),
+              Tab(text: StudioStrings.calendar),
+              Tab(text: StudioStrings.recent),
             ],
           ),
           Expanded(
@@ -334,7 +330,7 @@ class _CalendarStudioAddPanelState extends State<CalendarStudioAddPanel>
                         child: Padding(
                           padding: EdgeInsets.all(24),
                           child: Text(
-                            'Things you add show up here, ready to add again.',
+                            StudioStrings.recentEmpty,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -382,11 +378,11 @@ class _CalendarStudioAddPanelState extends State<CalendarStudioAddPanel>
           ),
         ),
       const SizedBox(height: 12),
-      Text('Emoji', style: Theme.of(context).textTheme.titleSmall),
+      Text(StudioStrings.emoji, style: Theme.of(context).textTheme.titleSmall),
       TextField(
         controller: _emoji,
         decoration: InputDecoration(
-          labelText: 'Type or paste any emoji',
+          labelText: StudioStrings.emojiField,
           suffixIcon: IconButton(
             onPressed: _addTypedEmoji,
             icon: const Icon(Icons.add_circle_outline),
@@ -457,7 +453,10 @@ class _CalendarStudioAddPanelState extends State<CalendarStudioAddPanel>
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
-        Text('Shapes', style: Theme.of(context).textTheme.titleSmall),
+        Text(
+          StudioStrings.shapes,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
         const SizedBox(height: 8),
         grid(
           StudioAddCatalog.shapes(theme),
@@ -465,7 +464,10 @@ class _CalendarStudioAddPanelState extends State<CalendarStudioAddPanel>
               Icon(item.icon, size: 30, color: Color(theme.color('primary'))),
         ),
         const SizedBox(height: 16),
-        Text('Decorations', style: Theme.of(context).textTheme.titleSmall),
+        Text(
+          StudioStrings.decorations,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
         const SizedBox(height: 8),
         grid(
           StudioAddCatalog.decorations(theme),

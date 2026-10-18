@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../models/calendar_studio_document.dart';
 import 'studio_inspector_controls.dart';
 import 'studio_inspector_host.dart';
+import '../../calendar_studio_strings.dart';
 
 /// Position, size, rotation and layer settings, shared by every block.
 class StudioLayoutSection extends StatelessWidget {
@@ -37,7 +38,7 @@ class StudioLayoutSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Position and size',
+          title: StudioStrings.positionAndSize,
           children: [
             StudioStepper(
               label: 'X',
@@ -54,7 +55,7 @@ class StudioLayoutSection extends StatelessWidget {
               onChanged: (v) => bounds(b.left, v / h, b.width, b.height),
             ),
             StudioStepper(
-              label: 'Width',
+              label: StudioStrings.width,
               unit: 'px',
               value: b.width * w,
               min: 4,
@@ -62,7 +63,7 @@ class StudioLayoutSection extends StatelessWidget {
               onChanged: (v) => bounds(b.left, b.top, v / w, b.height),
             ),
             StudioStepper(
-              label: 'Height',
+              label: StudioStrings.height,
               unit: 'px',
               value: b.height * h,
               min: 4,
@@ -70,7 +71,7 @@ class StudioLayoutSection extends StatelessWidget {
               onChanged: (v) => bounds(b.left, b.top, b.width, v / h),
             ),
             StudioStepper(
-              label: 'Rotation',
+              label: StudioStrings.rotation,
               unit: '°',
               value: block.rotation * 180 / math.pi,
               min: -180,
@@ -82,15 +83,15 @@ class StudioLayoutSection extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Layer',
+          title: StudioStrings.layer,
           children: [
             StudioSwitch(
-              label: 'Lock layer',
+              label: StudioStrings.lockLayer,
               value: block.locked,
               onChanged: (v) => host.update(block.copyWith(locked: v)),
             ),
             StudioSwitch(
-              label: 'Visible',
+              label: StudioStrings.visible,
               value: block.visible,
               onChanged: (v) => host.update(block.copyWith(visible: v)),
             ),
@@ -100,7 +101,7 @@ class StudioLayoutSection extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () => host.controller.moveSelectedLayer(1),
                     icon: const Icon(Icons.flip_to_front_outlined),
-                    label: const Text('Forward'),
+                    label: const Text(StudioStrings.forward),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -108,7 +109,7 @@ class StudioLayoutSection extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () => host.controller.moveSelectedLayer(-1),
                     icon: const Icon(Icons.flip_to_back_outlined),
-                    label: const Text('Back'),
+                    label: const Text(StudioStrings.back),
                   ),
                 ),
               ],
@@ -119,7 +120,7 @@ class StudioLayoutSection extends StatelessWidget {
                 key: const ValueKey('studio-apply-layout-all'),
                 onPressed: () => apply(block, layout: true),
                 icon: const Icon(Icons.library_add_check_outlined),
-                label: const Text('Use this size and place on every month'),
+                label: const Text(StudioStrings.applyLayoutAll),
               ),
             ],
           ],

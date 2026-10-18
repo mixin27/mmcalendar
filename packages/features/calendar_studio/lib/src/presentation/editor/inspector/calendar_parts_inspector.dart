@@ -67,52 +67,55 @@ class StudioGridInspector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Days show',
+          title: StudioStrings.daysShow,
           children: [
             StudioSwitch(
-              label: 'Myanmar dates',
+              label: StudioStrings.myanmarDates,
               value: current.showMyanmarDate,
               onChanged: (v) => source(current.copyWith(showMyanmarDate: v)),
             ),
             StudioSwitch(
-              label: 'Moon phases',
+              label: StudioStrings.moonPhases,
               value: current.showMoonPhases,
               onChanged: (v) => source(current.copyWith(showMoonPhases: v)),
             ),
             StudioSwitch(
-              label: 'Public holidays',
+              label: StudioStrings.publicHolidays,
               value: current.showHolidays,
               onChanged: (v) => source(current.copyWith(showHolidays: v)),
             ),
             StudioSwitch(
-              label: 'Astrology days',
+              label: StudioStrings.astrologyDays,
               value: current.showAstrology,
               onChanged: (v) => source(current.copyWith(showAstrology: v)),
             ),
             StudioSwitch(
-              label: 'My events',
+              label: StudioStrings.myEvents,
               value: current.showEvents,
               onChanged: (v) => source(current.copyWith(showEvents: v)),
             ),
           ],
         ),
         StudioSection(
-          title: 'Weeks',
+          title: StudioStrings.weeks,
           children: [
             StudioFieldRow(
-              label: 'Week starts',
+              label: StudioStrings.weekStarts,
               child: StudioSegmented<bool>(
-                segments: const [(false, 'Sun', null), (true, 'Mon', null)],
+                segments: const [
+                  (false, StudioStrings.sun, null),
+                  (true, StudioStrings.mon, null),
+                ],
                 value: current.weekStartsMonday,
                 onChanged: (v) => source(current.copyWith(weekStartsMonday: v)),
               ),
             ),
             StudioFieldRow(
-              label: 'Rows',
+              label: StudioStrings.rows,
               child: StudioSegmented<String>(
                 segments: const [
-                  ('fixed', 'Always 6', null),
-                  ('auto', 'As needed', null),
+                  ('fixed', StudioStrings.always6, null),
+                  ('auto', StudioStrings.asNeeded, null),
                 ],
                 value: block.style['rows'] == 'auto' ? 'auto' : 'fixed',
                 onChanged: (v) =>
@@ -131,35 +134,35 @@ class StudioGridInspector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Look',
+          title: StudioStrings.look,
           children: [
             StudioFieldRow(
-              label: 'Day style',
+              label: StudioStrings.dayStyle,
               child: StudioSegmented<String>(
                 segments: const [
-                  ('standard', 'Standard', null),
-                  ('plain', 'Plain', null),
-                  ('moonlight', 'Moon', null),
+                  ('standard', StudioStrings.standard, null),
+                  ('plain', StudioStrings.plain, null),
+                  ('moonlight', StudioStrings.moon, null),
                 ],
                 value: block.content['calendarStyle'] as String? ?? 'standard',
                 onChanged: (v) => host.setContent(block, 'calendarStyle', v),
               ),
             ),
             StudioFieldRow(
-              label: 'Grid lines',
+              label: StudioStrings.gridLines,
               child: StudioSegmented<String>(
                 segments: const [
-                  ('none', 'None', null),
-                  ('light', 'Light', null),
-                  ('full', 'Full', null),
-                  ('boxed', 'Boxed', null),
+                  ('none', StudioStrings.none, null),
+                  ('light', StudioStrings.light, null),
+                  ('full', StudioStrings.full, null),
+                  ('boxed', StudioStrings.boxed, null),
                 ],
                 value: block.style['gridLines'] as String? ?? 'light',
                 onChanged: (v) => host.setStyle(block, 'gridLines', v),
               ),
             ),
             StudioStepper(
-              label: 'Row height',
+              label: StudioStrings.rowHeight,
               unit: '%',
               value: rowHeight * 100,
               min: 75,
@@ -170,28 +173,28 @@ class StudioGridInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Numbers',
+          title: StudioStrings.numbers,
           children: [
             StudioFieldRow(
-              label: 'Number font',
+              label: StudioStrings.numberFont,
               child: StudioSegmented<String>(
                 segments: const [
-                  ('serif', 'Serif', null),
-                  ('sans', 'Sans', null),
+                  ('serif', StudioStrings.serif, null),
+                  ('sans', StudioStrings.sans, null),
                 ],
                 value: block.style['numberFont'] as String? ?? 'serif',
                 onChanged: (v) => host.setStyle(block, 'numberFont', v),
               ),
             ),
             StudioFontField(
-              label: 'Numeral family',
+              label: StudioStrings.numeralFamily,
               value: block.style['numberFamily'] as String? ?? 'Fraunces',
               onChanged: (v) => host.setStyle(block, 'numberFamily', v),
             ),
           ],
         ),
         StudioSection(
-          title: 'Colours',
+          title: StudioStrings.colours,
           children: _colors(block, host, const [
             ('inkColor', 'Day numbers'),
             ('secondaryColor', 'Myanmar dates'),
@@ -231,7 +234,7 @@ class StudioEventListInspector extends StatelessWidget {
           StudioTextField(
             key: ValueKey('studio-event-title-${block.id}'),
             host: host,
-            label: 'Title',
+            label: StudioStrings.title,
             value: block.content['title'] as String? ?? '',
             onChanged: (v) => host.setContent(block, 'title', v),
           ),
@@ -239,8 +242,8 @@ class StudioEventListInspector extends StatelessWidget {
             StudioTextField(
               key: ValueKey('studio-event-empty-${block.id}'),
               host: host,
-              label: 'Sample rows when a month has no events',
-              hint: 'One per line',
+              label: StudioStrings.sampleRows,
+              hint: StudioStrings.onePerLine,
               maxLines: 6,
               value: [
                 ...?(block.content['placeholder'] as List?)
@@ -252,10 +255,7 @@ class StudioEventListInspector extends StatelessWidget {
               ]),
             ),
           const SizedBox(height: 8),
-          const Text(
-            'Events come from the calendar data. Turn My events on or off in '
-            'the calendar grid’s Data tab.',
-          ),
+          const Text(StudioStrings.eventsNote),
         ],
       );
     }
@@ -263,16 +263,16 @@ class StudioEventListInspector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Text',
+          title: StudioStrings.text,
           children: [
             StudioFontField(
-              label: 'Font',
+              label: StudioStrings.font,
               value:
                   block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar',
               onChanged: (v) => host.setStyle(block, 'fontFamily', v),
             ),
             StudioStepper(
-              label: 'Size',
+              label: StudioStrings.size,
               value: (block.style['fontSize'] as num?)?.toDouble() ?? 10,
               min: 6,
               max: 60,
@@ -281,7 +281,7 @@ class StudioEventListInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Colours',
+          title: StudioStrings.colours,
           children: _colors(block, host, const [
             ('titleColor', 'Title'),
             ('inkColor', 'Event names'),
@@ -318,7 +318,7 @@ class StudioLegendInspector extends StatelessWidget {
                 ?StudioLegendItem.values.asNameMap()[name],
             };
       return StudioSection(
-        title: 'Shows',
+        title: StudioStrings.shows,
         children: [
           for (final item in StudioLegendItem.values)
             CheckboxListTile(
@@ -332,7 +332,7 @@ class StudioLegendInspector extends StatelessWidget {
                     value.name,
               ]),
             ),
-          const Text('A mark only appears when the calendar shows it too.'),
+          const Text(StudioStrings.legendNote),
         ],
       );
     }
@@ -340,23 +340,23 @@ class StudioLegendInspector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StudioSection(
-          title: 'Text',
+          title: StudioStrings.text,
           children: [
             StudioFontField(
-              label: 'Font',
+              label: StudioStrings.font,
               value:
                   block.style['fontFamily'] as String? ?? 'Noto Sans Myanmar',
               onChanged: (v) => host.setStyle(block, 'fontFamily', v),
             ),
             StudioStepper(
-              label: 'Size',
+              label: StudioStrings.size,
               value: (block.style['fontSize'] as num?)?.toDouble() ?? 10,
               min: 6,
               max: 40,
               onChanged: (v) => host.setStyle(block, 'fontSize', v),
             ),
             StudioFieldRow(
-              label: 'Align',
+              label: StudioStrings.align,
               child: StudioSegmented<String>(
                 segments: const [
                   ('left', null, Icons.format_align_left),
@@ -370,7 +370,7 @@ class StudioLegendInspector extends StatelessWidget {
           ],
         ),
         StudioSection(
-          title: 'Colours',
+          title: StudioStrings.colours,
           children: _colors(block, host, const [
             ('inkColor', 'Labels'),
             ('holidayColor', 'Holiday'),

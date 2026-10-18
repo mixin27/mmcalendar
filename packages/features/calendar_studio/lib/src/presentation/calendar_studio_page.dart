@@ -2789,7 +2789,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
     messenger.toast(
       blocks.length == 1
           ? '${blocks.single.name} deleted'
-          : '${blocks.length} items deleted',
+          : StudioStrings.itemsDeleted(blocks.length),
       actionLabel: 'Undo',
       onAction: controller.undo,
     );
@@ -3293,7 +3293,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Page settings',
+                        StudioStrings.pageSettings,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(sheetContext).textTheme.titleLarge,
                       ),
@@ -3309,11 +3309,11 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                   '${StudioPageSize.of(canvas)?.label ?? '${canvas.width.round()} × ${canvas.height.round()}'}',
                 ),
                 StudioSection(
-                  title: 'Background',
+                  title: StudioStrings.background,
                   children: [
                     StudioColorField(
                       id: 'page-background',
-                      label: 'Page colour',
+                      label: StudioStrings.pageColour,
                       value: canvas.backgroundColor,
                       host: host,
                       pageColors: host.pageColors(controller.currentPage),
@@ -3323,17 +3323,17 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                   ],
                 ),
                 StudioSection(
-                  title: 'Print',
+                  title: StudioStrings.printHeading,
                   children: [
                     StudioSwitch(
-                      label: 'Bleed',
-                      subtitle: '3 mm extra edge for trimming',
+                      label: StudioStrings.bleed,
+                      subtitle: StudioStrings.bleedHint,
                       value: canvas.bleed > 0,
                       onChanged: (value) =>
                           edit(canvas.copyWith(bleed: value ? 3 : 0)),
                     ),
                     StudioStepper(
-                      label: 'Safe margin',
+                      label: StudioStrings.safeMargin,
                       unit: '%',
                       value: canvas.safeInset * 100,
                       max: 12,
@@ -3343,11 +3343,11 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                   ],
                 ),
                 StudioSection(
-                  title: 'While editing',
+                  title: StudioStrings.whileEditing,
                   children: [
                     StudioSwitch(
-                      label: 'Show safe area',
-                      subtitle: 'Keep important content inside the guide',
+                      label: StudioStrings.showSafeArea,
+                      subtitle: StudioStrings.showSafeAreaHint,
                       value: safeArea,
                       onChanged: (value) {
                         setState(() => safeArea = value);
@@ -3355,7 +3355,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                       },
                     ),
                     StudioSwitch(
-                      label: 'Snap to grid',
+                      label: StudioStrings.snapToGrid,
                       value: snapToGrid,
                       onChanged: (value) {
                         setState(() => snapToGrid = value);
@@ -3372,7 +3372,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                     _showProjectSettings();
                   },
                   icon: const Icon(Icons.tune),
-                  label: const Text('Page size, theme and calendar'),
+                  label: const Text(StudioStrings.projectSettingsLink),
                 ),
               ],
             ),
