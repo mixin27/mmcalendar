@@ -14,6 +14,8 @@ class RoutePaths {
   // Views Routes
   static const String yearView = 'year';
   static const String weekView = 'week';
+  static const String myanmarMonthView = 'myanmar-month';
+  static const String agendaView = 'agenda';
   static const String dayView = 'day';
   static const String holidays = 'holidays';
   static const String holidayDetail = ':id';

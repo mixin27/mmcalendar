@@ -2510,4 +2510,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingWidgetTipBody =>
       'See the Myanmar date on your home screen. Touch and hold an empty spot, then add Myanmar Calendar.';
+
+  @override
+  String get viewsMyanmarMonth => 'Myanmar Month';
+
+  @override
+  String get viewsMyanmarMonthSubtitle =>
+      'The month by waxing and waning fortnight';
+
+  @override
+  String get viewsAgenda => 'Agenda';
+
+  @override
+  String get viewsAgendaSubtitle =>
+      'Holidays, Sabbath, moon days and your events ahead';
+
+  @override
+  String get dayDetailsComingUp => 'Coming up';
+
+  @override
+  String get dayDetailsNagahleCompass => 'Dragon\'s head';
 }

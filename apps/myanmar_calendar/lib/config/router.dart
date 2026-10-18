@@ -111,6 +111,10 @@ final GoRouter router = GoRouter(
                   builder: (context, state) => const WeekViewPage(),
                 ),
                 GoRoute(
+                  path: RoutePaths.myanmarMonthView,
+                  builder: (context, state) => const MyanmarMonthViewPage(),
+                ),
+                GoRoute(
                   path: RoutePaths.holidays,
                   builder: (context, state) => HolidaysPage(
                     year: int.tryParse(state.uri.queryParameters['year'] ?? ''),

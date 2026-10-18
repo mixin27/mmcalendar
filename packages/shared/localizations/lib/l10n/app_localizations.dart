@@ -4319,6 +4319,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See the Myanmar date on your home screen. Touch and hold an empty spot, then add Myanmar Calendar.'**
   String get onboardingWidgetTipBody;
+
+  /// Views row: a Myanmar month by fortnight
+  ///
+  /// In en, this message translates to:
+  /// **'Myanmar Month'**
+  String get viewsMyanmarMonth;
+
+  /// Views row subtitle for the Myanmar month view
+  ///
+  /// In en, this message translates to:
+  /// **'The month by waxing and waning fortnight'**
+  String get viewsMyanmarMonthSubtitle;
+
+  /// Views row: upcoming days with something on them
+  ///
+  /// In en, this message translates to:
+  /// **'Agenda'**
+  String get viewsAgenda;
+
+  /// Views row subtitle for the agenda
+  ///
+  /// In en, this message translates to:
+  /// **'Holidays, Sabbath, moon days and your events ahead'**
+  String get viewsAgendaSubtitle;
+
+  /// Day details: next full moon, new moon and Sabbath
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get dayDetailsComingUp;
+
+  /// Day details: the Nagahle compass section
+  ///
+  /// In en, this message translates to:
+  /// **'Dragon\'s head'**
+  String get dayDetailsNagahleCompass;
 }
 
 class _AppLocalizationsDelegate

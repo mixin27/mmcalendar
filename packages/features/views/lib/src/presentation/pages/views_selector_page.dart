@@ -72,6 +72,19 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
               },
             ),
             AppRow(
+              key: const ValueKey('views-myanmar-month-row'),
+              icon: Icons.brightness_3_outlined,
+              iconColor: const Color(0xFFB7700B),
+              title: l10n?.viewsMyanmarMonth ?? 'Myanmar Month',
+              subtitle:
+                  l10n?.viewsMyanmarMonthSubtitle ??
+                  'The month by waxing and waning fortnight',
+              chevron: true,
+              onTap: () => context.go(
+                '${RoutePaths.views}/${RoutePaths.myanmarMonthView}',
+              ),
+            ),
+            AppRow(
               icon: Icons.calendar_today,
               iconColor: const Color(0xFF8E6CEF),
               title: l10n?.day_view ?? 'Day View',

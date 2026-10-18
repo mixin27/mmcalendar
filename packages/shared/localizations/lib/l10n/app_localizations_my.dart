@@ -2491,4 +2491,23 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String get onboardingWidgetTipBody =>
       'မြန်မာရက်စွဲကို ပင်မစာမျက်နှာတွင် ကြည့်ပါ။ နေရာလွတ်ကို ဖိထားပြီး Myanmar Calendar ကို ထည့်ပါ။';
+
+  @override
+  String get viewsMyanmarMonth => 'မြန်မာလ';
+
+  @override
+  String get viewsMyanmarMonthSubtitle => 'လဆန်း၊ လဆုတ် အလိုက် မြန်မာလ';
+
+  @override
+  String get viewsAgenda => 'အစီအစဉ်';
+
+  @override
+  String get viewsAgendaSubtitle =>
+      'ရှေ့လာမည့် ရုံးပိတ်ရက်၊ ဥပုသ်၊ လပြည့်လကွယ်နှင့် သင့်ပွဲများ';
+
+  @override
+  String get dayDetailsComingUp => 'လာမည့်ရက်များ';
+
+  @override
+  String get dayDetailsNagahleCompass => 'နဂါးခေါင်း';
 }

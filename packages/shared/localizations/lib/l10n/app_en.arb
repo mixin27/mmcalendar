@@ -3155,5 +3155,29 @@
   "onboardingWidgetTipBody": "See the Myanmar date on your home screen. Touch and hold an empty spot, then add Myanmar Calendar.",
   "@onboardingWidgetTipBody": {
     "description": "Last onboarding page tip."
+  },
+  "viewsMyanmarMonth": "Myanmar Month",
+  "@viewsMyanmarMonth": {
+    "description": "Views row: a Myanmar month by fortnight"
+  },
+  "viewsMyanmarMonthSubtitle": "The month by waxing and waning fortnight",
+  "@viewsMyanmarMonthSubtitle": {
+    "description": "Views row subtitle for the Myanmar month view"
+  },
+  "viewsAgenda": "Agenda",
+  "@viewsAgenda": {
+    "description": "Views row: upcoming days with something on them"
+  },
+  "viewsAgendaSubtitle": "Holidays, Sabbath, moon days and your events ahead",
+  "@viewsAgendaSubtitle": {
+    "description": "Views row subtitle for the agenda"
+  },
+  "dayDetailsComingUp": "Coming up",
+  "@dayDetailsComingUp": {
+    "description": "Day details: next full moon, new moon and Sabbath"
+  },
+  "dayDetailsNagahleCompass": "Dragon's head",
+  "@dayDetailsNagahleCompass": {
+    "description": "Day details: the Nagahle compass section"
   }
 }

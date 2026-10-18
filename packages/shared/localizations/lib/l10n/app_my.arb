@@ -1942,5 +1942,11 @@
   "onboardingDoneTitle": "အားလုံး အဆင်သင့်ပါ",
   "onboardingDoneToday": "ယနေ့သည် {date} ဖြစ်သည်။",
   "onboardingWidgetTipTitle": "အကြံပြုချက် - ဝစ်ဂျက် ထည့်ပါ",
-  "onboardingWidgetTipBody": "မြန်မာရက်စွဲကို ပင်မစာမျက်နှာတွင် ကြည့်ပါ။ နေရာလွတ်ကို ဖိထားပြီး Myanmar Calendar ကို ထည့်ပါ။"
+  "onboardingWidgetTipBody": "မြန်မာရက်စွဲကို ပင်မစာမျက်နှာတွင် ကြည့်ပါ။ နေရာလွတ်ကို ဖိထားပြီး Myanmar Calendar ကို ထည့်ပါ။",
+  "viewsMyanmarMonth": "မြန်မာလ",
+  "viewsMyanmarMonthSubtitle": "လဆန်း၊ လဆုတ် အလိုက် မြန်မာလ",
+  "viewsAgenda": "အစီအစဉ်",
+  "viewsAgendaSubtitle": "ရှေ့လာမည့် ရုံးပိတ်ရက်၊ ဥပုသ်၊ လပြည့်လကွယ်နှင့် သင့်ပွဲများ",
+  "dayDetailsComingUp": "လာမည့်ရက်များ",
+  "dayDetailsNagahleCompass": "နဂါးခေါင်း"
 }

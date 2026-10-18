@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as mm;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_core/shared_core.dart';
@@ -75,6 +76,36 @@ void main() {
         expect(find.text('Year View'), findsOneWidget);
         expect(find.text('Week View'), findsOneWidget);
         expect(find.text('Day View'), findsOneWidget);
+        expect(find.text('Myanmar Month'), findsOneWidget);
+      });
+
+      testWidgets('Myanmar month: fortnights and quarter moons', (
+        tester,
+      ) async {
+        await _pump(
+          tester,
+          style,
+          const MyanmarMonthViewPage(),
+          const LoadYearView(2026),
+        );
+        expect(find.byType(mm.MyanmarLunarMonthCalendar), findsOneWidget);
+        expect(find.byType(mm.MoonPhaseStrip), findsOneWidget);
+        // Full moon and new moon in the month, plus four quarter moons.
+        expect(find.byType(mm.MoonGlyph), findsNWidgets(6));
+
+        // Stepping to the next Myanmar month moves the strip with it.
+        final title = tester
+            .widget<mm.MyanmarLunarMonthCalendar>(
+              find.byType(mm.MyanmarLunarMonthCalendar),
+            )
+            .month;
+        await tester.tap(find.byTooltip('Next month'));
+        await tester.pumpAndSettle();
+        final strip = tester.widget<mm.MoonPhaseStrip>(
+          find.byType(mm.MoonPhaseStrip),
+        );
+        expect(strip.month, isNot(title));
+        expect(tester.takeException(), isNull);
       });
 
       testWidgets('Year view: 12 months that start on the right weekday', (
