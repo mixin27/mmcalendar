@@ -201,7 +201,9 @@ class CalendarGrid extends StatelessWidget {
         onTap: onTap,
       ),
     };
-    return Hero(tag: 'date_${date.toIso8601String()}', child: cell);
+    // No Hero: nothing flies to a day, and many grids of the same month
+    // (Settings previews, the month switcher, the year view) would share tags.
+    return cell;
   }
 
   DayCellData _data(
