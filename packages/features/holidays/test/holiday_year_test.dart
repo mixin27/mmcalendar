@@ -16,10 +16,11 @@ void main() {
             reason: '$year ${o.start}: ${o.searchNames}',
           );
           if (o.entry == HolidayCatalog.publicHoliday) {
-            // Only the hard-coded substitute days of 2019–2021 stand alone.
+            // Only the year-end days of 2017 and the substitute days of
+            // 2019–2021 stand alone.
             expect(
               year,
-              inInclusiveRange(2019, 2021),
+              inInclusiveRange(2017, 2021),
               reason: '${o.start} ${o.searchNames}',
             );
           }
@@ -43,10 +44,13 @@ void main() {
       [thadingyut.start, thadingyut.end],
       [DateTime(2026, 10, 25), DateTime(2026, 10, 27)],
     );
-    expect(
-      thadingyut.days[1].labels,
-      containsAll(['Holiday', 'End of Buddhist Lent']),
-    );
+    // The full moon is End of Buddhist Lent only; the public holidays are
+    // the days either side.
+    expect(thadingyut.days.map((d) => d.labels), [
+      ['Holiday'],
+      ['End of Buddhist Lent'],
+      ['Holiday'],
+    ]);
 
     final tazaungdaing = only(HolidayCatalog.tazaungdaing);
     expect(
@@ -54,15 +58,24 @@ void main() {
       [DateTime(2026, 11, 23), DateTime(2026, 11, 24)],
     );
 
-    expect(only(HolidayCatalog.newYearsEve).start, DateTime(2026, 12, 31));
+    // 31 December is a public holiday only from 2018 to 2021.
+    expect(year.where((o) => o.entry == HolidayCatalog.newYearsEve), isEmpty);
+    expect(
+      HolidayYears.of(
+        2021,
+        Language.english,
+      ).singleWhere((o) => o.entry == HolidayCatalog.newYearsEve).start,
+      DateTime(2021, 12, 31),
+    );
   });
 
-  test('2026 has 18 public holidays', () {
+  test('2026 has 16 public holidays', () {
     final closed = HolidayYears.of(
       2026,
       Language.english,
     ).where((o) => o.entry.officeClosed);
-    expect(closed.length, 18);
+    // 1 January and 31 December stopped being public holidays after 2021.
+    expect(closed.length, 16);
   });
 
   test('labels follow the calendar language', () {
@@ -75,9 +88,10 @@ void main() {
   });
 
   test('between spans years', () {
+    // 2020 to 2021, while New Year's Eve and New Year's Day were holidays.
     final list = HolidayYears.between(
-      DateTime(2026, 12, 20),
-      DateTime(2027, 1, 10),
+      DateTime(2020, 12, 20),
+      DateTime(2021, 1, 10),
       Language.english,
     );
     expect(

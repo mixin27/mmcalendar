@@ -60,8 +60,6 @@ class ConverterRepositoryImpl extends BaseRepository
           ? '${e.message}. Suggestion: $suggestion'
           : e.message;
       return Left(DataFailure(message));
-    } on DateConversionException catch (e) {
-      return Left(DataFailure(e.message));
     } on MyanmarCalendarException catch (e) {
       return Left(DataFailure(e.message));
     } catch (e) {

@@ -97,7 +97,10 @@ void main() {
       ) async {
         await _pump(tester, style, '/views/holidays/thadingyut?year=2026');
         expect(find.text('Thadingyut'), findsWidgets);
-        expect(find.text('End of Buddhist Lent · Holiday'), findsOneWidget);
+        // The full moon is End of Buddhist Lent; the public holidays are the
+        // days either side.
+        expect(find.text('End of Buddhist Lent'), findsWidgets);
+        expect(find.text('Holiday'), findsNWidgets(2));
         expect(
           find.textContaining('ends the three-month Buddhist Lent'),
           findsOneWidget,
