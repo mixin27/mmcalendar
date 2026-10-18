@@ -1995,5 +1995,94 @@
   "languageKaren": "Karen",
   "@languageKaren": {
     "description": "Name of the Karen calendar language option."
+  },
+  "customColorsTitle": "Custom colours",
+  "@customColorsTitle": {
+    "description": "Title of the custom colours page."
+  },
+  "customColorsAccent": "Accent",
+  "@customColorsAccent": {
+    "description": "Group label for choosing the accent colour."
+  },
+  "customColorsAccentFooter": "Every other colour is made from this one, in light and dark.",
+  "@customColorsAccentFooter": {
+    "description": "Footer under the accent colours."
+  },
+  "customColorsMore": "More colours…",
+  "@customColorsMore": {
+    "description": "Opens a picker for any accent colour."
+  },
+  "customColorsPreview": "Preview",
+  "@customColorsPreview": {
+    "description": "Group label above the light and dark previews."
+  },
+  "customColorsAdvanced": "Advanced",
+  "@customColorsAdvanced": {
+    "description": "Expands the list of every colour slot."
+  },
+  "customColorsAdvancedFooter": "Set any colour by hand. Choosing a new accent clears these.",
+  "@customColorsAdvancedFooter": {
+    "description": "Footer under the advanced colour slots."
+  },
+  "customColorsReset": "Reset to preset",
+  "@customColorsReset": {
+    "description": "Button that removes custom colours and returns to a preset."
+  },
+  "customColorsResetMessage": "Your custom colours will be removed and {preset} will be used again.",
+  "@customColorsResetMessage": {
+    "description": "Confirmation message before resetting custom colours.",
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "customColorsPickTitle": "Choose a colour",
+  "@customColorsPickTitle": {
+    "description": "Title of the colour picker sheet."
+  },
+  "customColorPrimary": "Primary",
+  "@customColorPrimary": {
+    "description": "Colour slot name."
+  },
+  "customColorOnPrimary": "On primary",
+  "@customColorOnPrimary": {
+    "description": "Colour slot name: text on the primary colour."
+  },
+  "customColorSecondary": "Secondary",
+  "@customColorSecondary": {
+    "description": "Colour slot name."
+  },
+  "customColorOnSecondary": "On secondary",
+  "@customColorOnSecondary": {
+    "description": "Colour slot name: text on the secondary colour."
+  },
+  "customColorTertiary": "Tertiary",
+  "@customColorTertiary": {
+    "description": "Colour slot name."
+  },
+  "customColorOnTertiary": "On tertiary",
+  "@customColorOnTertiary": {
+    "description": "Colour slot name: text on the tertiary colour."
+  },
+  "customColorError": "Error",
+  "@customColorError": {
+    "description": "Colour slot name."
+  },
+  "customColorOnError": "On error",
+  "@customColorOnError": {
+    "description": "Colour slot name: text on the error colour."
+  },
+  "customColorSurface": "Surface",
+  "@customColorSurface": {
+    "description": "Colour slot name."
+  },
+  "customColorOnSurface": "On surface",
+  "@customColorOnSurface": {
+    "description": "Colour slot name: text on the surface colour."
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Confirms a sheet or picker."
   }
 }

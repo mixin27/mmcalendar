@@ -112,11 +112,55 @@ void main() {
       expect(schemes.dark, ThemePresets.getPreset('ocean').darkColors);
     });
 
-    test('custom colours derive the other brightness from their primary', () {
-      const custom = ColorScheme.light(primary: Color(0xFF0E6B5C));
+    test('custom colours build both brightnesses from the accent', () {
+      const custom = CustomColors(
+        seed: Color(0xFF0E6B5C),
+        dark: {CustomColorSlot.surface: Color(0xFF101010)},
+      );
       final schemes = ThemePresets.schemesFor('custom', custom: custom);
-      expect(schemes.light, custom);
+      expect(schemes.light.brightness, Brightness.light);
       expect(schemes.dark.brightness, Brightness.dark);
+      expect(schemes.dark.surface, const Color(0xFF101010));
+      expect(schemes.light.surface, isNot(const Color(0xFF101010)));
+    });
+  });
+
+  group('CustomColors', () {
+    test('round-trips through JSON', () {
+      const colors = CustomColors(
+        seed: Color(0xFF6B1F23),
+        light: {CustomColorSlot.primary: Color(0xFF6B1F23)},
+        dark: {CustomColorSlot.onSurface: Color(0xFFF3E8D2)},
+        basePreset: 'traditional',
+      );
+      expect(CustomColors.fromJson(colors.toJson()), colors);
+    });
+
+    test('reads the older one-scheme format as hand-set colours', () {
+      final legacy = {
+        'brightness': 'light',
+        'primary': 0xFF0E6B5C,
+        'onPrimary': 0xFFFFFFFF,
+        'surface': 0xFFF3F7F4,
+      };
+      final colors = CustomColors.fromJson(legacy);
+      expect(colors.seed, const Color(0xFF0E6B5C));
+      expect(colors.light[CustomColorSlot.surface], const Color(0xFFF3F7F4));
+      expect(colors.dark, isEmpty);
+      expect(
+        colors.scheme(Brightness.light).surface,
+        const Color(0xFFF3F7F4),
+      );
+    });
+
+    test('a new accent clears hand-set slots', () {
+      const colors = CustomColors(
+        seed: Color(0xFF000000),
+        light: {CustomColorSlot.primary: Color(0xFF111111)},
+      );
+      final next = colors.withSeed(const Color(0xFF2F5BEA));
+      expect(next.light, isEmpty);
+      expect(next.seed, const Color(0xFF2F5BEA));
     });
   });
 

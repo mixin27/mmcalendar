@@ -20,6 +20,7 @@ export 'src/presentation/bloc/settings_event.dart';
 export 'src/presentation/bloc/settings_state.dart';
 export 'src/presentation/pages/settings_page.dart';
 export 'src/presentation/pages/settings_appearance_page.dart';
+export 'src/presentation/pages/settings_custom_colors_page.dart';
 export 'src/presentation/pages/settings_calendar_configuration_page.dart';
 export 'src/presentation/pages/settings_display_preferences_page.dart';
 export 'src/presentation/pages/settings_calendar_grid_page.dart';

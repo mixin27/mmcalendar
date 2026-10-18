@@ -1592,4 +1592,71 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get languageKaren => 'ကရင်';
+
+  @override
+  String get customColorsTitle => 'ကိုယ်ပိုင်အရောင်များ';
+
+  @override
+  String get customColorsAccent => 'အဓိကအရောင်';
+
+  @override
+  String get customColorsAccentFooter =>
+      'အခြားအရောင်များကို ဤအရောင်မှ အလင်းနှင့် အမှောင် နှစ်မျိုးလုံးအတွက် ဖန်တီးပေးသည်။';
+
+  @override
+  String get customColorsMore => 'နောက်ထပ်အရောင်များ…';
+
+  @override
+  String get customColorsPreview => 'အစမ်းကြည့်ရန်';
+
+  @override
+  String get customColorsAdvanced => 'အဆင့်မြင့်';
+
+  @override
+  String get customColorsAdvancedFooter =>
+      'အရောင်တစ်ခုချင်းကို ကိုယ်တိုင် သတ်မှတ်နိုင်သည်။ အဓိကအရောင် ပြောင်းလျှင် ဤအရောင်များ ပြန်ရှင်းသွားမည်။';
+
+  @override
+  String get customColorsReset => 'မူလပုံစံသို့ ပြန်ထားမည်';
+
+  @override
+  String customColorsResetMessage(String preset) {
+    return 'ကိုယ်ပိုင်အရောင်များကို ဖယ်ရှားပြီး $preset ကို ပြန်သုံးမည်။';
+  }
+
+  @override
+  String get customColorsPickTitle => 'အရောင်ရွေးရန်';
+
+  @override
+  String get customColorPrimary => 'အဓိက';
+
+  @override
+  String get customColorOnPrimary => 'အဓိကပေါ်ရှိ စာ';
+
+  @override
+  String get customColorSecondary => 'ဒုတိယ';
+
+  @override
+  String get customColorOnSecondary => 'ဒုတိယပေါ်ရှိ စာ';
+
+  @override
+  String get customColorTertiary => 'တတိယ';
+
+  @override
+  String get customColorOnTertiary => 'တတိယပေါ်ရှိ စာ';
+
+  @override
+  String get customColorError => 'အမှား';
+
+  @override
+  String get customColorOnError => 'အမှားပေါ်ရှိ စာ';
+
+  @override
+  String get customColorSurface => 'နောက်ခံ';
+
+  @override
+  String get customColorOnSurface => 'နောက်ခံပေါ်ရှိ စာ';
+
+  @override
+  String get done => 'ပြီးပြီ';
 }

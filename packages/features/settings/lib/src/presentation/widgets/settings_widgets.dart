@@ -32,9 +32,13 @@ class SettingsSubPage extends StatelessWidget {
     required this.title,
     required this.builder,
     this.previousTitle,
+    this.actions = const [],
   });
 
   final String title;
+
+  /// Buttons on the trailing side of the nav bar (e.g. Apply).
+  final List<Widget> actions;
 
   /// The back label; defaults to the localized "Settings".
   final String? previousTitle;
@@ -75,6 +79,7 @@ class SettingsSubPage extends StatelessWidget {
               previousTitle ??
               AppLocalizations.of(context)?.settings ??
               'Settings',
+          actions: actions,
           children: children,
         );
       },

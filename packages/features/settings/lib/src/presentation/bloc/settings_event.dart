@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart'
     show CalendarGridStyle, CalendarGridTheme;
-import 'package:shared_ui_kit/shared_ui_kit.dart' show AppStyle;
+import 'package:shared_ui_kit/shared_ui_kit.dart' show AppStyle, CustomColors;
 
 sealed class SettingsEvent extends Equatable {
   const SettingsEvent();
@@ -113,12 +113,12 @@ final class ResetAllSettings extends SettingsEvent {
 
 // Settings Bloc Event for custom colors
 final class UpdateCustomColors extends SettingsEvent {
-  final ColorScheme colorScheme;
+  final CustomColors colors;
 
-  const UpdateCustomColors(this.colorScheme);
+  const UpdateCustomColors(this.colors);
 
   @override
-  List<Object?> get props => [colorScheme];
+  List<Object?> get props => [colors];
 }
 
 final class UpdateAnalyticsConsent extends SettingsEvent {

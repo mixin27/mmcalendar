@@ -37,6 +37,7 @@ class RoutePaths {
   static const String calendarConfig = 'calendar-config';
   static const String displayPreferences = 'display-preferences';
   static const String calendarGrid = 'calendar-grid';
+  static const String customColors = 'custom-colors';
   static const String appUpdate = 'app-update';
   static const String about = 'about';
 }

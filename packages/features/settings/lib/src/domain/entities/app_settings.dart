@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart'
     show CalendarGridStyle, CalendarGridTheme;
-import 'package:shared_ui_kit/shared_ui_kit.dart' show AppStyle;
+import 'package:shared_ui_kit/shared_ui_kit.dart' show AppStyle, CustomColors;
 
 class AppSettingsEntity extends Equatable {
   final ThemeMode themeMode;
   final String themePreset;
   final AppStyle appStyle;
   final String appIcon;
-  final ColorScheme? customColors;
+
+  /// The person's own colours, used when [themePreset] is `custom`.
+  final CustomColors? customColors;
   final String appLanguage;
   final Language calendarLanguage;
   final CalendarConfig calendarConfig;
@@ -61,7 +63,7 @@ class AppSettingsEntity extends Equatable {
     String? themePreset,
     AppStyle? appStyle,
     String? appIcon,
-    ColorScheme? customColors,
+    CustomColors? customColors,
     String? appLanguage,
     Language? calendarLanguage,
     CalendarConfig? calendarConfig,

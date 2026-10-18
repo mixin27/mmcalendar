@@ -1595,4 +1595,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageKaren => 'Karen';
+
+  @override
+  String get customColorsTitle => 'Custom colours';
+
+  @override
+  String get customColorsAccent => 'Accent';
+
+  @override
+  String get customColorsAccentFooter =>
+      'Every other colour is made from this one, in light and dark.';
+
+  @override
+  String get customColorsMore => 'More colours…';
+
+  @override
+  String get customColorsPreview => 'Preview';
+
+  @override
+  String get customColorsAdvanced => 'Advanced';
+
+  @override
+  String get customColorsAdvancedFooter =>
+      'Set any colour by hand. Choosing a new accent clears these.';
+
+  @override
+  String get customColorsReset => 'Reset to preset';
+
+  @override
+  String customColorsResetMessage(String preset) {
+    return 'Your custom colours will be removed and $preset will be used again.';
+  }
+
+  @override
+  String get customColorsPickTitle => 'Choose a colour';
+
+  @override
+  String get customColorPrimary => 'Primary';
+
+  @override
+  String get customColorOnPrimary => 'On primary';
+
+  @override
+  String get customColorSecondary => 'Secondary';
+
+  @override
+  String get customColorOnSecondary => 'On secondary';
+
+  @override
+  String get customColorTertiary => 'Tertiary';
+
+  @override
+  String get customColorOnTertiary => 'On tertiary';
+
+  @override
+  String get customColorError => 'Error';
+
+  @override
+  String get customColorOnError => 'On error';
+
+  @override
+  String get customColorSurface => 'Surface';
+
+  @override
+  String get customColorOnSurface => 'On surface';
+
+  @override
+  String get done => 'Done';
 }

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'color_schemes.dart';
+import 'custom_colors.dart';
 
 class ThemePreset extends Equatable {
   final String id;
@@ -54,18 +55,16 @@ class ThemePresets {
   };
 
   /// The light and dark schemes for a preset, or for the user's custom
-  /// colours (stored in one brightness; the other is derived from its
-  /// primary colour).
+  /// colours (an accent plus any hand-set slots per brightness).
   static ({ColorScheme light, ColorScheme dark}) schemesFor(
     String presetId, {
-    ColorScheme? custom,
+    CustomColors? custom,
   }) {
     if (presetId == 'custom' && custom != null) {
-      ColorScheme other(Brightness b) =>
-          ColorScheme.fromSeed(seedColor: custom.primary, brightness: b);
-      return custom.brightness == Brightness.dark
-          ? (light: other(Brightness.light), dark: custom)
-          : (light: custom, dark: other(Brightness.dark));
+      return (
+        light: custom.scheme(Brightness.light),
+        dark: custom.scheme(Brightness.dark),
+      );
     }
     final preset = getPreset(presetId);
     return (light: preset.lightColors, dark: preset.darkColors);

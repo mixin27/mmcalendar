@@ -1,9 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:shared_core/shared_core.dart';
-import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
-import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings.dart';
@@ -104,16 +102,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           themePreset: currentState.settings.themePreset,
         );
 
-        final preset = ThemePresets.getPreset(
-          currentState.settings.themePreset,
-        );
-        final newColors = event.themeMode == ThemeMode.dark
-            ? preset.darkColors
-            : preset.lightColors;
-
         final updatedSettings = currentState.settings.copyWith(
           themeMode: event.themeMode,
-          customColors: newColors,
         );
         emit(SettingsLoaded(updatedSettings));
       },
@@ -139,15 +129,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           newValue: event.presetId,
         );
 
-        // Get new theme colors
-        final preset = ThemePresets.getPreset(event.presetId);
-        final newColors = currentState.settings.themeMode == ThemeMode.dark
-            ? preset.darkColors
-            : preset.lightColors;
-
         final updatedSettings = currentState.settings.copyWith(
           themePreset: event.presetId,
-          customColors: newColors,
         );
         emit(SettingsLoaded(updatedSettings));
       },
@@ -421,7 +404,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       final currentState = state as SettingsLoaded;
 
       // Save custom colors
-      final result = await updateTheme.updateCustomColors(event.colorScheme);
+      final result = await updateTheme.updateCustomColors(event.colors);
 
       result.fold(
         (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
@@ -435,7 +418,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
           final updatedSettings = currentState.settings.copyWith(
             themePreset: 'custom',
-            customColors: AppColorSchemes.fromCustomColor(event.colorScheme),
+            customColors: event.colors,
           );
           emit(SettingsLoaded(updatedSettings));
         },

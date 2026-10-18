@@ -82,15 +82,14 @@ class SettingsRepositoryImpl extends BaseRepository
       );
 
       // Get theme colors
-      final preset = ThemePresets.getPreset(themePreset);
-      ColorScheme themeColors = themeMode == ThemeMode.dark
-          ? preset.darkColors
-          : preset.lightColors;
-
-      if (themePreset == "custom" && customColors != null) {
+      // Kept even while a preset is chosen, so the custom page can return
+      // to them.
+      CustomColors? themeColors;
+      if (customColors != null) {
         try {
-          final json = (jsonDecode(customColors) as Map<String, dynamic>);
-          themeColors = AppColorSchemes.fromMap(json);
+          themeColors = CustomColors.fromJson(
+            jsonDecode(customColors) as Map<String, dynamic>,
+          );
         } catch (e) {
           log(e.toString());
         }
@@ -207,10 +206,9 @@ class SettingsRepositoryImpl extends BaseRepository
   }
 
   @override
-  Future<Either<Failure, void>> updateCustomColors(ColorScheme colors) async {
+  Future<Either<Failure, void>> updateCustomColors(CustomColors colors) async {
     try {
-      final scheme = AppColorSchemes.fromCustomColor(colors);
-      final json = jsonEncode(scheme.toMap());
+      final json = jsonEncode(colors.toJson());
       await localDataSource.setSetting(StorageKeys.customColors, json);
       await localDataSource.setSetting(StorageKeys.themePreset, 'custom');
 

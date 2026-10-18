@@ -219,6 +219,13 @@ final GoRouter router = GoRouter(
                 GoRoute(
                   path: RoutePaths.themeSettings,
                   builder: (context, state) => const SettingsAppearancePage(),
+                  routes: [
+                    GoRoute(
+                      path: RoutePaths.customColors,
+                      builder: (context, state) =>
+                          const SettingsCustomColorsPage(),
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: RoutePaths.languageSettings,

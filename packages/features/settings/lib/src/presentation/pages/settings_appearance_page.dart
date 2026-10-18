@@ -1,6 +1,7 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
@@ -86,12 +87,14 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
             leading:
                 settings.themePreset == 'custom' &&
                     settings.customColors != null
-                ? _Swatch(color: settings.customColors!.primary)
+                ? _Swatch(color: settings.customColors!.seed)
                 : const Icon(Icons.colorize_outlined, size: 20),
             title: l10n?.settingsCustomColours ?? 'Custom colours…',
             selected: settings.themePreset == 'custom',
             chevron: true,
-            onTap: () => showCustomColorsEditor(context, settings),
+            onTap: () => GoRouter.of(context).push(
+              '/settings/${RoutePaths.themeSettings}/${RoutePaths.customColors}',
+            ),
           ),
         ],
       ),

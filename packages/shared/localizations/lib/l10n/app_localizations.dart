@@ -2783,6 +2783,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Karen'**
   String get languageKaren;
+
+  /// Title of the custom colours page.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom colours'**
+  String get customColorsTitle;
+
+  /// Group label for choosing the accent colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent'**
+  String get customColorsAccent;
+
+  /// Footer under the accent colours.
+  ///
+  /// In en, this message translates to:
+  /// **'Every other colour is made from this one, in light and dark.'**
+  String get customColorsAccentFooter;
+
+  /// Opens a picker for any accent colour.
+  ///
+  /// In en, this message translates to:
+  /// **'More colours…'**
+  String get customColorsMore;
+
+  /// Group label above the light and dark previews.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get customColorsPreview;
+
+  /// Expands the list of every colour slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get customColorsAdvanced;
+
+  /// Footer under the advanced colour slots.
+  ///
+  /// In en, this message translates to:
+  /// **'Set any colour by hand. Choosing a new accent clears these.'**
+  String get customColorsAdvancedFooter;
+
+  /// Button that removes custom colours and returns to a preset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to preset'**
+  String get customColorsReset;
+
+  /// Confirmation message before resetting custom colours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your custom colours will be removed and {preset} will be used again.'**
+  String customColorsResetMessage(String preset);
+
+  /// Title of the colour picker sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a colour'**
+  String get customColorsPickTitle;
+
+  /// Colour slot name.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary'**
+  String get customColorPrimary;
+
+  /// Colour slot name: text on the primary colour.
+  ///
+  /// In en, this message translates to:
+  /// **'On primary'**
+  String get customColorOnPrimary;
+
+  /// Colour slot name.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary'**
+  String get customColorSecondary;
+
+  /// Colour slot name: text on the secondary colour.
+  ///
+  /// In en, this message translates to:
+  /// **'On secondary'**
+  String get customColorOnSecondary;
+
+  /// Colour slot name.
+  ///
+  /// In en, this message translates to:
+  /// **'Tertiary'**
+  String get customColorTertiary;
+
+  /// Colour slot name: text on the tertiary colour.
+  ///
+  /// In en, this message translates to:
+  /// **'On tertiary'**
+  String get customColorOnTertiary;
+
+  /// Colour slot name.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get customColorError;
+
+  /// Colour slot name: text on the error colour.
+  ///
+  /// In en, this message translates to:
+  /// **'On error'**
+  String get customColorOnError;
+
+  /// Colour slot name.
+  ///
+  /// In en, this message translates to:
+  /// **'Surface'**
+  String get customColorSurface;
+
+  /// Colour slot name: text on the surface colour.
+  ///
+  /// In en, this message translates to:
+  /// **'On surface'**
+  String get customColorOnSurface;
+
+  /// Confirms a sheet or picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
 }
 
 class _AppLocalizationsDelegate
