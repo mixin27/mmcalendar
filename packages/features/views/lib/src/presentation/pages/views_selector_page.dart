@@ -85,6 +85,18 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
               ),
             ),
             AppRow(
+              key: const ValueKey('views-agenda-row'),
+              icon: Icons.view_agenda_outlined,
+              iconColor: const Color(0xFF0E8C88),
+              title: l10n?.viewsAgenda ?? 'Agenda',
+              subtitle:
+                  l10n?.viewsAgendaSubtitle ??
+                  'Holidays, Sabbath, moon days and your events ahead',
+              chevron: true,
+              onTap: () =>
+                  context.go('${RoutePaths.views}/${RoutePaths.agendaView}'),
+            ),
+            AppRow(
               icon: Icons.calendar_today,
               iconColor: const Color(0xFF8E6CEF),
               title: l10n?.day_view ?? 'Day View',

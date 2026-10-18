@@ -19,6 +19,18 @@ class _Display implements DisplayPreferencesPort {
   Stream<bool> watchShowShanCalendar() => Stream.value(false);
 }
 
+class _Events implements EventMarkersPort {
+  _Events(this.events);
+  final Map<DateTime, List<CalendarEventItem>> events;
+  @override
+  Stream<Map<DateTime, List<CalendarEventItem>>> watchEventMarkers({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) => Stream.value(events);
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 class _Preview implements MonthPreviewPort {
   @override
   Widget buildMonthPreview({
@@ -31,14 +43,16 @@ Future<ViewsBloc> _pump(
   WidgetTester tester,
   AppStyle style,
   Widget page,
-  ViewsEvent first,
-) async {
+  ViewsEvent first, {
+  void Function(GetIt getIt)? register,
+}) async {
   final getIt = GetIt.instance;
   await getIt.reset();
   getIt
     ..registerSingleton<AnalyticsPort>(_Analytics())
     ..registerSingleton<DisplayPreferencesPort>(_Display())
     ..registerSingleton<MonthPreviewPort>(_Preview());
+  register?.call(getIt);
   final repository = ViewsRepositoryImpl(ViewsLocalDataSourceImpl());
   final bloc = ViewsBloc(
     getYearView: GetYearView(repository),
@@ -77,6 +91,41 @@ void main() {
         expect(find.text('Week View'), findsOneWidget);
         expect(find.text('Day View'), findsOneWidget);
         expect(find.text('Myanmar Month'), findsOneWidget);
+        expect(find.text('Agenda'), findsOneWidget);
+      });
+
+      testWidgets('Agenda: days with holidays, moons and events', (
+        tester,
+      ) async {
+        final today = DateUtils.dateOnly(DateTime.now());
+        final events = _Events({
+          today.add(const Duration(days: 2)): [
+            CalendarEventItem(
+              id: 7,
+              title: 'Pagoda visit',
+              eventDate: today.add(const Duration(days: 2)),
+              isAllDay: true,
+              category: const CalendarEventCategory(
+                name: 'Family',
+                iconName: 'family',
+                colorCode: 0xFF2F5BEA,
+              ),
+              isRecurring: false,
+            ),
+          ],
+        });
+        await _pump(
+          tester,
+          style,
+          const AgendaViewPage(),
+          const LoadYearView(2026),
+          register: (getIt) =>
+              getIt.registerSingleton<EventMarkersPort>(events),
+        );
+        expect(find.text('Pagoda visit'), findsOneWidget);
+        // Every 90 days have at least two full moons.
+        expect(find.byType(mm.MoonGlyph), findsWidgets);
+        expect(tester.takeException(), isNull);
       });
 
       testWidgets('Myanmar month: fortnights and quarter moons', (
