@@ -200,4 +200,25 @@ void main() {
     expect(find.text('Careful'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('Moon band draws the moon under each week', (tester) async {
+    await _pumpGrid(tester, CalendarGridStyle.moonBand);
+    // October 2026 takes five weeks.
+    expect(find.byType(MoonBand), findsNWidgets(5));
+    // The new moon on the 11th and the full moon on the 26th sit on the
+    // band; the days above stay calm.
+    expect(
+      find.descendant(
+        of: find.byType(MoonBand),
+        matching: find.byType(MoonGlyph),
+      ),
+      findsNWidgets(2),
+    );
+    // The last week: brightest at the full moon, fading after it.
+    final band = tester.widget<MoonBand>(find.byType(MoonBand).last);
+    final full = band.days.firstWhere((d) => d.info.westernDay == 26);
+    final waning = band.days.firstWhere((d) => d.info.westernDay == 31);
+    expect(full.moon.illumination, greaterThan(waning.moon.illumination));
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -1326,6 +1326,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Days tinted by Yatyaza, Pyathada and the other astrological days.';
 
   @override
+  String get gridLayoutMoonBandTitle => 'Moon band';
+
+  @override
+  String get gridLayoutMoonBandDescription =>
+      'The moon as a band under each week, brightest at the full moon.';
+
+  @override
   String get gridLayoutDetailedTitle => 'Detailed';
 
   @override

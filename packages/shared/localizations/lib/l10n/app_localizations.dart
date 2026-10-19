@@ -2292,6 +2292,18 @@ abstract class AppLocalizations {
   /// **'Days tinted by Yatyaza, Pyathada and the other astrological days.'**
   String get gridLayoutAuspiceDescription;
 
+  /// Name of the Moon band calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Moon band'**
+  String get gridLayoutMoonBandTitle;
+
+  /// One-line description of the Moon band calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'The moon as a band under each week, brightest at the full moon.'**
+  String get gridLayoutMoonBandDescription;
+
   /// Name of the Detailed calendar grid layout.
   ///
   /// In en, this message translates to:

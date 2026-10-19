@@ -310,15 +310,23 @@ class MonthRegionsDayCell extends StatelessWidget {
   }
 }
 
-/// Focus week: a compact day for the month around the open week. The
-/// date, the lunar day or the moon on moon days, and dots for a holiday,
-/// Sabbath and events. The selected week's details open beneath it in a
-/// [FocusWeekPanel].
+/// A compact day: the date, the lunar day or the moon on moon days, and
+/// (with [dots]) dots for a holiday, Sabbath and events. The grids that
+/// put the day's detail elsewhere use it: Focus week (a [FocusWeekPanel]),
+/// Moon band (a [MoonBand]), Hero today and Week ribbons.
 class FocusWeekDayCell extends StatelessWidget {
-  const FocusWeekDayCell({super.key, required this.data, this.onTap});
+  const FocusWeekDayCell({
+    super.key,
+    required this.data,
+    this.onTap,
+    this.dots = true,
+  });
 
   final DayCellData data;
   final VoidCallback? onTap;
+
+  /// Whether to draw the holiday, Sabbath and event dots.
+  final bool dots;
 
   @override
   Widget build(BuildContext context) {
@@ -336,7 +344,10 @@ class FocusWeekDayCell extends StatelessWidget {
               inMonth &&
               data.options.showMyanmarDates &&
               box.maxHeight >= 22 + line;
-          final dots = inMonth && box.maxHeight >= 22 + (lunar ? line : 0) + 6;
+          final dots =
+              this.dots &&
+              inMonth &&
+              box.maxHeight >= 22 + (lunar ? line : 0) + 6;
           return Column(
             children: [
               FittedBox(
@@ -687,4 +698,46 @@ class _StripePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_StripePainter old) => old.color != color;
+}
+
+/// Moon band: the moon under a week, as a band that brightens through the
+/// waxing fortnight and fades through the waning one, with the full and new
+/// moon marked on it.
+class MoonBand extends StatelessWidget {
+  const MoonBand({super.key, required this.days});
+
+  /// The week's seven days.
+  final List<DayCellData> days;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalendarColors.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(3, 2, 3, 4),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(7),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final day in days)
+              Expanded(
+                child: Opacity(
+                  opacity: day.isInMonth ? 1 : .35,
+                  child: ColoredBox(
+                    color: Color.lerp(
+                      colors.fill,
+                      colors.moon,
+                      day.moon.illumination,
+                    )!,
+                    child: day.isMoonDay
+                        ? Center(child: MoonGlyph(state: day.moon, size: 11))
+                        : null,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }

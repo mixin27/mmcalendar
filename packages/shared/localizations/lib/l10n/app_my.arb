@@ -1605,6 +1605,8 @@
   "gridLayoutFocusWeekDescription": "ရွေးထားသောအပတ်အောက်တွင် ထိုနေ့၏ အသေးစိတ်ကို ဖွင့်ပြသည်။",
   "gridLayoutAuspiceTitle": "ရက်ကောင်းရက်ဆိုး",
   "gridLayoutAuspiceDescription": "ရက်ရာဇာ၊ ပြဿဒါးနှင့် အခြားဗေဒင်ရက်များအလိုက် နေ့များကို အရောင်ခွဲပြသည်။",
+  "gridLayoutMoonBandTitle": "လဝန်းတန်း",
+  "gridLayoutMoonBandDescription": "အပတ်တိုင်းအောက်တွင် လဝန်းအလင်းကို အရောင်တန်းဖြင့် ပြပြီး လပြည့်တွင် အလင်းဆုံး။",
   "gridLayoutDetailedTitle": "အသေးစိတ်",
   "gridLayoutDetailedDescription": "နေ့တိုင်းတွင် လရက်၊ ရုံးပိတ်ရက်အမည်၊ လဝန်းနှင့် ပွဲများ။",
   "gridLayoutCleanTitle": "ရှင်းလင်း",

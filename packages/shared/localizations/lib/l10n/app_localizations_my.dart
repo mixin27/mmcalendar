@@ -1318,6 +1318,13 @@ class AppLocalizationsMy extends AppLocalizations {
       'ရက်ရာဇာ၊ ပြဿဒါးနှင့် အခြားဗေဒင်ရက်များအလိုက် နေ့များကို အရောင်ခွဲပြသည်။';
 
   @override
+  String get gridLayoutMoonBandTitle => 'လဝန်းတန်း';
+
+  @override
+  String get gridLayoutMoonBandDescription =>
+      'အပတ်တိုင်းအောက်တွင် လဝန်းအလင်းကို အရောင်တန်းဖြင့် ပြပြီး လပြည့်တွင် အလင်းဆုံး။';
+
+  @override
   String get gridLayoutDetailedTitle => 'အသေးစိတ်';
 
   @override

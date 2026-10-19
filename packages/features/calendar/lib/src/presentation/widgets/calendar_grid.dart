@@ -135,24 +135,49 @@ class CalendarGrid extends StatelessWidget {
           );
         }
 
+        Widget cells(int r, List<CompleteDate> week) => Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (c, info) in week.indexed)
+              Expanded(child: _cell(info, options, places[r * 7 + c])),
+          ],
+        );
+        DayCellData dayData(CompleteDate info) {
+          final date = DateTime(
+            info.westernYear,
+            info.westernMonth,
+            info.westernDay,
+          );
+          return _data(
+            info,
+            date,
+            eventsByDate[date] ?? const <CalendarEventItem>[],
+            options,
+            const MyanmarMonthPlace(),
+          );
+        }
+
+        Widget row(int r, List<CompleteDate> week) => switch (gridStyle) {
+          // The week's moon as a band under its days.
+          CalendarGridStyle.moonBand => Column(
+            children: [
+              Expanded(child: cells(r, week)),
+              SizedBox(
+                height: 20,
+                child: MoonBand(days: [for (final d in week) dayData(d)]),
+              ),
+            ],
+          ),
+          _ => cells(r, week),
+        };
+
         return Padding(
           padding: padding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               for (final (r, week) in rows.indexed) ...[
-                SizedBox(
-                  height: rowHeight,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final (c, info) in week.indexed)
-                        Expanded(
-                          child: _cell(info, options, places[r * 7 + c]),
-                        ),
-                    ],
-                  ),
-                ),
+                SizedBox(height: rowHeight, child: row(r, week)),
                 if (r == focusRow) bounded ? Flexible(child: panel()) : panel(),
               ],
             ],
@@ -174,6 +199,11 @@ class CalendarGrid extends StatelessWidget {
     final cell = switch (gridStyle) {
       CalendarGridStyle.almanac => AlmanacDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.auspice => AuspiceDayCell(data: data(), onTap: onTap),
+      CalendarGridStyle.moonBand => FocusWeekDayCell(
+        data: data(),
+        onTap: onTap,
+        dots: false,
+      ),
       CalendarGridStyle.focusWeek => FocusWeekDayCell(
         data: data(),
         onTap: onTap,

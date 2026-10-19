@@ -20,6 +20,10 @@ enum CalendarGridStyle {
   /// days to be careful on striped, Sabbath outlined.
   auspice,
 
+  /// Calm days with the moon as a band under each week, brightest at the
+  /// full moon.
+  moonBand,
+
   /// Ruled cells with the lunar day, holiday name, moon and events.
   detailed,
 

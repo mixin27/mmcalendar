@@ -1653,6 +1653,14 @@
   "@gridLayoutAuspiceDescription": {
     "description": "One-line description of the Auspice calendar grid layout."
   },
+  "gridLayoutMoonBandTitle": "Moon band",
+  "@gridLayoutMoonBandTitle": {
+    "description": "Name of the Moon band calendar grid layout."
+  },
+  "gridLayoutMoonBandDescription": "The moon as a band under each week, brightest at the full moon.",
+  "@gridLayoutMoonBandDescription": {
+    "description": "One-line description of the Moon band calendar grid layout."
+  },
   "gridLayoutDetailedTitle": "Detailed",
   "@gridLayoutDetailedTitle": {
     "description": "Name of the Detailed calendar grid layout."
