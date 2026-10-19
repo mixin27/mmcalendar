@@ -320,6 +320,7 @@ class FocusWeekDayCell extends StatelessWidget {
     required this.data,
     this.onTap,
     this.dots = true,
+    this.moonGlyph = true,
   });
 
   final DayCellData data;
@@ -327,6 +328,10 @@ class FocusWeekDayCell extends StatelessWidget {
 
   /// Whether to draw the holiday, Sabbath and event dots.
   final bool dots;
+
+  /// Whether moon days show the moon; otherwise its name, as on other days
+  /// (for grids that draw the moon elsewhere).
+  final bool moonGlyph;
 
   @override
   Widget build(BuildContext context) {
@@ -358,7 +363,7 @@ class FocusWeekDayCell extends StatelessWidget {
                 SizedBox(
                   height: line,
                   child: Center(
-                    child: data.isMoonDay
+                    child: data.isMoonDay && moonGlyph
                         ? MoonGlyph(state: data.moon, size: 10)
                         : Text(
                             data.lunarLabel,
@@ -729,8 +734,20 @@ class MoonBand extends StatelessWidget {
                       colors.moon,
                       day.moon.illumination,
                     )!,
+                    // Ringed so the full moon shows on the brightest band.
                     child: day.isMoonDay
-                        ? Center(child: MoonGlyph(state: day.moon, size: 11))
+                        ? Center(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: colors.surface,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: MoonGlyph(state: day.moon, size: 11),
+                            ),
+                          )
                         : null,
                   ),
                 ),

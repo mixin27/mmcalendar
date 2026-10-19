@@ -160,11 +160,18 @@ class CalendarGrid extends StatelessWidget {
 
         Widget row(int r, List<CompleteDate> week) => switch (gridStyle) {
           // The week's moon as a band under its days.
+          // Right under the days, so it reads with its own week.
           CalendarGridStyle.moonBand => Column(
             children: [
-              Expanded(child: cells(r, week)),
               SizedBox(
-                height: 20,
+                height: math.min(52, math.max(16, rowHeight - 20)),
+                child: cells(r, week),
+              ),
+              SizedBox(
+                height: math.min(
+                  20,
+                  rowHeight - math.min(52, math.max(16, rowHeight - 20)),
+                ),
                 child: MoonBand(days: [for (final d in week) dayData(d)]),
               ),
             ],
@@ -275,6 +282,7 @@ class CalendarGrid extends StatelessWidget {
         data: data(),
         onTap: onTap,
         dots: false,
+        moonGlyph: false,
       ),
       CalendarGridStyle.focusWeek => FocusWeekDayCell(
         data: data(),
