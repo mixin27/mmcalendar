@@ -35,6 +35,9 @@ class CalendarHomePage extends StatefulWidget {
 
 class _CalendarHomePageState extends State<CalendarHomePage>
     with TickerProviderStateMixin {
+  /// Space between the month header and the weekday labels.
+  static const _weekdayGap = 8.0;
+
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
   final CalendarDisplayConfigPort _calendarDisplayConfigPort =
       getIt<CalendarDisplayConfigPort>();
@@ -326,7 +329,10 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               children: [
                 _buildHeader(state, config),
                 CalendarThemedRegion(
-                  child: WeekdayHeader(language: config.calendarLanguage),
+                  child: WeekdayHeader(
+                    language: config.calendarLanguage,
+                    topGap: _weekdayGap,
+                  ),
                 ),
                 Expanded(
                   child: _buildGrid(
@@ -376,7 +382,10 @@ class _CalendarHomePageState extends State<CalendarHomePage>
       children: [
         _buildHeader(state, config),
         CalendarThemedRegion(
-          child: WeekdayHeader(language: config.calendarLanguage),
+          child: WeekdayHeader(
+            language: config.calendarLanguage,
+            topGap: _weekdayGap,
+          ),
         ),
         Expanded(
           child: LayoutBuilder(
@@ -590,7 +599,10 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             children: [
               _buildHeader(state, config),
               CalendarThemedRegion(
-                child: WeekdayHeader(language: config.calendarLanguage),
+                child: WeekdayHeader(
+                  language: config.calendarLanguage,
+                  topGap: _weekdayGap,
+                ),
               ),
               Expanded(
                 child: _buildGrid(
