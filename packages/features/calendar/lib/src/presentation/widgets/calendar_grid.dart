@@ -175,6 +175,7 @@ class CalendarGrid extends StatelessWidget {
     DayCellData data() => _data(info, date, events, options, place);
     final cell = switch (gridStyle) {
       CalendarGridStyle.almanac => AlmanacDayCell(data: data(), onTap: onTap),
+      CalendarGridStyle.auspice => AuspiceDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.focusWeek => FocusWeekDayCell(
         data: data(),
         onTap: onTap,

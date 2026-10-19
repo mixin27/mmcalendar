@@ -165,4 +165,28 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  test('auspice scores good marks against careful ones', () {
+    int score(int d) => DayCellData(
+      info: _day(d),
+      isToday: false,
+      isSelected: false,
+      isInMonth: true,
+      options: const DayCellOptions(),
+    ).auspice;
+    // 15th: Yatyaza, Amyeittasote and Thamaphyu, but Thamanyo.
+    expect(score(15), 2);
+    // 2nd: Pyathada and Nagapor.
+    expect(score(2), -2);
+    // 22nd: Yatyaza and Thamanyo cancel out.
+    expect(score(22), 0);
+  });
+
+  testWidgets('Auspice marks good and careful days in words', (tester) async {
+    await _pumpGrid(tester, CalendarGridStyle.auspice);
+    expect(find.byType(AuspiceDayCell), findsNWidgets(35));
+    expect(find.text('Good'), findsWidgets);
+    expect(find.text('Careful'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
 }

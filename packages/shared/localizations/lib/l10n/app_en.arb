@@ -1613,6 +1613,14 @@
   "@settingsGridShowMotif": {
     "description": "Switch for the small drawing in the header corner of a grid theme."
   },
+  "gridAuspiceGood": "Good",
+  "@gridAuspiceGood": {
+    "description": "Auspice calendar grid: a day with more good astrological marks (Yatyaza, Amyeittasote, Thamaphyu) than careful ones."
+  },
+  "gridAuspiceCareful": "Careful",
+  "@gridAuspiceCareful": {
+    "description": "Auspice calendar grid: a day with more marks that call for care (Pyathada, Thamanyo, ...) than good ones."
+  },
   "gridLayoutAlmanacTitle": "Almanac",
   "@gridLayoutAlmanacTitle": {
     "description": "Name of the Almanac calendar grid layout."
@@ -1636,6 +1644,14 @@
   "gridLayoutFocusWeekDescription": "A compact month; the selected week opens to show the day's details.",
   "@gridLayoutFocusWeekDescription": {
     "description": "One-line description of the Focus week calendar grid layout."
+  },
+  "gridLayoutAuspiceTitle": "Auspice",
+  "@gridLayoutAuspiceTitle": {
+    "description": "Name of the Auspice calendar grid layout."
+  },
+  "gridLayoutAuspiceDescription": "Days tinted by Yatyaza, Pyathada and the other astrological days.",
+  "@gridLayoutAuspiceDescription": {
+    "description": "One-line description of the Auspice calendar grid layout."
   },
   "gridLayoutDetailedTitle": "Detailed",
   "@gridLayoutDetailedTitle": {

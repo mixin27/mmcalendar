@@ -549,3 +549,133 @@ class _PanelChip extends StatelessWidget {
     ),
   );
 }
+
+/// Auspice: each day tinted by how it reads astrologically. Good days are
+/// green (deeper with two good marks), days to be careful on are striped
+/// so they read without colour, and Sabbath days are outlined in gold.
+class AuspiceDayCell extends StatelessWidget {
+  const AuspiceDayCell({super.key, required this.data, this.onTap});
+
+  final DayCellData data;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalendarColors.of(context);
+    final good = context.tokens.success;
+    final l10n = AppLocalizations.of(context);
+    final inMonth = data.isInMonth;
+    final score = inMonth ? data.auspice : 0;
+    final background = score >= 2
+        ? good.withValues(alpha: .26)
+        : score == 1
+        ? good.withValues(alpha: .13)
+        : score < 0
+        ? colors.holiday.withValues(alpha: .07)
+        : colors.fill;
+    final word = score > 0
+        ? l10n?.gridAuspiceGood ?? 'Good'
+        : score < 0
+        ? l10n?.gridAuspiceCareful ?? 'Careful'
+        : null;
+    final ring = data.isToday
+        ? colors.accent
+        : inMonth && data.showsSabbath
+        ? colors.sabbath
+        : null;
+    return Padding(
+      padding: const EdgeInsets.all(1.5),
+      child: _Cell(
+        data: data,
+        onTap: onTap,
+        radius: 10,
+        background: background,
+        padding: EdgeInsets.zero,
+        child: CustomPaint(
+          painter: score < 0
+              ? _StripePainter(colors.holiday.withValues(alpha: .16))
+              : null,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: ring == null ? null : Border.all(color: ring, width: 2),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(2, 5, 2, 3),
+              child: LayoutBuilder(
+                builder: (context, box) {
+                  final line =
+                      _labelLine * MediaQuery.textScalerOf(context).scale(1);
+                  final label = word != null && box.maxHeight >= 22 + line;
+                  final moon =
+                      inMonth &&
+                      data.isMoonDay &&
+                      box.maxHeight >= 22 + (label ? line : 0) + 11;
+                  return Column(
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: _Number(
+                          data: data,
+                          colors: colors,
+                          size: 15,
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                      if (label)
+                        Text(
+                          word,
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.fade,
+                          style: _small(
+                            context,
+                            score > 0 ? good : colors.holiday,
+                            weight: FontWeight.w700,
+                          ),
+                        ),
+                      if (moon)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 1),
+                          child: MoonGlyph(state: data.moon, size: 10),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Diagonal stripes, so a careful day reads without colour.
+class _StripePainter extends CustomPainter {
+  const _StripePainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 3;
+    canvas.save();
+    canvas.clipRRect(
+      RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(10)),
+    );
+    for (var x = -size.height; x < size.width; x += 9) {
+      canvas.drawLine(
+        Offset(x, size.height),
+        Offset(x + size.height, 0),
+        paint,
+      );
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_StripePainter old) => old.color != color;
+}

@@ -1284,6 +1284,12 @@ class AppLocalizationsMy extends AppLocalizations {
   String get settingsGridShowMotif => 'အလှဆင်ပုံ ပြရန်';
 
   @override
+  String get gridAuspiceGood => 'ရက်ကောင်း';
+
+  @override
+  String get gridAuspiceCareful => 'သတိ';
+
+  @override
   String get gridLayoutAlmanacTitle => 'ပြက္ခဒိန်စုံ';
 
   @override
@@ -1303,6 +1309,13 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String get gridLayoutFocusWeekDescription =>
       'ရွေးထားသောအပတ်အောက်တွင် ထိုနေ့၏ အသေးစိတ်ကို ဖွင့်ပြသည်။';
+
+  @override
+  String get gridLayoutAuspiceTitle => 'ရက်ကောင်းရက်ဆိုး';
+
+  @override
+  String get gridLayoutAuspiceDescription =>
+      'ရက်ရာဇာ၊ ပြဿဒါးနှင့် အခြားဗေဒင်ရက်များအလိုက် နေ့များကို အရောင်ခွဲပြသည်။';
 
   @override
   String get gridLayoutDetailedTitle => 'အသေးစိတ်';

@@ -16,6 +16,10 @@ enum CalendarGridStyle {
   /// details.
   focusWeek,
 
+  /// Each day tinted by how it reads astrologically: good days green,
+  /// days to be careful on striped, Sabbath outlined.
+  auspice,
+
   /// Ruled cells with the lunar day, holiday name, moon and events.
   detailed,
 

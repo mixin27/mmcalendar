@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import 'astro_phrases.dart';
@@ -108,6 +109,24 @@ class DayCellData {
     info.yearType,
     MyanmarCalendar.currentLanguage,
   );
+
+  /// How the day reads astrologically: one for each good mark (Yatyaza,
+  /// Amyeittasote, Thamaphyu), minus one for each mark that calls for
+  /// care. Sabbath counts neither way.
+  int get auspice {
+    var score = 0;
+    for (final mark in AstroPhrases.marks(info)) {
+      switch (AstroPhrases.tone(mark)) {
+        case AstroTone.good:
+          score++;
+        case AstroTone.caution:
+          score--;
+        case AstroTone.sabbath:
+          break;
+      }
+    }
+    return score;
+  }
 
   /// The tones of the marks the user wants shown: Sabbath when Sabbaths
   /// are on, good and careful days when astrology is on. In that order,

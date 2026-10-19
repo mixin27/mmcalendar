@@ -1292,6 +1292,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsGridShowMotif => 'Show motif';
 
   @override
+  String get gridAuspiceGood => 'Good';
+
+  @override
+  String get gridAuspiceCareful => 'Careful';
+
+  @override
   String get gridLayoutAlmanacTitle => 'Almanac';
 
   @override
@@ -1311,6 +1317,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get gridLayoutFocusWeekDescription =>
       'A compact month; the selected week opens to show the day\'s details.';
+
+  @override
+  String get gridLayoutAuspiceTitle => 'Auspice';
+
+  @override
+  String get gridLayoutAuspiceDescription =>
+      'Days tinted by Yatyaza, Pyathada and the other astrological days.';
 
   @override
   String get gridLayoutDetailedTitle => 'Detailed';

@@ -2232,6 +2232,18 @@ abstract class AppLocalizations {
   /// **'Show motif'**
   String get settingsGridShowMotif;
 
+  /// Auspice calendar grid: a day with more good astrological marks (Yatyaza, Amyeittasote, Thamaphyu) than careful ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get gridAuspiceGood;
+
+  /// Auspice calendar grid: a day with more marks that call for care (Pyathada, Thamanyo, ...) than good ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Careful'**
+  String get gridAuspiceCareful;
+
   /// Name of the Almanac calendar grid layout.
   ///
   /// In en, this message translates to:
@@ -2267,6 +2279,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A compact month; the selected week opens to show the day\'s details.'**
   String get gridLayoutFocusWeekDescription;
+
+  /// Name of the Auspice calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Auspice'**
+  String get gridLayoutAuspiceTitle;
+
+  /// One-line description of the Auspice calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Days tinted by Yatyaza, Pyathada and the other astrological days.'**
+  String get gridLayoutAuspiceDescription;
 
   /// Name of the Detailed calendar grid layout.
   ///
