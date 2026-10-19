@@ -216,13 +216,14 @@ class CalendarGrid extends StatelessWidget {
               padding: padding,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: [_heroCard(rows, options), month(cellWidth)],
+                children: [month(cellWidth), _heroCard(rows, options)],
               ),
             );
           }
           // The month stays quiet but readable: rows no taller than the
-          // cells are wide, and at least 34 high. The card takes the rest
-          // and scrolls when that is not enough.
+          // cells are wide, and at least 34 high. The card goes under it,
+          // so the weekday labels stay on their columns, and takes the
+          // rest, scrolling when that is not enough.
           final rowHeight = math.min(
             cellWidth * 1.05,
             math.max(34.0, constraints.maxHeight * .6 / rows.length),
@@ -232,10 +233,10 @@ class CalendarGrid extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                month(rowHeight),
                 Flexible(
                   child: SingleChildScrollView(child: _heroCard(rows, options)),
                 ),
-                month(rowHeight),
               ],
             ),
           );

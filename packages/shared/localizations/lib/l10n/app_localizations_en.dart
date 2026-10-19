@@ -1337,7 +1337,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gridLayoutHeroTodayDescription =>
-      'The selected day as a large card above a quiet month.';
+      'A quiet month with the selected day as a large card under it.';
 
   @override
   String get gridLayoutWeekRibbonsTitle => 'Week ribbons';

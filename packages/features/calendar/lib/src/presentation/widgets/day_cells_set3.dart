@@ -759,7 +759,7 @@ class MoonBand extends StatelessWidget {
   }
 }
 
-/// Hero today: the selected day (or today) as a card above a quiet month.
+/// Hero today: the selected day (or today) as a card under a quiet month.
 /// Its date, Myanmar date in words and moon, its holidays and astrology
 /// as chips, its first events, and the next holiday in the month.
 class HeroDayCard extends StatelessWidget {
@@ -816,7 +816,7 @@ class HeroDayCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           key: const ValueKey('hero-day-card'),
-          margin: const EdgeInsets.fromLTRB(2, 4, 2, 8),
+          margin: const EdgeInsets.fromLTRB(2, 8, 2, 4),
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),

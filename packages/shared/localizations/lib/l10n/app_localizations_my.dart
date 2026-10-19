@@ -1329,7 +1329,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get gridLayoutHeroTodayDescription =>
-      'ရွေးထားသောနေ့ကို ကတ်ကြီးဖြင့် လ၏အပေါ်တွင် ပြသည်။';
+      'ရွေးထားသောနေ့ကို ကတ်ကြီးဖြင့် လ၏အောက်တွင် ပြသည်။';
 
   @override
   String get gridLayoutWeekRibbonsTitle => 'အပတ်ကတ်များ';

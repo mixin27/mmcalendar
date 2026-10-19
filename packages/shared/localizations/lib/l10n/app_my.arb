@@ -1608,7 +1608,7 @@
   "gridLayoutMoonBandTitle": "လဝန်းတန်း",
   "gridLayoutMoonBandDescription": "အပတ်တိုင်းအောက်တွင် လဝန်းအလင်းကို အရောင်တန်းဖြင့် ပြပြီး လပြည့်တွင် အလင်းဆုံး။",
   "gridLayoutHeroTodayTitle": "ယနေ့ကတ်",
-  "gridLayoutHeroTodayDescription": "ရွေးထားသောနေ့ကို ကတ်ကြီးဖြင့် လ၏အပေါ်တွင် ပြသည်။",
+  "gridLayoutHeroTodayDescription": "ရွေးထားသောနေ့ကို ကတ်ကြီးဖြင့် လ၏အောက်တွင် ပြသည်။",
   "gridLayoutWeekRibbonsTitle": "အပတ်ကတ်များ",
   "gridLayoutWeekRibbonsDescription": "အပတ်တစ်ပတ်စီကို ကတ်တစ်ခုဖြင့် ပြပြီး ပွဲများကို နေ့အောက်တွင် အတန်းဖြင့် ပြသည်။",
   "gridLayoutDetailedTitle": "အသေးစိတ်",

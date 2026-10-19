@@ -242,10 +242,10 @@ void main() {
       find.descendant(of: card, matching: find.textContaining('in 3 days')),
       findsOneWidget,
     );
-    // The card sits above the month.
+    // The card sits under the month, so the weekday labels stay on it.
     expect(
-      tester.getBottomLeft(card).dy,
-      lessThan(tester.getTopLeft(find.text('1').first).dy),
+      tester.getTopLeft(card).dy,
+      greaterThan(tester.getBottomLeft(find.text('31').first).dy),
     );
     expect(tester.takeException(), isNull);
   });

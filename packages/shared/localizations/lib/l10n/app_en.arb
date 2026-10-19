@@ -1665,7 +1665,7 @@
   "@gridLayoutHeroTodayTitle": {
     "description": "Name of the Hero today calendar grid layout."
   },
-  "gridLayoutHeroTodayDescription": "The selected day as a large card above a quiet month.",
+  "gridLayoutHeroTodayDescription": "A quiet month with the selected day as a large card under it.",
   "@gridLayoutHeroTodayDescription": {
     "description": "One-line description of the Hero today calendar grid layout."
   },

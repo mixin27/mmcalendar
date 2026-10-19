@@ -2313,7 +2313,7 @@ abstract class AppLocalizations {
   /// One-line description of the Hero today calendar grid layout.
   ///
   /// In en, this message translates to:
-  /// **'The selected day as a large card above a quiet month.'**
+  /// **'A quiet month with the selected day as a large card under it.'**
   String get gridLayoutHeroTodayDescription;
 
   /// Name of the Week ribbons calendar grid layout.
