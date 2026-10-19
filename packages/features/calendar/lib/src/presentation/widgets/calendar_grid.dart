@@ -106,8 +106,8 @@ class CalendarGrid extends StatelessWidget {
           maxRowHeightFactor: maxRowHeightFactor,
           fallbackRatio: gridStyle == CalendarGridStyle.classic ? 1.33 : 1.25,
         );
-        // Focus week keeps the days compact and gives the rest of the
-        // height to the open week's panel.
+        // Focus week keeps the days compact; the open week's panel takes
+        // what it needs of the rest and scrolls when that is not enough.
         final focusRow = focus ? _focusRow(rows) : -1;
         final bounded = constraints.maxHeight.isFinite;
         if (focus) {
@@ -138,9 +138,7 @@ class CalendarGrid extends StatelessWidget {
         return Padding(
           padding: padding,
           child: Column(
-            mainAxisSize: focus && bounded
-                ? MainAxisSize.max
-                : MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
             children: [
               for (final (r, week) in rows.indexed) ...[
                 SizedBox(
@@ -155,7 +153,7 @@ class CalendarGrid extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (r == focusRow) bounded ? Expanded(child: panel()) : panel(),
+                if (r == focusRow) bounded ? Flexible(child: panel()) : panel(),
               ],
             ],
           ),

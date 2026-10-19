@@ -239,7 +239,6 @@ class MonthRegionsDayCell extends StatelessWidget {
           final scale = MediaQuery.textScalerOf(context).scale(1);
           // Myanmar digits need a taller line than the other cells use.
           final line = 15.0 * scale;
-          ;
           var budget = box.maxHeight - 22;
           final lunar =
               inMonth && data.options.showMyanmarDates && budget >= line;
@@ -449,7 +448,11 @@ class FocusWeekPanel extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            data.myanmarDate,
+                            MyanmarCalendar.formatMyanmar(
+                              data.info.myanmar,
+                              pattern: '&M &P &f',
+                              language: language,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
