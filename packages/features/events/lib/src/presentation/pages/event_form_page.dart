@@ -8,7 +8,6 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 import '../../domain/entities/event.dart';
 import '../../domain/entities/notification_setting.dart';
-import '../../domain/entities/recurrence_rule.dart';
 import '../bloc/event_categories_bloc.dart';
 import '../bloc/event_categories_event.dart';
 import '../bloc/event_categories_state.dart';
@@ -16,6 +15,7 @@ import '../bloc/event_form_bloc.dart';
 import '../bloc/event_form_event.dart';
 import '../bloc/event_form_state.dart';
 import '../widgets/form_field_row.dart';
+import '../widgets/repeat_sheet.dart';
 
 class EventFormPage extends StatefulWidget {
   final int? eventId;
@@ -67,7 +67,10 @@ class _EventFormPageState extends State<EventFormPage> {
       listener: (context, state) {
         if (state is EventFormSuccess) {
           context.showToast(
-            state.isNew
+            state.count > 1
+                ? (l10n?.repeatEventsCreated(state.count) ??
+                      '${state.count} events created')
+                : state.isNew
                 ? (l10n?.eventsEventCreated ?? 'Event created')
                 : (l10n?.eventsEventUpdated ?? 'Event updated'),
             kind: AppToastKind.success,
@@ -179,12 +182,16 @@ class _EventFormPageState extends State<EventFormPage> {
               icon: Icons.access_time,
               iconColor: t.accent,
               title: l10n?.time ?? 'Time',
-              value: state.eventTime != null
+              // With a time for each day, the repeat sheet holds the times.
+              value: state.dayTimes.isNotEmpty
+                  ? (l10n?.repeatPerDay ?? 'Per day')
+                  : state.eventTime != null
                   ? TimeOfDay.fromDateTime(state.eventTime!).format(context)
                   : (l10n?.select ?? 'Select'),
               chevron: true,
-              onTap: () =>
-                  _selectTime(context, state.eventTime, state.eventDate),
+              onTap: () => state.dayTimes.isNotEmpty
+                  ? _showRecurrencePicker(context, state)
+                  : _selectTime(context, state.eventTime, state.eventDate),
             ),
         ],
       ),
@@ -235,12 +242,15 @@ class _EventFormPageState extends State<EventFormPage> {
           AppRow(
             icon: Icons.repeat,
             iconColor: const Color(0xFF8E8E93),
+            key: const ValueKey('event-form-repeat'),
             title: l10n?.repeat ?? 'Repeat',
-            value:
-                state.recurrenceRule?.type.displayName ??
-                (l10n?.never ?? 'Never'),
+            value: repeatSummary(
+              context,
+              state.recurrenceRule,
+              dayTimes: state.dayTimes,
+            ),
             chevron: true,
-            onTap: () => _showRecurrencePicker(context, state.recurrenceRule),
+            onTap: () => _showRecurrencePicker(context, state),
           ),
         ],
       ),
@@ -374,37 +384,25 @@ class _EventFormPageState extends State<EventFormPage> {
     context.read<EventFormBloc>().add(const SubmitEventForm());
   }
 
-  void _showRecurrencePicker(BuildContext context, RecurrenceRule? current) {
+  Future<void> _showRecurrencePicker(
+    BuildContext context,
+    EventFormEditing state,
+  ) async {
     final bloc = context.read<EventFormBloc>();
     final l10n = AppLocalizations.of(context);
-    showAppSheet<void>(
+    final choice = await showAppSheet<RepeatChoice>(
       context: context,
       title: l10n?.repeat ?? 'Repeat',
-      builder: (sheetContext) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-        child: AppGroup(
-          children: [
-            for (final type in RecurrenceType.values)
-              AppRow(
-                title: type == RecurrenceType.none
-                    ? (l10n?.never ?? 'Never')
-                    : type.displayName,
-                selected: (current?.type ?? RecurrenceType.none) == type,
-                onTap: () {
-                  bloc.add(
-                    UpdateRecurrenceRule(
-                      type == RecurrenceType.none
-                          ? null
-                          : RecurrenceRule(type: type),
-                    ),
-                  );
-                  Navigator.pop(sheetContext);
-                },
-              ),
-          ],
-        ),
+      builder: (sheetContext) => RepeatSheet(
+        rule: state.recurrenceRule,
+        dayTimes: state.dayTimes,
+        startDate: state.eventDate,
+        time: state.isAllDay ? null : state.eventTime,
+        allowTimePerDay: state.eventId == null,
       ),
     );
+    if (choice == null) return;
+    bloc.add(UpdateRepeat(choice.rule, dayTimes: choice.dayTimes));
   }
 
   void _showNotificationPicker(BuildContext context) {

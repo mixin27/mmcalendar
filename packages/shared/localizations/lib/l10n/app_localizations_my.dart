@@ -2568,4 +2568,49 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get dayDetailsNoAstrologicalDays => 'ထူးခြားသော ဗေဒင်ရက် မရှိပါ';
+
+  @override
+  String get repeatOn => 'နေ့များ';
+
+  @override
+  String get repeatEveryWeek => 'အပတ်တိုင်း';
+
+  @override
+  String repeatEveryWeeks(int count) {
+    return '$count ပတ်တစ်ကြိမ်';
+  }
+
+  @override
+  String get repeatEnds => 'ပြီးဆုံးမည်';
+
+  @override
+  String get repeatEndsOnDate => 'ရက်စွဲတစ်ခုတွင်';
+
+  @override
+  String get repeatEndsAfter => 'အကြိမ်ရေပြည့်လျှင်';
+
+  @override
+  String repeatTimes(int count) {
+    return '$count ကြိမ်';
+  }
+
+  @override
+  String repeatUntil(String date) {
+    return '$date အထိ';
+  }
+
+  @override
+  String get repeatTimePerDay => 'နေ့အလိုက် အချိန်သတ်မှတ်';
+
+  @override
+  String get repeatTimePerDayNote =>
+      'အချိန်မတူသော နေ့များကို အချိန်တစ်ခုစီအတွက် အပတ်စဉ်ပွဲတစ်ခုစီအဖြစ် သိမ်းမည်။';
+
+  @override
+  String repeatEventsCreated(int count) {
+    return 'ပွဲ $count ခု ဖန်တီးပြီး';
+  }
+
+  @override
+  String get repeatPerDay => 'နေ့အလိုက်';
 }

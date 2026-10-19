@@ -4457,6 +4457,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No special astrological days'**
   String get dayDetailsNoAstrologicalDays;
+
+  /// Repeat sheet: the weekdays a weekly event falls on
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get repeatOn;
+
+  /// Repeat sheet: weekly interval of one
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get repeatEveryWeek;
+
+  /// Repeat sheet: weekly interval of two or more
+  ///
+  /// In en, this message translates to:
+  /// **'Every {count} weeks'**
+  String repeatEveryWeeks(int count);
+
+  /// Repeat sheet: when the series ends
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get repeatEnds;
+
+  /// Repeat sheet: the series ends on a chosen date
+  ///
+  /// In en, this message translates to:
+  /// **'On a date'**
+  String get repeatEndsOnDate;
+
+  /// Repeat sheet: the series ends after a number of times
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get repeatEndsAfter;
+
+  /// Repeat summary: how many times the event happens
+  ///
+  /// In en, this message translates to:
+  /// **'{count} times'**
+  String repeatTimes(int count);
+
+  /// Repeat summary: the last date of the series
+  ///
+  /// In en, this message translates to:
+  /// **'until {date}'**
+  String repeatUntil(String date);
+
+  /// Repeat sheet: switch to give each weekday its own time
+  ///
+  /// In en, this message translates to:
+  /// **'A time for each day'**
+  String get repeatTimePerDay;
+
+  /// Repeat sheet: what saving per-day times does
+  ///
+  /// In en, this message translates to:
+  /// **'Days with different times are saved as one weekly event per time.'**
+  String get repeatTimePerDayNote;
+
+  /// Toast after one save creates a weekly event for each time
+  ///
+  /// In en, this message translates to:
+  /// **'{count} events created'**
+  String repeatEventsCreated(int count);
+
+  /// Event form time row when each weekday has its own time
+  ///
+  /// In en, this message translates to:
+  /// **'Per day'**
+  String get repeatPerDay;
 }
 
 class _AppLocalizationsDelegate

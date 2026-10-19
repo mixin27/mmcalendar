@@ -28,6 +28,10 @@ final class EventFormEditing extends EventFormState {
   final EventCategory category;
   final int? colorCode;
   final RecurrenceRule? recurrenceRule;
+
+  /// For a new weekly event, each weekday's own time; empty when every day
+  /// uses [eventTime].
+  final Map<int, DateTime> dayTimes;
   final List<NotificationSetting> notifications;
   final String location;
   final EventPriority priority;
@@ -47,6 +51,7 @@ final class EventFormEditing extends EventFormState {
     required this.category,
     this.colorCode,
     this.recurrenceRule,
+    this.dayTimes = const {},
     required this.notifications,
     required this.location,
     required this.priority,
@@ -68,6 +73,7 @@ final class EventFormEditing extends EventFormState {
     category,
     colorCode,
     recurrenceRule,
+    dayTimes,
     notifications,
     location,
     priority,
@@ -87,7 +93,8 @@ final class EventFormEditing extends EventFormState {
     bool? isAllDay,
     EventCategory? category,
     int? colorCode,
-    RecurrenceRule? recurrenceRule,
+    Object? recurrenceRule = _noChange,
+    Map<int, DateTime>? dayTimes,
     List<NotificationSetting>? notifications,
     String? location,
     EventPriority? priority,
@@ -106,7 +113,11 @@ final class EventFormEditing extends EventFormState {
       isAllDay: isAllDay ?? this.isAllDay,
       category: category ?? this.category,
       colorCode: colorCode ?? this.colorCode,
-      recurrenceRule: recurrenceRule ?? this.recurrenceRule,
+      // "Never" clears the repeat, so null is a value here.
+      recurrenceRule: identical(recurrenceRule, _noChange)
+          ? this.recurrenceRule
+          : recurrenceRule as RecurrenceRule?,
+      dayTimes: dayTimes ?? this.dayTimes,
       notifications: notifications ?? this.notifications,
       location: location ?? this.location,
       priority: priority ?? this.priority,
@@ -151,10 +162,14 @@ final class EventFormSuccess extends EventFormState {
   final Event event;
   final bool isNew;
 
-  const EventFormSuccess(this.event, {this.isNew = true});
+  /// How many events the save created: more than one when a timetable's
+  /// days have different times.
+  final int count;
+
+  const EventFormSuccess(this.event, {this.isNew = true, this.count = 1});
 
   @override
-  List<Object?> get props => [event, isNew];
+  List<Object?> get props => [event, isNew, count];
 }
 
 /// Form submission failed

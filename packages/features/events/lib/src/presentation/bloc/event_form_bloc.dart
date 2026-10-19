@@ -6,6 +6,7 @@ import '../../domain/entities/event.dart';
 import '../../domain/entities/event_category.dart';
 import '../../domain/entities/notification_setting.dart';
 import '../../domain/services/event_validation_service.dart';
+import '../../domain/services/weekly_timetable.dart';
 import '../../domain/usecases/get_event_by_id.dart';
 import '../../utils/event_creation_diagnostic.dart';
 import 'event_form_event.dart';
@@ -30,6 +31,7 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
     on<UpdateEventLocation>(_onUpdateEventLocation);
     on<UpdateEventPriority>(_onUpdateEventPriority);
     on<UpdateRecurrenceRule>(_onUpdateRecurrenceRule);
+    on<UpdateRepeat>(_onUpdateRepeat);
     on<AddNotification>(_onAddNotification);
     on<RemoveNotification>(_onRemoveNotification);
     on<AddTag>(_onAddTag);
@@ -202,6 +204,19 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
     emit(_validatedState(currentState.copyWith(recurrenceRule: event.rule)));
   }
 
+  void _onUpdateRepeat(UpdateRepeat event, Emitter<EventFormState> emit) {
+    if (state is! EventFormEditing) return;
+    final currentState = state as EventFormEditing;
+    emit(
+      _validatedState(
+        currentState.copyWith(
+          recurrenceRule: event.rule,
+          dayTimes: event.dayTimes,
+        ),
+      ),
+    );
+  }
+
   void _onAddNotification(AddNotification event, Emitter<EventFormState> emit) {
     if (state is! EventFormEditing) return;
     final currentState = state as EventFormEditing;
@@ -284,21 +299,34 @@ class EventFormBloc extends Bloc<EventFormEvent, EventFormState> {
 
     emit(const EventFormSubmitting());
 
-    final eventToSubmit = validatedState.toEvent();
-    EventCreationDiagnostic.logBlocCreateStart(eventToSubmit.title);
+    // A weekly timetable starts on its first class day, and days with
+    // different times are saved as one weekly event per time.
+    final toSave = WeeklyTimetable.eventsToSave(
+      validatedState.toEvent(),
+      dayTimes: validatedState.dayTimes,
+    );
+    EventCreationDiagnostic.logBlocCreateStart(toSave.first.title);
 
-    final result = await eventFlowService.saveEvent(eventToSubmit);
-    result.fold(
-      (failure) {
+    EventFlowResult? first;
+    String? warning;
+    for (final eventToSubmit in toSave) {
+      final result = await eventFlowService.saveEvent(eventToSubmit);
+      final failure = result.fold((failure) => failure, (flowResult) {
+        first ??= flowResult;
+        warning ??= flowResult.warningMessage;
+        return null;
+      });
+      if (failure != null) {
         emit(EventFormError(failure));
         emit(validatedState);
-      },
-      (flowResult) {
-        if (flowResult.warningMessage != null) {
-          emit(EventFormError(DataFailure(flowResult.warningMessage!)));
-        }
-        emit(EventFormSuccess(flowResult.event, isNew: flowResult.isNew));
-      },
+        return;
+      }
+    }
+    if (warning != null) {
+      emit(EventFormError(DataFailure(warning!)));
+    }
+    emit(
+      EventFormSuccess(first!.event, isNew: first!.isNew, count: toSave.length),
     );
   }
 

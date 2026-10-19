@@ -117,6 +117,18 @@ final class UpdateEventPriority extends EventFormEvent {
   List<Object?> get props => [priority];
 }
 
+/// Sets the repeat, and for a weekly timetable each weekday's own time
+/// (`DateTime.monday`… → time; empty for one time for every day).
+final class UpdateRepeat extends EventFormEvent {
+  final RecurrenceRule? rule;
+  final Map<int, DateTime> dayTimes;
+
+  const UpdateRepeat(this.rule, {this.dayTimes = const {}});
+
+  @override
+  List<Object?> get props => [rule, dayTimes];
+}
+
 /// Update recurrence rule
 final class UpdateRecurrenceRule extends EventFormEvent {
   final RecurrenceRule? rule;

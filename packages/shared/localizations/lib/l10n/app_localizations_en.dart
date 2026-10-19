@@ -2588,4 +2588,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dayDetailsNoAstrologicalDays => 'No special astrological days';
+
+  @override
+  String get repeatOn => 'On';
+
+  @override
+  String get repeatEveryWeek => 'Every week';
+
+  @override
+  String repeatEveryWeeks(int count) {
+    return 'Every $count weeks';
+  }
+
+  @override
+  String get repeatEnds => 'Ends';
+
+  @override
+  String get repeatEndsOnDate => 'On a date';
+
+  @override
+  String get repeatEndsAfter => 'After';
+
+  @override
+  String repeatTimes(int count) {
+    return '$count times';
+  }
+
+  @override
+  String repeatUntil(String date) {
+    return 'until $date';
+  }
+
+  @override
+  String get repeatTimePerDay => 'A time for each day';
+
+  @override
+  String get repeatTimePerDayNote =>
+      'Days with different times are saved as one weekly event per time.';
+
+  @override
+  String repeatEventsCreated(int count) {
+    return '$count events created';
+  }
+
+  @override
+  String get repeatPerDay => 'Per day';
 }

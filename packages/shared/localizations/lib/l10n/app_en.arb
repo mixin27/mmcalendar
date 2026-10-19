@@ -3247,5 +3247,73 @@
   "dayDetailsNoAstrologicalDays": "No special astrological days",
   "@dayDetailsNoAstrologicalDays": {
     "description": "Day details: the astrology section when no Sabbath, Yatyaza, Pyathada or named astrological day falls on the day"
+  },
+  "repeatOn": "On",
+  "@repeatOn": {
+    "description": "Repeat sheet: the weekdays a weekly event falls on"
+  },
+  "repeatEveryWeek": "Every week",
+  "@repeatEveryWeek": {
+    "description": "Repeat sheet: weekly interval of one"
+  },
+  "repeatEveryWeeks": "Every {count} weeks",
+  "@repeatEveryWeeks": {
+    "description": "Repeat sheet: weekly interval of two or more",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatEnds": "Ends",
+  "@repeatEnds": {
+    "description": "Repeat sheet: when the series ends"
+  },
+  "repeatEndsOnDate": "On a date",
+  "@repeatEndsOnDate": {
+    "description": "Repeat sheet: the series ends on a chosen date"
+  },
+  "repeatEndsAfter": "After",
+  "@repeatEndsAfter": {
+    "description": "Repeat sheet: the series ends after a number of times"
+  },
+  "repeatTimes": "{count} times",
+  "@repeatTimes": {
+    "description": "Repeat summary: how many times the event happens",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatUntil": "until {date}",
+  "@repeatUntil": {
+    "description": "Repeat summary: the last date of the series",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "repeatTimePerDay": "A time for each day",
+  "@repeatTimePerDay": {
+    "description": "Repeat sheet: switch to give each weekday its own time"
+  },
+  "repeatTimePerDayNote": "Days with different times are saved as one weekly event per time.",
+  "@repeatTimePerDayNote": {
+    "description": "Repeat sheet: what saving per-day times does"
+  },
+  "repeatEventsCreated": "{count} events created",
+  "@repeatEventsCreated": {
+    "description": "Toast after one save creates a weekly event for each time",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatPerDay": "Per day",
+  "@repeatPerDay": {
+    "description": "Event form time row when each weekday has its own time"
   }
 }

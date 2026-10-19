@@ -1965,5 +1965,17 @@
   "viewsAgendaSubtitle": "ရှေ့လာမည့် ရုံးပိတ်ရက်၊ ဥပုသ်၊ လပြည့်လကွယ်နှင့် သင့်ပွဲများ",
   "dayDetailsComingUp": "လာမည့်ရက်များ",
   "dayDetailsNagahleCompass": "နဂါးခေါင်း",
-  "dayDetailsNoAstrologicalDays": "ထူးခြားသော ဗေဒင်ရက် မရှိပါ"
+  "dayDetailsNoAstrologicalDays": "ထူးခြားသော ဗေဒင်ရက် မရှိပါ",
+  "repeatOn": "နေ့များ",
+  "repeatEveryWeek": "အပတ်တိုင်း",
+  "repeatEveryWeeks": "{count} ပတ်တစ်ကြိမ်",
+  "repeatEnds": "ပြီးဆုံးမည်",
+  "repeatEndsOnDate": "ရက်စွဲတစ်ခုတွင်",
+  "repeatEndsAfter": "အကြိမ်ရေပြည့်လျှင်",
+  "repeatTimes": "{count} ကြိမ်",
+  "repeatUntil": "{date} အထိ",
+  "repeatTimePerDay": "နေ့အလိုက် အချိန်သတ်မှတ်",
+  "repeatTimePerDayNote": "အချိန်မတူသော နေ့များကို အချိန်တစ်ခုစီအတွက် အပတ်စဉ်ပွဲတစ်ခုစီအဖြစ် သိမ်းမည်။",
+  "repeatEventsCreated": "ပွဲ {count} ခု ဖန်တီးပြီး",
+  "repeatPerDay": "နေ့အလိုက်"
 }
