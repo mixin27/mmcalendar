@@ -82,6 +82,11 @@ capture_android() {
   if ! "$EMULATOR" -list-avds | grep -qx "$avd"; then
     echo no | "$AVDMANAGER" create avd -n "$avd" -k "$ANDROID_IMAGE" -d "$profile"
   fi
+  # A small data partition: the app needs far less than the 12 GB default.
+  local config="$HOME/.android/avd/$avd.avd/config.ini"
+  grep -v '^disk.dataPartition.size' "$config" >"$config.tmp" || true
+  echo 'disk.dataPartition.size=3G' >>"$config.tmp"
+  mv "$config.tmp" "$config"
   # -wipe-data: a clean device each run, so the demo data is never doubled.
   "$EMULATOR" -avd "$avd" -wipe-data -no-snapshot -no-boot-anim >/dev/null 2>&1 &
   "$ADB" wait-for-device
