@@ -39,12 +39,7 @@ export 'src/presentation/pages/event_detail_page.dart';
 export 'src/presentation/pages/categories_page.dart';
 
 // Widgets
-export 'src/presentation/widgets/event_calendar_indicator.dart';
-export 'src/presentation/widgets/event_list_tile.dart';
-export 'src/presentation/widgets/category_chip.dart';
-export 'src/presentation/widgets/priority_badge.dart';
-export 'src/presentation/widgets/recurrence_badge.dart';
-export 'src/presentation/widgets/animated_event_card.dart';
+export 'src/presentation/widgets/event_row.dart';
 
 // Services
 export 'src/services/notification_service.dart';

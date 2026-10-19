@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' show MoonPhaseState;
 
 /// Represents data to be displayed in home widgets
 class WidgetData extends Equatable {
@@ -7,7 +8,10 @@ class WidgetData extends Equatable {
   final String westernDate;
   final String moonPhase;
   final int moonPhaseValue;
-  final String moonPhaseEmoji;
+
+  /// Real-sky lit fraction (0–1) on the evening of the date.
+  final double moonIllumination;
+  final bool moonIsWaxing;
   final int fortnightDay;
   final String fortnightDayText;
   final List<String> holidays;
@@ -21,12 +25,16 @@ class WidgetData extends Equatable {
   final String nextMoonPhase;
   final CompleteDate? completeDate;
 
+  MoonPhaseState get moonState =>
+      MoonPhaseState.ofIllumination(moonIllumination, isWaxing: moonIsWaxing);
+
   const WidgetData({
     required this.myanmarDate,
     required this.westernDate,
     required this.moonPhase,
     required this.moonPhaseValue,
-    required this.moonPhaseEmoji,
+    required this.moonIllumination,
+    required this.moonIsWaxing,
     required this.fortnightDay,
     required this.fortnightDayText,
     required this.holidays,
@@ -47,7 +55,8 @@ class WidgetData extends Equatable {
     westernDate,
     moonPhase,
     moonPhaseValue,
-    moonPhaseEmoji,
+    moonIllumination,
+    moonIsWaxing,
     fortnightDay,
     fortnightDayText,
     holidays,
@@ -67,7 +76,8 @@ class WidgetData extends Equatable {
       'westernDate': westernDate,
       'moonPhase': moonPhase,
       'moonPhaseValue': moonPhaseValue,
-      'moonPhaseEmoji': moonPhaseEmoji,
+      'moonIllumination': moonIllumination,
+      'moonIsWaxing': moonIsWaxing,
       'fortnightDay': fortnightDay,
       'fortnightDayText': fortnightDayText,
       'holidays': holidays,
@@ -87,7 +97,8 @@ class WidgetData extends Equatable {
       westernDate: json['westernDate'] as String,
       moonPhase: json['moonPhase'] as String,
       moonPhaseValue: json['moonPhaseValue'] as int,
-      moonPhaseEmoji: json['moonPhaseEmoji'] as String,
+      moonIllumination: (json['moonIllumination'] as num?)?.toDouble() ?? .5,
+      moonIsWaxing: json['moonIsWaxing'] as bool? ?? true,
       fortnightDay: json['fortnightDay'] as int,
       fortnightDayText: json['fortnightDayText'] as String,
       holidays: (json['holidays'] as List<dynamic>).cast<String>(),

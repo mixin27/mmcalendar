@@ -1,0 +1,366 @@
+import 'package:calendar/calendar.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:shared_core/shared_core.dart';
+
+/// Real dates, no database: the same month building the data source does.
+class _Repository implements CalendarRepository {
+  @override
+  Future<Either<Failure, CalendarMonth>> getCalendarMonth(
+    DateTime month,
+  ) async {
+    final first = DateTime(month.year, month.month);
+    final days = DateTime(month.year, month.month + 1, 0).day;
+    return Right(
+      CalendarMonth(
+        month: first,
+        dates: [
+          for (var d = 1; d <= days; d++)
+            MyanmarCalendar.getCompleteDate(
+              DateTime(month.year, month.month, d),
+            ),
+        ],
+        gridDates: AppDateUtils.getCalendarGridDates(
+          first,
+          firstDayOfWeek: 1,
+        ).map(MyanmarCalendar.getCompleteDate).toList(),
+      ),
+    );
+  }
+
+  @override
+  Future<Either<Failure, CompleteDate>> getDateDetails(DateTime date) async =>
+      Right(MyanmarCalendar.getCompleteDate(date));
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _Analytics implements AnalyticsPort {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => Future<void>.value();
+}
+
+class _DisplayConfig implements CalendarDisplayConfigPort {
+  _DisplayConfig(this.config);
+  final CalendarDisplayConfig config;
+
+  @override
+  Future<CalendarDisplayConfig> getDisplayConfig() async => config;
+
+  @override
+  Stream<CalendarDisplayConfig> watchDisplayConfig() => Stream.value(config);
+}
+
+class _Events implements EventMarkersPort {
+  @override
+  Stream<Map<DateTime, List<CalendarEventItem>>> watchEventMarkers({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) => Stream.value(const {});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+CalendarDisplayConfig _config(
+  CalendarGridStyle style, {
+  Language language = Language.english,
+  CalendarGridTheme theme = CalendarGridTheme.app,
+}) {
+  final defaults = CalendarDisplayConfig.defaults();
+  return CalendarDisplayConfig(
+    calendarLanguage: language,
+    showHolidays: true,
+    showAnniversaryDays: true,
+    showSabbaths: true,
+    showAstrology: true,
+    showWesternDates: true,
+    showMyanmarDates: true,
+    showShanCalendar: defaults.showShanCalendar,
+    useDeviceTimezone: defaults.useDeviceTimezone,
+    sasanaYearType: defaults.sasanaYearType,
+    calendarType: defaults.calendarType,
+    gregorianStart: defaults.gregorianStart,
+    timezoneOffset: defaults.timezoneOffset,
+    defaultLanguage: defaults.defaultLanguage,
+    gridStyle: style,
+    gridTheme: theme,
+  );
+}
+
+Future<void> _pumpHome(
+  WidgetTester tester, {
+  required Size size,
+  required DateTime month,
+  CalendarGridStyle style = CalendarGridStyle.detailed,
+  Language language = Language.english,
+  CalendarGridTheme theme = CalendarGridTheme.app,
+}) async {
+  final getIt = GetIt.instance;
+  await getIt.reset();
+  getIt
+    ..registerSingleton<AnalyticsPort>(_Analytics())
+    ..registerSingleton<CalendarDisplayConfigPort>(
+      _DisplayConfig(_config(style, language: language, theme: theme)),
+    )
+    ..registerSingleton<EventMarkersPort>(_Events());
+
+  tester.view
+    ..devicePixelRatio = 1
+    ..physicalSize = size
+    ..padding = const FakeViewPadding(top: 44, bottom: 34);
+  addTearDown(tester.view.reset);
+
+  final repository = _Repository();
+  final bloc = CalendarBloc(
+    getCalendarMonth: GetCalendarMonth(repository),
+    selectDateUseCase: SelectDate(repository),
+  )..add(LoadCalendarMonth(month));
+  addTearDown(bloc.close);
+
+  await tester.pumpWidget(
+    MaterialApp(
+      home: CalendarLanguageScope(
+        language: language,
+        child: Scaffold(
+          body: BlocProvider.value(
+            value: bloc,
+            child: const CalendarHomePage(),
+          ),
+          // Stands in for the app shell's navigation bar.
+          bottomNavigationBar: const SizedBox(height: 80),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  // Row counts with Sunday first: Feb 2026 = 4, Oct 2026 = 5, Jan 2027 = 6.
+  final months = {
+    '4 rows': DateTime(2026, 2),
+    '5 rows': DateTime(2026, 10),
+    '6 rows': DateTime(2027, 1),
+  };
+  const phones = {
+    'iPhone SE (320×568)': Size(320, 568),
+    'small Android (360×640)': Size(360, 640),
+    'iPhone 14 (390×844)': Size(390, 844),
+    'Pro Max (430×932)': Size(430, 932),
+  };
+
+  for (final MapEntry(key: phone, value: size) in phones.entries) {
+    for (final MapEntry(key: rows, value: month) in months.entries) {
+      testWidgets('$phone, $rows: whole month above the day sheet', (
+        tester,
+      ) async {
+        await _pumpHome(tester, size: size, month: month);
+
+        final cells = find.byType(DetailedDayCell);
+        final expectedCells = int.parse(rows[0]) * 7;
+        expect(cells, findsNWidgets(expectedCells));
+
+        final sheetTop = tester
+            .getTopLeft(
+              find
+                  .descendant(
+                    of: find.byType(DraggableScrollableSheet),
+                    matching: find.byType(ListView),
+                  )
+                  .first,
+            )
+            .dy;
+        final navTop = size.height - 80;
+        for (final element in cells.evaluate()) {
+          final rect = tester.getRect(find.byWidget(element.widget));
+          expect(rect.bottom, lessThanOrEqualTo(sheetTop + .5));
+          expect(rect.bottom, lessThan(navTop));
+          expect(rect.height, greaterThanOrEqualTo(40));
+        }
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+
+  testWidgets('tapping another day selects it and moves the sheet to it', (
+    tester,
+  ) async {
+    await _pumpHome(
+      tester,
+      size: const Size(390, 844),
+      month: DateTime(2026, 10),
+    );
+
+    await tester.tap(find.text('22').first);
+    await tester.pumpAndSettle();
+    final bloc = BlocProvider.of<CalendarBloc>(
+      tester.element(find.byType(CalendarHomePage)),
+    );
+    final state = bloc.state as CalendarLoaded;
+    expect(state.selectedDate?.date, DateTime(2026, 10, 22));
+    expect(find.textContaining('22 Oct'), findsWidgets);
+  });
+
+  for (final MapEntry(key: phone, value: size) in phones.entries) {
+    for (final language in [Language.english, Language.myanmar]) {
+      testWidgets('$phone, ${language.name}: the September title fits '
+          'without "…" and the peek stays compact', (tester) async {
+        await _pumpHome(
+          tester,
+          size: size,
+          month: DateTime(2026, 9),
+          language: language,
+        );
+        final format = CalendarFormat(language);
+        final full = format.monthYear(DateTime(2026, 9));
+        final short = format.shortMonthYear(DateTime(2026, 9));
+        final title = find.text(full).evaluate().isNotEmpty
+            ? find.text(full)
+            : find.text(short);
+        expect(title, findsOneWidget);
+        // Never truncated, and never shrunk below 17 pt.
+        final text = tester.widget<Text>(title);
+        expect(text.overflow, isNot(TextOverflow.ellipsis));
+        final fullSize = text.style!.fontSize! * text.style!.height!;
+        expect(
+          tester.getSize(title).height,
+          greaterThanOrEqualTo(fullSize * 17 / 22 - .5),
+        );
+
+        final sheetTop = tester
+            .getTopLeft(
+              find
+                  .descendant(
+                    of: find.byType(DraggableScrollableSheet),
+                    matching: find.byType(ListView),
+                  )
+                  .first,
+            )
+            .dy;
+        expect(size.height - 80 - sheetTop, lessThanOrEqualTo(72));
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+
+  for (final language in Language.values) {
+    testWidgets('${language.name}: header and sheet dates follow the '
+        'calendar language', (tester) async {
+      await _pumpHome(
+        tester,
+        size: const Size(430, 932),
+        month: DateTime(2026, 10),
+        language: language,
+      );
+      final format = CalendarFormat(language);
+      expect(
+        find.text(format.monthYear(DateTime(2026, 10))).evaluate().isNotEmpty ||
+            find
+                .text(format.shortMonthYear(DateTime(2026, 10)))
+                .evaluate()
+                .isNotEmpty,
+        isTrue,
+      );
+      await tester.tap(find.text('22').first);
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining(format.shortDate(DateTime(2026, 10, 22))),
+        findsWidgets,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('day badges are compact chips, not full-width blocks', (
+    tester,
+  ) async {
+    await _pumpHome(
+      tester,
+      size: const Size(402, 874),
+      month: DateTime(2026, 10),
+    );
+    // The full moon of Thadingyut: a holiday, a Sabbath and the moon badge.
+    await tester.tap(find.text('26').first);
+    await tester.pumpAndSettle();
+    final lit = find.textContaining('% lit', skipOffstage: false);
+    expect(lit, findsOneWidget);
+    final chip = find.ancestor(of: lit, matching: find.byType(Container)).first;
+    expect(tester.getSize(chip).width, lessThan(160));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the sheet expands when dragged up', (tester) async {
+    await _pumpHome(
+      tester,
+      size: const Size(390, 844),
+      month: DateTime(2026, 10),
+    );
+    final sheet = find
+        .descendant(
+          of: find.byType(DraggableScrollableSheet),
+          matching: find.byType(ListView),
+        )
+        .first;
+    final before = tester.getTopLeft(sheet).dy;
+
+    await tester.drag(sheet, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(sheet).dy, lessThan(before - 200));
+    expect(find.text('Full day details'), findsOneWidget);
+  });
+
+  for (final style in CalendarGridStyle.values) {
+    testWidgets('${style.name} grid fits a small phone without overflow', (
+      tester,
+    ) async {
+      await _pumpHome(
+        tester,
+        size: const Size(320, 568),
+        month: DateTime(2027, 1),
+        style: style,
+      );
+      expect(find.byType(CalendarGrid), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  // Themes change colours, typefaces and the header motif, never the size
+  // of anything: every layout still fits, in a light and a dark theme.
+  for (final (i, style) in CalendarGridStyle.values.indexed) {
+    final theme = const [
+      CalendarGridTheme.pagoda,
+      CalendarGridTheme.lacquer,
+      CalendarGridTheme.deepField,
+      CalendarGridTheme.monsoon,
+      CalendarGridTheme.thadingyut,
+    ][i % 5];
+    testWidgets('${style.name} grid in ${theme.name} fits a small phone', (
+      tester,
+    ) async {
+      await _pumpHome(
+        tester,
+        size: const Size(320, 568),
+        month: DateTime(2027, 1),
+        style: style,
+        theme: theme,
+      );
+      final scaffold = tester.widget<Scaffold>(
+        find.descendant(
+          of: find.byType(CalendarHomePage),
+          matching: find.byType(Scaffold),
+        ),
+      );
+      expect(
+        scaffold.backgroundColor,
+        CalendarThemeLook.forTheme(theme)!.light.paper,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+}

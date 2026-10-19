@@ -1,14 +1,23 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:converter/converter.dart';
 import 'package:calendar/calendar.dart';
+import 'package:calendar_studio/calendar_studio.dart'
+    show CalendarStudioFontCatalog;
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
+import 'package:holidays/holidays.dart';
+import 'package:onboarding/onboarding.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_widget/home_widget.dart';
+import 'package:home_widgets/home_widgets.dart';
+import 'package:material_ui/material_ui.dart' as material_ui;
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
+    show MyanmarCalendar;
 import 'package:shared_localizations/shared_localizations.dart';
-import 'package:promo/promo.dart';
 import 'package:settings/settings.dart';
 import 'package:views/views.dart';
 
@@ -60,16 +69,26 @@ class _AppContent extends StatefulWidget {
 }
 
 class _AppContentState extends State<_AppContent> {
+  StreamSubscription<Uri?>? _widgetClicks;
+
   @override
   void initState() {
     super.initState();
-    // Request notification permissions
-    _requestNotificationPermissions();
+    // Widget taps open the app at the right place (mmcalendar:// links).
+    HomeWidget.initiallyLaunchedFromHomeWidget().then(_openWidgetLink);
+    _widgetClicks = HomeWidget.widgetClicked.listen(_openWidgetLink);
   }
 
-  Future<void> _requestNotificationPermissions() async {
-    final notificationService = getIt<NotificationService>();
-    await notificationService.requestPermissions();
+  @override
+  void dispose() {
+    _widgetClicks?.cancel();
+    super.dispose();
+  }
+
+  void _openWidgetLink(Uri? uri) {
+    final location = WidgetLinks.locationFor(uri);
+    if (location == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) => router.go(location));
   }
 
   @override
@@ -84,6 +103,7 @@ class _AppContentState extends State<_AppContent> {
         }
         return prev.settings.calendarLanguage !=
                 curr.settings.calendarLanguage ||
+            prev.settings.appLanguage != curr.settings.appLanguage ||
             prev.settings.calendarConfig != curr.settings.calendarConfig;
       },
       listener: (context, state) {
@@ -95,6 +115,7 @@ class _AppContentState extends State<_AppContent> {
       buildWhen: (prev, curr) {
         if (prev is SettingsLoaded && curr is SettingsLoaded) {
           return prev.settings.themeMode != curr.settings.themeMode ||
+              prev.settings.appStyle != curr.settings.appStyle ||
               prev.settings.customColors != curr.settings.customColors ||
               prev.settings.themePreset != curr.settings.themePreset ||
               prev.settings.appLanguage != curr.settings.appLanguage ||
@@ -112,9 +133,16 @@ class _AppContentState extends State<_AppContent> {
           themeMode = settingsState.settings.themeMode;
         }
 
-        final themeColors = settingsState is SettingsLoaded
-            ? settingsState.settings.customColors
+        final settings = settingsState is SettingsLoaded
+            ? settingsState.settings
             : null;
+        // Light and dark are resolved separately so "System" follows the
+        // device in both directions.
+        final schemes = ThemePresets.schemesFor(
+          settings?.themePreset ?? 'modern',
+          custom: settings?.customColors,
+        );
+        final appStyle = settings?.appStyle ?? AppStyle.automatic;
 
         // Sync with Telegram theme if available
         // final telegramBgColor = getIt<TelegramService>()
@@ -123,25 +151,37 @@ class _AppContentState extends State<_AppContent> {
         //   int.parse(telegramBgColor.replaceFirst('#', '0xff')),
         // );
 
-        final lightTheme = AppTheme.lightTheme(customColors: themeColors);
-        final darkTheme = AppTheme.darkTheme(customColors: themeColors);
+        final lightTheme = AppTheme.build(
+          style: appStyle,
+          colorScheme: schemes.light,
+        );
+        final darkTheme = AppTheme.build(
+          style: appStyle,
+          colorScheme: schemes.dark,
+        );
+        // "Follow app" widgets use these colours.
+        getIt<WidgetSync>().updateAppPalette(
+          lightTheme.extension<AppTokens>()!,
+          darkTheme.extension<AppTokens>()!,
+        );
 
         final locale = settingsState is SettingsLoaded
             ? Locale(settingsState.settings.appLanguage)
             : Locale('en');
 
+        // No key tied to the theme: changing style, mode or colours
+        // restyles in place and keeps every tab's navigation stack.
         return MaterialApp.router(
-          key: ValueKey(
-            'theme-${themeMode.name}-${themeColors?.toStringShort()}',
-          ),
           title: AppConstants.appName,
           debugShowCheckedModeBanner: false,
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeMode,
           localizationsDelegates: [
-            PromoLocalizationsDelegate(),
             ...AppLocalizations.localizationsDelegates,
+            // pro_image_editor (Calendar Studio "Edit image") is built on
+            // material_ui, which needs its own localizations.
+            ...material_ui.GlobalMaterialLocalizations.delegates,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
           locale: locale,
@@ -155,7 +195,31 @@ class _AppContentState extends State<_AppContent> {
                   maxScaleFactor: maxTextScale,
                 ),
               ),
-              child: child ?? const SizedBox.shrink(),
+              // Calendar data follows the calendar language; the interface
+              // follows [locale].
+              child: CalendarLanguageScope(
+                language:
+                    settings?.calendarLanguage ??
+                    MyanmarCalendar.currentLanguage,
+                // flutter_mmcalendar widgets (the date picker) follow the
+                // same language, the app's style and its calendar config.
+                child: AppMyanmarCalendarScope(
+                  language:
+                      settings?.calendarLanguage ??
+                      MyanmarCalendar.currentLanguage,
+                  clearStyle: context.isClearStyle,
+                  colors: _calendarColors(context),
+                  firstDayOfWeek:
+                      AppMyanmarCalendarScope.weekdayFromMyanmarIndex(
+                        settings?.firstDayOfWeek ?? 1,
+                      ),
+                  // Grid themes draw numbers in Studio's bundled typefaces.
+                  child: CalendarFontScope(
+                    resolve: _calendarFont,
+                    child: child ?? const SizedBox.shrink(),
+                  ),
+                ),
+              ),
             );
             return _AppStartupGuard(child: content);
           },
@@ -178,6 +242,14 @@ class _AppContentState extends State<_AppContent> {
       disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
       cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
     );
+    // Holiday reminders are written in these languages; rescheduling also
+    // picks up holiday rule changes.
+    unawaited(
+      getIt<HolidayReminders>().configure(
+        calendarLanguage: settings.calendarLanguage,
+        appLocale: Locale(settings.appLanguage),
+      ),
+    );
   }
 }
 
@@ -194,7 +266,7 @@ class _AppStartupGuardState extends State<_AppStartupGuard> {
   bool _didStartUpdateCheck = false;
   bool _updateCheckCompleted = false;
   bool _requiredUpdateDialogOpen = false;
-  bool _routedToConsent = false;
+  bool _routedToWelcome = false;
 
   @override
   void didChangeDependencies() {
@@ -219,7 +291,7 @@ class _AppStartupGuardState extends State<_AppStartupGuard> {
     }
 
     _updateCheckCompleted = true;
-    _maybeRouteToConsent();
+    _maybeRouteToWelcome();
   }
 
   Future<void> _showRequiredUpdateDialog(
@@ -292,29 +364,60 @@ class _AppStartupGuardState extends State<_AppStartupGuard> {
     );
   }
 
-  void _maybeRouteToConsent() {
+  void _maybeRouteToWelcome() {
     if (!mounted || !_updateCheckCompleted || _requiredUpdateDialogOpen) {
       return;
     }
 
     final settingsState = context.read<SettingsBloc>().state;
     if (settingsState is! SettingsLoaded) return;
-    if (settingsState.settings.hasShownConsentDialog) return;
-    if (_routedToConsent) return;
+    if (_routedToWelcome) return;
+    _routedToWelcome = true;
 
-    final currentPath = router.routeInformationProvider.value.uri.path;
-    if (currentPath == RoutePaths.consent) return;
-
-    _routedToConsent = true;
-    router.go(RoutePaths.consent);
+    final onboarding = getIt<OnboardingStore>();
+    unawaited(
+      onboarding
+          .migrate(
+            madeConsentChoice: settingsState.settings.hasShownConsentDialog,
+          )
+          .then((_) {
+            if (onboarding.completed) return;
+            final currentPath = router.routeInformationProvider.value.uri.path;
+            if (currentPath != RoutePaths.welcome) {
+              router.go(RoutePaths.welcome);
+            }
+          }),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<SettingsBloc, SettingsState>(
       listenWhen: (_, state) => state is SettingsLoaded,
-      listener: (context, _) => _maybeRouteToConsent(),
+      listener: (context, _) => _maybeRouteToWelcome(),
       child: widget.child,
     );
   }
+}
+
+TextStyle _calendarFont(String family, FontWeight weight) =>
+    CalendarStudioFontCatalog.style(family: family, weight: weight);
+
+/// The app's design tokens as the colours flutter_mmcalendar widgets use.
+AppCalendarColors _calendarColors(BuildContext context) {
+  final t = context.tokens;
+  return AppCalendarColors(
+    brightness: Theme.of(context).brightness,
+    accent: t.accent,
+    onAccent: t.onAccent,
+    accentSoft: t.accentSoft,
+    surface: t.surface,
+    fill: t.fill,
+    label: t.label,
+    secondaryLabel: t.secondaryLabel,
+    separator: t.separator,
+    holiday: t.holiday,
+    sabbath: t.sabbath,
+    moon: t.moon,
+  );
 }

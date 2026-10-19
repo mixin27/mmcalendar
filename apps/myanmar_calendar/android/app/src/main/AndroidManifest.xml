@@ -35,6 +35,12 @@
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
+            <!-- Widget links (mmcalendar://) are routed by the home_widget
+                 handler in app.dart; Flutter's own deep linking would push
+                 their path as a route and flash the error page. -->
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="false" />
         </activity>
 
         <activity-alias
@@ -120,56 +126,128 @@
 
         <!-- <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-7567997114394639~3076287765"/> -->
 
-        <!-- COMPACT DATE WIDGET -->
+        <!-- HOME SCREEN WIDGETS (Jetpack Glance, widgets/ package) -->
         <receiver
-            android:name=".CompactDateWidgetProvider"
+            android:name=".widgets.TodayWidgetReceiver"
             android:exported="true"
-            android:label="@string/compact_widget_name">
+            android:label="@string/widget_today_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/compact_widget_info" />
+                android:resource="@xml/widget_today_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.MoonWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_moon_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_moon_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.MonthWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_month_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_month_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.WeekWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_week_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_week_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.ComingUpWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_coming_up_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_coming_up_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.AgendaWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_agenda_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_agenda_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.CountdownWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_countdown_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_countdown_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.AstrologyWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_astrology_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_astrology_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.YearWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_year_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_year_info" />
         </receiver>
 
-        <!-- FULL CALENDAR WIDGET -->
-        <receiver
-            android:name=".FullCalendarWidgetProvider"
+        <!-- Edit widget: style, and the countdown target -->
+        <activity
+            android:name=".widgets.WidgetConfigActivity"
             android:exported="true"
-            android:label="@string/full_calendar_widget_name">
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar.MinWidth">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/full_calendar_widget_info" />
-        </receiver>
+        </activity>
 
-        <!-- MOON PHASE WIDGET -->
+        <!-- Midnight redraws scheduled by the widget receivers -->
         <receiver
-            android:name=".MoonPhaseWidgetProvider"
-            android:exported="true"
-            android:label="@string/moon_phase_widget_name">
+            android:name="es.antonborri.home_widget.HomeWidgetScheduledUpdateReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/moon_phase_widget_info" />
-        </receiver>
-
-        <!-- MYANMAR MONTH WIDGET -->
-        <receiver
-            android:name=".MyanmarMonthWidgetProvider"
-            android:exported="true"
-            android:label="@string/myanmar_month_widget_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/myanmar_month_widget_info" />
         </receiver>
 
         <!-- BOOT RECEIVER FOR WIDGET UPDATES -->

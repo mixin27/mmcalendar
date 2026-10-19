@@ -11,6 +11,9 @@ class RecurrenceRule extends Equatable {
   final int? occurrenceCount; // Or number of occurrences
   final List<DateTime>? exceptions; // Dates to skip
 
+  /// For [RecurrenceType.dates]: the days the event falls on.
+  final List<DateTime>? dates;
+
   const RecurrenceRule({
     required this.type,
     this.interval = 1,
@@ -20,6 +23,7 @@ class RecurrenceRule extends Equatable {
     this.endDate,
     this.occurrenceCount,
     this.exceptions,
+    this.dates,
   });
 
   /// Check if recurrence is still active
@@ -53,6 +57,19 @@ class RecurrenceRule extends Equatable {
     final start = _dateOnly(rangeStart);
     final end = _dateOnly(rangeEnd);
     final anchor = _dateOnly(originalEventDate);
+
+    if (type == RecurrenceType.dates) {
+      final days = {
+        for (final d in dates ?? const <DateTime>[]) _dateOnly(d),
+      }.toList()..sort();
+      return [
+        for (final day in days)
+          if (!_isDateBefore(day, start) &&
+              !_isDateAfter(day, end) &&
+              !isException(day))
+            day,
+      ];
+    }
 
     if (type == RecurrenceType.none) {
       if (!_isDateBefore(anchor, start) &&
@@ -130,6 +147,7 @@ class RecurrenceRule extends Equatable {
         return _getNextYearOccurrence(currentDate);
 
       case RecurrenceType.none:
+      case RecurrenceType.dates:
         return currentDate;
     }
   }
@@ -256,6 +274,7 @@ class RecurrenceRule extends Equatable {
     DateTime? endDate,
     int? occurrenceCount,
     List<DateTime>? exceptions,
+    List<DateTime>? dates,
   }) {
     return RecurrenceRule(
       type: type ?? this.type,
@@ -266,6 +285,7 @@ class RecurrenceRule extends Equatable {
       endDate: endDate ?? this.endDate,
       occurrenceCount: occurrenceCount ?? this.occurrenceCount,
       exceptions: exceptions ?? this.exceptions,
+      dates: dates ?? this.dates,
     );
   }
 
@@ -279,6 +299,7 @@ class RecurrenceRule extends Equatable {
     endDate,
     occurrenceCount,
     exceptions,
+    dates,
   ];
 }
 
@@ -288,7 +309,10 @@ enum RecurrenceType {
   daily,
   weekly,
   monthly,
-  yearly;
+  yearly,
+
+  /// On chosen days only ([RecurrenceRule.dates]).
+  dates;
 
   String get displayName {
     switch (this) {
@@ -302,6 +326,8 @@ enum RecurrenceType {
         return 'Monthly';
       case RecurrenceType.yearly:
         return 'Yearly';
+      case RecurrenceType.dates:
+        return 'Specific dates';
     }
   }
 }

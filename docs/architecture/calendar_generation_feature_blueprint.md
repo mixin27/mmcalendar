@@ -1,3 +1,5 @@
+> **Retired.** Calendar generation was replaced by Calendar Studio and its package was removed. This blueprint is kept for history; see `calendar_studio_feature_plan.md`.
+
 # Calendar Generation Feature Blueprint
 
 ## Objectives

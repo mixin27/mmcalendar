@@ -9,10 +9,15 @@ class WeekdayHeader extends StatelessWidget {
   final int firstDayOfWeek;
   final Language language;
 
+  /// Extra space above the labels, e.g. to set them apart from a month
+  /// header.
+  final double topGap;
+
   const WeekdayHeader({
     super.key,
     this.firstDayOfWeek = 1,
     this.language = Language.english,
+    this.topGap = 0,
   });
 
   @override
@@ -25,7 +30,7 @@ class WeekdayHeader extends StatelessWidget {
         final density = _resolveDensity(adjustedCellWidth);
 
         return Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          padding: EdgeInsets.fromLTRB(6, 6 + topGap, 6, 6),
           child: Row(
             children: List.generate(7, (index) {
               final myanmarWeekdayIndex = (firstDayOfWeek + index) % 7;
@@ -111,7 +116,11 @@ class WeekdayHeader extends StatelessWidget {
       };
     }
 
-    if (language == Language.myanmar || language == Language.zawgyi) {
+    if (language == Language.zawgyi) {
+      // Zawgyi-encoded names, for devices with a Zawgyi system font.
+      return TranslationService.getShortWeekdayName(weekdayIndex, language);
+    }
+    if (language == Language.myanmar) {
       return switch (weekdayIndex) {
         1 => 'နွေ',
         2 => 'လာ',

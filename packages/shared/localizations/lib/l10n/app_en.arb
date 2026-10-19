@@ -3,6 +3,18 @@
   "@about": {
     "description": "About label"
   },
+  "add": "Add",
+  "@add": {
+    "description": "Localized text for add."
+  },
+  "addEvent": "Add event",
+  "@addEvent": {
+    "description": "Localized text for addEvent."
+  },
+  "allDay": "All day",
+  "@allDay": {
+    "description": "Localized text for allDay."
+  },
   "alternativeCalculationMethod": "Alternative calculation method",
   "@alternativeCalculationMethod": {
     "description": "Localized text for alternativeCalculationMethod."
@@ -39,6 +51,10 @@
   "@appLanguage": {
     "description": "Localized text for appLanguage."
   },
+  "apply": "Apply",
+  "@apply": {
+    "description": "Localized text for apply."
+  },
   "appUpdates": "App Updates",
   "@appUpdates": {
     "description": "Localized text for appUpdates."
@@ -59,6 +75,10 @@
   "@astrological_information": {
     "description": "Astrological Information label"
   },
+  "astrology": "Astrology",
+  "@astrology": {
+    "description": "Localized text for astrology."
+  },
   "britishCalendarSystem": "British calendar system",
   "@britishCalendarSystem": {
     "description": "Localized text for britishCalendarSystem."
@@ -75,9 +95,109 @@
   "@calendar": {
     "description": "Localized text for calendar."
   },
+  "calendarChooseMonth": "Choose month",
+  "@calendarChooseMonth": {
+    "description": "Localized text for calendarChooseMonth."
+  },
+  "calendarDaysAgo": "{days} days ago",
+  "@calendarDaysAgo": {
+    "description": "Localized text for calendarDaysAgo.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarDaysFromToday": "{days} days from today",
+  "@calendarDaysFromToday": {
+    "description": "Localized text for calendarDaysFromToday.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarDaysShort": "{days} d",
+  "@calendarDaysShort": {
+    "description": "Compact day count in the Upcoming list",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarEventCount": "{count, plural, =1{1 event} other{{count} events}}",
+  "@calendarEventCount": {
+    "description": "Localized text for calendarEventCount.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarFullDayDetails": "Full day details",
+  "@calendarFullDayDetails": {
+    "description": "Localized text for calendarFullDayDetails."
+  },
+  "calendarFullDayDetailsSubtitle": "Astrology, Buddhist calendar, AI prompt",
+  "@calendarFullDayDetailsSubtitle": {
+    "description": "Localized text for calendarFullDayDetailsSubtitle."
+  },
+  "calendarInDays": "in {days} days",
+  "@calendarInDays": {
+    "description": "Localized text for calendarInDays.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarJumpToMonth": "Jump to month",
+  "@calendarJumpToMonth": {
+    "description": "Localized text for calendarJumpToMonth."
+  },
+  "calendarLabelCopied": "{label} copied!",
+  "@calendarLabelCopied": {
+    "description": "Localized text for calendarLabelCopied.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "calendarLanguage": "Calendar Language",
   "@calendarLanguage": {
     "description": "Localized text for calendarLanguage."
+  },
+  "calendarMakeYourCalendar": "Make your {year} calendar",
+  "@calendarMakeYourCalendar": {
+    "description": "Localized text for calendarMakeYourCalendar.",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarNextYear": "Next year",
+  "@calendarNextYear": {
+    "description": "Localized text for calendarNextYear."
+  },
+  "calendarPreviousYear": "Previous year",
+  "@calendarPreviousYear": {
+    "description": "Localized text for calendarPreviousYear."
+  },
+  "calendarStudio": "Calendar Studio",
+  "@calendarStudio": {
+    "description": "Localized text for calendarStudio."
+  },
+  "calendarToggleDayDetails": "Show or hide day details",
+  "@calendarToggleDayDetails": {
+    "description": "Localized text for calendarToggleDayDetails."
   },
   "calendarType": "Calendar Type",
   "@calendarType": {
@@ -99,9 +219,21 @@
   "@calendar_configuration": {
     "description": "Calendar Configuration label"
   },
+  "calendarUpcoming": "Upcoming",
+  "@calendarUpcoming": {
+    "description": "Localized text for calendarUpcoming."
+  },
   "cancel": "Cancel",
   "@cancel": {
     "description": "Localized text for cancel."
+  },
+  "categories": "Categories",
+  "@categories": {
+    "description": "Localized text for categories."
+  },
+  "category": "Category",
+  "@category": {
+    "description": "Localized text for category."
   },
   "checkAgain": "Check Again",
   "@checkAgain": {
@@ -123,6 +255,10 @@
   "@choose_your_view": {
     "description": "Choose Your View label"
   },
+  "clear": "Clear",
+  "@clear": {
+    "description": "Localized text for clear."
+  },
   "clearPromoDataDebug": "Clear Promo Data (Debug)",
   "@clearPromoDataDebug": {
     "description": "Localized text for clearPromoDataDebug."
@@ -130,6 +266,10 @@
   "close": "Close",
   "@close": {
     "description": "Localized text for close."
+  },
+  "colour": "Colour",
+  "@colour": {
+    "description": "Localized text for colour."
   },
   "comingSoon": "Coming Soon",
   "@comingSoon": {
@@ -155,9 +295,146 @@
   "@converter": {
     "description": "Converter label"
   },
+  "converterAddSub": "Add/Sub",
+  "@converterAddSub": {
+    "description": "Localized text for converterAddSub."
+  },
+  "converterConvertedDate": "Converted date",
+  "@converterConvertedDate": {
+    "description": "Localized text for converterConvertedDate."
+  },
+  "converterDateArithmetic": "Date arithmetic",
+  "@converterDateArithmetic": {
+    "description": "Localized text for converterDateArithmetic."
+  },
+  "converterDateDifference": "Date difference",
+  "@converterDateDifference": {
+    "description": "Localized text for converterDateDifference."
+  },
+  "converterDaysUnit": "{count, plural, =1{day} other{days}}",
+  "@converterDaysUnit": {
+    "description": "Localized text for converterDaysUnit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "converterDifference": "Difference",
+  "@converterDifference": {
+    "description": "Localized text for converterDifference."
+  },
+  "converterEnd": "End",
+  "@converterEnd": {
+    "description": "Localized text for converterEnd."
+  },
+  "converterEnterMyanmarDate": "Enter a Myanmar year, month and day.",
+  "@converterEnterMyanmarDate": {
+    "description": "Localized text for converterEnterMyanmarDate."
+  },
+  "converterEnterWholeNumber": "Enter a whole number above 0.",
+  "@converterEnterWholeNumber": {
+    "description": "Localized text for converterEnterWholeNumber."
+  },
+  "converterFrom": "From",
+  "@converterFrom": {
+    "description": "Localized text for converterFrom."
+  },
+  "converterInDays": "{count, plural, =1{in 1 day} other{in {count} days}}",
+  "@converterInDays": {
+    "description": "Localized text for converterInDays.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "converterMonthDayRange": "Month is 0–14 and day is 1–30.",
+  "@converterMonthDayRange": {
+    "description": "Localized text for converterMonthDayRange."
+  },
+  "converterMonthFooter": "Month: 0 = First Waso, 1–12 = Tagu to Tabaung, 13 = Late Tagu, 14 = Second Waso.",
+  "@converterMonthFooter": {
+    "description": "Localized text for converterMonthFooter."
+  },
+  "converterMoonPhase": "Moon phase",
+  "@converterMoonPhase": {
+    "description": "Localized text for converterMoonPhase."
+  },
+  "converterMyanmarDate": "Myanmar date",
+  "@converterMyanmarDate": {
+    "description": "Localized text for converterMyanmarDate."
+  },
+  "converterMyanmarToWestern": "Myanmar → Western",
+  "@converterMyanmarToWestern": {
+    "description": "Localized text for converterMyanmarToWestern."
+  },
+  "converterNextPhase": "Next {name}",
+  "@converterNextPhase": {
+    "description": "Localized text for converterNextPhase.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "converterResult": "Result",
+  "@converterResult": {
+    "description": "Localized text for converterResult."
+  },
+  "converterStart": "Start",
+  "@converterStart": {
+    "description": "Localized text for converterStart."
+  },
+  "converterStartFromToday": "Start from today",
+  "@converterStartFromToday": {
+    "description": "Localized text for converterStartFromToday."
+  },
+  "converterSubtract": "Subtract",
+  "@converterSubtract": {
+    "description": "Localized text for converterSubtract."
+  },
+  "converterSwapDates": "Swap dates",
+  "@converterSwapDates": {
+    "description": "Localized text for converterSwapDates."
+  },
+  "converterTodayLower": "today",
+  "@converterTodayLower": {
+    "description": "Localized text for converterTodayLower."
+  },
+  "converterUnit": "{unit, select, days{days} weeks{weeks} months{months} years{years} other{{unit}}}",
+  "@converterUnit": {
+    "description": "Localized text for converterUnit.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "converterValue": "Value",
+  "@converterValue": {
+    "description": "Localized text for converterValue."
+  },
+  "converterWesternToMyanmar": "Western → Myanmar",
+  "@converterWesternToMyanmar": {
+    "description": "Localized text for converterWesternToMyanmar."
+  },
+  "copied": "Copied",
+  "@copied": {
+    "description": "Localized text for copied."
+  },
+  "copy": "Copy",
+  "@copy": {
+    "description": "Localized text for copy."
+  },
   "crashReports": "Crash Reports",
   "@crashReports": {
     "description": "Localized text for crashReports."
+  },
+  "create": "Create",
+  "@create": {
+    "description": "Localized text for create."
   },
   "currentVersion": "Current Version",
   "@currentVersion": {
@@ -171,9 +448,17 @@
       "build": {}
     }
   },
+  "custom": "Custom",
+  "@custom": {
+    "description": "Localized text for custom."
+  },
   "dark": "Dark",
   "@dark": {
     "description": "Localized text for dark."
+  },
+  "date": "Date",
+  "@date": {
+    "description": "Localized text for date."
   },
   "day": "Day",
   "@day": {
@@ -183,9 +468,147 @@
   "@day_view": {
     "description": "Day View label"
   },
+  "dayDetailsAddEvent": "Add Event",
+  "@dayDetailsAddEvent": {
+    "description": "Localized text for dayDetailsAddEvent."
+  },
+  "dayDetailsAiHoroscopePrompt": "AI Horoscope Prompt",
+  "@dayDetailsAiHoroscopePrompt": {
+    "description": "Localized text for dayDetailsAiHoroscopePrompt."
+  },
+  "dayDetailsAiHoroscopePromptSubtitle": "Copy a ready-made prompt for this day",
+  "@dayDetailsAiHoroscopePromptSubtitle": {
+    "description": "Localized text for dayDetailsAiHoroscopePromptSubtitle."
+  },
+  "dayDetailsAiPromptHint": "Paste this into any AI assistant (ChatGPT, Gemini, …) for a reading of the day. Nothing is sent from this app.",
+  "@dayDetailsAiPromptHint": {
+    "description": "Localized text for dayDetailsAiPromptHint."
+  },
+  "dayDetailsBuddhistCalendar": "Buddhist Calendar",
+  "@dayDetailsBuddhistCalendar": {
+    "description": "Localized text for dayDetailsBuddhistCalendar."
+  },
+  "dayDetailsCopyPrompt": "Copy Prompt",
+  "@dayDetailsCopyPrompt": {
+    "description": "Localized text for dayDetailsCopyPrompt."
+  },
+  "dayDetailsErrorLoadingEvents": "Error loading events",
+  "@dayDetailsErrorLoadingEvents": {
+    "description": "Localized text for dayDetailsErrorLoadingEvents."
+  },
+  "dayDetailsFailedToUpdateEvent": "Failed to update event: {error}",
+  "@dayDetailsFailedToUpdateEvent": {
+    "description": "Localized text for dayDetailsFailedToUpdateEvent.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDetailsFortnightDayPercentLit": "Day {day} · {percent}% lit",
+  "@dayDetailsFortnightDayPercentLit": {
+    "description": "Localized text for dayDetailsFortnightDayPercentLit.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDetailsJumpToDate": "Jump to Date",
+  "@dayDetailsJumpToDate": {
+    "description": "Localized text for dayDetailsJumpToDate."
+  },
+  "dayDetailsLoadingEvents": "Loading events…",
+  "@dayDetailsLoadingEvents": {
+    "description": "Localized text for dayDetailsLoadingEvents."
+  },
+  "dayDetailsMarkNotDone": "Mark not done",
+  "@dayDetailsMarkNotDone": {
+    "description": "Localized text for dayDetailsMarkNotDone."
+  },
+  "dayDetailsNextDay": "Next Day",
+  "@dayDetailsNextDay": {
+    "description": "Localized text for dayDetailsNextDay."
+  },
+  "dayDetailsNoEventsAddEvent": "No events · Add event",
+  "@dayDetailsNoEventsAddEvent": {
+    "description": "Localized text for dayDetailsNoEventsAddEvent."
+  },
+  "dayDetailsPercentLit": "{percent}% lit",
+  "@dayDetailsPercentLit": {
+    "description": "Moon illumination",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDetailsPreviousDay": "Previous Day",
+  "@dayDetailsPreviousDay": {
+    "description": "Localized text for dayDetailsPreviousDay."
+  },
+  "dayDetailsPromptCopied": "Prompt copied to clipboard",
+  "@dayDetailsPromptCopied": {
+    "description": "Localized text for dayDetailsPromptCopied."
+  },
+  "dayDetailsPyathada": "Pyathada",
+  "@dayDetailsPyathada": {
+    "description": "Localized text for dayDetailsPyathada."
+  },
+  "dayDetailsShareDay": "Share Day",
+  "@dayDetailsShareDay": {
+    "description": "Localized text for dayDetailsShareDay."
+  },
+  "dayDetailsShareFailed": "Failed to share",
+  "@dayDetailsShareFailed": {
+    "description": "Localized text for dayDetailsShareFailed."
+  },
+  "dayDetailsShareSubject": "Please check myanmar calendar",
+  "@dayDetailsShareSubject": {
+    "description": "Localized text for dayDetailsShareSubject."
+  },
+  "dayDetailsSpecial": "Special",
+  "@dayDetailsSpecial": {
+    "description": "Localized text for dayDetailsSpecial."
+  },
+  "dayDetailsYatyaza": "Yatyaza",
+  "@dayDetailsYatyaza": {
+    "description": "Localized text for dayDetailsYatyaza."
+  },
+  "dayDetailsYearType": "Type",
+  "@dayDetailsYearType": {
+    "description": "Myanmar year type (common, little/big watat)"
+  },
+  "days": "Days",
+  "@days": {
+    "description": "Localized text for days."
+  },
   "defaultCalculationMethod": "Default calculation method",
   "@defaultCalculationMethod": {
     "description": "Localized text for defaultCalculationMethod."
+  },
+  "defaultLabel": "Default",
+  "@defaultLabel": {
+    "description": "Localized text for defaultLabel."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Localized text for delete."
+  },
+  "deleteEvent": "Delete event",
+  "@deleteEvent": {
+    "description": "Localized text for deleteEvent."
+  },
+  "deleteEventQuestion": "Delete event?",
+  "@deleteEventQuestion": {
+    "description": "Localized text for deleteEventQuestion."
+  },
+  "description": "Description",
+  "@description": {
+    "description": "Localized text for description."
   },
   "developer": "Kyaw Zayar Tun",
   "@developer": {
@@ -238,6 +661,14 @@
   "@display_preferences": {
     "description": "Display Preferences label"
   },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Localized text for edit."
+  },
+  "editEvent": "Edit event",
+  "@editEvent": {
+    "description": "Localized text for editEvent."
+  },
   "enableAll": "Enable All",
   "@enableAll": {
     "description": "Localized text for enableAll."
@@ -261,9 +692,301 @@
       "error": {}
     }
   },
+  "event": "Event",
+  "@event": {
+    "description": "Localized text for event."
+  },
   "events": "Events",
   "@events": {
     "description": "Events label"
+  },
+  "eventsAddReminder": "Add reminder",
+  "@eventsAddReminder": {
+    "description": "Localized text for eventsAddReminder."
+  },
+  "eventsAddTagHint": "Add a tag and press return",
+  "@eventsAddTagHint": {
+    "description": "Localized text for eventsAddTagHint."
+  },
+  "eventsBuiltInCategoriesFooter": "Built-in categories can’t be changed.",
+  "@eventsBuiltInCategoriesFooter": {
+    "description": "Localized text for eventsBuiltInCategoriesFooter."
+  },
+  "eventsCategoryColour": "Category colour",
+  "@eventsCategoryColour": {
+    "description": "Localized text for eventsCategoryColour."
+  },
+  "eventsCompleted": "Completed",
+  "@eventsCompleted": {
+    "description": "Localized text for eventsCompleted."
+  },
+  "eventsCouldNotLoadEvent": "Couldn’t load this event",
+  "@eventsCouldNotLoadEvent": {
+    "description": "Localized text for eventsCouldNotLoadEvent."
+  },
+  "eventsCreateEvent": "Create Event",
+  "@eventsCreateEvent": {
+    "description": "Localized text for eventsCreateEvent."
+  },
+  "eventsCustomCategoriesEmptyFooter": "Create categories for the events you keep.",
+  "@eventsCustomCategoriesEmptyFooter": {
+    "description": "Localized text for eventsCustomCategoriesEmptyFooter."
+  },
+  "eventsCustomCategoriesFooter": "Tap a category to rename, recolour or delete it.",
+  "@eventsCustomCategoriesFooter": {
+    "description": "Localized text for eventsCustomCategoriesFooter."
+  },
+  "eventsDayEventsSemantics": "{date}, {count} events",
+  "@eventsDayEventsSemantics": {
+    "description": "Screen-reader label for a day in the events day strip.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsDeleteCategory": "Delete Category",
+  "@eventsDeleteCategory": {
+    "description": "Localized text for eventsDeleteCategory."
+  },
+  "eventsDeleteCategoryMessage": "Its events are kept; they just stop being linked to this category.",
+  "@eventsDeleteCategoryMessage": {
+    "description": "Localized text for eventsDeleteCategoryMessage."
+  },
+  "eventsDeleteCategoryQuestion": "Delete “{name}”?",
+  "@eventsDeleteCategoryQuestion": {
+    "description": "Localized text for eventsDeleteCategoryQuestion.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsDeleteEventMessage": "This event will be removed. This can’t be undone.",
+  "@eventsDeleteEventMessage": {
+    "description": "Localized text for eventsDeleteEventMessage."
+  },
+  "eventsDeleteThisOccurrence": "Delete this occurrence",
+  "@eventsDeleteThisOccurrence": {
+    "description": "Localized text for eventsDeleteThisOccurrence."
+  },
+  "eventsDeleteThisOccurrenceQuestion": "Delete this occurrence?",
+  "@eventsDeleteThisOccurrenceQuestion": {
+    "description": "Localized text for eventsDeleteThisOccurrenceQuestion."
+  },
+  "eventsEditCategory": "Edit Category",
+  "@eventsEditCategory": {
+    "description": "Localized text for eventsEditCategory."
+  },
+  "eventsEditEventTitle": "Edit Event",
+  "@eventsEditEventTitle": {
+    "description": "Title of the event form when editing."
+  },
+  "eventsEventCount": "{count, plural, =1{1 event} other{{count} events}}",
+  "@eventsEventCount": {
+    "description": "Localized text for eventsEventCount.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsEventCreated": "Event created",
+  "@eventsEventCreated": {
+    "description": "Localized text for eventsEventCreated."
+  },
+  "eventsEventNotFound": "Event not found",
+  "@eventsEventNotFound": {
+    "description": "Localized text for eventsEventNotFound."
+  },
+  "eventsEventUpdated": "Event updated",
+  "@eventsEventUpdated": {
+    "description": "Localized text for eventsEventUpdated."
+  },
+  "eventsEventWillBeRemoved": "“{title}” will be removed. This can’t be undone.",
+  "@eventsEventWillBeRemoved": {
+    "description": "Localized text for eventsEventWillBeRemoved.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsFillRequiredFields": "Please fill in required fields",
+  "@eventsFillRequiredFields": {
+    "description": "Localized text for eventsFillRequiredFields."
+  },
+  "eventsJumpToToday": "Jump to today",
+  "@eventsJumpToToday": {
+    "description": "Localized text for eventsJumpToToday."
+  },
+  "eventsMayHaveBeenDeleted": "It may have been deleted.",
+  "@eventsMayHaveBeenDeleted": {
+    "description": "Localized text for eventsMayHaveBeenDeleted."
+  },
+  "eventsNewCategory": "New Category",
+  "@eventsNewCategory": {
+    "description": "Localized text for eventsNewCategory."
+  },
+  "eventsNoEventsOn": "No events on {date}",
+  "@eventsNoEventsOn": {
+    "description": "Localized text for eventsNoEventsOn.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsNoResultsFound": "No results found",
+  "@eventsNoResultsFound": {
+    "description": "Localized text for eventsNoResultsFound."
+  },
+  "eventsOccurrence": "Occurrence",
+  "@eventsOccurrence": {
+    "description": "Localized text for eventsOccurrence."
+  },
+  "eventsOnlyThisOccurrenceRemoved": "Only this occurrence will be removed.",
+  "@eventsOnlyThisOccurrenceRemoved": {
+    "description": "Localized text for eventsOnlyThisOccurrenceRemoved."
+  },
+  "eventsPickAColor": "Pick a color",
+  "@eventsPickAColor": {
+    "description": "Localized text for eventsPickAColor."
+  },
+  "eventsPickADate": "Pick a date",
+  "@eventsPickADate": {
+    "description": "Localized text for eventsPickADate."
+  },
+  "eventsPickAnotherDay": "Pick another day or create one.",
+  "@eventsPickAnotherDay": {
+    "description": "Localized text for eventsPickAnotherDay."
+  },
+  "eventsReminderAtStart": "at start",
+  "@eventsReminderAtStart": {
+    "description": "Localized text for eventsReminderAtStart."
+  },
+  "eventsReminderDays": "{count, plural, =1{{count} day} other{{count} days}}",
+  "@eventsReminderDays": {
+    "description": "Localized text for eventsReminderDays.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsReminderHours": "{count} h",
+  "@eventsReminderHours": {
+    "description": "Localized text for eventsReminderHours.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsReminderMinutes": "{count} min",
+  "@eventsReminderMinutes": {
+    "description": "Localized text for eventsReminderMinutes.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRemoveReminder": "Remove reminder",
+  "@eventsRemoveReminder": {
+    "description": "Localized text for eventsRemoveReminder."
+  },
+  "eventsReopenEvent": "Reopen event",
+  "@eventsReopenEvent": {
+    "description": "Localized text for eventsReopenEvent."
+  },
+  "eventsRepeatsDaily": "repeats daily",
+  "@eventsRepeatsDaily": {
+    "description": "Localized text for eventsRepeatsDaily."
+  },
+  "eventsRepeatsEveryNDays": "repeats every {count} days",
+  "@eventsRepeatsEveryNDays": {
+    "description": "Localized text for eventsRepeatsEveryNDays.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRepeatsEveryNMonths": "repeats every {count} months",
+  "@eventsRepeatsEveryNMonths": {
+    "description": "Localized text for eventsRepeatsEveryNMonths.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRepeatsEveryNWeeks": "repeats every {count} weeks",
+  "@eventsRepeatsEveryNWeeks": {
+    "description": "Localized text for eventsRepeatsEveryNWeeks.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRepeatsEveryNYears": "repeats every {count} years",
+  "@eventsRepeatsEveryNYears": {
+    "description": "Localized text for eventsRepeatsEveryNYears.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRepeatsMonthly": "repeats monthly",
+  "@eventsRepeatsMonthly": {
+    "description": "Localized text for eventsRepeatsMonthly."
+  },
+  "eventsRepeatsWeekly": "repeats weekly",
+  "@eventsRepeatsWeekly": {
+    "description": "Localized text for eventsRepeatsWeekly."
+  },
+  "eventsRepeatsYearly": "repeats yearly",
+  "@eventsRepeatsYearly": {
+    "description": "Localized text for eventsRepeatsYearly."
+  },
+  "eventsResults": "Results",
+  "@eventsResults": {
+    "description": "Localized text for eventsResults."
+  },
+  "eventsSaveChanges": "Save Changes",
+  "@eventsSaveChanges": {
+    "description": "Localized text for eventsSaveChanges."
+  },
+  "eventsSaving": "Saving…",
+  "@eventsSaving": {
+    "description": "Localized text for eventsSaving."
+  },
+  "eventsSearchEvents": "Search events",
+  "@eventsSearchEvents": {
+    "description": "Localized text for eventsSearchEvents."
+  },
+  "eventsSearchPromptHint": "Type title or description",
+  "@eventsSearchPromptHint": {
+    "description": "Localized text for eventsSearchPromptHint."
+  },
+  "eventsTryDifferentKeyword": "Try a different keyword",
+  "@eventsTryDifferentKeyword": {
+    "description": "Localized text for eventsTryDifferentKeyword."
   },
   "failedToFetchHolidayConfig": "Failed to fetch holiday config from server.",
   "@failedToFetchHolidayConfig": {
@@ -291,6 +1014,10 @@
   "general": "General",
   "@general": {
     "description": "Localized text for general."
+  },
+  "goBack": "Go back",
+  "@goBack": {
+    "description": "Localized text for goBack."
   },
   "goToHome": "Go to Home",
   "@goToHome": {
@@ -352,6 +1079,10 @@
       "value": {}
     }
   },
+  "icon": "Icon",
+  "@icon": {
+    "description": "Localized text for icon."
+  },
   "initializationErrorTitle": "Initialization Error",
   "@initializationErrorTitle": {
     "description": "Localized text for initializationErrorTitle."
@@ -395,9 +1126,21 @@
   "@loadingSettings": {
     "description": "Localized text for loadingSettings."
   },
+  "location": "Location",
+  "@location": {
+    "description": "Localized text for location."
+  },
   "mahabote": "Mahabote",
   "@mahabote": {
     "description": "Mahabote label"
+  },
+  "markAsPending": "Mark as pending",
+  "@markAsPending": {
+    "description": "Localized text for markAsPending."
+  },
+  "markComplete": "Mark complete",
+  "@markComplete": {
+    "description": "Localized text for markComplete."
   },
   "matchSystemTheme": "Match system theme",
   "@matchSystemTheme": {
@@ -406,6 +1149,14 @@
   "month": "Month",
   "@month": {
     "description": "Month label"
+  },
+  "months": "Months",
+  "@months": {
+    "description": "Localized text for months."
+  },
+  "moon": "Moon",
+  "@moon": {
+    "description": "Localized text for moon."
   },
   "moon_phase": "Moon Phase",
   "@moon_phase": {
@@ -431,13 +1182,33 @@
   "@nakhat": {
     "description": "Nakhat label"
   },
+  "name": "Name",
+  "@name": {
+    "description": "Localized text for name."
+  },
+  "never": "Never",
+  "@never": {
+    "description": "Localized text for never."
+  },
+  "newEvent": "New Event",
+  "@newEvent": {
+    "description": "Localized text for newEvent."
+  },
   "next_month": "Next Month",
   "@next_month": {
     "description": "Next Month label"
   },
+  "nextYear": "Next Year",
+  "@nextYear": {
+    "description": "Localized text for nextYear."
+  },
   "noChanges": "no changes",
   "@noChanges": {
     "description": "Localized text for noChanges."
+  },
+  "none": "None",
+  "@none": {
+    "description": "Localized text for none."
   },
   "openSourceLicenses": "Open Source Licenses",
   "@openSourceLicenses": {
@@ -467,6 +1238,14 @@
   "@previous_month": {
     "description": "Previous Month label"
   },
+  "previousYear": "Previous Year",
+  "@previousYear": {
+    "description": "Localized text for previousYear."
+  },
+  "priority": "Priority",
+  "@priority": {
+    "description": "Localized text for priority."
+  },
   "privacyAndData": "Privacy & Data",
   "@privacyAndData": {
     "description": "Localized text for privacyAndData."
@@ -487,9 +1266,21 @@
   "@promoDataClearedRestartApp": {
     "description": "Localized text for promoDataClearedRestartApp."
   },
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "Localized text for refresh."
+  },
   "releaseNotes": "Release Notes",
   "@releaseNotes": {
     "description": "Localized text for releaseNotes."
+  },
+  "reminders": "Reminders",
+  "@reminders": {
+    "description": "Localized text for reminders."
+  },
+  "repeat": "Repeat",
+  "@repeat": {
+    "description": "Localized text for repeat."
   },
   "reset": "Reset",
   "@reset": {
@@ -515,6 +1306,10 @@
   "@retry": {
     "description": "Localized text for retry."
   },
+  "sabbath": "Sabbath",
+  "@sabbath": {
+    "description": "Localized text for sabbath."
+  },
   "sasanaYearType": "Sasana Year Type",
   "@sasanaYearType": {
     "description": "Localized text for sasanaYearType."
@@ -527,6 +1322,10 @@
   "@save": {
     "description": "Localized text for save."
   },
+  "select": "Select",
+  "@select": {
+    "description": "Localized text for select."
+  },
   "sendCrashReportsToHelpFixIssues": "Send crash reports to help fix issues",
   "@sendCrashReportsToHelpFixIssues": {
     "description": "Localized text for sendCrashReportsToHelpFixIssues."
@@ -538,6 +1337,10 @@
   "settingsResetSuccessfully": "Settings reset successfully",
   "@settingsResetSuccessfully": {
     "description": "Localized text for settingsResetSuccessfully."
+  },
+  "share": "Share",
+  "@share": {
+    "description": "Localized text for share."
   },
   "showAnniversaryDays": "Show Anniversary Days",
   "@showAnniversaryDays": {
@@ -563,6 +1366,10 @@
   "@showWesternDates": {
     "description": "Localized text for showWesternDates."
   },
+  "somethingWentWrong": "Oops! Something went wrong",
+  "@somethingWentWrong": {
+    "description": "Localized text for somethingWentWrong."
+  },
   "special_days": "Special Days",
   "@special_days": {
     "description": "Special Days label"
@@ -570,6 +1377,10 @@
   "system": "System",
   "@system": {
     "description": "Localized text for system."
+  },
+  "tags": "Tags",
+  "@tags": {
+    "description": "Localized text for tags."
   },
   "telegramUserLabel": "TG: {userName}",
   "@telegramUserLabel": {
@@ -586,6 +1397,10 @@
   "@theme_preset": {
     "description": "Theme Preset label"
   },
+  "time": "Time",
+  "@time": {
+    "description": "Localized text for time."
+  },
   "timezoneOffset": "Timezone Offset",
   "@timezoneOffset": {
     "description": "Localized text for timezoneOffset."
@@ -594,9 +1409,21 @@
   "@timezoneOffsetExample": {
     "description": "Localized text for timezoneOffsetExample."
   },
+  "title": "Title",
+  "@title": {
+    "description": "Localized text for title."
+  },
   "today": "Today",
   "@today": {
     "description": "Today label"
+  },
+  "tomorrow": "Tomorrow",
+  "@tomorrow": {
+    "description": "Localized text for tomorrow."
+  },
+  "tryAgain": "Try Again",
+  "@tryAgain": {
+    "description": "Localized text for tryAgain."
   },
   "typeValue": "Type {value}",
   "@typeValue": {
@@ -608,6 +1435,10 @@
   "unableToOpenUpdatePage": "Unable to open the update page.",
   "@unableToOpenUpdatePage": {
     "description": "Localized text for unableToOpenUpdatePage."
+  },
+  "unexpectedError": "Unexpected error occurred",
+  "@unexpectedError": {
+    "description": "Localized text for unexpectedError."
   },
   "unknown": "Unknown",
   "@unknown": {
@@ -668,6 +1499,42 @@
   "@views": {
     "description": "Views label"
   },
+  "viewsDayViewSubtitle": "Everything about one day",
+  "@viewsDayViewSubtitle": {
+    "description": "Localized text for viewsDayViewSubtitle."
+  },
+  "viewsNextWeek": "Next Week",
+  "@viewsNextWeek": {
+    "description": "Localized text for viewsNextWeek."
+  },
+  "viewsPreviousWeek": "Previous Week",
+  "@viewsPreviousWeek": {
+    "description": "Localized text for viewsPreviousWeek."
+  },
+  "viewsThisWeek": "This Week",
+  "@viewsThisWeek": {
+    "description": "Localized text for viewsThisWeek."
+  },
+  "viewsThisYear": "This Year",
+  "@viewsThisYear": {
+    "description": "Localized text for viewsThisYear."
+  },
+  "viewsViewFullMonth": "View Full Month",
+  "@viewsViewFullMonth": {
+    "description": "Localized text for viewsViewFullMonth."
+  },
+  "viewsWeekViewSubtitle": "Seven days with Myanmar dates and the moon",
+  "@viewsWeekViewSubtitle": {
+    "description": "Localized text for viewsWeekViewSubtitle."
+  },
+  "viewsYearViewSubtitle": "All 12 months with holiday counts",
+  "@viewsYearViewSubtitle": {
+    "description": "Localized text for viewsYearViewSubtitle."
+  },
+  "week": "Week",
+  "@week": {
+    "description": "Localized text for week."
+  },
   "week_view": "Week View",
   "@week_view": {
     "description": "Week View label"
@@ -675,6 +1542,20 @@
   "weekday": "Weekday",
   "@weekday": {
     "description": "Weekday label"
+  },
+  "weekNumber": "Week {number}",
+  "@weekNumber": {
+    "description": "Localized text for weekNumber.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weeks": "Weeks",
+  "@weeks": {
+    "description": "Localized text for weeks."
   },
   "widgetSettings": "Widget Settings",
   "@widgetSettings": {
@@ -691,5 +1572,1783 @@
   "year_view": "Year View",
   "@year_view": {
     "description": "Year View label"
+  },
+  "years": "Years",
+  "@years": {
+    "description": "Localized text for years."
+  },
+  "yesterday": "Yesterday",
+  "@yesterday": {
+    "description": "Localized text for yesterday."
+  },
+  "settingsAppLanguageFooter": "Menus, buttons and messages.",
+  "@settingsAppLanguageFooter": {
+    "description": "Footer under the app language choices on the Language page."
+  },
+  "settingsCalendarLanguageFooter": "Dates, month and weekday names, lunar days, holidays and moon phases everywhere in the app, including widgets.",
+  "@settingsCalendarLanguageFooter": {
+    "description": "Footer under the calendar language choices on the Language page."
+  },
+  "settingsCalendarGrid": "Calendar grid",
+  "@settingsCalendarGrid": {
+    "description": "Settings row and page title for the calendar grid layout and theme."
+  },
+  "settingsGridLayoutTab": "Layout",
+  "@settingsGridLayoutTab": {
+    "description": "Segment for choosing the grid layout."
+  },
+  "settingsGridThemeTab": "Theme",
+  "@settingsGridThemeTab": {
+    "description": "Segment for choosing the grid theme."
+  },
+  "settingsGridFitNote": "Every style fits the screen: rows take the height that is left above the day sheet.",
+  "@settingsGridFitNote": {
+    "description": "Note under the grid layout choices."
+  },
+  "settingsGridThemeFooter": "A theme colours the month header, weekday row and grid, and works with every layout. The day sheet keeps the app’s colours.",
+  "@settingsGridThemeFooter": {
+    "description": "Footer under the grid theme choices."
+  },
+  "settingsGridShowMotif": "Show motif",
+  "@settingsGridShowMotif": {
+    "description": "Switch for the small drawing in the header corner of a grid theme."
+  },
+  "gridAuspiceGood": "Good",
+  "@gridAuspiceGood": {
+    "description": "Auspice calendar grid: a day with more good astrological marks (Yatyaza, Amyeittasote, Thamaphyu) than careful ones."
+  },
+  "gridAuspiceCareful": "Careful",
+  "@gridAuspiceCareful": {
+    "description": "Auspice calendar grid: a day with more marks that call for care (Pyathada, Thamanyo, ...) than good ones."
+  },
+  "gridLayoutAlmanacTitle": "Almanac",
+  "@gridLayoutAlmanacTitle": {
+    "description": "Name of the Almanac calendar grid layout."
+  },
+  "gridLayoutAlmanacDescription": "Lunar day, moon, holidays and events, with a strip for Sabbath and good or careful days.",
+  "@gridLayoutAlmanacDescription": {
+    "description": "One-line description of the Almanac calendar grid layout."
+  },
+  "gridLayoutMonthRegionsTitle": "Myanmar months",
+  "@gridLayoutMonthRegionsTitle": {
+    "description": "Name of the Myanmar months calendar grid layout."
+  },
+  "gridLayoutMonthRegionsDescription": "Each Myanmar month tinted as a region, named where it begins.",
+  "@gridLayoutMonthRegionsDescription": {
+    "description": "One-line description of the Myanmar months calendar grid layout."
+  },
+  "gridLayoutFocusWeekTitle": "Focus week",
+  "@gridLayoutFocusWeekTitle": {
+    "description": "Name of the Focus week calendar grid layout."
+  },
+  "gridLayoutFocusWeekDescription": "A compact month; the selected week opens to show the day's details.",
+  "@gridLayoutFocusWeekDescription": {
+    "description": "One-line description of the Focus week calendar grid layout."
+  },
+  "gridLayoutAuspiceTitle": "Auspice",
+  "@gridLayoutAuspiceTitle": {
+    "description": "Name of the Auspice calendar grid layout."
+  },
+  "gridLayoutAuspiceDescription": "Days tinted by Yatyaza, Pyathada and the other astrological days.",
+  "@gridLayoutAuspiceDescription": {
+    "description": "One-line description of the Auspice calendar grid layout."
+  },
+  "gridLayoutMoonBandTitle": "Moon band",
+  "@gridLayoutMoonBandTitle": {
+    "description": "Name of the Moon band calendar grid layout."
+  },
+  "gridLayoutMoonBandDescription": "The moon as a band under each week, brightest at the full moon.",
+  "@gridLayoutMoonBandDescription": {
+    "description": "One-line description of the Moon band calendar grid layout."
+  },
+  "gridLayoutHeroTodayTitle": "Hero today",
+  "@gridLayoutHeroTodayTitle": {
+    "description": "Name of the Hero today calendar grid layout."
+  },
+  "gridLayoutHeroTodayDescription": "A quiet month with the selected day as a large card under it.",
+  "@gridLayoutHeroTodayDescription": {
+    "description": "One-line description of the Hero today calendar grid layout."
+  },
+  "gridLayoutWeekRibbonsTitle": "Week ribbons",
+  "@gridLayoutWeekRibbonsTitle": {
+    "description": "Name of the Week ribbons calendar grid layout."
+  },
+  "gridLayoutWeekRibbonsDescription": "Each week as a card, with its events as bars under their days.",
+  "@gridLayoutWeekRibbonsDescription": {
+    "description": "One-line description of the Week ribbons calendar grid layout."
+  },
+  "gridLayoutDetailedTitle": "Detailed",
+  "@gridLayoutDetailedTitle": {
+    "description": "Name of the Detailed calendar grid layout."
+  },
+  "gridLayoutDetailedDescription": "Lunar day, holiday name, moon and events in every day.",
+  "@gridLayoutDetailedDescription": {
+    "description": "One-line description of the Detailed calendar grid layout."
+  },
+  "gridLayoutCleanTitle": "Clean",
+  "@gridLayoutCleanTitle": {
+    "description": "Name of the Clean calendar grid layout."
+  },
+  "gridLayoutCleanDescription": "Numbers first; the moon only on moon days.",
+  "@gridLayoutCleanDescription": {
+    "description": "One-line description of the Clean calendar grid layout."
+  },
+  "gridLayoutClassicTitle": "Classic",
+  "@gridLayoutClassicTitle": {
+    "description": "Name of the Classic calendar grid layout."
+  },
+  "gridLayoutClassicDescription": "The original tiles and coloured dots.",
+  "@gridLayoutClassicDescription": {
+    "description": "One-line description of the Classic calendar grid layout."
+  },
+  "gridLayoutDetailedV2Title": "Detailed v2",
+  "@gridLayoutDetailedV2Title": {
+    "description": "Name of the Detailed v2 calendar grid layout."
+  },
+  "gridLayoutDetailedV2Description": "Detailed, calmer: no lines, the moon only on moon days.",
+  "@gridLayoutDetailedV2Description": {
+    "description": "One-line description of the Detailed v2 calendar grid layout."
+  },
+  "gridLayoutLunarFirstTitle": "Lunar first",
+  "@gridLayoutLunarFirstTitle": {
+    "description": "Name of the Lunar first calendar grid layout."
+  },
+  "gridLayoutLunarFirstDescription": "The lunar day large, the date small in the corner.",
+  "@gridLayoutLunarFirstDescription": {
+    "description": "One-line description of the Lunar first calendar grid layout."
+  },
+  "gridLayoutMinimalTitle": "Minimal",
+  "@gridLayoutMinimalTitle": {
+    "description": "Name of the Minimal calendar grid layout."
+  },
+  "gridLayoutMinimalDescription": "The date and one status dot.",
+  "@gridLayoutMinimalDescription": {
+    "description": "One-line description of the Minimal calendar grid layout."
+  },
+  "gridLayoutMoonStripTitle": "Moon strip",
+  "@gridLayoutMoonStripTitle": {
+    "description": "Name of the Moon strip calendar grid layout."
+  },
+  "gridLayoutMoonStripDescription": "Tonight’s moon in every day.",
+  "@gridLayoutMoonStripDescription": {
+    "description": "One-line description of the Moon strip calendar grid layout."
+  },
+  "gridLayoutAgendaTitle": "Agenda",
+  "@gridLayoutAgendaTitle": {
+    "description": "Name of the Agenda calendar grid layout."
+  },
+  "gridLayoutAgendaDescription": "Event titles and holidays inside the days.",
+  "@gridLayoutAgendaDescription": {
+    "description": "One-line description of the Agenda calendar grid layout."
+  },
+  "gridLayoutClassicPrintTitle": "Classic print",
+  "@gridLayoutClassicPrintTitle": {
+    "description": "Name of the Classic print calendar grid layout."
+  },
+  "gridLayoutClassicPrintDescription": "A ruled table like a wall calendar.",
+  "@gridLayoutClassicPrintDescription": {
+    "description": "One-line description of the Classic print calendar grid layout."
+  },
+  "gridLayoutTilesTitle": "Tiles",
+  "@gridLayoutTilesTitle": {
+    "description": "Name of the Tiles calendar grid layout."
+  },
+  "gridLayoutTilesDescription": "Every day a card; holidays and Sabbath tinted.",
+  "@gridLayoutTilesDescription": {
+    "description": "One-line description of the Tiles calendar grid layout."
+  },
+  "gridLayoutMoonlightTitle": "Moonlight",
+  "@gridLayoutMoonlightTitle": {
+    "description": "Name of the Moonlight calendar grid layout."
+  },
+  "gridLayoutMoonlightDescription": "Days glow brighter toward the full moon.",
+  "@gridLayoutMoonlightDescription": {
+    "description": "One-line description of the Moonlight calendar grid layout."
+  },
+  "gridLayoutSplitTitle": "Split",
+  "@gridLayoutSplitTitle": {
+    "description": "Name of the Split calendar grid layout."
+  },
+  "gridLayoutSplitDescription": "The date and the lunar day, split diagonally.",
+  "@gridLayoutSplitDescription": {
+    "description": "One-line description of the Split calendar grid layout."
+  },
+  "gridLayoutPosterTitle": "Poster",
+  "@gridLayoutPosterTitle": {
+    "description": "Name of the Poster calendar grid layout."
+  },
+  "gridLayoutPosterDescription": "Big, bold numbers you can read from afar.",
+  "@gridLayoutPosterDescription": {
+    "description": "One-line description of the Poster calendar grid layout."
+  },
+  "gridLayoutMoonRingTitle": "Moon ring",
+  "@gridLayoutMoonRingTitle": {
+    "description": "Name of the Moon ring calendar grid layout."
+  },
+  "gridLayoutMoonRingDescription": "A ring around each date fills with moonlight.",
+  "@gridLayoutMoonRingDescription": {
+    "description": "One-line description of the Moon ring calendar grid layout."
+  },
+  "gridLayoutAstrologyTitle": "Astrology",
+  "@gridLayoutAstrologyTitle": {
+    "description": "Name of the Astrology calendar grid layout."
+  },
+  "gridLayoutAstrologyDescription": "Astrological days and holidays as tags.",
+  "@gridLayoutAstrologyDescription": {
+    "description": "One-line description of the Astrology calendar grid layout."
+  },
+  "gridThemeAppTitle": "App colours",
+  "@gridThemeAppTitle": {
+    "description": "Name of the App colours calendar grid theme."
+  },
+  "gridThemeAppDescription": "The app’s own colours and accent.",
+  "@gridThemeAppDescription": {
+    "description": "One-line description of the App colours calendar grid theme."
+  },
+  "gridThemePagodaTitle": "Pagoda",
+  "@gridThemePagodaTitle": {
+    "description": "Name of the Pagoda calendar grid theme."
+  },
+  "gridThemePagodaDescription": "Temple cream, maroon and pagoda gold.",
+  "@gridThemePagodaDescription": {
+    "description": "One-line description of the Pagoda calendar grid theme."
+  },
+  "gridThemeJadeTitle": "Jade",
+  "@gridThemeJadeTitle": {
+    "description": "Name of the Jade calendar grid theme."
+  },
+  "gridThemeJadeDescription": "Jade green on cool white, with a seal.",
+  "@gridThemeJadeDescription": {
+    "description": "One-line description of the Jade calendar grid theme."
+  },
+  "gridThemeLacquerTitle": "Lacquer",
+  "@gridThemeLacquerTitle": {
+    "description": "Name of the Lacquer calendar grid theme."
+  },
+  "gridThemeLacquerDescription": "Black lacquer, cinnabar and gold leaf.",
+  "@gridThemeLacquerDescription": {
+    "description": "One-line description of the Lacquer calendar grid theme."
+  },
+  "gridThemeThadingyutTitle": "Thadingyut",
+  "@gridThemeThadingyutTitle": {
+    "description": "Name of the Thadingyut calendar grid theme."
+  },
+  "gridThemeThadingyutDescription": "Lantern paper by day, indigo by night.",
+  "@gridThemeThadingyutDescription": {
+    "description": "One-line description of the Thadingyut calendar grid theme."
+  },
+  "gridThemeThingyanTitle": "Thingyan",
+  "@gridThemeThingyanTitle": {
+    "description": "Name of the Thingyan calendar grid theme."
+  },
+  "gridThemeThingyanDescription": "Splash blue and padauk yellow.",
+  "@gridThemeThingyanDescription": {
+    "description": "One-line description of the Thingyan calendar grid theme."
+  },
+  "gridThemeBotanicalTitle": "Botanical",
+  "@gridThemeBotanicalTitle": {
+    "description": "Name of the Botanical calendar grid theme."
+  },
+  "gridThemeBotanicalDescription": "Pressed-leaf greens on herbarium paper.",
+  "@gridThemeBotanicalDescription": {
+    "description": "One-line description of the Botanical calendar grid theme."
+  },
+  "gridThemeMonsoonTitle": "Monsoon",
+  "@gridThemeMonsoonTitle": {
+    "description": "Name of the Monsoon calendar grid theme."
+  },
+  "gridThemeMonsoonDescription": "Rain-season slate with a rust accent.",
+  "@gridThemeMonsoonDescription": {
+    "description": "One-line description of the Monsoon calendar grid theme."
+  },
+  "gridThemeTidewaterTitle": "Tidewater",
+  "@gridThemeTidewaterTitle": {
+    "description": "Name of the Tidewater calendar grid theme."
+  },
+  "gridThemeTidewaterDescription": "Sea glass and deep teal.",
+  "@gridThemeTidewaterDescription": {
+    "description": "One-line description of the Tidewater calendar grid theme."
+  },
+  "gridThemeMorningPourTitle": "Morning Pour",
+  "@gridThemeMorningPourTitle": {
+    "description": "Name of the Morning Pour calendar grid theme."
+  },
+  "gridThemeMorningPourDescription": "Coffee and cream for early risers.",
+  "@gridThemeMorningPourDescription": {
+    "description": "One-line description of the Morning Pour calendar grid theme."
+  },
+  "gridThemeDeepFieldTitle": "Deep Field",
+  "@gridThemeDeepFieldTitle": {
+    "description": "Name of the Deep Field calendar grid theme."
+  },
+  "gridThemeDeepFieldDescription": "Lavender dusk, or deep space at night.",
+  "@gridThemeDeepFieldDescription": {
+    "description": "One-line description of the Deep Field calendar grid theme."
+  },
+  "gridThemeMoonlightTitle": "Moonlight",
+  "@gridThemeMoonlightTitle": {
+    "description": "Name of the Moonlight calendar grid theme."
+  },
+  "gridThemeMoonlightDescription": "Silver-blue and moon gold.",
+  "@gridThemeMoonlightDescription": {
+    "description": "One-line description of the Moonlight calendar grid theme."
+  },
+  "gridThemeNightChartTitle": "Night Chart",
+  "@gridThemeNightChartTitle": {
+    "description": "Name of the Night Chart calendar grid theme."
+  },
+  "gridThemeNightChartDescription": "Violet ink and antique gold.",
+  "@gridThemeNightChartDescription": {
+    "description": "One-line description of the Night Chart calendar grid theme."
+  },
+  "settingsGridDefault": "Default · {description}",
+  "@settingsGridDefault": {
+    "description": "A choice marked as the default, followed by its description.",
+    "placeholders": {
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCalendarStudioValue": "Design and print",
+  "@settingsCalendarStudioValue": {
+    "description": "Value shown next to the Calendar Studio row on the Settings home page."
+  },
+  "settingsShowInCalendar": "Show in calendar",
+  "@settingsShowInCalendar": {
+    "description": "Group label on Display Preferences for what the calendar shows."
+  },
+  "settingsDates": "Dates",
+  "@settingsDates": {
+    "description": "Group label on Display Preferences for which dates the calendar shows."
+  },
+  "settingsUseDeviceTimezone": "Use Device Timezone",
+  "@settingsUseDeviceTimezone": {
+    "description": "Toggle on Calendar Configuration to follow the device time zone."
+  },
+  "settingsRefreshHolidayData": "Refresh holiday data",
+  "@settingsRefreshHolidayData": {
+    "description": "Row on Calendar Configuration that refreshes holiday data from the server."
+  },
+  "settingsDebugBuildsOnly": "Debug builds only.",
+  "@settingsDebugBuildsOnly": {
+    "description": "Footer under the debug-only group on the About page."
+  },
+  "settingsCustomColours": "Custom colours…",
+  "@settingsCustomColours": {
+    "description": "Row on Appearance that opens the custom colour editor."
+  },
+  "settingsThemePresetDefault": "{name} (default)",
+  "@settingsThemePresetDefault": {
+    "description": "Theme preset name marked as the default preset.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppStyle": "App style",
+  "@settingsAppStyle": {
+    "description": "Group label on Appearance for the Automatic / Clear / Material choice."
+  },
+  "settingsAppStyleAutomatic": "Automatic",
+  "@settingsAppStyleAutomatic": {
+    "description": "App style that picks Clear or Material by platform."
+  },
+  "settingsAppStyleClear": "Clear",
+  "@settingsAppStyleClear": {
+    "description": "Name of the Clear app style (iOS-like)."
+  },
+  "settingsAppStyleMaterial": "Material",
+  "@settingsAppStyleMaterial": {
+    "description": "Name of the Material app style (Android-like)."
+  },
+  "settingsAppStyleFooter": "Automatic uses Material on Android and Clear on iPhone, iPad, Mac and web (here: {style}). Colours and content stay the same; bars, lists and controls change.",
+  "@settingsAppStyleFooter": {
+    "description": "Footer under the App style choice; style is the style Automatic resolves to here.",
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppIcon": "App Icon",
+  "@settingsAppIcon": {
+    "description": "Row on Appearance that opens the app icon chooser."
+  },
+  "settingsChooseAppIcon": "Choose App Icon",
+  "@settingsChooseAppIcon": {
+    "description": "Title of the app icon chooser sheet."
+  },
+  "settingsChooseAppIconSubtitle": "Select your preferred launcher icon style.",
+  "@settingsChooseAppIconSubtitle": {
+    "description": "Subtitle of the app icon chooser sheet."
+  },
+  "settingsAppIconApplying": "Please wait, applying app icon...",
+  "@settingsAppIconApplying": {
+    "description": "Shown when the user opens the icon chooser while an icon change is in progress."
+  },
+  "settingsAppIconUnsupported": "App icon switching is not supported here.",
+  "@settingsAppIconUnsupported": {
+    "description": "Shown when the platform cannot change the app icon."
+  },
+  "settingsAppIconFailed": "Failed to switch app icon.",
+  "@settingsAppIconFailed": {
+    "description": "Shown when changing the app icon failed."
+  },
+  "settingsAppIconUpdated": "App icon updated.",
+  "@settingsAppIconUpdated": {
+    "description": "Shown after the app icon changed."
+  },
+  "settingsAppIconCurrent": "Current icon",
+  "@settingsAppIconCurrent": {
+    "description": "Preview card note when the selected icon is the one in use."
+  },
+  "settingsAppIconTapApply": "Tap Apply to use this icon",
+  "@settingsAppIconTapApply": {
+    "description": "Preview card note when the selected icon is not yet in use."
+  },
+  "settingsAppIconActive": "Active",
+  "@settingsAppIconActive": {
+    "description": "Badge on the preview card for the icon in use."
+  },
+  "settingsAppIconCurrentShort": "Current",
+  "@settingsAppIconCurrentShort": {
+    "description": "Caption under the icon in use in the icon grid."
+  },
+  "settingsAppIconStandard": "Standard icon",
+  "@settingsAppIconStandard": {
+    "description": "Caption under the default icon in the icon grid."
+  },
+  "settingsAppIconAlternate": "Alternate icon",
+  "@settingsAppIconAlternate": {
+    "description": "Caption under an alternate icon in the icon grid."
+  },
+  "appIconMoon": "Moon",
+  "@appIconMoon": {
+    "description": "Name of the Moon app icon."
+  },
+  "appIconForest": "Forest",
+  "@appIconForest": {
+    "description": "Name of the Forest app icon."
+  },
+  "appIconMinimalFlat": "Minimal Flat",
+  "@appIconMinimalFlat": {
+    "description": "Name of the Minimal Flat app icon."
+  },
+  "appIconPremiumDark": "Premium Dark",
+  "@appIconPremiumDark": {
+    "description": "Name of the Premium Dark app icon."
+  },
+  "appIconTraditionalMyanmar": "Traditional Myanmar Motif",
+  "@appIconTraditionalMyanmar": {
+    "description": "Name of the Traditional Myanmar Motif app icon."
+  },
+  "languageZawgyi": "Zawgyi",
+  "@languageZawgyi": {
+    "description": "Name of the Zawgyi calendar language option."
+  },
+  "languageMon": "Mon",
+  "@languageMon": {
+    "description": "Name of the Mon calendar language option."
+  },
+  "languageShan": "Shan",
+  "@languageShan": {
+    "description": "Name of the Shan calendar language option."
+  },
+  "languageKaren": "Karen",
+  "@languageKaren": {
+    "description": "Name of the Karen calendar language option."
+  },
+  "customColorsTitle": "Custom colours",
+  "@customColorsTitle": {
+    "description": "Title of the custom colours page."
+  },
+  "customColorsAccent": "Accent",
+  "@customColorsAccent": {
+    "description": "Group label for choosing the accent colour."
+  },
+  "customColorsAccentFooter": "Every other colour is made from this one, in light and dark.",
+  "@customColorsAccentFooter": {
+    "description": "Footer under the accent colours."
+  },
+  "customColorsMore": "More colours…",
+  "@customColorsMore": {
+    "description": "Opens a picker for any accent colour."
+  },
+  "customColorsPreview": "Preview",
+  "@customColorsPreview": {
+    "description": "Group label above the light and dark previews."
+  },
+  "customColorsAdvanced": "Advanced",
+  "@customColorsAdvanced": {
+    "description": "Expands the list of every colour slot."
+  },
+  "customColorsAdvancedFooter": "Set any colour by hand. Choosing a new accent clears these.",
+  "@customColorsAdvancedFooter": {
+    "description": "Footer under the advanced colour slots."
+  },
+  "customColorsReset": "Reset to preset",
+  "@customColorsReset": {
+    "description": "Button that removes custom colours and returns to a preset."
+  },
+  "customColorsResetMessage": "Your custom colours will be removed and {preset} will be used again.",
+  "@customColorsResetMessage": {
+    "description": "Confirmation message before resetting custom colours.",
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "customColorsPickTitle": "Choose a colour",
+  "@customColorsPickTitle": {
+    "description": "Title of the colour picker sheet."
+  },
+  "customColorPrimary": "Primary",
+  "@customColorPrimary": {
+    "description": "Colour slot name."
+  },
+  "customColorOnPrimary": "On primary",
+  "@customColorOnPrimary": {
+    "description": "Colour slot name: text on the primary colour."
+  },
+  "customColorSecondary": "Secondary",
+  "@customColorSecondary": {
+    "description": "Colour slot name."
+  },
+  "customColorOnSecondary": "On secondary",
+  "@customColorOnSecondary": {
+    "description": "Colour slot name: text on the secondary colour."
+  },
+  "customColorTertiary": "Tertiary",
+  "@customColorTertiary": {
+    "description": "Colour slot name."
+  },
+  "customColorOnTertiary": "On tertiary",
+  "@customColorOnTertiary": {
+    "description": "Colour slot name: text on the tertiary colour."
+  },
+  "customColorError": "Error",
+  "@customColorError": {
+    "description": "Colour slot name."
+  },
+  "customColorOnError": "On error",
+  "@customColorOnError": {
+    "description": "Colour slot name: text on the error colour."
+  },
+  "customColorSurface": "Surface",
+  "@customColorSurface": {
+    "description": "Colour slot name."
+  },
+  "customColorOnSurface": "On surface",
+  "@customColorOnSurface": {
+    "description": "Colour slot name: text on the surface colour."
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Confirms a sheet or picker."
+  },
+  "widgetsStyle": "Style",
+  "@widgetsStyle": {
+    "description": "Group label for the widgets' default style."
+  },
+  "widgetsStyleFooter": "New widgets start with this style. To change one widget, touch and hold it and choose Edit Widget (iPhone) or Reconfigure (Android).",
+  "@widgetsStyleFooter": {
+    "description": "Footer under the widget styles."
+  },
+  "widgetStyleApp": "Follow app",
+  "@widgetStyleApp": {
+    "description": "Widget style that uses the app's colours."
+  },
+  "widgetStyleAppDescription": "The app's colours, light or dark with the system.",
+  "@widgetStyleAppDescription": {
+    "description": "Description of the Follow app widget style."
+  },
+  "widgetStylePlain": "Plain",
+  "@widgetStylePlain": {
+    "description": "Black-and-white widget style."
+  },
+  "widgetStylePlainDescription": "Black and white, with red for holidays.",
+  "@widgetStylePlainDescription": {
+    "description": "Description of the Plain widget style."
+  },
+  "widgetsShow": "Show on widgets",
+  "@widgetsShow": {
+    "description": "Group label for what widgets show."
+  },
+  "widgetsCountdown": "Countdown counts to",
+  "@widgetsCountdown": {
+    "description": "Group label for the Countdown widget's default target."
+  },
+  "widgetCountdownFullMoon": "Next full moon",
+  "@widgetCountdownFullMoon": {
+    "description": "Countdown target."
+  },
+  "widgetCountdownNewMoon": "Next new moon",
+  "@widgetCountdownNewMoon": {
+    "description": "Countdown target."
+  },
+  "widgetCountdownSabbath": "Next Sabbath",
+  "@widgetCountdownSabbath": {
+    "description": "Countdown target."
+  },
+  "widgetCountdownThingyan": "Thingyan",
+  "@widgetCountdownThingyan": {
+    "description": "Countdown target."
+  },
+  "widgetsOnScreen": "On your home screen",
+  "@widgetsOnScreen": {
+    "description": "Group label for installed widgets."
+  },
+  "widgetsInstalled": "{count, plural, =0{None yet} =1{1 widget} other{{count} widgets}}",
+  "@widgetsInstalled": {
+    "description": "How many widgets are on the home screen.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetsInstalledTitle": "Widgets added",
+  "@widgetsInstalledTitle": {
+    "description": "Row title for the installed widget count."
+  },
+  "widgetsRefresh": "Refresh widgets",
+  "@widgetsRefresh": {
+    "description": "Button that rewrites widget data."
+  },
+  "widgetsRefreshed": "Widgets refreshed",
+  "@widgetsRefreshed": {
+    "description": "Toast after refreshing widgets."
+  },
+  "widgetsHowToAdd": "How to add a widget",
+  "@widgetsHowToAdd": {
+    "description": "Group label for instructions."
+  },
+  "widgetsHowToAddIos": "Touch and hold an empty spot on the Home Screen, tap Edit, then Add Widget, and search for Myanmar Calendar. On the Lock Screen, touch and hold it and tap Customize.",
+  "@widgetsHowToAddIos": {
+    "description": "iPhone instructions."
+  },
+  "widgetsHowToAddAndroid": "Touch and hold an empty spot on the home screen, tap Widgets, and find Myanmar Calendar. Drag a widget to resize it.",
+  "@widgetsHowToAddAndroid": {
+    "description": "Android instructions."
+  },
+  "widgetsLanguageNote": "Widgets use the calendar language: {language}.",
+  "@widgetsLanguageNote": {
+    "description": "Footer explaining the widget language.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetsAddToHome": "Add to home screen",
+  "@widgetsAddToHome": {
+    "description": "Settings › Widgets: add to home screen."
+  },
+  "widgetsAddToHomeFooter": "Your launcher asks where to put it. You can resize it there.",
+  "@widgetsAddToHomeFooter": {
+    "description": "Settings › Widgets: add to home screen."
+  },
+  "widgetKindToday": "Today",
+  "@widgetKindToday": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindMoon": "Moon",
+  "@widgetKindMoon": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindMonth": "Month",
+  "@widgetKindMonth": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindWeek": "Week",
+  "@widgetKindWeek": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindComingUp": "Coming up",
+  "@widgetKindComingUp": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindAgenda": "Agenda",
+  "@widgetKindAgenda": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindCountdown": "Countdown",
+  "@widgetKindCountdown": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindAstrology": "Astrology day",
+  "@widgetKindAstrology": {
+    "description": "A home screen widget's name."
+  },
+  "widgetKindYear": "Myanmar year",
+  "@widgetKindYear": {
+    "description": "A home screen widget's name."
+  },
+  "holidayNameNewYear": "New Year's Day",
+  "holidayAboutNewYear": "The first day of the Gregorian year, a public holiday in Myanmar since 2018.",
+  "@holidayNameNewYear": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutNewYear": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameIndependence": "Independence Day",
+  "holidayAboutIndependence": "Marks Myanmar's independence from British rule on 4 January 1948. Flags go up across the country, and many towns hold fairs and sports.",
+  "@holidayNameIndependence": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutIndependence": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameUnion": "Union Day",
+  "holidayAboutUnion": "Commemorates the Panglong Agreement of 12 February 1947, when leaders of the Bamar, Shan, Kachin and Chin peoples agreed to form a union.",
+  "@holidayNameUnion": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutUnion": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNamePeasants": "Peasants' Day",
+  "holidayAboutPeasants": "Honours the farmers who grow the country's food. It falls on 2 March.",
+  "@holidayNamePeasants": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutPeasants": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameResistance": "Resistance Day",
+  "holidayAboutResistance": "Recalls the armed uprising against the Japanese occupation that began on 27 March 1945. It is also called Armed Forces Day.",
+  "@holidayNameResistance": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutResistance": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameLabour": "Labour Day",
+  "holidayAboutLabour": "International Workers' Day on 1 May, honouring working people.",
+  "@holidayNameLabour": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutLabour": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMartyrs": "Martyrs' Day",
+  "holidayAboutMartyrs": "Remembers General Aung San and the cabinet members assassinated on 19 July 1947. Sirens sound at 10:37 am, the time of the attack.",
+  "@holidayNameMartyrs": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMartyrs": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameNationalDay": "National Day",
+  "holidayAboutNationalDay": "Commemorates the 1920 university students' strike against the colonial education law, the start of the national movement. It falls on the 10th day of the waning moon of Tazaungmon.",
+  "@holidayNameNationalDay": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutNationalDay": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameNewYearsEve": "New Year's Eve",
+  "holidayAboutNewYearsEve": "The last day of the Gregorian year, a public holiday since 2018.",
+  "@holidayNameNewYearsEve": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutNewYearsEve": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNamePublicHoliday": "Public holiday",
+  "holidayAboutPublicHoliday": "An extra day off announced by the government, often to replace a holiday that fell on a weekend.",
+  "@holidayNamePublicHoliday": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutPublicHoliday": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameTabaung": "Full Moon of Tabaung",
+  "holidayAboutTabaung": "The full moon of Tabaung, the last month of the Myanmar year. Pagoda festivals are held across the country, the best known at Shwedagon.",
+  "@holidayNameTabaung": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutTabaung": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameBuddhaDay": "Buddha Day",
+  "holidayAboutBuddhaDay": "The full moon of Kason marks the Buddha's birth, enlightenment and passing. People pour water on the Bodhi trees at pagodas.",
+  "@holidayNameBuddhaDay": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutBuddhaDay": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameLentStart": "Start of Buddhist Lent",
+  "holidayAboutLentStart": "The full moon of Waso begins the three-month Buddhist Lent. Monks stay in their monasteries, and many people keep extra precepts.",
+  "@holidayNameLentStart": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutLentStart": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameThadingyut": "Thadingyut",
+  "holidayAboutThadingyut": "The full moon of Thadingyut ends the three-month Buddhist Lent. Homes and pagodas are lit with candles and lanterns for three nights, and younger people pay respects to parents, teachers and elders.",
+  "@holidayNameThadingyut": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutThadingyut": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameTazaungdaing": "Tazaungdaing",
+  "holidayAboutTazaungdaing": "The full moon of Tazaungmon closes the robe-offering season. It is a festival of lights, with fire balloons in Taunggyi and overnight contests weaving monks' robes.",
+  "@holidayNameTazaungdaing": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutTazaungdaing": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameChristmas": "Christmas",
+  "holidayAboutChristmas": "Christians celebrate the birth of Jesus on 25 December.",
+  "@holidayNameChristmas": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutChristmas": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameDiwali": "Diwali",
+  "holidayAboutDiwali": "The Hindu festival of lights, celebrated with oil lamps, sweets and prayers.",
+  "@holidayNameDiwali": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutDiwali": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameEidAlAdha": "Eid al-Adha",
+  "holidayAboutEidAlAdha": "The Muslim festival of sacrifice, at the end of the Hajj pilgrimage. Its date follows the Islamic lunar calendar.",
+  "@holidayNameEidAlAdha": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutEidAlAdha": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameGoodFriday": "Good Friday",
+  "holidayAboutGoodFriday": "Christians remember the crucifixion of Jesus on the Friday before Easter.",
+  "@holidayNameGoodFriday": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutGoodFriday": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameEaster": "Easter",
+  "holidayAboutEaster": "Christians celebrate the resurrection of Jesus.",
+  "@holidayNameEaster": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutEaster": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameEidAlFitr": "Eid al-Fitr",
+  "holidayAboutEidAlFitr": "The Muslim festival that ends the fasting month of Ramadan. Its date follows the Islamic lunar calendar.",
+  "@holidayNameEidAlFitr": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutEidAlFitr": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMahathamaya": "Mahathamaya Day",
+  "holidayAboutMahathamaya": "The full moon of Nayon recalls the Buddha teaching the Mahasamaya Sutta to a great gathering of devas.",
+  "@holidayNameMahathamaya": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMahathamaya": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameGarudhamma": "Garudhamma Day",
+  "holidayAboutGarudhamma": "The full moon of Tawthalin recalls the Buddha giving the eight Garudhamma rules to the first nuns.",
+  "@holidayNameGarudhamma": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutGarudhamma": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMetta": "Metta Day",
+  "holidayAboutMetta": "The full moon of Wagaung, a day for practising loving-kindness.",
+  "@holidayNameMetta": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMetta": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameThingyan": "Thingyan and Myanmar New Year",
+  "holidayAboutThingyan": "The water festival that ends the Myanmar year: Akyo, Akya, Akyat and Atat, then New Year's Day. People splash water to wash away the old year, and offices stay closed through the festival and the days after New Year.",
+  "@holidayNameThingyan": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutThingyan": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameKarenNewYear": "Karen New Year",
+  "holidayAboutKarenNewYear": "The Karen New Year, on the first day of the month of Pyatho, celebrated with traditional dances and music.",
+  "@holidayNameKarenNewYear": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutKarenNewYear": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameChineseNewYear": "Chinese New Year",
+  "holidayAboutChineseNewYear": "The Lunar New Year, celebrated by Chinese communities with family reunions, lion dances and red envelopes.",
+  "@holidayNameChineseNewYear": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutChineseNewYear": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameShanNewYear": "Shan New Year",
+  "holidayAboutShanNewYear": "The Shan New Year, on the first day of the waxing moon of Nadaw.",
+  "@holidayNameShanNewYear": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutShanNewYear": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameTaungpyone": "Taungpyone Festival",
+  "holidayAboutTaungpyone": "The nat festival at Taungpyone near Mandalay, held in Wagaung for the two Taungpyone brother spirits.",
+  "@holidayNameTaungpyone": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutTaungpyone": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameYadanagu": "Yadanagu Festival",
+  "holidayAboutYadanagu": "The nat festival at Yadanagu near Amarapura, held in Tawthalin for the mother of the Taungpyone brothers.",
+  "@holidayNameYadanagu": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutYadanagu": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMonNational": "Mon National Day",
+  "holidayAboutMonNational": "Falls on the full moon of Tabodwe and recalls the founding of Hanthawaddy (Bago).",
+  "@holidayNameMonNational": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMonNational": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameMothers": "Mother's Day",
+  "holidayAboutMothers": "A day to thank and honour mothers.",
+  "@holidayNameMothers": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutMothers": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameFathers": "Father's Day",
+  "holidayAboutFathers": "A day to thank and honour fathers.",
+  "@holidayNameFathers": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutFathers": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameAuthors": "Authors' Day",
+  "holidayAboutAuthors": "Honours Myanmar writers and poets, with literary talks and book fairs.",
+  "@holidayNameAuthors": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutAuthors": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameAungSanBirthday": "General Aung San's Birthday",
+  "holidayAboutAungSanBirthday": "General Aung San, the father of Myanmar's independence, was born on 13 February 1915. The day is also Children's Day.",
+  "@holidayNameAungSanBirthday": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutAungSanBirthday": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameValentines": "Valentine's Day",
+  "holidayAboutValentines": "A day for sweethearts, on 14 February.",
+  "@holidayNameValentines": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutValentines": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameAprilFools": "April Fools' Day",
+  "holidayAboutAprilFools": "A day for practical jokes, on 1 April.",
+  "@holidayNameAprilFools": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutAprilFools": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameEarth": "Earth Day",
+  "holidayAboutEarth": "A worldwide day for protecting the environment, on 22 April.",
+  "@holidayNameEarth": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutEarth": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameRedCross": "Red Cross Day",
+  "holidayAboutRedCross": "World Red Cross Day, on 8 May, the birthday of its founder Henry Dunant.",
+  "@holidayNameRedCross": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutRedCross": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameUnitedNations": "United Nations Day",
+  "holidayAboutUnitedNations": "Marks the founding of the United Nations on 24 October 1945.",
+  "@holidayNameUnitedNations": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutUnitedNations": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameWorldTeachers": "World Teachers' Day",
+  "holidayAboutWorldTeachers": "UNESCO's day for teachers, on 5 October.",
+  "@holidayNameWorldTeachers": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutWorldTeachers": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidayNameHalloween": "Halloween",
+  "holidayAboutHalloween": "An evening of costumes and treats, on 31 October.",
+  "@holidayNameHalloween": {
+    "description": "A holiday name."
+  },
+  "@holidayAboutHalloween": {
+    "description": "What a holiday marks, two or three sentences."
+  },
+  "holidaysSearchHint": "Search holidays",
+  "@holidaysSearchHint": {
+    "description": "Search field on the Holidays page."
+  },
+  "holidaysFilterAll": "All",
+  "@holidaysFilterAll": {
+    "description": "Holidays filter chip."
+  },
+  "holidaysFilterPublic": "Public",
+  "@holidaysFilterPublic": {
+    "description": "Holidays filter chip: days offices close."
+  },
+  "holidaysFilterReligious": "Religious",
+  "@holidaysFilterReligious": {
+    "description": "Holidays filter chip."
+  },
+  "holidaysFilterCultural": "Cultural",
+  "@holidaysFilterCultural": {
+    "description": "Holidays filter chip."
+  },
+  "holidaysFilterAnniversary": "Anniversaries",
+  "@holidaysFilterAnniversary": {
+    "description": "Holidays filter chip."
+  },
+  "holidaysPublicHoliday": "Public holiday",
+  "@holidaysPublicHoliday": {
+    "description": "A day offices close."
+  },
+  "holidaysObservance": "Observance",
+  "@holidaysObservance": {
+    "description": "A holiday that is not a day off."
+  },
+  "holidaysKindNational": "National",
+  "@holidaysKindNational": {
+    "description": "Holiday kind."
+  },
+  "holidaysKindReligious": "Religious",
+  "@holidaysKindReligious": {
+    "description": "Holiday kind."
+  },
+  "holidaysKindCultural": "Cultural",
+  "@holidaysKindCultural": {
+    "description": "Holiday kind."
+  },
+  "holidaysKindAnniversary": "Anniversary",
+  "@holidaysKindAnniversary": {
+    "description": "Holiday kind."
+  },
+  "holidaysNextUp": "Next holiday",
+  "@holidaysNextUp": {
+    "description": "Label above the next holiday card."
+  },
+  "holidaysDaysOff": "{count, plural, =1{1 day off} other{{count} days off}}",
+  "@holidaysDaysOff": {
+    "description": "How many days a holiday lasts.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "holidaysDayCount": "{count, plural, =1{1 day} other{{count} days}}",
+  "@holidaysDayCount": {
+    "description": "Length of a holiday.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "holidaysDaysShort": "{count} d",
+  "@holidaysDaysShort": {
+    "description": "Days until a holiday, in a narrow column.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysInDays": "{count, plural, =0{Today} =1{Tomorrow} other{in {count} days}}",
+  "@holidaysInDays": {
+    "description": "When a holiday starts.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "holidaysNow": "Now",
+  "@holidaysNow": {
+    "description": "A holiday that is happening today."
+  },
+  "holidaysResults": "{count, plural, =0{No holidays} =1{1 holiday} other{{count} holidays}} in {year}",
+  "@holidaysResults": {
+    "description": "Search result count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysNoResults": "Nothing in {year} matches “{query}”.",
+  "@holidaysNoResults": {
+    "description": "Empty search.",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysSearchAllYears": "Search all years",
+  "@holidaysSearchAllYears": {
+    "description": "Row that widens the search."
+  },
+  "holidaysYearsRange": "{from} to {to}",
+  "@holidaysYearsRange": {
+    "description": "Year range searched.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysEarlier": "Earlier this year",
+  "@holidaysEarlier": {
+    "description": "Search results already past."
+  },
+  "holidaysComingUp": "Coming up",
+  "@holidaysComingUp": {
+    "description": "Search results still ahead."
+  },
+  "holidaysNextYear": "Next",
+  "@holidaysNextYear": {
+    "description": "The next time a holiday comes round, in search."
+  },
+  "holidaysOtherYears": "Other years",
+  "@holidaysOtherYears": {
+    "description": "Holiday detail group label."
+  },
+  "holidaysOpenInCalendar": "Open in calendar",
+  "@holidaysOpenInCalendar": {
+    "description": "Holiday detail button."
+  },
+  "holidaysNotThisYear": "Not in {year}",
+  "@holidaysNotThisYear": {
+    "description": "A holiday that does not fall in the chosen year.",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "holidaysViewsSubtitle": "Every holiday of the year, with reminders",
+  "@holidaysViewsSubtitle": {
+    "description": "Views row subtitle."
+  },
+  "holidaysViewsFooter": "{count} public holidays in {year}.",
+  "@holidaysViewsFooter": {
+    "description": "Views group footer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "viewsCalendarGroup": "Calendar",
+  "@viewsCalendarGroup": {
+    "description": "Views group label."
+  },
+  "viewsExploreGroup": "Explore",
+  "@viewsExploreGroup": {
+    "description": "Views group label."
+  },
+  "holidayRemindMe": "Remind me",
+  "@holidayRemindMe": {
+    "description": "Holiday reminder switch."
+  },
+  "holidayReminderEvening": "The evening before, at 6 pm",
+  "@holidayReminderEvening": {
+    "description": "When a holiday reminder comes."
+  },
+  "holidayReminderMorning": "On the day, at 8 am",
+  "@holidayReminderMorning": {
+    "description": "When a holiday reminder comes."
+  },
+  "holidayReminderBoth": "The evening before and on the day",
+  "@holidayReminderBoth": {
+    "description": "When a holiday reminder comes."
+  },
+  "holidayRemindersTitle": "Reminders",
+  "@holidayRemindersTitle": {
+    "description": "Holiday reminders sheet title."
+  },
+  "holidayRemindersWhen": "When",
+  "@holidayRemindersWhen": {
+    "description": "Reminder sheet group label."
+  },
+  "holidayRemindersEveningOption": "The evening before",
+  "@holidayRemindersEveningOption": {
+    "description": "Reminder time option."
+  },
+  "holidayRemindersMorningOption": "On the morning",
+  "@holidayRemindersMorningOption": {
+    "description": "Reminder time option."
+  },
+  "holidayRemindersBothOption": "Both",
+  "@holidayRemindersBothOption": {
+    "description": "Reminder time option."
+  },
+  "holidayRemindersFollow": "Follow",
+  "@holidayRemindersFollow": {
+    "description": "Reminder sheet group label."
+  },
+  "holidayRemindersAllPublic": "All public holidays",
+  "@holidayRemindersAllPublic": {
+    "description": "Follow every public holiday."
+  },
+  "holidayRemindersAllPublicSubtitle": "{count} in {year}",
+  "@holidayRemindersAllPublicSubtitle": {
+    "description": "How many public holidays.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "holidayRemindersFooter": "Reminders cover the next 60 days and refresh each time you open the app.",
+  "@holidayRemindersFooter": {
+    "description": "Reminder sheet footer."
+  },
+  "holidayRemindersIncluded": "Included in all public holidays",
+  "@holidayRemindersIncluded": {
+    "description": "A holiday covered by following all public holidays."
+  },
+  "holidayRemindersPermissionDenied": "Notifications are off for Myanmar Calendar. Turn them on in your phone's Settings to get reminders.",
+  "@holidayRemindersPermissionDenied": {
+    "description": "Shown when notification permission is refused."
+  },
+  "holidayReminderTomorrow": "Tomorrow: {holiday}",
+  "@holidayReminderTomorrow": {
+    "description": "Holiday notification title the evening before.",
+    "placeholders": {
+      "holiday": {
+        "type": "String"
+      }
+    }
+  },
+  "holidayReminderToday": "Today: {holiday}",
+  "@holidayReminderToday": {
+    "description": "Holiday notification title on the day.",
+    "placeholders": {
+      "holiday": {
+        "type": "String"
+      }
+    }
+  },
+  "holidayReminderBodyPublic": "Public holiday · {dates}",
+  "@holidayReminderBodyPublic": {
+    "description": "Holiday notification body.",
+    "placeholders": {
+      "dates": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsNewTitle": "What's new",
+  "@whatsNewTitle": {
+    "description": "What's new sheet and page title."
+  },
+  "whatsNewBadge": "New in {version}",
+  "@whatsNewBadge": {
+    "description": "Badge on the What's new sheet.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsNewFromVersion": "From {version}",
+  "@whatsNewFromVersion": {
+    "description": "Badge for a feature from an earlier version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsNewPageOf": "{page} of {count}",
+  "@whatsNewPageOf": {
+    "description": "Page position in the sheet.",
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "whatsNewNext": "Next",
+  "@whatsNewNext": {
+    "description": "Next feature."
+  },
+  "whatsNewDone": "Done",
+  "@whatsNewDone": {
+    "description": "Close the sheet."
+  },
+  "whatsNewSeeAll": "See all updates",
+  "@whatsNewSeeAll": {
+    "description": "Opens the history page."
+  },
+  "whatsNewThisUpdate": "Version {version} · this update",
+  "@whatsNewThisUpdate": {
+    "description": "History group label for the current version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsNewVersion": "Version {version}",
+  "@whatsNewVersion": {
+    "description": "History group label.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "whatsNewHolidaysTitle": "Holidays",
+  "@whatsNewHolidaysTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewHolidaysBody": "Every holiday of the year in one place. Search in Myanmar or English, see what each day marks, and get a reminder the evening before.",
+  "@whatsNewHolidaysBody": {
+    "description": "Feature description."
+  },
+  "whatsNewHolidaysAction": "Explore holidays",
+  "@whatsNewHolidaysAction": {
+    "description": "Feature button."
+  },
+  "whatsNewWidgetsTitle": "New home-screen widgets",
+  "@whatsNewWidgetsTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewWidgetsBody": "Nine widgets in five styles, from today's date to a countdown to Thingyan. Tap any day to open it in the app.",
+  "@whatsNewWidgetsBody": {
+    "description": "Feature description."
+  },
+  "whatsNewWidgetsAction": "Widget settings",
+  "@whatsNewWidgetsAction": {
+    "description": "Feature button."
+  },
+  "whatsNewWelcomeTitle": "A new welcome",
+  "@whatsNewWelcomeTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewWelcomeBody": "New users get a short tour and a quick setup for language, look, privacy and reminders.",
+  "@whatsNewWelcomeBody": {
+    "description": "Feature description."
+  },
+  "whatsNewThemesTitle": "Calendar themes",
+  "@whatsNewThemesTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewThemesBody": "Twelve themes for the month grid, from Pagoda and Jade to Deep Field, each with light and dark colours.",
+  "@whatsNewThemesBody": {
+    "description": "Feature description."
+  },
+  "whatsNewThemesAction": "Choose a theme",
+  "@whatsNewThemesAction": {
+    "description": "Feature button."
+  },
+  "whatsNewColorsTitle": "Custom colours",
+  "@whatsNewColorsTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewColorsBody": "Pick one accent colour for the whole app, or fine-tune every colour in Advanced.",
+  "@whatsNewColorsBody": {
+    "description": "Feature description."
+  },
+  "whatsNewColorsAction": "Pick colours",
+  "@whatsNewColorsAction": {
+    "description": "Feature button."
+  },
+  "whatsNewIconsTitle": "App icons",
+  "@whatsNewIconsTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewIconsBody": "Choose from six app icons, including Moon, Forest and Traditional.",
+  "@whatsNewIconsBody": {
+    "description": "Feature description."
+  },
+  "whatsNewIconsAction": "Change icon",
+  "@whatsNewIconsAction": {
+    "description": "Feature button."
+  },
+  "whatsNewStudioTitle": "Calendar Studio",
+  "@whatsNewStudioTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewStudioBody": "Design wall, desk and social calendars from presets, then export print-ready PDFs and images.",
+  "@whatsNewStudioBody": {
+    "description": "Feature description."
+  },
+  "whatsNewStudioAction": "Open Studio",
+  "@whatsNewStudioAction": {
+    "description": "Feature button."
+  },
+  "onboardingSkip": "Skip",
+  "@onboardingSkip": {
+    "description": "Skip the tour."
+  },
+  "onboardingContinue": "Continue",
+  "@onboardingContinue": {
+    "description": "Next onboarding page."
+  },
+  "onboardingSetUp": "Set up the app",
+  "@onboardingSetUp": {
+    "description": "Last tour page button."
+  },
+  "onboardingNotNow": "Not now",
+  "@onboardingNotNow": {
+    "description": "Skip a setup step."
+  },
+  "onboardingStart": "Start",
+  "@onboardingStart": {
+    "description": "Finish onboarding."
+  },
+  "onboardingStep": "Step {step} of {count}",
+  "@onboardingStep": {
+    "description": "Setup progress.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingWelcomeTitle": "Welcome to Myanmar Calendar",
+  "@onboardingWelcomeTitle": {
+    "description": "Tour page 1."
+  },
+  "onboardingWelcomeBody": "Myanmar and Western dates side by side, for every day of the year.",
+  "@onboardingWelcomeBody": {
+    "description": "Tour page 1."
+  },
+  "onboardingCalendarsTitle": "Two calendars in one",
+  "@onboardingCalendarsTitle": {
+    "description": "Tour page 2."
+  },
+  "onboardingCalendarsBody": "Every day shows its Myanmar date, moon phase and Sabbath, with astrology one tap away.",
+  "@onboardingCalendarsBody": {
+    "description": "Tour page 2."
+  },
+  "onboardingHolidaysTitle": "Never miss a holiday",
+  "@onboardingHolidaysTitle": {
+    "description": "Tour page 3."
+  },
+  "onboardingHolidaysBody": "Browse and search every holiday, add your own events, and get a reminder the evening before.",
+  "@onboardingHolidaysBody": {
+    "description": "Tour page 3."
+  },
+  "onboardingYoursTitle": "Make it yours",
+  "@onboardingYoursTitle": {
+    "description": "Tour page 4."
+  },
+  "onboardingYoursBody": "Choose colours and calendar themes, add home-screen widgets, and design printable calendars in Calendar Studio.",
+  "@onboardingYoursBody": {
+    "description": "Tour page 4."
+  },
+  "onboardingLanguagesTitle": "Choose your languages",
+  "@onboardingLanguagesTitle": {
+    "description": "Setup step 1."
+  },
+  "onboardingAppLanguage": "App language",
+  "@onboardingAppLanguage": {
+    "description": "Setup group label."
+  },
+  "onboardingCalendarLanguageFooter": "Month names, holidays and moon phases use the calendar language.",
+  "@onboardingCalendarLanguageFooter": {
+    "description": "Setup group footer."
+  },
+  "onboardingLookTitle": "Pick a look",
+  "@onboardingLookTitle": {
+    "description": "Setup step 2."
+  },
+  "onboardingThemeAutomatic": "Automatic",
+  "@onboardingThemeAutomatic": {
+    "description": "Theme follows the system."
+  },
+  "onboardingThemeLight": "Light",
+  "@onboardingThemeLight": {
+    "description": "Light theme."
+  },
+  "onboardingThemeDark": "Dark",
+  "@onboardingThemeDark": {
+    "description": "Dark theme."
+  },
+  "onboardingColour": "Colour",
+  "@onboardingColour": {
+    "description": "Setup group label."
+  },
+  "onboardingColourFooter": "More colours and calendar themes are in Settings › Appearance.",
+  "@onboardingColourFooter": {
+    "description": "Setup group footer."
+  },
+  "onboardingPrivacyTitle": "Your calendar stays on your phone",
+  "@onboardingPrivacyTitle": {
+    "description": "Setup step 3."
+  },
+  "onboardingPrivacyBody": "Events and notes never leave your device. You can help improve the app by sharing anonymous data.",
+  "@onboardingPrivacyBody": {
+    "description": "Setup step 3."
+  },
+  "onboardingUsageStats": "Usage statistics",
+  "@onboardingUsageStats": {
+    "description": "Analytics switch."
+  },
+  "onboardingUsageStatsSubtitle": "Which screens are used, never what's on them",
+  "@onboardingUsageStatsSubtitle": {
+    "description": "Analytics switch subtitle."
+  },
+  "onboardingCrashReports": "Crash reports",
+  "@onboardingCrashReports": {
+    "description": "Crash report switch."
+  },
+  "onboardingCrashReportsSubtitle": "Sent only when the app crashes",
+  "@onboardingCrashReportsSubtitle": {
+    "description": "Crash report switch subtitle."
+  },
+  "onboardingPrivacyFooter": "Change this any time in Settings › Privacy & Data.",
+  "@onboardingPrivacyFooter": {
+    "description": "Setup group footer."
+  },
+  "onboardingNotificationsTitle": "Reminders when they matter",
+  "@onboardingNotificationsTitle": {
+    "description": "Setup step 4."
+  },
+  "onboardingEventReminders": "Event reminders",
+  "@onboardingEventReminders": {
+    "description": "Notification kind."
+  },
+  "onboardingEventRemindersSubtitle": "At the time you choose for each event",
+  "@onboardingEventRemindersSubtitle": {
+    "description": "Notification kind."
+  },
+  "onboardingHolidayReminders": "Holiday reminders",
+  "@onboardingHolidayReminders": {
+    "description": "Notification kind."
+  },
+  "onboardingHolidayRemindersSubtitle": "The evening before holidays you follow",
+  "@onboardingHolidayRemindersSubtitle": {
+    "description": "Notification kind."
+  },
+  "onboardingAllowNotifications": "Allow notifications",
+  "@onboardingAllowNotifications": {
+    "description": "Ask for notification permission."
+  },
+  "onboardingDoneTitle": "You're all set",
+  "@onboardingDoneTitle": {
+    "description": "Last onboarding page."
+  },
+  "onboardingDoneToday": "Today is {date}.",
+  "@onboardingDoneToday": {
+    "description": "Last onboarding page.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingWidgetTipTitle": "Tip: add a widget",
+  "@onboardingWidgetTipTitle": {
+    "description": "Last onboarding page tip."
+  },
+  "onboardingWidgetTipBody": "See the Myanmar date on your home screen. Touch and hold an empty spot, then add Myanmar Calendar.",
+  "@onboardingWidgetTipBody": {
+    "description": "Last onboarding page tip."
+  },
+  "viewsMyanmarMonth": "Myanmar Month",
+  "@viewsMyanmarMonth": {
+    "description": "Views row: a Myanmar month by fortnight"
+  },
+  "viewsMyanmarMonthSubtitle": "The month by waxing and waning fortnight",
+  "@viewsMyanmarMonthSubtitle": {
+    "description": "Views row subtitle for the Myanmar month view"
+  },
+  "viewsAgenda": "Agenda",
+  "@viewsAgenda": {
+    "description": "Views row: upcoming days with something on them"
+  },
+  "viewsAgendaSubtitle": "Holidays, Sabbath, moon days and your events ahead",
+  "@viewsAgendaSubtitle": {
+    "description": "Views row subtitle for the agenda"
+  },
+  "dayDetailsComingUp": "Coming up",
+  "@dayDetailsComingUp": {
+    "description": "Day details: next full moon, new moon and Sabbath"
+  },
+  "dayDetailsNagahleCompass": "Dragon's head",
+  "@dayDetailsNagahleCompass": {
+    "description": "Day details: the Nagahle compass section"
+  },
+  "dayDetailsNoAstrologicalDays": "No special astrological days",
+  "@dayDetailsNoAstrologicalDays": {
+    "description": "Day details: the astrology section when no Sabbath, Yatyaza, Pyathada or named astrological day falls on the day"
+  },
+  "repeatOn": "On",
+  "@repeatOn": {
+    "description": "Repeat sheet: the weekdays a weekly event falls on"
+  },
+  "repeatEveryWeek": "Every week",
+  "@repeatEveryWeek": {
+    "description": "Repeat sheet: weekly interval of one"
+  },
+  "repeatEveryWeeks": "Every {count} weeks",
+  "@repeatEveryWeeks": {
+    "description": "Repeat sheet: weekly interval of two or more",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "repeatEnds": "Ends",
+  "@repeatEnds": {
+    "description": "Repeat sheet: when the series ends"
+  },
+  "repeatEndsOnDate": "On a date",
+  "@repeatEndsOnDate": {
+    "description": "Repeat sheet: the series ends on a chosen date"
+  },
+  "repeatEndsAfter": "After",
+  "@repeatEndsAfter": {
+    "description": "Repeat sheet: the series ends after a number of times"
+  },
+  "repeatTimes": "{count} times",
+  "@repeatTimes": {
+    "description": "Repeat summary: how many times the event happens",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "repeatUntil": "until {date}",
+  "@repeatUntil": {
+    "description": "Repeat summary: the last date of the series",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "repeatTimePerDay": "A time for each day",
+  "@repeatTimePerDay": {
+    "description": "Repeat sheet: switch to give each weekday its own time"
+  },
+  "repeatTimePerDayNote": "Days with different times are saved as one weekly event per time.",
+  "@repeatTimePerDayNote": {
+    "description": "Repeat sheet: what saving per-day times does"
+  },
+  "repeatEventsCreated": "{count} events created",
+  "@repeatEventsCreated": {
+    "description": "Toast after one save creates a weekly event for each time",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "repeatPerDay": "Per day",
+  "@repeatPerDay": {
+    "description": "Event form time row when each weekday has its own time"
+  },
+  "repeatSpecificDates": "Specific dates",
+  "@repeatSpecificDates": {
+    "description": "Repeat sheet: the event happens on chosen days only"
+  },
+  "repeatChooseDates": "Choose dates",
+  "@repeatChooseDates": {
+    "description": "Repeat sheet: opens the calendar to pick several days"
+  },
+  "repeatDatesCount": "{count} dates",
+  "@repeatDatesCount": {
+    "description": "Repeat summary: how many chosen days",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRepeatsOnDates": "on {count} dates",
+  "@eventsRepeatsOnDates": {
+    "description": "Event row: an event on several chosen days",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsAddMoreDates": "Add more dates",
+  "@eventsAddMoreDates": {
+    "description": "Event form: pick more days so the event falls on several dates"
   }
 }

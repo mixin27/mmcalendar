@@ -42,10 +42,7 @@ abstract interface class AnalyticsPort {
     Map<String, Object> parameters,
   });
 
-  Future<void> logScreenView({
-    required String screenName,
-    String? screenClass,
-  });
+  Future<void> logScreenView({required String screenName, String? screenClass});
 
   Future<void> logButtonClick({
     required String buttonName,
@@ -65,10 +62,7 @@ abstract interface class AnalyticsPort {
     required Object newValue,
   });
 
-  Future<void> logThemeChange({
-    required String themeMode,
-    String? themePreset,
-  });
+  Future<void> logThemeChange({required String themeMode, String? themePreset});
 
   Future<void> logLanguageChange({
     required String languageCode,
@@ -120,10 +114,7 @@ abstract interface class AnalyticsPort {
 
   Future<void> setUserId(String userId);
 
-  Future<void> setUserProperty({
-    required String name,
-    required String value,
-  });
+  Future<void> setUserProperty({required String name, required String value});
 
   Future<void> updateConfig(AnalyticsPortConfig newConfig);
 

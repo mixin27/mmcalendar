@@ -5,10 +5,9 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../widgets/settings_widgets.dart';
-import '../widgets/snackbar.dart';
-import '../widgets/state_widgets.dart';
 
 class SettingsCalendarConfigurationPage extends StatefulWidget {
   const SettingsCalendarConfigurationPage({super.key});
@@ -36,68 +35,13 @@ class _SettingsCalendarConfigurationPageState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.error.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.settings_outlined,
-                color: Theme.of(context).colorScheme.error,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              l10n?.calendar_configuration ?? 'Calendar Configuration',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-      body: BlocConsumer<SettingsBloc, SettingsState>(
-        listener: (context, state) {
-          if (state is SettingsError) {
-            showErrorSnackBar(context, state.message);
-          }
-        },
-        builder: (context, state) {
-          if (state is SettingsInitial) {
-            context.read<SettingsBloc>().add(const LoadSettings());
-            return const LoadingView();
-          }
-
-          if (state is SettingsLoading) {
-            return const LoadingView();
-          }
-
-          if (state is SettingsError) {
-            return ErrorView(
-              message: state.message,
-              onRetry: () {
-                context.read<SettingsBloc>().add(const LoadSettings());
-              },
-            );
-          }
-
-          if (state is SettingsLoaded) {
-            return _SettingsCalendarConfigurationContent(
-              settings: state.settings,
-              isRefreshingHolidayConfig: _isRefreshingHolidayConfig,
-              onForceRefreshHolidayConfig: _forceRefreshHolidayConfig,
-            );
-          }
-
-          return const SizedBox.shrink();
-        },
-      ),
+    return SettingsSubPage(
+      title: l10n?.calendar_configuration ?? 'Calendar Configuration',
+      builder: (context, settings) => _CalendarConfigurationGroups(
+        settings: settings,
+        onForceRefreshHolidayConfig: _forceRefreshHolidayConfig,
+        isRefreshingHolidayConfig: _isRefreshingHolidayConfig,
+      ).build(context),
     );
   }
 
@@ -122,10 +66,10 @@ class _SettingsCalendarConfigurationPageState
     });
 
     if (fetchResult == RemoteFetchResult.failed) {
-      showErrorSnackBar(
-        context,
+      context.showToast(
         l10n?.failedToFetchHolidayConfig ??
             'Failed to fetch holiday config from server.',
+        kind: AppToastKind.error,
       );
       return;
     }
@@ -139,25 +83,22 @@ class _SettingsCalendarConfigurationPageState
         ? (l10n?.updated ?? 'updated')
         : (l10n?.noChanges ?? 'no changes');
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          l10n?.holidayConfigRefreshed(
-                fetchSummary,
-                customCount.toString(),
-                disabledCount.toString(),
-              ) ??
-              'Holiday config refreshed ($fetchSummary). '
-                  'Custom: $customCount, Disabled: $disabledCount',
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
+    context.showToast(
+      l10n?.holidayConfigRefreshed(
+            fetchSummary,
+            customCount.toString(),
+            disabledCount.toString(),
+          ) ??
+          'Holiday config refreshed ($fetchSummary). '
+              'Custom: $customCount, Disabled: $disabledCount',
+      kind: AppToastKind.success,
     );
   }
 }
 
-class _SettingsCalendarConfigurationContent extends StatelessWidget {
-  const _SettingsCalendarConfigurationContent({
+/// The page's groups, built from the loaded settings.
+class _CalendarConfigurationGroups {
+  const _CalendarConfigurationGroups({
     required this.settings,
     required this.onForceRefreshHolidayConfig,
     required this.isRefreshingHolidayConfig,
@@ -167,70 +108,81 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
   final Future<void> Function() onForceRefreshHolidayConfig;
   final bool isRefreshingHolidayConfig;
 
-  @override
-  Widget build(BuildContext context) {
+  List<Widget> build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      child: Column(
+    final sasana = settings.calendarConfig.sasanaYearType;
+    final runtimeOffset = settings.useDeviceTimezone
+        ? getDeviceTimezoneOffsetHours()
+        : kMyanmarTimezoneOffset;
+    return [
+      AppGroup(
+        label: l10n?.sasanaYearType ?? 'Sasana Year Type',
         children: [
-          SettingsTile(
-            title: l10n?.sasanaYearType ?? 'Sasana Year Type',
-            subtitle:
-                l10n?.typeValue(
-                  settings.calendarConfig.sasanaYearType.toString(),
-                ) ??
-                'Type ${settings.calendarConfig.sasanaYearType}',
-            leading: const Icon(Icons.auto_awesome),
-            onTap: () => _showSasanaYearTypeDialog(context, settings),
+          for (final type in const [0, 1, 2])
+            AppRow(
+              title: l10n?.typeValue('$type') ?? 'Type $type',
+              subtitle: type == 0
+                  ? (l10n?.defaultCalculationMethod ??
+                        'Default calculation method')
+                  : (l10n?.alternativeCalculationMethod ??
+                        'Alternative calculation method'),
+              selected: sasana == type,
+              onTap: () => _updateCalendarConfig(
+                context,
+                settings,
+                sasanaYearType: type,
+              ),
+            ),
+        ],
+      ),
+      AppGroup(
+        label: l10n?.time ?? 'Time',
+        children: [
+          AppRow(
+            icon: Icons.lock_outline,
+            iconColor: SettingsIconColors.gray,
+            title: l10n?.calendarType ?? 'Calendar Type',
+            value: _getCalendarTypeName(context, 0),
           ),
-          ListTile(
-            leading: const Icon(Icons.event_note),
-            title: Text(l10n?.calendarType ?? 'Calendar Type'),
-            subtitle: Text('${_getCalendarTypeName(context, 0)} (Locked)'),
-            trailing: const Icon(Icons.lock_outline),
-          ),
-          AnimatedSwitchTile(
-            title: 'Use Device Timezone',
-            subtitle: settings.useDeviceTimezone
-                ? 'Use device timezone (${_formatUtcOffset(getDeviceTimezoneOffsetHours())})'
-                : 'Use Myanmar Time (${_formatUtcOffset(kMyanmarTimezoneOffset)})',
+          AppRow.toggle(
             icon: Icons.access_time,
+            iconColor: SettingsIconColors.blue,
+            title: l10n?.settingsUseDeviceTimezone ?? 'Use Device Timezone',
             value: settings.useDeviceTimezone,
-            useIcon: true,
-            onChanged: (value) {
-              context.read<SettingsBloc>().add(
-                ToggleDisplayPreference(StorageKeys.useDeviceTimezone, value),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.schedule),
-            title: Text(l10n?.timezoneOffset ?? 'Timezone Offset'),
-            subtitle: Text(
-              'Current runtime: ${_formatUtcOffset(settings.useDeviceTimezone ? getDeviceTimezoneOffsetHours() : kMyanmarTimezoneOffset)}',
+            onChanged: (value) => context.read<SettingsBloc>().add(
+              ToggleDisplayPreference(StorageKeys.useDeviceTimezone, value),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.cloud_sync_outlined),
-            title: Text(l10n?.holidayConfigRemote ?? 'Holiday Config (Remote)'),
-            subtitle: Text(
-              l10n?.forceRefreshHolidayConfigDescription ??
-                  'Force refresh and apply holiday overrides from Remote Config',
-            ),
+          AppRow(
+            icon: Icons.schedule,
+            iconColor: SettingsIconColors.indigo,
+            title: l10n?.timezoneOffset ?? 'Timezone Offset',
+            value: _formatUtcOffset(runtimeOffset),
+          ),
+        ],
+      ),
+      AppGroup(
+        label: l10n?.holidayConfigRemote ?? 'Holiday Config (Remote)',
+        footer:
+            l10n?.forceRefreshHolidayConfigDescription ??
+            'Force refresh and apply holiday overrides from Remote Config',
+        children: [
+          AppRow(
+            title: l10n?.settingsRefreshHolidayData ?? 'Refresh holiday data',
+            tone: AppRowTone.accent,
             trailing: isRefreshingHolidayConfig
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
+                ? const SizedBox.square(
+                    dimension: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.refresh),
+                : null,
             onTap: isRefreshingHolidayConfig
                 ? null
                 : () => onForceRefreshHolidayConfig(),
           ),
         ],
       ),
-    );
+    ];
   }
 
   String _getCalendarTypeName(BuildContext context, int type) {
@@ -245,64 +197,6 @@ class _SettingsCalendarConfigurationContent extends StatelessWidget {
       default:
         return l10n?.unknown ?? 'Unknown';
     }
-  }
-
-  void _showSasanaYearTypeDialog(
-    BuildContext context,
-    AppSettingsEntity settings,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => EnhancedDialog(
-        title: l10n?.sasanaYearType ?? 'Sasana Year Type',
-        icon: Icons.auto_awesome,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioOption<int>(
-              title: l10n?.typeValue('0') ?? 'Type 0',
-              subtitle:
-                  l10n?.defaultCalculationMethod ??
-                  'Default calculation method',
-              icon: Icons.looks_one,
-              value: 0,
-              groupValue: settings.calendarConfig.sasanaYearType,
-              onChanged: (value) {
-                _updateCalendarConfig(context, settings, sasanaYearType: value);
-                Navigator.pop(dialogContext);
-              },
-            ),
-            RadioOption<int>(
-              title: l10n?.typeValue('1') ?? 'Type 1',
-              subtitle:
-                  l10n?.alternativeCalculationMethod ??
-                  'Alternative calculation method',
-              icon: Icons.looks_two,
-              value: 1,
-              groupValue: settings.calendarConfig.sasanaYearType,
-              onChanged: (value) {
-                _updateCalendarConfig(context, settings, sasanaYearType: value);
-                Navigator.pop(dialogContext);
-              },
-            ),
-            RadioOption<int>(
-              title: l10n?.typeValue('2') ?? 'Type 2',
-              subtitle:
-                  l10n?.alternativeCalculationMethod ??
-                  'Alternative calculation method',
-              icon: Icons.looks_3,
-              value: 2,
-              groupValue: settings.calendarConfig.sasanaYearType,
-              onChanged: (value) {
-                _updateCalendarConfig(context, settings, sasanaYearType: value);
-                Navigator.pop(dialogContext);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   void _updateCalendarConfig(

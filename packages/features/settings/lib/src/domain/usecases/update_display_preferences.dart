@@ -11,4 +11,10 @@ class UpdateDisplayPreferences {
   Future<Either<Failure, void>> call(String key, bool value) async {
     return await repository.updateDisplayPreference(key, value);
   }
+
+  Future<Either<Failure, void>> gridStyle(CalendarGridStyle style) =>
+      repository.updateCalendarGridStyle(style);
+
+  Future<Either<Failure, void>> gridTheme(CalendarGridTheme theme) =>
+      repository.updateCalendarGridTheme(theme);
 }

@@ -1,36 +1,48 @@
 import 'package:calendar/calendar.dart';
-import 'package:calendar_generation/calendar_generation.dart';
+import 'package:calendar_studio/calendar_studio.dart';
 import 'package:converter/converter.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:events/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:holidays/holidays.dart';
 import 'package:home_widgets/home_widgets.dart';
-import 'package:mmcalendar/src/build_number.dart';
 import 'package:settings/settings.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:views/views.dart';
+import 'package:whats_new/whats_new.dart';
 
-import '../presentation/pages/consent_page.dart';
+import '../presentation/pages/welcome_page.dart';
 import '../presentation/pages/privacy_policy_page.dart';
 import '../presentation/shell/app_shell.dart';
-import '../presentation/widgets/promo_initializer.dart';
+import '../presentation/widgets/whats_new_presenter.dart';
 import 'di_setup.dart';
+import 'introductions.dart';
+import 'calendar_studio_look.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: RoutePaths.home,
   debugLogDiagnostics: true,
   routes: [
     GoRoute(
-      path: RoutePaths.consent,
-      builder: (context, state) => const ConsentPage(),
+      path: RoutePaths.welcome,
+      builder: (context, state) => const WelcomePage(),
+    ),
+    GoRoute(
+      path: RoutePaths.studio,
+      builder: (context, state) => Builder(
+        // Rebuilds when the app style, colours or brightness change.
+        builder: (context) => CalendarStudioWorkspace(
+          configuration: calendarStudioConfigurationFor(context),
+        ),
+      ),
     ),
 
     // Main App Shell with Bottom Navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return PromoInitializer(
+        return WhatsNewPresenter(
           child: AppShell(navigationShell: navigationShell),
         );
       },
@@ -68,6 +80,14 @@ final GoRouter router = GoRouter(
                     return DayDetailsPage(date: date);
                   },
                 ),
+                GoRoute(
+                  path: RoutePaths.homeHoliday,
+                  builder: (context, state) => HolidayDetailPage(
+                    id: Uri.decodeComponent(state.pathParameters['id']!),
+                    year: _yearOf(state),
+                    previousTitle: AppLocalizations.of(context)?.home,
+                  ),
+                ),
               ],
             ),
           ],
@@ -91,8 +111,35 @@ final GoRouter router = GoRouter(
                   builder: (context, state) => const WeekViewPage(),
                 ),
                 GoRoute(
+                  path: RoutePaths.myanmarMonthView,
+                  builder: (context, state) => const MyanmarMonthViewPage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.agendaView,
+                  builder: (context, state) => const AgendaViewPage(),
+                ),
+                GoRoute(
+                  path: RoutePaths.holidays,
+                  builder: (context, state) => HolidaysPage(
+                    year: int.tryParse(state.uri.queryParameters['year'] ?? ''),
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: RoutePaths.holidayDetail,
+                      builder: (context, state) => HolidayDetailPage(
+                        id: Uri.decodeComponent(state.pathParameters['id']!),
+                        year: _yearOf(state),
+                      ),
+                    ),
+                  ],
+                ),
+                // Views › Day is the Day Details screen (events, share and
+                // the AI prompt included), not a separate copy.
+                GoRoute(
                   path: RoutePaths.dayView,
-                  builder: (context, state) => const DayViewPage(),
+                  builder: (context, state) => DayDetailsPage(
+                    date: state.extra as DateTime? ?? DateTime.now(),
+                  ),
                 ),
               ],
             ),
@@ -124,7 +171,12 @@ final GoRouter router = GoRouter(
                 GoRoute(
                   path: 'create',
                   builder: (context, state) {
-                    final initialDate = state.extra as DateTime?;
+                    // From the app (extra) or a widget link (?date=).
+                    final initialDate =
+                        state.extra as DateTime? ??
+                        DateTime.tryParse(
+                          state.uri.queryParameters['date'] ?? '',
+                        );
                     return MultiBlocProvider(
                       providers: [
                         BlocProvider(
@@ -139,6 +191,17 @@ final GoRouter router = GoRouter(
                       child: EventFormPage(initialDate: initialDate),
                     );
                   },
+                ),
+                // Categories management. Must come before ':id', which would
+                // otherwise match "categories" and fail to parse it as an id.
+                GoRoute(
+                  path: 'categories',
+                  builder: (context, state) => BlocProvider(
+                    create: (context) =>
+                        getIt<EventCategoriesBloc>()
+                          ..add(const LoadEventCategories()),
+                    child: const CategoriesPage(),
+                  ),
                 ),
                 // Edit event
                 GoRoute(
@@ -175,17 +238,6 @@ final GoRouter router = GoRouter(
                     );
                   },
                 ),
-
-                // Categories management
-                GoRoute(
-                  path: 'categories',
-                  builder: (context, state) => BlocProvider(
-                    create: (context) =>
-                        getIt<EventCategoriesBloc>()
-                          ..add(const LoadEventCategories()),
-                    child: const CategoriesPage(),
-                  ),
-                ),
               ],
             ),
           ],
@@ -205,6 +257,13 @@ final GoRouter router = GoRouter(
                 GoRoute(
                   path: RoutePaths.themeSettings,
                   builder: (context, state) => const SettingsAppearancePage(),
+                  routes: [
+                    GoRoute(
+                      path: RoutePaths.customColors,
+                      builder: (context, state) =>
+                          const SettingsCustomColorsPage(),
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: RoutePaths.languageSettings,
@@ -216,13 +275,13 @@ final GoRouter router = GoRouter(
                       const SettingsDisplayPreferencesPage(),
                 ),
                 GoRoute(
+                  path: RoutePaths.calendarGrid,
+                  builder: (context, state) => const SettingsCalendarGridPage(),
+                ),
+                GoRoute(
                   path: RoutePaths.calendarConfig,
                   builder: (context, state) =>
                       const SettingsCalendarConfigurationPage(),
-                ),
-                GoRoute(
-                  path: RoutePaths.calendarGeneration,
-                  builder: (context, state) => const CalendarGenerationPage(),
                 ),
                 GoRoute(
                   path: RoutePaths.privacyAndData,
@@ -230,18 +289,28 @@ final GoRouter router = GoRouter(
                 ),
                 GoRoute(
                   path: RoutePaths.appUpdate,
-                  builder: (context, state) {
-                    final version = appVersion();
-                    return SettingsAppUpdatePage(appVersion: version);
-                  },
+                  builder: (context, state) => SettingsAppUpdatePage(
+                    appVersion: getIt<AppVersionInfo>().version,
+                  ),
                 ),
                 GoRoute(
                   path: RoutePaths.about,
-                  builder: (context, state) {
-                    final version = appVersion();
-                    return SettingsAboutPage(appVersion: version);
-                  },
+                  builder: (context, state) => SettingsAboutPage(
+                    appVersion: getIt<AppVersionInfo>().version,
+                    onResetIntro: resetIntroductions,
+                  ),
                   routes: [
+                    GoRoute(
+                      path: RoutePaths.whatsNew,
+                      builder: (context, state) {
+                        final store = getIt<WhatsNewStore>();
+                        return WhatsNewPage(
+                          releases: store.history(),
+                          currentVersion: store.currentVersion,
+                          onOpen: GoRouter.of(context).go,
+                        );
+                      },
+                    ),
                     GoRoute(
                       path: RoutePaths.privacyPolicy,
                       builder: (context, state) => PrivacyPolicyPage(
@@ -310,3 +379,8 @@ final GoRouter router = GoRouter(
     );
   },
 );
+
+/// The `year` query parameter, or this year.
+int _yearOf(GoRouterState state) =>
+    int.tryParse(state.uri.queryParameters['year'] ?? '') ??
+    DateTime.now().year;

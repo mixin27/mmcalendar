@@ -1,0 +1,572 @@
+<title>Myanmar Calendar Design v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Noto+Serif+Myanmar:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a review board. Page chrome follows the viewer's theme; the app frames carry the proposed "Lacquer & paper" tokens and can be flipped to dark independently. */
+:root{
+  --board:#E9E4DA; --board-ink:#1E1B16; --board-2:#DDD6C9;
+  --f-ui:'Noto Sans Myanmar','Myanmar Text',system-ui,sans-serif;
+  --f-serif:'Noto Serif Myanmar','Myanmar Text',Georgia,serif;
+  --f-num:'Fraunces',Georgia,serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--board:#0F0E0C;--board-ink:#EFEAE0;--board-2:#1B1915;color-scheme:dark}}
+:root[data-theme="dark"]{--board:#0F0E0C;--board-ink:#EFEAE0;--board-2:#1B1915;color-scheme:dark}
+
+/* App tokens (the proposal itself) */
+.app{
+  --paper:#F6F3EC; --surface:#FFFDF8; --surface-2:#EFEAE0; --line:#E2DBCD; --line-strong:#CFC6B5;
+  --ink:#1E1B16; --ink-2:#5A5348; --ink-3:#857D6F;
+  --jade:#0E6B5C; --jade-soft:#DCEBE6; --on-jade:#FFFFFF;
+  --lacquer:#B3261E; --lacquer-soft:#F6E1DD;
+  --gold:#9A6A12; --gold-glyph:#C8962B; --gold-soft:#F3E6C4;
+  --night:#3B4A7A; --event:#2F6FB0;
+  --tab:#1E1B16; --on-tab:#F6F3EC;
+  background:var(--paper); color:var(--ink); font-family:var(--f-ui);
+}
+.app.dark{
+  --paper:#12110E; --surface:#1B1915; --surface-2:#24211C; --line:#34302A; --line-strong:#4A443B;
+  --ink:#EFEAE0; --ink-2:#BDB5A6; --ink-3:#8D8576;
+  --jade:#5BBFA9; --jade-soft:#18332D; --on-jade:#06201B;
+  --lacquer:#F08A7E; --lacquer-soft:#3A1F1C;
+  --gold:#E3B85C; --gold-glyph:#E3B85C; --gold-soft:#3A2F17;
+  --night:#9FB0E8; --event:#7FB2E6;
+  --tab:#EFEAE0; --on-tab:#12110E;
+}
+*{box-sizing:border-box}
+body{background:var(--board);color:var(--board-ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;padding-inline:clamp(16px,4vw,52px);padding-block:40px 120px}
+.wrap{max-width:1480px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-num);letter-spacing:-.015em;text-wrap:balance}
+.hero h1{font-weight:600;font-size:clamp(32px,4.4vw,52px);line-height:1.05;margin:0 0 12px;max-width:18ch}
+.hero p{max-width:68ch;margin:0;opacity:.82}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;align-items:center}
+.toc a,.toggle{color:inherit;text-decoration:none;font:600 13px var(--f-ui);padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--board-ink) 22%,transparent);background:transparent;cursor:pointer}
+.toggle[aria-pressed="true"]{background:var(--board-ink);color:var(--board)}
+.toc a:focus-visible,.toggle:focus-visible{outline:2px solid #0E6B5C;outline-offset:2px}
+.sec{margin-top:76px;scroll-margin-top:20px}
+.sec>h2{font-weight:600;font-size:28px;line-height:1.15;margin:0 0 6px}
+.sec>.lead{max-width:72ch;margin:0 0 26px;opacity:.82}
+.row{display:flex;flex-wrap:wrap;gap:34px 28px;align-items:flex-start}
+.fr{width:376px;max-width:100%;flex:none;min-width:0}
+.fr.wide{width:100%;max-width:1200px}
+.cap{display:flex;gap:10px;align-items:center;margin:0 0 4px 4px}
+.cap .n{width:22px;height:22px;border-radius:50%;background:var(--board-ink);color:var(--board);display:grid;place-items:center;font-size:11.5px;font-weight:700;flex:none}
+.cap .t{font-weight:600;font-size:14.5px}
+.note{margin:0 4px 12px 36px;font-size:13px;opacity:.78;max-width:48ch;line-height:1.5}
+.fr.wide .note{max-width:92ch}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:22px}
+.principles div{padding:14px 16px;border-radius:14px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--board-ink) 16%,transparent)}
+.principles b{display:block;font-family:var(--f-num);font-size:16px}
+.principles span{font-size:13.5px;opacity:.8}
+
+/* phone frame */
+.phone{width:376px;max-width:100%;padding:8px;border-radius:42px;background:#0b0a09;box-shadow:0 26px 50px -22px rgba(20,14,4,.5)}
+.scr{position:relative;width:100%;height:760px;border-radius:34px;overflow:hidden;display:flex;flex-direction:column;font-size:13.5px;line-height:1.5}
+.status{height:30px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:12px;font-weight:600}
+.body{flex:1;min-height:0;overflow:hidden;padding:4px 16px 96px;display:flex;flex-direction:column;gap:14px}
+.muted{color:var(--ink-3)}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* header pattern */
+.hdr{display:flex;align-items:flex-start;gap:10px;padding:2px 0 0}
+.hdr .tt{flex:1;min-width:0}
+.hdr h3{font-family:var(--f-serif);font-weight:600;font-size:23px;line-height:1.45;margin:0;color:var(--ink)}
+.hdr .sub{font-size:12.5px;color:var(--ink-3);line-height:1.3}
+.ib{width:40px;height:40px;border-radius:20px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--line);color:var(--ink-2);background:var(--surface);flex:none;font-size:16px}
+
+/* tab bar */
+.tabbar{position:absolute;left:14px;right:14px;bottom:16px;height:62px;border-radius:31px;background:var(--tab);color:var(--on-tab);display:flex;align-items:center;justify-content:space-between;padding:0 8px;box-shadow:0 12px 26px -12px rgba(0,0,0,.45)}
+.tab{height:46px;min-width:46px;border-radius:23px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;font-weight:600;opacity:.66;padding:0 12px}
+.tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{opacity:1;background:color-mix(in srgb,var(--on-tab) 16%,transparent)}
+
+/* cards & rows */
+.card{background:var(--surface);border-radius:18px;box-shadow:inset 0 0 0 1px var(--line)}
+.rowi{display:flex;align-items:center;gap:12px;padding:11px 14px}
+.rowi+.rowi{box-shadow:inset 0 1px 0 var(--line)}
+.tile{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none;font-size:15px}
+.rowi .tx{flex:1;min-width:0}
+.rowi b{display:block;font-weight:600;font-size:13.5px;line-height:1.35}
+.rowi small{display:block;color:var(--ink-3);font-size:12px;line-height:1.35}
+.chev{color:var(--ink-3)}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+
+/* buttons, chips, segmented, inputs */
+.btn{height:42px;padding:0 18px;border-radius:21px;border:0;font:600 13.5px var(--f-ui);display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.btn.p{background:var(--jade);color:var(--on-jade)}
+.btn.s{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line-strong)}
+.btn.g{background:transparent;color:var(--jade);padding:0 8px;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.btn.d{background:transparent;color:var(--lacquer);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--lacquer) 40%,transparent)}
+.chip{height:32px;padding:0 12px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line);display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--ink-2);background:var(--surface)}
+.chip.on{background:var(--ink);color:var(--paper);box-shadow:none}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--surface-2);border-radius:12px;padding:3px;font-size:12.5px;font-weight:600;text-align:center;color:var(--ink-2)}
+.seg span{padding:7px 0;border-radius:9px}
+.seg .on{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;font-weight:600;color:var(--ink-2)}
+.field div{height:44px;border-radius:14px;background:var(--surface-2);display:flex;align-items:center;padding:0 14px;color:var(--ink-3)}
+.toast{background:var(--ink);color:var(--paper);border-radius:16px;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;font-size:13px}
+.toast .act{color:var(--gold-glyph);font-weight:700;padding:0 8px}
+.ring{width:30px;height:30px;border-radius:50%;background:conic-gradient(var(--paper) 72%,color-mix(in srgb,var(--paper) 20%,transparent) 0);display:grid;place-items:center;flex:none}
+.ring span{width:24px;height:24px;border-radius:50%;background:var(--ink);display:grid;place-items:center;font-size:10.5px;font-weight:700}
+.sheet{background:var(--surface);border-radius:28px 28px 0 0;box-shadow:inset 0 0 0 1px var(--line),0 -10px 30px -18px rgba(0,0,0,.35);padding:10px 18px 18px}
+.handle{width:36px;height:4px;border-radius:2px;background:var(--line-strong);margin:0 auto 12px}
+
+/* today hero */
+.today{padding:16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center}
+.today .num{font-family:var(--f-num);font-size:54px;line-height:.9;font-weight:600;color:var(--ink)}
+.today .my{font-family:var(--f-serif);font-size:17px;font-weight:600;line-height:1.6}
+.pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:13px;font-size:11.5px;font-weight:600}
+.pill.gold{background:var(--gold-soft);color:var(--gold)}
+.pill.red{background:var(--lacquer-soft);color:var(--lacquer)}
+.switch{display:flex;align-items:center;gap:6px}
+.switch .tt{flex:1;text-align:center}
+.switch b{display:block;font-family:var(--f-num);font-size:17px;line-height:1.2}
+.switch small{font-family:var(--f-serif);font-size:12.5px;color:var(--ink-3)}
+
+/* grids */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--gap,4px)}
+.wd{text-align:center;font-size:10.5px;font-weight:600;color:var(--ink-3);line-height:1.25;padding-bottom:4px}
+.wd i{display:block;font-style:normal;font-size:9px;opacity:.75}
+.wd.we{color:var(--lacquer)}
+/* current */
+.cur .c{min-width:0;aspect-ratio:.75;border-radius:12px;box-shadow:inset 0 0 0 .5px var(--line-strong);display:flex;flex-direction:column;align-items:center;padding:3px 2px;background:var(--surface)}
+.cur .c.x{opacity:.4}
+.cur .c .dots{height:6px;display:flex;gap:2px}
+.cur .c .dots i{width:4px;height:4px;border-radius:50%}
+.cur .c .n{font-size:15px;font-weight:600;line-height:1.3}
+.cur .c .l{font-size:8.5px;color:var(--ink-3);line-height:1.3;white-space:nowrap;overflow:hidden;max-width:100%}
+.cur .c.full{background:#FFF8E1}
+.cur .c.new{background:#E8EAF6}
+.cur .c.today{background:#F3EDF7;box-shadow:inset 0 0 0 2px #6750A4}
+.app.dark .cur .c.full{background:#FFF8E1;color:#1E1B16}
+.app.dark .cur .c.new{background:#E8EAF6;color:#1E1B16}
+/* calm */
+.calm{--gap:2px 0}
+.calm .c{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative}
+.calm .c .n{width:34px;height:34px;border-radius:17px;display:grid;place-items:center;font-family:var(--f-num);font-size:16px;font-weight:500}
+.calm .c.today .n{background:var(--ink);color:var(--paper);font-weight:600}
+.calm .c.sel .n{box-shadow:inset 0 0 0 1.5px var(--jade)}
+.calm .c.hol .n{color:var(--lacquer);font-weight:600}
+.calm .c.sun .n{color:var(--lacquer)}
+.calm .c.x{opacity:.32}
+.calm .mk{height:6px;display:flex;gap:3px;align-items:center}
+.calm .mk i{width:5px;height:5px;border-radius:50%}
+.g-sab{background:var(--gold-glyph)}
+.g-full{width:7px!important;height:7px!important;background:var(--gold-glyph)}
+.g-new{width:7px!important;height:7px!important;box-shadow:inset 0 0 0 1.4px var(--night)}
+.g-ev{background:var(--event)}
+.g-hol{background:var(--lacquer)}
+/* rich */
+.rich{--gap:0}
+.rich .wd{padding-bottom:6px}
+.rich .c{aspect-ratio:.78;box-shadow:inset 0 1px 0 var(--line);padding:4px 3px 3px;display:flex;flex-direction:column;position:relative;min-width:0}
+.rich .c .n{font-family:var(--f-num);font-size:15px;font-weight:600;line-height:1.1}
+.rich .c .l{margin-top:auto;font-size:8.5px;color:var(--ink-3);line-height:1.35;white-space:nowrap;overflow:hidden}
+.rich .c .l.sab{color:var(--gold);font-weight:700}
+.rich .c .mo{position:absolute;right:3px;top:5px;width:8px;height:8px;border-radius:50%}
+.rich .c.hol{background:var(--lacquer-soft)}
+.rich .c.hol .n,.rich .c.sun .n{color:var(--lacquer)}
+.rich .c .h{font-size:8px;color:var(--lacquer);font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rich .c .bar{height:3px;border-radius:2px;background:var(--event);margin-top:2px}
+.rich .c.today{box-shadow:inset 0 1px 0 var(--line),inset 0 0 0 1.5px var(--ink)}
+.rich .c.x{opacity:.32}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+
+/* desktop */
+.win{width:100%;border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.12),0 30px 60px -30px rgba(20,14,4,.5)}
+.dsk{display:grid;grid-template-columns:84px minmax(0,1fr) 330px;min-height:640px}
+.rail{background:var(--surface);box-shadow:inset -1px 0 0 var(--line);display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 0}
+.rail .r{width:56px;padding:8px 0;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;color:var(--ink-3)}
+.rail .r svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.rail .r.on{background:var(--jade-soft);color:var(--jade)}
+.dmain{padding:22px 26px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.dside{box-shadow:inset 1px 0 0 var(--line);padding:22px 20px;display:flex;flex-direction:column;gap:14px;background:var(--surface)}
+table.spec{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+table.spec th,table.spec td{text-align:left;padding:9px 12px;border-bottom:1px solid color-mix(in srgb,var(--board-ink) 14%,transparent);vertical-align:top}
+table.spec th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
+.scroll-x{overflow-x:auto}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.typespec{display:flex;flex-direction:column;gap:12px;padding:18px}
+@media (max-width:1100px){.dsk{grid-template-columns:72px minmax(0,1fr)}.dside{display:none}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header class="hero">
+  <h1>Myanmar Calendar · design v2</h1>
+  <p>A proposal to move the whole app off stock Material onto its own identity: <b>Lacquer &amp; paper</b>. It uses warm paper surfaces, ink text and hairlines instead of shadows. Jade is the action colour, lacquer red marks holidays, and gold marks the moon and Sabbath. Myanmar serif type sets headings. Every frame uses real data for October 2026 (သီတင်းကျွတ်, ME 1388). The home grid stays as it is for now, and two replacements are proposed below.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#tokens">Tokens</a><a href="#components">Components</a><a href="#home">Home</a><a href="#grids">Calendar grids</a><a href="#tabs">Other tabs</a><a href="#desktop">Desktop</a><a href="#build">Build plan</a>
+    <button class="toggle" type="button" id="darkToggle" aria-pressed="false">Show app in dark</button>
+  </nav>
+  <div class="principles">
+    <div><b>Paper, not plastic</b><span>Hairlines separate things instead of elevation, and there are no tinted Material surfaces.</span></div>
+    <div><b>Myanmar first</b><span>Serif Myanmar type for headings, with line heights tall enough for stacked marks.</span></div>
+    <div><b>Colour means something</b><span>Red is only for holidays, gold only for the moon and Sabbath, and jade only for actions.</span></div>
+    <div><b>One way to do it</b><span>One header, one tab bar and one set of breakpoints across every tab.</span></div>
+  </div>
+</header>
+
+<section class="sec" id="tokens">
+  <h2>Tokens</h2>
+  <p class="lead">These become one <code>AppTokens</code> ThemeExtension, so the light and dark themes stop being copy-pasted. Material widgets stay underneath, but their look comes from these tokens.</p>
+  <div class="row">
+    <div class="fr wide">
+      <div class="scroll-x">
+        <table class="spec">
+          <thead><tr><th>Role</th><th>Light</th><th>Dark</th><th>Used for</th></tr></thead>
+          <tbody id="colorRows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="fr wide">
+      <div class="app card typespec" id="typeSpec">
+        <div style="font-family:var(--f-serif);font-size:30px;font-weight:600;line-height:1.5">သီတင်းကျွတ်လ <span class="muted" style="font-size:13px;font-family:var(--f-ui)">Display · Noto Serif Myanmar 30/1.5</span></div>
+        <div style="font-family:var(--f-num);font-size:44px;font-weight:600;line-height:1">16 October <span class="muted" style="font-size:13px;font-family:var(--f-ui)">Numerals &amp; Latin display · Fraunces</span></div>
+        <div style="font-family:var(--f-serif);font-size:20px;font-weight:600;line-height:1.5">လဆန်း ၅ ရက် <span class="muted" style="font-size:13px;font-family:var(--f-ui)">Title · Noto Serif Myanmar 20/1.5</span></div>
+        <div style="font-size:15px;line-height:1.6">Body text in Noto Sans Myanmar, which also covers Latin script, so mixed lines read evenly. <span class="muted" style="font-size:13px">Body 15/1.6</span></div>
+        <div class="lbl">Label · 11 / 0.08em caps</div>
+        <div class="muted" style="font-size:12.5px">Spacing: 4 · 8 · 12 · 16 · 24 · 32 · 48. Radius: 10 chips, 14 inputs, 18 cards, 28 sheets, pills fully round. Breakpoints: compact &lt; 600 (tab bar), medium 600–1023 (rail), expanded ≥ 1024 (rail and side panel). These replace the 600/900/1000/1024/1200 the app uses today. Motion: 160 ms state changes and 240 ms sheets, easing cubic(.2,.8,.2,1). Reduced motion turns both off.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="components">
+  <h2>Components</h2>
+  <p class="lead">Each one replaces a stock Material look. They are thin wrappers over Material widgets, so accessibility and platform behaviour stay intact.</p>
+  <div class="row">
+    <div class="fr">
+      <div class="cap"><span class="n">1</span><span class="t">Navigation, header and actions</span></div>
+      <p class="note">The tab bar is a floating ink pill, and only the active tab shows its label. The header is left-aligned: a serif Myanmar title, a small Latin line and round hairline icon buttons. It replaces four different app bar styles.</p>
+      <div class="phone"><div class="app scr">
+        <div class="status"><span class="tnum">9:41</span><span>●●●</span></div>
+        <div class="body">
+          <div class="hdr"><div class="tt"><h3>ပွဲများ</h3><div class="sub">Events · 6 this month</div></div><span class="ib">＋</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="btn p">Save event</span><span class="btn s">Cancel</span><span class="btn g">Skip</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip on">All</span><span class="chip">Holidays</span><span class="chip">Sabbath</span><span class="chip">Mine</span></div>
+          <div class="seg"><span>Month</span><span class="on">Week</span><span>Day</span></div>
+          <div class="field"><label>Event name</label><div>Grandma's birthday</div></div>
+          <div class="btn d" style="align-self:flex-start">Delete event</div>
+        </div>
+        <div class="tabbar" data-tab="events"></div>
+      </div></div>
+    </div>
+    <div class="fr">
+      <div class="cap"><span class="n">2</span><span class="t">Lists, cards, toast and sheet</span></div>
+      <p class="note">Rows use a tinted icon tile and inset hairlines. The toast is the new countdown toast. Sheets keep the paper surface with a hairline edge.</p>
+      <div class="phone"><div class="app scr">
+        <div class="status"><span class="tnum">9:41</span><span>●●●</span></div>
+        <div class="body">
+          <div class="card">
+            <div class="rowi"><span class="tile" style="background:var(--gold-soft);color:var(--gold)">◐</span><div class="tx"><b>Moon phases</b><small>Show full and new moon</small></div><span class="chev">On</span></div>
+            <div class="rowi"><span class="tile" style="background:var(--lacquer-soft);color:var(--lacquer)">★</span><div class="tx"><b>Public holidays</b><small>Myanmar government calendar</small></div><span class="chev">›</span></div>
+            <div class="rowi"><span class="tile" style="background:var(--jade-soft);color:var(--jade)">✎</span><div class="tx"><b>Calendar Studio</b><small>Design and print</small></div><span class="chev">›</span></div>
+          </div>
+          <div class="toast"><span style="flex:1">Event deleted</span><span class="act">Undo</span><span class="ring"><span>4</span></span></div>
+          <div style="flex:1"></div>
+          <div class="sheet" style="margin:0 -16px -96px">
+            <div class="handle"></div>
+            <div style="font-family:var(--f-serif);font-weight:600;font-size:18px;line-height:1.5">လ ရွေးရန်</div>
+            <div class="muted" style="font-size:12.5px;margin-bottom:10px">Jump to a month</div>
+            <div class="cal" style="grid-template-columns:repeat(4,1fr);gap:8px" id="monthPick"></div>
+            <div style="display:flex;gap:8px;margin-top:14px"><span class="btn s" style="flex:1">Today</span><span class="btn p" style="flex:1.4">Go to October</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="home">
+  <h2>Home</h2>
+  <p class="lead">The page opens on a <b>Today</b> card instead of a duplicated title bar. There is one month switcher, and the date-jump "search" button is gone; tapping the month opens the picker. The grid is unchanged for now. Below it, an <b>Upcoming</b> list collects holidays, Sabbath days and the user's events. Calendar Studio becomes a quiet tile.</p>
+  <div class="row">
+    <div class="fr">
+      <div class="cap"><span class="n">3</span><span class="t">Home · current grid kept</span></div>
+      <p class="note">The grid is the current design with only its colours moved onto tokens, so it works in dark mode. The amber and indigo moon fills become token tints.</p>
+      <div class="phone"><div class="app scr">
+        <div class="status"><span class="tnum">9:41</span><span>●●●</span></div>
+        <div class="body" style="gap:12px">
+          <div class="card today">
+            <div class="num tnum">16</div>
+            <div><div class="muted" style="font-size:12px">Friday, October 2026</div><div class="my">သီတင်းကျွတ် လဆန်း ၅ ရက်</div><div class="muted" style="font-size:11.5px">ME 1388 · Waxing moon</div></div>
+            <svg width="34" height="34" viewBox="0 0 34 34" aria-label="Waxing moon"><circle cx="17" cy="17" r="13" fill="var(--surface-2)"/><path d="M17 4a13 13 0 0 1 0 26a9 13 0 0 0 0-26z" fill="var(--gold-glyph)"/></svg>
+            <div style="grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap"><span class="pill gold">ဥပုသ် in 3 days · 19 Oct</span><span class="pill red">Thadingyut holidays · 25–27</span></div>
+          </div>
+          <div class="switch"><span class="ib">‹</span><div class="tt"><b>October 2026</b><small>တော်သလင်း – သီတင်းကျွတ် · ၁၃၈၈</small></div><span class="ib">›</span></div>
+          <div class="cal cur" id="homeCurrent"></div>
+        </div>
+        <div class="tabbar" data-tab="home"></div>
+      </div></div>
+    </div>
+    <div class="fr">
+      <div class="cap"><span class="n">4</span><span class="t">Home · scrolled</span></div>
+      <p class="note">The upcoming list uses the same row component as Settings. Holiday rows lead with red, Sabbath rows with gold and the user's events with blue. The Studio tile replaces the hard-coded promo card.</p>
+      <div class="phone"><div class="app scr">
+        <div class="status"><span class="tnum">9:41</span><span>●●●</span></div>
+        <div class="body" style="gap:12px">
+          <div class="hdr"><div class="tt"><h3>လာမည့်ရက်များ</h3><div class="sub">Upcoming · next 30 days</div></div></div>
+          <div class="card">
+            <div class="rowi"><span class="tile" style="background:var(--gold-soft);color:var(--gold)">ဥ</span><div class="tx"><b>ဥပုသ်နေ့ · Sabbath</b><small>Mon 19 Oct · သီတင်းကျွတ် လဆန်း ၈</small></div><span class="chev">3 d</span></div>
+            <div class="rowi"><span class="tile" style="background:var(--event);color:#fff;opacity:.9">♥</span><div class="tx"><b>Grandma's birthday</b><small>Thu 22 Oct · your event</small></div><span class="chev">6 d</span></div>
+            <div class="rowi"><span class="tile" style="background:var(--lacquer-soft);color:var(--lacquer)">★</span><div class="tx"><b>သီတင်းကျွတ် ပိတ်ရက်</b><small>Sun 25 – Tue 27 Oct · public holidays</small></div><span class="chev">9 d</span></div>
+            <div class="rowi"><span class="tile" style="background:var(--gold-soft);color:var(--gold)">●</span><div class="tx"><b>လပြည့် · Full moon</b><small>Mon 26 Oct · also Sabbath</small></div><span class="chev">10 d</span></div>
+          </div>
+          <div class="card" style="padding:14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center">
+            <div><div class="lbl">Calendar Studio</div><div style="font-family:var(--f-num);font-weight:600;font-size:18px;line-height:1.3">Make your 2027 calendar</div><div class="muted" style="font-size:12.5px">16 new presets · print or share</div></div>
+            <div id="studioFan" style="display:flex"></div>
+          </div>
+        </div>
+        <div class="tabbar" data-tab="home"></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="grids">
+  <h2>Calendar grids</h2>
+  <p class="lead">The same month in three designs. All three use real lunar data, and the selected day is 22 October. <b>Calm</b> reads like a wall calendar and puts lunar details on demand. <b>Rich</b> keeps the lunar day in every cell, the way people use the current grid, but in a quieter, ruled layout. Both fix the moon colours that break in dark mode today.</p>
+  <div class="row">
+    <div class="fr">
+      <div class="cap"><span class="n">A</span><span class="t">Current</span></div>
+      <p class="note">Bordered tiles, four coloured dots, a light amber or indigo moon fill, and a purple Material "today" marker. It is dense, and every cell competes for attention equally.</p>
+      <div class="app card" style="padding:12px"><div class="cal cur" id="gridCurrent"></div></div>
+    </div>
+    <div class="fr">
+      <div class="cap"><span class="n">B</span><span class="t">Calm (proposed)</span></div>
+      <p class="note">No cell borders. Today is a solid ink disc, and holidays and Sundays use red numerals. Marks under each date: gold dot for Sabbath, gold disc for full moon, ring for new moon, blue for the user's events. Tapping a day shows its Myanmar date in a panel.</p>
+      <div class="app card" style="padding:12px"><div class="cal calm" id="gridCalm"></div>
+        <div class="legend" style="margin-top:8px"><span><i class="g-sab"></i>ဥပုသ် Sabbath</span><span><i class="g-full" style="width:8px;height:8px"></i>လပြည့်</span><span><i class="g-new" style="width:8px;height:8px"></i>လကွယ်</span><span><i class="g-ev"></i>Events</span><span><i class="g-hol"></i>Holiday</span></div>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="cap"><span class="n">C</span><span class="t">Rich (proposed)</span></div>
+      <p class="note">Ruled rows like a printed almanac. The lunar day sits at the bottom of every cell, with Sabbath in gold. Holidays get a red tint and their name, moon days a corner glyph, and events a blue bar.</p>
+      <div class="app card" style="padding:12px 8px"><div class="cal rich" id="gridRich"></div>
+        <div class="legend" style="margin-top:8px"><span><i style="background:var(--lacquer-soft);box-shadow:inset 0 0 0 1px var(--lacquer)"></i>Holiday</span><span><i class="g-full" style="width:8px;height:8px"></i>Full moon</span><span><i class="g-new" style="width:8px;height:8px"></i>New moon</span><span style="color:var(--gold);font-weight:700">ဆန်း ၈ = Sabbath</span><span><i style="width:12px;height:3px;border-radius:2px;background:var(--event)"></i>Event</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:28px">
+    <div class="fr">
+      <div class="cap"><span class="n">B</span><span class="t">Calm · dark</span></div>
+      <div class="app dark card fixed-dark" style="padding:12px"><div class="cal calm" id="gridCalmDark"></div></div>
+    </div>
+    <div class="fr">
+      <div class="cap"><span class="n">C</span><span class="t">Rich · dark</span></div>
+      <div class="app dark card fixed-dark" style="padding:12px 8px"><div class="cal rich" id="gridRichDark"></div></div>
+    </div>
+    <div class="fr">
+      <div class="cap"><span class="n">A</span><span class="t">Current · dark today</span></div>
+      <p class="note">The hard-coded light amber and indigo fills sit on a dark page, and the dark-on-pale text no longer matches the rest of the grid.</p>
+      <div class="app dark card fixed-dark" style="padding:12px"><div class="cal cur" id="gridCurrentDark"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="tabs">
+  <h2>Other tabs</h2>
+  <p class="lead">The same header, rows and tab bar on Settings and Converter. These replace the 140 px gradient app bars.</p>
+  <div class="row">
+    <div class="fr">
+      <div class="cap"><span class="n">5</span><span class="t">Settings</span></div>
+      <p class="note">Rows are grouped under small caps labels. Calendar Studio sits in place of the old generator.</p>
+      <div class="phone"><div class="app scr">
+        <div class="status"><span class="tnum">9:41</span><span>●●●</span></div>
+        <div class="body">
+          <div class="hdr"><div class="tt"><h3>ဆက်တင်များ</h3><div class="sub">Settings</div></div></div>
+          <div class="lbl">Calendar</div>
+          <div class="card">
+            <div class="rowi"><span class="tile" style="background:var(--jade-soft);color:var(--jade)">◷</span><div class="tx"><b>Calendar configuration</b><small>Myanmar time · Sunday first</small></div><span class="chev">›</span></div>
+            <div class="rowi"><span class="tile" style="background:var(--jade-soft);color:var(--jade)">✎</span><div class="tx"><b>Calendar Studio</b><small>Design and print</small></div><span class="chev">›</span></div>
+            <div class="rowi"><span class="tile" style="background:var(--surface-2);color:var(--ink-2)">▦</span><div class="tx"><b>Display preferences</b><small>Lunar days, moon, holidays</small></div><span class="chev">›</span></div>
+          </div>
+          <div class="lbl">App</div>
+          <div class="card">
+            <div class="rowi"><span class="tile" style="background:var(--surface-2);color:var(--ink-2)">◑</span><div class="tx"><b>Appearance</b><small>Paper · follows system</small></div><span class="chev">›</span></div>
+            <div class="rowi"><span class="tile" style="background:var(--surface-2);color:var(--ink-2)">က</span><div class="tx"><b>Language</b><small>မြန်မာ</small></div><span class="chev">›</span></div>
+          </div>
+        </div>
+        <div class="tabbar" data-tab="settings"></div>
+      </div></div>
+    </div>
+    <div class="fr">
+      <div class="cap"><span class="n">6</span><span class="t">Converter</span></div>
+      <p class="note">Inputs use the filled field component, and the result is a card with serif Myanmar type.</p>
+      <div class="phone"><div class="app scr">
+        <div class="status"><span class="tnum">9:41</span><span>●●●</span></div>
+        <div class="body">
+          <div class="hdr"><div class="tt"><h3>ပြောင်းလဲရန်</h3><div class="sub">Convert dates</div></div></div>
+          <div class="seg"><span class="on">Western → Myanmar</span><span>Myanmar → Western</span></div>
+          <div class="field"><label>Date</label><div>16 October 2026</div></div>
+          <div class="card" style="padding:16px">
+            <div class="lbl">Myanmar date</div>
+            <div style="font-family:var(--f-serif);font-weight:600;font-size:20px;line-height:1.6">၁၃၈၈ ခုနှစ် သီတင်းကျွတ်လ<br>လဆန်း ၅ ရက် သောကြာနေ့</div>
+            <div class="muted" style="font-size:12.5px">Waxing moon · not a Sabbath</div>
+          </div>
+          <span class="btn s" style="align-self:flex-start">Copy</span>
+        </div>
+        <div class="tabbar" data-tab="convert"></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="desktop">
+  <h2>Desktop</h2>
+  <p class="lead">At 1024 px and wider, a narrow rail replaces the tab bar and the selected day opens in a side panel, as the app already does at 1000 px. Shown here with the Rich grid.</p>
+  <div class="fr wide">
+    <div class="cap"><span class="n">7</span><span class="t">Home · 1280 px</span></div>
+    <div class="win"><div class="app dsk">
+      <div class="rail" id="rail"></div>
+      <div class="dmain">
+        <div class="switch" style="justify-content:flex-start;gap:12px"><div style="flex:1"><b style="font-size:26px">October 2026</b><small>တော်သလင်း – သီတင်းကျွတ် · ၁၃၈၈</small></div><span class="ib">‹</span><span class="chip">Today</span><span class="ib">›</span></div>
+        <div class="cal rich" id="gridDesk" style="--gap:0"></div>
+      </div>
+      <div class="dside">
+        <div class="lbl">Thursday 22 October</div>
+        <div style="font-family:var(--f-serif);font-weight:600;font-size:22px;line-height:1.55">သီတင်းကျွတ် လဆန်း ၁၁ ရက်</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill gold">Waxing moon</span><span class="pill" style="background:var(--surface-2);color:var(--ink-2)">ME 1388</span></div>
+        <div class="card">
+          <div class="rowi"><span class="tile" style="background:var(--event);color:#fff">♥</span><div class="tx"><b>Grandma's birthday</b><small>All day</small></div></div>
+        </div>
+        <span class="btn p" style="align-self:flex-start">Add event</span>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<section class="sec" id="build">
+  <h2>Build plan</h2>
+  <p class="lead">This is the order for the implementation round, once a grid is chosen.</p>
+  <div class="scroll-x">
+    <table class="spec">
+      <thead><tr><th>Step</th><th>What changes</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td>1 · Tokens</td><td><code>AppTokens</code> ThemeExtension (light and dark), with one <code>AppTheme.build(tokens)</code> replacing the duplicated themes. Component themes are derived from the tokens. Custom colour presets map onto the jade role.</td><td><code>shared_ui_kit/theme</code></td></tr>
+        <tr><td>2 · Components</td><td><code>AppTabBar</code>, <code>AppRail</code>, <code>AppHeader</code> (sliver and fixed), <code>AppCard</code>, <code>AppListRow</code>, <code>AppButton</code> (primary, secondary, ghost, danger), <code>AppChip</code>, <code>AppSegmented</code>, <code>AppSheet</code>, <code>AppField</code>, <code>AppEmptyState</code>. <code>AppToast</code> already exists.</td><td><code>shared_ui_kit/widgets</code></td></tr>
+        <tr><td>3 · Shell</td><td>The floating tab bar and rail are built from one destination list, the "TG: user" bar moves into Settings, and the breakpoints are 600 and 1024.</td><td><code>app_shell.dart</code></td></tr>
+        <tr><td>4 · Home</td><td>The Today card, one month switcher (no date-jump button), the Upcoming list and the Studio tile. The grid gets token colours only, until a new grid is chosen.</td><td><code>features/calendar</code></td></tr>
+        <tr><td>5 · Tabs</td><td>Views, Converter, Events and Settings move to <code>AppHeader</code> and <code>AppListRow</code>. Hard-coded colours become tokens.</td><td>feature packages</td></tr>
+        <tr><td>6 · New grid</td><td>Calm or Rich, behind a display setting so people can switch back for a release.</td><td><code>calendar_grid.dart</code>, <code>date_cell.dart</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</div>
+
+<script>
+// Real data, October 2026, from myanmar_calendar_dart:
+// [day, lunar label, phase (0 waxing, 1 full, 2 waning, 3 new), sabbath, public holiday]
+const OCT = [[1,"လဆုတ် ၅",2,0,0],[2,"လဆုတ် ၆",2,0,0],[3,"လဆုတ် ၇",2,0,0],[4,"လဆုတ် ၈",2,1,0],[5,"လဆုတ် ၉",2,0,0],[6,"လဆုတ် ၁၀",2,0,0],[7,"လဆုတ် ၁၁",2,0,0],[8,"လဆုတ် ၁၂",2,0,0],[9,"လဆုတ် ၁၃",2,0,0],[10,"လဆုတ် ၁၄",2,0,0],[11,"လကွယ် ၁၅",3,1,0],[12,"လဆန်း ၁",0,0,0],[13,"လဆန်း ၂",0,0,0],[14,"လဆန်း ၃",0,0,0],[15,"လဆန်း ၄",0,0,0],[16,"လဆန်း ၅",0,0,0],[17,"လဆန်း ၆",0,0,0],[18,"လဆန်း ၇",0,0,0],[19,"လဆန်း ၈",0,1,0],[20,"လဆန်း ၉",0,0,0],[21,"လဆန်း ၁၀",0,0,0],[22,"လဆန်း ၁၁",0,0,0],[23,"လဆန်း ၁၂",0,0,0],[24,"လဆန်း ၁၃",0,0,0],[25,"လဆန်း ၁၄",0,0,1],[26,"လပြည့် ၁၅",1,1,1],[27,"လဆုတ် ၁",2,0,1],[28,"လဆုတ် ၂",2,0,0],[29,"လဆုတ် ၃",2,0,0],[30,"လဆုတ် ၄",2,0,0],[31,"လဆုတ် ၅",2,0,0]];
+const EVENTS = {22:1, 9:1};
+const TODAY = 16, SELECTED = 22, FIRST = 4; // 1 Oct 2026 is a Thursday; Sunday-first grid
+const WD = [['နွေ','Sun'],['လာ','Mon'],['ဂါ','Tue'],['ဟူး','Wed'],['ကြာ','Thu'],['သော','Fri'],['နေ','Sat']];
+const short = l => l.replace('လဆန်း','ဆန်း').replace('လဆုတ်','ဆုတ်').replace('လပြည့် ၁၅','လပြည့်').replace('လကွယ် ၁၅','လကွယ်');
+
+function header(el, cls) {
+  WD.forEach(([m, e], i) => el.insertAdjacentHTML('beforeend', `<div class="wd${i === 0 ? ' we' : ''}">${m}<i>${e}</i></div>`));
+}
+function cells(fn) {
+  const out = [];
+  const total = Math.ceil((FIRST + OCT.length) / 7) * 7;
+  for (let i = 0; i < total; i++) {
+    const d = i - FIRST;
+    out.push(fn(d >= 0 && d < OCT.length ? OCT[d] : null, i % 7));
+  }
+  return out.join('');
+}
+function current(el) {
+  header(el);
+  el.insertAdjacentHTML('beforeend', cells((x, col) => {
+    if (!x) return '<div class="c x"></div>';
+    const [d, l, ph, sab, hol] = x;
+    const cls = ['c', d === TODAY ? 'today' : '', ph === 1 ? 'full' : '', ph === 3 ? 'new' : ''].join(' ');
+    const dots = [hol ? '#E53935' : '', sab ? '#FFA000' : '', EVENTS[d] ? '#00897B' : ''].filter(Boolean)
+      .map(c => `<i style="background:${c}"></i>`).join('');
+    return `<div class="${cls}"><span class="dots">${dots}</span><span class="n tnum">${d}</span><span class="l">${ph === 1 || ph === 3 ? (ph === 1 ? '●' : '○') : short(l)}</span></div>`;
+  }));
+}
+function calm(el) {
+  header(el);
+  el.insertAdjacentHTML('beforeend', cells((x, col) => {
+    if (!x) return '<div class="c x"></div>';
+    const [d, l, ph, sab, hol] = x;
+    const cls = ['c', d === TODAY ? 'today' : '', d === SELECTED ? 'sel' : '', hol ? 'hol' : '', col === 0 ? 'sun' : ''].join(' ');
+    const marks = [ph === 1 ? '<i class="g-full"></i>' : ph === 3 ? '<i class="g-new"></i>' : sab ? '<i class="g-sab"></i>' : '',
+      EVENTS[d] ? '<i class="g-ev"></i>' : ''].join('');
+    return `<div class="${cls}" title="${l}"><span class="n tnum">${d}</span><span class="mk">${marks}</span></div>`;
+  }));
+}
+function rich(el) {
+  header(el);
+  el.insertAdjacentHTML('beforeend', cells((x, col) => {
+    if (!x) return '<div class="c x"></div>';
+    const [d, l, ph, sab, hol] = x;
+    const cls = ['c', d === TODAY ? 'today' : '', hol ? 'hol' : '', col === 0 ? 'sun' : ''].join(' ');
+    const moon = ph === 1 ? '<span class="mo" style="background:var(--gold-glyph)"></span>' : ph === 3 ? '<span class="mo" style="box-shadow:inset 0 0 0 1.4px var(--night)"></span>' : '';
+    return `<div class="${cls}"><span class="n tnum">${d}</span>${moon}${hol ? '<span class="h">သီတင်းကျွတ်</span>' : ''}${EVENTS[d] ? '<span class="bar"></span>' : ''}<span class="l${sab ? ' sab' : ''}">${short(l)}</span></div>`;
+  }));
+}
+current(document.getElementById('homeCurrent'));
+current(document.getElementById('gridCurrent'));
+current(document.getElementById('gridCurrentDark'));
+calm(document.getElementById('gridCalm'));
+calm(document.getElementById('gridCalmDark'));
+rich(document.getElementById('gridRich'));
+rich(document.getElementById('gridRichDark'));
+rich(document.getElementById('gridDesk'));
+
+// Tab bar and rail from one destination list (as the build plan proposes).
+const icons = {
+  home: '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
+  views: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>',
+  convert: '<svg viewBox="0 0 24 24"><path d="M5 8h13l-3-3M19 16H6l3 3"/></svg>',
+  events: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+  settings: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg>',
+};
+const DEST = [['home', 'ယနေ့'], ['views', 'Views'], ['convert', 'Convert'], ['events', 'Events'], ['settings', 'Settings']];
+document.querySelectorAll('.tabbar').forEach(bar => {
+  bar.innerHTML = DEST.map(([id, label]) => `<span class="tab${bar.dataset.tab === id ? ' on' : ''}">${icons[id]}${bar.dataset.tab === id ? `<span>${label}</span>` : ''}</span>`).join('');
+});
+document.getElementById('rail').innerHTML = '<div style="font-family:var(--f-num);font-weight:700;font-size:20px;color:var(--jade)">မြ</div>' +
+  DEST.map(([id, label], i) => `<span class="r${i === 0 ? ' on' : ''}">${icons[id]}${label}</span>`).join('');
+
+// Month picker sheet
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+document.getElementById('monthPick').innerHTML = months.map((m, i) =>
+  `<span class="chip${i === 9 ? ' on' : ''}" style="justify-content:center">${m}</span>`).join('');
+
+// Studio fan (preset palettes)
+document.getElementById('studioFan').innerHTML = [['#F7F0DE','#6B1F23'],['#FBF1EC','#8C3B4D'],['#EAF4F4','#0B3954']].map(([p, c], i) =>
+  `<span style="width:34px;height:46px;border-radius:4px;background:${p};box-shadow:0 2px 6px rgba(0,0,0,.18);margin-left:-10px;transform:rotate(${(i - 1) * 8}deg);display:grid;place-items:start center;padding-top:6px"><i style="width:20px;height:6px;border-radius:2px;background:${c}"></i></span>`).join('');
+
+// Colour token table
+const TOKENS = [
+  ['paper', '#F6F3EC', '#12110E', 'Page background'],
+  ['surface', '#FFFDF8', '#1B1915', 'Cards, sheets, rail'],
+  ['surface-2', '#EFEAE0', '#24211C', 'Fields, segmented track, quiet tiles'],
+  ['line', '#E2DBCD', '#34302A', 'Hairlines, separators, card edges'],
+  ['ink', '#1E1B16', '#EFEAE0', 'Text, today disc, tab bar'],
+  ['ink-3', '#857D6F', '#8D8576', 'Secondary text, lunar labels'],
+  ['jade', '#0E6B5C', '#5BBFA9', 'Primary actions, selected states'],
+  ['lacquer', '#B3261E', '#F08A7E', 'Holidays and Sundays, destructive actions'],
+  ['gold', '#9A6A12', '#E3B85C', 'Sabbath text, moon glyphs'],
+  ['night', '#3B4A7A', '#9FB0E8', 'New moon ring'],
+  ['event', '#2F6FB0', '#7FB2E6', "The user's events"],
+];
+document.getElementById('colorRows').innerHTML = TOKENS.map(([n, l, d, u]) =>
+  `<tr><td><code>${n}</code></td><td><span class="sw" style="background:${l}"></span>${l}</td><td><span class="sw" style="background:${d}"></span>${d}</td><td>${u}</td></tr>`).join('');
+
+// Dark preview toggle for the app frames (fixed-dark samples stay dark).
+const toggle = document.getElementById('darkToggle');
+toggle.addEventListener('click', () => {
+  const on = toggle.getAttribute('aria-pressed') !== 'true';
+  toggle.setAttribute('aria-pressed', String(on));
+  toggle.textContent = on ? 'Show app in light' : 'Show app in dark';
+  document.querySelectorAll('.app:not(.fixed-dark)').forEach(el => el.classList.toggle('dark', on));
+});
+</script>

@@ -1,5 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shimmer/shimmer.dart';
@@ -192,27 +193,8 @@ class _MonthPreviewState extends State<MonthPreview>
     );
   }
 
-  void _showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: context.colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        action: SnackBarAction(
-          label: 'Dismiss',
-          textColor: Colors.white,
-          onPressed: () {},
-        ),
-      ),
-    );
-  }
+  void _showErrorSnackBar(BuildContext context, String message) =>
+      context.showToast(message, kind: AppToastKind.error);
 
   Widget _buildLoadingSkeleton() {
     return Padding(
@@ -267,7 +249,8 @@ class _MonthPreviewState extends State<MonthPreview>
             ),
             const SizedBox(height: 24),
             Text(
-              'Oops! Something went wrong',
+              AppLocalizations.of(context)?.somethingWentWrong ??
+                  'Oops! Something went wrong',
               style: context.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -288,7 +271,9 @@ class _MonthPreviewState extends State<MonthPreview>
                 );
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
+              label: Text(
+                AppLocalizations.of(context)?.tryAgain ?? 'Try Again',
+              ),
             ),
           ],
         ),

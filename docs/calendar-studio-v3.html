@@ -1,0 +1,783 @@
+<meta charset="utf-8">
+<title>Calendar Studio Tools v3</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Padauk:wght@400;700&family=Cormorant+Garamond:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+<style>
+/* Layout: a review board for the Calendar Studio tools redesign, in the v3 system. Board chrome follows the viewer's theme; the app frames carry the proposed "Clear" tokens and switch to dark with the toggle. */
+:root{
+  --board:#E8E8ED; --board-ink:#111114; --board-line:rgba(17,17,20,.14);
+  --f:'Inter','Padauk','Myanmar Text',system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--board:#0B0B0D;--board-ink:#F2F2F5;--board-line:rgba(242,242,245,.14);color-scheme:dark}}
+:root[data-theme="dark"]{--board:#0B0B0D;--board-ink:#F2F2F5;--board-line:rgba(242,242,245,.14);color-scheme:dark}
+
+/* App tokens: the proposal */
+.app{
+  --bg:#F2F2F7; --surface:#FFFFFF; --surface-2:#F7F7FA; --fill:rgba(118,118,128,.12); --fill-2:rgba(118,118,128,.08);
+  --sep:rgba(60,60,67,.16); --label:#0A0A0F; --label-2:#6B6B73; --label-3:#A1A1A8;
+  --accent:#2F5BEA; --accent-soft:rgba(47,91,234,.11); --on-accent:#FFFFFF;
+  --holiday:#E5383B; --holiday-soft:rgba(229,56,59,.10);
+  --moon:#F2A900; --sabbath:#B7700B; --sabbath-soft:rgba(242,169,0,.14);
+  --newmoon:#8E8E93; --ok:#1F9D63; --warn:#C27C0E;
+  --bar:rgba(249,249,251,.86); --scrim:rgba(0,0,0,.32);
+  --moonshade:rgba(118,118,128,.20); --moonrim:rgba(60,60,67,.22);
+  background:var(--bg); color:var(--label); font-family:var(--f);
+}
+.app.dark{
+  --bg:#000000; --surface:#1C1C1E; --surface-2:#242426; --fill:rgba(118,118,128,.26); --fill-2:rgba(118,118,128,.16);
+  --sep:rgba(84,84,88,.62); --label:#F5F5F7; --label-2:#A1A1A8; --label-3:#6C6C72;
+  --accent:#5B83FF; --accent-soft:rgba(91,131,255,.18); --on-accent:#FFFFFF;
+  --holiday:#FF5A5F; --holiday-soft:rgba(255,90,95,.16);
+  --moon:#FFC530; --sabbath:#FFB840; --sabbath-soft:rgba(255,184,64,.16);
+  --newmoon:#8E8E93; --ok:#34C77B; --warn:#FFB840;
+  --bar:rgba(22,22,24,.86); --scrim:rgba(0,0,0,.55);
+  --moonshade:rgba(255,255,255,.10); --moonrim:rgba(255,255,255,.20);
+}
+*{box-sizing:border-box}
+body{background:var(--board);color:var(--board-ink);font-family:var(--f);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-left:max(clamp(16px,4vw,52px),env(safe-area-inset-left,0px));padding-right:max(clamp(16px,4vw,52px),env(safe-area-inset-right,0px));padding-block:40px 120px}
+.wrap{max-width:1560px;margin:0 auto}
+h1,h2{letter-spacing:-.02em;text-wrap:balance}
+.hero h1{font-weight:800;font-size:clamp(32px,4.4vw,54px);line-height:1.05;margin:0 0 12px;max-width:18ch}
+.hero p{max-width:72ch;margin:0;opacity:.82}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;align-items:center}
+.toc a,.toggle{color:inherit;text-decoration:none;font:600 13px var(--f);padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--board-line);background:transparent;cursor:pointer}
+.toggle[aria-pressed="true"]{background:var(--board-ink);color:var(--board)}
+.toc a:focus-visible,.toggle:focus-visible{outline:2px solid #2F5BEA;outline-offset:2px}
+.sec{margin-top:80px;scroll-margin-top:20px}
+.sec>h2{font-weight:800;font-size:30px;line-height:1.15;margin:0 0 6px}
+.sec>.lead{max-width:78ch;margin:0 0 26px;opacity:.82}
+.row{display:flex;flex-wrap:wrap;gap:36px 26px;align-items:flex-start}
+.fr{width:360px;max-width:100%;flex:none;min-width:0}
+.fr.wide{width:100%;max-width:1240px}
+.cap{display:flex;gap:10px;align-items:center;margin:0 0 4px 4px}
+.cap .n{min-width:24px;height:22px;padding:0 6px;border-radius:11px;background:var(--board-ink);color:var(--board);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.cap .t{font-weight:700;font-size:14.5px}
+.note{margin:0 4px 12px 38px;font-size:13px;opacity:.78;max-width:46ch;line-height:1.5;min-height:3em}
+.fr.wide .note{max-width:96ch;min-height:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:22px}
+.cards div{padding:14px 16px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--board-line)}
+.cards b{display:block;font-size:15.5px}
+.cards span{font-size:13.5px;opacity:.8}
+.scroll-x{overflow-x:auto}
+table.spec{border-collapse:collapse;width:100%;min-width:680px;font-size:13.5px}
+table.spec th,table.spec td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--board-line);vertical-align:top}
+table.spec th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+
+/* phone */
+.phone{width:360px;max-width:100%;padding:7px;border-radius:44px;background:#0a0a0c;box-shadow:0 26px 50px -24px rgba(0,0,0,.5)}
+.scr{position:relative;width:100%;height:740px;border-radius:37px;overflow:hidden;display:flex;flex-direction:column;font-size:14px;line-height:1.45}
+.status{height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:6px 28px 0;font-size:13px;font-weight:600}
+.nav{flex:none;padding:0 16px}
+.navtop{height:40px;display:flex;align-items:center;gap:4px;color:var(--accent);font-size:15px}
+.navtop .sp{flex:1;text-align:center;color:var(--label);font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.navtop .act{display:flex;gap:14px;align-items:center}
+.large{font-weight:800;font-size:30px;line-height:1.25;letter-spacing:-.02em;margin:2px 0 0}
+.large.my{font-size:27px;line-height:1.45;letter-spacing:0}
+.lsub{font-size:13px;color:var(--label-2);margin:0 0 6px}
+.content{flex:1;min-height:0;overflow:hidden;padding:8px 16px 100px;display:flex;flex-direction:column;gap:16px}
+.content.notab{padding-bottom:24px}
+.muted{color:var(--label-2)}
+.faint{color:var(--label-3)}
+.tnum{font-variant-numeric:tabular-nums}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.i.s{width:16px;height:16px}
+svg.i.xs{width:12px;height:12px;vertical-align:-2px;margin-right:2px}
+/* tab bar */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--bar);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);box-shadow:0 -.5px 0 var(--sep);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px 26px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;color:var(--label-3)}
+.tab.on{color:var(--accent)}
+.tab svg.i{width:24px;height:24px}
+/* groups */
+.glabel{font-size:12.5px;color:var(--label-2);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px 16px}
+.gfoot{font-size:12.5px;color:var(--label-2);margin:6px 16px 0;line-height:1.4}
+.group{background:var(--surface);border-radius:14px;overflow:hidden}
+.r{display:flex;align-items:center;gap:12px;padding:0 14px;min-height:46px;position:relative}
+.r+.r::before{content:"";position:absolute;top:0;left:var(--inset,14px);right:0;height:.5px;background:var(--sep)}
+.r.ic{--inset:58px}
+.r .tile{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;flex:none}
+.r .tile svg.i{width:17px;height:17px;stroke-width:2}
+.r .tx{flex:1;min-width:0;padding:10px 0}
+.r .tx b{display:block;font-weight:500;font-size:15px;line-height:1.35}
+.r .tx small{display:block;color:var(--label-2);font-size:12.5px;line-height:1.35}
+.r .val{color:var(--label-2);font-size:14.5px;white-space:nowrap}
+.r .chev{color:var(--label-3)}
+.r.acc .tx b{color:var(--accent)}
+.r.dng .tx b{color:var(--holiday)}
+.tg{width:46px;height:28px;border-radius:14px;background:var(--fill);position:relative;flex:none}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:12px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.tg.on{background:var(--ok)}
+.tg.on::after{left:20px}
+.check{color:var(--accent)}
+/* controls */
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--fill);border-radius:9px;padding:2px;font-size:13px;font-weight:600;text-align:center}
+.seg span{padding:6px 4px;border-radius:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg .on{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.app.dark .seg .on{background:#5A5A5E}
+.btn{height:50px;border-radius:14px;border:0;font:600 16px var(--f);display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;width:100%}
+.btn.p{background:var(--accent);color:var(--on-accent)}
+.btn.t{background:var(--accent-soft);color:var(--accent)}
+.btn.g{background:transparent;color:var(--accent)}
+.btn.d{background:var(--holiday-soft);color:var(--holiday)}
+.btn.sm{height:36px;border-radius:10px;font-size:14px;width:auto;padding:0 14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{height:32px;padding:0 13px;border-radius:16px;background:var(--fill);display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:500;white-space:nowrap}
+.chip.on{background:var(--accent);color:var(--on-accent)}
+.search{height:38px;border-radius:11px;background:var(--fill);display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--label-3);font-size:15px}
+.input{background:var(--surface);border-radius:14px}
+.input .r{min-height:48px}
+.input .r .tx b{font-weight:400}
+.ph{color:var(--label-3)}
+/* overlays */
+.scrim{position:absolute;inset:0;background:var(--scrim)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:14px 14px 0 0;display:flex;flex-direction:column;overflow:hidden}
+.sheet.card{background:var(--surface)}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--label-3);opacity:.5;margin:6px auto 4px}
+.shead{display:flex;align-items:center;padding:4px 16px 8px;gap:8px}
+.shead b{flex:1;text-align:center;font-size:16px;font-weight:600}
+.shead span{color:var(--accent);font-size:15px;min-width:56px}
+.shead span:last-child{text-align:right;font-weight:600}
+.dialog{position:absolute;left:44px;right:44px;top:50%;transform:translateY(-50%);background:var(--surface);border-radius:16px;overflow:hidden;text-align:center}
+.dialog .db{padding:20px 16px 16px}
+.dialog .db b{display:block;font-size:17px;font-weight:600;margin-bottom:4px}
+.dialog .db p{margin:0;font-size:13px;color:var(--label-2);line-height:1.4}
+.dialog .da{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;box-shadow:0 -.5px 0 var(--sep)}
+.dialog .da span{padding:12px 0;color:var(--accent);font-size:16px}
+.dialog .da span+span{box-shadow:-.5px 0 0 var(--sep)}
+.dialog .da .b{font-weight:600}
+.dialog .da .x{color:var(--holiday)}
+.toast{position:absolute;left:12px;right:12px;bottom:96px;background:#1C1C1E;color:#F5F5F7;border-radius:14px;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 16px;font-size:14px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+.app.dark .toast{background:#3A3A3C}
+.toast .a{color:#8FA9FF;font-weight:600;padding:0 6px}
+.ring{width:28px;height:28px;border-radius:50%;background:conic-gradient(#F5F5F7 70%,rgba(245,245,247,.22) 0);display:grid;place-items:center;flex:none}
+.ring span{width:23px;height:23px;border-radius:50%;background:inherit;display:grid;place-items:center;font-size:10.5px;font-weight:700;background:#1C1C1E}
+.app.dark .ring span{background:#3A3A3C}
+/* bits */
+.badge{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:11px;font-size:11.5px;font-weight:600}
+.badge.hol{background:var(--holiday-soft);color:var(--holiday)}
+.badge.sab{background:var(--sabbath-soft);color:var(--sabbath)}
+.badge.acc{background:var(--accent-soft);color:var(--accent)}
+.badge.ok{background:rgba(31,157,99,.14);color:var(--ok)}
+.badge.fill{background:var(--fill);color:var(--label-2)}
+.card{background:var(--surface);border-radius:16px;padding:14px 16px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--label-2)}
+.kv dd{margin:0;text-align:right;font-weight:500}
+.big{font-weight:800;font-size:44px;line-height:1;letter-spacing:-.03em}
+.mytitle{font-size:20px;font-weight:700;line-height:1.6}
+
+.hhead{display:flex;align-items:center;gap:10px;padding:2px 16px 6px;height:54px;flex:none}
+.htitle{font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:4px;line-height:1.25;white-space:nowrap}
+.hsub{font-size:12px;color:var(--label-2);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.peek{position:absolute;left:0;right:0;bottom:84px;height:96px;background:var(--surface);border-radius:16px 16px 0 0;box-shadow:0 -8px 24px -12px rgba(0,0,0,.28),0 -.5px 0 var(--sep);padding:0 16px;overflow:hidden}
+.peek.up{top:120px;height:auto;background:var(--bg);display:flex;flex-direction:column;gap:14px;padding-bottom:16px}
+.peek.up .pk{background:var(--surface);border-radius:14px;padding:10px 12px}
+.pk{display:flex;gap:12px;align-items:center}
+.mstrip{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:10px 4px}
+.mstrip div{display:grid;justify-items:center;gap:3px;padding:4px 0;border-radius:10px}
+.mstrip div.on{background:var(--accent-soft)}
+.mini{width:330px;zoom:.34;flex:none;pointer-events:none}
+/* calendar grids */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--gap,0)}
+.wd{text-align:center;font-size:10.5px;font-weight:600;color:var(--label-3);line-height:1.2;padding-bottom:6px}
+.wd i{display:block;font-style:normal;font-size:9.5px;font-weight:500}
+.wd.we{color:var(--holiday)}
+/* Clean */
+.clean .c{display:flex;flex-direction:column;align-items:center;padding:3px 0 5px;min-width:0}
+.clean .n{width:32px;height:32px;border-radius:16px;display:grid;place-items:center;font-size:17px;font-weight:500}
+.clean .c.today .n{background:var(--accent);color:var(--on-accent);font-weight:700}
+.clean .c.sel .n{background:var(--label);color:var(--bg);font-weight:700}
+.clean .c.hol .n,.clean .c.sun .n{color:var(--holiday)}
+.clean .c.today.hol .n{color:var(--on-accent)}
+.clean .l{font-size:9px;line-height:1.4;color:var(--label-3);white-space:nowrap;overflow:hidden;max-width:100%}
+.clean .l.s{color:var(--sabbath);font-weight:700}
+.clean .mk{height:5px;display:flex;gap:3px;margin-top:1px}
+.clean .mk i{width:5px;height:5px;border-radius:50%}
+.clean .c.x{opacity:.28}
+.dot-h{background:var(--holiday)} .dot-s{background:var(--moon)} .dot-e{background:var(--accent)} .dot-a{background:#8E6CEF}
+.fm{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--moon);vertical-align:0}
+.nm{display:inline-block;width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--newmoon);vertical-align:0}
+/* Detailed */
+.detail .c{min-width:0;aspect-ratio:.74;box-shadow:inset 0 .5px 0 var(--sep);padding:4px 3px 3px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.detail.fit .c{aspect-ratio:auto;height:var(--rowh)}
+.detail .n{font-size:14px;font-weight:600;line-height:22px;width:22px;height:22px;text-align:center;border-radius:11px;flex:none}
+.detail .c.today .n{background:var(--accent);color:var(--on-accent)!important}
+.detail .c.sel{box-shadow:inset 0 0 0 1.5px var(--label);border-radius:8px}
+.detail .c.hol{background:var(--holiday-soft)}
+.detail .c.hol .n,.detail .c.sun .n{color:var(--holiday)}
+.detail .h{font-size:8.5px;color:var(--holiday);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-top:1px}
+.detail .l{margin-top:auto;font-size:8.5px;line-height:1.35;color:var(--label-2);white-space:nowrap;overflow:hidden}
+.detail .l.s{color:var(--sabbath);font-weight:700}
+.detail .mo{position:absolute;right:3px;top:5px;line-height:0}
+.detail .ev{height:3px;border-radius:2px;background:var(--accent);margin-top:2px}
+.detail .evt{font-size:8.5px;font-weight:600;line-height:1.5;padding:0 3px;border-radius:4px;background:var(--accent-soft);color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.detail .c.x{opacity:.28}
+.moon{flex:none;display:inline-block;vertical-align:middle}
+/* Current */
+.cur{--gap:4px}
+.cur .c{aspect-ratio:.75;border-radius:12px;box-shadow:inset 0 0 0 .5px var(--sep);background:var(--surface);display:flex;flex-direction:column;align-items:center;padding:3px 2px;min-width:0}
+.cur .c .dots{height:6px;display:flex;gap:2px}
+.cur .c .dots i{width:4px;height:4px;border-radius:50%}
+.cur .c .n{font-size:15px;font-weight:600;line-height:1.3}
+.cur .c .l{font-size:8.5px;color:var(--label-3);white-space:nowrap;overflow:hidden;max-width:100%}
+.cur .c.full{background:var(--sabbath-soft)}
+.cur .c.new{background:var(--fill)}
+.cur .c.today{box-shadow:inset 0 0 0 2px var(--accent);background:var(--accent-soft)}
+.cur .c.x{opacity:.35}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--label-2)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+/* desktop */
+.win{width:100%;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.12),0 30px 60px -30px rgba(0,0,0,.5)}
+.dsk{display:grid;grid-template-columns:220px minmax(0,1fr) 340px;min-height:660px}
+.side{background:var(--surface-2);box-shadow:inset -.5px 0 0 var(--sep);padding:18px 10px;display:flex;flex-direction:column;gap:2px}
+.side .s{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;font-size:14px;font-weight:500;color:var(--label)}
+.side .s.on{background:var(--accent-soft);color:var(--accent)}
+.dmain{padding:22px 26px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.dpanel{background:var(--surface);box-shadow:inset .5px 0 0 var(--sep);padding:22px 18px;display:flex;flex-direction:column;gap:14px}
+/* widgets */
+.wgts{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;padding:24px;border-radius:24px;background:linear-gradient(160deg,#6F86C9,#A9B7E6)}
+.w{background:rgba(255,255,255,.92);color:#0A0A0F;border-radius:22px;padding:14px;box-shadow:0 10px 24px -14px rgba(0,0,0,.4)}
+.w.s{width:150px;height:150px}.w.m{width:322px;height:150px}.w.l{width:322px;height:338px}
+.app.dark .w{background:rgba(28,28,30,.92);color:#F5F5F7}
+@media (max-width:1100px){.dsk{grid-template-columns:76px minmax(0,1fr)}.dpanel{display:none}.side .s span{display:none}}
+/* Material style: same tokens and content, Android chrome */
+.toc-sep{width:1px;height:20px;background:var(--board-line);margin:0 4px}
+.phone:has(.md){border-radius:38px}
+.app.md{--bg:#F6F7FB;--bar:#ECEEF6}
+.app.md.dark{--bg:#111318;--surface:#1C1E25;--surface-2:#22252D;--bar:#1D2028}
+.app.md .tabbar{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bar);box-shadow:none;height:80px;padding:12px 4px 18px}
+.app.md .tab{color:var(--label-2);font-weight:500;gap:4px;font-size:11px}
+.app.md .tab svg.i{width:56px;height:30px;padding:4px 16px;border-radius:15px}
+.app.md .tab.on{color:var(--label);font-weight:700}
+.app.md .tab.on svg.i{background:var(--accent-soft);color:var(--accent)}
+.app.md .navtop{color:var(--label);height:52px;gap:14px}
+.app.md .navtop .bl{display:none}
+.app.md .navtop .sp{text-align:left;font-size:20px;font-weight:500}
+.app.md .navtop .act{gap:20px;color:var(--label-2)}
+.app.md .large{font-weight:500;font-size:28px;letter-spacing:0}
+.app.md .htitle{font-weight:500;letter-spacing:0}
+.app.md .content{gap:10px}
+.app.md .group{background:transparent;border-radius:0;margin:0 -16px}
+.app.md .r{padding:0 16px;min-height:54px}
+.app.md .r+.r::before{display:none}
+.app.md .r.ic{gap:18px}
+.app.md .r .tile{background:transparent!important;color:var(--label-2);width:24px}
+.app.md .r .tile svg.i{width:22px;height:22px;stroke-width:1.8}
+.app.md .glabel{text-transform:none;letter-spacing:0;color:var(--accent);font-weight:600;font-size:14px;margin:6px 0 0 0}
+.app.md .gfoot{margin:2px 0 0}
+.app.md .tg{width:52px;height:32px;border-radius:16px;background:var(--fill-2);box-shadow:inset 0 0 0 2px var(--label-3)}
+.app.md .tg::after{top:8px;left:8px;width:16px;height:16px;border-radius:8px;background:var(--label-3);box-shadow:none}
+.app.md .tg.on{background:var(--accent);box-shadow:none}
+.app.md .tg.on::after{top:4px;left:24px;width:24px;height:24px;border-radius:12px;background:#fff}
+.app.md .seg{background:transparent;padding:0;border-radius:20px;box-shadow:inset 0 0 0 1px var(--label-3);overflow:hidden}
+.app.md .seg span{border-radius:0;padding:8px 4px;font-weight:500}
+.app.md .seg span+span{box-shadow:-1px 0 0 var(--label-3)}
+.app.md .seg span.on{background:var(--accent-soft);color:var(--accent)}
+.app.md .btn{border-radius:24px;height:48px;font-size:15px}
+.app.md .btn.sm{height:40px;border-radius:20px}
+.app.md .chip{border-radius:8px;background:transparent;box-shadow:inset 0 0 0 1px var(--label-3)}
+.app.md .chip.on{background:var(--accent-soft);color:var(--accent);box-shadow:none}
+.app.md .search{height:50px;border-radius:25px;background:var(--surface)}
+.app.md .input{background:transparent;display:grid;gap:10px}
+.app.md .input .r{box-shadow:inset 0 0 0 1px var(--label-3);border-radius:6px;margin:0}
+.app.md .sheet{border-radius:28px 28px 0 0;background:var(--surface)}
+.app.md .grab{width:32px;height:4px;margin:14px auto 8px}
+.app.md .shead span:first-child{display:none}
+.app.md .shead b{text-align:left;font-size:20px;font-weight:500}
+.app.md .dialog{border-radius:28px;text-align:left;left:32px;right:32px}
+.app.md .dialog .db{padding:24px 24px 10px}
+.app.md .dialog .db b{font-size:22px;font-weight:500;margin-bottom:12px}
+.app.md .dialog .db p{font-size:14px}
+.app.md .dialog .da{display:flex;justify-content:flex-end;gap:4px;box-shadow:none;padding:4px 14px 16px}
+.app.md .dialog .da span{padding:10px 12px;box-shadow:none;font-weight:600;font-size:14px}
+.app.md .toast{border-radius:6px;bottom:90px}
+.app.md .peek{border-radius:28px 28px 0 0;bottom:80px}
+.app.md .peek.up{background:var(--surface)}
+.app.md .peek.up .pk{background:var(--bg)}
+.app.md .card{border-radius:16px}
+.fab{display:none}
+.app.md .fab{display:grid;position:absolute;right:16px;bottom:96px;width:56px;height:56px;border-radius:16px;background:var(--accent-soft);color:var(--accent);place-items:center;box-shadow:0 4px 10px -3px rgba(0,0,0,.3)}
+.app.md .co{display:none}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+<style>
+/* Studio v3 additions */
+.app{--rose:#8C3B4D;--gold:#C9A15A;--paperc:#FBF1EC;--inkc:#3A1620;--mutedc:#9C7D82;--board2:#E9E6EF}
+.app.dark{--board2:#1A1A1F}
+.stage{flex:1;min-height:0;background:var(--board2);background-image:radial-gradient(rgba(120,120,140,.22) 1px,transparent 1px);background-size:14px 14px;position:relative;display:grid;place-items:center;overflow:hidden}
+.pg{background:var(--paperc);color:var(--inkc);box-shadow:0 10px 30px -14px rgba(0,0,0,.45);position:relative;font-family:'Inter',sans-serif}
+.pg .t{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;color:var(--rose);line-height:1}
+.pg .y{color:#9A6A1F;font-weight:700}
+.pg .rings{position:absolute;display:flex}
+.pg .rings i{display:block;border-radius:50%;border:3px solid var(--rose)}
+.pg .rings i+i{border-color:var(--gold);margin-left:-14%}
+.pg .cal{display:grid;grid-template-columns:repeat(7,1fr);position:absolute}
+.pg .cal b{font-weight:600;text-align:left;color:var(--inkc)}
+.pg .cal b.h{color:#9A6A1F}
+.pg .cal b.s{color:var(--rose)}
+.pg .cal span{display:block;color:var(--mutedc);font-weight:400;white-space:nowrap;overflow:hidden}
+.pg .cal>div{min-width:0;overflow:hidden}
+.pg .cal .wd{color:var(--rose);font-weight:600;text-align:center}
+.pg .rule{position:absolute;height:1px;background:rgba(140,59,77,.25)}
+.sel{position:absolute;outline:2px solid #2F5BEA;outline-offset:2px;border-radius:2px}
+.sel::before,.sel::after{content:"";position:absolute;width:8px;height:8px;background:#fff;border:1.5px solid #2F5BEA;border-radius:2px}
+.sel::before{left:-7px;top:-7px}.sel::after{right:-7px;bottom:-7px}
+.sel.multi{outline-style:dashed}
+.cbar{position:absolute;display:flex;align-items:center;gap:2px;background:#1F1F24;color:#F5F5F7;border-radius:12px;padding:4px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5);font-size:12.5px;white-space:nowrap;z-index:3}
+.cbar span{display:inline-flex;align-items:center;gap:4px;padding:6px 8px;border-radius:8px}
+.cbar span.on{background:rgba(255,255,255,.14)}
+.cbar .sw{width:16px;height:16px;border-radius:50%;display:inline-block;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6)}
+.cbar .div{width:1px;height:18px;background:rgba(255,255,255,.2);padding:0}
+.app.md .cbar{background:var(--surface);color:var(--label);border-radius:16px;box-shadow:0 6px 16px -4px rgba(0,0,0,.3),0 0 0 1px var(--sep)}
+.app.md .cbar .div{background:var(--sep)}
+.app.md .cbar span.on{background:var(--accent-soft);color:var(--accent)}
+.caret{display:inline-block;width:2px;height:1em;background:#2F5BEA;vertical-align:-.1em;animation:blink 1s steps(1) infinite}
+.hl{background:rgba(47,91,234,.25)}
+@keyframes blink{50%{opacity:0}}
+.ebar{height:44px;flex:none;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--bar);box-shadow:0 .5px 0 var(--sep);font-size:14px}
+.ebar b{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ebar .x{background:var(--accent);color:#fff;border-radius:16px;padding:4px 12px;font-weight:600;font-size:13px}
+.dock{flex:none;display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px 22px;background:var(--bar);box-shadow:0 -.5px 0 var(--sep)}
+.dock span{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:var(--label-2)}
+.dock span.on{color:var(--accent)}
+.kb{flex:none;height:170px;background:#D1D3D9;display:grid;grid-template-rows:repeat(4,1fr);gap:6px;padding:8px 4px}
+.app.dark .kb{background:#2C2C2E}
+.kb div{display:flex;gap:5px;justify-content:center}
+.kb i{flex:1;max-width:30px;background:#fff;border-radius:5px;box-shadow:0 1px 0 rgba(0,0,0,.3)}
+.app.dark .kb i{background:#6B6B6F}
+.swr{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.swr i{width:28px;height:28px;border-radius:50%;display:inline-block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);position:relative}
+.swr i.on{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.swr small{font-size:10.5px;color:var(--label-2);display:block;text-align:center;margin-top:3px}
+.role{display:grid;justify-items:center;gap:2px}
+.fontrow{display:flex;align-items:center;gap:10px;padding:10px 14px;position:relative}
+.fontrow+.fontrow::before{content:"";position:absolute;top:0;left:14px;right:0;height:.5px;background:var(--sep)}
+.fontrow .p{flex:1;font-size:19px}
+.fontrow .tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:9px}
+.tag.mm{background:rgba(31,157,99,.14);color:var(--ok)}
+.tag.lt{background:var(--fill);color:var(--label-2)}
+.stepper{display:inline-flex;align-items:center;border-radius:9px;background:var(--fill);font-weight:600;font-size:14px}
+.stepper span{padding:5px 10px}
+.stepper span+span{box-shadow:-1px 0 0 var(--sep)}
+.tile{display:grid;place-items:center}
+.palette{display:flex;border-radius:10px;overflow:hidden;height:34px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.palette i{flex:1;display:block}
+.thchip{display:grid;gap:5px;font-size:12px;font-weight:600;text-align:center}
+.thchip.on .palette{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.thgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.addgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.addgrid div{background:var(--surface);border-radius:12px;height:76px;display:grid;place-items:center;font-size:11.5px;color:var(--label-2);text-align:center;padding:6px;box-shadow:inset 0 0 0 .5px var(--sep)}
+.tstyles{display:grid;gap:8px}
+.tstyles div{background:var(--surface);border-radius:12px;padding:10px 14px}
+.layer{display:flex;align-items:center;gap:10px;padding:8px 12px;position:relative;font-size:14px}
+.layer .th{width:34px;height:26px;border-radius:5px;background:var(--paperc);display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--sep);color:var(--rose);font-size:11px;font-weight:700}
+.layer .g{color:var(--label-3);cursor:grab}
+.layer.on{background:var(--accent-soft)}
+.layer.drag{background:var(--surface);box-shadow:0 10px 24px -10px rgba(0,0,0,.45);transform:translateX(8px) rotate(-1deg)}
+.alignbar{display:flex;gap:2px;justify-content:center}
+.win2{width:100%;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.12),0 30px 60px -30px rgba(0,0,0,.5)}
+.dsk2{display:grid;grid-template-columns:62px 220px minmax(0,1fr) 300px;height:640px}
+.strip{background:var(--surface-2);box-shadow:inset -.5px 0 0 var(--sep);display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px 0;font-size:10px;color:var(--label-2)}
+.strip span{display:grid;justify-items:center;gap:2px}
+.panel{background:var(--surface);box-shadow:inset -.5px 0 0 var(--sep);overflow:hidden;display:flex;flex-direction:column}
+.panel h4{margin:0;padding:12px 14px 6px;font-size:13px;color:var(--label-2);text-transform:uppercase;letter-spacing:.04em}
+.ptabs{display:flex;gap:4px;padding:0 12px 8px}
+.ptabs span{flex:1;text-align:center;padding:6px;border-radius:8px;font-size:13px;font-weight:600;color:var(--label-2)}
+.ptabs span.on{background:var(--fill);color:var(--label)}
+.pagestrip{height:96px;flex:none;display:flex;gap:10px;padding:10px 14px;background:var(--surface);box-shadow:0 -.5px 0 var(--sep);overflow:hidden}
+.pagestrip div{width:58px;flex:none;border-radius:6px;background:var(--paperc);box-shadow:inset 0 0 0 1px var(--sep);font-size:9px;color:var(--rose);display:grid;place-items:end center;padding-bottom:4px;font-family:Georgia,serif;font-style:italic}
+.pagestrip div.on{box-shadow:0 0 0 2px var(--accent)}
+.where{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:20px}
+.where div{padding:14px 16px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--board-line)}
+.where b{display:block;font-size:15px;margin-bottom:4px}
+.where span{font-size:13.5px;opacity:.82}
+</style>
+
+<div class="wrap">
+<header class="hero">
+  <h1>Calendar Studio · tools v3</h1>
+  <p>A redesign of how you edit in Calendar Studio. Select anything and its most-used controls appear right beside it. Double-tap text to type straight onto the page. Every property the renderer supports gets a control. A project has one theme you can switch in a tap. All the settings that shape a project live on one Project settings screen. Screens use the Rose Bond preset for January 2027, in Clear (iPhone, web) and Material (Android).</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#model">Editing model</a><a href="#text">Text</a><a href="#image">Image</a><a href="#shape">Shapes</a><a href="#grid">Calendar grid</a><a href="#lists">Events &amp; legend</a><a href="#canvas">Canvas</a><a href="#add">Add</a><a href="#project">Project settings</a><a href="#page">Page</a><a href="#layouts">Layouts</a><a href="#notes">Decisions</a>
+    <span class="toc-sep" aria-hidden="true"></span><button class="toggle" type="button" id="styleToggle" aria-pressed="false">Show Material style</button><button class="toggle" type="button" id="darkToggle" aria-pressed="false">Show app in dark</button>
+  </nav>
+</header>
+
+<section class="sec" id="model">
+  <h2>1 · Editing model</h2>
+  <p class="lead">Three layers, each one tap deeper. You never open a settings sheet just to type a word or change a colour.</p>
+  <div class="where">
+    <div><b>1. On the page</b><span>Tap to select, drag to move, handles to resize and rotate. Double-tap text to type in place. Pinch to zoom, two fingers to pan.</span></div>
+    <div><b>2. Contextual bar</b><span>Shows above the selection with the 4–6 controls you use most for that element, for example Font, Size, Colour and Align for text. Each opens a small popover right there.</span></div>
+    <div><b>3. Inspector</b><span>The bar's ••• button opens everything else: a sheet on phones, a docked panel on tablets and desktop. Tabs are Content, Style and Layout. Layout always has exact X, Y, W, H and rotation.</span></div>
+    <div><b>Theme first</b><span>Colour pickers lead with the project's theme roles (Paper, Primary, Accent, Ink, Muted, Holiday, Sabbath), then recent colours, then Custom. Elements that use a role follow the theme when it changes.</span></div>
+  </div>
+  <div class="row" style="margin-top:30px" id="modelRow"></div>
+</section>
+
+<section class="sec" id="text"><h2>2 · Text</h2><p class="lead">Double-tap, type, done. The keyboard pushes the bar up so it stays in view. One typing session is one undo step. Text bound to the month or year says so and offers "Custom text" to override it.</p><div class="row" id="textRow"></div></section>
+<section class="sec" id="image"><h2>3 · Image and logo</h2><p class="lead">Replace, crop and fit without leaving the page. Crop happens on the canvas, with the full photo dimmed around the frame.</p><div class="row" id="imageRow"></div></section>
+<section class="sec" id="shape"><h2>4 · Shapes and decorations</h2><p class="lead">Decorations (rings, lotus, borders, motifs) become first-class elements you can add, recolour with theme roles and swap.</p><div class="row" id="shapeRow"></div></section>
+<section class="sec" id="grid"><h2>5 · Calendar grid</h2><p class="lead">The grid's bar covers what you change most: which marks each day shows, the week start, the style and the colours. Every colour role the preset uses is editable, and a change can apply to this month or all twelve.</p><div class="row" id="gridRow"></div></section>
+<section class="sec" id="lists"><h2>6 · Event list and holiday legend</h2><p class="lead">Both get controls for the first time: which events or marks to show, how many and how they look.</p><div class="row" id="listRow"></div></section>
+<section class="sec" id="canvas"><h2>7 · Canvas</h2><p class="lead">Select several elements to move, align or style them together. Layers can be dragged to reorder and renamed. Everything you can drag also has a button.</p><div class="row" id="canvasRow"></div></section>
+<section class="sec" id="add"><h2>8 · Add</h2><p class="lead">One Add panel with tabs. Text comes as ready styles, calendar parts are their own tab, and what you used last is first.</p><div class="row" id="addRow"></div></section>
+<section class="sec" id="project"><h2>9 · Project settings</h2><p class="lead">One screen for everything that shapes the whole project, replacing the setup sheet, the Calendar settings sheet and the grid's Data tab. New projects use the same groups as a three-step setup: Calendar, Theme, Format.</p><div class="row" id="projectRow"></div></section>
+<section class="sec" id="page"><h2>10 · Page</h2><p class="lead">Background, print margins and the pages themselves.</p><div class="row" id="pageRow"></div></section>
+<section class="sec" id="layouts"><h2>11 · Layouts</h2><p class="lead">Phone: canvas, contextual bar and a five-tool dock. Tablet (600–1023 px): canvas with the inspector docked on the right and layers in a drawer. Desktop (1024 px+): tool strip, layers, canvas, inspector and a page strip.</p><div id="deskFrame"></div><div class="row" id="tabletRow" style="margin-top:36px"></div></section>
+
+<section class="sec" id="notes">
+  <h2>Decisions to confirm</h2>
+  <p class="lead">Choices built into these screens that you may want to change.</p>
+  <div class="scroll-x"><table class="spec"><thead><tr><th>Topic</th><th>Proposal</th><th>Why</th></tr></thead><tbody>
+    <tr><td>Selecting</td><td>One tap selects and shows the contextual bar; the inspector opens from ••• (phone) or is always docked (tablet, desktop).</td><td>Today a selected element shows nothing until you find "Edit item".</td></tr>
+    <tr><td>Typing</td><td>Double-tap (or Enter on desktop) types on the page. A new Text element starts in typing mode with "Your text" selected.</td><td>Removes the sheet round-trip for the most common edit.</td></tr>
+    <tr><td>Theme</td><td>Each project stores a theme: 7 colour roles and a heading/body font pair. Presets set it; you can switch to another preset's theme or customise roles.</td><td>Today colours are copied into every element, so re-colouring means editing each one.</td></tr>
+    <tr><td>Apply to all months</td><td>Style changes on template elements (grid, month title) ask "This month / All months" the first time, with a remembered choice.</td><td>Monthly projects have 12 copies of the same element.</td></tr>
+    <tr><td>Page size</td><td>Changeable in Project settings. Elements scale with the page; if the shape changes (portrait to square), elements keep their positions as fractions and a preflight check flags overlaps.</td><td>Page size is fixed after creation today.</td></tr>
+    <tr><td>Time zone</td><td>Real setting with "Myanmar Time" default and "This device" option.</td><td>The row exists today but does nothing.</td></tr>
+    <tr><td>Studio UI language</td><td>Stays English for now, with every string in one file ready for Myanmar.</td><td>Studio is a standalone package; localising it is a separate step.</td></tr>
+    <tr><td>Grid Data tab</td><td>Removed; the day marks live in the grid's bar and in Project settings.</td><td>Today the same settings are in three places.</td></tr>
+  </tbody></table></div>
+</section>
+</div>
+
+<script>
+
+/* ---------- real data (myanmar_calendar_dart) ---------- */
+const OCT = [[1,"လဆုတ် ၅",2,0,0],[2,"လဆုတ် ၆",2,0,0],[3,"လဆုတ် ၇",2,0,0],[4,"လဆုတ် ၈",2,1,0],[5,"လဆုတ် ၉",2,0,0],[6,"လဆုတ် ၁၀",2,0,0],[7,"လဆုတ် ၁၁",2,0,0],[8,"လဆုတ် ၁၂",2,0,0],[9,"လဆုတ် ၁၃",2,0,0],[10,"လဆုတ် ၁၄",2,0,0],[11,"လကွယ် ၁၅",3,1,0],[12,"လဆန်း ၁",0,0,0],[13,"လဆန်း ၂",0,0,0],[14,"လဆန်း ၃",0,0,0],[15,"လဆန်း ၄",0,0,0],[16,"လဆန်း ၅",0,0,0],[17,"လဆန်း ၆",0,0,0],[18,"လဆန်း ၇",0,0,0],[19,"လဆန်း ၈",0,1,0],[20,"လဆန်း ၉",0,0,0],[21,"လဆန်း ၁၀",0,0,0],[22,"လဆန်း ၁၁",0,0,0],[23,"လဆန်း ၁၂",0,0,0],[24,"လဆန်း ၁၃",0,0,0],[25,"လဆန်း ၁၄",0,0,1],[26,"လပြည့် ၁၅",1,1,1],[27,"လဆုတ် ၁",2,0,1],[28,"လဆုတ် ၂",2,0,0],[29,"လဆုတ် ၃",2,0,0],[30,"လဆုတ် ၄",2,0,0],[31,"လဆုတ် ၅",2,0,0]];
+const EVENTS = {22: 'Grandma', 9: 'Rent', 16: 'Team call'};
+const ASTRO = {2:1,3:1,4:1,6:1,7:1,12:1,13:1,14:1,15:1,16:1,17:1,22:1,23:1,28:1,29:1,30:1,31:1};
+const FIRST = 4, TODAY = 16, SEL = 22;
+const WD = [['နွေ','Sun'],['လာ','Mon'],['ဂါ','Tue'],['ဟူး','Wed'],['ကြာ','Thu'],['သော','Fri'],['နေ','Sat']];
+const short = l => l.replace('လဆန်း','ဆန်း').replace('လဆုတ်','ဆုတ်').replace('လပြည့် ၁၅','လပြည့်').replace('လကွယ် ၁၅','လကွယ်');
+
+/* ---------- icons ---------- */
+const P = {
+  cal:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/>',
+  swap:'<path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/>',
+  event:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M9 15h6"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', search:'<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+  share:'<path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12"/>',
+  back:'<path d="m15 18-6-6 6-6"/>', fwd:'<path d="m9 18 6-6-6-6"/>', down:'<path d="m6 9 6 6 6-6"/>',
+  moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>', sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  bell:'<path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2H4.5z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  repeat:'<path d="M17 2.5 20.5 6 17 9.5"/><path d="M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5M7 21.5 3.5 18 7 14.5"/><path d="M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5"/>',
+  tag:'<path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1a1 1 0 0 1 .7.3l7.4 7.4a1 1 0 0 1 0 1.4l-8.1 8.1a1 1 0 0 1-1.4 0L3.8 13.3a1 1 0 0 1-.3-.7z"/><circle cx="8" cy="8" r="1.4"/>',
+  pin:'<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>', trash:'<path d="M4.5 6.5h15M9.5 6.5V4.5h5v2M6.5 6.5l1 13h9l1-13"/>',
+  edit:'<path d="M14.5 5.5 18.5 9.5M4 20l1-4.5L16 4.5a2.1 2.1 0 0 1 3 3L8 18.5z"/>', check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  copy:'<rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/>',
+  spark:'<path d="M12 3.5 13.8 9 19.5 10.5 13.8 12.2 12 18 10.2 12.2 4.5 10.5 10.2 9z"/><path d="M18.5 3.5v3M17 5h3"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>', lock:'<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/>',
+  globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 2.5 14.4 0 17M12 3.5c-2.5 2.6-2.5 14.4 0 17"/>',
+  palette:'<path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 1.9-1 1.4-2.1-.6-1.2.2-2.4 1.5-2.4H17a3.5 3.5 0 0 0 3.5-3.5c0-5-3.8-9-8.5-9z"/><circle cx="8" cy="11" r="1.1"/><circle cx="11" cy="7.5" r="1.1"/><circle cx="15.5" cy="8.5" r="1.1"/>',
+  image:'<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m20.5 16-4.5-4.5L6 19.5"/>',
+  shield:'<path d="M12 3.5 19 6v5.5c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/>', download:'<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/>',
+  refresh:'<path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4.5h-4.5"/>', layers:'<path d="m12 3.5 8.5 4.5L12 12.5 3.5 8z"/><path d="m3.5 12 8.5 4.5 8.5-4.5M3.5 16l8.5 4.5 8.5-4.5"/>',
+  text:'<path d="M5 6.5V5h14v1.5M12 5v14M9.5 19h5"/>', list:'<path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/>',
+  sliders:'<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>', x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  more:'<circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/>', today:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><rect x="8" y="13" width="4" height="4" rx="1"/>',
+  phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>', up:'<path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/>',
+  calc:'<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7h7M8.5 11h.01M12 11h.01M15.5 11h.01M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 18h.01M12 18h3.5"/>',
+  hand:'<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5V4a1.5 1.5 0 0 1 3 0v6m0-1.5a1.5 1.5 0 0 1 3 0v5.5a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3 14a1.6 1.6 0 0 1 2.6-1.8L8 15"/>',
+  widget:'<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="17" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ''}</svg>`;
+const tile = (n, c) => `<span class="tile" style="background:${c}">${ic(n)}</span>`;
+const C = {blue:'#2F5BEA', red:'#E5383B', amber:'#F2A900', green:'#1F9D63', purple:'#8E6CEF', gray:'#8E8E93', teal:'#16A3B0', pink:'#E0457B', indigo:'#4C5BD4', orange:'#F08A1C'};
+
+/* ---------- builders ---------- */
+const TABS = [['home','today','Today'],['views','grid','Views'],['convert','swap','Convert'],['events','event','Events'],['settings','gear','Settings']];
+function tabbar(on) { return `<div class="tabbar">${TABS.map(([id, i, l]) => `<span class="tab${id === on ? ' on' : ''}">${ic(i)}${l}</span>`).join('')}</div>`; }
+function nav({back, title, actions = [], large, my = false, sub}) {
+  const left = back ? `${ic('back')}<span class="bl">${back}</span>` : '';
+  const right = actions.map(a => a.startsWith('<') ? a : (P[a] ? ic(a) : `<span>${a}</span>`)).join('');
+  return `<div class="nav"><div class="navtop">${left}<span class="sp">${title || ''}</span><span class="act">${right}</span></div>${large ? `<div class="large${my ? ' my' : ''}">${large}</div>` : ''}${sub ? `<div class="lsub">${sub}</div>` : ''}</div>`;
+}
+function group(rows, label, foot) {
+  return `<div>${label ? `<div class="glabel">${label}</div>` : ''}<div class="group">${rows.join('')}</div>${foot ? `<div class="gfoot">${foot}</div>` : ''}</div>`;
+}
+function r({i, c, t, s, v, chev, tg, check, cls = '', lead}) {
+  if (s) s = s.replace('[bell]', ic('bell', 'xs'));
+  const right = tg !== undefined ? `<span class="tg${tg ? ' on' : ''}"></span>` : check ? `<span class="check">${ic('check')}</span>` : (v ? `<span class="val">${v}</span>` : '') + (chev ? `<span class="chev">${ic('fwd','s')}</span>` : '');
+  return `<div class="r${i || lead ? ' ic' : ''} ${cls}">${i ? tile(i, c || C.blue) : lead ? `<span class="tile" style="background:transparent">${lead}</span>` : ''}<div class="tx"><b>${t}</b>${s ? `<small>${s}</small>` : ''}</div>${right}</div>`;
+}
+function phone(id, title, note, inner, opts = {}) {
+  return `<div class="fr"><div class="cap"><span class="n">${id}</span><span class="t">${title}</span></div><p class="note">${note}</p>
+  <div class="phone"><div class="app scr"${opts.h ? ` style="height:${opts.h}px"` : ''}>
+    <div class="status"><span class="tnum">9:41</span><span>●●●</span></div>${inner}${opts.tab ? tabbar(opts.tab) : ''}${opts.over || ''}
+  </div></div></div>`;
+}
+const content = (html, notab) => `<div class="content${notab ? ' notab' : ''}">${html}</div>`;
+/* Real-sky moon: low-precision Meeus phase angle at 18:30 Myanmar time (12:00 UTC), the evening people look up.
+   Drawn as a lit half disc plus a terminator ellipse (half-width r·|1−2k|), then tilted 40° the way the moon
+   lies near 20°N: waxing lit toward the lower right, waning toward the upper left. Same maths as the Flutter MoonPainter. */
+const RAD = Math.PI / 180;
+function moonAt(y, m, d) {
+  const jd = Date.UTC(y, m - 1, d, 12) / 86400000 + 2440587.5, T = (jd - 2451545) / 36525;
+  const D = (297.8501921 + 445267.1114034 * T) % 360, M = (357.5291092 + 35999.0502909 * T) % 360, Mp = (134.9633964 + 477198.8675055 * T) % 360;
+  const i = 180 - D - 6.289 * Math.sin(Mp * RAD) + 2.1 * Math.sin(M * RAD) - 1.274 * Math.sin((2 * D - Mp) * RAD) - 0.658 * Math.sin(2 * D * RAD) - 0.214 * Math.sin(2 * Mp * RAD) - 0.11 * Math.sin(D * RAD);
+  return {k: (1 + Math.cos(i * RAD)) / 2, waxing: ((D % 360) + 360) % 360 < 180};
+}
+const moonSvg = (day, size = 34, date) => {
+  const [y, m, d] = date || [2026, 10, day], {k, waxing} = moonAt(y, m, d), R = 14;
+  let lit = '';
+  if (k > 0.985) lit = `<circle r="${R}" fill="var(--moon)"/>`;
+  else if (k >= 0.015) {
+    const rx = (R * Math.abs(1 - 2 * k)).toFixed(2);
+    lit = `<path d="M0 ${-R}A${R} ${R} 0 0 1 0 ${R}A${rx} ${R} 0 0 ${k < 0.5 ? 0 : 1} 0 ${-R}Z" fill="var(--moon)" transform="rotate(40)${waxing ? '' : ' scale(-1,1)'}"/>`;
+  }
+  return `<svg class="moon" width="${size}" height="${size}" viewBox="-15.5 -15.5 31 31" role="img" aria-label="Moon ${Math.round(k * 100)}% lit, ${waxing ? 'waxing' : 'waning'}"><circle r="${R}" fill="var(--moonshade)"/>${lit}<circle r="${R}" fill="none" stroke="var(--moonrim)" stroke-width="${size < 16 ? 2 : 1}"/></svg>`;
+};
+const moonPct = d => Math.round(moonAt(2026, 10, d).k * 100);
+
+
+/* ---------- Studio page mock ---------- */
+const MY = '၀၁၂၃၄၅၆၇၈၉';
+const myn = n => String(n).split('').map(d => MY[+d]).join('');
+// January 2027 starts on a Friday; new moon 7 Jan, full moon 22 Jan.
+function lunar(d) { const k = d - 7; if (k <= 0) return 'ဆုတ် ' + myn(15 + k - 1 > 0 ? 15 + k - 1 : 14); if (k <= 15) return k === 15 ? 'လပြည့်' : 'ဆန်း ' + myn(k); return 'ဆုတ် ' + myn(k - 15); }
+function studioPage(w, opts = {}) {
+  const h = Math.round(w * 1.0), f = w / 300;
+  const title = opts.title ?? 'January';
+  const cells = [];
+  for (let i = 0; i < 35; i++) {
+    const d = i - 4;
+    if (d < 1 || d > 31) { cells.push('<div></div>'); continue; }
+    const sun = i % 7 === 0, sab = [7, 14, 22, 29].includes(d), hol = d === 4;
+    cells.push(`<div style="padding:${2 * f}px ${3 * f}px;height:${22 * f}px"><b class="${hol ? 'h' : sun ? 's' : ''}" style="font-size:${8 * f}px">${d}</b><span style="font-size:${4.6 * f}px;${sab ? 'color:#6B4E2A;font-weight:700' : ''}">${lunar(d)}</span></div>`);
+  }
+  const titleHtml = opts.editing
+    ? `${title.slice(0, -1)}<span class="hl">${title.slice(-1)}</span><span class="caret"></span>`
+    : title;
+  return `<div class="pg" style="width:${w}px;height:${h}px">
+    <div class="t" style="position:absolute;left:12%;top:10%;font-size:${34 * f}px">${titleHtml}</div>
+    <div class="y" style="position:absolute;left:12%;top:27%;font-size:${11 * f}px">2027</div>
+    <div class="rings" style="right:8%;top:6%">${('<i style="width:' + 30 * f + 'px;height:' + 30 * f + 'px"></i>').repeat(2)}</div>
+    <div class="rule" style="left:8%;right:50%;top:35%"></div>
+    <div class="cal" style="left:8%;right:8%;top:40%">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(x => `<div class="wd" style="font-size:${5.5 * f}px;padding-bottom:${3 * f}px">${x}</div>`).join('')}${cells.join('')}</div>
+    ${opts.overlay || ''}
+  </div>`;
+}
+const sel = (l, t, w, h, multi) => `<div class="sel${multi ? ' multi' : ''}" style="left:${l}%;top:${t}%;width:${w}%;height:${h}%"></div>`;
+const cbar = (items, pos) => `<div class="cbar" style="${pos}">${items.map(x => x === '|' ? '<span class="div"></span>' : `<span${x.on ? ' class="on"' : ''}>${x.i ? ic(x.i, 's') : ''}${x.t || ''}</span>`).join('')}</div>`;
+const sw = c => `<span class="sw" style="background:${c}"></span>`;
+const ebar = (title = 'Rose Bond 2027') => `<div class="ebar"><span style="color:var(--accent)">${ic('back')}</span><b>${title}</b><span style="color:var(--label-3)">${ic('refresh', 's')}</span><span class="x">Export</span></div>`;
+const DOCK = [['plus', 'Add'], ['text', 'Text'], ['image', 'Image'], ['layers', 'Layers'], ['view', 'Page']];
+const dock = (on = -1) => `<div class="dock">${DOCK.map(([i, l], k) => `<span class="${k === on ? 'on' : ''}">${ic(i === 'view' ? 'grid' : i)}${l}</span>`).join('')}</div>`;
+const keyboard = `<div class="kb">${[10, 9, 9, 5].map(n => `<div>${'<i></i>'.repeat(n)}</div>`).join('')}</div>`;
+const stage = (inner, extra = '', style = '') => `<div class="stage" style="${style}">${inner}${extra}</div>`;
+const studio = (inner, opts = {}) => ebar(opts.title) + inner + (opts.kb ? keyboard : dock(opts.on));
+const sheetOver = (h, title, body, right = 'Done') => `<div class="scrim"></div><div class="sheet" style="height:${h}%"><div class="grab"></div><div class="shead"><span>Cancel</span><b>${title}</b><span>${right}</span></div><div style="padding:4px 16px 18px;display:grid;gap:16px;overflow:hidden">${body}</div></div>`;
+const roleSw = (on) => `<div class="swr">${[['#FBF1EC', 'Paper'], ['#8C3B4D', 'Primary'], ['#C9A15A', 'Accent'], ['#3A1620', 'Ink'], ['#9C7D82', 'Muted'], ['#9A6A1F', 'Holiday']].map(([c, l]) => `<span class="role"><i class="${l === on ? 'on' : ''}" style="background:${c}"></i><small>${l}</small></span>`).join('')}</div>`;
+const pop = (body, pos, w = 250) => `<div style="position:absolute;${pos};width:${w}px;background:var(--surface);border-radius:14px;padding:12px;box-shadow:0 14px 34px -10px rgba(0,0,0,.45),0 0 0 .5px var(--sep);display:grid;gap:10px;z-index:4;font-size:13px">${body}</div>`;
+
+const PAGE = 300;
+const S = {};
+
+/* ---------- editing model ---------- */
+S.model = [
+  phone('M1', 'Select: the bar appears', 'One tap on the month title selects it and shows its bar. The page never moves under your finger.',
+    studio(stage(studioPage(PAGE, {overlay: sel(10, 8, 52, 20)}), cbar([{t: 'Aa', on: false}, {i: 'text', t: 'Cormorant'}, {t: '−'}, {t: '92'}, {t: '+'}, '|', {t: sw('#8C3B4D')}, {i: 'more'}], 'left:24px;top:150px'))), {tab: null}),
+  phone('M2', 'More: the inspector', 'The ••• button opens the full inspector as a sheet at half height. The selection stays visible above it.',
+    studio(stage(`<div style="transform:translateY(-120px)">${studioPage(PAGE, {overlay: sel(10, 8, 52, 20)})}</div>`)),
+    {over: `<div class="sheet card" style="height:52%"><div class="grab"></div><div style="padding:2px 16px 12px;display:grid;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">Month title</b>${ic('copy', 's')}${ic('lock', 's')}${ic('trash', 's')}</div>
+      <div class="seg"><span>Content</span><span class="on">Style</span><span>Layout</span></div>
+      ${group([r({t: 'Font', v: 'Cormorant Garamond', chev: true}), r({t: 'Weight', v: 'Medium · Italic', chev: true}), r({t: 'Size', v: '<span class="stepper"><span>−</span><span>92</span><span>+</span></span>'}), r({t: 'Line height', v: '1.0'}), r({t: 'Letter spacing', v: '0'})])}
+      </div></div>`}),
+];
+
+/* ---------- text ---------- */
+S.text = [
+  phone('T1', 'Double-tap to type', 'Typing happens on the page in the real font. The keyboard pushes the bar up; Done or a tap outside ends the edit as one undo step.',
+    studio(stage(`<div style="transform:translateY(-70px)">${studioPage(PAGE, {editing: true, title: 'January', overlay: sel(10, 8, 52, 20)})}</div>`, cbar([{t: 'Aa'}, {t: 'B'}, {t: 'I'}, '|', {i: 'list'}, {t: sw('#8C3B4D')}, '|', {t: 'Done', on: true}], 'left:40px;bottom:12px'), 'flex:1'), {kb: true}), {}),
+  phone('T2', 'Font popover', 'Fonts are grouped by script. A green tag means the font draws Myanmar text; Latin-only fonts fall back to the theme’s Myanmar font for Myanmar words.',
+    studio(stage(studioPage(PAGE, {overlay: sel(10, 8, 52, 20)}), pop(`<b>Font</b><div class="search" style="height:32px;font-size:13px">${ic('search', 's')} Search fonts</div>
+      <div style="margin:0 -12px">${[['Cormorant Garamond', 'font-family:Georgia,serif;font-style:italic', 'Latin', 1], ['Noto Serif Myanmar', 'font-family:Padauk', 'Myanmar', 0], ['Padauk', 'font-family:Padauk', 'Myanmar', 0], ['Inter', '', 'Latin', 0], ['Playfair Display', 'font-family:Georgia,serif', 'Latin', 0]].map(([n, st, tg, on]) => `<div class="fontrow"><span class="p" style="${st}">${n}</span><span class="tag ${tg === 'Myanmar' ? 'mm' : 'lt'}">${tg === 'Myanmar' ? 'မြန်မာ ✓' : 'Latin'}</span>${on ? `<span class="check">${ic('check', 's')}</span>` : ''}</div>`).join('')}</div>`, 'left:30px;top:150px', 290))), {}),
+  phone('T3', 'Content tab', 'Bound text shows where it comes from. "Custom text" unbinds it for this page; the subtitle line gets its own field.',
+    studio(stage(`<div style="transform:translateY(-140px)">${studioPage(PAGE, {overlay: sel(10, 8, 52, 20)})}</div>`)),
+    {over: `<div class="sheet card" style="height:60%"><div class="grab"></div><div style="padding:2px 16px 12px;display:grid;gap:12px">
+      <div class="seg"><span class="on">Content</span><span>Style</span><span>Layout</span></div>
+      ${group([r({i: 'cal', c: C.blue, t: 'Shows', v: 'Month name', chev: true}), r({t: 'Text', s: 'January · ဇန်နဝါရီ'})], 'Main line', 'Follows each page’s month and the project languages.')}
+      ${group([r({t: 'Subtitle', s: 'Add a second line, e.g. ၁၃၈၈ ပြာသို – တပို့တွဲ'}), r({t: 'Subtitle size', v: '40%'})], 'Subtitle')}
+      </div></div>`}),
+  phone('T4', 'Text styles', 'Add › Text offers ready styles that use the theme fonts and colours. Each lands on the page already in typing mode.',
+    studio(stage(studioPage(PAGE))), {over: sheetOver(66, 'Add', `<div class="seg"><span class="on">Text</span><span>Elements</span><span>Images</span><span>Calendar</span></div>
+      <div class="tstyles">
+        <div style="font-family:Georgia,serif;font-style:italic;font-size:28px;color:var(--rose)">Title</div>
+        <div style="font-weight:700;font-size:19px">Heading</div>
+        <div style="font-size:15px">Body text for notes and captions</div>
+        <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--label-2)">Caption · small caps</div>
+        <div style="font-family:Padauk;font-weight:700;font-size:20px;line-height:1.6">မြန်မာ ခေါင်းစဉ်</div>
+      </div>`)}),
+];
+
+/* ---------- image ---------- */
+const photo = `linear-gradient(135deg,#C99A7A,#7C4A57 60%,#3A1620)`;
+S.image = [
+  phone('I1', 'Image bar', 'Replace, Crop, Fit, Edit and Remove background sit on the bar. The print-quality dot turns amber when the photo is too small for the page size.',
+    studio(stage(studioPage(PAGE, {overlay: `<div style="position:absolute;left:52%;top:6%;width:40%;height:28%;background:${photo};border-radius:6px"></div>` + sel(52, 6, 40, 28)}), cbar([{i: 'refresh', t: 'Replace'}, {i: 'sliders', t: 'Crop'}, {t: 'Fill', on: true}, {i: 'spark'}, {i: 'more'}], 'left:40px;top:96px'))), {}),
+  phone('I2', 'Crop on the page', 'Drag the photo inside the frame, pinch to zoom it. The rest of the photo shows dimmed so you can see what is cut.',
+    studio(stage(studioPage(PAGE, {overlay: `<div style="position:absolute;left:38%;top:-8%;width:70%;height:56%;background:${photo};opacity:.35;border-radius:4px"></div><div style="position:absolute;left:52%;top:6%;width:40%;height:28%;background:${photo};background-size:175% 200%;background-position:40% 30%;outline:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.4)"></div>`}), cbar([{t: 'Free', on: true}, {t: '1:1'}, {t: '4:3'}, {t: '3:4'}, '|', {t: 'Reset'}, {t: 'Done', on: true}], 'left:28px;bottom:14px'))), {}),
+  phone('I3', 'Image inspector', 'Style adds what prints well: corner radius, border in a theme colour, a soft shadow and opacity.',
+    studio(stage(`<div style="transform:translateY(-110px)">${studioPage(PAGE)}</div>`)),
+    {over: `<div class="sheet card" style="height:56%"><div class="grab"></div><div style="padding:2px 16px 12px;display:grid;gap:12px">
+      <div class="seg"><span>Content</span><span class="on">Style</span><span>Layout</span></div>
+      ${group([r({t: 'Corner radius', v: '<span class="stepper"><span>−</span><span>8</span><span>+</span></span>'}), r({t: 'Border', v: sw('#C9A15A') + ' 2 pt', chev: true}), r({t: 'Shadow', tg: true}), r({t: 'Opacity', v: '100%'})])}
+      ${group([r({i: 'info', c: C.green, t: 'Print quality', s: '2400 × 1600 px · good for A4'})])}
+      </div></div>`}),
+];
+
+/* ---------- shapes & decorations ---------- */
+S.shape = [
+  phone('S1', 'Colour popover', 'Theme roles first, then recent colours, then a full picker. Choosing a role keeps the element in step with the theme.',
+    studio(stage(studioPage(PAGE, {overlay: sel(64, 4, 30, 22)}), pop(`<b>Fill</b>${roleSw('Primary')}<div style="font-size:12px;color:var(--label-2)">Recent</div><div class="swr">${['#E5383B', '#16A3B0', '#F2A900', '#FFFFFF'].map(c => `<i style="background:${c}"></i>`).join('')}<i style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)"></i></div>`, 'left:36px;top:120px', 280)), cbar([{t: sw('#8C3B4D') + ' Fill', on: true}, {t: '◯ Outline'}, {i: 'grid', t: 'Shape'}, {t: '100%'}, {i: 'more'}], 'left:30px;top:66px')), {}),
+  phone('S2', 'Decorations', 'Add › Elements now includes decorations: the motifs presets already use (rings, lotus, rays, waves, stars, lanterns, rules), each tinted with theme roles.',
+    studio(stage(studioPage(PAGE))), {over: sheetOver(66, 'Add', `<div class="seg"><span>Text</span><span class="on">Elements</span><span>Images</span><span>Calendar</span></div>
+      <div class="glabel" style="margin:0">Decorations</div>
+      <div class="addgrid">${['Linked rings', 'Gold rule', 'Sun rays', 'Horizon wave', 'Star field', 'Paper lantern', 'Leaf sprig', 'Compass star', 'Zodiac wheel'].map(n => `<div>${ic('spark')}<br>${n}</div>`).join('')}</div>
+      <div class="glabel" style="margin:0">Shapes · Lines · Emoji</div>`)}),
+];
+
+/* ---------- grid ---------- */
+S.grid = [
+  phone('G1', 'Grid bar', 'Days opens the marks each day shows. Week flips Sun/Mon. Style and Colours open popovers; ••• has typography and layout.',
+    studio(stage(studioPage(PAGE, {overlay: sel(7, 39, 86, 58)}), cbar([{i: 'cal', t: 'Days'}, {t: 'Sun–Sat'}, {i: 'grid', t: 'Style'}, {t: sw('#8C3B4D') + ' Colours'}, {i: 'more'}], 'left:20px;top:84px'))), {}),
+  phone('G2', 'Days popover', 'The same switches as Project settings › Days show, so it does not matter where you change them.',
+    studio(stage(studioPage(PAGE, {overlay: sel(7, 39, 86, 58)}), pop(`<b>Each day shows</b>${group([r({t: 'Myanmar date', tg: true}), r({t: 'Moon phases', tg: true}), r({t: 'Holidays', tg: true}), r({t: 'Sabbath', tg: true}), r({t: 'Astrology', tg: false}), r({t: 'My events', tg: true})])}`, 'left:30px;top:120px', 280))), {}),
+  phone('G3', 'Grid colours', 'Every colour the renderer uses gets a row, set to a theme role or a custom colour. The first edit asks whether it applies to this month or all months.',
+    studio(stage(`<div style="transform:translateY(-140px)">${studioPage(PAGE)}</div>`)),
+    {over: `<div class="sheet card" style="height:62%"><div class="grab"></div><div style="padding:2px 16px 12px;display:grid;gap:12px">
+      <div class="seg"><span>Style</span><span class="on">Colours</span><span>Type</span><span>Layout</span></div>
+      ${group([['Dates', '#3A1620', 'Ink'], ['Weekends', '#8C3B4D', 'Primary'], ['Weekday header', '#8C3B4D', 'Primary'], ['Holidays', '#9A6A1F', 'Holiday'], ['Sabbath', '#6B4E2A', 'Sabbath'], ['Lunar days', '#9C7D82', 'Muted'], ['Lines', '#E9D6CF', 'Custom']].map(([t, c, v]) => r({t, v: sw(c) + ' ' + v, chev: true})))}
+      <div class="seg"><span class="on">This month</span><span>All months</span></div></div></div>`}),
+];
+
+/* ---------- lists ---------- */
+S.list = [
+  phone('L1', 'Event list', 'Choose which events: all, by category or only starred; how far ahead; how many rows; and whether rows show time, Myanmar date or a colour dot.',
+    studio(stage(`<div style="transform:translateY(-120px)">${studioPage(PAGE)}</div>`)),
+    {over: `<div class="sheet card" style="height:62%"><div class="grab"></div><div style="padding:2px 16px 12px;display:grid;gap:12px">
+      <div class="seg"><span class="on">Content</span><span>Style</span><span>Layout</span></div>
+      ${group([r({t: 'Events from', v: 'This page’s month', chev: true}), r({t: 'Categories', v: 'Family, Religious', chev: true}), r({t: 'Most', v: '<span class="stepper"><span>−</span><span>6</span><span>+</span></span>'})], 'Which events')}
+      ${group([r({t: 'Time', tg: true}), r({t: 'Myanmar date', tg: true}), r({t: 'Colour dot', tg: true})], 'Each row shows')}
+      </div></div>`}),
+  phone('L2', 'Holiday legend', 'Pick the marks to explain, lay them out in a row or a column, and colour them from the theme so they always match the grid.',
+    studio(stage(`<div style="transform:translateY(-120px)">${studioPage(PAGE)}</div>`)),
+    {over: `<div class="sheet card" style="height:58%"><div class="grab"></div><div style="padding:2px 16px 12px;display:grid;gap:12px">
+      <div class="seg"><span class="on">Content</span><span>Style</span><span>Layout</span></div>
+      ${group([r({t: 'Public holiday', check: true}), r({t: 'Full moon', check: true}), r({t: 'New moon', check: true}), r({t: 'Sabbath', check: true}), r({t: 'Events', check: false})], 'Show')}
+      <div class="seg"><span class="on">Row</span><span>Column</span><span>Two columns</span></div></div></div>`}),
+];
+
+/* ---------- canvas ---------- */
+S.canvas = [
+  phone('C1', 'Several at once', 'Long-press a second element to add it (Shift-click on desktop, or drag a box). The bar switches to align, distribute and group actions.',
+    studio(stage(studioPage(PAGE, {overlay: sel(10, 8, 52, 20, 1) + sel(10, 26, 16, 6, 1)}), cbar([{t: '2 selected'}, '|', {i: 'list'}, {t: '⫷'}, {t: '⫸'}, {t: '⇹'}, '|', {t: 'Group'}, {i: 'more'}], 'left:24px;top:56px'))), {}),
+  phone('C2', 'Layers', 'Drag the handle to reorder. Tap a name to rename. Thumbnails show what each layer is; the eye and lock stay one tap away.',
+    studio(stage(studioPage(PAGE))), {over: sheetOver(60, 'Layers', `<div style="margin:0 -16px">
+      ${[['Linked rings', '◎', 0, 0], ['Month title', 'Aa', 1, 0], ['Year', '27', 0, 1], ['Rule', '—', 0, 0], ['Calendar grid', '▦', 0, 0], ['Legend', '•', 0, 0]].map(([n, th, on, drag]) => `<div class="layer${on ? ' on' : ''}${drag ? ' drag' : ''}"><span class="g">⋮⋮</span><span class="th">${th}</span><b style="flex:1;font-weight:500">${n}</b><span style="color:var(--label-3)">${ic('lock', 's')}</span></div>`).join('')}</div>`)}),
+  phone('C3', 'Move with buttons', 'Layout › Position has steppers and a nudge pad, for exact placement and for people who find dragging hard.',
+    studio(stage(`<div style="transform:translateY(-120px)">${studioPage(PAGE)}</div>`)),
+    {over: `<div class="sheet card" style="height:56%"><div class="grab"></div><div style="padding:2px 16px 12px;display:grid;gap:12px">
+      <div class="seg"><span>Content</span><span>Style</span><span class="on">Layout</span></div>
+      ${group([r({t: 'X', v: '<span class="stepper"><span>−</span><span>12%</span><span>+</span></span>'}), r({t: 'Y', v: '<span class="stepper"><span>−</span><span>8%</span><span>+</span></span>'}), r({t: 'Width', v: '<span class="stepper"><span>−</span><span>52%</span><span>+</span></span>'}), r({t: 'Rotation', v: '0°'})])}
+      <div class="alignbar"><span class="chip">⇤ Left</span><span class="chip">↔ Centre</span><span class="chip">Right ⇥</span><span class="chip">⇡ Top</span></div></div></div>`}),
+];
+
+/* ---------- add ---------- */
+S.add = [
+  phone('A1', 'Add panel', 'Recent first, then the tabs. Calendar parts are their own tab so a second grid, a mini month or an event list are easy to find.',
+    studio(stage(studioPage(PAGE))), {over: sheetOver(70, 'Add', `<div class="seg"><span>Text</span><span>Elements</span><span>Images</span><span class="on">Calendar</span></div>
+      <div class="glabel" style="margin:0">Recently used</div>
+      <div class="addgrid"><div>${ic('text')}<br>Title</div><div>${ic('spark')}<br>Linked rings</div><div>${ic('image')}<br>Photo</div></div>
+      <div class="glabel" style="margin:0">Calendar parts</div>
+      <div class="addgrid"><div>${ic('cal')}<br>Month grid</div><div>${ic('grid')}<br>Mini month</div><div>${ic('list')}<br>Event list</div><div>${ic('star')}<br>Holiday legend</div><div>${ic('moon')}<br>Moon phases strip</div><div>${ic('today')}<br>Year at a glance</div></div>`)}),
+];
+
+/* ---------- project settings ---------- */
+const themes = [['Rose Bond', ['#FBF1EC', '#8C3B4D', '#C9A15A', '#3A1620']], ['Jade', ['#F3F7F4', '#0E6B5C', '#C9A15A', '#14211D']], ['Lacquer', ['#F7EDE2', '#9B2D1F', '#D9A441', '#2A120D']], ['Indigo', ['#EEF1F8', '#2F3E8C', '#E0A040', '#141A33']], ['Saffron', ['#FFF6E6', '#D9822B', '#7A4E1E', '#2E1C0C']], ['Mono', ['#FFFFFF', '#111111', '#888888', '#111111']]];
+S.project = [
+  phone('P1', 'Project settings', 'Opens from the project name. Changes apply when you tap Done and are one undo step; anything that rebuilds pages says so first.',
+    nav({back: 'Editor', title: '', actions: [], large: 'Project settings'}) + content(`
+      ${group([r({t: 'Period', v: 'Year · 12 pages', chev: true}), r({t: 'Year', v: '2027'}), r({t: 'Starts', v: 'January', chev: true}), r({t: 'Week starts', v: 'Sunday', chev: true})], 'Calendar')}
+      ${group([r({t: 'Languages', v: 'Myanmar + English', chev: true}), r({t: 'Days show', v: '5 of 6', chev: true}), r({t: 'Time zone', v: 'Myanmar Time', chev: true})], 'Content')}
+      ${group([`<div style="padding:12px 14px;display:flex;gap:12px;align-items:center"><div class="palette" style="width:120px">${themes[0][1].map(c => `<i style="background:${c}"></i>`).join('')}</div><div style="flex:1"><b style="font-weight:500">Rose Bond</b><br><small class="muted">Cormorant · Noto Serif Myanmar</small></div>${ic('fwd', 's')}</div>`], 'Theme')}
+      ${group([r({t: 'Page size', v: 'Square 30 cm', chev: true}), r({t: 'Bleed', v: '3 mm', chev: true}), r({t: 'Safe margin', v: '5 mm', chev: true})], 'Format')}
+      ${group([r({i: 'copy', c: C.gray, t: 'Duplicate project'}), r({i: 'download', c: C.blue, t: 'Save project file'}), r({i: 'star', c: C.amber, t: 'Save as template'})], 'File')}`, true)),
+  phone('P2', 'Theme', 'Switch to another preset’s theme or customise the roles and fonts. Elements using roles update on every page; custom colours stay.',
+    nav({back: 'Project', title: '', large: 'Theme'}) + content(`
+      <div class="thgrid">${themes.map(([n, cs], i) => `<div class="thchip${i === 0 ? ' on' : ''}"><div class="palette">${cs.map(c => `<i style="background:${c}"></i>`).join('')}</div>${n}</div>`).join('')}</div>
+      ${group([['Paper', '#FBF1EC'], ['Primary', '#8C3B4D'], ['Accent', '#C9A15A'], ['Ink', '#3A1620'], ['Muted', '#9C7D82'], ['Holiday', '#9A6A1F'], ['Sabbath', '#6B4E2A']].map(([t, c]) => r({t, v: sw(c), chev: true})), 'Colours')}
+      ${group([r({t: 'Headings', v: 'Cormorant Garamond', chev: true}), r({t: 'Myanmar', v: 'Noto Serif Myanmar', chev: true})], 'Fonts')}`, true)),
+  phone('P3', 'Page size', 'Choosing a new size shows a before/after. Elements scale with the page; a changed shape keeps positions and preflight flags anything that now overlaps.',
+    nav({back: 'Project', title: '', large: 'Page size'}) + content(`
+      ${group([r({t: 'Square 30 cm', s: 'Instagram post, wall', check: true}), r({t: 'A4 portrait', s: '21 × 29.7 cm'}), r({t: 'A3 portrait', s: 'Wall calendar'}), r({t: 'Desk 21 × 10 cm', s: 'Landscape tent'}), r({t: 'Story 9:16', s: 'Phone screens'}), r({t: 'Custom…'})])}
+      ${group([r({t: 'Resize all pages', tg: true}), r({t: 'Scale elements', tg: true})], '', 'Your project is saved before resizing, so Undo brings it back.')}`, true)),
+];
+
+/* ---------- page ---------- */
+S.page = [
+  phone('PG1', 'Page settings', 'Page is about the page: background (theme role, colour or image), print margins, and the pages list with duplicate, reorder and delete.',
+    studio(stage(studioPage(PAGE))), {over: sheetOver(70, 'Page', `
+      <div><div class="glabel" style="margin:0 0 6px">Background</div>${roleSw('Paper')}</div>
+      ${group([r({i: 'image', c: C.pink, t: 'Background image', chev: true}), r({t: 'Show bleed (3 mm)', tg: true}), r({t: 'Show safe area', tg: true}), r({t: 'Snap to grid', tg: false})])}
+      ${group([r({i: 'copy', c: C.blue, t: 'Duplicate this page'}), r({i: 'grid', c: C.teal, t: 'All pages', v: '12', chev: true}), r({i: 'trash', c: C.red, t: 'Delete this page', cls: 'dng'})])}`)}),
+];
+
+/* ---------- desktop & tablet ---------- */
+function desktop() {
+  return `<div class="cap"><span class="n">D1</span><span class="t">Desktop · 1440 px</span></div><p class="note">Tools on the left (T text, V select), layers with drag-reorder, the page with its contextual bar, the docked inspector, and a page strip along the bottom.</p>
+  <div class="win2"><div class="app dsk2">
+    <div class="strip">${[['plus', 'Add'], ['text', 'Text'], ['image', 'Image'], ['spark', 'Elements'], ['cal', 'Calendar'], ['sliders', 'Page']].map(([i, l]) => `<span>${ic(i)}${l}</span>`).join('')}</div>
+    <div class="panel"><h4>Layers</h4>${[['Linked rings', '◎'], ['Month title', 'Aa', 1], ['Year', '27'], ['Rule', '—'], ['Calendar grid', '▦'], ['Legend', '•']].map(([n, th, on]) => `<div class="layer${on ? ' on' : ''}"><span class="g">⋮⋮</span><span class="th">${th}</span><span style="flex:1">${n}</span><span style="color:var(--label-3)">${ic('lock', 's')}</span></div>`).join('')}</div>
+    <div style="display:flex;flex-direction:column;min-width:0">${ebar('Rose Bond 2027 · January')}${stage(studioPage(400, {overlay: sel(10, 8, 52, 20)}), cbar([{t: 'Aa'}, {i: 'text', t: 'Cormorant'}, {t: '−'}, {t: '92'}, {t: '+'}, '|', {t: sw('#8C3B4D')}, {i: 'list'}], 'left:50%;transform:translateX(-50%);top:30px'))}
+      <div class="pagestrip">${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'].map((m, i) => `<div class="${i === 0 ? 'on' : ''}">${m}</div>`).join('')}</div></div>
+    <div class="panel" style="box-shadow:inset .5px 0 0 var(--sep)"><h4>Month title</h4><div class="ptabs"><span>Content</span><span class="on">Style</span><span>Layout</span></div>
+      <div style="padding:0 12px;display:grid;gap:14px">${group([r({t: 'Font', v: 'Cormorant', chev: true}), r({t: 'Style', v: 'Italic'}), r({t: 'Size', v: '92'}), r({t: 'Line height', v: '1.0'})])}<div>${roleSw('Primary')}</div>${group([r({t: 'Apply to all months', tg: true})])}</div></div>
+  </div></div>`;
+}
+S.tablet = [
+  `<div class="fr wide"><div class="cap"><span class="n">TB1</span><span class="t">Tablet · 834 px</span></div><p class="note">Canvas with the inspector docked on the right; layers slide in from the left edge.</p>
+  <div class="win2" style="max-width:860px"><div class="app" style="display:grid;grid-template-columns:minmax(0,1fr) 300px;height:560px">
+    <div style="display:flex;flex-direction:column;min-width:0">${ebar()}${stage(studioPage(340, {overlay: sel(7, 39, 86, 58)}), cbar([{i: 'cal', t: 'Days'}, {t: 'Sun–Sat'}, {i: 'grid', t: 'Style'}, {t: sw('#8C3B4D') + ' Colours'}], 'left:50%;transform:translateX(-50%);top:120px'))}${dock()}</div>
+    <div class="panel" style="box-shadow:inset .5px 0 0 var(--sep)"><h4>Calendar grid</h4><div class="ptabs"><span>Style</span><span class="on">Colours</span><span>Type</span></div><div style="padding:0 12px">${group([['Dates', '#3A1620', 'Ink'], ['Weekends', '#8C3B4D', 'Primary'], ['Holidays', '#9A6A1F', 'Holiday'], ['Sabbath', '#6B4E2A', 'Sabbath']].map(([t, c, v]) => r({t, v: sw(c) + ' ' + v})))}</div></div>
+  </div></div></div>`,
+];
+
+document.getElementById('modelRow').innerHTML = S.model.join('');
+document.getElementById('textRow').innerHTML = S.text.join('');
+document.getElementById('imageRow').innerHTML = S.image.join('');
+document.getElementById('shapeRow').innerHTML = S.shape.join('');
+document.getElementById('gridRow').innerHTML = S.grid.join('');
+document.getElementById('listRow').innerHTML = S.list.join('');
+document.getElementById('canvasRow').innerHTML = S.canvas.join('');
+document.getElementById('addRow').innerHTML = S.add.join('');
+document.getElementById('projectRow').innerHTML = S.project.join('');
+document.getElementById('pageRow').innerHTML = S.page.join('');
+document.getElementById('deskFrame').innerHTML = desktop();
+document.getElementById('tabletRow').innerHTML = S.tablet.join('');
+
+const styleToggle = document.getElementById('styleToggle');
+styleToggle.addEventListener('click', () => {
+  const on = styleToggle.getAttribute('aria-pressed') !== 'true';
+  styleToggle.setAttribute('aria-pressed', String(on));
+  styleToggle.textContent = on ? 'Show Clear style' : 'Show Material style';
+  document.querySelectorAll('.app').forEach(el => el.classList.toggle('md', on));
+});
+const darkToggle = document.getElementById('darkToggle');
+darkToggle.addEventListener('click', () => {
+  const on = darkToggle.getAttribute('aria-pressed') !== 'true';
+  darkToggle.setAttribute('aria-pressed', String(on));
+  darkToggle.textContent = on ? 'Show app in light' : 'Show app in dark';
+  document.querySelectorAll('.app').forEach(el => el.classList.toggle('dark', on));
+});
+
+</script>

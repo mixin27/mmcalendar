@@ -29,10 +29,12 @@ class NotificationServiceImpl implements NotificationService {
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
+    // Permission is asked when it's needed (onboarding, or the first
+    // reminder), not when the app starts.
     const darwinSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const initSettings = InitializationSettings(
@@ -141,10 +143,16 @@ class NotificationServiceImpl implements NotificationService {
     await _notificationsPlugin.cancel(id: notificationId);
   }
 
+  /// Cancels every event notification. Holiday reminders (payload
+  /// `holiday_…`) are scheduled by the holidays feature and stay.
   @override
   Future<void> cancelAllNotifications() async {
     if (!_isInitialized) await initialize();
-    await _notificationsPlugin.cancelAll();
+    final pending = await _notificationsPlugin.pendingNotificationRequests();
+    for (final request in pending) {
+      if (request.payload?.startsWith('holiday_') ?? false) continue;
+      await _notificationsPlugin.cancel(id: request.id);
+    }
   }
 
   @override

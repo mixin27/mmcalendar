@@ -1,0 +1,111 @@
+name: calendar_studio
+description: Standalone, configurable calendar design studio for Flutter.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.11.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  equatable: ^2.1.0
+  pdf: ^3.11.3
+  printing: ^5.15.0
+  archive: ^4.0.7
+  share_plus: ^12.0.0
+  myanmar_calendar_dart: ^3.0.1
+  shared_moon:
+    path: ../../shared/moon
+  shared_motifs:
+    path: ../../shared/motifs
+  shared_ui_kit:
+    path: ../../shared/ui_kit
+  file_picker: ^10.3.2
+  image: ^4.5.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  alchemist: ^0.14.1
+
+# Preset display fonts (SIL Open Font License; licences in assets/fonts/*/OFL.txt).
+# Hosts reference them as `packages/calendar_studio/<family>`, resolved by
+# CalendarStudioFontCatalog.
+flutter:
+  # Only the licence texts are assets; the fonts themselves are below.
+  assets:
+    - assets/fonts/cormorantgaramond/OFL.txt
+    - assets/fonts/fraunces/OFL.txt
+    - assets/fonts/bricolagegrotesque/OFL.txt
+    - assets/fonts/spacegrotesk/OFL.txt
+    - assets/fonts/spectral/OFL.txt
+    - assets/fonts/librecaslontext/OFL.txt
+    - assets/fonts/lora/OFL.txt
+    - assets/fonts/sora/OFL.txt
+    - assets/fonts/italiana/OFL.txt
+    - assets/fonts/newsreader/OFL.txt
+    - assets/fonts/crimsonpro/OFL.txt
+    - assets/fonts/petrona/OFL.txt
+    - assets/fonts/bitter/OFL.txt
+    - assets/fonts/notoserifmyanmar/OFL.txt
+  fonts:
+    - family: Cormorant Garamond
+      fonts:
+        - asset: assets/fonts/cormorantgaramond/CormorantGaramond-Variable.ttf
+        - asset: assets/fonts/cormorantgaramond/CormorantGaramond-Italic-Variable.ttf
+          style: italic
+    - family: Fraunces
+      fonts:
+        - asset: assets/fonts/fraunces/Fraunces-Variable.ttf
+        - asset: assets/fonts/fraunces/Fraunces-Italic-Variable.ttf
+          style: italic
+    - family: Bricolage Grotesque
+      fonts:
+        - asset: assets/fonts/bricolagegrotesque/BricolageGrotesque-Variable.ttf
+    - family: Space Grotesk
+      fonts:
+        - asset: assets/fonts/spacegrotesk/SpaceGrotesk-Variable.ttf
+    - family: Spectral
+      fonts:
+        - asset: assets/fonts/spectral/Spectral-Regular.ttf
+        - asset: assets/fonts/spectral/Spectral-Italic.ttf
+          style: italic
+        - asset: assets/fonts/spectral/Spectral-Bold.ttf
+          weight: 700
+    - family: Libre Caslon Text
+      fonts:
+        - asset: assets/fonts/librecaslontext/LibreCaslonText-Variable.ttf
+    - family: Lora
+      fonts:
+        - asset: assets/fonts/lora/Lora-Variable.ttf
+    - family: Sora
+      fonts:
+        - asset: assets/fonts/sora/Sora-Variable.ttf
+    - family: Italiana
+      fonts:
+        - asset: assets/fonts/italiana/Italiana-Regular.ttf
+    - family: Newsreader
+      fonts:
+        - asset: assets/fonts/newsreader/Newsreader-Variable.ttf
+        - asset: assets/fonts/newsreader/Newsreader-Italic-Variable.ttf
+          style: italic
+    - family: Crimson Pro
+      fonts:
+        - asset: assets/fonts/crimsonpro/CrimsonPro-Variable.ttf
+    - family: Petrona
+      fonts:
+        - asset: assets/fonts/petrona/Petrona-Variable.ttf
+    - family: Bitter
+      fonts:
+        - asset: assets/fonts/bitter/Bitter-Variable.ttf
+    - family: Noto Serif Myanmar
+      fonts:
+        - asset: assets/fonts/notoserifmyanmar/NotoSerifMyanmar-Regular.ttf
+        - asset: assets/fonts/notoserifmyanmar/NotoSerifMyanmar-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/notoserifmyanmar/NotoSerifMyanmar-Bold.ttf
+          weight: 700

@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_core/shared_core.dart' show showAppMyanmarDatePicker;
+import 'package:shared_core/shared_core.dart'
+    show
+        CalendarLanguageContext,
+        showAppMyanmarDatePicker,
+        showAppMyanmarMultiDatePicker;
+import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 import '../../domain/entities/event.dart';
 import '../../domain/entities/notification_setting.dart';
 import '../../domain/entities/recurrence_rule.dart';
@@ -13,7 +18,8 @@ import '../bloc/event_categories_state.dart';
 import '../bloc/event_form_bloc.dart';
 import '../bloc/event_form_event.dart';
 import '../bloc/event_form_state.dart';
-import '../widgets/category_chip.dart';
+import '../widgets/form_field_row.dart';
+import '../widgets/repeat_sheet.dart';
 
 class EventFormPage extends StatefulWidget {
   final int? eventId;
@@ -26,7 +32,6 @@ class EventFormPage extends StatefulWidget {
 }
 
 class _EventFormPageState extends State<EventFormPage> {
-  final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
@@ -59,75 +64,75 @@ class _EventFormPageState extends State<EventFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.eventId == null ? 'New Event' : 'Edit Event'),
-      ),
-      body: BlocConsumer<EventFormBloc, EventFormState>(
-        listener: (context, state) {
-          if (state is EventFormSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.isNew ? 'Event created!' : 'Event updated!',
+    final t = context.tokens;
+    final isNew = widget.eventId == null;
+    final l10n = AppLocalizations.of(context);
+    return BlocConsumer<EventFormBloc, EventFormState>(
+      listener: (context, state) {
+        if (state is EventFormSuccess) {
+          context.showToast(
+            state.count > 1
+                ? (l10n?.repeatEventsCreated(state.count) ??
+                      '${state.count} events created')
+                : state.isNew
+                ? (l10n?.eventsEventCreated ?? 'Event created')
+                : (l10n?.eventsEventUpdated ?? 'Event updated'),
+            kind: AppToastKind.success,
+          );
+          context.pop();
+        } else if (state is EventFormError) {
+          context.showToast(state.failure.message, kind: AppToastKind.error);
+        }
+      },
+      builder: (context, state) {
+        final editing = state is EventFormEditing ? state : null;
+        final submitting = state is EventFormSubmitting;
+        final canSave = editing != null && editing.isValid && !submitting;
+        return AppPage(
+          title: isNew
+              ? (l10n?.newEvent ?? 'New Event')
+              : (l10n?.eventsEditEventTitle ?? 'Edit Event'),
+          largeTitle: false,
+          previousTitle: l10n?.cancel ?? 'Cancel',
+          actions: [
+            if (t.isClear)
+              TextButton(
+                onPressed: canSave ? _submitForm : null,
+                child: Text(
+                  isNew ? (l10n?.add ?? 'Add') : (l10n?.save ?? 'Save'),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
-            );
-            context.pop();
-          } else if (state is EventFormError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.failure.message),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state is EventFormSubmitting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is! EventFormEditing) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return _buildForm(state);
-        },
-      ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: BlocBuilder<EventFormBloc, EventFormState>(
-          builder: (context, state) {
-            if (state is EventFormSubmitting) {
-              return FilledButton.icon(
-                onPressed: null,
-                icon: const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                label: const Text('Saving...'),
-              );
-            }
-            if (state is! EventFormEditing) {
-              return const SizedBox.shrink();
-            }
-            return FilledButton.icon(
-              onPressed: state.isValid ? _submitForm : null,
-              icon: const Icon(Icons.check),
-              label: Text(
-                widget.eventId == null ? 'Create Event' : 'Save Changes',
-              ),
-            );
-          },
-        ),
-      ),
+          ],
+          children: editing == null
+              ? const [
+                  Padding(
+                    padding: EdgeInsets.all(48),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ]
+              : [
+                  ..._formGroups(editing),
+                  if (!t.isClear)
+                    AppButton(
+                      label: submitting
+                          ? (l10n?.eventsSaving ?? 'Saving…')
+                          : (isNew
+                                ? (l10n?.eventsCreateEvent ?? 'Create Event')
+                                : (l10n?.eventsSaveChanges ?? 'Save Changes')),
+                      icon: Icons.check,
+                      onPressed: canSave ? _submitForm : null,
+                    ),
+                ],
+        );
+      },
     );
   }
 
-  Widget _buildForm(EventFormEditing state) {
-    // Update controllers if needed
+  List<Widget> _formGroups(EventFormEditing state) {
+    final t = context.tokens;
+    final bloc = context.read<EventFormBloc>();
+    final l10n = AppLocalizations.of(context);
     if (_titleController.text != state.title) {
       _titleController.text = state.title;
     }
@@ -137,383 +142,218 @@ class _EventFormPageState extends State<EventFormPage> {
     if (_locationController.text != state.location) {
       _locationController.text = state.location;
     }
+    final color = Color(state.colorCode ?? state.category.colorCode);
+    final onDates = state.recurrenceRule?.type == RecurrenceType.dates;
 
-    return Form(
-      key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
+    return [
+      AppGroup(
+        footer: state.errorMessage,
         children: [
-          // Title field
-          TextFormField(
+          FormFieldRow(
             controller: _titleController,
-            decoration: InputDecoration(
-              labelText: 'Event Title *',
-              hintText: 'Enter event title',
-              prefixIcon: const Icon(Icons.title),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              errorText: state.errorMessage,
-            ),
-            textInputAction: TextInputAction.next,
-            onChanged: (value) {
-              context.read<EventFormBloc>().add(UpdateEventTitle(value));
-            },
+            hint: l10n?.title ?? 'Title',
+            autofocus: widget.eventId == null,
+            onChanged: (v) => bloc.add(UpdateEventTitle(v)),
           ),
-          const SizedBox(height: 16),
-
-          // Description field
-          TextFormField(
+          FormFieldRow(
             controller: _descriptionController,
-            decoration: InputDecoration(
-              labelText: 'Description',
-              hintText: 'Add more details (optional)',
-              prefixIcon: const Icon(Icons.description),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            maxLines: 3,
-            textInputAction: TextInputAction.newline,
-            onChanged: (value) {
-              context.read<EventFormBloc>().add(UpdateEventDescription(value));
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Date and time section
-          _buildSectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionHeader(
-                  icon: Icons.calendar_today,
-                  title: 'Date & Time',
-                ),
-                const SizedBox(height: 16),
-
-                // Date picker
-                ListTile(
-                  leading: const Icon(Icons.event),
-                  title: const Text('Date'),
-                  subtitle: Text(
-                    DateFormat('EEEE, MMM d, yyyy').format(state.eventDate),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _selectDate(context, state.eventDate),
-                ),
-
-                // All day toggle
-                SwitchListTile(
-                  secondary: const Icon(Icons.all_inclusive),
-                  title: const Text('All day'),
-                  value: state.isAllDay,
-                  onChanged: (value) {
-                    context.read<EventFormBloc>().add(const ToggleAllDay());
-                  },
-                ),
-
-                // Time picker (if not all day)
-                if (!state.isAllDay)
-                  ListTile(
-                    leading: const Icon(Icons.access_time),
-                    title: const Text('Time'),
-                    subtitle: Text(
-                      state.eventTime != null
-                          ? TimeOfDay.fromDateTime(
-                              state.eventTime!,
-                            ).format(context)
-                          : 'Select time',
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () =>
-                        _selectTime(context, state.eventTime, state.eventDate),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Category selection
-          _buildCategorySection(state),
-          const SizedBox(height: 16),
-
-          // Priority selection
-          _buildPrioritySection(state),
-          const SizedBox(height: 16),
-
-          // Location field
-          TextFormField(
-            controller: _locationController,
-            decoration: InputDecoration(
-              labelText: 'Location',
-              hintText: 'Add location (optional)',
-              prefixIcon: const Icon(Icons.location_on),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            textInputAction: TextInputAction.next,
-            onChanged: (value) {
-              context.read<EventFormBloc>().add(UpdateEventLocation(value));
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Recurrence section
-          _buildRecurrenceSection(state),
-          const SizedBox(height: 16),
-
-          // Notifications section
-          _buildNotificationsSection(state),
-          const SizedBox(height: 16),
-
-          // Tags section
-          _buildTagsSection(state),
-          const SizedBox(height: 16),
-
-          // Color picker
-          _buildColorSection(state),
-          const SizedBox(height: 32),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategorySection(EventFormEditing state) {
-    return _buildSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(icon: Icons.category, title: 'Category'),
-          const SizedBox(height: 12),
-          BlocBuilder<EventCategoriesBloc, EventCategoriesState>(
-            builder: (context, categoriesState) {
-              if (categoriesState is EventCategoriesLoaded) {
-                return Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: categoriesState.categories.map((category) {
-                    return CategoryChip(
-                      category: category,
-                      selected: category.id == state.category.id,
-                      onTap: () {
-                        context.read<EventFormBloc>().add(
-                          UpdateEventCategory(category),
-                        );
-                      },
-                    );
-                  }).toList(),
-                );
-              }
-              return const CircularProgressIndicator();
-            },
+            hint: l10n?.description ?? 'Description',
+            maxLines: 4,
+            onChanged: (v) => bloc.add(UpdateEventDescription(v)),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPrioritySection(EventFormEditing state) {
-    return _buildSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      AppGroup(
         children: [
-          _buildSectionHeader(icon: Icons.flag, title: 'Priority'),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: EventPriority.values.map((priority) {
-              final isSelected = priority == state.priority;
-              return FilterChip(
-                label: Text(priority.displayName),
-                selected: isSelected,
-                onSelected: (_) {
-                  context.read<EventFormBloc>().add(
-                    UpdateEventPriority(priority),
-                  );
-                },
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecurrenceSection(EventFormEditing state) {
-    return _buildSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(icon: Icons.repeat, title: 'Repeat'),
-          const SizedBox(height: 12),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(
-              state.recurrenceRule?.type.displayName ?? 'Does not repeat',
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _showRecurrencePicker(context, state.recurrenceRule),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotificationsSection(EventFormEditing state) {
-    return _buildSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(
-            icon: Icons.notifications,
-            title: 'Notifications',
-            trailing: TextButton.icon(
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add'),
-              onPressed: () => _showNotificationPicker(context),
-            ),
-          ),
-          if (state.notifications.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('No notifications'),
+          // Several dates show here too, and open the multi-date picker.
+          if (onDates)
+            AppRow(
+              key: const ValueKey('event-form-dates'),
+              icon: Icons.event,
+              iconColor: t.holiday,
+              title: l10n?.date ?? 'Date',
+              value: repeatSummary(context, state.recurrenceRule),
+              chevron: true,
+              onTap: () => _selectDates(context, state),
             )
-          else
-            ...state.notifications.asMap().entries.map((entry) {
-              final index = entry.key;
-              final notification = entry.value;
-              return ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.alarm),
-                title: Text(notification.displayName),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    context.read<EventFormBloc>().add(
-                      RemoveNotification(index),
-                    );
-                  },
-                ),
-              );
-            }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTagsSection(EventFormEditing state) {
-    return _buildSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(icon: Icons.label, title: 'Tags'),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _tagController,
-                  decoration: const InputDecoration(
-                    hintText: 'Add tag',
-                    border: OutlineInputBorder(),
-                  ),
-                  onSubmitted: (value) {
-                    if (value.isNotEmpty) {
-                      context.read<EventFormBloc>().add(AddTag(value));
-                      _tagController.clear();
-                    }
-                  },
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: () {
-                  if (_tagController.text.isNotEmpty) {
-                    context.read<EventFormBloc>().add(
-                      AddTag(_tagController.text),
-                    );
-                    _tagController.clear();
-                  }
-                },
-              ),
-            ],
-          ),
-          if (state.tags.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: state.tags.map((tag) {
-                return Chip(
-                  label: Text(tag),
-                  deleteIcon: const Icon(Icons.close, size: 18),
-                  onDeleted: () {
-                    context.read<EventFormBloc>().add(RemoveTag(tag));
-                  },
-                );
-              }).toList(),
+          else ...[
+            AppRow(
+              icon: Icons.event,
+              iconColor: t.holiday,
+              title: l10n?.date ?? 'Date',
+              value:
+                  '${context.calendarFormat.shortDate(state.eventDate)} '
+                  '${context.calendarFormat.number(state.eventDate.year)}',
+              chevron: true,
+              onTap: () => _selectDate(context, state.eventDate),
+            ),
+            AppRow(
+              key: const ValueKey('event-form-add-dates'),
+              icon: Icons.add,
+              iconColor: t.accent,
+              title: l10n?.eventsAddMoreDates ?? 'Add more dates',
+              tone: AppRowTone.accent,
+              onTap: () => _selectDates(context, state),
             ),
           ],
+          AppRow.toggle(
+            icon: Icons.schedule,
+            iconColor: t.accent,
+            title: l10n?.allDay ?? 'All day',
+            value: state.isAllDay,
+            onChanged: (_) => bloc.add(const ToggleAllDay()),
+          ),
+          if (!state.isAllDay)
+            AppRow(
+              icon: Icons.access_time,
+              iconColor: t.accent,
+              title: l10n?.time ?? 'Time',
+              // With a time for each day, the repeat sheet holds the times.
+              value: state.dayTimes.isNotEmpty
+                  ? (l10n?.repeatPerDay ?? 'Per day')
+                  : state.eventTime != null
+                  ? TimeOfDay.fromDateTime(state.eventTime!).format(context)
+                  : (l10n?.select ?? 'Select'),
+              chevron: true,
+              onTap: () => state.dayTimes.isNotEmpty
+                  ? _showRecurrencePicker(context, state)
+                  : _selectTime(context, state.eventTime, state.eventDate),
+            ),
         ],
       ),
-    );
-  }
-
-  Widget _buildColorSection(EventFormEditing state) {
-    return _buildSectionCard(
-      padding: EdgeInsets.zero,
-      child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: state.colorCode != null
-                ? Color(state.colorCode!)
-                : Color(state.category.colorCode),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outlineVariant,
-            ),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppGroupLabel(l10n?.category ?? 'Category'),
+          BlocBuilder<EventCategoriesBloc, EventCategoriesState>(
+            builder: (context, categories) =>
+                categories is EventCategoriesLoaded
+                ? Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final category in categories.categories)
+                        AppChip(
+                          label: category.name,
+                          icon: Icons.circle,
+                          selected: category.id == state.category.id,
+                          onSelected: (_) =>
+                              bloc.add(UpdateEventCategory(category)),
+                        ),
+                    ],
+                  )
+                : const LinearProgressIndicator(minHeight: 2),
           ),
-        ),
-        title: const Text('Custom Color'),
-        subtitle: const Text('Override category color'),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => _showColorPicker(context, state.colorCode),
+        ],
       ),
-    );
-  }
-
-  Widget _buildSectionCard({
-    required Widget child,
-    EdgeInsetsGeometry padding = const EdgeInsets.all(16),
-  }) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppGroupLabel(l10n?.priority ?? 'Priority'),
+          AppSegmented<EventPriority>(
+            segments: {for (final p in EventPriority.values) p: p.displayName},
+            value: state.priority,
+            onChanged: (p) => bloc.add(UpdateEventPriority(p)),
+          ),
+        ],
       ),
-      child: Padding(padding: padding, child: child),
-    );
-  }
-
-  Widget _buildSectionHeader({
-    required IconData icon,
-    required String title,
-    Widget? trailing,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, size: 20),
-        const SizedBox(width: 8),
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
-        if (trailing != null) ...[const Spacer(), trailing],
-      ],
-    );
+      AppGroup(
+        children: [
+          FormFieldRow(
+            controller: _locationController,
+            hint: l10n?.location ?? 'Location',
+            icon: Icons.location_on_outlined,
+            onChanged: (v) => bloc.add(UpdateEventLocation(v)),
+          ),
+          AppRow(
+            icon: Icons.repeat,
+            iconColor: const Color(0xFF8E8E93),
+            key: const ValueKey('event-form-repeat'),
+            title: l10n?.repeat ?? 'Repeat',
+            value: repeatSummary(
+              context,
+              state.recurrenceRule,
+              dayTimes: state.dayTimes,
+            ),
+            chevron: true,
+            onTap: () => _showRecurrencePicker(context, state),
+          ),
+        ],
+      ),
+      AppGroup(
+        label: l10n?.reminders ?? 'Reminders',
+        children: [
+          for (final (index, notification) in state.notifications.indexed)
+            AppRow(
+              icon: Icons.notifications_none_rounded,
+              iconColor: t.holiday,
+              title: notification.displayName,
+              trailing: IconButton(
+                icon: const Icon(Icons.remove_circle_outline),
+                color: t.holiday,
+                tooltip: l10n?.eventsRemoveReminder ?? 'Remove reminder',
+                onPressed: () => bloc.add(RemoveNotification(index)),
+              ),
+            ),
+          AppRow(
+            title: l10n?.eventsAddReminder ?? 'Add reminder',
+            tone: AppRowTone.accent,
+            onTap: () => _showNotificationPicker(context),
+          ),
+        ],
+      ),
+      AppGroup(
+        label: l10n?.tags ?? 'Tags',
+        children: [
+          FormFieldRow(
+            controller: _tagController,
+            hint: l10n?.eventsAddTagHint ?? 'Add a tag and press return',
+            icon: Icons.sell_outlined,
+            onSubmitted: (value) {
+              if (value.trim().isEmpty) return;
+              bloc.add(AddTag(value.trim()));
+              _tagController.clear();
+            },
+          ),
+          if (state.tags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final tag in state.tags)
+                    InputChip(
+                      label: Text(tag),
+                      onDeleted: () => bloc.add(RemoveTag(tag)),
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
+      AppGroup(
+        children: [
+          AppRow(
+            leading: Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                border: Border.all(color: t.separator),
+              ),
+            ),
+            title: l10n?.colour ?? 'Colour',
+            value: state.colorCode == null
+                ? (l10n?.eventsCategoryColour ?? 'Category colour')
+                : (l10n?.custom ?? 'Custom'),
+            chevron: true,
+            onTap: () => _showColorPicker(context, state.colorCode),
+          ),
+        ],
+      ),
+    ];
   }
 
   Future<void> _selectDate(BuildContext context, DateTime currentDate) async {
@@ -526,6 +366,33 @@ class _EventFormPageState extends State<EventFormPage> {
 
     if (picked != null && context.mounted) {
       context.read<EventFormBloc>().add(UpdateEventDate(picked));
+    }
+  }
+
+  /// Picks any number of days. Several make the event fall on those dates
+  /// (Repeat → Specific dates); one is a plain date again.
+  Future<void> _selectDates(
+    BuildContext context,
+    EventFormEditing state,
+  ) async {
+    final bloc = context.read<EventFormBloc>();
+    final rule = state.recurrenceRule;
+    final picked = await showAppMyanmarMultiDatePicker(
+      context: context,
+      initialDates: rule?.type == RecurrenceType.dates
+          ? [...?rule!.dates]
+          : [state.eventDate],
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked == null || picked.isEmpty || !context.mounted) return;
+    bloc.add(UpdateEventDate(picked.first));
+    if (picked.length > 1) {
+      bloc.add(
+        UpdateRepeat(RecurrenceRule(type: RecurrenceType.dates, dates: picked)),
+      );
+    } else if (rule?.type == RecurrenceType.dates) {
+      bloc.add(const UpdateRepeat(null));
     }
   }
 
@@ -557,17 +424,12 @@ class _EventFormPageState extends State<EventFormPage> {
     final currentState = context.read<EventFormBloc>().state;
     if (currentState is! EventFormEditing) return;
 
-    final isFormValid = _formKey.currentState?.validate() ?? true;
-    if (!isFormValid) return;
-
     if (!currentState.isValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            currentState.errorMessage ?? 'Please fill in required fields',
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
+      context.showToast(
+        currentState.errorMessage ??
+            (AppLocalizations.of(context)?.eventsFillRequiredFields ??
+                'Please fill in required fields'),
+        kind: AppToastKind.error,
       );
       return;
     }
@@ -575,52 +437,45 @@ class _EventFormPageState extends State<EventFormPage> {
     context.read<EventFormBloc>().add(const SubmitEventForm());
   }
 
-  void _showRecurrencePicker(BuildContext context, RecurrenceRule? current) {
-    showModalBottomSheet(
+  Future<void> _showRecurrencePicker(
+    BuildContext context,
+    EventFormEditing state,
+  ) async {
+    final bloc = context.read<EventFormBloc>();
+    final l10n = AppLocalizations.of(context);
+    final choice = await showAppSheet<RepeatChoice>(
       context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: RecurrenceType.values.map((type) {
-            return ListTile(
-              title: Text(type.displayName),
-              trailing: current?.type == type ? const Icon(Icons.check) : null,
-              onTap: () {
-                final rule = type == RecurrenceType.none
-                    ? null
-                    : RecurrenceRule(type: type);
-                this.context.read<EventFormBloc>().add(
-                  UpdateRecurrenceRule(rule),
-                );
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        ),
+      title: l10n?.repeat ?? 'Repeat',
+      builder: (sheetContext) => RepeatSheet(
+        rule: state.recurrenceRule,
+        dayTimes: state.dayTimes,
+        startDate: state.eventDate,
+        time: state.isAllDay ? null : state.eventTime,
+        allowTimePerDay: state.eventId == null,
       ),
     );
+    if (choice == null) return;
+    bloc.add(UpdateRepeat(choice.rule, dayTimes: choice.dayTimes));
   }
 
   void _showNotificationPicker(BuildContext context) {
-    showModalBottomSheet(
+    final bloc = context.read<EventFormBloc>();
+    showAppSheet<void>(
       context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: NotificationSetting.defaultSettings.map((setting) {
-            return ListTile(
-              leading: const Icon(Icons.alarm),
-              title: Text(setting.displayName),
-              onTap: () {
-                this.context.read<EventFormBloc>().add(
-                  AddNotification(setting),
-                );
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
+      title: AppLocalizations.of(context)?.eventsAddReminder ?? 'Add reminder',
+      builder: (sheetContext) => SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        child: AppGroup(
+          children: [
+            for (final setting in NotificationSetting.defaultSettings)
+              AppRow(
+                title: setting.displayName,
+                onTap: () {
+                  bloc.add(AddNotification(setting));
+                  Navigator.pop(sheetContext);
+                },
+              ),
+          ],
         ),
       ),
     );
@@ -630,11 +485,12 @@ class _EventFormPageState extends State<EventFormPage> {
     Color pickerColor = currentColor != null
         ? Color(currentColor)
         : Colors.blue;
+    final l10n = AppLocalizations.of(context);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Pick a color'),
+        title: Text(l10n?.eventsPickAColor ?? 'Pick a color'),
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: pickerColor,
@@ -645,7 +501,7 @@ class _EventFormPageState extends State<EventFormPage> {
         ),
         actions: [
           TextButton(
-            child: const Text('Clear'),
+            child: Text(l10n?.clear ?? 'Clear'),
             onPressed: () {
               this.context.read<EventFormBloc>().add(
                 const UpdateEventColor(null),
@@ -654,11 +510,11 @@ class _EventFormPageState extends State<EventFormPage> {
             },
           ),
           TextButton(
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
             onPressed: () => Navigator.of(context).pop(),
           ),
           TextButton(
-            child: const Text('Select'),
+            child: Text(l10n?.select ?? 'Select'),
             onPressed: () {
               this.context.read<EventFormBloc>().add(
                 UpdateEventColor(pickerColor.toARGB32()),

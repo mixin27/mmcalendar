@@ -2,6 +2,7 @@ class StorageKeys {
   // Settings
   static const String themeMode = 'theme_mode';
   static const String themePreset = 'theme_preset';
+  static const String appStyle = 'app_style';
   static const String customColors = 'custom_colors';
   static const String appIcon = 'app_icon';
   static const String appLanguage = 'app_language';
@@ -19,6 +20,9 @@ class StorageKeys {
 
   // Display Preferences
   static const String firstDayOfWeek = 'first_day_of_week';
+  static const String calendarGridStyle = 'calendar_grid_style';
+  static const String calendarGridTheme = 'calendar_grid_theme';
+  static const String calendarGridMotif = 'calendar_grid_motif';
   static const String showWeekNumbers = 'show_week_numbers';
   static const String showHolidays = 'show_holidays';
   static const String showAnniversaryDays = 'show_anniversary_days';
@@ -32,10 +36,6 @@ class StorageKeys {
   static const String calendarView = 'calendar_view'; // month, year, week, day
   static const String lastViewedDate = 'last_viewed_date';
   static const String astrologyCardExpanded = 'astrology_card_expanded';
-  static const String calendarGenerationSettings =
-      'calendar_generation_settings';
-  static const String calendarGenerationTemplates =
-      'calendar_generation_templates';
 
   // Onboarding
   static const String isFirstLaunch = 'is_first_launch';

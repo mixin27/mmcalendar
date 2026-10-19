@@ -294,15 +294,14 @@ mmcalendar/
 │   ├── shared/
 │   │   ├── core/                  # Contracts, ports, constants, runtime utils
 │   │   ├── localizations/         # i18n resources
-│   │   ├── ui_kit/                # Shared UI building blocks
-│   │   └── overlay_editor/        # Overlay editing package
+│   │   └── ui_kit/                # Shared UI building blocks
 │   ├── features/
 │   │   ├── calendar/
 │   │   ├── views/
 │   │   ├── converter/
 │   │   ├── events/
 │   │   ├── settings/
-│   │   ├── calendar_generation/
+│   │   ├── calendar_studio/       # Calendar design, print and export
 │   │   ├── promo/
 │   │   ├── holidays/
 │   │   └── home_widgets/

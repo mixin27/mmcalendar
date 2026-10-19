@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:calendar/calendar.dart';
+import 'package:calendar_studio/calendar_studio.dart'
+    show CalendarStudioFontCatalog;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,9 +14,9 @@ import 'package:home_widgets/home_widgets.dart';
 import 'package:home_widget/home_widget.dart' show HomeWidget;
 import 'package:integrations_database/integrations_database.dart';
 import 'package:integrations_firebase/integrations_firebase.dart';
-import 'package:promo/promo.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' show AppTextStyles;
 import 'package:workmanager/workmanager.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -31,15 +33,14 @@ void main() async {
     await HomeWidget.setAppGroupId(homeWidgetAppGroupId);
   }
 
-  // Enable debug mode for promo carousel
-  PromoCarousel.debugMode = kDebugMode;
-
   LicenseRegistry.addLicense(() async* {
     final String license = await rootBundle.loadString(
       'assets/fonts/google_fonts/OFL.txt',
     );
     yield LicenseEntryWithLineBreaks(<String>['google_fonts'], license);
   });
+  CalendarStudioFontCatalog.registerLicenses();
+  AppTextStyles.registerLicenses();
 
   // Set up Bloc observer
   Bloc.observer = AppBlocObserver();
@@ -170,7 +171,11 @@ Future<void> _initializeMyanmarCalendar() async {
       StorageKeys.calendarLanguage,
     );
     if (calendarLanguage == null || calendarLanguage.isEmpty) {
-      calendarLanguage = Language.myanmar.code;
+      // First launch: the calendar starts in the app language (Myanmar or
+      // English). After that the two settings change independently.
+      calendarLanguage = (await _firstLaunchAppLanguage(settingsDao)) == 'my'
+          ? Language.myanmar.code
+          : Language.english.code;
       await settingsDao.setSetting(
         StorageKeys.calendarLanguage,
         calendarLanguage,
@@ -199,6 +204,22 @@ Future<void> _initializeMyanmarCalendar() async {
       disabledHolidaysByYear: holidayOverridesPort.getDisabledHolidaysByYear(),
       disabledHolidaysByDate: holidayOverridesPort.getDisabledHolidaysByDate(),
       cacheProfile: MyanmarCalendarCacheProfile.highPerformance,
+    );
+
+    // Background widget refreshes can't open Remote Config or the
+    // database; give them the same calendar settings and overrides.
+    await WidgetBackgroundCache.save(
+      await SharedPreferences.getInstance(),
+      calendarConfig: CalendarConfig(
+        timezoneOffset: calendarSettings.timezoneOffset,
+        sasanaYearType: calendarSettings.sasanaYearType,
+        calendarType: calendarSettings.calendarType,
+        gregorianStart: calendarSettings.gregorianStart,
+        defaultLanguage: calendarSettings.defaultLanguage.isEmpty
+            ? Language.english.code
+            : calendarSettings.defaultLanguage,
+      ),
+      holidayConfig: app_di.getIt<HolidayConfigPort>().getHolidayConfig(),
     );
 
     debugPrint('✅ Myanmar Calendar initialized with saved settings');
@@ -269,6 +290,8 @@ Future<void> _initializeWidgetUpdates() async {
     // Prime widget data/timeline on every startup so first-time widget adds
     // already have content without requiring manual refresh.
     await widgetRepository.refreshWidget();
+    // From now on, colour and event changes rewrite the widgets' data.
+    app_di.getIt<WidgetSync>().start();
 
     final isWidgetActive = await widgetRepository.isWidgetActive();
 
@@ -360,4 +383,15 @@ class ErrorBoundary extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The stored app language, or on first launch the device's (Myanmar or
+/// English), saved so the interface and the calendar start out matching.
+Future<String> _firstLaunchAppLanguage(SettingsDao settingsDao) async {
+  final stored = await settingsDao.getSetting(StorageKeys.appLanguage);
+  if (stored != null && stored.isNotEmpty) return stored;
+  final device = PlatformDispatcher.instance.locale.languageCode;
+  final language = device == 'my' ? 'my' : 'en';
+  await settingsDao.setSetting(StorageKeys.appLanguage, language);
+  return language;
 }

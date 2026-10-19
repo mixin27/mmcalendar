@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:home_widget/home_widget.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
+
+import 'package:holidays/holidays.dart';
 
 import '../datasources/widget_local_datasource.dart';
 import '../../home_widget_configuration.dart';
@@ -28,7 +31,6 @@ void callbackDispatcher() {
         await HomeWidget.setAppGroupId(homeWidgetAppGroupId);
       }
 
-      // Initialize shared preferences for background
       final prefs = await SharedPreferences.getInstance();
       final languageCode =
           prefs.getString(StorageKeys.calendarLanguage) ??
@@ -36,33 +38,26 @@ void callbackDispatcher() {
       final useDeviceTimezone =
           prefs.getBool(StorageKeys.useDeviceTimezone) ?? true;
 
-      // Create data source with prefs
-      final dataSource = WidgetLocalDataSource(prefs);
-
-      // Configure Myanmar Calendar with isolate-safe defaults.
-      // Note: we avoid DB reads in background isolate.
+      // The app caches its calendar settings and holiday overrides (from
+      // Remote Config, which this isolate can't reach), so background data
+      // matches the app's.
+      final cached = WidgetBackgroundCache.read(prefs);
+      final holidays = HolidayService(
+        holidayConfigPort: _CachedHolidayConfig(cached.holidayConfig),
+      );
       applyMyanmarCalendarRuntimeConfig(
-        baseConfig: const CalendarConfig(),
+        baseConfig: cached.calendarConfig,
         language: Language.fromCode(languageCode),
         useDeviceTimezone: useDeviceTimezone,
+        customHolidayRules: holidays.getCustomHolidayRules(),
+        disabledHolidays: holidays.getDisabledHolidays(),
+        disabledHolidaysByYear: holidays.getDisabledHolidaysByYear(),
+        disabledHolidaysByDate: holidays.getDisabledHolidaysByDate(),
         cacheProfile: MyanmarCalendarCacheProfile.memoryEfficient,
       );
 
-      debugPrint('Myanmar Calendar configured in background');
-
-      // Get today's date
-      final today = DateTime.now();
-      debugPrint('Updating widget for date: $today');
-
-      // Generate widget data
-      final config = await dataSource.getWidgetConfig();
-      final widgetData = await dataSource.generateWidgetDataWithLanguage(
-        today,
-        config.language,
-      );
-
-      // Update widget
-      await dataSource.updateWidgetWithConfig(widgetData, config);
+      // Events can't be read here; the last ones the app wrote are kept.
+      await WidgetLocalDataSource(prefs).writePayload();
 
       // Calculate execution time
       final duration = DateTime.now().difference(startTime);
@@ -155,5 +150,64 @@ Future<void> _logBackgroundError(
     debugPrint('Background error logged to SharedPreferences');
   } catch (e) {
     debugPrint('Failed to log background error: $e');
+  }
+}
+
+class _CachedHolidayConfig implements HolidayConfigPort {
+  const _CachedHolidayConfig(this.config);
+  final Map<String, dynamic> config;
+
+  @override
+  Map<String, dynamic> getHolidayConfig() => config;
+}
+
+/// Calendar settings and holiday overrides the app saves for background
+/// widget refreshes.
+abstract final class WidgetBackgroundCache {
+  static const _calendarKey = 'widget_calendar_config_v1';
+  static const _holidaysKey = 'widget_holiday_config_v1';
+
+  static Future<void> save(
+    SharedPreferences prefs, {
+    required CalendarConfig calendarConfig,
+    required Map<String, dynamic> holidayConfig,
+  }) async {
+    await prefs.setString(
+      _calendarKey,
+      jsonEncode({
+        'sasanaYearType': calendarConfig.sasanaYearType,
+        'calendarType': calendarConfig.calendarType,
+        'gregorianStart': calendarConfig.gregorianStart,
+        'timezoneOffset': calendarConfig.timezoneOffset,
+        'defaultLanguage': calendarConfig.defaultLanguage,
+      }),
+    );
+    await prefs.setString(_holidaysKey, jsonEncode(holidayConfig));
+  }
+
+  static ({CalendarConfig calendarConfig, Map<String, dynamic> holidayConfig})
+  read(SharedPreferences prefs) {
+    var calendar = const CalendarConfig();
+    var holidays = <String, dynamic>{};
+    try {
+      final raw = prefs.getString(_calendarKey);
+      if (raw != null) {
+        final c = jsonDecode(raw) as Map<String, dynamic>;
+        calendar = CalendarConfig(
+          sasanaYearType: c['sasanaYearType'] as int? ?? 0,
+          calendarType: c['calendarType'] as int? ?? 0,
+          gregorianStart: c['gregorianStart'] as int? ?? 2361222,
+          timezoneOffset: (c['timezoneOffset'] as num?)?.toDouble() ?? 6.5,
+          defaultLanguage: c['defaultLanguage'] as String? ?? 'en',
+        );
+      }
+      final rawHolidays = prefs.getString(_holidaysKey);
+      if (rawHolidays != null) {
+        holidays = jsonDecode(rawHolidays) as Map<String, dynamic>;
+      }
+    } catch (_) {
+      // Defaults: no overrides.
+    }
+    return (calendarConfig: calendar, holidayConfig: holidays);
   }
 }

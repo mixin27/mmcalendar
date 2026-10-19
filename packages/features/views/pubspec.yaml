@@ -20,10 +20,12 @@ dependencies:
     path: ../../integrations/database
   shared_localizations:
     path: ../../shared/localizations
+  holidays:
+    path: ../holidays
 
   # Myanmar Calendar Package
-  myanmar_calendar_dart: ^2.0.1
-  flutter_mmcalendar: ^3.3.1
+  myanmar_calendar_dart: ^3.0.1
+  flutter_mmcalendar: ^4.0.1
 
   # State Management
   bloc: ^9.2.0

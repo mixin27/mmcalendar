@@ -3,6 +3,18 @@
   "@about": {
     "description": "About label"
   },
+  "add": "ထည့်မည်",
+  "@add": {
+    "description": "Localized text for add."
+  },
+  "addEvent": "Event ထည့်မည်",
+  "@addEvent": {
+    "description": "Localized text for addEvent."
+  },
+  "allDay": "တစ်နေ့လုံး",
+  "@allDay": {
+    "description": "Localized text for allDay."
+  },
   "alternativeCalculationMethod": "အခြားတွက်ချက်နည်း",
   "@alternativeCalculationMethod": {
     "description": "Localized text for alternativeCalculationMethod."
@@ -15,7 +27,7 @@
   "@alwaysUseLightTheme": {
     "description": "Localized text for alwaysUseLightTheme."
   },
-  "analytics": "Analytics",
+  "analytics": "အသုံးပြုမှု စာရင်းအင်း",
   "@analytics": {
     "description": "Localized text for analytics."
   },
@@ -39,6 +51,10 @@
   "@appLanguage": {
     "description": "Localized text for appLanguage."
   },
+  "apply": "အသုံးပြုမည်",
+  "@apply": {
+    "description": "Localized text for apply."
+  },
   "appUpdates": "အက်ပ် အပ်ဒိတ်များ",
   "@appUpdates": {
     "description": "Localized text for appUpdates."
@@ -59,6 +75,10 @@
   "@astrological_information": {
     "description": "Astrological Information label"
   },
+  "astrology": "နက္ခတ်ဗေဒင်",
+  "@astrology": {
+    "description": "Localized text for astrology."
+  },
   "britishCalendarSystem": "ဗြိတိသျှ ပြက္ခဒိန်စနစ်",
   "@britishCalendarSystem": {
     "description": "Localized text for britishCalendarSystem."
@@ -75,9 +95,109 @@
   "@calendar": {
     "description": "Localized text for calendar."
   },
+  "calendarChooseMonth": "လ ရွေးမည်",
+  "@calendarChooseMonth": {
+    "description": "Localized text for calendarChooseMonth."
+  },
+  "calendarDaysAgo": "{days} ရက်က",
+  "@calendarDaysAgo": {
+    "description": "Localized text for calendarDaysAgo.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarDaysFromToday": "ယနေ့မှ {days} ရက်အကြာ",
+  "@calendarDaysFromToday": {
+    "description": "Localized text for calendarDaysFromToday.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarDaysShort": "{days} ရက်",
+  "@calendarDaysShort": {
+    "description": "Compact day count in the Upcoming list",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarEventCount": "{count, plural, other{Event {count} ခု}}",
+  "@calendarEventCount": {
+    "description": "Localized text for calendarEventCount.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarFullDayDetails": "နေ့အသေးစိတ် အပြည့်အစုံ",
+  "@calendarFullDayDetails": {
+    "description": "Localized text for calendarFullDayDetails."
+  },
+  "calendarFullDayDetailsSubtitle": "ဗေဒင်၊ ဗုဒ္ဓပြက္ခဒိန်၊ AI prompt",
+  "@calendarFullDayDetailsSubtitle": {
+    "description": "Localized text for calendarFullDayDetailsSubtitle."
+  },
+  "calendarInDays": "{days} ရက်အကြာ",
+  "@calendarInDays": {
+    "description": "Localized text for calendarInDays.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "calendarJumpToMonth": "လသို့ သွားမည်",
+  "@calendarJumpToMonth": {
+    "description": "Localized text for calendarJumpToMonth."
+  },
+  "calendarLabelCopied": "{label} ကူးယူပြီးပါပြီ!",
+  "@calendarLabelCopied": {
+    "description": "Localized text for calendarLabelCopied.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "calendarLanguage": "ပြက္ခဒိန် ဘာသာစကား",
   "@calendarLanguage": {
     "description": "Localized text for calendarLanguage."
+  },
+  "calendarMakeYourCalendar": "သင့် {year} ပြက္ခဒိန်ကို ဖန်တီးမည်",
+  "@calendarMakeYourCalendar": {
+    "description": "Localized text for calendarMakeYourCalendar.",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarNextYear": "နောက်နှစ်",
+  "@calendarNextYear": {
+    "description": "Localized text for calendarNextYear."
+  },
+  "calendarPreviousYear": "ယခင်နှစ်",
+  "@calendarPreviousYear": {
+    "description": "Localized text for calendarPreviousYear."
+  },
+  "calendarStudio": "ပြက္ခဒိန် စတူဒီယို",
+  "@calendarStudio": {
+    "description": "Localized text for calendarStudio."
+  },
+  "calendarToggleDayDetails": "နေ့အသေးစိတ် ပြမည် သို့မဟုတ် ဖျောက်မည်",
+  "@calendarToggleDayDetails": {
+    "description": "Localized text for calendarToggleDayDetails."
   },
   "calendarType": "ပြက္ခဒိန် အမျိုးအစား",
   "@calendarType": {
@@ -99,9 +219,21 @@
   "@calendar_configuration": {
     "description": "Calendar Configuration label"
   },
+  "calendarUpcoming": "လာမည့်ရက်များ",
+  "@calendarUpcoming": {
+    "description": "Localized text for calendarUpcoming."
+  },
   "cancel": "ပယ်ဖျက်မည်",
   "@cancel": {
     "description": "Localized text for cancel."
+  },
+  "categories": "အမျိုးအစားများ",
+  "@categories": {
+    "description": "Localized text for categories."
+  },
+  "category": "အမျိုးအစား",
+  "@category": {
+    "description": "Localized text for category."
   },
   "checkAgain": "ထပ်မံစစ်ဆေးမည်",
   "@checkAgain": {
@@ -123,6 +255,10 @@
   "@choose_your_view": {
     "description": "Choose Your View label"
   },
+  "clear": "ရှင်းမည်",
+  "@clear": {
+    "description": "Localized text for clear."
+  },
   "clearPromoDataDebug": "Promo Data ဖျက်ရန် (Debug)",
   "@clearPromoDataDebug": {
     "description": "Localized text for clearPromoDataDebug."
@@ -130,6 +266,10 @@
   "close": "ပိတ်မည်",
   "@close": {
     "description": "Localized text for close."
+  },
+  "colour": "အရောင်",
+  "@colour": {
+    "description": "Localized text for colour."
   },
   "comingSoon": "မကြာမီ ရရှိမည်",
   "@comingSoon": {
@@ -155,9 +295,146 @@
   "@converter": {
     "description": "Converter label"
   },
-  "crashReports": "Crash Reports",
+  "converterAddSub": "ပေါင်း/နုတ်",
+  "@converterAddSub": {
+    "description": "Localized text for converterAddSub."
+  },
+  "converterConvertedDate": "ပြောင်းလဲထားသော ရက်စွဲ",
+  "@converterConvertedDate": {
+    "description": "Localized text for converterConvertedDate."
+  },
+  "converterDateArithmetic": "ရက်စွဲ တွက်ချက်ခြင်း",
+  "@converterDateArithmetic": {
+    "description": "Localized text for converterDateArithmetic."
+  },
+  "converterDateDifference": "ရက်စွဲ ကွာခြားချက်",
+  "@converterDateDifference": {
+    "description": "Localized text for converterDateDifference."
+  },
+  "converterDaysUnit": "{count, plural, other{ရက်}}",
+  "@converterDaysUnit": {
+    "description": "Localized text for converterDaysUnit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "converterDifference": "ကွာခြားချက်",
+  "@converterDifference": {
+    "description": "Localized text for converterDifference."
+  },
+  "converterEnd": "ပြီးဆုံးရက်",
+  "@converterEnd": {
+    "description": "Localized text for converterEnd."
+  },
+  "converterEnterMyanmarDate": "မြန်မာ နှစ်၊ လ နှင့် ရက် ထည့်ပါ။",
+  "@converterEnterMyanmarDate": {
+    "description": "Localized text for converterEnterMyanmarDate."
+  },
+  "converterEnterWholeNumber": "၀ ထက်ကြီးသော ကိန်းပြည့် ထည့်ပါ။",
+  "@converterEnterWholeNumber": {
+    "description": "Localized text for converterEnterWholeNumber."
+  },
+  "converterFrom": "မှ",
+  "@converterFrom": {
+    "description": "Localized text for converterFrom."
+  },
+  "converterInDays": "{count, plural, other{{count} ရက်အကြာ}}",
+  "@converterInDays": {
+    "description": "Localized text for converterInDays.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "converterMonthDayRange": "လသည် ၀–၁၄ ဖြစ်ပြီး ရက်သည် ၁–၃၀ ဖြစ်ရမည်။",
+  "@converterMonthDayRange": {
+    "description": "Localized text for converterMonthDayRange."
+  },
+  "converterMonthFooter": "လ: ၀ = ပဌမဝါဆို၊ ၁–၁၂ = တန်ခူးမှ တပေါင်း၊ ၁၃ = နှောင်းတန်ခူး၊ ၁၄ = ဒုတိယဝါဆို။",
+  "@converterMonthFooter": {
+    "description": "Localized text for converterMonthFooter."
+  },
+  "converterMoonPhase": "လအခြေအနေ",
+  "@converterMoonPhase": {
+    "description": "Localized text for converterMoonPhase."
+  },
+  "converterMyanmarDate": "မြန်မာ ရက်စွဲ",
+  "@converterMyanmarDate": {
+    "description": "Localized text for converterMyanmarDate."
+  },
+  "converterMyanmarToWestern": "မြန်မာ → အင်္ဂလိပ်",
+  "@converterMyanmarToWestern": {
+    "description": "Localized text for converterMyanmarToWestern."
+  },
+  "converterNextPhase": "နောက်လာမည့် {name}",
+  "@converterNextPhase": {
+    "description": "Localized text for converterNextPhase.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "converterResult": "ရလဒ်",
+  "@converterResult": {
+    "description": "Localized text for converterResult."
+  },
+  "converterStart": "စတင်ရက်",
+  "@converterStart": {
+    "description": "Localized text for converterStart."
+  },
+  "converterStartFromToday": "ယနေ့မှ စမည်",
+  "@converterStartFromToday": {
+    "description": "Localized text for converterStartFromToday."
+  },
+  "converterSubtract": "နုတ်မည်",
+  "@converterSubtract": {
+    "description": "Localized text for converterSubtract."
+  },
+  "converterSwapDates": "ရက်စွဲများ လဲမည်",
+  "@converterSwapDates": {
+    "description": "Localized text for converterSwapDates."
+  },
+  "converterTodayLower": "ယနေ့",
+  "@converterTodayLower": {
+    "description": "Localized text for converterTodayLower."
+  },
+  "converterUnit": "{unit, select, days{ရက်} weeks{ပတ်} months{လ} years{နှစ်} other{{unit}}}",
+  "@converterUnit": {
+    "description": "Localized text for converterUnit.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "converterValue": "တန်ဖိုး",
+  "@converterValue": {
+    "description": "Localized text for converterValue."
+  },
+  "converterWesternToMyanmar": "အင်္ဂလိပ် → မြန်မာ",
+  "@converterWesternToMyanmar": {
+    "description": "Localized text for converterWesternToMyanmar."
+  },
+  "copied": "ကူးယူပြီးပါပြီ",
+  "@copied": {
+    "description": "Localized text for copied."
+  },
+  "copy": "ကူးယူမည်",
+  "@copy": {
+    "description": "Localized text for copy."
+  },
+  "crashReports": "ပျက်ကျမှု အစီရင်ခံစာများ",
   "@crashReports": {
     "description": "Localized text for crashReports."
+  },
+  "create": "ဖန်တီးမည်",
+  "@create": {
+    "description": "Localized text for create."
   },
   "currentVersion": "လက်ရှိ ဗားရှင်း",
   "@currentVersion": {
@@ -171,9 +448,17 @@
       "build": {}
     }
   },
+  "custom": "စိတ်ကြိုက်",
+  "@custom": {
+    "description": "Localized text for custom."
+  },
   "dark": "အမှောင်",
   "@dark": {
     "description": "Localized text for dark."
+  },
+  "date": "ရက်စွဲ",
+  "@date": {
+    "description": "Localized text for date."
   },
   "day": "နေ့",
   "@day": {
@@ -183,9 +468,147 @@
   "@day_view": {
     "description": "Day View label"
   },
+  "dayDetailsAddEvent": "Event ထည့်မည်",
+  "@dayDetailsAddEvent": {
+    "description": "Localized text for dayDetailsAddEvent."
+  },
+  "dayDetailsAiHoroscopePrompt": "AI ဟောစာတမ်း Prompt",
+  "@dayDetailsAiHoroscopePrompt": {
+    "description": "Localized text for dayDetailsAiHoroscopePrompt."
+  },
+  "dayDetailsAiHoroscopePromptSubtitle": "ဤနေ့အတွက် အသင့်ရေးထားသော prompt ကို ကူးယူပါ",
+  "@dayDetailsAiHoroscopePromptSubtitle": {
+    "description": "Localized text for dayDetailsAiHoroscopePromptSubtitle."
+  },
+  "dayDetailsAiPromptHint": "ဤနေ့၏ ဟောစာတမ်းအတွက် AI assistant (ChatGPT, Gemini, …) တစ်ခုခုတွင် ကူးထည့်ပါ။ ဤအက်ပ်မှ မည်သည့်အချက်အလက်မှ မပို့ပါ။",
+  "@dayDetailsAiPromptHint": {
+    "description": "Localized text for dayDetailsAiPromptHint."
+  },
+  "dayDetailsBuddhistCalendar": "ဗုဒ္ဓပြက္ခဒိန်",
+  "@dayDetailsBuddhistCalendar": {
+    "description": "Localized text for dayDetailsBuddhistCalendar."
+  },
+  "dayDetailsCopyPrompt": "Prompt ကူးယူမည်",
+  "@dayDetailsCopyPrompt": {
+    "description": "Localized text for dayDetailsCopyPrompt."
+  },
+  "dayDetailsErrorLoadingEvents": "Events များ ဖွင့်၍ မရပါ",
+  "@dayDetailsErrorLoadingEvents": {
+    "description": "Localized text for dayDetailsErrorLoadingEvents."
+  },
+  "dayDetailsFailedToUpdateEvent": "Event ကို ပြင်ဆင်၍ မရပါ: {error}",
+  "@dayDetailsFailedToUpdateEvent": {
+    "description": "Localized text for dayDetailsFailedToUpdateEvent.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDetailsFortnightDayPercentLit": "{day} ရက် · {percent}% လင်း",
+  "@dayDetailsFortnightDayPercentLit": {
+    "description": "Localized text for dayDetailsFortnightDayPercentLit.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDetailsJumpToDate": "ရက်စွဲသို့ သွားမည်",
+  "@dayDetailsJumpToDate": {
+    "description": "Localized text for dayDetailsJumpToDate."
+  },
+  "dayDetailsLoadingEvents": "Events များ ဖွင့်နေသည်…",
+  "@dayDetailsLoadingEvents": {
+    "description": "Localized text for dayDetailsLoadingEvents."
+  },
+  "dayDetailsMarkNotDone": "မပြီးသေးကြောင်း မှတ်မည်",
+  "@dayDetailsMarkNotDone": {
+    "description": "Localized text for dayDetailsMarkNotDone."
+  },
+  "dayDetailsNextDay": "နောက်နေ့",
+  "@dayDetailsNextDay": {
+    "description": "Localized text for dayDetailsNextDay."
+  },
+  "dayDetailsNoEventsAddEvent": "Event မရှိပါ · Event ထည့်မည်",
+  "@dayDetailsNoEventsAddEvent": {
+    "description": "Localized text for dayDetailsNoEventsAddEvent."
+  },
+  "dayDetailsPercentLit": "{percent}% လင်း",
+  "@dayDetailsPercentLit": {
+    "description": "Moon illumination",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDetailsPreviousDay": "ယခင်နေ့",
+  "@dayDetailsPreviousDay": {
+    "description": "Localized text for dayDetailsPreviousDay."
+  },
+  "dayDetailsPromptCopied": "Prompt ကို ကူးယူပြီးပါပြီ",
+  "@dayDetailsPromptCopied": {
+    "description": "Localized text for dayDetailsPromptCopied."
+  },
+  "dayDetailsPyathada": "ပြဿဒါး",
+  "@dayDetailsPyathada": {
+    "description": "Localized text for dayDetailsPyathada."
+  },
+  "dayDetailsShareDay": "နေ့ကို မျှဝေမည်",
+  "@dayDetailsShareDay": {
+    "description": "Localized text for dayDetailsShareDay."
+  },
+  "dayDetailsShareFailed": "မျှဝေ၍ မရပါ",
+  "@dayDetailsShareFailed": {
+    "description": "Localized text for dayDetailsShareFailed."
+  },
+  "dayDetailsShareSubject": "မြန်မာပြက္ခဒိန်ကို ကြည့်ပေးပါ",
+  "@dayDetailsShareSubject": {
+    "description": "Localized text for dayDetailsShareSubject."
+  },
+  "dayDetailsSpecial": "ထူးခြားရက်",
+  "@dayDetailsSpecial": {
+    "description": "Localized text for dayDetailsSpecial."
+  },
+  "dayDetailsYatyaza": "ရက်ရာဇာ",
+  "@dayDetailsYatyaza": {
+    "description": "Localized text for dayDetailsYatyaza."
+  },
+  "dayDetailsYearType": "နှစ်အမျိုးအစား",
+  "@dayDetailsYearType": {
+    "description": "Myanmar year type (common, little/big watat)"
+  },
+  "days": "ရက်",
+  "@days": {
+    "description": "Localized text for days."
+  },
   "defaultCalculationMethod": "မူလတွက်ချက်နည်း",
   "@defaultCalculationMethod": {
     "description": "Localized text for defaultCalculationMethod."
+  },
+  "defaultLabel": "မူလ",
+  "@defaultLabel": {
+    "description": "Localized text for defaultLabel."
+  },
+  "delete": "ဖျက်မည်",
+  "@delete": {
+    "description": "Localized text for delete."
+  },
+  "deleteEvent": "Event ဖျက်မည်",
+  "@deleteEvent": {
+    "description": "Localized text for deleteEvent."
+  },
+  "deleteEventQuestion": "Event ကို ဖျက်မလား?",
+  "@deleteEventQuestion": {
+    "description": "Localized text for deleteEventQuestion."
+  },
+  "description": "ဖော်ပြချက်",
+  "@description": {
+    "description": "Localized text for description."
   },
   "developer": "Kyaw Zayar Tun",
   "@developer": {
@@ -238,6 +661,14 @@
   "@display_preferences": {
     "description": "Display Preferences label"
   },
+  "edit": "ပြင်မည်",
+  "@edit": {
+    "description": "Localized text for edit."
+  },
+  "editEvent": "Event ပြင်မည်",
+  "@editEvent": {
+    "description": "Localized text for editEvent."
+  },
   "enableAll": "အားလုံး ဖွင့်မည်",
   "@enableAll": {
     "description": "Localized text for enableAll."
@@ -261,9 +692,301 @@
       "error": {}
     }
   },
-  "events": "Events",
+  "event": "Event",
+  "@event": {
+    "description": "Localized text for event."
+  },
+  "events": "ပွဲစဉ်များ",
   "@events": {
     "description": "Events label"
+  },
+  "eventsAddReminder": "သတိပေးချက် ထည့်မည်",
+  "@eventsAddReminder": {
+    "description": "Localized text for eventsAddReminder."
+  },
+  "eventsAddTagHint": "တဂ်ရိုက်ထည့်ပြီး Return နှိပ်ပါ",
+  "@eventsAddTagHint": {
+    "description": "Localized text for eventsAddTagHint."
+  },
+  "eventsBuiltInCategoriesFooter": "မူလပါရှိသော အမျိုးအစားများကို ပြောင်း၍မရပါ။",
+  "@eventsBuiltInCategoriesFooter": {
+    "description": "Localized text for eventsBuiltInCategoriesFooter."
+  },
+  "eventsCategoryColour": "အမျိုးအစား အရောင်",
+  "@eventsCategoryColour": {
+    "description": "Localized text for eventsCategoryColour."
+  },
+  "eventsCompleted": "ပြီးဆုံးပြီ",
+  "@eventsCompleted": {
+    "description": "Localized text for eventsCompleted."
+  },
+  "eventsCouldNotLoadEvent": "ဤ Event ကို ဖွင့်၍မရပါ",
+  "@eventsCouldNotLoadEvent": {
+    "description": "Localized text for eventsCouldNotLoadEvent."
+  },
+  "eventsCreateEvent": "Event ဖန်တီးမည်",
+  "@eventsCreateEvent": {
+    "description": "Localized text for eventsCreateEvent."
+  },
+  "eventsCustomCategoriesEmptyFooter": "သင့် Event များအတွက် အမျိုးအစားများ ဖန်တီးပါ။",
+  "@eventsCustomCategoriesEmptyFooter": {
+    "description": "Localized text for eventsCustomCategoriesEmptyFooter."
+  },
+  "eventsCustomCategoriesFooter": "အမည်ပြောင်းရန်၊ အရောင်ပြောင်းရန် သို့မဟုတ် ဖျက်ရန် အမျိုးအစားကို နှိပ်ပါ။",
+  "@eventsCustomCategoriesFooter": {
+    "description": "Localized text for eventsCustomCategoriesFooter."
+  },
+  "eventsDayEventsSemantics": "{date}၊ Event {count} ခု",
+  "@eventsDayEventsSemantics": {
+    "description": "Screen-reader label for a day in the events day strip.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsDeleteCategory": "အမျိုးအစား ဖျက်မည်",
+  "@eventsDeleteCategory": {
+    "description": "Localized text for eventsDeleteCategory."
+  },
+  "eventsDeleteCategoryMessage": "၎င်း၏ Event များ ကျန်ရှိနေမည်ဖြစ်ပြီး ဤအမျိုးအစားနှင့် ချိတ်ဆက်မှုသာ ပျက်သွားပါမည်။",
+  "@eventsDeleteCategoryMessage": {
+    "description": "Localized text for eventsDeleteCategoryMessage."
+  },
+  "eventsDeleteCategoryQuestion": "“{name}” ကို ဖျက်မလား?",
+  "@eventsDeleteCategoryQuestion": {
+    "description": "Localized text for eventsDeleteCategoryQuestion.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsDeleteEventMessage": "ဤ Event ကို ဖယ်ရှားပါမည်။ ပြန်ပြင်၍ မရပါ။",
+  "@eventsDeleteEventMessage": {
+    "description": "Localized text for eventsDeleteEventMessage."
+  },
+  "eventsDeleteThisOccurrence": "ဤတစ်ကြိမ်ကို ဖျက်မည်",
+  "@eventsDeleteThisOccurrence": {
+    "description": "Localized text for eventsDeleteThisOccurrence."
+  },
+  "eventsDeleteThisOccurrenceQuestion": "ဤတစ်ကြိမ်ကို ဖျက်မလား?",
+  "@eventsDeleteThisOccurrenceQuestion": {
+    "description": "Localized text for eventsDeleteThisOccurrenceQuestion."
+  },
+  "eventsEditCategory": "အမျိုးအစား ပြင်ဆင်ရန်",
+  "@eventsEditCategory": {
+    "description": "Localized text for eventsEditCategory."
+  },
+  "eventsEditEventTitle": "Event ပြင်ဆင်ရန်",
+  "@eventsEditEventTitle": {
+    "description": "Title of the event form when editing."
+  },
+  "eventsEventCount": "Event {count} ခု",
+  "@eventsEventCount": {
+    "description": "Localized text for eventsEventCount.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsEventCreated": "Event ဖန်တီးပြီးပါပြီ",
+  "@eventsEventCreated": {
+    "description": "Localized text for eventsEventCreated."
+  },
+  "eventsEventNotFound": "Event ကို ရှာမတွေ့ပါ",
+  "@eventsEventNotFound": {
+    "description": "Localized text for eventsEventNotFound."
+  },
+  "eventsEventUpdated": "Event ပြင်ဆင်ပြီးပါပြီ",
+  "@eventsEventUpdated": {
+    "description": "Localized text for eventsEventUpdated."
+  },
+  "eventsEventWillBeRemoved": "“{title}” ကို ဖယ်ရှားပါမည်။ ပြန်ပြင်၍ မရပါ။",
+  "@eventsEventWillBeRemoved": {
+    "description": "Localized text for eventsEventWillBeRemoved.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsFillRequiredFields": "လိုအပ်သော အကွက်များကို ဖြည့်ပါ",
+  "@eventsFillRequiredFields": {
+    "description": "Localized text for eventsFillRequiredFields."
+  },
+  "eventsJumpToToday": "ယနေ့သို့ သွားမည်",
+  "@eventsJumpToToday": {
+    "description": "Localized text for eventsJumpToToday."
+  },
+  "eventsMayHaveBeenDeleted": "ဖျက်ပြီးဖြစ်နိုင်ပါသည်။",
+  "@eventsMayHaveBeenDeleted": {
+    "description": "Localized text for eventsMayHaveBeenDeleted."
+  },
+  "eventsNewCategory": "အမျိုးအစား အသစ်",
+  "@eventsNewCategory": {
+    "description": "Localized text for eventsNewCategory."
+  },
+  "eventsNoEventsOn": "{date} တွင် Event မရှိပါ",
+  "@eventsNoEventsOn": {
+    "description": "Localized text for eventsNoEventsOn.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsNoResultsFound": "ရလဒ် မတွေ့ပါ",
+  "@eventsNoResultsFound": {
+    "description": "Localized text for eventsNoResultsFound."
+  },
+  "eventsOccurrence": "ထပ်ခါဖြစ်ရပ်",
+  "@eventsOccurrence": {
+    "description": "Localized text for eventsOccurrence."
+  },
+  "eventsOnlyThisOccurrenceRemoved": "ဤတစ်ကြိမ်ကိုသာ ဖယ်ရှားပါမည်။",
+  "@eventsOnlyThisOccurrenceRemoved": {
+    "description": "Localized text for eventsOnlyThisOccurrenceRemoved."
+  },
+  "eventsPickAColor": "အရောင် ရွေးပါ",
+  "@eventsPickAColor": {
+    "description": "Localized text for eventsPickAColor."
+  },
+  "eventsPickADate": "ရက်စွဲ ရွေးမည်",
+  "@eventsPickADate": {
+    "description": "Localized text for eventsPickADate."
+  },
+  "eventsPickAnotherDay": "အခြားနေ့ကို ရွေးပါ သို့မဟုတ် အသစ်ဖန်တီးပါ။",
+  "@eventsPickAnotherDay": {
+    "description": "Localized text for eventsPickAnotherDay."
+  },
+  "eventsReminderAtStart": "စတင်ချိန်တွင်",
+  "@eventsReminderAtStart": {
+    "description": "Localized text for eventsReminderAtStart."
+  },
+  "eventsReminderDays": "{count} ရက်",
+  "@eventsReminderDays": {
+    "description": "Localized text for eventsReminderDays.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsReminderHours": "{count} နာရီ",
+  "@eventsReminderHours": {
+    "description": "Localized text for eventsReminderHours.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsReminderMinutes": "{count} မိနစ်",
+  "@eventsReminderMinutes": {
+    "description": "Localized text for eventsReminderMinutes.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRemoveReminder": "သတိပေးချက် ဖယ်ရှားမည်",
+  "@eventsRemoveReminder": {
+    "description": "Localized text for eventsRemoveReminder."
+  },
+  "eventsReopenEvent": "Event ကို ပြန်ဖွင့်မည်",
+  "@eventsReopenEvent": {
+    "description": "Localized text for eventsReopenEvent."
+  },
+  "eventsRepeatsDaily": "နေ့စဉ် ထပ်သည်",
+  "@eventsRepeatsDaily": {
+    "description": "Localized text for eventsRepeatsDaily."
+  },
+  "eventsRepeatsEveryNDays": "{count} ရက်တစ်ကြိမ် ထပ်သည်",
+  "@eventsRepeatsEveryNDays": {
+    "description": "Localized text for eventsRepeatsEveryNDays.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRepeatsEveryNMonths": "{count} လတစ်ကြိမ် ထပ်သည်",
+  "@eventsRepeatsEveryNMonths": {
+    "description": "Localized text for eventsRepeatsEveryNMonths.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRepeatsEveryNWeeks": "{count} ပတ်တစ်ကြိမ် ထပ်သည်",
+  "@eventsRepeatsEveryNWeeks": {
+    "description": "Localized text for eventsRepeatsEveryNWeeks.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRepeatsEveryNYears": "{count} နှစ်တစ်ကြိမ် ထပ်သည်",
+  "@eventsRepeatsEveryNYears": {
+    "description": "Localized text for eventsRepeatsEveryNYears.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "eventsRepeatsMonthly": "လစဉ် ထပ်သည်",
+  "@eventsRepeatsMonthly": {
+    "description": "Localized text for eventsRepeatsMonthly."
+  },
+  "eventsRepeatsWeekly": "အပတ်စဉ် ထပ်သည်",
+  "@eventsRepeatsWeekly": {
+    "description": "Localized text for eventsRepeatsWeekly."
+  },
+  "eventsRepeatsYearly": "နှစ်စဉ် ထပ်သည်",
+  "@eventsRepeatsYearly": {
+    "description": "Localized text for eventsRepeatsYearly."
+  },
+  "eventsResults": "ရလဒ်များ",
+  "@eventsResults": {
+    "description": "Localized text for eventsResults."
+  },
+  "eventsSaveChanges": "ပြောင်းလဲမှုများ သိမ်းမည်",
+  "@eventsSaveChanges": {
+    "description": "Localized text for eventsSaveChanges."
+  },
+  "eventsSaving": "သိမ်းနေသည်…",
+  "@eventsSaving": {
+    "description": "Localized text for eventsSaving."
+  },
+  "eventsSearchEvents": "Event များ ရှာမည်",
+  "@eventsSearchEvents": {
+    "description": "Localized text for eventsSearchEvents."
+  },
+  "eventsSearchPromptHint": "ခေါင်းစဉ် သို့မဟုတ် ဖော်ပြချက် ရိုက်ထည့်ပါ",
+  "@eventsSearchPromptHint": {
+    "description": "Localized text for eventsSearchPromptHint."
+  },
+  "eventsTryDifferentKeyword": "အခြားစကားလုံးဖြင့် ရှာကြည့်ပါ",
+  "@eventsTryDifferentKeyword": {
+    "description": "Localized text for eventsTryDifferentKeyword."
   },
   "failedToFetchHolidayConfig": "ဆာဗာမှ holiday config ကို မရယူနိုင်ပါ။",
   "@failedToFetchHolidayConfig": {
@@ -291,6 +1014,10 @@
   "general": "အထွေထွေ",
   "@general": {
     "description": "Localized text for general."
+  },
+  "goBack": "နောက်သို့ ပြန်သွားမည်",
+  "@goBack": {
+    "description": "Localized text for goBack."
   },
   "goToHome": "ပင်မသို့ သွားမည်",
   "@goToHome": {
@@ -321,7 +1048,7 @@
       "disabledCount": {}
     }
   },
-  "holidayConfigRemote": "Holiday Config (Remote)",
+  "holidayConfigRemote": "အားလပ်ရက် ဆက်တင် (Remote)",
   "@holidayConfigRemote": {
     "description": "Localized text for holidayConfigRemote."
   },
@@ -351,6 +1078,10 @@
     "placeholders": {
       "value": {}
     }
+  },
+  "icon": "အိုင်ကွန်",
+  "@icon": {
+    "description": "Localized text for icon."
   },
   "initializationErrorTitle": "စတင်ခြင်း အမှား",
   "@initializationErrorTitle": {
@@ -395,9 +1126,21 @@
   "@loadingSettings": {
     "description": "Localized text for loadingSettings."
   },
+  "location": "နေရာ",
+  "@location": {
+    "description": "Localized text for location."
+  },
   "mahabote": "မဟာဘုတ်",
   "@mahabote": {
     "description": "Mahabote label"
+  },
+  "markAsPending": "မပြီးသေးကြောင်း မှတ်မည်",
+  "@markAsPending": {
+    "description": "Localized text for markAsPending."
+  },
+  "markComplete": "ပြီးဆုံးကြောင်း မှတ်မည်",
+  "@markComplete": {
+    "description": "Localized text for markComplete."
   },
   "matchSystemTheme": "စနစ် Theme နှင့် ကိုက်ညီစေမည်",
   "@matchSystemTheme": {
@@ -406,6 +1149,14 @@
   "month": "လ",
   "@month": {
     "description": "Month label"
+  },
+  "months": "လ",
+  "@months": {
+    "description": "Localized text for months."
+  },
+  "moon": "လ",
+  "@moon": {
+    "description": "Localized text for moon."
   },
   "moon_phase": "လအဆင့်",
   "@moon_phase": {
@@ -431,13 +1182,33 @@
   "@nakhat": {
     "description": "Nakhat label"
   },
+  "name": "အမည်",
+  "@name": {
+    "description": "Localized text for name."
+  },
+  "never": "မထပ်ပါ",
+  "@never": {
+    "description": "Localized text for never."
+  },
+  "newEvent": "Event အသစ်",
+  "@newEvent": {
+    "description": "Localized text for newEvent."
+  },
   "next_month": "နောက်လ",
   "@next_month": {
     "description": "Next Month label"
   },
+  "nextYear": "နောက်နှစ်",
+  "@nextYear": {
+    "description": "Localized text for nextYear."
+  },
   "noChanges": "ပြောင်းလဲမှုမရှိ",
   "@noChanges": {
     "description": "Localized text for noChanges."
+  },
+  "none": "မရှိ",
+  "@none": {
+    "description": "Localized text for none."
   },
   "openSourceLicenses": "Open Source လိုင်စင်များ",
   "@openSourceLicenses": {
@@ -467,6 +1238,14 @@
   "@previous_month": {
     "description": "Previous Month label"
   },
+  "previousYear": "ယခင်နှစ်",
+  "@previousYear": {
+    "description": "Localized text for previousYear."
+  },
+  "priority": "ဦးစားပေးအဆင့်",
+  "@priority": {
+    "description": "Localized text for priority."
+  },
   "privacyAndData": "ကိုယ်ရေးကိုယ်တာ နှင့် ဒေတာ",
   "@privacyAndData": {
     "description": "Localized text for privacyAndData."
@@ -487,9 +1266,21 @@
   "@promoDataClearedRestartApp": {
     "description": "Localized text for promoDataClearedRestartApp."
   },
+  "refresh": "ပြန်လည်ဆန်းသစ်မည်",
+  "@refresh": {
+    "description": "Localized text for refresh."
+  },
   "releaseNotes": "ပြောင်းလဲမှု မှတ်စုများ",
   "@releaseNotes": {
     "description": "Localized text for releaseNotes."
+  },
+  "reminders": "သတိပေးချက်များ",
+  "@reminders": {
+    "description": "Localized text for reminders."
+  },
+  "repeat": "ထပ်ခါထပ်ခါ",
+  "@repeat": {
+    "description": "Localized text for repeat."
   },
   "reset": "ပြန်သတ်မှတ်မည်",
   "@reset": {
@@ -515,6 +1306,10 @@
   "@retry": {
     "description": "Localized text for retry."
   },
+  "sabbath": "ဥပုသ်",
+  "@sabbath": {
+    "description": "Localized text for sabbath."
+  },
   "sasanaYearType": "သာသနာနှစ် အမျိုးအစား",
   "@sasanaYearType": {
     "description": "Localized text for sasanaYearType."
@@ -527,6 +1322,10 @@
   "@save": {
     "description": "Localized text for save."
   },
+  "select": "ရွေးမည်",
+  "@select": {
+    "description": "Localized text for select."
+  },
   "sendCrashReportsToHelpFixIssues": "ပြဿနာများ ပြင်ဆင်နိုင်ရန် crash reports ပို့ပါ",
   "@sendCrashReportsToHelpFixIssues": {
     "description": "Localized text for sendCrashReportsToHelpFixIssues."
@@ -538,6 +1337,10 @@
   "settingsResetSuccessfully": "ဆက်တင်များ ပြန်သတ်မှတ်ပြီးပါပြီ",
   "@settingsResetSuccessfully": {
     "description": "Localized text for settingsResetSuccessfully."
+  },
+  "share": "မျှဝေမည်",
+  "@share": {
+    "description": "Localized text for share."
   },
   "showAnniversaryDays": "နှစ်ပတ်လည်နေ့များ ပြ",
   "@showAnniversaryDays": {
@@ -563,6 +1366,10 @@
   "@showWesternDates": {
     "description": "Localized text for showWesternDates."
   },
+  "somethingWentWrong": "တစ်ခုခု မှားယွင်းသွားပါသည်",
+  "@somethingWentWrong": {
+    "description": "Localized text for somethingWentWrong."
+  },
   "special_days": "အထူးနေ့များ",
   "@special_days": {
     "description": "Special Days label"
@@ -570,6 +1377,10 @@
   "system": "စနစ်အတိုင်း",
   "@system": {
     "description": "Localized text for system."
+  },
+  "tags": "တဂ်များ",
+  "@tags": {
+    "description": "Localized text for tags."
   },
   "telegramUserLabel": "TG: {userName}",
   "@telegramUserLabel": {
@@ -586,6 +1397,10 @@
   "@theme_preset": {
     "description": "Theme Preset label"
   },
+  "time": "အချိန်",
+  "@time": {
+    "description": "Localized text for time."
+  },
   "timezoneOffset": "အချိန်ဇုန် ကွာဟချက်",
   "@timezoneOffset": {
     "description": "Localized text for timezoneOffset."
@@ -594,9 +1409,21 @@
   "@timezoneOffsetExample": {
     "description": "Localized text for timezoneOffsetExample."
   },
+  "title": "ခေါင်းစဉ်",
+  "@title": {
+    "description": "Localized text for title."
+  },
   "today": "ယနေ့",
   "@today": {
     "description": "Today label"
+  },
+  "tomorrow": "မနက်ဖြန်",
+  "@tomorrow": {
+    "description": "Localized text for tomorrow."
+  },
+  "tryAgain": "ထပ်ကြိုးစားမည်",
+  "@tryAgain": {
+    "description": "Localized text for tryAgain."
   },
   "typeValue": "အမျိုးအစား {value}",
   "@typeValue": {
@@ -608,6 +1435,10 @@
   "unableToOpenUpdatePage": "အပ်ဒိတ် စာမျက်နှာကို မဖွင့်နိုင်ပါ။",
   "@unableToOpenUpdatePage": {
     "description": "Localized text for unableToOpenUpdatePage."
+  },
+  "unexpectedError": "မမျှော်လင့်သော အမှား ဖြစ်ပွားခဲ့သည်",
+  "@unexpectedError": {
+    "description": "Localized text for unexpectedError."
   },
   "unknown": "မသိရှိ",
   "@unknown": {
@@ -668,6 +1499,42 @@
   "@views": {
     "description": "Views label"
   },
+  "viewsDayViewSubtitle": "တစ်ရက်အကြောင်း အားလုံး",
+  "@viewsDayViewSubtitle": {
+    "description": "Localized text for viewsDayViewSubtitle."
+  },
+  "viewsNextWeek": "နောက်အပတ်",
+  "@viewsNextWeek": {
+    "description": "Localized text for viewsNextWeek."
+  },
+  "viewsPreviousWeek": "ယခင်အပတ်",
+  "@viewsPreviousWeek": {
+    "description": "Localized text for viewsPreviousWeek."
+  },
+  "viewsThisWeek": "ယခုအပတ်",
+  "@viewsThisWeek": {
+    "description": "Localized text for viewsThisWeek."
+  },
+  "viewsThisYear": "ယခုနှစ်",
+  "@viewsThisYear": {
+    "description": "Localized text for viewsThisYear."
+  },
+  "viewsViewFullMonth": "တစ်လလုံး ကြည့်မည်",
+  "@viewsViewFullMonth": {
+    "description": "Localized text for viewsViewFullMonth."
+  },
+  "viewsWeekViewSubtitle": "မြန်မာရက်စွဲနှင့် လအခြေအနေပါ ခုနစ်ရက်",
+  "@viewsWeekViewSubtitle": {
+    "description": "Localized text for viewsWeekViewSubtitle."
+  },
+  "viewsYearViewSubtitle": "ရုံးပိတ်ရက် အရေအတွက်နှင့် ၁၂ လလုံး",
+  "@viewsYearViewSubtitle": {
+    "description": "Localized text for viewsYearViewSubtitle."
+  },
+  "week": "ရက်သတ္တပတ်",
+  "@week": {
+    "description": "Localized text for week."
+  },
   "week_view": "ရက်သတ္တပတ်မြင်ကွင်း",
   "@week_view": {
     "description": "Week View label"
@@ -675,6 +1542,20 @@
   "weekday": "အပတ်စဉ်",
   "@weekday": {
     "description": "Weekday label"
+  },
+  "weekNumber": "ရက်သတ္တပတ် {number}",
+  "@weekNumber": {
+    "description": "Localized text for weekNumber.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "weeks": "ရက်သတ္တပတ်",
+  "@weeks": {
+    "description": "Localized text for weeks."
   },
   "widgetSettings": "ဝစ်ဂျက် ဆက်တင်များ",
   "@widgetSettings": {
@@ -691,5 +1572,415 @@
   "year_view": "နှစ်မြင်ကွင်း",
   "@year_view": {
     "description": "Year View label"
-  }
+  },
+  "years": "နှစ်",
+  "@years": {
+    "description": "Localized text for years."
+  },
+  "yesterday": "မနေ့က",
+  "@yesterday": {
+    "description": "Localized text for yesterday."
+  },
+  "settingsAppLanguageFooter": "မီနူး၊ ခလုတ်နှင့် စာတိုများ။",
+  "@settingsAppLanguageFooter": {
+    "description": "Footer under the app language choices on the Language page."
+  },
+  "settingsCalendarLanguageFooter": "ရက်စွဲ၊ လနှင့် နေ့အမည်၊ လဆန်း လဆုတ်၊ ရုံးပိတ်ရက်နှင့် လအခြေအနေများကို ဝီဂျက်များ အပါအဝင် အက်ပ်တစ်ခုလုံးတွင် ပြောင်းပေးသည်။",
+  "@settingsCalendarLanguageFooter": {
+    "description": "Footer under the calendar language choices on the Language page."
+  },
+  "settingsCalendarGrid": "ပြက္ခဒိန်ဇယား",
+  "settingsGridLayoutTab": "အပြင်အဆင်",
+  "settingsGridThemeTab": "အရောင်အသွေး",
+  "settingsGridFitNote": "ပုံစံတိုင်း မျက်နှာပြင်နှင့် အံကိုက်ဖြစ်သည်။ အတန်းများသည် နေ့စာရွက်အပေါ်ရှိ ကျန်နေရာကို ယူသည်။",
+  "settingsGridThemeFooter": "အရောင်အသွေးသည် လခေါင်းစဉ်၊ နေ့အမည်တန်းနှင့် ဇယားကို အရောင်ခြယ်ပြီး အပြင်အဆင်တိုင်းနှင့် အသုံးပြုနိုင်သည်။ နေ့စာရွက်သည် အက်ပ်အရောင်ကို ဆက်သုံးသည်။",
+  "settingsGridShowMotif": "အလှဆင်ပုံ ပြရန်",
+  "gridAuspiceGood": "ရက်ကောင်း",
+  "gridAuspiceCareful": "သတိ",
+  "gridLayoutAlmanacTitle": "ပြက္ခဒိန်စုံ",
+  "gridLayoutAlmanacDescription": "လရက်၊ လဝန်း၊ ရုံးပိတ်ရက်နှင့် ပွဲများ၊ ဥပုသ်နှင့် ရက်ကောင်း၊ သတိထားရန်ရက်ကို အရောင်တန်းဖြင့် ပြသည်။",
+  "gridLayoutMonthRegionsTitle": "မြန်မာလများ",
+  "gridLayoutMonthRegionsDescription": "မြန်မာလတစ်လစီကို အရောင်ဖြင့် ခွဲပြပြီး လစသည့်နေရာတွင် လအမည်ပြသည်။",
+  "gridLayoutFocusWeekTitle": "ရွေးထားသောအပတ်",
+  "gridLayoutFocusWeekDescription": "ရွေးထားသောအပတ်အောက်တွင် ထိုနေ့၏ အသေးစိတ်ကို ဖွင့်ပြသည်။",
+  "gridLayoutAuspiceTitle": "ရက်ကောင်းရက်ဆိုး",
+  "gridLayoutAuspiceDescription": "ရက်ရာဇာ၊ ပြဿဒါးနှင့် အခြားဗေဒင်ရက်များအလိုက် နေ့များကို အရောင်ခွဲပြသည်။",
+  "gridLayoutMoonBandTitle": "လဝန်းတန်း",
+  "gridLayoutMoonBandDescription": "အပတ်တိုင်းအောက်တွင် လဝန်းအလင်းကို အရောင်တန်းဖြင့် ပြပြီး လပြည့်တွင် အလင်းဆုံး။",
+  "gridLayoutHeroTodayTitle": "ယနေ့ကတ်",
+  "gridLayoutHeroTodayDescription": "ရွေးထားသောနေ့ကို ကတ်ကြီးဖြင့် လ၏အောက်တွင် ပြသည်။",
+  "gridLayoutWeekRibbonsTitle": "အပတ်ကတ်များ",
+  "gridLayoutWeekRibbonsDescription": "အပတ်တစ်ပတ်စီကို ကတ်တစ်ခုဖြင့် ပြပြီး ပွဲများကို နေ့အောက်တွင် အတန်းဖြင့် ပြသည်။",
+  "gridLayoutDetailedTitle": "အသေးစိတ်",
+  "gridLayoutDetailedDescription": "နေ့တိုင်းတွင် လရက်၊ ရုံးပိတ်ရက်အမည်၊ လဝန်းနှင့် ပွဲများ။",
+  "gridLayoutCleanTitle": "ရှင်းလင်း",
+  "gridLayoutCleanDescription": "ရက်စွဲကို ဦးစားပေး၍ လပြည့်၊ လကွယ်နေ့တွင်သာ လဝန်းပြသည်။",
+  "gridLayoutClassicTitle": "ဂန္ထဝင်",
+  "gridLayoutClassicDescription": "မူလ အကွက်များနှင့် အရောင်စက်များ။",
+  "gridLayoutDetailedV2Title": "အသေးစိတ် ၂",
+  "gridLayoutDetailedV2Description": "အသေးစိတ်ကို ပိုငြိမ်စေသည်။ မျဉ်းမပါ၊ လပြည့်၊ လကွယ်နေ့တွင်သာ လဝန်းပြသည်။",
+  "gridLayoutLunarFirstTitle": "လရက် ဦးစား",
+  "gridLayoutLunarFirstDescription": "လရက်ကို ကြီးကြီး၊ ရက်စွဲကို ထောင့်တွင် သေးသေး ပြသည်။",
+  "gridLayoutMinimalTitle": "အနည်းဆုံး",
+  "gridLayoutMinimalDescription": "ရက်စွဲနှင့် အခြေအနေပြ စက်တစ်ခု။",
+  "gridLayoutMoonStripTitle": "လဝန်းတန်း",
+  "gridLayoutMoonStripDescription": "နေ့တိုင်းတွင် ထိုညရဲ့ လဝန်း။",
+  "gridLayoutAgendaTitle": "အစီအစဉ်",
+  "gridLayoutAgendaDescription": "ပွဲအမည်များနှင့် ရုံးပိတ်ရက်များကို ရက်ကွက်ထဲတွင် ပြသည်။",
+  "gridLayoutClassicPrintTitle": "နံရံပြက္ခဒိန်",
+  "gridLayoutClassicPrintDescription": "နံရံကပ်ပြက္ခဒိန်ကဲ့သို့ မျဉ်းကြောင်းဇယား။",
+  "gridLayoutTilesTitle": "အကွက်များ",
+  "gridLayoutTilesDescription": "နေ့တိုင်း ကတ်တစ်ခု၊ ရုံးပိတ်ရက်နှင့် ဥပုသ်နေ့ကို အရောင်ခြယ်ထားသည်။",
+  "gridLayoutMoonlightTitle": "လရောင်",
+  "gridLayoutMoonlightDescription": "လပြည့်နီးလေ ရက်ကွက်များ ပိုလင်းလေ။",
+  "gridLayoutSplitTitle": "ထောင့်ဖြတ်",
+  "gridLayoutSplitDescription": "ရက်စွဲနှင့် လရက်ကို ထောင့်ဖြတ်မျဉ်းဖြင့် ခွဲပြသည်။",
+  "gridLayoutPosterTitle": "ပိုစတာ",
+  "gridLayoutPosterDescription": "အဝေးမှ ဖတ်နိုင်သော ကြီးမားထင်ရှားသည့် ဂဏန်းများ။",
+  "gridLayoutMoonRingTitle": "လဝန်းကွင်း",
+  "gridLayoutMoonRingDescription": "ရက်စွဲတိုင်းကို ဝိုင်းထားသော ကွင်းသည် လရောင်ဖြင့် ပြည့်လာသည်။",
+  "gridLayoutAstrologyTitle": "ဗေဒင်",
+  "gridLayoutAstrologyDescription": "ဗေဒင်ရက်များနှင့် ရုံးပိတ်ရက်များကို တံဆိပ်များဖြင့် ပြသည်။",
+  "gridThemeAppTitle": "အက်ပ်အရောင်",
+  "gridThemeAppDescription": "အက်ပ်၏ မူလအရောင်များ။",
+  "gridThemePagodaTitle": "စေတီ",
+  "gridThemePagodaDescription": "ဘုရားကျောင်း နို့နှစ်ရောင်၊ ရွှေနီရောင်နှင့် စေတီရွှေရောင်။",
+  "gridThemeJadeTitle": "ကျောက်စိမ်း",
+  "gridThemeJadeDescription": "အဖြူရောင်ပေါ်ရှိ ကျောက်စိမ်းရောင်နှင့် တံဆိပ်တုံး။",
+  "gridThemeLacquerTitle": "ယွန်းထည်",
+  "gridThemeLacquerDescription": "ယွန်းအနက်၊ ဟင်္သပဒါးနီနှင့် ရွှေဆိုင်း။",
+  "gridThemeThadingyutTitle": "သီတင်းကျွတ်",
+  "gridThemeThadingyutDescription": "နေ့တွင် မီးပုံးစက္ကူရောင်၊ ညတွင် မဲနယ်ပြာရောင်။",
+  "gridThemeThingyanTitle": "သင်္ကြန်",
+  "gridThemeThingyanDescription": "ရေပက်ပြာရောင်နှင့် ပိတောက်ဝါရောင်။",
+  "gridThemeBotanicalTitle": "သစ်ပင်ပန်းမန်",
+  "gridThemeBotanicalDescription": "စက္ကူပေါ်ရှိ ခြောက်သွေ့သစ်ရွက် စိမ်းရောင်များ။",
+  "gridThemeMonsoonTitle": "မိုးရာသီ",
+  "gridThemeMonsoonDescription": "မိုးရာသီ မီးခိုးပြာရောင်နှင့် သံချေးရောင်။",
+  "gridThemeTidewaterTitle": "ဒီရေ",
+  "gridThemeTidewaterDescription": "ပင်လယ်ဖန်ရောင်နှင့် စိမ်းပြာရင့်ရောင်။",
+  "gridThemeMorningPourTitle": "မနက်ခင်း ကော်ဖီ",
+  "gridThemeMorningPourDescription": "စောစောထသူများအတွက် ကော်ဖီနှင့် နို့ရောင်။",
+  "gridThemeDeepFieldTitle": "ကြယ်စုံည",
+  "gridThemeDeepFieldDescription": "ညနေခင်း ခရမ်းနုရောင်၊ ညတွင် အာကာသနက်ရောင်။",
+  "gridThemeMoonlightTitle": "လရောင်",
+  "gridThemeMoonlightDescription": "ငွေပြာရောင်နှင့် လရွှေရောင်။",
+  "gridThemeNightChartTitle": "ညဇာတာ",
+  "gridThemeNightChartDescription": "ခရမ်းရောင်မင်နှင့် ရှေးရွှေရောင်။",
+  "settingsGridDefault": "မူလ · {description}",
+  "settingsCalendarStudioValue": "ဒီဇိုင်းဆွဲ၍ ပုံနှိပ်ရန်",
+  "settingsShowInCalendar": "ပြက္ခဒိန်တွင် ပြရန်",
+  "settingsDates": "ရက်စွဲများ",
+  "settingsUseDeviceTimezone": "စက်၏ အချိန်ဇုန်ကို သုံးရန်",
+  "settingsRefreshHolidayData": "အားလပ်ရက် ဒေတာ ပြန်ယူရန်",
+  "settingsDebugBuildsOnly": "Debug build များတွင်သာ။",
+  "settingsCustomColours": "စိတ်ကြိုက် အရောင်များ…",
+  "settingsThemePresetDefault": "{name} (မူလ)",
+  "settingsAppStyle": "အက်ပ် ပုံစံ",
+  "settingsAppStyleAutomatic": "အလိုအလျောက်",
+  "settingsAppStyleClear": "Clear",
+  "settingsAppStyleMaterial": "Material",
+  "settingsAppStyleFooter": "အလိုအလျောက်သည် Android တွင် Material ကို၊ iPhone၊ iPad၊ Mac နှင့် web တွင် Clear ကို သုံးသည် (ဤနေရာတွင်: {style})။ အရောင်နှင့် အကြောင်းအရာ မပြောင်းဘဲ ဘား၊ စာရင်းနှင့် ခလုတ်များသာ ပြောင်းသည်။",
+  "settingsAppIcon": "အက်ပ် အိုင်ကွန်",
+  "settingsChooseAppIcon": "အက်ပ် အိုင်ကွန် ရွေးရန်",
+  "settingsChooseAppIconSubtitle": "နှစ်သက်ရာ launcher အိုင်ကွန် ပုံစံကို ရွေးပါ။",
+  "settingsAppIconApplying": "ခဏစောင့်ပါ၊ အက်ပ် အိုင်ကွန် ပြောင်းနေသည်...",
+  "settingsAppIconUnsupported": "ဤနေရာတွင် အက်ပ် အိုင်ကွန် ပြောင်း၍ မရပါ။",
+  "settingsAppIconFailed": "အက်ပ် အိုင်ကွန် ပြောင်း၍ မရပါ။",
+  "settingsAppIconUpdated": "အက်ပ် အိုင်ကွန် ပြောင်းပြီးပါပြီ။",
+  "settingsAppIconCurrent": "လက်ရှိ အိုင်ကွန်",
+  "settingsAppIconTapApply": "ဤအိုင်ကွန်ကို သုံးရန် အသုံးပြုမည် ကိုနှိပ်ပါ",
+  "settingsAppIconActive": "သုံးနေသည်",
+  "settingsAppIconCurrentShort": "လက်ရှိ",
+  "settingsAppIconStandard": "ပုံမှန် အိုင်ကွန်",
+  "settingsAppIconAlternate": "အစားထိုး အိုင်ကွန်",
+  "appIconMoon": "လ",
+  "appIconForest": "တောအုပ်",
+  "appIconMinimalFlat": "ရိုးရှင်း",
+  "appIconPremiumDark": "အမှောင် ပရီမီယံ",
+  "appIconTraditionalMyanmar": "မြန်မာ ရိုးရာ ပန်းချီ",
+  "languageZawgyi": "ဇော်ဂျီ",
+  "languageMon": "မွန်",
+  "languageShan": "ရှမ်း",
+  "languageKaren": "ကရင်",
+  "customColorsTitle": "ကိုယ်ပိုင်အရောင်များ",
+  "customColorsAccent": "အဓိကအရောင်",
+  "customColorsAccentFooter": "အခြားအရောင်များကို ဤအရောင်မှ အလင်းနှင့် အမှောင် နှစ်မျိုးလုံးအတွက် ဖန်တီးပေးသည်။",
+  "customColorsMore": "နောက်ထပ်အရောင်များ…",
+  "customColorsPreview": "အစမ်းကြည့်ရန်",
+  "customColorsAdvanced": "အဆင့်မြင့်",
+  "customColorsAdvancedFooter": "အရောင်တစ်ခုချင်းကို ကိုယ်တိုင် သတ်မှတ်နိုင်သည်။ အဓိကအရောင် ပြောင်းလျှင် ဤအရောင်များ ပြန်ရှင်းသွားမည်။",
+  "customColorsReset": "မူလပုံစံသို့ ပြန်ထားမည်",
+  "customColorsResetMessage": "ကိုယ်ပိုင်အရောင်များကို ဖယ်ရှားပြီး {preset} ကို ပြန်သုံးမည်။",
+  "customColorsPickTitle": "အရောင်ရွေးရန်",
+  "customColorPrimary": "အဓိက",
+  "customColorOnPrimary": "အဓိကပေါ်ရှိ စာ",
+  "customColorSecondary": "ဒုတိယ",
+  "customColorOnSecondary": "ဒုတိယပေါ်ရှိ စာ",
+  "customColorTertiary": "တတိယ",
+  "customColorOnTertiary": "တတိယပေါ်ရှိ စာ",
+  "customColorError": "အမှား",
+  "customColorOnError": "အမှားပေါ်ရှိ စာ",
+  "customColorSurface": "နောက်ခံ",
+  "customColorOnSurface": "နောက်ခံပေါ်ရှိ စာ",
+  "done": "ပြီးပြီ",
+  "widgetsStyle": "ပုံစံ",
+  "widgetsStyleFooter": "ဝစ်ဂျက်အသစ်များသည် ဤပုံစံဖြင့် စတင်မည်။ ဝစ်ဂျက်တစ်ခုကိုသာ ပြောင်းလိုလျှင် ၎င်းကို ဖိထားပြီး Edit Widget (iPhone) သို့မဟုတ် Reconfigure (Android) ကို ရွေးပါ။",
+  "widgetStyleApp": "အက်ပ်အတိုင်း",
+  "widgetStyleAppDescription": "အက်ပ်၏ အရောင်များ၊ စနစ်အလိုက် အလင်း သို့မဟုတ် အမှောင်။",
+  "widgetStylePlain": "ရိုးရိုး",
+  "widgetStylePlainDescription": "အဖြူအမည်း၊ ပိတ်ရက်များ အနီရောင်။",
+  "widgetsShow": "ဝစ်ဂျက်တွင် ပြရန်",
+  "widgetsCountdown": "ရေတွက်မည့်နေ့",
+  "widgetCountdownFullMoon": "နောက်လပြည့်",
+  "widgetCountdownNewMoon": "နောက်လကွယ်",
+  "widgetCountdownSabbath": "နောက်ဥပုသ်",
+  "widgetCountdownThingyan": "သင်္ကြန်",
+  "widgetsOnScreen": "ပင်မစာမျက်နှာပေါ်တွင်",
+  "widgetsInstalled": "{count, plural, =0{မရှိသေးပါ} other{ဝစ်ဂျက် {count} ခု}}",
+  "widgetsInstalledTitle": "ထည့်ထားသော ဝစ်ဂျက်",
+  "widgetsRefresh": "ဝစ်ဂျက်များ ပြန်ဆွဲရန်",
+  "widgetsRefreshed": "ဝစ်ဂျက်များ ပြန်ဆွဲပြီးပါပြီ",
+  "widgetsHowToAdd": "ဝစ်ဂျက် ထည့်နည်း",
+  "widgetsHowToAddIos": "ပင်မစာမျက်နှာ၏ နေရာလွတ်ကို ဖိထားပြီး Edit၊ ထို့နောက် Add Widget ကို နှိပ်ကာ Myanmar Calendar ကို ရှာပါ။ Lock Screen အတွက် ၎င်းကို ဖိထားပြီး Customize ကို နှိပ်ပါ။",
+  "widgetsHowToAddAndroid": "ပင်မစာမျက်နှာ၏ နေရာလွတ်ကို ဖိထားပြီး Widgets ကို နှိပ်ကာ Myanmar Calendar ကို ရှာပါ။ အရွယ်အစားပြောင်းရန် ဝစ်ဂျက်ကို ဆွဲပါ။",
+  "widgetsLanguageNote": "ဝစ်ဂျက်များသည် ပြက္ခဒိန်ဘာသာစကား ({language}) ကို သုံးသည်။",
+  "widgetsAddToHome": "ပင်မစာမျက်နှာသို့ ထည့်ရန်",
+  "widgetsAddToHomeFooter": "မည်သည့်နေရာတွင် ထားမည်ကို launcher က မေးပါမည်။ ထိုနေရာတွင် အရွယ်အစား ပြောင်းနိုင်သည်။",
+  "widgetKindToday": "ယနေ့",
+  "widgetKindMoon": "လ",
+  "widgetKindMonth": "လ ပြက္ခဒိန်",
+  "widgetKindWeek": "ရက်သတ္တပတ်",
+  "widgetKindComingUp": "လာမည့်နေ့များ",
+  "widgetKindAgenda": "ပွဲစဉ်များ",
+  "widgetKindCountdown": "ရက်ရေတွက်",
+  "widgetKindAstrology": "ရက်ကောင်း ရက်ဆိုး",
+  "widgetKindYear": "မြန်မာနှစ်",
+  "holidayNameNewYear": "နှစ်သစ်ကူးနေ့",
+  "holidayAboutNewYear": "ခရစ်နှစ်သစ်၏ ပထမဆုံးနေ့ ဖြစ်ပြီး ၂၀၁၈ ခုနှစ်မှစ၍ ရုံးပိတ်ရက် ဖြစ်သည်။",
+  "holidayNameIndependence": "လွတ်လပ်ရေးနေ့",
+  "holidayAboutIndependence": "၁၉၄၈ ခုနှစ် ဇန်နဝါရီ ၄ ရက်တွင် ဗြိတိသျှ ကိုလိုနီ အုပ်ချုပ်မှုမှ လွတ်လပ်ရေး ရရှိခဲ့ခြင်းကို အထိမ်းအမှတ်ပြုသည်။ နိုင်ငံအနှံ့ အလံလွှင့်ထူကာ ပွဲတော်များ၊ အားကစားပြိုင်ပွဲများ ကျင်းပကြသည်။",
+  "holidayNameUnion": "ပြည်ထောင်စုနေ့",
+  "holidayAboutUnion": "၁၉၄၇ ခုနှစ် ဖေဖော်ဝါရီ ၁၂ ရက်တွင် ဗမာ၊ ရှမ်း၊ ကချင်၊ ချင်း ခေါင်းဆောင်များ ပြည်ထောင်စု ထူထောင်ရန် သဘောတူခဲ့သည့် ပင်လုံစာချုပ်ကို အောက်မေ့သည်။",
+  "holidayNamePeasants": "တောင်သူလယ်သမားနေ့",
+  "holidayAboutPeasants": "နိုင်ငံ၏ စားနပ်ရိက္ခာကို စိုက်ပျိုးထုတ်လုပ်ပေးသော တောင်သူလယ်သမားများကို ဂုဏ်ပြုသည့်နေ့ ဖြစ်ပြီး မတ်လ ၂ ရက်နေ့တွင် ကျရောက်သည်။",
+  "holidayNameResistance": "တော်လှန်ရေးနေ့",
+  "holidayAboutResistance": "၁၉၄၅ ခုနှစ် မတ်လ ၂၇ ရက်တွင် စတင်ခဲ့သော ဂျပန်ဖက်ဆစ် တော်လှန်ရေးကို အောက်မေ့သည့်နေ့ ဖြစ်သည်။ တပ်မတော်နေ့ ဟုလည်း ခေါ်သည်။",
+  "holidayNameLabour": "အလုပ်သမားနေ့",
+  "holidayAboutLabour": "မေလ ၁ ရက်နေ့တွင် ကျရောက်သော အပြည်ပြည်ဆိုင်ရာ အလုပ်သမားနေ့ ဖြစ်ပြီး လုပ်သားပြည်သူများကို ဂုဏ်ပြုသည်။",
+  "holidayNameMartyrs": "အာဇာနည်နေ့",
+  "holidayAboutMartyrs": "၁၉၄၇ ခုနှစ် ဇူလိုင် ၁၉ ရက်တွင် လုပ်ကြံခံခဲ့ရသော ဗိုလ်ချုပ်အောင်ဆန်းနှင့် အစိုးရအဖွဲ့ဝင်များကို အောက်မေ့သည်။ နံနက် ၁၀ နာရီ ၃၇ မိနစ်တွင် ဥဩဆွဲ၍ ငြိမ်သက်စွာ ဂါရဝပြုကြသည်။",
+  "holidayNameNationalDay": "အမျိုးသားနေ့",
+  "holidayAboutNationalDay": "ကိုလိုနီ ပညာရေးဥပဒေကို ဆန့်ကျင်ခဲ့သော ၁၉၂၀ ပြည့်နှစ် ပထမ ကျောင်းသားသပိတ်ကို အောက်မေ့သည့်နေ့ ဖြစ်သည်။ တန်ဆောင်မုန်း လဆုတ် ၁၀ ရက်နေ့တွင် ကျရောက်သည်။",
+  "holidayNameNewYearsEve": "နှစ်ကုန်ရက်",
+  "holidayAboutNewYearsEve": "ခရစ်နှစ်၏ နောက်ဆုံးနေ့ ဖြစ်ပြီး ၂၀၁၈ ခုနှစ်မှစ၍ ရုံးပိတ်ရက် ဖြစ်သည်။",
+  "holidayNamePublicHoliday": "ရုံးပိတ်ရက်",
+  "holidayAboutPublicHoliday": "အစိုးရက ထပ်မံ ကြေညာသော ရုံးပိတ်ရက် ဖြစ်ပြီး စနေ၊ တနင်္ဂနွေနှင့် တိုက်ဆိုင်သော ရုံးပိတ်ရက်အစား ပေးလေ့ရှိသည်။",
+  "holidayNameTabaung": "တပေါင်းလပြည့်နေ့",
+  "holidayAboutTabaung": "မြန်မာနှစ်၏ နောက်ဆုံးလ ဖြစ်သော တပေါင်းလ၏ လပြည့်နေ့ ဖြစ်သည်။ နိုင်ငံအနှံ့ ဘုရားပွဲတော်များ ကျင်းပကြပြီး ရွှေတိဂုံဘုရားပွဲသည် အထင်ရှားဆုံး ဖြစ်သည်။",
+  "holidayNameBuddhaDay": "ကဆုန်လပြည့် ဗုဒ္ဓနေ့",
+  "holidayAboutBuddhaDay": "ကဆုန်လပြည့်နေ့သည် မြတ်စွာဘုရား ဖွားမြင်တော်မူခြင်း၊ ဘုရားဖြစ်တော်မူခြင်းနှင့် ပရိနိဗ္ဗာန်စံဝင်တော်မူခြင်းကို အထိမ်းအမှတ်ပြုသည်။ ဘုရားများရှိ ဗောဓိညောင်ပင်များကို ရေသွန်းလောင်းကြသည်။",
+  "holidayNameLentStart": "ဝါဆိုလပြည့် ဓမ္မစကြာနေ့",
+  "holidayAboutLentStart": "ဝါဆိုလပြည့်နေ့တွင် သုံးလကြာ ဝါတွင်းကာလ စတင်သည်။ ရဟန်းတော်များ ကျောင်းတွင် ဝါကပ်ကြပြီး လူအများ သီလ ပိုမို စောင့်ထိန်းကြသည်။",
+  "holidayNameThadingyut": "သီတင်းကျွတ် မီးထွန်းပွဲ",
+  "holidayAboutThadingyut": "သီတင်းကျွတ်လပြည့်နေ့တွင် သုံးလကြာ ဝါတွင်းကာလ ကုန်ဆုံးသည်။ အိမ်များနှင့် ဘုရားများကို သုံးညတိုင်တိုင် ဆီမီး၊ မီးအိမ်များ ထွန်းညှိကြပြီး လူငယ်များက မိဘ၊ ဆရာသမားနှင့် သက်ကြီးဝါကြီးများကို ကန်တော့ကြသည်။",
+  "holidayNameTazaungdaing": "တန်ဆောင်တိုင်",
+  "holidayAboutTazaungdaing": "တန်ဆောင်မုန်းလပြည့်နေ့သည် ကထိန်ကာလ ပြီးဆုံးရာ မီးထွန်းပွဲတော် ဖြစ်သည်။ တောင်ကြီးတွင် မီးပုံးပျံပွဲ ကျင်းပပြီး ညလုံးပေါက် မသိုးသင်္ကန်း ရက်လုပ်ပြိုင်ပွဲများ ကျင်းပကြသည်။",
+  "holidayNameChristmas": "ခရစ္စမတ်",
+  "holidayAboutChristmas": "ခရစ်ယာန်များက ဒီဇင်ဘာ ၂၅ ရက်နေ့တွင် ယေရှုခရစ် မွေးဖွားခြင်းကို ကျင်းပကြသည်။",
+  "holidayNameDiwali": "ဒီဝါလီ",
+  "holidayAboutDiwali": "ဟိန္ဒူဘာသာဝင်တို့၏ မီးထွန်းပွဲတော် ဖြစ်ပြီး ဆီမီးများ ထွန်းညှိကာ မုန့်များ ဝေငှ၍ ဆုတောင်းကြသည်။",
+  "holidayNameEidAlAdha": "အိဒ်နေ့ (Eid al-Adha)",
+  "holidayAboutEidAlAdha": "ဟဂ်ျခရီး ပြီးဆုံးချိန်တွင် ကျင်းပသော မွတ်စလင်တို့၏ ပူဇော်ပွဲ ဖြစ်သည်။ ရက်စွဲသည် အစ္စလာမ် ပြက္ခဒိန်အတိုင်း ပြောင်းလဲသည်။",
+  "holidayNameGoodFriday": "သောကြာနေ့ကြီး",
+  "holidayAboutGoodFriday": "ထမြောက်ရာနေ့ မတိုင်မီ သောကြာနေ့တွင် ယေရှုခရစ် လက်ဝါးကပ်တိုင်ပေါ်တွင် အသေခံခြင်းကို ခရစ်ယာန်များ အောက်မေ့ကြသည်။",
+  "holidayNameEaster": "ထမြောက်ရာနေ့",
+  "holidayAboutEaster": "ယေရှုခရစ် ရှင်ပြန်ထမြောက်ခြင်းကို ခရစ်ယာန်များ ကျင်းပကြသည်။",
+  "holidayNameEidAlFitr": "အိဒ်နေ့ (Eid al-Fitr)",
+  "holidayAboutEidAlFitr": "ရမ်ဇာန် ဥပုသ်လ ကုန်ဆုံးချိန်တွင် ကျင်းပသော မွတ်စလင်တို့၏ ပွဲတော် ဖြစ်သည်။ ရက်စွဲသည် အစ္စလာမ် ပြက္ခဒိန်အတိုင်း ပြောင်းလဲသည်။",
+  "holidayNameMahathamaya": "မဟာသမယနေ့",
+  "holidayAboutMahathamaya": "နယုန်လပြည့်နေ့တွင် မြတ်စွာဘုရား နတ်ဗြဟ္မာ အစည်းအဝေးကြီးအား မဟာသမယသုတ်ကို ဟောကြားတော်မူခဲ့ခြင်းကို အောက်မေ့သည်။",
+  "holidayNameGarudhamma": "ဂရုဓမ္မနေ့",
+  "holidayAboutGarudhamma": "တော်သလင်းလပြည့်နေ့တွင် မြတ်စွာဘုရား ပထမဆုံး ဘိက္ခုနီများအား ဂရုဓမ္မ ရှစ်ပါးကို ပေးတော်မူခဲ့ခြင်းကို အောက်မေ့သည်။",
+  "holidayNameMetta": "မေတ္တာနေ့",
+  "holidayAboutMetta": "ဝါခေါင်လပြည့်နေ့ ဖြစ်ပြီး မေတ္တာ ပွားများရန် အထူးသတ်မှတ်ထားသောနေ့ ဖြစ်သည်။",
+  "holidayNameThingyan": "သင်္ကြန်နှင့် နှစ်ဆန်းတစ်ရက်",
+  "holidayAboutThingyan": "မြန်မာနှစ်ကုန်တွင် ကျင်းပသော ရေသဘင်ပွဲတော် ဖြစ်ပြီး အကြိုနေ့၊ အကျနေ့၊ အကြတ်နေ့၊ အတက်နေ့ ပြီးနောက် နှစ်ဆန်းတစ်ရက်နေ့ ရောက်ရှိသည်။ နှစ်ဟောင်း၏ အညစ်အကြေးများ ဆေးကြောရန် ရေပက်ကြပြီး ပွဲတော်ကာလနှင့် နှစ်ဆန်းရက်များတွင် ရုံးများ ပိတ်သည်။",
+  "holidayNameKarenNewYear": "ကရင်နှစ်သစ်ကူးနေ့",
+  "holidayAboutKarenNewYear": "ပြာသိုလဆန်း ၁ ရက်နေ့တွင် ကျရောက်သော ကရင်နှစ်သစ်ကူးနေ့ ဖြစ်ပြီး ရိုးရာ ကခုန်ဖျော်ဖြေမှုများဖြင့် ကျင်းပကြသည်။",
+  "holidayNameChineseNewYear": "တရုတ်နှစ်သစ်ကူး",
+  "holidayAboutChineseNewYear": "တရုတ်လူမျိုးများ မိသားစု စုံညီကြပြီး ခြင်္သေ့က၊ အနီရောင် စာအိတ်များဖြင့် ကျင်းပကြသော နှစ်သစ်ကူးပွဲ ဖြစ်သည်။",
+  "holidayNameShanNewYear": "ရှမ်းနှစ်သစ်ကူး",
+  "holidayAboutShanNewYear": "နတ်တော်လဆန်း ၁ ရက်နေ့တွင် ကျရောက်သော ရှမ်းနှစ်သစ်ကူးနေ့ ဖြစ်သည်။",
+  "holidayNameTaungpyone": "တောင်ပြုန်းပွဲတော်",
+  "holidayAboutTaungpyone": "မန္တလေးအနီး တောင်ပြုန်း၌ ဝါခေါင်လတွင် ကျင်းပသော တောင်ပြုန်း မင်းညီနောင် နတ်ပွဲတော် ဖြစ်သည်။",
+  "holidayNameYadanagu": "ရတနာ့ဂူပွဲတော်",
+  "holidayAboutYadanagu": "အမရပူရအနီး ရတနာ့ဂူ၌ တော်သလင်းလတွင် ကျင်းပသော ပုပ္ပါးမယ်တော် နတ်ပွဲတော် ဖြစ်သည်။",
+  "holidayNameMonNational": "မွန်အမျိုးသားနေ့",
+  "holidayAboutMonNational": "တပို့တွဲလပြည့်နေ့တွင် ကျရောက်ပြီး ဟံသာဝတီ (ပဲခူး) တည်ထောင်ခြင်းကို အောက်မေ့သည့် မွန်အမျိုးသားနေ့ ဖြစ်သည်။",
+  "holidayNameMothers": "အမေများနေ့",
+  "holidayAboutMothers": "မိခင်များကို ကျေးဇူးတင်ဂုဏ်ပြုသည့်နေ့ ဖြစ်သည်။",
+  "holidayNameFathers": "အဖေများနေ့",
+  "holidayAboutFathers": "ဖခင်များကို ကျေးဇူးတင်ဂုဏ်ပြုသည့်နေ့ ဖြစ်သည်။",
+  "holidayNameAuthors": "စာဆိုတော်နေ့",
+  "holidayAboutAuthors": "မြန်မာ စာရေးဆရာ၊ စာဆိုတော်များကို ဂုဏ်ပြုသည့်နေ့ ဖြစ်ပြီး စာပေဟောပြောပွဲ၊ စာအုပ်ပြပွဲများ ကျင်းပကြသည်။",
+  "holidayNameAungSanBirthday": "ဗိုလ်ချုပ်အောင်ဆန်း မွေးနေ့",
+  "holidayAboutAungSanBirthday": "မြန်မာ့လွတ်လပ်ရေး ဖခင် ဗိုလ်ချုပ်အောင်ဆန်း ၁၉၁၅ ခုနှစ် ဖေဖော်ဝါရီ ၁၃ ရက်တွင် မွေးဖွားခဲ့သည်။ ကလေးများနေ့ အဖြစ်လည်း ကျင်းပသည်။",
+  "holidayNameValentines": "ချစ်သူများနေ့",
+  "holidayAboutValentines": "ဖေဖော်ဝါရီ ၁၄ ရက်နေ့တွင် ကျရောက်သော ချစ်သူများနေ့ ဖြစ်သည်။",
+  "holidayNameAprilFools": "ဧပြီအရူးနေ့",
+  "holidayAboutAprilFools": "ဧပြီ ၁ ရက်နေ့တွင် ကျရောက်ပြီး ပျော်စရာ နောက်ပြောင်ကြသည့်နေ့ ဖြစ်သည်။",
+  "holidayNameEarth": "ကမ္ဘာမြေနေ့",
+  "holidayAboutEarth": "ဧပြီ ၂၂ ရက်နေ့တွင် ကမ္ဘာတစ်ဝန်း သဘာဝပတ်ဝန်းကျင် ထိန်းသိမ်းရေးကို အားပေးသည့်နေ့ ဖြစ်သည်။",
+  "holidayNameRedCross": "ကြက်ခြေနီနေ့",
+  "holidayAboutRedCross": "ကြက်ခြေနီ တည်ထောင်သူ ဟင်နရီ ဒူနန့် မွေးနေ့ ဖြစ်သော မေလ ၈ ရက်တွင် ကျရောက်သည့် ကမ္ဘာ့ကြက်ခြေနီနေ့ ဖြစ်သည်။",
+  "holidayNameUnitedNations": "ကုလသမဂ္ဂနေ့",
+  "holidayAboutUnitedNations": "၁၉၄၅ ခုနှစ် အောက်တိုဘာ ၂၄ ရက်တွင် ကုလသမဂ္ဂ ဖွဲ့စည်းတည်ထောင်ခြင်းကို အထိမ်းအမှတ်ပြုသည်။",
+  "holidayNameWorldTeachers": "ကမ္ဘာ့ဆရာများနေ့",
+  "holidayAboutWorldTeachers": "အောက်တိုဘာ ၅ ရက်နေ့တွင် ကျရောက်သော ယူနက်စကို၏ ကမ္ဘာ့ဆရာများနေ့ ဖြစ်သည်။",
+  "holidayNameHalloween": "ဟယ်လိုဝင်း",
+  "holidayAboutHalloween": "အောက်တိုဘာ ၃၁ ရက်နေ့ ညတွင် ဝတ်စုံများ ဝတ်ဆင်ကာ ပျော်ရွှင်ကြသည့်နေ့ ဖြစ်သည်။",
+  "holidaysSearchHint": "ပိတ်ရက်များ ရှာရန်",
+  "holidaysFilterAll": "အားလုံး",
+  "holidaysFilterPublic": "ရုံးပိတ်ရက်",
+  "holidaysFilterReligious": "ဘာသာရေး",
+  "holidaysFilterCultural": "ယဉ်ကျေးမှု",
+  "holidaysFilterAnniversary": "နှစ်ပတ်လည်နေ့များ",
+  "holidaysPublicHoliday": "ရုံးပိတ်ရက်",
+  "holidaysObservance": "အထိမ်းအမှတ်နေ့",
+  "holidaysKindNational": "အမျိုးသား",
+  "holidaysKindReligious": "ဘာသာရေး",
+  "holidaysKindCultural": "ယဉ်ကျေးမှု",
+  "holidaysKindAnniversary": "နှစ်ပတ်လည်နေ့",
+  "holidaysNextUp": "နောက်ရုံးပိတ်ရက်",
+  "holidaysDaysOff": "{count} ရက် ပိတ်သည်",
+  "holidaysDayCount": "{count} ရက်",
+  "holidaysDaysShort": "{count} ရက်",
+  "holidaysInDays": "{count, plural, =0{ယနေ့} =1{မနက်ဖြန်} other{နောက် {count} ရက်}}",
+  "holidaysNow": "ယခု",
+  "holidaysResults": "{year} တွင် ပိတ်ရက် {count} ခု",
+  "holidaysNoResults": "{year} တွင် “{query}” နှင့် ကိုက်ညီသည်များ မရှိပါ။",
+  "holidaysSearchAllYears": "နှစ်အားလုံးတွင် ရှာရန်",
+  "holidaysYearsRange": "{from} မှ {to} အထိ",
+  "holidaysEarlier": "ယခုနှစ် အစောပိုင်း",
+  "holidaysComingUp": "လာမည့်ရက်များ",
+  "holidaysNextYear": "နောက်တစ်ကြိမ်",
+  "holidaysOtherYears": "အခြားနှစ်များ",
+  "holidaysOpenInCalendar": "ပြက္ခဒိန်တွင် ဖွင့်ရန်",
+  "holidaysNotThisYear": "{year} တွင် မရှိပါ",
+  "holidaysViewsSubtitle": "နှစ်တစ်နှစ်၏ ပိတ်ရက်အားလုံးနှင့် သတိပေးချက်များ",
+  "holidaysViewsFooter": "{year} တွင် ရုံးပိတ်ရက် {count} ခု ရှိသည်။",
+  "viewsCalendarGroup": "ပြက္ခဒိန်",
+  "viewsExploreGroup": "ရှာဖွေရန်",
+  "holidayRemindMe": "သတိပေးရန်",
+  "holidayReminderEvening": "အကြိုညနေ ၆ နာရီ",
+  "holidayReminderMorning": "ထိုနေ့ နံနက် ၈ နာရီ",
+  "holidayReminderBoth": "အကြိုညနေနှင့် ထိုနေ့ နံနက်",
+  "holidayRemindersTitle": "သတိပေးချက်များ",
+  "holidayRemindersWhen": "အချိန်",
+  "holidayRemindersEveningOption": "အကြိုညနေ",
+  "holidayRemindersMorningOption": "ထိုနေ့ နံနက်",
+  "holidayRemindersBothOption": "နှစ်ခုလုံး",
+  "holidayRemindersFollow": "လိုက်ကြည့်ရန်",
+  "holidayRemindersAllPublic": "ရုံးပိတ်ရက်အားလုံး",
+  "holidayRemindersAllPublicSubtitle": "{year} တွင် {count} ရက်",
+  "holidayRemindersFooter": "သတိပေးချက်များသည် နောက် ရက် ၆၀ အတွက် ဖြစ်ပြီး အက်ပ်ဖွင့်တိုင်း အသစ်ပြင်ဆင်သည်။",
+  "holidayRemindersIncluded": "ရုံးပိတ်ရက်အားလုံးတွင် ပါဝင်သည်",
+  "holidayRemindersPermissionDenied": "Myanmar Calendar အတွက် အသိပေးချက်များ ပိတ်ထားသည်။ သတိပေးချက်များ ရရှိရန် ဖုန်း၏ ဆက်တင်တွင် ဖွင့်ပါ။",
+  "holidayReminderTomorrow": "မနက်ဖြန်: {holiday}",
+  "holidayReminderToday": "ယနေ့: {holiday}",
+  "holidayReminderBodyPublic": "ရုံးပိတ်ရက် · {dates}",
+  "whatsNewTitle": "အသစ်များ",
+  "whatsNewBadge": "{version} တွင် အသစ်",
+  "whatsNewFromVersion": "{version} မှ",
+  "whatsNewPageOf": "{count} ခုအနက် {page}",
+  "whatsNewNext": "နောက်တစ်ခု",
+  "whatsNewDone": "ပြီးပါပြီ",
+  "whatsNewSeeAll": "အပ်ဒိတ်အားလုံး ကြည့်ရန်",
+  "whatsNewThisUpdate": "ဗားရှင်း {version} · ယခုအပ်ဒိတ်",
+  "whatsNewVersion": "ဗားရှင်း {version}",
+  "whatsNewHolidaysTitle": "ရုံးပိတ်ရက်များ",
+  "whatsNewHolidaysBody": "နှစ်တစ်နှစ်၏ ပိတ်ရက်အားလုံးကို တစ်နေရာတည်းတွင် ကြည့်နိုင်သည်။ မြန်မာ သို့မဟုတ် အင်္ဂလိပ်လို ရှာနိုင်ပြီး နေ့တစ်နေ့ချင်း၏ အဓိပ္ပာယ်ကို ဖတ်ကာ အကြိုညနေတွင် သတိပေးချက် ရယူနိုင်သည်။",
+  "whatsNewHolidaysAction": "ပိတ်ရက်များ ကြည့်ရန်",
+  "whatsNewWidgetsTitle": "ပင်မစာမျက်နှာ ဝစ်ဂျက်အသစ်များ",
+  "whatsNewWidgetsBody": "ယနေ့ရက်စွဲမှ သင်္ကြန်အထိ ရက်ရေတွက်ခြင်းအထိ ဝစ်ဂျက် ကိုးမျိုး၊ ပုံစံ ငါးမျိုး။ မည်သည့်နေ့ကိုမဆို နှိပ်၍ အက်ပ်တွင် ဖွင့်နိုင်သည်။",
+  "whatsNewWidgetsAction": "ဝစ်ဂျက် ဆက်တင်",
+  "whatsNewWelcomeTitle": "ကြိုဆိုမှု အသစ်",
+  "whatsNewWelcomeBody": "အသုံးပြုသူအသစ်များအတွက် အက်ပ်မိတ်ဆက်နှင့် ဘာသာစကား၊ အသွင်အပြင်၊ ကိုယ်ရေးလုံခြုံမှု၊ သတိပေးချက်များကို အမြန်သတ်မှတ်နိုင်သည်။",
+  "whatsNewThemesTitle": "ပြက္ခဒိန် ပုံစံများ",
+  "whatsNewThemesBody": "စေတီ၊ ကျောက်စိမ်းမှ ကြယ်စုံညအထိ လ ပြက္ခဒိန်အတွက် ပုံစံ ဆယ့်နှစ်မျိုး၊ အလင်းနှင့် အမှောင် အရောင်များဖြင့်။",
+  "whatsNewThemesAction": "ပုံစံ ရွေးရန်",
+  "whatsNewColorsTitle": "စိတ်ကြိုက် အရောင်များ",
+  "whatsNewColorsBody": "အက်ပ်တစ်ခုလုံးအတွက် အဓိကအရောင် တစ်ခု ရွေးနိုင်သည် သို့မဟုတ် အဆင့်မြင့်တွင် အရောင်တိုင်းကို ချိန်ညှိနိုင်သည်။",
+  "whatsNewColorsAction": "အရောင် ရွေးရန်",
+  "whatsNewIconsTitle": "အက်ပ် အိုင်ကွန်များ",
+  "whatsNewIconsBody": "လ၊ သစ်တော၊ ရိုးရာ အပါအဝင် အက်ပ်အိုင်ကွန် ခြောက်မျိုးမှ ရွေးနိုင်သည်။",
+  "whatsNewIconsAction": "အိုင်ကွန် ပြောင်းရန်",
+  "whatsNewStudioTitle": "Calendar Studio",
+  "whatsNewStudioBody": "နံရံကပ်၊ စားပွဲတင်နှင့် ဆိုရှယ်မီဒီယာ ပြက္ခဒိန်များကို ပုံစံများမှ ဒီဇိုင်းဆွဲပြီး ပုံနှိပ်ရန် PDF နှင့် ပုံများအဖြစ် ထုတ်ယူနိုင်သည်။",
+  "whatsNewStudioAction": "Studio ဖွင့်ရန်",
+  "onboardingSkip": "ကျော်ရန်",
+  "onboardingContinue": "ဆက်ရန်",
+  "onboardingSetUp": "အက်ပ်ကို ပြင်ဆင်ရန်",
+  "onboardingNotNow": "နောက်မှ",
+  "onboardingStart": "စတင်ရန်",
+  "onboardingStep": "အဆင့် {count} ခုအနက် {step}",
+  "onboardingWelcomeTitle": "မြန်မာ ပြက္ခဒိန်မှ ကြိုဆိုပါသည်",
+  "onboardingWelcomeBody": "မြန်မာ ရက်စွဲနှင့် အင်္ဂလိပ် ရက်စွဲကို နေ့စဉ် ယှဉ်ကြည့်နိုင်ပါသည်။",
+  "onboardingCalendarsTitle": "ပြက္ခဒိန် နှစ်ခု တစ်နေရာတည်း",
+  "onboardingCalendarsBody": "နေ့တိုင်းတွင် မြန်မာရက်စွဲ၊ လ၏ အနေအထားနှင့် ဥပုသ်နေ့ကို ပြပြီး ဗေဒင် အချက်အလက်များကို တစ်ချက်နှိပ်ရုံဖြင့် ကြည့်နိုင်သည်။",
+  "onboardingHolidaysTitle": "ပိတ်ရက် မလွတ်စေရ",
+  "onboardingHolidaysBody": "ပိတ်ရက်အားလုံးကို ကြည့်ရှု ရှာဖွေနိုင်ပြီး ကိုယ်ပိုင် ပွဲစဉ်များ ထည့်ကာ အကြိုညနေတွင် သတိပေးချက် ရယူနိုင်သည်။",
+  "onboardingYoursTitle": "ကိုယ်ပိုင်ပုံစံ ပြုလုပ်ပါ",
+  "onboardingYoursBody": "အရောင်နှင့် ပြက္ခဒိန်ပုံစံများ ရွေးချယ်ပြီး ပင်မစာမျက်နှာ ဝစ်ဂျက်များ ထည့်ကာ Calendar Studio တွင် ပုံနှိပ်ရန် ပြက္ခဒိန်များ ဒီဇိုင်းဆွဲနိုင်သည်။",
+  "onboardingLanguagesTitle": "ဘာသာစကား ရွေးချယ်ပါ",
+  "onboardingAppLanguage": "အက်ပ် ဘာသာစကား",
+  "onboardingCalendarLanguageFooter": "လအမည်များ၊ ပိတ်ရက်များနှင့် လ၏ အနေအထားများသည် ပြက္ခဒိန် ဘာသာစကားကို သုံးသည်။",
+  "onboardingLookTitle": "အသွင်အပြင် ရွေးပါ",
+  "onboardingThemeAutomatic": "အလိုအလျောက်",
+  "onboardingThemeLight": "အလင်း",
+  "onboardingThemeDark": "အမှောင်",
+  "onboardingColour": "အရောင်",
+  "onboardingColourFooter": "အရောင်နှင့် ပြက္ခဒိန်ပုံစံ ပိုမိုသည် ဆက်တင် › အသွင်အပြင် တွင် ရှိသည်။",
+  "onboardingPrivacyTitle": "သင့်ပြက္ခဒိန်သည် သင့်ဖုန်းထဲတွင်သာ ရှိသည်",
+  "onboardingPrivacyBody": "ပွဲစဉ်များနှင့် မှတ်စုများသည် သင့်ဖုန်းမှ ဘယ်တော့မှ ထွက်မသွားပါ။ အမည်မဖော်သော အချက်အလက်များ မျှဝေ၍ အက်ပ်ကို တိုးတက်အောင် ကူညီနိုင်သည်။",
+  "onboardingUsageStats": "အသုံးပြုမှု စာရင်း",
+  "onboardingUsageStatsSubtitle": "မည်သည့်စာမျက်နှာ သုံးသည်ကိုသာ၊ ပါဝင်သည့် အကြောင်းအရာ မဟုတ်ပါ",
+  "onboardingCrashReports": "ပျက်ယွင်းမှု အစီရင်ခံစာ",
+  "onboardingCrashReportsSubtitle": "အက်ပ် ပျက်သွားမှသာ ပို့သည်",
+  "onboardingPrivacyFooter": "ဆက်တင် › ကိုယ်ရေးလုံခြုံမှုနှင့် ဒေတာ တွင် အချိန်မရွေး ပြောင်းနိုင်သည်။",
+  "onboardingNotificationsTitle": "လိုအပ်ချိန်တွင် သတိပေးချက်",
+  "onboardingEventReminders": "ပွဲစဉ် သတိပေးချက်",
+  "onboardingEventRemindersSubtitle": "ပွဲစဉ်တစ်ခုချင်းအတွက် သင်ရွေးသည့်အချိန်တွင်",
+  "onboardingHolidayReminders": "ပိတ်ရက် သတိပေးချက်",
+  "onboardingHolidayRemindersSubtitle": "သင်လိုက်ကြည့်သော ပိတ်ရက်များ၏ အကြိုညနေတွင်",
+  "onboardingAllowNotifications": "အသိပေးချက်များ ခွင့်ပြုရန်",
+  "onboardingDoneTitle": "အားလုံး အဆင်သင့်ပါ",
+  "onboardingDoneToday": "ယနေ့သည် {date} ဖြစ်သည်။",
+  "onboardingWidgetTipTitle": "အကြံပြုချက် - ဝစ်ဂျက် ထည့်ပါ",
+  "onboardingWidgetTipBody": "မြန်မာရက်စွဲကို ပင်မစာမျက်နှာတွင် ကြည့်ပါ။ နေရာလွတ်ကို ဖိထားပြီး Myanmar Calendar ကို ထည့်ပါ။",
+  "viewsMyanmarMonth": "မြန်မာလ",
+  "viewsMyanmarMonthSubtitle": "လဆန်း၊ လဆုတ် အလိုက် မြန်မာလ",
+  "viewsAgenda": "အစီအစဉ်",
+  "viewsAgendaSubtitle": "ရှေ့လာမည့် ရုံးပိတ်ရက်၊ ဥပုသ်၊ လပြည့်လကွယ်နှင့် သင့်ပွဲများ",
+  "dayDetailsComingUp": "လာမည့်ရက်များ",
+  "dayDetailsNagahleCompass": "နဂါးခေါင်း",
+  "dayDetailsNoAstrologicalDays": "ထူးခြားသော ဗေဒင်ရက် မရှိပါ",
+  "repeatOn": "နေ့များ",
+  "repeatEveryWeek": "အပတ်တိုင်း",
+  "repeatEveryWeeks": "{count} ပတ်တစ်ကြိမ်",
+  "repeatEnds": "ပြီးဆုံးမည်",
+  "repeatEndsOnDate": "ရက်စွဲတစ်ခုတွင်",
+  "repeatEndsAfter": "အကြိမ်ရေပြည့်လျှင်",
+  "repeatTimes": "{count} ကြိမ်",
+  "repeatUntil": "{date} အထိ",
+  "repeatTimePerDay": "နေ့အလိုက် အချိန်သတ်မှတ်",
+  "repeatTimePerDayNote": "အချိန်မတူသော နေ့များကို အချိန်တစ်ခုစီအတွက် အပတ်စဉ်ပွဲတစ်ခုစီအဖြစ် သိမ်းမည်။",
+  "repeatEventsCreated": "ပွဲ {count} ခု ဖန်တီးပြီး",
+  "repeatPerDay": "နေ့အလိုက်",
+  "repeatSpecificDates": "ရွေးထားသောရက်များ",
+  "repeatChooseDates": "ရက်များ ရွေးမည်",
+  "repeatDatesCount": "{count} ရက်",
+  "eventsRepeatsOnDates": "{count} ရက်တွင်",
+  "eventsAddMoreDates": "ရက်များ ထပ်ထည့်မည်"
 }

@@ -7,131 +7,159 @@ import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 void main() {
-  test(
-    'manual migration from v1 to v4 preserves normalized event schema',
-    () async {
-      final tempDir = await Directory.systemTemp.createTemp(
-        'mmcalendar_migration_',
-      );
-      final dbFile = File(p.join(tempDir.path, 'app.sqlite'));
+  test('manual migration from v1 to v7 preserves data, adds Studio storage '
+      'and keeps the Detailed grid', () async {
+    final tempDir = await Directory.systemTemp.createTemp(
+      'mmcalendar_migration_',
+    );
+    final dbFile = File(p.join(tempDir.path, 'app.sqlite'));
 
-      try {
-        _seedSchemaV1(dbFile.path);
+    try {
+      _seedSchemaV1(dbFile.path);
 
-        final migratedDb = AppDatabase(NativeDatabase(dbFile));
+      final migratedDb = AppDatabase(NativeDatabase(dbFile));
 
-        // Trigger open + migration.
-        await migratedDb.customSelect('SELECT 1').getSingle();
+      // Trigger open + migration.
+      await migratedDb.customSelect('SELECT 1').getSingle();
 
-        final userVersion = await migratedDb
-            .customSelect('PRAGMA user_version')
-            .map((row) => row.read<int>('user_version'))
-            .getSingle();
-        expect(userVersion, 4);
+      final userVersion = await migratedDb
+          .customSelect('PRAGMA user_version')
+          .map((row) => row.read<int>('user_version'))
+          .getSingle();
+      expect(userVersion, 7);
 
-        final calendarCount = await migratedDb
-            .customSelect('SELECT COUNT(*) AS c FROM calendar_settings')
-            .map((row) => row.read<int>('c'))
-            .getSingle();
-        expect(calendarCount, 1);
+      // The install never picked a grid: it keeps Detailed rather than
+      // switching to the new default.
+      final gridStyle = await migratedDb
+          .customSelect(
+            "SELECT value FROM app_settings WHERE key = 'calendar_grid_style'",
+          )
+          .map((row) => row.read<String>('value'))
+          .getSingle();
+      expect(gridStyle, 'detailed');
 
-        final hasLegacyUserEventsTable = await migratedDb
-            .customSelect('''
+      final calendarCount = await migratedDb
+          .customSelect('SELECT COUNT(*) AS c FROM calendar_settings')
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(calendarCount, 1);
+
+      final hasLegacyUserEventsTable = await migratedDb
+          .customSelect('''
             SELECT COUNT(*) AS c
             FROM sqlite_master
             WHERE type = 'table' AND name = 'user_events'
             ''')
-            .map((row) => row.read<int>('c'))
-            .getSingle();
-        expect(hasLegacyUserEventsTable, 0);
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(hasLegacyUserEventsTable, 0);
 
-        final hasNewTable = await migratedDb
-            .customSelect('''
+      final hasNewTable = await migratedDb
+          .customSelect('''
             SELECT COUNT(*) AS c
             FROM sqlite_master
             WHERE type = 'table' AND name = 'recurring_event_exceptions'
             ''')
-            .map((row) => row.read<int>('c'))
-            .getSingle();
-        expect(hasNewTable, 1);
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(hasNewTable, 1);
 
-        final hasCalendarEventsTable = await migratedDb
-            .customSelect('''
+      final hasCalendarEventsTable = await migratedDb
+          .customSelect('''
             SELECT COUNT(*) AS c
             FROM sqlite_master
             WHERE type = 'table' AND name = 'calendar_events'
             ''')
-            .map((row) => row.read<int>('c'))
-            .getSingle();
-        expect(hasCalendarEventsTable, 1);
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(hasCalendarEventsTable, 1);
 
-        final hasEventRemindersTable = await migratedDb
-            .customSelect('''
+      final hasEventRemindersTable = await migratedDb
+          .customSelect('''
             SELECT COUNT(*) AS c
             FROM sqlite_master
             WHERE type = 'table' AND name = 'event_reminders'
             ''')
-            .map((row) => row.read<int>('c'))
-            .getSingle();
-        expect(hasEventRemindersTable, 1);
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(hasEventRemindersTable, 1);
 
-        final hasEventRecurrenceRulesTable = await migratedDb
-            .customSelect('''
+      final hasEventRecurrenceRulesTable = await migratedDb
+          .customSelect('''
             SELECT COUNT(*) AS c
             FROM sqlite_master
             WHERE type = 'table' AND name = 'event_recurrence_rules'
             ''')
-            .map((row) => row.read<int>('c'))
-            .getSingle();
-        expect(hasEventRecurrenceRulesTable, 1);
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(hasEventRecurrenceRulesTable, 1);
 
-        final normalizedEventsCount = await migratedDb
-            .customSelect('SELECT COUNT(*) AS c FROM calendar_events')
-            .map((row) => row.read<int>('c'))
-            .getSingle();
-        expect(normalizedEventsCount, 1);
+      final hasCalendarStudioProjectsTable = await migratedDb
+          .customSelect('''
+            SELECT COUNT(*) AS c
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'calendar_studio_projects'
+            ''')
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(hasCalendarStudioProjectsTable, 1);
 
-        final normalizedRecurrenceCount = await migratedDb
-            .customSelect('SELECT COUNT(*) AS c FROM event_recurrence_rules')
-            .map((row) => row.read<int>('c'))
-            .getSingle();
-        expect(normalizedRecurrenceCount, 1);
+      final hasCalendarStudioTemplatesTable = await migratedDb
+          .customSelect('''
+            SELECT COUNT(*) AS c
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'calendar_studio_templates'
+            ''')
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(hasCalendarStudioTemplatesTable, 1);
 
-        final normalizedReminderCount = await migratedDb
-            .customSelect('SELECT COUNT(*) AS c FROM event_reminders')
-            .map((row) => row.read<int>('c'))
-            .getSingle();
-        expect(normalizedReminderCount, 2);
+      final normalizedEventsCount = await migratedDb
+          .customSelect('SELECT COUNT(*) AS c FROM calendar_events')
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(normalizedEventsCount, 1);
 
-        final migratedEventStatus = await migratedDb
-            .customSelect(
-              'SELECT status FROM calendar_events WHERE legacy_event_id = 1',
-            )
-            .map((row) => row.read<String>('status'))
-            .getSingle();
-        expect(migratedEventStatus, 'pending');
+      final normalizedRecurrenceCount = await migratedDb
+          .customSelect('SELECT COUNT(*) AS c FROM event_recurrence_rules')
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(normalizedRecurrenceCount, 1);
 
-        final migratedRecurrenceType = await migratedDb
-            .customSelect('''
+      final normalizedReminderCount = await migratedDb
+          .customSelect('SELECT COUNT(*) AS c FROM event_reminders')
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(normalizedReminderCount, 2);
+
+      final migratedEventStatus = await migratedDb
+          .customSelect(
+            'SELECT status FROM calendar_events WHERE legacy_event_id = 1',
+          )
+          .map((row) => row.read<String>('status'))
+          .getSingle();
+      expect(migratedEventStatus, 'pending');
+
+      final migratedRecurrenceType = await migratedDb
+          .customSelect('''
               SELECT recurrence_type
               FROM event_recurrence_rules
               WHERE event_id = 1
               ''')
-            .map((row) => row.read<String>('recurrence_type'))
-            .getSingle();
-        expect(migratedRecurrenceType, 'weekly');
+          .map((row) => row.read<String>('recurrence_type'))
+          .getSingle();
+      expect(migratedRecurrenceType, 'weekly');
 
-        await migratedDb.close();
-      } finally {
-        if (await dbFile.exists()) {
-          await dbFile.delete();
-        }
-        if (await tempDir.exists()) {
-          await tempDir.delete(recursive: true);
-        }
+      await migratedDb.close();
+    } finally {
+      if (await dbFile.exists()) {
+        await dbFile.delete();
       }
-    },
-  );
+      if (await tempDir.exists()) {
+        await tempDir.delete(recursive: true);
+      }
+    }
+  });
 }
 
 void _seedSchemaV1(String path) {

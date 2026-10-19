@@ -14,9 +14,15 @@ class PrivacyPolicyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title), centerTitle: true),
-      body: MarkdownRender(data: AppConstants.privacyPolicyMarkdown),
+    return AppPage(
+      title: title,
+      previousTitle: 'About',
+      largeTitle: false,
+      slivers: [
+        SliverFillRemaining(
+          child: MarkdownRender(data: AppConstants.privacyPolicyMarkdown),
+        ),
+      ],
     );
   }
 }

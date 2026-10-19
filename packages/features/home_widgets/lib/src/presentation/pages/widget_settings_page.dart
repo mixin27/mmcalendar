@@ -1,12 +1,21 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide WidgetState;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_widget/home_widget.dart';
+import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:shared_core/shared_core.dart';
+import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
+import '../../data/payload/widget_palettes.dart';
+import '../../data/services/widget_update_service.dart';
 import '../../domain/entities/widget_config.dart';
 import '../bloc/widget_bloc.dart';
 import '../bloc/widget_event.dart';
 import '../bloc/widget_state.dart';
-import '../widgets/widget_add_instructions.dart';
 
+/// Settings › Widgets: the style new widgets start with, what they show,
+/// what Countdown counts to, and how to add them.
 class WidgetSettingsPage extends StatefulWidget {
   const WidgetSettingsPage({super.key});
 
@@ -15,385 +24,390 @@ class WidgetSettingsPage extends StatefulWidget {
 }
 
 class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
-  WidgetLoaded? _cachedLoadedState;
+  WidgetLoaded? _loaded;
+  late Future<int> _installed = _countInstalled();
+  final Future<bool> _canPin = _pinSupported();
+
+  static Future<bool> _pinSupported() async {
+    if (defaultTargetPlatform != TargetPlatform.android) return false;
+    try {
+      return await HomeWidget.isRequestPinWidgetSupported() ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<int> _countInstalled() async {
+    try {
+      return (await HomeWidget.getInstalledWidgets()).length;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  void _update(BuildContext context, WidgetConfig config) =>
+      context.read<WidgetBloc>().add(UpdateWidgetConfig(config));
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home Widget Settings'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<WidgetBloc>().add(const RefreshWidget());
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Widget refresh started...')),
-              );
-            },
-            tooltip: 'Refresh Widget',
-          ),
-        ],
-      ),
-      body: BlocConsumer<WidgetBloc, WidgetState>(
-        listener: (context, state) {
-          if (state is WidgetLoaded) {
-            _cachedLoadedState = state;
-          }
-
-          if (state is WidgetError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
-          } else if (state is WidgetUpdated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Widget updated successfully!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          final loadedState = state is WidgetLoaded
-              ? state
-              : _cachedLoadedState;
-
-          if (loadedState == null && state is WidgetLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (loadedState == null) {
-            return const SizedBox.shrink();
-          }
-
-          return _buildSettingsContent(context, loadedState);
-        },
-      ),
-    );
-  }
-
-  Widget _buildSettingsContent(BuildContext context, WidgetLoaded state) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        if (!state.isActive) WidgetAddInstructions(),
-        _buildStatusSection(context, state),
-        const SizedBox(height: 24),
-        _buildThemeSection(context, state),
-        const SizedBox(height: 24),
-        _buildDisplayOptionsSection(context, state),
-        const SizedBox(height: 24),
-        _buildLanguageInfoSection(context, state),
-        const SizedBox(height: 24),
-        _buildActionsSection(context, state),
-      ],
-    );
-  }
-
-  Widget _buildStatusSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Widget Status',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            _buildStatusRow('Widget Active', state.isActive, Icons.widgets),
-            const Divider(),
-            _buildStatusRow(
-              'Auto Updates Enabled',
-              state.isScheduled,
-              Icons.schedule,
-            ),
-            if (state.currentData != null) ...[
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.update),
-                title: const Text('Last Updated'),
-                subtitle: Text(_formatDateTime(state.currentData!.lastUpdated)),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusRow(String label, bool isActive, IconData icon) {
-    return ListTile(
-      leading: Icon(icon, color: isActive ? Colors.green : Colors.grey),
-      title: Text(label),
-      trailing: Icon(
-        isActive ? Icons.check_circle : Icons.cancel,
-        color: isActive ? Colors.green : Colors.red,
-      ),
-    );
-  }
-
-  Widget _buildThemeSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Widget Theme',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            ...WidgetTheme.values.map((theme) {
-              return RadioGroup(
-                groupValue: state.config.theme,
-                onChanged: (WidgetTheme? value) {
-                  if (value != null) {
-                    final newConfig = state.config.copyWith(theme: value);
-                    context.read<WidgetBloc>().add(
-                      UpdateWidgetConfig(newConfig),
-                    );
-                  }
-                },
-                child: RadioListTile<WidgetTheme>(
-                  title: Text(_getThemeName(theme)),
-                  subtitle: Text(_getThemeDescription(theme)),
-                  value: theme,
-                ),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDisplayOptionsSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Display Options',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: const Text('Show Holidays'),
-              subtitle: const Text('Display public and religious holidays'),
-              value: state.config.showHolidays,
-              onChanged: (value) {
-                final newConfig = state.config.copyWith(showHolidays: value);
-                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-              },
-            ),
-            SwitchListTile(
-              title: const Text('Show Astrological Info'),
-              subtitle: const Text('Display sabbath, yatyaza, and pyathada'),
-              value: state.config.showAstrology,
-              onChanged: (value) {
-                final newConfig = state.config.copyWith(showAstrology: value);
-                context.read<WidgetBloc>().add(UpdateWidgetConfig(newConfig));
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageInfoSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.language_outlined),
-          title: const Text('Widget Language'),
-          subtitle: const Text('Uses app calendar language automatically'),
-          trailing: Text(_formatLanguageCode(state.config.language)),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionsSection(BuildContext context, WidgetLoaded state) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Actions', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            if (!state.isScheduled)
-              ElevatedButton.icon(
-                icon: const Icon(Icons.schedule),
-                label: const Text('Enable Auto Updates'),
-                onPressed: () {
-                  context.read<WidgetBloc>().add(const ScheduleWidgetUpdates());
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Auto updates enabled! Widgets will refresh automatically every day.',
-                      ),
-                      backgroundColor: Colors.green,
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                ),
-              )
-            else
-              OutlinedButton.icon(
-                icon: const Icon(Icons.schedule_send),
-                label: const Text('Disable Auto Updates'),
-                onPressed: () {
-                  context.read<WidgetBloc>().add(const CancelWidgetUpdates());
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Auto updates disabled'),
-                      backgroundColor: Colors.orange,
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  foregroundColor: Colors.orange,
-                  side: const BorderSide(color: Colors.orange),
-                ),
-              ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.refresh),
-              label: const Text('Refresh Widget Now'),
-              onPressed: () {
-                context.read<WidgetBloc>().add(const RefreshWidget());
-              },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-              ),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.info_outline),
-              label: const Text('Check Widget Status'),
-              onPressed: () {
-                context.read<WidgetBloc>().add(const CheckWidgetStatus());
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Checking widget status...'),
-                    duration: Duration(seconds: 1),
+    final l10n = AppLocalizations.of(context)!;
+    return BlocConsumer<WidgetBloc, WidgetState>(
+      listener: (context, state) {
+        if (state is WidgetLoaded) _loaded = state;
+        if (state is WidgetError) {
+          context.showToast(state.message, kind: AppToastKind.error);
+        }
+      },
+      builder: (context, state) {
+        final loaded = state is WidgetLoaded ? state : _loaded;
+        return AppPage(
+          title: l10n.widgetSettings,
+          previousTitle: l10n.settings,
+          children: loaded == null
+              ? const [
+                  Padding(
+                    padding: EdgeInsets.all(48),
+                    child: Center(child: CircularProgressIndicator()),
                   ),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-              ),
-              child: Row(
+                ]
+              : _groups(context, loaded.config, l10n),
+        );
+      },
+    );
+  }
+
+  List<Widget> _groups(
+    BuildContext context,
+    WidgetConfig config,
+    AppLocalizations l10n,
+  ) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final palettes = WidgetPalettes.all(
+      app: (
+        light: WidgetPalette.fromTokens(context.tokens),
+        dark: WidgetPalette.fromTokens(context.tokens),
+      ),
+    );
+    WidgetPalette palette(WidgetStyleId style) => WidgetPalette.fromJson(
+      (palettes[style.name]! as Map)[dark ? 'dark' : 'light']
+          as Map<String, dynamic>,
+    );
+    final language = Language.fromCode(config.language);
+    return [
+      AppGroup(
+        label: l10n.widgetsStyle,
+        footer: l10n.widgetsStyleFooter,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: LayoutBuilder(
+              builder: (context, box) => Wrap(
+                spacing: 10,
+                runSpacing: 12,
                 children: [
-                  const Icon(Icons.info_outline, color: Colors.blue, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      state.isScheduled
-                          ? 'Widgets refresh automatically each day'
-                          : 'Enable auto updates to keep widget current',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.blue[800]),
+                  for (final style in WidgetStyleId.values)
+                    SizedBox(
+                      width: ((box.maxWidth - 20) / 3).clamp(96, 140),
+                      child: _StyleChoice(
+                        key: ValueKey('widget-style-${style.name}'),
+                        title: _styleTitle(style, l10n),
+                        palette: palette(style),
+                        language: language,
+                        selected: config.style == style,
+                        onTap: () =>
+                            _update(context, config.copyWith(style: style)),
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+      AppGroup(
+        label: l10n.widgetsShow,
+        footer: l10n.widgetsLanguageNote(_languageName(language)),
+        children: [
+          AppRow.toggle(
+            icon: Icons.celebration_outlined,
+            iconColor: const Color(0xFFE5383B),
+            title: l10n.holidays,
+            value: config.showHolidays,
+            onChanged: (v) =>
+                _update(context, config.copyWith(showHolidays: v)),
+          ),
+          AppRow.toggle(
+            icon: Icons.brightness_3_outlined,
+            iconColor: const Color(0xFFF2A900),
+            title: l10n.sabbath,
+            value: config.showSabbath,
+            onChanged: (v) => _update(context, config.copyWith(showSabbath: v)),
+          ),
+          AppRow.toggle(
+            icon: Icons.auto_awesome_outlined,
+            iconColor: const Color(0xFF8E6CEF),
+            title: l10n.astrology,
+            value: config.showAstrology,
+            onChanged: (v) =>
+                _update(context, config.copyWith(showAstrology: v)),
+          ),
+          AppRow.toggle(
+            icon: Icons.event_outlined,
+            iconColor: const Color(0xFF2F5BEA),
+            title: l10n.events,
+            value: config.showEvents,
+            onChanged: (v) => _update(context, config.copyWith(showEvents: v)),
+          ),
+        ],
+      ),
+      AppGroup(
+        label: l10n.widgetsCountdown,
+        children: [
+          for (final target in CountdownTarget.values)
+            AppRow(
+              key: ValueKey('widget-countdown-${target.name}'),
+              title: switch (target) {
+                CountdownTarget.fullMoon => l10n.widgetCountdownFullMoon,
+                CountdownTarget.newMoon => l10n.widgetCountdownNewMoon,
+                CountdownTarget.sabbath => l10n.widgetCountdownSabbath,
+                CountdownTarget.thingyan => l10n.widgetCountdownThingyan,
+              },
+              selected: config.countdownTarget == target,
+              onTap: () =>
+                  _update(context, config.copyWith(countdownTarget: target)),
+            ),
+        ],
+      ),
+      AppGroup(
+        label: l10n.widgetsOnScreen,
+        children: [
+          FutureBuilder<int>(
+            future: _installed,
+            builder: (context, count) => AppRow(
+              icon: Icons.widgets_outlined,
+              iconColor: const Color(0xFF16A3B0),
+              title: l10n.widgetsInstalledTitle,
+              value: count.hasData ? l10n.widgetsInstalled(count.data!) : null,
+            ),
+          ),
+          AppRow(
+            key: const ValueKey('widgets-refresh'),
+            icon: Icons.refresh,
+            iconColor: const Color(0xFF1F9D63),
+            title: l10n.widgetsRefresh,
+            tone: AppRowTone.accent,
+            onTap: () {
+              context.read<WidgetBloc>().add(const RefreshWidget());
+              setState(() => _installed = _countInstalled());
+              context.showToast(l10n.widgetsRefreshed);
+            },
+          ),
+        ],
+      ),
+      FutureBuilder<bool>(
+        future: _canPin,
+        builder: (context, canPin) => canPin.data != true
+            ? const SizedBox.shrink()
+            : AppGroup(
+                label: l10n.widgetsAddToHome,
+                footer: l10n.widgetsAddToHomeFooter,
+                children: [
+                  for (final (receiver, title) in _kinds(l10n))
+                    AppRow(
+                      key: ValueKey('widget-pin-$receiver'),
+                      icon: Icons.add_circle_outline,
+                      iconColor: context.tokens.accent,
+                      title: title,
+                      onTap: () => HomeWidget.requestPinWidget(
+                        qualifiedAndroidName:
+                            WidgetUpdateService.androidReceiver(receiver),
+                      ),
+                    ),
+                ],
+              ),
+      ),
+      AppGroup(
+        label: l10n.widgetsHowToAdd,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Text(
+              defaultTargetPlatform == TargetPlatform.iOS
+                  ? l10n.widgetsHowToAddIos
+                  : l10n.widgetsHowToAddAndroid,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.45,
+                color: context.tokens.label,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ];
+  }
+
+  /// The Android widgets, in the order of the widget picker.
+  static List<(String, String)> _kinds(AppLocalizations l10n) => [
+    ('TodayWidgetReceiver', l10n.widgetKindToday),
+    ('MoonWidgetReceiver', l10n.widgetKindMoon),
+    ('MonthWidgetReceiver', l10n.widgetKindMonth),
+    ('WeekWidgetReceiver', l10n.widgetKindWeek),
+    ('ComingUpWidgetReceiver', l10n.widgetKindComingUp),
+    ('AgendaWidgetReceiver', l10n.widgetKindAgenda),
+    ('CountdownWidgetReceiver', l10n.widgetKindCountdown),
+    ('AstrologyWidgetReceiver', l10n.widgetKindAstrology),
+    ('YearWidgetReceiver', l10n.widgetKindYear),
+  ];
+
+  static String _styleTitle(WidgetStyleId style, AppLocalizations l10n) =>
+      switch (style) {
+        WidgetStyleId.app => l10n.widgetStyleApp,
+        WidgetStyleId.plain => l10n.widgetStylePlain,
+        WidgetStyleId.pagoda => l10n.gridThemePagodaTitle,
+        WidgetStyleId.jade => l10n.gridThemeJadeTitle,
+        WidgetStyleId.deepField => l10n.gridThemeDeepFieldTitle,
+      };
+
+  static String _languageName(Language language) => switch (language) {
+    Language.myanmar => 'မြန်မာ',
+    Language.english => 'English',
+    Language.zawgyi => 'Zawgyi',
+    Language.mon => 'Mon',
+    Language.shan => 'Shan',
+    Language.karen => 'Karen',
+  };
+}
+
+/// A style as a tiny Today widget: weekday, date, moon and lunar day in the
+/// style's colours.
+class _StyleChoice extends StatelessWidget {
+  const _StyleChoice({
+    super.key,
+    required this.title,
+    required this.palette,
+    required this.language,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String title;
+  final WidgetPalette palette;
+  final Language language;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final today = DateTime.now();
+    final format = CalendarFormat(language);
+    final lunar = MyanmarCalendar.fromWestern(
+      today.year,
+      today.month,
+      today.day,
+    ).formatMyanmar('&P &f', language);
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: title,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: selected ? t.accent : Colors.transparent,
+                  width: 2,
+                ),
+              ),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: palette.bg,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: t.separator, width: .5),
+                  ),
+                  child: FittedBox(
+                    alignment: Alignment.topLeft,
+                    child: SizedBox(
+                      width: 110,
+                      height: 110,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            format.weekday(today, short: true),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: palette.holiday,
+                            ),
+                          ),
+                          Text(
+                            format.number(today.day),
+                            style: TextStyle(
+                              fontSize: 38,
+                              height: 1.1,
+                              fontWeight: FontWeight.w700,
+                              color: palette.ink,
+                            ),
+                          ),
+                          const Spacer(),
+                          Row(
+                            children: [
+                              MoonGlyph(
+                                date: today,
+                                size: 14,
+                                colors: MoonColors(
+                                  lit: palette.moon,
+                                  shade: palette.shade,
+                                  rim: palette.line,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: Text(
+                                  lunar,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: palette.muted,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? t.accent : t.label,
+              ),
+            ),
           ],
         ),
       ),
     );
-  }
-
-  String _formatLanguageCode(String code) {
-    switch (code) {
-      case 'en':
-        return 'English';
-      case 'my':
-        return 'Myanmar';
-      case 'zawgyi':
-        return 'Zawgyi';
-      case 'mon':
-        return 'Mon';
-      case 'shan':
-        return 'Shan';
-      case 'karen':
-        return 'Karen';
-      default:
-        return code.toUpperCase();
-    }
-  }
-
-  String _getThemeName(WidgetTheme theme) {
-    switch (theme) {
-      case WidgetTheme.light:
-        return 'Light';
-      case WidgetTheme.dark:
-        return 'Dark';
-      case WidgetTheme.traditional:
-        return 'Traditional Myanmar';
-      case WidgetTheme.auto:
-        return 'Auto (Default)';
-      case WidgetTheme.gradientBlue:
-        return 'Gradient Blue';
-      case WidgetTheme.gradientPurple:
-        return 'Gradient Purple';
-      case WidgetTheme.gradientTeal:
-        return 'Gradient Teal';
-    }
-  }
-
-  String _getThemeDescription(WidgetTheme theme) {
-    switch (theme) {
-      case WidgetTheme.light:
-        return 'Light background with dark text';
-      case WidgetTheme.dark:
-        return 'Dark background with light text';
-      case WidgetTheme.traditional:
-        return 'Myanmar traditional red and gold colors';
-      case WidgetTheme.auto:
-        return 'Follow built-in widget setting';
-      case WidgetTheme.gradientBlue:
-        return 'Gradient blue colors';
-      case WidgetTheme.gradientPurple:
-        return 'Gradient purple colors';
-      case WidgetTheme.gradientTeal:
-        return 'Gradient teal colors';
-    }
-  }
-
-  String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year} '
-        '${dateTime.hour.toString().padLeft(2, '0')}:'
-        '${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }

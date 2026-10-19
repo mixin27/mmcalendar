@@ -3,15 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_localizations/shared_localizations.dart';
-import 'package:promo/promo.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/settings_injection.dart';
 import '../widgets/settings_widgets.dart';
 
 class SettingsAboutPage extends StatefulWidget {
-  const SettingsAboutPage({super.key, this.appVersion});
+  const SettingsAboutPage({super.key, this.appVersion, this.onResetIntro});
 
   final String? appVersion;
+
+  /// Debug builds: shows onboarding and What's new again on next launch.
+  final Future<void> Function()? onResetIntro;
 
   @override
   State<SettingsAboutPage> createState() => _SettingsAboutPageState();
@@ -29,103 +32,117 @@ class _SettingsAboutPageState extends State<SettingsAboutPage> {
     super.initState();
   }
 
+  Future<void> _resetIntro(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      await widget.onResetIntro?.call();
+      if (context.mounted) {
+        context.showToast(
+          l10n?.promoDataClearedRestartApp ??
+              'Cleared. Restart the app to see onboarding.',
+          kind: AppToastKind.success,
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        context.showToast(
+          l10n?.errorWithMessage(e.toString()) ?? 'Error: $e',
+          kind: AppToastKind.error,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
+    final t = context.tokens;
+    final version = widget.appVersion ?? '';
+    return AppPage(
+      title: l10n?.about ?? 'About',
+      previousTitle: l10n?.settings ?? 'Settings',
+      children: [
+        Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 72,
+                height: 72,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  width: 72,
+                  height: 72,
+                  color: t.accent,
+                  child: Icon(Icons.calendar_month, color: t.onAccent),
+                ),
               ),
-              child: Icon(Icons.info_outline, color: Colors.blue, size: 24),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(height: 10),
             Text(
-              AppLocalizations.of(context)?.about ?? 'About',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              l10n?.myanmarCalendar ?? 'Myanmar Calendar',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Text(
+              '${l10n?.appVersion ?? 'App Version'} $version',
+              style: TextStyle(fontSize: 13, color: t.secondaryLabel),
             ),
           ],
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
+        AppGroup(
           children: [
-            ListTile(
-              leading: const Icon(Icons.tag),
-              title: Text(l10n?.appVersion ?? 'App Version'),
-              subtitle: Text(widget.appVersion ?? AppConstants.appVersion),
+            AppRow(
+              key: const ValueKey('about-whats-new'),
+              icon: Icons.auto_awesome_outlined,
+              iconColor: SettingsIconColors.blue,
+              title: l10n?.whatsNewTitle ?? "What's new",
+              chevron: true,
+              onTap: () => GoRouter.of(context).go(RoutePaths.whatsNewPath()),
             ),
             if (!(kIsWeb || kIsWasm))
-              SettingsTile(
-                leading: const Icon(Icons.system_update_alt),
+              AppRow(
+                icon: Icons.system_update_alt_outlined,
+                iconColor: SettingsIconColors.blue,
                 title: l10n?.appUpdates ?? 'App Updates',
-                subtitle:
-                    l10n?.checkForNewVersionsAndUpdateSettings ??
-                    'Check for new versions and update settings',
+                chevron: true,
                 onTap: () => GoRouter.of(
                   context,
-                ).go("${RoutePaths.settings}/${RoutePaths.appUpdate}"),
+                ).go('${RoutePaths.settings}/${RoutePaths.appUpdate}'),
               ),
-            SettingsTile(
+            AppRow(
+              icon: Icons.description_outlined,
+              iconColor: SettingsIconColors.gray,
               title: l10n?.openSourceLicenses ?? 'Open Source Licenses',
-              subtitle: l10n?.viewAllLicenses ?? 'View all licenses',
-              leading: const Icon(Icons.description),
+              chevron: true,
               onTap: () => showLicensePage(context: context),
             ),
-            SettingsTile(
-              leading: const Icon(Icons.privacy_tip_outlined),
+            AppRow(
+              icon: Icons.privacy_tip_outlined,
+              iconColor: SettingsIconColors.gray,
               title: l10n?.privacyPolicy ?? 'Privacy policy',
-              subtitle: l10n?.viewPrivacyPolicy ?? 'View privacy & policy',
+              chevron: true,
               onTap: () => GoRouter.of(context).go(
-                "${RoutePaths.settings}/${RoutePaths.about}/${RoutePaths.privacyPolicy}",
+                '${RoutePaths.settings}/${RoutePaths.about}/${RoutePaths.privacyPolicy}',
               ),
             ),
-
-            // Debug: Clear promo data
-            if (kDebugMode)
-              SettingsTile(
-                leading: const Icon(Icons.refresh, color: Colors.orange),
+          ],
+        ),
+        if (kDebugMode && widget.onResetIntro != null)
+          AppGroup(
+            footer: l10n?.settingsDebugBuildsOnly ?? 'Debug builds only.',
+            children: [
+              AppRow(
                 title: l10n?.clearPromoDataDebug ?? 'Clear Promo Data (Debug)',
                 subtitle:
                     l10n?.resetOnboardingAnnouncements ??
                     'Reset onboarding & announcements',
-                onTap: () async {
-                  try {
-                    final promoRepo = getIt<PromoRepository>();
-                    await promoRepo.clearAllData();
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            l10n?.promoDataClearedRestartApp ??
-                                'Promo data cleared! Restart app to see onboarding.',
-                          ),
-                          duration: Duration(seconds: 3),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            l10n?.errorWithMessage(e.toString()) ?? 'Error: $e',
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  }
-                },
+                tone: AppRowTone.destructive,
+                onTap: () => _resetIntro(context),
               ),
-          ],
-        ),
-      ),
+            ],
+          ),
+      ],
     );
   }
 }

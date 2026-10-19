@@ -26,8 +26,10 @@ class GetEventsByDate implements UseCase<List<Event>, GetEventsByDateParams> {
         if (event.isRecurring && event.recurrenceRule != null) {
           final occurrences = event.recurrenceRule!.generateOccurrences(
             event.eventDate,
+            // The range end is inclusive: ending at the next day would add
+            // tomorrow's occurrence to this day's list.
             params.date,
-            params.date.add(const Duration(days: 1)),
+            params.date,
           );
           for (final occurrence in occurrences) {
             if (!allEvents.any((e) => e.isOnDate(occurrence))) {

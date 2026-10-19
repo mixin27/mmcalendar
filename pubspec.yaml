@@ -13,12 +13,13 @@ environment:
 workspace:
   - packages/shared/core
   - packages/shared/ui_kit
-  - packages/shared/overlay_editor
+  - packages/shared/moon
+  - packages/shared/motifs
   - packages/shared/localizations
   - packages/features/calendar
   - packages/features/views
   - packages/features/converter
-  - packages/features/calendar_generation
+  - packages/features/calendar_studio
   - packages/features/settings
   - packages/features/notes
   - packages/features/events
@@ -28,8 +29,9 @@ workspace:
   - packages/integrations/database
   - packages/integrations/firebase
   - packages/integrations/app_update
-  - packages/features/promo
   - packages/features/holidays
+  - packages/features/whats_new
+  - packages/features/onboarding
 
 # Workspace-level dependencies (shared across all packages)
 dependencies:

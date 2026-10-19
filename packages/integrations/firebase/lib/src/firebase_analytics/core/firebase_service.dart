@@ -1,4 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -33,6 +34,11 @@ class FirebaseService {
       // Initialize Firebase App
       _app = await Firebase.initializeApp(options: firebaseOptions);
 
+      // Protects backend calls such as Firebase AI Logic (Calendar Studio
+      // text suggestions). Nothing is blocked until enforcement is turned on
+      // in the Firebase console.
+      await _activateAppCheck();
+
       // Configure Crashlytics with config
       await _configureCrashlytics(enableDebugLogging);
 
@@ -43,6 +49,31 @@ class FirebaseService {
     } catch (e, stack) {
       _logger.e('❌ Firebase initialization failed: $e', stackTrace: stack);
       rethrow;
+    }
+  }
+
+  /// Activates App Check with Play Integrity / App Attest in release and the
+  /// debug provider in debug builds. Web is skipped because it needs a
+  /// reCAPTCHA site key. Failures never block app start-up.
+  static Future<void> _activateAppCheck() async {
+    if (kIsWeb) return;
+    final platform = defaultTargetPlatform;
+    if (platform != TargetPlatform.android &&
+        platform != TargetPlatform.iOS &&
+        platform != TargetPlatform.macOS) {
+      return;
+    }
+    try {
+      await FirebaseAppCheck.instance.activate(
+        providerAndroid: kDebugMode
+            ? const AndroidDebugProvider()
+            : const AndroidPlayIntegrityProvider(),
+        providerApple: kDebugMode
+            ? const AppleDebugProvider()
+            : const AppleAppAttestWithDeviceCheckFallbackProvider(),
+      );
+    } catch (e) {
+      _logger.w('App Check activation failed: $e');
     }
   }
 

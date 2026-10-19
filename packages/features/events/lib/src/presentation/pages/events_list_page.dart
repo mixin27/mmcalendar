@@ -1,17 +1,23 @@
 import 'package:shared_core/shared_core.dart'
-    show RoutePaths, showAppMyanmarDatePicker;
+    show
+        CalendarFormat,
+        CalendarLanguageContext,
+        RoutePaths,
+        showAppMyanmarDatePicker;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 import '../../domain/entities/event.dart';
 import '../../domain/repositories/events_repository.dart';
 import '../bloc/user_events_bloc.dart';
 import '../bloc/user_events_event.dart';
 import '../bloc/user_events_state.dart';
-import '../widgets/animated_event_card.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
+
+import '../widgets/event_row.dart';
 
 class EventsListPage extends StatefulWidget {
   const EventsListPage({super.key});
@@ -55,388 +61,118 @@ class _EventsListPageState extends State<EventsListPage>
     super.dispose();
   }
 
+  String _noEventsTitle(AppLocalizations? l10n) {
+    final dateText = context.calendarFormat.shortDate(_selectedDate);
+    return l10n?.eventsNoEventsOn(dateText) ?? 'No events on $dateText';
+  }
+
+  Future<void> _create() async {
+    await context.push(RoutePaths.eventsCreate(), extra: _selectedDate);
+    if (mounted) await _refreshSelectedDateAndIndicators();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final t = context.tokens;
+    final l10n = AppLocalizations.of(context);
+    return BlocConsumer<UserEventsBloc, UserEventsState>(
+      listenWhen: (previous, current) =>
+          current is EventsOperationSuccess || current is EventsError,
+      listener: (context, state) {
+        if (state is EventsOperationSuccess) {
+          context.showToast(state.message, kind: AppToastKind.success);
+          _refreshDayEventCounts();
+        } else if (state is EventsError) {
+          context.showToast(state.failure.message, kind: AppToastKind.error);
+        }
+      },
+      builder: (context, state) {
+        final events = List<Event>.from(_eventsFromState(state))
+          ..sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
+        final loading = state is EventsLoading && events.isEmpty;
+        final count = events.length;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: BlocConsumer<UserEventsBloc, UserEventsState>(
-        listenWhen: (previous, current) =>
-            current is EventsOperationSuccess || current is EventsError,
-        listener: (context, state) {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          if (state is EventsOperationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          } else if (state is EventsError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.failure.message),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: colorScheme.error,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          final events = List<Event>.from(
-            _eventsFromState(state),
-            growable: true,
-          )..sort((a, b) => a.eventDateTime.compareTo(b.eventDateTime));
-          final isInitialLoading = state is EventsLoading && events.isEmpty;
-
-          return RefreshIndicator(
-            onRefresh: _refreshSelectedDateAndIndicators,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              slivers: [
-                _buildAppBar(context, events),
-                SliverToBoxAdapter(child: _buildDaySelector(context)),
-                if (state is EventsOperationInProgress)
-                  const SliverToBoxAdapter(
-                    child: LinearProgressIndicator(minHeight: 2),
-                  ),
-                if (isInitialLoading)
-                  const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (state is EventsError && events.isEmpty)
-                  SliverFillRemaining(
-                    child: _buildErrorState(state.failure.message),
-                  )
-                else
-                  _buildSelectedDateEvents(events),
-              ],
-            ),
-          );
-        },
-      ),
-      floatingActionButton: ScaleTransition(
-        scale: _fabScaleAnimation,
-        child: FloatingActionButton.extended(
-          onPressed: () async {
-            await context.push(RoutePaths.eventsCreate());
-            if (context.mounted) {
-              await _refreshSelectedDateAndIndicators();
-            }
-          },
-          icon: const Icon(Icons.add),
-          label: const Text('New Event'),
-        ),
-      ),
-    );
-  }
-
-  SliverAppBar _buildAppBar(BuildContext context, List<Event> events) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return SliverAppBar(
-      expandedHeight: 142,
-      pinned: true,
-      elevation: 0,
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Events', style: TextStyle(fontWeight: FontWeight.w700)),
-            Text(
-              '${DateFormat('EEEE, MMM d').format(_selectedDate)} • ${events.length} event${events.length == 1 ? '' : 's'}',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: colorScheme.onPrimaryContainer,
-              ),
-            ),
-          ],
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                colorScheme.primaryContainer,
-                colorScheme.primaryContainer.withValues(alpha: 0.7),
-              ],
-            ),
-          ),
-        ),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () => _showSearch(context),
-          tooltip: 'Search events',
-        ),
-        IconButton(
-          icon: const Icon(Icons.date_range),
-          tooltip: 'Pick date',
-          onPressed: () => _pickDate(context),
-        ),
-        IconButton(
-          icon: const Icon(Icons.today),
-          tooltip: 'Jump to today',
-          onPressed: () => _onDaySelected(_dateOnly(DateTime.now())),
-        ),
-        IconButton(
-          icon: const Icon(Icons.refresh),
-          tooltip: 'Refresh',
-          onPressed: _refreshSelectedDateAndIndicators,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDaySelector(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final startDate = _selectedDate.subtract(const Duration(days: 6));
-    final dates = List<DateTime>.generate(
-      13,
-      (index) => _dateOnly(startDate.add(Duration(days: index))),
-    );
-
-    return Column(
-      children: [
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Text(
-                DateFormat('MMMM yyyy').format(_selectedDate),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const Spacer(),
+        return RefreshIndicator(
+          onRefresh: _refreshSelectedDateAndIndicators,
+          child: AppPage(
+            title: l10n?.events ?? 'Events',
+            actions: [
               IconButton(
-                onPressed: () => _onDaySelected(
-                  _selectedDate.subtract(const Duration(days: 1)),
+                icon: const Icon(Icons.search),
+                tooltip: l10n?.eventsSearchEvents ?? 'Search events',
+                onPressed: () => _showSearch(context),
+              ),
+              _MoreMenu(
+                onPickDate: () => _pickDate(context),
+                onToday: () => _onDaySelected(_dateOnly(DateTime.now())),
+                onRefresh: _refreshSelectedDateAndIndicators,
+                onCategories: () =>
+                    context.push(RoutePaths.eventsCategoriesPath()),
+              ),
+              if (t.isClear)
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  tooltip: l10n?.newEvent ?? 'New Event',
+                  onPressed: _create,
                 ),
-                icon: const Icon(Icons.chevron_left),
-                tooltip: 'Previous day',
+            ],
+            floatingActionButton: t.isClear
+                ? null
+                : ScaleTransition(
+                    scale: _fabScaleAnimation,
+                    child: FloatingActionButton(
+                      tooltip: l10n?.newEvent ?? 'New Event',
+                      onPressed: _create,
+                      child: const Icon(Icons.add),
+                    ),
+                  ),
+            children: [
+              _DayStrip(
+                selected: _selectedDate,
+                counts: _dayEventCounts,
+                onSelected: _onDaySelected,
               ),
-              IconButton(
-                onPressed: () =>
-                    _onDaySelected(_selectedDate.add(const Duration(days: 1))),
-                icon: const Icon(Icons.chevron_right),
-                tooltip: 'Next day',
-              ),
+              if (state is EventsOperationInProgress)
+                const LinearProgressIndicator(minHeight: 2),
+              if (loading)
+                const Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (state is EventsError && events.isEmpty)
+                _EmptyCard(
+                  icon: Icons.error_outline,
+                  title: state.failure.message,
+                  action: l10n?.tryAgain ?? 'Try Again',
+                  onAction: _refreshSelectedDateAndIndicators,
+                )
+              else if (events.isEmpty)
+                _EmptyCard(
+                  icon: Icons.event_available_outlined,
+                  title: _noEventsTitle(l10n),
+                  subtitle:
+                      l10n?.eventsPickAnotherDay ??
+                      'Pick another day or create one.',
+                  action: l10n?.newEvent ?? 'New Event',
+                  onAction: _create,
+                )
+              else
+                AppGroup(
+                  label:
+                      '${_isSameDay(_selectedDate, DateTime.now()) ? (l10n?.today ?? 'Today') : context.calendarFormat.shortDate(_selectedDate)} · '
+                      '${l10n?.eventsEventCount(count) ?? '$count event${count == 1 ? '' : 's'}'}',
+                  children: [
+                    for (final event in events)
+                      EventRow(
+                        event: event,
+                        onOpen: () => _openEventDetail(event),
+                      ),
+                  ],
+                ),
             ],
           ),
-        ),
-        SizedBox(
-          height: 86,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            scrollDirection: Axis.horizontal,
-            itemCount: dates.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 8),
-            itemBuilder: (context, index) {
-              final date = dates[index];
-              final isSelected = _isSameDay(date, _selectedDate);
-              final isToday = _isSameDay(date, DateTime.now());
-              final eventCount = _dayEventCounts[_dateOnly(date)] ?? 0;
-              final hasEvents = eventCount > 0;
-
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                width: 64,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: isSelected
-                      ? colorScheme.primary
-                      : colorScheme.surfaceContainerHighest,
-                  border: Border.all(
-                    color: isToday
-                        ? colorScheme.primary.withValues(alpha: 0.45)
-                        : Colors.transparent,
-                    width: 1.3,
-                  ),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => _onDaySelected(date),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        DateFormat('E').format(date).toUpperCase(),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: isSelected
-                              ? colorScheme.onPrimary
-                              : colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        DateFormat('d').format(date),
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: isSelected
-                                  ? colorScheme.onPrimary
-                                  : colorScheme.onSurface,
-                              fontWeight: FontWeight.w800,
-                            ),
-                      ),
-                      if (hasEvents) ...[
-                        const SizedBox(height: 4),
-                        Container(
-                          constraints: const BoxConstraints(minWidth: 8),
-                          padding: eventCount > 1
-                              ? const EdgeInsets.symmetric(horizontal: 4)
-                              : EdgeInsets.zero,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : colorScheme.primary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: eventCount > 1
-                              ? Center(
-                                  child: Text(
-                                    eventCount > 9 ? '9+' : '$eventCount',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall
-                                        ?.copyWith(
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.w700,
-                                          color: isSelected
-                                              ? colorScheme.primary
-                                              : colorScheme.onPrimary,
-                                        ),
-                                  ),
-                                )
-                              : null,
-                        ),
-                      ] else if (isToday && !isSelected) ...[
-                        const SizedBox(height: 4),
-                        Container(
-                          width: 5,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 8),
-      ],
-    );
-  }
-
-  Widget _buildSelectedDateEvents(List<Event> events) {
-    if (events.isEmpty) {
-      return SliverFillRemaining(child: _buildEmptyState());
-    }
-
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverList.builder(
-        itemCount: events.length,
-        itemBuilder: (context, index) {
-          final event = events[index];
-          return AnimatedEventCard(
-            event: event,
-            delay: Duration(milliseconds: index * 40),
-            showTimeline: true,
-            isFirst: index == 0,
-            isLast: index == events.length - 1,
-            onTap: () => _openEventDetail(event),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(28),
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withValues(alpha: 0.4),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.event_busy,
-                size: 64,
-                color: colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'No events for ${DateFormat('MMM d').format(_selectedDate)}',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Select another day or create a new event.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: () => context.push(RoutePaths.eventsCreate()),
-              icon: const Icon(Icons.add),
-              label: const Text('Create Event'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _refreshSelectedDateAndIndicators,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
-            ),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -625,27 +361,30 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
           if (state.events.isEmpty) {
             return _buildNoResults(context);
           }
-          return ListView.builder(
+          return ListView(
             padding: const EdgeInsets.all(16),
-            itemCount: state.events.length,
-            itemBuilder: (context, index) {
-              final event = state.events[index];
-              return AnimatedEventCard(
-                event: event,
-                delay: Duration(milliseconds: index * 30),
-                onTap: () async {
-                  if (event.id != null) {
-                    final router = GoRouter.of(context);
-                    close(context, event);
-                    await router.push(
-                      RoutePaths.eventsDetail(event.id!),
-                      extra: event.eventDate,
-                    );
-                    onClosed();
-                  }
-                },
-              );
-            },
+            children: [
+              AppGroup(
+                label: AppLocalizations.of(context)?.eventsResults ?? 'Results',
+                children: [
+                  for (final event in state.events)
+                    EventRow(
+                      event: event,
+                      showDate: true,
+                      onOpen: () async {
+                        if (event.id == null) return;
+                        final router = GoRouter.of(context);
+                        close(context, event);
+                        await router.push(
+                          RoutePaths.eventsDetail(event.id!),
+                          extra: event.eventDate,
+                        );
+                        onClosed();
+                      },
+                    ),
+                ],
+              ),
+            ],
           );
         }
         if (state is EventsError) {
@@ -662,6 +401,7 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
   }
 
   Widget _buildPrompt(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -674,10 +414,13 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
             ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
-          Text('Search events', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            l10n?.eventsSearchEvents ?? 'Search events',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 8),
           Text(
-            'Type title or description',
+            l10n?.eventsSearchPromptHint ?? 'Type title or description',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -688,6 +431,7 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
   }
 
   Widget _buildNoResults(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -701,17 +445,223 @@ class _EventSearchDelegate extends SearchDelegate<Event?> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No results found',
+            l10n?.eventsNoResultsFound ?? 'No results found',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'Try a different keyword',
+            l10n?.eventsTryDifferentKeyword ?? 'Try a different keyword',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Search, pick a date, today, refresh and Categories.
+class _MoreMenu extends StatelessWidget {
+  const _MoreMenu({
+    required this.onPickDate,
+    required this.onToday,
+    required this.onRefresh,
+    required this.onCategories,
+  });
+
+  final VoidCallback onPickDate;
+  final VoidCallback onToday;
+  final VoidCallback onRefresh;
+  final VoidCallback onCategories;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AppMenuButton(
+      groups: [
+        [
+          AppMenuAction(
+            label: l10n?.eventsPickADate ?? 'Pick a date',
+            icon: Icons.calendar_month_outlined,
+            onSelected: onPickDate,
+          ),
+          AppMenuAction(
+            label: l10n?.eventsJumpToToday ?? 'Jump to today',
+            icon: Icons.today_outlined,
+            onSelected: onToday,
+          ),
+          AppMenuAction(
+            label: l10n?.refresh ?? 'Refresh',
+            icon: Icons.refresh_rounded,
+            onSelected: onRefresh,
+          ),
+        ],
+        [
+          AppMenuAction(
+            label: l10n?.categories ?? 'Categories',
+            icon: Icons.sell_outlined,
+            onSelected: onCategories,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Thirteen days around the selection with event counts.
+class _DayStrip extends StatelessWidget {
+  const _DayStrip({
+    required this.selected,
+    required this.counts,
+    required this.onSelected,
+  });
+
+  final DateTime selected;
+  final Map<DateTime, int> counts;
+  final ValueChanged<DateTime> onSelected;
+
+  static String _semanticsLabel(
+    AppLocalizations? l10n,
+    CalendarFormat format,
+    DateTime date,
+    int count,
+  ) {
+    final dateText = format.fullDate(date);
+    return l10n?.eventsDayEventsSemantics(dateText, count) ??
+        '$dateText, $count events';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final start = selected.subtract(const Duration(days: 6));
+    final today = DateUtils.dateOnly(DateTime.now());
+    final l10n = AppLocalizations.of(context);
+    return SizedBox(
+      height: 72,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: 13,
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
+        // Start scrolled so the selected day sits in view.
+        controller: ScrollController(initialScrollOffset: 6 * 52 - 120),
+        itemBuilder: (context, i) {
+          final date = DateUtils.dateOnly(start.add(Duration(days: i)));
+          final isSelected = DateUtils.isSameDay(date, selected);
+          final isToday = DateUtils.isSameDay(date, today);
+          final count = counts[date] ?? 0;
+          final fg = isSelected ? t.onAccent : t.label;
+          return Semantics(
+            selected: isSelected,
+            button: true,
+            label: _semanticsLabel(l10n, context.calendarFormat, date, count),
+            excludeSemantics: true,
+            child: Material(
+              color: isSelected ? t.accent : t.surface,
+              borderRadius: BorderRadius.circular(14),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () => onSelected(date),
+                child: Container(
+                  width: 46,
+                  decoration: isToday && !isSelected
+                      ? BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: t.accent, width: 1.2),
+                        )
+                      : null,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        context.calendarFormat.weekday(date, short: true),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isSelected
+                              ? t.onAccent.withValues(alpha: .8)
+                              : t.secondaryLabel,
+                        ),
+                      ),
+                      Text(
+                        '${date.day}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: fg,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 6,
+                        child: count == 0
+                            ? null
+                            : Container(
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: isSelected ? t.onAccent : t.accent,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _EmptyCard extends StatelessWidget {
+  const _EmptyCard({
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    required this.action,
+    required this.onAction,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final String action;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
+        child: Column(
+          children: [
+            Icon(icon, size: 40, color: t.tertiaryLabel),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            if (subtitle != null)
+              Text(
+                subtitle!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: t.secondaryLabel),
+              ),
+            const SizedBox(height: 16),
+            AppButton(
+              label: action,
+              kind: AppButtonKind.tinted,
+              expand: false,
+              compact: true,
+              onPressed: onAction,
+            ),
+          ],
+        ),
       ),
     );
   }

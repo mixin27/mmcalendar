@@ -38,22 +38,24 @@ dependencies:
     path: ../../packages/features/views
   converter:
     path: ../../packages/features/converter
-  calendar_generation:
-    path: ../../packages/features/calendar_generation
+  calendar_studio:
+    path: ../../packages/features/calendar_studio
   events:
     path: ../../packages/features/events
   home_widgets:
     path: ../../packages/features/home_widgets
   telegram_web:
     path: ../../packages/integrations/telegram_web
-  promo:
-    path: ../../packages/features/promo
   holidays:
     path: ../../packages/features/holidays
+  whats_new:
+    path: ../../packages/features/whats_new
+  onboarding:
+    path: ../../packages/features/onboarding
+  package_info_plus: ^9.0.0
 
   # Myanmar calendar
-  myanmar_calendar_dart: ^2.0.1
-  flutter_mmcalendar: ^3.3.1
+  myanmar_calendar_dart: ^3.0.1
 
   # State management
   bloc: ^9.2.0
@@ -76,9 +78,22 @@ dependencies:
   shared_preferences: ^2.5.5
   workmanager: ^0.10.0
   flutter_svg: ^2.3.0
+  printing: ^5.15.0
+  path_provider: ^2.1.6
+  path: ^1.9.1
+  file_picker: ^10.3.2
+  share_plus: ^12.0.0
 
   # Firebase
   firebase_core: ^4.14.0
+  image_picker: ^1.2.4
+  pro_image_editor: ^14.14.2
+  material_ui: ^1.2.0
+  firebase_ai: ^4.0.0
+  # Transitive via firebase_ai. Capped below 6.7.0, which pins
+  # firebase-ios-sdk 12.19.0; the other FlutterFire plugins pin 12.18.0
+  # and iOS SPM needs one exact SDK version.
+  firebase_auth: '>=6.6.0 <6.7.0'
 
 dev_dependencies:
   flutter_test:
@@ -86,7 +101,6 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner:
   injectable_generator: ^3.1.3
-  build_version:
 
 flutter:
   uses-material-design: true
@@ -95,3 +109,23 @@ flutter:
     - assets/fonts/google_fonts/
     - assets/images/
     - assets/branding/
+
+  fonts:
+    - family: Noto Sans Myanmar
+      fonts:
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Light.ttf
+          weight: 300
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/google_fonts/NotoSansMyanmar-Black.ttf
+          weight: 900

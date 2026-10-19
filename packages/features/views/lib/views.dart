@@ -20,6 +20,7 @@ export 'src/presentation/bloc/views_state.dart';
 export 'src/presentation/pages/views_selector_page.dart';
 export 'src/presentation/pages/year_view_page.dart';
 export 'src/presentation/pages/week_view_page.dart';
-export 'src/presentation/pages/day_view_page.dart';
+export 'src/presentation/pages/myanmar_month_view_page.dart';
+export 'src/presentation/pages/agenda_view_page.dart';
 
 export 'src/di/views_injection.dart' hide getIt;

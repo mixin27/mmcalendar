@@ -1,477 +1,316 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../design/app_style.dart';
+import '../design/app_tokens.dart';
 import 'color_schemes.dart';
 import 'text_styles.dart';
 
+/// Builds the app's [ThemeData] for one design style and colour scheme.
+///
+/// Both styles share colours and type; Clear restyles Material widgets to
+/// read as iOS (grouped grey background, flat bars, hairlines, iOS page
+/// transitions) while Material keeps Material 3 behaviour.
 class AppTheme {
   static const double defaultRadius = 12.0;
-  static const double defaultElevation = 2.0;
 
-  /// Create light theme with optional custom color scheme
-  static ThemeData lightTheme({ColorScheme? customColors}) {
-    final colorScheme = customColors ?? AppColorSchemes.modernLight;
+  static ThemeData build({
+    required AppStyle style,
+    required ColorScheme colorScheme,
+  }) {
+    final resolved = style.resolve();
+    final tokens = AppTokens.resolve(style: resolved, scheme: colorScheme);
+    return resolved == AppStyle.clear
+        ? _clear(colorScheme, tokens)
+        : _material(colorScheme, tokens);
+  }
 
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      textTheme: AppTextStyles.textTheme(colorScheme),
+  /// Material style with the default scheme for [brightness].
+  static ThemeData lightTheme({ColorScheme? customColors}) => build(
+    style: AppStyle.material,
+    colorScheme: customColors ?? AppColorSchemes.modernLight,
+  );
 
-      // AppBar Theme
+  static ThemeData darkTheme({ColorScheme? customColors}) => build(
+    style: AppStyle.material,
+    colorScheme: customColors ?? AppColorSchemes.modernDark,
+  );
+
+  static ThemeData _base(
+    ColorScheme scheme,
+    AppTokens tokens,
+    TextTheme textTheme,
+  ) => ThemeData(
+    useMaterial3: true,
+    fontFamily: AppTextStyles.qualifiedFamily,
+    fontFamilyFallback: AppTextStyles.qualifiedFallback,
+    colorScheme: scheme,
+    brightness: scheme.brightness,
+    textTheme: textTheme,
+    extensions: [tokens],
+    scaffoldBackgroundColor: tokens.background,
+    canvasColor: tokens.background,
+    dividerTheme: DividerThemeData(
+      color: tokens.separator,
+      thickness: .5,
+      space: .5,
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: tokens.accent),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(tokens.isClear ? 14 : 8),
+      ),
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(color: tokens.accent),
+  );
+
+  static ThemeData _clear(ColorScheme scheme, AppTokens t) {
+    final text = AppTextStyles.textTheme(scheme);
+    final textTheme = text.copyWith(
+      headlineLarge: text.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
+      headlineMedium: text.headlineMedium?.copyWith(
+        fontWeight: FontWeight.w800,
+      ),
+      headlineSmall: text.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+      titleLarge: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+    );
+    final controlShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(t.controlRadius),
+    );
+    return _base(scheme, t, textTheme).copyWith(
+      cupertinoOverrideTheme: CupertinoThemeData(
+        brightness: scheme.brightness,
+        primaryColor: t.accent,
+        scaffoldBackgroundColor: t.background,
+        barBackgroundColor: t.bar,
+        textTheme: CupertinoTextThemeData(
+          primaryColor: t.accent,
+          textStyle: textTheme.bodyLarge?.copyWith(color: t.label),
+          navTitleTextStyle: textTheme.titleMedium?.copyWith(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: t.label,
+          ),
+          // Myanmar stacks marks above and below: give titles room.
+          navLargeTitleTextStyle: textTheme.headlineMedium?.copyWith(
+            fontSize: 30,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -.4,
+            height: 1.3,
+            color: t.label,
+          ),
+          navActionTextStyle: textTheme.bodyLarge?.copyWith(
+            fontSize: 17,
+            color: t.accent,
+          ),
+        ),
+      ),
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          for (final platform in TargetPlatform.values)
+            platform: const CupertinoPageTransitionsBuilder(),
+        },
+      ),
+      splashFactory: NoSplash.splashFactory,
+      // iOS chevron for Back on every platform (AppBar pages).
+      actionIconTheme: ActionIconThemeData(
+        backButtonIconBuilder: (_) =>
+            const Icon(Icons.arrow_back_ios_new_rounded, size: 21),
+      ),
       appBarTheme: AppBarTheme(
         centerTitle: true,
         elevation: 0,
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        surfaceTintColor: colorScheme.surfaceTint,
-        titleTextStyle: GoogleFonts.notoSansMyanmar(
-          fontSize: 20,
+        scrolledUnderElevation: 0,
+        backgroundColor: t.background,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: t.label,
+        iconTheme: IconThemeData(color: t.accent),
+        actionsIconTheme: IconThemeData(color: t.accent),
+        titleTextStyle: textTheme.titleMedium?.copyWith(
+          fontSize: 17,
           fontWeight: FontWeight.w600,
-          color: colorScheme.onSurface,
+          color: t.label,
         ),
       ),
-
-      // Card Theme
       cardTheme: CardThemeData(
-        elevation: defaultElevation,
+        elevation: 0,
+        color: t.surface,
+        surfaceTintColor: Colors.transparent,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
+          borderRadius: BorderRadius.circular(t.groupRadius),
         ),
-        color: colorScheme.surface,
       ),
-
-      // Elevated Button Theme
+      listTileTheme: ListTileThemeData(
+        iconColor: t.accent,
+        textColor: t.label,
+        tileColor: Colors.transparent,
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: const WidgetStatePropertyAll(Colors.white),
+        trackColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? t.success : t.fill,
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(64, 50),
+          shape: controlShape,
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          elevation: defaultElevation,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(defaultRadius),
-          ),
-          textStyle: GoogleFonts.notoSansMyanmar(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          elevation: 0,
+          minimumSize: const Size(64, 50),
+          shape: controlShape,
+          backgroundColor: t.accent,
+          foregroundColor: t.onAccent,
         ),
       ),
-
-      // Text Button Theme
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(defaultRadius),
-          ),
-          textStyle: GoogleFonts.notoSansMyanmar(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-
-      // Outlined Button Theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(defaultRadius),
-          ),
-          side: BorderSide(color: colorScheme.outline),
-          textStyle: GoogleFonts.notoSansMyanmar(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          minimumSize: const Size(64, 50),
+          shape: controlShape,
+          foregroundColor: t.accent,
+          side: BorderSide(color: t.separator),
         ),
       ),
-
-      // Floating Action Button Theme
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        elevation: defaultElevation,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-
-      // Icon Theme
-      iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
-
-      // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest,
+        fillColor: t.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
+          borderRadius: BorderRadius.circular(11),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
+          borderRadius: BorderRadius.circular(11),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-          borderSide: BorderSide(color: colorScheme.error),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          borderRadius: BorderRadius.circular(11),
+          borderSide: BorderSide(color: t.accent, width: 1.5),
         ),
       ),
-
-      // Divider Theme
-      dividerTheme: DividerThemeData(
-        color: colorScheme.outlineVariant,
-        thickness: 1,
-        space: 1,
+      chipTheme: ChipThemeData(
+        backgroundColor: t.fill,
+        selectedColor: t.accent,
+        side: BorderSide.none,
+        shape: const StadiumBorder(),
+        labelStyle: TextStyle(color: t.label),
+        secondaryLabelStyle: TextStyle(color: t.onAccent),
+        checkmarkColor: t.onAccent,
       ),
-
-      // List Tile Theme
-      listTileTheme: ListTileThemeData(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: SegmentedButton.styleFrom(
+          backgroundColor: t.fill,
+          selectedBackgroundColor: t.surface,
+          selectedForegroundColor: t.label,
+          side: BorderSide.none,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
         ),
       ),
-
-      // Dialog Theme
-      dialogTheme: DialogThemeData(
-        elevation: defaultElevation * 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius * 2),
-        ),
-        backgroundColor: colorScheme.surface,
-      ),
-
-      // Bottom Sheet Theme
       bottomSheetTheme: BottomSheetThemeData(
-        elevation: defaultElevation * 2,
+        backgroundColor: t.background,
+        surfaceTintColor: Colors.transparent,
+        showDragHandle: false,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(defaultRadius * 2),
+            top: Radius.circular(t.sheetRadius),
           ),
         ),
-        backgroundColor: colorScheme.surface,
       ),
-
-      // Bottom Navigation Bar Theme
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        elevation: defaultElevation,
-        backgroundColor: colorScheme.surface,
-        selectedItemColor: colorScheme.primary,
-        unselectedItemColor: colorScheme.onSurfaceVariant,
-        type: BottomNavigationBarType.fixed,
+      dialogTheme: DialogThemeData(
+        backgroundColor: t.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-
-      // Navigation Bar Theme (Material 3)
-      navigationBarTheme: NavigationBarThemeData(
-        elevation: defaultElevation,
-        backgroundColor: colorScheme.surface,
-        indicatorColor: colorScheme.primaryContainer,
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.notoSansMyanmar(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            );
-          }
-          return GoogleFonts.notoSansMyanmar(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurfaceVariant,
-          );
-        }),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: t.accent,
+        foregroundColor: t.onAccent,
+        elevation: 2,
+        shape: const CircleBorder(),
       ),
-
-      // Chip Theme
-      chipTheme: ChipThemeData(
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-        ),
-        backgroundColor: colorScheme.surfaceContainerHighest,
-        labelStyle: GoogleFonts.notoSansMyanmar(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurface,
-        ),
-      ),
-
-      // Switch Theme
-      switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary;
-          }
-          return colorScheme.outline;
-        }),
-        trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primaryContainer;
-          }
-          return colorScheme.surfaceContainerHighest;
-        }),
-      ),
-
-      // Slider Theme
-      sliderTheme: SliderThemeData(
-        activeTrackColor: colorScheme.primary,
-        inactiveTrackColor: colorScheme.surfaceContainerHighest,
-        thumbColor: colorScheme.primary,
-        overlayColor: colorScheme.primary.withValues(alpha: 0.12),
-      ),
-
-      // Progress Indicator Theme
-      progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: colorScheme.primary,
-      ),
-
-      // Snackbar Theme
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: colorScheme.inverseSurface,
-        contentTextStyle: GoogleFonts.notoSansMyanmar(
-          color: colorScheme.onInverseSurface,
-        ),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-        ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: t.surfaceRaised,
+        indicatorColor: t.accentSoft,
+        selectedIconTheme: IconThemeData(color: t.accent),
       ),
     );
   }
 
-  /// Create dark theme with optional custom color scheme
-  static ThemeData darkTheme({ColorScheme? customColors}) {
-    final colorScheme = customColors ?? AppColorSchemes.modernDark;
-
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      textTheme: AppTextStyles.textTheme(colorScheme),
-
-      // AppBar Theme
+  static ThemeData _material(ColorScheme scheme, AppTokens t) {
+    final textTheme = AppTextStyles.textTheme(scheme);
+    return _base(scheme, t, textTheme).copyWith(
       appBarTheme: AppBarTheme(
-        centerTitle: true,
+        centerTitle: false,
         elevation: 0,
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        surfaceTintColor: colorScheme.surfaceTint,
-        titleTextStyle: GoogleFonts.notoSansMyanmar(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: colorScheme.onSurface,
+        scrolledUnderElevation: 3,
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
+        titleTextStyle: textTheme.titleLarge?.copyWith(
+          fontSize: 22,
+          fontWeight: FontWeight.w400,
         ),
       ),
-
-      // Card Theme
       cardTheme: CardThemeData(
-        elevation: defaultElevation,
+        elevation: 0,
+        color: t.surface,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-        ),
-        color: colorScheme.surface,
-      ),
-
-      // Elevated Button Theme
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: defaultElevation,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(defaultRadius),
-          ),
-          textStyle: GoogleFonts.notoSansMyanmar(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          borderRadius: BorderRadius.circular(t.groupRadius),
         ),
       ),
-
-      // Text Button Theme
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(defaultRadius),
-          ),
-          textStyle: GoogleFonts.notoSansMyanmar(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(64, 48),
+          shape: const StadiumBorder(),
         ),
       ),
-
-      // Outlined Button Theme
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(defaultRadius),
-          ),
-          side: BorderSide(color: colorScheme.outline),
-          textStyle: GoogleFonts.notoSansMyanmar(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-
-      // Floating Action Button Theme
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        elevation: defaultElevation,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-
-      // Icon Theme
-      iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
-
-      // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: colorScheme.surfaceContainerHighest,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-          borderSide: BorderSide(color: colorScheme.error),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
       ),
-
-      // Divider Theme
-      dividerTheme: DividerThemeData(
-        color: colorScheme.outlineVariant,
-        thickness: 1,
-        space: 1,
-      ),
-
-      // List Tile Theme
-      listTileTheme: ListTileThemeData(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      chipTheme: const ChipThemeData(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
       ),
-
-      // Dialog Theme
-      dialogTheme: DialogThemeData(
-        elevation: defaultElevation * 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius * 2),
-        ),
-        backgroundColor: colorScheme.surface,
-      ),
-
-      // Bottom Sheet Theme
       bottomSheetTheme: BottomSheetThemeData(
-        elevation: defaultElevation * 2,
+        backgroundColor: t.surface,
+        showDragHandle: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(defaultRadius * 2),
+            top: Radius.circular(t.sheetRadius),
           ),
         ),
-        backgroundColor: colorScheme.surface,
       ),
-
-      // Bottom Navigation Bar Theme
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        elevation: defaultElevation,
-        backgroundColor: colorScheme.surface,
-        selectedItemColor: colorScheme.primary,
-        unselectedItemColor: colorScheme.onSurfaceVariant,
-        type: BottomNavigationBarType.fixed,
+      dialogTheme: const DialogThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(28)),
+        ),
       ),
-
-      // Navigation Bar Theme (Material 3)
       navigationBarTheme: NavigationBarThemeData(
-        elevation: defaultElevation,
-        backgroundColor: colorScheme.surface,
-        indicatorColor: colorScheme.primaryContainer,
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.notoSansMyanmar(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            );
-          }
-          return GoogleFonts.notoSansMyanmar(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurfaceVariant,
-          );
-        }),
-      ),
-
-      // Chip Theme
-      chipTheme: ChipThemeData(
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-        ),
-        backgroundColor: colorScheme.surfaceContainerHighest,
-        labelStyle: GoogleFonts.notoSansMyanmar(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurface,
+        backgroundColor: t.bar,
+        indicatorColor: scheme.secondaryContainer,
+        height: 80,
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (s) => textTheme.labelMedium?.copyWith(
+            fontWeight: s.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+          ),
         ),
       ),
-
-      // Switch Theme
-      switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary;
-          }
-          return colorScheme.outline;
-        }),
-        trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primaryContainer;
-          }
-          return colorScheme.surfaceContainerHighest;
-        }),
-      ),
-
-      // Slider Theme
-      sliderTheme: SliderThemeData(
-        activeTrackColor: colorScheme.primary,
-        inactiveTrackColor: colorScheme.surfaceContainerHighest,
-        thumbColor: colorScheme.primary,
-        overlayColor: colorScheme.primary.withValues(alpha: 0.12),
-      ),
-
-      // Progress Indicator Theme
-      progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: colorScheme.primary,
-      ),
-
-      // Snackbar Theme
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: colorScheme.inverseSurface,
-        contentTextStyle: GoogleFonts.notoSansMyanmar(
-          color: colorScheme.onInverseSurface,
-        ),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-        ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: scheme.surface,
+        indicatorColor: scheme.secondaryContainer,
       ),
     );
   }

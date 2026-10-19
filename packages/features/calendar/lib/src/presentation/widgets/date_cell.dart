@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
+import 'calendar_colors.dart';
+
+/// The classic grid style: bordered tiles with coloured marker dots.
+
 class DateCell extends StatefulWidget {
   final CompleteDate dateInfo;
   final bool isSelected;
@@ -64,6 +68,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final colors = CalendarColors.of(context);
 
     // Determine styling
     Color? backgroundColor;
@@ -71,21 +76,21 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
     Color textColor = colorScheme.onSurface;
     double opacity = 1.0;
 
-    if (widget.isSelected) {
-      backgroundColor = colorScheme.primary;
-      textColor = colorScheme.onPrimary;
-    } else if (widget.isToday) {
-      backgroundColor = colorScheme.primaryContainer;
+    // The selected day gets a soft accent tint; today keeps its outline.
+    if (widget.isToday) {
+      backgroundColor = widget.isSelected
+          ? colors.accentSoft
+          : colorScheme.primaryContainer;
       textColor = colorScheme.onPrimaryContainer;
       borderColor = colorScheme.primary;
+    } else if (widget.isSelected) {
+      backgroundColor = colors.accentSoft;
     } else if (widget.dateInfo.isFullMoon) {
-      backgroundColor = Colors.amber.shade50;
-      textColor = Colors.amber.shade900;
-      borderColor = Colors.amber.shade200;
+      backgroundColor = colors.sabbathSoft;
+      borderColor = colors.sabbath.withValues(alpha: .35);
     } else if (widget.dateInfo.isNewMoon) {
-      backgroundColor = Colors.indigo.shade50;
-      textColor = Colors.indigo.shade900;
-      borderColor = Colors.indigo.shade200;
+      backgroundColor = colors.fill;
+      borderColor = colors.separator;
     }
 
     if (!widget.isInCurrentMonth) {
@@ -117,26 +122,21 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
             curve: Curves.easeInOut,
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: backgroundColor?.withValues(alpha: opacity),
+              color: backgroundColor?.withValues(
+                alpha: backgroundColor.a * opacity,
+              ),
               borderRadius: BorderRadius.circular(12),
               border: borderColor != null
                   ? Border.all(
-                      color: borderColor.withValues(alpha: opacity),
+                      color: borderColor.withValues(
+                        alpha: borderColor.a * opacity,
+                      ),
                       width: widget.isToday ? 2 : 1,
                     )
                   : Border.all(
                       color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                       width: 0.5,
                     ),
-              boxShadow: widget.isSelected
-                  ? [
-                      BoxShadow(
-                        color: colorScheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
             ),
             child: Stack(
               children: [
@@ -152,7 +152,8 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
 
                       // Middle section: Date numbers
                       Expanded(
-                        child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
                           child: _buildDateNumbers(textColor, opacity),
                         ),
                       ),
@@ -205,6 +206,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
   }
 
   Widget _buildTopIndicators(Color textColor, double opacity) {
+    final colors = CalendarColors.of(context);
     final hasIndicators =
         (widget.showHolidays && widget.dateInfo.hasHolidays) ||
         (widget.showAnniversaryDays && widget.dateInfo.hasAnniversaryDays) ||
@@ -222,30 +224,30 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
         children: [
           if (widget.showHolidays && widget.dateInfo.hasHolidays)
             _buildDot(
-              widget.isSelected || widget.isToday
+              widget.isToday
                   ? textColor.withValues(alpha: 0.8)
-                  : Colors.red.shade600,
+                  : colors.holiday,
               opacity,
             ),
           if (widget.showAnniversaryDays && widget.dateInfo.hasAnniversaryDays)
             _buildDot(
-              widget.isSelected || widget.isToday
+              widget.isToday
                   ? textColor.withValues(alpha: 0.8)
-                  : Colors.teal.shade600,
+                  : colors.anniversary,
               opacity,
             ),
           if (widget.showSabbaths && widget.dateInfo.isSabbath)
             _buildDot(
-              widget.isSelected || widget.isToday
+              widget.isToday
                   ? textColor.withValues(alpha: 0.8)
-                  : Colors.amber.shade700,
+                  : colors.sabbath,
               opacity,
             ),
           if (widget.showAstrology && widget.dateInfo.hasAstrologicalDays)
             _buildDot(
-              widget.isSelected || widget.isToday
+              widget.isToday
                   ? textColor.withValues(alpha: 0.8)
-                  : Colors.deepPurple.shade600,
+                  : colors.astrology,
               opacity,
             ),
         ],
@@ -273,11 +275,13 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
         if (widget.showWesternDates)
           Text(
             widget.dateInfo.westernDay.toString(),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: textColor.withValues(alpha: opacity),
-              fontWeight: widget.isToday ? FontWeight.bold : FontWeight.w600,
-              fontSize: 16,
-              height: 1.2,
+            style: CalendarColors.of(context).numberStyle(
+              Theme.of(context).textTheme.titleMedium!.copyWith(
+                color: textColor.withValues(alpha: opacity),
+                fontWeight: widget.isToday ? FontWeight.bold : FontWeight.w600,
+                fontSize: 16,
+                height: 1.2,
+              ),
             ),
           ),
 
@@ -290,13 +294,15 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
     );
   }
 
+  DateTime get _westernDate => DateTime(
+    widget.dateInfo.westernYear,
+    widget.dateInfo.westernMonth,
+    widget.dateInfo.westernDay,
+  );
+
   Widget _buildMyanmarDate(Color textColor, double opacity) {
     if (widget.dateInfo.isFullMoon || widget.dateInfo.isNewMoon) {
-      return CompactMoonPhaseIndicator(
-        moonPhase: widget.dateInfo.moonPhase,
-        fortnightDay: widget.dateInfo.fortnightDay,
-        size: 12,
-      );
+      return MoonGlyph(date: _westernDate, size: 13);
     }
 
     final fortnightDay = translateNumbers(
@@ -307,11 +313,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        CompactMoonPhaseIndicator(
-          moonPhase: widget.dateInfo.moonPhase,
-          size: 8,
-          fortnightDay: widget.dateInfo.fortnightDay,
-        ),
+        MoonGlyph(date: _westernDate, size: 9),
         const SizedBox(width: 2),
         Text(
           fortnightDay,
@@ -446,7 +448,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 0),
             decoration: BoxDecoration(
-              color: widget.isSelected || widget.isToday
+              color: widget.isToday
                   ? textColor.withValues(alpha: 0.9)
                   : Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(6),
@@ -456,7 +458,7 @@ class _DateCellState extends State<DateCell> with TickerProviderStateMixin {
               style: TextStyle(
                 fontSize: 7,
                 fontWeight: FontWeight.bold,
-                color: widget.isSelected || widget.isToday
+                color: widget.isToday
                     ? Theme.of(context).colorScheme.primary
                     : Colors.white,
                 height: 1.2,

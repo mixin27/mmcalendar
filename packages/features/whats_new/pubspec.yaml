@@ -1,0 +1,26 @@
+name: whats_new
+description: "What's new after each update: a sheet of new features and their history."
+version: 1.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_core:
+    path: ../../shared/core
+  shared_localizations:
+    path: ../../shared/localizations
+  shared_ui_kit:
+    path: ../../shared/ui_kit
+  shared_preferences: ^2.5.5
+  go_router: ^18.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

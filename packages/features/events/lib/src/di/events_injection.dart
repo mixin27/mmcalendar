@@ -179,6 +179,7 @@ Future<void> initEventsDependencies() async {
     () => EventCategoriesBloc(
       getEventCategories: getIt<GetEventCategories>(),
       createEventCategory: getIt<CreateEventCategory>(),
+      repository: getIt<EventsRepository>(),
     ),
   );
 

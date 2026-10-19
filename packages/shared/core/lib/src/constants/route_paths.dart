@@ -5,7 +5,8 @@ class RoutePaths {
   static const String events = '/events';
   static const String converter = '/converter';
   static const String settings = '/settings';
-  static const String consent = '/consent';
+  static const String welcome = '/welcome';
+  static const String studio = '/studio';
 
   // Calendar Routes
   static const String dayDetails = 'day-details';
@@ -13,7 +14,20 @@ class RoutePaths {
   // Views Routes
   static const String yearView = 'year';
   static const String weekView = 'week';
+  static const String myanmarMonthView = 'myanmar-month';
+  static const String agendaView = 'agenda';
   static const String dayView = 'day';
+  static const String holidays = 'holidays';
+  static const String holidayDetail = ':id';
+
+  /// A holiday inside Home (from the day sheet or day details).
+  static const String homeHoliday = 'holiday/:id';
+
+  static String holidaysPath() => '$views/$holidays';
+  static String holidayInViews(String id, int year) =>
+      '$views/$holidays/${Uri.encodeComponent(id)}?year=$year';
+  static String holidayInHome(String id, int year) =>
+      '$home/holiday/${Uri.encodeComponent(id)}?year=$year';
 
   // Events sub-routes - NEW
   static const String createEvent = 'create';
@@ -34,8 +48,11 @@ class RoutePaths {
   static const String languageSettings = 'language';
   static const String themeSettings = 'theme';
   static const String calendarConfig = 'calendar-config';
-  static const String calendarGeneration = 'calendar-generation';
   static const String displayPreferences = 'display-preferences';
+  static const String calendarGrid = 'calendar-grid';
+  static const String customColors = 'custom-colors';
   static const String appUpdate = 'app-update';
   static const String about = 'about';
+  static const String whatsNew = 'whats-new';
+  static String whatsNewPath() => '$settings/$about/$whatsNew';
 }

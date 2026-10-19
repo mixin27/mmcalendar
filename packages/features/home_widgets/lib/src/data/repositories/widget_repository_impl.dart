@@ -19,10 +19,7 @@ class WidgetRepositoryImpl implements WidgetRepository {
   }
 
   @override
-  Future<void> updateWidget(WidgetData data) async {
-    final config = await localDataSource.getWidgetConfig();
-    await localDataSource.updateWidgetWithConfig(data, config);
-  }
+  Future<void> updateWidget(WidgetData data) => localDataSource.writePayload();
 
   @override
   Future<WidgetConfig> getWidgetConfig() async {
@@ -32,12 +29,11 @@ class WidgetRepositoryImpl implements WidgetRepository {
   @override
   Future<void> saveWidgetConfig(WidgetConfig config) async {
     await localDataSource.saveWidgetConfig(config);
+    await localDataSource.writePayload(config: config);
   }
 
   @override
   Future<void> scheduleWidgetUpdates() async {
-    final config = await localDataSource.getWidgetConfig();
-    await localDataSource.warmupTimeline(config);
     await localDataSource.scheduleUpdates();
     await localDataSource.markUpdatesScheduled(true);
   }
@@ -49,15 +45,7 @@ class WidgetRepositoryImpl implements WidgetRepository {
   }
 
   @override
-  Future<void> refreshWidget() async {
-    final config = await getWidgetConfig();
-    await localDataSource.warmupTimeline(config);
-    final widgetData = await localDataSource.generateWidgetDataWithLanguage(
-      DateTime.now(),
-      config.language,
-    );
-    await localDataSource.updateWidgetWithConfig(widgetData, config);
-  }
+  Future<void> refreshWidget() => localDataSource.writePayload();
 
   @override
   Future<bool> isWidgetActive() async {

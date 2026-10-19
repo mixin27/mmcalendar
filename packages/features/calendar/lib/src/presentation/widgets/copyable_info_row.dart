@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 import 'package:flutter/services.dart';
 
 class CopyableInfoRow extends StatelessWidget {
@@ -20,7 +21,10 @@ class CopyableInfoRow extends StatelessWidget {
         Clipboard.setData(ClipboardData(text: value));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$label copied!'),
+            content: Text(
+              AppLocalizations.of(context)?.calendarLabelCopied(label) ??
+                  '$label copied!',
+            ),
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 1),
           ),

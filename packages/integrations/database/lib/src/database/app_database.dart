@@ -14,6 +14,8 @@ import 'tables/app_settings_table.dart';
 import 'tables/custom_holidays_table.dart';
 import 'tables/event_categories_table.dart';
 import 'tables/recurring_event_exceptions_table.dart';
+import 'tables/calendar_studio_projects_table.dart';
+import 'tables/calendar_studio_templates_table.dart';
 import 'daos/calendar_dao.dart';
 import 'daos/settings_dao.dart';
 import 'daos/holidays_dao.dart';
@@ -30,6 +32,8 @@ part 'app_database.g.dart';
     CalendarEvents,
     EventReminders,
     EventRecurrenceRules,
+    CalendarStudioProjects,
+    CalendarStudioTemplates,
   ],
   daos: [
     CalendarDao,
@@ -52,7 +56,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -75,6 +79,23 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 4) {
           await customStatement('DROP TABLE IF EXISTS user_events');
+        }
+        if (from < 5) {
+          await m.create(calendarStudioProjects);
+        }
+        if (from < 6) {
+          await m.create(calendarStudioTemplates);
+        }
+        if (from < 7) {
+          // Almanac became the default grid. Installs that never picked a
+          // grid keep the Detailed one they have been seeing.
+          await customStatement('''
+            INSERT INTO app_settings (key, value)
+            SELECT 'calendar_grid_style', 'detailed'
+            WHERE NOT EXISTS (
+              SELECT 1 FROM app_settings WHERE key = 'calendar_grid_style'
+            )
+            ''');
         }
       },
       beforeOpen: (details) async {

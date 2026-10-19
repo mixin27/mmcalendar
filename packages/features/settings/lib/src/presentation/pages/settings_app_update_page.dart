@@ -1,9 +1,9 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_localizations/shared_localizations.dart';
+import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/settings_injection.dart';
-import '../widgets/settings_widgets.dart';
 
 class SettingsAppUpdatePage extends StatefulWidget {
   const SettingsAppUpdatePage({super.key, this.appVersion});
@@ -34,134 +34,113 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final t = context.tokens;
     final updateInfo = _lastUpdateInfo;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
+    return AppPage(
+      title: l10n?.appUpdates ?? 'App Updates',
+      previousTitle: l10n?.settings ?? 'Settings',
+      children: [
+        AppGroup(
           children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.system_update_alt,
-                color: Theme.of(context).colorScheme.primary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              l10n?.appUpdates ?? 'App Updates',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            AppRow(
+              title: l10n?.currentVersion ?? 'Current Version',
+              value: widget.appVersion ?? '',
             ),
           ],
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.tag),
-              title: Text(l10n?.currentVersion ?? 'Current Version'),
-              subtitle: Text(widget.appVersion ?? AppConstants.appVersion),
+        if (updateInfo != null)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _availabilityLabel(updateInfo.availability),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: updateInfo.hasUpdate ? t.accent : t.label,
+                    ),
+                  ),
+                  if (_lastCheckedAt != null)
+                    Text(
+                      l10n?.lastCheckedAt(
+                            _formatDateTime(context, _lastCheckedAt!),
+                          ) ??
+                          'Last checked: ${_formatDateTime(context, _lastCheckedAt!)}',
+                      style: TextStyle(fontSize: 12.5, color: t.secondaryLabel),
+                    ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n?.latestVersionWithBuild(
+                          updateInfo.latestVersion,
+                          updateInfo.latestBuildNumber.toString(),
+                        ) ??
+                        'Latest: ${updateInfo.latestVersion} (${updateInfo.latestBuildNumber})',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    updateInfo.message,
+                    style: TextStyle(color: t.secondaryLabel),
+                  ),
+                  if ((updateInfo.releaseNotes ?? '').isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      l10n?.releaseNotes ?? 'Release Notes',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    Text(updateInfo.releaseNotes!),
+                  ],
+                  if (updateInfo.hasUpdate) ...[
+                    const SizedBox(height: 12),
+                    AppButton(
+                      label: l10n?.openStore ?? 'Open Store',
+                      icon: Icons.open_in_new,
+                      compact: true,
+                      expand: false,
+                      onPressed: _isChecking
+                          ? null
+                          : () => _launchUpdate(updateInfo),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            SettingsTile(
+          ),
+        AppGroup(
+          children: [
+            AppRow(
               title: l10n?.checkForUpdates ?? 'Check for Updates',
               subtitle:
                   l10n?.useCurrentRemoteConfigValues ??
                   'Use current remote config values',
-              leading: const Icon(Icons.update),
-              onTap: () => _checkForUpdates(forceRefresh: false),
+              tone: AppRowTone.accent,
+              trailing: _isChecking
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : null,
+              onTap: _isChecking
+                  ? null
+                  : () => _checkForUpdates(forceRefresh: false),
             ),
-            SettingsTile(
+            AppRow(
               title:
                   l10n?.forceRefreshUpdateConfig ??
                   'Force Refresh Update Config',
               subtitle:
                   l10n?.fetchRemoteConfigNowAndCheckAgain ??
                   'Fetch remote config now and check again',
-              leading: const Icon(Icons.cloud_download_outlined),
-              onTap: () => _checkForUpdates(forceRefresh: true),
+              tone: AppRowTone.accent,
+              onTap: _isChecking
+                  ? null
+                  : () => _checkForUpdates(forceRefresh: true),
             ),
-            if (_isChecking)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: LinearProgressIndicator(),
-              ),
-            if (updateInfo != null)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _availabilityLabel(updateInfo.availability),
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(height: 8),
-                        if (_lastCheckedAt != null)
-                          Text(
-                            l10n?.lastCheckedAt(
-                                  _formatDateTime(context, _lastCheckedAt!),
-                                ) ??
-                                'Last checked: ${_formatDateTime(context, _lastCheckedAt!)}',
-                          ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l10n?.currentVersionWithBuild(
-                                updateInfo.currentVersion,
-                                updateInfo.currentBuildNumber.toString(),
-                              ) ??
-                              'Current: ${updateInfo.currentVersion} (${updateInfo.currentBuildNumber})',
-                        ),
-                        Text(
-                          l10n?.latestVersionWithBuild(
-                                updateInfo.latestVersion,
-                                updateInfo.latestBuildNumber.toString(),
-                              ) ??
-                              'Latest: ${updateInfo.latestVersion} (${updateInfo.latestBuildNumber})',
-                        ),
-                        const SizedBox(height: 8),
-                        Text(updateInfo.message),
-                        if ((updateInfo.releaseNotes ?? '').isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            l10n?.releaseNotes ?? 'Release Notes',
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(updateInfo.releaseNotes!),
-                        ],
-                        if (updateInfo.hasUpdate) ...[
-                          const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: FilledButton.icon(
-                              onPressed: _isChecking
-                                  ? null
-                                  : () => _launchUpdate(updateInfo),
-                              icon: const Icon(Icons.open_in_new),
-                              label: Text(l10n?.openStore ?? 'Open Store'),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
-      ),
+      ],
     );
   }
 
@@ -216,49 +195,24 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
       details.add(notes);
     }
 
-    await showDialog<void>(
+    final l10n = AppLocalizations.of(context);
+    final update = await showAppConfirm(
       context: context,
-      barrierDismissible: true,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(updateInfo.title),
-          content: Text(details.join('\n\n')),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(
-                isRequired
-                    ? (AppLocalizations.of(context)?.close ?? 'Close')
-                    : (AppLocalizations.of(context)?.later ?? 'Later'),
-              ),
-            ),
-            FilledButton(
-              onPressed: () => _launchUpdate(updateInfo, dialogContext),
-              child: Text(
-                isRequired
-                    ? (AppLocalizations.of(context)?.updateNow ?? 'Update Now')
-                    : (AppLocalizations.of(context)?.update ?? 'Update'),
-              ),
-            ),
-          ],
-        );
-      },
+      title: updateInfo.title,
+      message: details.join('\n\n'),
+      confirmLabel: isRequired
+          ? (l10n?.updateNow ?? 'Update Now')
+          : (l10n?.update ?? 'Update'),
+      cancelLabel: isRequired
+          ? (l10n?.close ?? 'Close')
+          : (l10n?.later ?? 'Later'),
     );
+    if (update && mounted) await _launchUpdate(updateInfo);
   }
 
-  Future<void> _launchUpdate(
-    AppUpdateInfo updateInfo, [
-    BuildContext? dialogContext,
-  ]) async {
+  Future<void> _launchUpdate(AppUpdateInfo updateInfo) async {
     final launched = await _appUpdatePort.launchUpdate(updateInfo);
-    if (!mounted) return;
-
-    if (launched) {
-      if (dialogContext != null && dialogContext.mounted) {
-        Navigator.of(dialogContext).pop();
-      }
-      return;
-    }
+    if (!mounted || launched) return;
 
     _showSnackBar(
       AppLocalizations.of(context)?.unableToOpenUpdatePage ??
@@ -294,9 +248,5 @@ class _SettingsAppUpdatePageState extends State<SettingsAppUpdatePage> {
     return '$date $time';
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
-    );
-  }
+  void _showSnackBar(String message) => context.showToast(message);
 }
