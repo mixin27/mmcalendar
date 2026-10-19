@@ -2597,7 +2597,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String repeatEveryWeeks(int count) {
-    return 'Every $count weeks';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Every $countString weeks';
   }
 
   @override
@@ -2611,7 +2615,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String repeatTimes(int count) {
-    return '$count times';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString times';
   }
 
   @override
@@ -2628,7 +2636,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String repeatEventsCreated(int count) {
-    return '$count events created';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString events created';
   }
 
   @override
@@ -2642,11 +2654,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String repeatDatesCount(int count) {
-    return '$count dates';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString dates';
   }
 
   @override
   String eventsRepeatsOnDates(int count) {
-    return 'on $count dates';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'on $countString dates';
   }
+
+  @override
+  String get eventsAddMoreDates => 'Add more dates';
 }

@@ -3,11 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_core/shared_core.dart'
-    show CalendarLanguageContext, showAppMyanmarDatePicker;
+    show
+        CalendarLanguageContext,
+        showAppMyanmarDatePicker,
+        showAppMyanmarMultiDatePicker;
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 import '../../domain/entities/event.dart';
 import '../../domain/entities/notification_setting.dart';
+import '../../domain/entities/recurrence_rule.dart';
 import '../bloc/event_categories_bloc.dart';
 import '../bloc/event_categories_event.dart';
 import '../bloc/event_categories_state.dart';
@@ -139,6 +143,7 @@ class _EventFormPageState extends State<EventFormPage> {
       _locationController.text = state.location;
     }
     final color = Color(state.colorCode ?? state.category.colorCode);
+    final onDates = state.recurrenceRule?.type == RecurrenceType.dates;
 
     return [
       AppGroup(
@@ -160,16 +165,37 @@ class _EventFormPageState extends State<EventFormPage> {
       ),
       AppGroup(
         children: [
-          AppRow(
-            icon: Icons.event,
-            iconColor: t.holiday,
-            title: l10n?.date ?? 'Date',
-            value:
-                '${context.calendarFormat.shortDate(state.eventDate)} '
-                '${context.calendarFormat.number(state.eventDate.year)}',
-            chevron: true,
-            onTap: () => _selectDate(context, state.eventDate),
-          ),
+          // Several dates show here too, and open the multi-date picker.
+          if (onDates)
+            AppRow(
+              key: const ValueKey('event-form-dates'),
+              icon: Icons.event,
+              iconColor: t.holiday,
+              title: l10n?.date ?? 'Date',
+              value: repeatSummary(context, state.recurrenceRule),
+              chevron: true,
+              onTap: () => _selectDates(context, state),
+            )
+          else ...[
+            AppRow(
+              icon: Icons.event,
+              iconColor: t.holiday,
+              title: l10n?.date ?? 'Date',
+              value:
+                  '${context.calendarFormat.shortDate(state.eventDate)} '
+                  '${context.calendarFormat.number(state.eventDate.year)}',
+              chevron: true,
+              onTap: () => _selectDate(context, state.eventDate),
+            ),
+            AppRow(
+              key: const ValueKey('event-form-add-dates'),
+              icon: Icons.add,
+              iconColor: t.accent,
+              title: l10n?.eventsAddMoreDates ?? 'Add more dates',
+              tone: AppRowTone.accent,
+              onTap: () => _selectDates(context, state),
+            ),
+          ],
           AppRow.toggle(
             icon: Icons.schedule,
             iconColor: t.accent,
@@ -340,6 +366,33 @@ class _EventFormPageState extends State<EventFormPage> {
 
     if (picked != null && context.mounted) {
       context.read<EventFormBloc>().add(UpdateEventDate(picked));
+    }
+  }
+
+  /// Picks any number of days. Several make the event fall on those dates
+  /// (Repeat → Specific dates); one is a plain date again.
+  Future<void> _selectDates(
+    BuildContext context,
+    EventFormEditing state,
+  ) async {
+    final bloc = context.read<EventFormBloc>();
+    final rule = state.recurrenceRule;
+    final picked = await showAppMyanmarMultiDatePicker(
+      context: context,
+      initialDates: rule?.type == RecurrenceType.dates
+          ? [...?rule!.dates]
+          : [state.eventDate],
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked == null || picked.isEmpty || !context.mounted) return;
+    bloc.add(UpdateEventDate(picked.first));
+    if (picked.length > 1) {
+      bloc.add(
+        UpdateRepeat(RecurrenceRule(type: RecurrenceType.dates, dates: picked)),
+      );
+    } else if (rule?.type == RecurrenceType.dates) {
+      bloc.add(const UpdateRepeat(null));
     }
   }
 

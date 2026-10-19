@@ -4553,6 +4553,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'on {count} dates'**
   String eventsRepeatsOnDates(int count);
+
+  /// Event form: pick more days so the event falls on several dates
+  ///
+  /// In en, this message translates to:
+  /// **'Add more dates'**
+  String get eventsAddMoreDates;
 }
 
 class _AppLocalizationsDelegate

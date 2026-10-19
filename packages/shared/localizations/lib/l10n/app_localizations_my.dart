@@ -2577,7 +2577,11 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String repeatEveryWeeks(int count) {
-    return '$count ပတ်တစ်ကြိမ်';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString ပတ်တစ်ကြိမ်';
   }
 
   @override
@@ -2591,7 +2595,11 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String repeatTimes(int count) {
-    return '$count ကြိမ်';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString ကြိမ်';
   }
 
   @override
@@ -2608,7 +2616,11 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String repeatEventsCreated(int count) {
-    return 'ပွဲ $count ခု ဖန်တီးပြီး';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'ပွဲ $countString ခု ဖန်တီးပြီး';
   }
 
   @override
@@ -2622,11 +2634,22 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String repeatDatesCount(int count) {
-    return '$count ရက်';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString ရက်';
   }
 
   @override
   String eventsRepeatsOnDates(int count) {
-    return '$count ရက်တွင်';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString ရက်တွင်';
   }
+
+  @override
+  String get eventsAddMoreDates => 'ရက်များ ထပ်ထည့်မည်';
 }

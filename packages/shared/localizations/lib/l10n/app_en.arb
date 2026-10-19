@@ -3261,7 +3261,8 @@
     "description": "Repeat sheet: weekly interval of two or more",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3282,7 +3283,8 @@
     "description": "Repeat summary: how many times the event happens",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3308,7 +3310,8 @@
     "description": "Toast after one save creates a weekly event for each time",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3329,7 +3332,8 @@
     "description": "Repeat summary: how many chosen days",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3338,8 +3342,13 @@
     "description": "Event row: an event on several chosen days",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
+  },
+  "eventsAddMoreDates": "Add more dates",
+  "@eventsAddMoreDates": {
+    "description": "Event form: pick more days so the event falls on several dates"
   }
 }

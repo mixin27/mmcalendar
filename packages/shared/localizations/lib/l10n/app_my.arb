@@ -1981,5 +1981,6 @@
   "repeatSpecificDates": "ရွေးထားသောရက်များ",
   "repeatChooseDates": "ရက်များ ရွေးမည်",
   "repeatDatesCount": "{count} ရက်",
-  "eventsRepeatsOnDates": "{count} ရက်တွင်"
+  "eventsRepeatsOnDates": "{count} ရက်တွင်",
+  "eventsAddMoreDates": "ရက်များ ထပ်ထည့်မည်"
 }
