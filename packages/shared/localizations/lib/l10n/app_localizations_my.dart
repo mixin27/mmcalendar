@@ -1622,19 +1622,19 @@ class AppLocalizationsMy extends AppLocalizations {
   String get settingsAppIconAlternate => 'အစားထိုး အိုင်ကွန်';
 
   @override
-  String get appIconMoon => 'လ';
+  String get appIconMoon => 'နေဝင်ချိန်';
 
   @override
-  String get appIconForest => 'တောအုပ်';
+  String get appIconForest => 'ကျောက်စိမ်း';
 
   @override
-  String get appIconMinimalFlat => 'ရိုးရှင်း';
+  String get appIconMinimalFlat => 'စက္ကူ';
 
   @override
-  String get appIconPremiumDark => 'အမှောင် ပရီမီယံ';
+  String get appIconPremiumDark => 'သန်းခေါင်';
 
   @override
-  String get appIconTraditionalMyanmar => 'မြန်မာ ရိုးရာ ပန်းချီ';
+  String get appIconTraditionalMyanmar => 'ယွန်းထည်';
 
   @override
   String get languageZawgyi => 'ဇော်ဂျီ';
@@ -2664,4 +2664,16 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get repeatYearly => 'နှစ်စဉ်';
+
+  @override
+  String get appIconDawn => 'အရုဏ်';
+
+  @override
+  String get appIconThingyan => 'သင်္ကြန်';
+
+  @override
+  String get appIconPagoda => 'စေတီ';
+
+  @override
+  String get appIconClassic => 'မူလ';
 }

@@ -1,23 +1,30 @@
 import 'package:flutter/services.dart';
 import 'package:shared_core/shared_core.dart';
 
+/// The icons in Settings › App icon, in order (tool/app_icons_test.dart
+/// draws them). Ids are stable: older ones keep their Android alias and
+/// iOS icon set and now show new artwork, so an update never removes the
+/// launcher entry someone chose.
+const appIconOptions = <AppIconOption>[
+  AppIconOption(id: 'default', label: 'Night'),
+  AppIconOption(id: 'dawn', label: 'Dawn'),
+  AppIconOption(id: 'forest', label: 'Jade'),
+  AppIconOption(id: 'traditional_myanmar', label: 'Lacquer'),
+  AppIconOption(id: 'minimal_flat', label: 'Paper'),
+  AppIconOption(id: 'premium_dark', label: 'Midnight'),
+  AppIconOption(id: 'thingyan', label: 'Thingyan'),
+  AppIconOption(id: 'moon', label: 'Dusk'),
+  AppIconOption(id: 'pagoda', label: 'Pagoda'),
+  AppIconOption(id: 'classic', label: 'Classic'),
+];
+
 class MethodChannelAppIconPort implements AppIconPort {
   static const MethodChannel _channel = MethodChannel(
     'dev.mixin27.mmcalendar/app_icon',
   );
 
   @override
-  List<AppIconOption> get availableIcons => const <AppIconOption>[
-    AppIconOption(id: 'default', label: 'Default'),
-    AppIconOption(id: 'moon', label: 'Moon'),
-    AppIconOption(id: 'forest', label: 'Forest'),
-    AppIconOption(id: 'minimal_flat', label: 'Minimal Flat'),
-    AppIconOption(id: 'premium_dark', label: 'Premium Dark'),
-    AppIconOption(
-      id: 'traditional_myanmar',
-      label: 'Traditional Myanmar Motif',
-    ),
-  ];
+  List<AppIconOption> get availableIcons => appIconOptions;
 
   @override
   Future<String> getCurrentIcon() async {
@@ -66,17 +73,7 @@ class MethodChannelAppIconPort implements AppIconPort {
 
 class NoopAppIconPort implements AppIconPort {
   @override
-  List<AppIconOption> get availableIcons => const <AppIconOption>[
-    AppIconOption(id: 'default', label: 'Default'),
-    AppIconOption(id: 'moon', label: 'Moon'),
-    AppIconOption(id: 'forest', label: 'Forest'),
-    AppIconOption(id: 'minimal_flat', label: 'Minimal Flat'),
-    AppIconOption(id: 'premium_dark', label: 'Premium Dark'),
-    AppIconOption(
-      id: 'traditional_myanmar',
-      label: 'Traditional Myanmar Motif',
-    ),
-  ];
+  List<AppIconOption> get availableIcons => appIconOptions;
 
   @override
   Future<String> getCurrentIcon() async => 'default';

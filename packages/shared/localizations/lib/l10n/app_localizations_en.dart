@@ -1625,19 +1625,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppIconAlternate => 'Alternate icon';
 
   @override
-  String get appIconMoon => 'Moon';
+  String get appIconMoon => 'Dusk';
 
   @override
-  String get appIconForest => 'Forest';
+  String get appIconForest => 'Jade';
 
   @override
-  String get appIconMinimalFlat => 'Minimal Flat';
+  String get appIconMinimalFlat => 'Paper';
 
   @override
-  String get appIconPremiumDark => 'Premium Dark';
+  String get appIconPremiumDark => 'Midnight';
 
   @override
-  String get appIconTraditionalMyanmar => 'Traditional Myanmar Motif';
+  String get appIconTraditionalMyanmar => 'Lacquer';
 
   @override
   String get languageZawgyi => 'Zawgyi';
@@ -2684,4 +2684,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get repeatYearly => 'Yearly';
+
+  @override
+  String get appIconDawn => 'Dawn';
+
+  @override
+  String get appIconThingyan => 'Thingyan';
+
+  @override
+  String get appIconPagoda => 'Pagoda';
+
+  @override
+  String get appIconClassic => 'Classic';
 }

@@ -1694,11 +1694,11 @@
   "settingsAppIconCurrentShort": "လက်ရှိ",
   "settingsAppIconStandard": "ပုံမှန် အိုင်ကွန်",
   "settingsAppIconAlternate": "အစားထိုး အိုင်ကွန်",
-  "appIconMoon": "လ",
-  "appIconForest": "တောအုပ်",
-  "appIconMinimalFlat": "ရိုးရှင်း",
-  "appIconPremiumDark": "အမှောင် ပရီမီယံ",
-  "appIconTraditionalMyanmar": "မြန်မာ ရိုးရာ ပန်းချီ",
+  "appIconMoon": "နေဝင်ချိန်",
+  "appIconForest": "ကျောက်စိမ်း",
+  "appIconMinimalFlat": "စက္ကူ",
+  "appIconPremiumDark": "သန်းခေါင်",
+  "appIconTraditionalMyanmar": "ယွန်းထည်",
   "languageZawgyi": "ဇော်ဂျီ",
   "languageMon": "မွန်",
   "languageShan": "ရှမ်း",
@@ -1986,5 +1986,9 @@
   "repeatDaily": "နေ့စဉ်",
   "repeatWeekly": "အပတ်စဉ်",
   "repeatMonthly": "လစဉ်",
-  "repeatYearly": "နှစ်စဉ်"
+  "repeatYearly": "နှစ်စဉ်",
+  "appIconDawn": "အရုဏ်",
+  "appIconThingyan": "သင်္ကြန်",
+  "appIconPagoda": "စေတီ",
+  "appIconClassic": "မူလ"
 }

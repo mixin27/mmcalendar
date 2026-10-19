@@ -16,6 +16,10 @@ class MainActivity : FlutterActivity() {
         "minimal_flat" to "dev.mixin27.mmcalendar.MainActivityMinimalFlat",
         "premium_dark" to "dev.mixin27.mmcalendar.MainActivityPremiumDark",
         "traditional_myanmar" to "dev.mixin27.mmcalendar.MainActivityTraditionalMyanmar",
+        "dawn" to "dev.mixin27.mmcalendar.MainActivityDawn",
+        "thingyan" to "dev.mixin27.mmcalendar.MainActivityThingyan",
+        "pagoda" to "dev.mixin27.mmcalendar.MainActivityPagoda",
+        "classic" to "dev.mixin27.mmcalendar.MainActivityClassic",
     )
     private val manifestEnabledAliasDefaults = mapOf(
         "default" to true,
@@ -24,6 +28,10 @@ class MainActivity : FlutterActivity() {
         "minimal_flat" to false,
         "premium_dark" to false,
         "traditional_myanmar" to false,
+        "dawn" to false,
+        "thingyan" to false,
+        "pagoda" to false,
+        "classic" to false,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

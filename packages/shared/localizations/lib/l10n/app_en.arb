@@ -2024,23 +2024,23 @@
   "@settingsAppIconAlternate": {
     "description": "Caption under an alternate icon in the icon grid."
   },
-  "appIconMoon": "Moon",
+  "appIconMoon": "Dusk",
   "@appIconMoon": {
     "description": "Name of the Moon app icon."
   },
-  "appIconForest": "Forest",
+  "appIconForest": "Jade",
   "@appIconForest": {
     "description": "Name of the Forest app icon."
   },
-  "appIconMinimalFlat": "Minimal Flat",
+  "appIconMinimalFlat": "Paper",
   "@appIconMinimalFlat": {
     "description": "Name of the Minimal Flat app icon."
   },
-  "appIconPremiumDark": "Premium Dark",
+  "appIconPremiumDark": "Midnight",
   "@appIconPremiumDark": {
     "description": "Name of the Premium Dark app icon."
   },
-  "appIconTraditionalMyanmar": "Traditional Myanmar Motif",
+  "appIconTraditionalMyanmar": "Lacquer",
   "@appIconTraditionalMyanmar": {
     "description": "Name of the Traditional Myanmar Motif app icon."
   },
@@ -3366,5 +3366,21 @@
   "repeatYearly": "Yearly",
   "@repeatYearly": {
     "description": "Repeat sheet: an event that repeats yearly"
+  },
+  "appIconDawn": "Dawn",
+  "@appIconDawn": {
+    "description": "App icon name in Settings"
+  },
+  "appIconThingyan": "Thingyan",
+  "@appIconThingyan": {
+    "description": "App icon name in Settings"
+  },
+  "appIconPagoda": "Pagoda",
+  "@appIconPagoda": {
+    "description": "App icon name in Settings"
+  },
+  "appIconClassic": "Classic",
+  "@appIconClassic": {
+    "description": "App icon name in Settings"
   }
 }

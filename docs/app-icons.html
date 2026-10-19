@@ -1,0 +1,306 @@
+<title>Myanmar Calendar Icons</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Sans:wght@400;600&family=Noto+Sans+Myanmar:wght@600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: an icon proposal board — each direction a row of large icon, home-screen trial and notes; then the recommended family across platforms and the in-app picker. */
+:root{
+  --bg:#eef0f6; --paper:#ffffff; --ink:#151a2e; --muted:#5b6078; --faint:#8b8fa6; --line:#dcdfea; --fill:#e6e9f2;
+  --accent:#2f5bea; --accent-soft:#e2e8fd; --good:#1f8a5b;
+  --display:"Bricolage Grotesque","Noto Sans",system-ui,sans-serif;
+  --body:"Noto Sans","Noto Sans Myanmar",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --wall-a:#c9d6f2; --wall-b:#f2d9c9;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d0f17; --paper:#171a26; --ink:#eceef8; --muted:#a3a7c0; --faint:#6f7390; --line:#2a2e42; --fill:#20243a;
+  --accent:#7d9bff; --accent-soft:#232d55; --good:#4fd08f; --wall-a:#1d2742; --wall-b:#3a2a26; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d0f17; --paper:#171a26; --ink:#eceef8; --muted:#a3a7c0; --faint:#6f7390; --line:#2a2e42; --fill:#20243a;
+  --accent:#7d9bff; --accent-soft:#232d55; --good:#4fd08f; --wall-a:#1d2742; --wall-b:#3a2a26; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.05;letter-spacing:-.02em}
+h2{font-size:26px;letter-spacing:-.01em}
+h3{font-size:18px}
+p{margin:0;max-width:64ch}
+.lede{color:var(--muted);margin-top:10px;font-size:16px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);margin-top:18px}
+.seg{display:inline-flex;background:var(--fill);border-radius:10px;padding:3px}
+.seg button{font:600 13px var(--body);border:0;background:none;color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0/.12)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+section{padding-block:40px;border-bottom:1px solid var(--line)}
+.dir{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:32px;align-items:center}
+@media (max-width:860px){.dir{grid-template-columns:minmax(0,1fr)}}
+.big{width:200px;height:200px;max-width:100%}
+.big svg,.tile svg,.app svg{display:block;width:100%;height:100%}
+.mask-ios{border-radius:22.4%;overflow:hidden;box-shadow:0 10px 30px -14px rgb(10 20 50/.45)}
+.mask-round{border-radius:50%;overflow:hidden}
+.mask-squircle{border-radius:32%;overflow:hidden}
+.notes{display:grid;gap:10px;min-width:0}
+.notes ul{margin:0;padding-left:18px;color:var(--muted);display:grid;gap:4px}
+.notes b{color:var(--ink)}
+.pill{display:inline-block;font:600 11.5px var(--mono);padding:3px 8px;border-radius:999px;background:var(--fill);color:var(--muted)}
+.pill.rec{background:var(--accent-soft);color:var(--accent)}
+/* Home screen trial */
+.home{width:250px;max-width:100%;border-radius:28px;padding:18px 16px;background:linear-gradient(160deg,var(--wall-a),var(--wall-b));display:grid;grid-template-columns:repeat(4,1fr);gap:14px 10px}
+.home.dark{background:linear-gradient(160deg,#0b0f1d,#2a1d22)}
+.app{display:grid;justify-items:center;gap:4px}
+.app .ic{width:46px;height:46px}
+.app span{font-size:9.5px;color:#1a1d2b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56px}
+.home.dark .app span{color:#e8eaf3}
+.ghost{width:46px;height:46px;border-radius:22.4%;background:rgb(255 255 255/.45)}
+.home.dark .ghost{background:rgb(255 255 255/.12)}
+/* Grids */
+.row{display:flex;flex-wrap:wrap;gap:22px}
+.tile{display:grid;justify-items:center;gap:8px;width:120px}
+.tile .ic{width:104px;height:104px}
+.tile b{font-size:13px}
+.tile small{color:var(--muted);font-size:11.5px;text-align:center;line-height:1.35}
+.picker{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:16px}
+.pick{display:grid;justify-items:center;gap:6px;font-size:12.5px;text-align:center}
+.pick .ic{width:72px;height:72px;position:relative}
+.pick.sel .ic::after{content:"";position:absolute;inset:-5px;border:2.5px solid var(--accent);border-radius:26%}
+.pick span{font-family:var(--body)}
+.pick em{font-style:normal;color:var(--faint);font-size:11px;font-family:"Noto Sans Myanmar",var(--body)}
+.platform{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:12px;align-content:start}
+.card .row{gap:16px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.scroll{overflow-x:auto;max-width:100%}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">mmcalendar · app icon proposal</div>
+  <h1>New app icons</h1>
+  <p class="lede">Five icon designs to replace today's tool-card icon, the one I recommend drawn for every platform, and ten icons for Settings › App icon. Each icon is tried at home-screen size, where most icons fail. Pick a design and the set, and I'll build them.</p>
+
+  <div class="controls" role="toolbar" aria-label="Board settings">
+    <div class="seg" data-key="theme"><button aria-pressed="true" data-v="system">System</button><button data-v="light">Light</button><button data-v="dark">Dark</button></div>
+  </div>
+
+  <main>
+    <section aria-labelledby="dirs"><div class="eyebrow">1 · Designs</div><h2 id="dirs" style="margin-bottom:22px">Five designs</h2><div id="directions" style="display:grid;gap:44px"></div></section>
+
+    <section aria-labelledby="fam">
+      <div class="eyebrow">2 · Recommended</div>
+      <h2 id="fam">Moon page, on every platform</h2>
+      <p class="lede" style="margin-bottom:22px">iOS 18 and later let the home screen show an icon light, dark or tinted, and Android 13 and later tint a monochrome layer to the wallpaper. Each needs its own drawing.</p>
+      <div class="platform" id="platform"></div>
+    </section>
+
+    <section aria-labelledby="set">
+      <div class="eyebrow">3 · Settings › App icon</div>
+      <h2 id="set">Ten icons to choose from</h2>
+      <p class="lede" style="margin-bottom:22px">The Moon page design in eight palettes drawn from the app's grid themes, plus Pagoda and the current icon for people who like it. Names are shown as they'd appear in the picker.</p>
+      <div class="picker" id="picker"></div>
+    </section>
+
+    <section aria-labelledby="dec">
+      <div class="eyebrow">Decide</div>
+      <h2 id="dec" style="margin-bottom:16px">What to confirm</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>Decision</th><th>Proposal</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Main icon</td><td><b>Moon page</b>, Night palette</td><td>"A calendar page with the moon" reads at 29 px on a phone, which today's four tool glyphs don't. The navy and gold carry over from the current brand.</td></tr>
+          <tr><td>Icons in Settings</td><td>Night, Dawn, Jade, Lacquer, Paper, Midnight, Thingyan, Dusk, Pagoda, Classic</td><td>One design in many palettes stays recognisable whichever one is chosen. Pagoda is the one pictorial extra; Classic keeps today's icon.</td></tr>
+          <tr><td>Today's six icons</td><td>Replace them; keep the default as Classic</td><td>Forest, Minimal flat, Premium dark and Traditional are covered by Jade, Paper, Midnight and Lacquer.</td></tr>
+          <tr><td>iOS 18 dark and tinted</td><td>Draw them for the main icon</td><td>Without them iOS darkens the light icon itself, which muddies the moon.</td></tr>
+          <tr><td>Android themed icon</td><td>A monochrome page-and-moon layer</td><td>Android 13+ shows it when themed icons are on; today it falls back to a plain icon.</td></tr>
+          <tr><td>Store icon and feature graphic</td><td>Regenerate from the main icon</td><td>So the store listing, the app and the website all match.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+  </main>
+</div>
+
+<script>
+/* Palettes for the Moon page family, drawn from the app's grid themes. */
+const P = {
+  night:   {name:'Night',    my:'ညကောင်းကင်', bg:['#14203D','#2B5598'], page:'#EEF3FC', band:'#F4C562', moon:'#F4C562', shade:'#AFC0E4', ink:'#14203D', star:'#F4C562'},
+  dawn:    {name:'Dawn',     my:'အရုဏ်',       bg:['#F8C98E','#E5735C'], page:'#FFF6EC', band:'#7A2E3A', moon:'#E5735C', shade:'#F3D7C4', ink:'#5A2230', star:'#FFF6EC'},
+  jade:    {name:'Jade',     my:'ကျောက်စိမ်း',  bg:['#0B4D43','#1F8C72'], page:'#EFF7F2', band:'#D9B44A', moon:'#D9B44A', shade:'#B9D8CA', ink:'#0B4D43', star:'#F2E3A6'},
+  lacquer: {name:'Lacquer',  my:'ယွန်းထည်',     bg:['#5E0F0C','#B12B1C'], page:'#F7E9D3', band:'#1C1110', moon:'#E2A93B', shade:'#E7CFAE', ink:'#3B0B08', star:'#E2A93B'},
+  paper:   {name:'Paper',    my:'စက္ကူ',        bg:['#FBF7EF','#EFE6D4'], page:'#FFFFFF', band:'#2F5BEA', moon:'#2F5BEA', shade:'#D7DEF2', ink:'#1F2A44', star:'#2F5BEA'},
+  midnight:{name:'Midnight', my:'သန်းခေါင်',    bg:['#04060D','#161D33'], page:'#1C2338', band:'#F4C562', moon:'#F4C562', shade:'#39425E', ink:'#EEF3FC', star:'#F4C562'},
+  thingyan:{name:'Thingyan', my:'သင်္ကြန်',     bg:['#25B6CF','#1666BD'], page:'#F4FBFF', band:'#F7C628', moon:'#F7C628', shade:'#C3E3F1', ink:'#0E3F7A', star:'#F7C628'},
+  dusk:    {name:'Dusk',     my:'နေဝင်ချိန်',   bg:['#6F7FE6','#F0B07A'], page:'#FBF6FF', band:'#3A2F7A', moon:'#F0B07A', shade:'#DCD3F2', ink:'#2A2465', star:'#FFFFFF'},
+};
+
+let uid = 0;
+const id = p => `${p}${uid++}`;
+function grad(c, angle=135){const g=id('g');return [`<linearGradient id="${g}" gradientTransform="rotate(${angle-90} .5 .5)"><stop offset="0" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`, `url(#${g})`];}
+
+/* A waxing moon: dark disc, lit part from the right. phase 0..1 (.5 = half). */
+function moon(cx, cy, r, lit, shade, phase=.62){
+  const k = Math.cos(phase*Math.PI)*r; // terminator x-radius, + = crescent
+  const sweep = k>0?0:1;
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${shade}"/>
+  <path d="M${cx} ${cy-r} A${r} ${r} 0 0 1 ${cx} ${cy+r} A${Math.abs(k)} ${r} 0 0 ${sweep} ${cx} ${cy-r}Z" fill="${lit}"/>`;
+}
+function stars(color, list){return list.map(([x,y,s])=>`<path d="M${x} ${y-s}L${x+s*.28} ${y-s*.28}L${x+s} ${y}L${x+s*.28} ${y+s*.28}L${x} ${y+s}L${x-s*.28} ${y+s*.28}L${x-s} ${y}L${x-s*.28} ${y-s*.28}Z" fill="${color}"/>`).join('');}
+
+/* 1 · Moon page: a tear-off calendar page whose day is the moon. */
+function moonPage(p, mode='default'){
+  const [defs, fill] = grad(p.bg);
+  const dark = mode==='dark', tint = mode==='tinted', mono = mode==='mono';
+  if (mono) return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><rect width="1024" height="1024" fill="#E8EAF2"/>
+    <g fill="none" stroke="#1B2033" stroke-width="44"><rect x="262" y="280" width="500" height="500" rx="90"/></g>
+    <path d="M262 400H762" stroke="#1B2033" stroke-width="44"/>
+    <circle cx="512" cy="592" r="118" fill="#1B2033"/></svg>`;
+  const bg = dark ? '#000' : tint ? '#1a1a1a' : fill;
+  const page = dark ? '#1A2032' : tint ? '#2a2a2a' : p.page;
+  const band = dark ? p.moon : tint ? '#d9d9d9' : p.band;
+  const lit = tint ? '#f2f2f2' : p.moon;
+  const shade = dark ? '#3A4360' : tint ? '#5a5a5a' : p.shade;
+  const ring = dark ? '#2A3149' : tint ? '#444' : p.ink;
+  return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>
+    <rect width="1024" height="1024" fill="${bg}"/>
+    ${dark||tint?'':stars(p.star,[[220,210,26],[820,250,18],[790,820,22]])}
+    <rect x="232" y="262" width="560" height="560" rx="104" fill="${page}"/>
+    <path d="M232 366a104 104 0 0 1 104-104h352a104 104 0 0 1 104 104v40H232z" fill="${band}"/>
+    <rect x="352" y="214" width="44" height="104" rx="22" fill="${ring}"/><rect x="628" y="214" width="44" height="104" rx="22" fill="${ring}"/>
+    ${moon(512, 610, 150, lit, shade, .38)}
+  </svg>`;
+}
+
+/* 2 · Numeral: the Myanmar day under a crescent. */
+function numeral(p){
+  const [defs, fill] = grad(p.bg);
+  return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>
+    <rect width="1024" height="1024" fill="${fill}"/>
+    <text x="512" y="745" text-anchor="middle" font-family="Noto Sans Myanmar" font-weight="800" font-size="560" fill="${p.page}">၁၅</text>
+    ${moon(720, 270, 112, p.moon, 'rgba(255,255,255,.18)', .3)}
+  </svg>`;
+}
+
+/* 3 · Pagoda: a stupa under the full moon, from the Jade wall preset. */
+function pagoda(p){
+  const [defs, fill] = grad(p.bg, 180);
+  return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>
+    <rect width="1024" height="1024" fill="${fill}"/>
+    <circle cx="640" cy="372" r="190" fill="${p.moon}"/>
+    ${stars(p.star,[[230,230,22],[300,380,14],[860,620,16]])}
+    <path d="M512 210 L524 330 C590 360 620 420 630 520 L660 520 L660 560 L700 560 L700 610 L748 610 L748 670 L276 670 L276 610 L324 610 L324 560 L364 560 L364 520 L394 520 C404 420 434 360 500 330 Z" fill="${p.ink}"/>
+    <path d="M0 700 C220 650 380 690 512 672 C660 652 820 680 1024 650 V1024 H0Z" fill="${p.ink}"/>
+  </svg>`;
+}
+
+/* 4 · Phase ring: eight moon phases around the full-moon day. */
+function phaseRing(p){
+  const [defs, fill] = grad(p.bg);
+  let ring = '';
+  for (let i=0;i<8;i++){
+    const a = -Math.PI/2 + i*Math.PI/4, x = 512+Math.cos(a)*300, y = 512+Math.sin(a)*300;
+    const ph = i/8; // 0 new → .5 full
+    const litFrac = Math.abs(.5-ph)*2; // 1 at new
+    ring += i===4 ? `<circle cx="${x}" cy="${y}" r="58" fill="${p.moon}"/>` : i===0 ? `<circle cx="${x}" cy="${y}" r="58" fill="${p.shade}" opacity=".5"/>` : moon(x,y,58,p.moon,'rgba(255,255,255,.18)', ph<.5?1-ph*2:(ph-.5)*2);
+  }
+  return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>
+    <rect width="1024" height="1024" fill="${fill}"/>
+    ${ring}
+    <circle cx="512" cy="512" r="170" fill="${p.page}"/>
+    <text x="512" y="580" text-anchor="middle" font-family="Bricolage Grotesque" font-weight="800" font-size="190" fill="${p.ink}">15</text>
+  </svg>`;
+}
+
+/* 5 · Lacquer: a lacquerware rosette with the moon at its heart. */
+function lacquer(p){
+  const [defs, fill] = grad(p.bg, 180);
+  let petals = '';
+  for (let i=0;i<12;i++){
+    petals += `<path transform="rotate(${i*30} 512 512)" d="M512 170 C580 270 580 350 512 410 C444 350 444 270 512 170Z" fill="${i%2? p.band : p.moon}" opacity="${i%2?.9:1}"/>`;
+  }
+  return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>
+    <rect width="1024" height="1024" fill="${fill}"/>
+    <circle cx="512" cy="512" r="380" fill="none" stroke="${p.moon}" stroke-width="10" opacity=".6"/>
+    ${petals}
+    <circle cx="512" cy="512" r="130" fill="${p.band}"/>
+    ${moon(512,512,96,p.moon,p.shade,.5)}
+  </svg>`;
+}
+
+/* Today's icon, kept as Classic: the tool card. */
+function classic(){
+  return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14203D"/><stop offset="1" stop-color="#2B5598"/></linearGradient></defs>
+    <rect width="1024" height="1024" fill="url(#cg)"/>
+    <rect x="132" y="128" width="760" height="760" rx="140" fill="#21407E"/>
+    <circle cx="512" cy="512" r="260" fill="#2C5392"/><circle cx="512" cy="512" r="205" fill="#4867A3"/>
+    <circle cx="512" cy="512" r="130" fill="#EEF3FC"/>
+    <rect x="190" y="188" width="124" height="124" rx="26" fill="none" stroke="#132E63" stroke-width="10"/>
+    <rect x="712" y="188" width="124" height="124" rx="26" fill="none" stroke="#132E63" stroke-width="10"/>
+    <rect x="190" y="712" width="124" height="124" rx="26" fill="none" stroke="#132E63" stroke-width="10"/>
+    <rect x="712" y="712" width="124" height="124" rx="26" fill="none" stroke="#132E63" stroke-width="10"/>
+  </svg>`;
+}
+
+const DIRECTIONS = [
+  {key:'page', name:'Moon page', rec:true, draw:p=>moonPage(p), pal:'night',
+   lead:'A tear-off calendar page whose day is the moon.',
+   pts:['<b>Reads at a glance:</b> calendar and moon, the two things the app is about, in two shapes.','<b>Holds up small:</b> one disc and one band, nothing thinner than the page edge.','<b>Recolours well:</b> the same drawing works in every grid-theme palette, so the ten in-app icons stay recognisable.']},
+  {key:'numeral', name:'Myanmar numeral', draw:p=>numeral(p), pal:'jade',
+   lead:'The full-moon day, ၁၅, under a crescent.',
+   pts:['<b>Unmistakably Myanmar:</b> the script itself is the brand.','<b>Trade-off:</b> numerals are hard to read below 40 px, and the font must be outlined to paths for the final icon.']},
+  {key:'pagoda', name:'Pagoda', draw:p=>pagoda(p), pal:'night',
+   lead:'A stupa under the full moon, from the Jade wall Studio preset.',
+   pts:['<b>Warm and cultural:</b> the picture most people link with Sabbath and full-moon days.','<b>Trade-off:</b> it says "Myanmar" more than "calendar". Better as an in-app choice than the main icon.']},
+  {key:'ring', name:'Phase ring', draw:p=>phaseRing(p), pal:'midnight',
+   lead:'Eight moon phases around the full-moon day.',
+   pts:['<b>Precise:</b> the lunar month in one picture.','<b>Trade-off:</b> eight small moons turn to noise at home-screen size.']},
+  {key:'lacquer', name:'Lacquer rosette', draw:p=>lacquer(p), pal:'lacquer',
+   lead:'A Bagan lacquerware rosette with the moon at its heart.',
+   pts:['<b>Rich and crafted:</b> red, black and gold, like a lacquer box.','<b>Trade-off:</b> decorative rather than a calendar; fine detail is lost when small.']},
+];
+
+const S = {theme:'system'};
+function render(){
+  const root = document.documentElement;
+  if (S.theme==='system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', S.theme);
+  document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===S.theme)));
+  const homeApps = (svg, dark) => {
+    const cells = Array.from({length:12},(_,i)=> i===5
+      ? `<div class="app"><div class="ic mask-ios">${svg}</div><span>${dark?'ပြက္ခဒိန်':'Calendar'}</span></div>`
+      : `<div class="app"><div class="ghost"></div><span>&nbsp;</span></div>`).join('');
+    return `<div class="home ${dark?'dark':''}" aria-label="Home screen trial">${cells}</div>`;
+  };
+  document.getElementById('directions').innerHTML = DIRECTIONS.map(d=>{
+    const svg = d.draw(P[d.pal]);
+    return `<article class="dir" id="${d.key}">
+      <div class="big mask-ios" role="img" aria-label="${d.name} icon">${svg}</div>
+      <div class="notes"><div>${d.rec?'<span class="pill rec">Recommended</span>':'<span class="pill">Alternative</span>'}</div>
+        <h3>${d.name}</h3><p class="lede" style="margin:0">${d.lead}</p><ul>${d.pts.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+      <div style="display:grid;gap:10px">${homeApps(d.draw(P[d.pal]), false)}${homeApps(d.draw(P[d.pal]), true)}</div>
+    </article>`;
+  }).join('');
+
+  const n = P.night;
+  document.getElementById('platform').innerHTML = `
+    <div class="card"><div class="eyebrow">iOS 18+ home screen</div>
+      <div class="row">
+        <div class="tile"><div class="ic mask-ios">${moonPage(n)}</div><b>Light</b><small>The default icon</small></div>
+        <div class="tile"><div class="ic mask-ios">${moonPage(n,'dark')}</div><b>Dark</b><small>Black ground, the moon stays gold</small></div>
+        <div class="tile"><div class="ic mask-ios">${moonPage(n,'tinted')}</div><b>Tinted</b><small>Greyscale, tinted by iOS</small></div>
+      </div></div>
+    <div class="card"><div class="eyebrow">Android adaptive and themed</div>
+      <div class="row">
+        <div class="tile"><div class="ic mask-round">${moonPage(n)}</div><b>Circle</b><small>Pixel launcher mask</small></div>
+        <div class="tile"><div class="ic mask-squircle">${moonPage(n)}</div><b>Squircle</b><small>Samsung and others</small></div>
+        <div class="tile"><div class="ic mask-round">${moonPage(n,'mono')}</div><b>Themed</b><small>Monochrome layer, Android 13+</small></div>
+      </div></div>`;
+
+  const set = ['night','dawn','jade','lacquer','paper','midnight','thingyan','dusk'];
+  document.getElementById('picker').innerHTML =
+    set.map((k,i)=>`<div class="pick ${i===0?'sel':''}"><div class="ic mask-ios">${moonPage(P[k])}</div><span>${P[k].name}${i===0?' (default)':''}</span><em>${P[k].my}</em></div>`).join('') +
+    `<div class="pick"><div class="ic mask-ios">${pagoda(P.night)}</div><span>Pagoda</span><em>စေတီ</em></div>` +
+    `<div class="pick"><div class="ic mask-ios">${classic()}</div><span>Classic</span><em>မူလ</em></div>`;
+}
+document.querySelector('.seg').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; S.theme=b.dataset.v; render();});
+render();
+</script>

@@ -2829,31 +2829,31 @@ abstract class AppLocalizations {
   /// Name of the Moon app icon.
   ///
   /// In en, this message translates to:
-  /// **'Moon'**
+  /// **'Dusk'**
   String get appIconMoon;
 
   /// Name of the Forest app icon.
   ///
   /// In en, this message translates to:
-  /// **'Forest'**
+  /// **'Jade'**
   String get appIconForest;
 
   /// Name of the Minimal Flat app icon.
   ///
   /// In en, this message translates to:
-  /// **'Minimal Flat'**
+  /// **'Paper'**
   String get appIconMinimalFlat;
 
   /// Name of the Premium Dark app icon.
   ///
   /// In en, this message translates to:
-  /// **'Premium Dark'**
+  /// **'Midnight'**
   String get appIconPremiumDark;
 
   /// Name of the Traditional Myanmar Motif app icon.
   ///
   /// In en, this message translates to:
-  /// **'Traditional Myanmar Motif'**
+  /// **'Lacquer'**
   String get appIconTraditionalMyanmar;
 
   /// Name of the Zawgyi calendar language option.
@@ -4583,6 +4583,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yearly'**
   String get repeatYearly;
+
+  /// App icon name in Settings
+  ///
+  /// In en, this message translates to:
+  /// **'Dawn'**
+  String get appIconDawn;
+
+  /// App icon name in Settings
+  ///
+  /// In en, this message translates to:
+  /// **'Thingyan'**
+  String get appIconThingyan;
+
+  /// App icon name in Settings
+  ///
+  /// In en, this message translates to:
+  /// **'Pagoda'**
+  String get appIconPagoda;
+
+  /// App icon name in Settings
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get appIconClassic;
 }
 
 class _AppLocalizationsDelegate
