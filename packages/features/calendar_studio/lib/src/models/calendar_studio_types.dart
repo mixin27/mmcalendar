@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:equatable/equatable.dart';
@@ -190,6 +191,48 @@ class CalendarStudioExportPreset extends Equatable {
     height: height ?? this.height,
     fileName: fileName ?? this.fileName,
   );
+
+  /// Whether this preset exports each page at the page's own size
+  /// ([pagePdf], [pagePng]) rather than at [width] × [height].
+  bool get matchesPage => id.startsWith('page-');
+
+  /// The pixel size [canvas] exports at. A page-size preset follows the
+  /// canvas: paper canvases are in millimetres and export at [dpi]; screen
+  /// canvases (square, story) export at 1080 px on the short side. Other
+  /// presets are always [width] × [height]; the page is fitted inside,
+  /// never stretched.
+  ({int width, int height}) pixelSizeFor(StudioCanvas canvas) {
+    if (!matchesPage) return (width: width, height: height);
+    final paper = math.max(canvas.width, canvas.height) <= 500;
+    final scale = paper
+        ? dpi / 25.4
+        : 1080 / math.min(canvas.width, canvas.height);
+    return (
+      width: (canvas.width * scale).round(),
+      height: (canvas.height * scale).round(),
+    );
+  }
+
+  /// Each page at its own paper size, as a print PDF.
+  static const pagePdf = CalendarStudioExportPreset(
+    id: 'page-pdf',
+    label: 'Page size print',
+    format: CalendarStudioExportFormat.pdf,
+    dpi: 300,
+    width: 2480,
+    height: 3508,
+  );
+
+  /// Each page at its own size, as PNG images.
+  static const pagePng = CalendarStudioExportPreset(
+    id: 'page-png',
+    label: 'Page size image',
+    format: CalendarStudioExportFormat.png,
+    dpi: 300,
+    width: 2480,
+    height: 3508,
+  );
+
   static const screenPng = CalendarStudioExportPreset(
     id: 'screen-png',
     label: 'Screen sharing',

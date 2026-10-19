@@ -4641,6 +4641,8 @@ class _ExportSheetState extends State<_ExportSheet> {
   var _nameEdited = false;
 
   static const presets = [
+    CalendarStudioExportPreset.pagePdf,
+    CalendarStudioExportPreset.pagePng,
     CalendarStudioExportPreset.screenPng,
     CalendarStudioExportPreset.a4Pdf,
     CalendarStudioExportPreset.highQualityPng,
@@ -4683,6 +4685,24 @@ class _ExportSheetState extends State<_ExportSheet> {
     nameController.dispose();
     super.dispose();
   }
+
+  /// "2480 × 3508" for the first selected page; a page-size preset follows
+  /// that page.
+  String _sizeLabel(CalendarStudioExportPreset value) {
+    final pages = selection;
+    final canvas = widget.pages[pages.isEmpty ? 0 : pages.first].canvas;
+    final size = value.pixelSizeFor(canvas);
+    return '${size.width} × ${size.height}';
+  }
+
+  /// Whether a selected page has another shape than [preset], so it would
+  /// be fitted with the page colour around it.
+  bool get _shapeDiffers =>
+      !preset.matchesPage &&
+      selection.any((i) {
+        final ratio = widget.pages[i].canvas.aspectRatio;
+        return (ratio - preset.width / preset.height).abs() / ratio > .01;
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -4747,7 +4767,7 @@ class _ExportSheetState extends State<_ExportSheet> {
                           children: [
                             Text(value.label),
                             Text(
-                              '${value.width} × ${value.height}',
+                              _sizeLabel(value),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -4757,6 +4777,14 @@ class _ExportSheetState extends State<_ExportSheet> {
                   },
                 ),
               ),
+              if (_shapeDiffers) ...[
+                const SizedBox(height: 8),
+                Text(
+                  StudioStrings.exportShapeNote,
+                  key: const ValueKey('studio-export-shape-note'),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
               if (multiPage) ...[
                 const SizedBox(height: 12),
                 const Text('Pages'),

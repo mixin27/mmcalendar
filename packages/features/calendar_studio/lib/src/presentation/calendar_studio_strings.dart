@@ -259,6 +259,11 @@ abstract final class StudioStrings {
   static String qualityCheck(int dpi) => 'Check · $dpi dpi';
   static String outputDetail(String format, int dpi, int width, int height) =>
       '$format · $dpi dpi · $width × $height px';
+  static String outputDetailPageSize(String format, int dpi) =>
+      '$format · $dpi dpi · each page at its own size';
+  static const exportShapeNote =
+      'Pages of another shape are centred with the page colour around '
+      'them. Choose a Page size preset to export them at their own size.';
 
   // Page settings.
   static const pageSettings = 'Page settings';

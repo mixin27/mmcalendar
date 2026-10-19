@@ -147,7 +147,7 @@ class CalendarStudioProject extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.schemaVersion = 3,
-    this.defaultExportPreset = CalendarStudioExportPreset.a4Pdf,
+    this.defaultExportPreset = CalendarStudioExportPreset.pagePdf,
     this.lastExport,
     this.theme,
   });

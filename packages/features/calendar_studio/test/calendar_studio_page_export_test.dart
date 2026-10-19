@@ -67,10 +67,54 @@ void main() {
     expect(decoded.defaultExportPreset.format, CalendarStudioExportFormat.png);
     final legacy = CalendarStudioDocumentCodec.encode(project)
       ..remove('defaultExportPreset');
+    // Projects saved before export presets print at their own page size.
     expect(
       CalendarStudioDocumentCodec.decode(legacy).defaultExportPreset,
-      CalendarStudioExportPreset.a4Pdf,
+      CalendarStudioExportPreset.pagePdf,
     );
+  });
+
+  testWidgets('the export sheet offers page size and notes a shape change', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final store = _MemoryStore()..values[project.id] = project;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CalendarStudioWorkspace(
+          configuration: CalendarStudioConfiguration(
+            projects: store,
+            exportDelivery: _Delivery(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Resume'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Export').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Export…'));
+    await tester.pumpAndSettle();
+
+    // Page size comes first and follows the A4 page.
+    expect(find.text('Page size print'), findsOneWidget);
+    expect(find.text('Page size image'), findsOneWidget);
+    expect(find.text('2480 × 3508'), findsWidgets);
+    const note = ValueKey('studio-export-shape-note');
+    await tester.tap(find.text('Page size print'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(note), findsNothing);
+
+    // A square export of an A4 page says it will be fitted, not stretched.
+    await tester.drag(find.text('Page size image'), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Square social'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(note), findsOneWidget);
   });
 
   testWidgets('exporting from April preselects this page', (tester) async {

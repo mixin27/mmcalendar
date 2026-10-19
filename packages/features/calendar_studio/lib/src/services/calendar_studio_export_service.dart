@@ -53,14 +53,15 @@ class CalendarStudioExportService {
     for (var index = 0; index < selected.length; index++) {
       token.throwIfCancelled();
       final page = selected[index];
+      final size = preset.pixelSizeFor(page.canvas);
       final png = await renderer.renderPage(
         project,
         page,
-        width: preset.width,
-        height: preset.height,
+        width: size.width,
+        height: size.height,
       );
       token.throwIfCancelled();
-      pages.add(_RenderedPage(png));
+      pages.add(_RenderedPage(png, size.width, size.height));
       onProgress?.call(
         CalendarStudioExportProgress(
           completed: index + 1,
@@ -123,8 +124,10 @@ class CalendarStudioExportService {
         'pages': pages
             .map((page) => TransferableTypedData.fromList([page.png]))
             .toList(growable: false),
-        'width': preset.width,
-        'height': preset.height,
+        // Each page's own size, so page-size exports keep mixed papers.
+        'sizes': [
+          for (final page in pages) [page.width, page.height],
+        ],
         'dpi': preset.dpi,
       }),
     );
@@ -181,22 +184,24 @@ class CalendarStudioExportService {
 }
 
 class _RenderedPage {
-  const _RenderedPage(this.png);
+  const _RenderedPage(this.png, this.width, this.height);
   final Uint8List png;
+  final int width;
+  final int height;
 }
 
 Future<TransferableTypedData> _buildPdf(Map<String, Object> payload) async {
-  final width = payload['width'] as int;
-  final height = payload['height'] as int;
+  final sizes = payload['sizes']! as List<List<int>>;
   final dpi = payload['dpi'] as int;
   final document = pw.Document();
-  final format = PdfPageFormat(
-    width / dpi * PdfPageFormat.inch,
-    height / dpi * PdfPageFormat.inch,
-    marginAll: 0,
-  );
-  for (final transfer in payload['pages']! as List<TransferableTypedData>) {
-    final image = pw.MemoryImage(transfer.materialize().asUint8List());
+  final pages = payload['pages']! as List<TransferableTypedData>;
+  for (var i = 0; i < pages.length; i++) {
+    final format = PdfPageFormat(
+      sizes[i][0] / dpi * PdfPageFormat.inch,
+      sizes[i][1] / dpi * PdfPageFormat.inch,
+      marginAll: 0,
+    );
+    final image = pw.MemoryImage(pages[i].materialize().asUint8List());
     document.addPage(
       pw.Page(
         pageFormat: format,

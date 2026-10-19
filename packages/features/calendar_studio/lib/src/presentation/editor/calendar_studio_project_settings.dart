@@ -554,6 +554,8 @@ class StudioOutputSettings extends StatelessWidget {
   final StudioSettingsChanged onChanged;
 
   static const presets = [
+    CalendarStudioExportPreset.pagePdf,
+    CalendarStudioExportPreset.pagePng,
     CalendarStudioExportPreset.a4Pdf,
     CalendarStudioExportPreset.a3Pdf,
     CalendarStudioExportPreset.highQualityPng,
@@ -581,12 +583,17 @@ class StudioOutputSettings extends StatelessWidget {
                 value: preset.id,
                 title: Text(preset.label),
                 subtitle: Text(
-                  StudioStrings.outputDetail(
-                    preset.format.name.toUpperCase(),
-                    preset.dpi,
-                    preset.width,
-                    preset.height,
-                  ),
+                  preset.matchesPage
+                      ? StudioStrings.outputDetailPageSize(
+                          preset.format.name.toUpperCase(),
+                          preset.dpi,
+                        )
+                      : StudioStrings.outputDetail(
+                          preset.format.name.toUpperCase(),
+                          preset.dpi,
+                          preset.width,
+                          preset.height,
+                        ),
                 ),
               ),
           ],

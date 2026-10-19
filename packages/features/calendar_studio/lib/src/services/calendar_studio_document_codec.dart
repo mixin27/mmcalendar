@@ -52,7 +52,7 @@ abstract final class CalendarStudioDocumentCodec {
   }
 
   static CalendarStudioExportPreset _decodePreset(Object? value) {
-    if (value is! Map) return CalendarStudioExportPreset.a4Pdf;
+    if (value is! Map) return CalendarStudioExportPreset.pagePdf;
     try {
       return CalendarStudioExportPreset(
         id: value['id'] as String,
@@ -65,7 +65,7 @@ abstract final class CalendarStudioDocumentCodec {
         height: value['height'] as int,
       );
     } catch (_) {
-      return CalendarStudioExportPreset.a4Pdf;
+      return CalendarStudioExportPreset.pagePdf;
     }
   }
 
