@@ -24,6 +24,14 @@ abstract final class WeeklyTimetable {
     Map<int, DateTime> dayTimes = const {},
   }) {
     final rule = event.recurrenceRule;
+    // Specific dates start on the earliest of them.
+    final dates = rule?.type == RecurrenceType.dates ? rule!.dates : null;
+    if (dates != null && dates.isNotEmpty) {
+      final first = dates.reduce((a, b) => a.isBefore(b) ? a : b);
+      return [
+        _startOn(event.copyWith(eventDate: first), const {}, event.eventTime),
+      ];
+    }
     final days = rule?.daysOfWeek?.toSet() ?? const <int>{};
     if (rule == null || rule.type != RecurrenceType.weekly || days.isEmpty) {
       return [event];

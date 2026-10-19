@@ -2613,4 +2613,20 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get repeatPerDay => 'နေ့အလိုက်';
+
+  @override
+  String get repeatSpecificDates => 'ရွေးထားသောရက်များ';
+
+  @override
+  String get repeatChooseDates => 'ရက်များ ရွေးမည်';
+
+  @override
+  String repeatDatesCount(int count) {
+    return '$count ရက်';
+  }
+
+  @override
+  String eventsRepeatsOnDates(int count) {
+    return '$count ရက်တွင်';
+  }
 }

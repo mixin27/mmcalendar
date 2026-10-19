@@ -160,6 +160,10 @@ class EventRow extends StatelessWidget {
   }
 
   static String _repeatText(RecurrenceRule rule, AppLocalizations? l10n) {
+    if (rule.type == RecurrenceType.dates) {
+      final count = rule.dates?.length ?? 0;
+      return l10n?.eventsRepeatsOnDates(count) ?? 'on $count dates';
+    }
     const units = {
       RecurrenceType.daily: ('daily', 'days'),
       RecurrenceType.weekly: ('weekly', 'weeks'),
@@ -176,14 +180,14 @@ class EventRow extends StatelessWidget {
             RecurrenceType.weekly => l10n.eventsRepeatsEveryNWeeks(n),
             RecurrenceType.monthly => l10n.eventsRepeatsEveryNMonths(n),
             RecurrenceType.yearly => l10n.eventsRepeatsEveryNYears(n),
-            RecurrenceType.none => null,
+            RecurrenceType.none || RecurrenceType.dates => null,
           }
         : switch (rule.type) {
             RecurrenceType.daily => l10n.eventsRepeatsDaily,
             RecurrenceType.weekly => l10n.eventsRepeatsWeekly,
             RecurrenceType.monthly => l10n.eventsRepeatsMonthly,
             RecurrenceType.yearly => l10n.eventsRepeatsYearly,
-            RecurrenceType.none => null,
+            RecurrenceType.none || RecurrenceType.dates => null,
           };
     return localized ?? (n > 1 ? 'repeats every $n $plural' : 'repeats $once');
   }

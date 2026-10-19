@@ -2633,4 +2633,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get repeatPerDay => 'Per day';
+
+  @override
+  String get repeatSpecificDates => 'Specific dates';
+
+  @override
+  String get repeatChooseDates => 'Choose dates';
+
+  @override
+  String repeatDatesCount(int count) {
+    return '$count dates';
+  }
+
+  @override
+  String eventsRepeatsOnDates(int count) {
+    return 'on $count dates';
+  }
 }

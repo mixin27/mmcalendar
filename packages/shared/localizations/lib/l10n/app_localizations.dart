@@ -4529,6 +4529,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Per day'**
   String get repeatPerDay;
+
+  /// Repeat sheet: the event happens on chosen days only
+  ///
+  /// In en, this message translates to:
+  /// **'Specific dates'**
+  String get repeatSpecificDates;
+
+  /// Repeat sheet: opens the calendar to pick several days
+  ///
+  /// In en, this message translates to:
+  /// **'Choose dates'**
+  String get repeatChooseDates;
+
+  /// Repeat summary: how many chosen days
+  ///
+  /// In en, this message translates to:
+  /// **'{count} dates'**
+  String repeatDatesCount(int count);
+
+  /// Event row: an event on several chosen days
+  ///
+  /// In en, this message translates to:
+  /// **'on {count} dates'**
+  String eventsRepeatsOnDates(int count);
 }
 
 class _AppLocalizationsDelegate

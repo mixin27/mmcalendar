@@ -160,6 +160,11 @@ class EventValidationService {
       return const EventValidationResult.valid();
     }
 
+    if (recurrenceRule.type == RecurrenceType.dates &&
+        (recurrenceRule.dates?.isEmpty ?? true)) {
+      return const EventValidationResult.invalid('Choose at least one date');
+    }
+
     if (recurrenceRule.interval < 1) {
       return const EventValidationResult.invalid(
         'Recurrence interval must be at least 1',

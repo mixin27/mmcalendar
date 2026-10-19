@@ -120,7 +120,12 @@ class EventModel extends Event {
       eventId: Value(eventId),
       recurrenceType: rule.type.name,
       recurrenceInterval: Value(rule.interval),
-      recurrenceDays: Value(_serializeDaysOfWeek(rule.daysOfWeek)),
+      // Weekdays, or for specific dates the days as "2026-10-21".
+      recurrenceDays: Value(
+        rule.type == RecurrenceType.dates
+            ? _serializeDates(rule.dates)
+            : _serializeDaysOfWeek(rule.daysOfWeek),
+      ),
       dayOfMonth: Value(rule.dayOfMonth),
       monthOfYear: Value(rule.monthOfYear),
       recurrenceEndDate: Value(rule.endDate),
@@ -181,6 +186,26 @@ class EventModel extends Event {
     } catch (e) {
       return null;
     }
+  }
+
+  static List<DateTime>? _parseDates(String? json) {
+    if (json == null || json.isEmpty) return null;
+    try {
+      return [
+        for (final value in jsonDecode(json) as List)
+          DateTime.parse(value as String),
+      ];
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static String? _serializeDates(List<DateTime>? dates) {
+    if (dates == null || dates.isEmpty) return null;
+    String two(int n) => n.toString().padLeft(2, '0');
+    return jsonEncode([
+      for (final d in dates) '${d.year}-${two(d.month)}-${two(d.day)}',
+    ]);
   }
 
   static String? _serializeDaysOfWeek(List<int>? days) {
@@ -246,7 +271,12 @@ class EventModel extends Event {
     return RecurrenceRule(
       type: type,
       interval: rule.recurrenceInterval,
-      daysOfWeek: _parseDaysOfWeek(rule.recurrenceDays),
+      daysOfWeek: type == RecurrenceType.dates
+          ? null
+          : _parseDaysOfWeek(rule.recurrenceDays),
+      dates: type == RecurrenceType.dates
+          ? _parseDates(rule.recurrenceDays)
+          : null,
       dayOfMonth:
           rule.dayOfMonth ??
           (type == RecurrenceType.monthly ? originalEventDate.day : null),

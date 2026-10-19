@@ -182,3 +182,25 @@ Future<DateTime?> showAppMyanmarDatePicker({
   final w = selected.western;
   return DateTime(w.year, w.month, w.day);
 }
+
+/// Shows the Myanmar calendar for picking any number of days and returns
+/// them earliest first, date only, or `null` if the user cancels.
+Future<List<DateTime>?> showAppMyanmarMultiDatePicker({
+  required BuildContext context,
+  Iterable<DateTime> initialDates = const [],
+  DateTime? firstDate,
+  DateTime? lastDate,
+}) async {
+  // The root navigator, like [showAppMyanmarDatePicker].
+  final selected = await mm.showMyanmarMultiDatePicker(
+    context: Navigator.of(context, rootNavigator: true).context,
+    initialDates: initialDates,
+    firstDate: firstDate,
+    lastDate: lastDate,
+  );
+  if (selected == null) return null;
+  return [
+    for (final day in selected)
+      DateTime(day.western.year, day.western.month, day.western.day),
+  ];
+}

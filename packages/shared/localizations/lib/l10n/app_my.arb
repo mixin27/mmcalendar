@@ -1977,5 +1977,9 @@
   "repeatTimePerDay": "နေ့အလိုက် အချိန်သတ်မှတ်",
   "repeatTimePerDayNote": "အချိန်မတူသော နေ့များကို အချိန်တစ်ခုစီအတွက် အပတ်စဉ်ပွဲတစ်ခုစီအဖြစ် သိမ်းမည်။",
   "repeatEventsCreated": "ပွဲ {count} ခု ဖန်တီးပြီး",
-  "repeatPerDay": "နေ့အလိုက်"
+  "repeatPerDay": "နေ့အလိုက်",
+  "repeatSpecificDates": "ရွေးထားသောရက်များ",
+  "repeatChooseDates": "ရက်များ ရွေးမည်",
+  "repeatDatesCount": "{count} ရက်",
+  "eventsRepeatsOnDates": "{count} ရက်တွင်"
 }
