@@ -66,7 +66,12 @@ void main() {
     // The class timetable, with its repeat sheet open.
     router.go(RoutePaths.eventsEdit(ids.classId));
     await _settle(tester, seconds: 3);
-    await tester.tap(find.byKey(const ValueKey('event-form-repeat')));
+    // On shorter screens the row starts under the bottom bar, where a tap
+    // would open the converter tab instead.
+    final repeat = find.byKey(const ValueKey('event-form-repeat'));
+    await tester.ensureVisible(repeat);
+    await _settle(tester);
+    await tester.tap(repeat);
     await _settle(tester, seconds: 2);
     await capture('05_timetable');
 
