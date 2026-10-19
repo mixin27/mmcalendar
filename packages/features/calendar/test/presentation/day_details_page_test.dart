@@ -117,7 +117,7 @@ void main() {
         );
         for (final label in [
           'Buddhist Calendar',
-          'Mahabote',
+          'Human nakhat',
           'AI Horoscope Prompt',
           'Grandma’s birthday',
           'Add event',
@@ -206,7 +206,7 @@ void main() {
         expect(
           find.descendant(
             of: find.byKey(const ValueKey('day-astro-fact-Mahabote')),
-            matching: find.text('Marana'),
+            matching: find.text('Born in Marana'),
           ),
           findsOneWidget,
         );
@@ -219,9 +219,17 @@ void main() {
         MyanmarCalendar.setLanguage(Language.myanmar);
         addTearDown(() => MyanmarCalendar.setLanguage(before));
         await pump(tester, style);
-        expect(find.text('မဟာဘုတ်'), findsOneWidget);
-        expect(find.text('ရက်ရာဇာ'), findsOneWidget);
-        expect(find.text('Mahabote'), findsNothing);
+        // Said the way people say them.
+        for (final phrase in [
+          'ရက်ရာဇာ',
+          'သမားညို နေ့',
+          'မရဏဖွား',
+          'လူ နက္ခတ်',
+          'ဘဒြ နှစ်',
+          'နဂါးခေါင်း အရှေ့ဘက်သို့ လှည့်',
+        ]) {
+          expect(find.text(phrase), findsOneWidget, reason: phrase);
+        }
       });
 
       testWidgets('the dragon\'s head shows as a compass', (tester) async {

@@ -6,6 +6,7 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/calendar_injection.dart';
+import '../widgets/astro_phrases.dart';
 import '../widgets/day_details_content.dart';
 
 class DayDetailsPage extends StatefulWidget {
@@ -343,25 +344,26 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     buffer.writeln(
       '✨ ${l10n?.astrological_information ?? "Astrological Info"}:',
     );
-    // Marks that name themselves, then labelled values, all in the
+    // Marks that name themselves, then the values as phrases, all in the
     // calendar language.
-    String t(String key) =>
-        TranslationService.translateTo(key, MyanmarCalendar.currentLanguage);
+    final language = MyanmarCalendar.currentLanguage;
     for (final mark in [
       completeDate.sabbath,
       completeDate.yatyaza,
       completeDate.pyathada,
       ...completeDate.astrologicalDays,
     ]) {
-      if (mark.isNotEmpty) buffer.writeln('• ${t(mark)}');
+      if (mark.isNotEmpty) {
+        buffer.writeln('• ${AstroPhrases.mark(mark, language)}');
+      }
     }
-    for (final (label, value) in [
-      ('Mahabote', completeDate.mahabote),
-      ('Nakhat', completeDate.nakhat),
-      ('Year Name', completeDate.yearName),
-      ('Naga Head', completeDate.nagahle),
+    for (final (value, phrase) in [
+      (completeDate.mahabote, AstroPhrases.mahabote),
+      (completeDate.nakhat, AstroPhrases.nakhat),
+      (completeDate.yearName, AstroPhrases.yearName),
+      (completeDate.nagahle, AstroPhrases.nagahle),
     ]) {
-      if (value.isNotEmpty) buffer.writeln('• ${t(label)}: ${t(value)}');
+      if (value.isNotEmpty) buffer.writeln('• ${phrase(value, language)}');
     }
 
     return buffer.toString().trim();

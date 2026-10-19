@@ -6,6 +6,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
+import 'astro_phrases.dart';
 import 'calendar_colors.dart';
 import 'day_cells.dart';
 
@@ -249,7 +250,7 @@ class _Summary extends StatelessWidget {
     final marker = options.showHolidays && day.allHolidays.isNotEmpty
         ? (format.translate(day.allHolidays.first), colors.holiday)
         : options.showSabbaths && day.isSabbath
-        ? (format.translate('Sabbath'), colors.sabbath)
+        ? (AstroPhrases.mark('Sabbath', format.language), colors.sabbath)
         : null;
 
     return Row(
@@ -356,10 +357,16 @@ class _DayBadges extends StatelessWidget {
         for (final holiday in day.allHolidays)
           _Badge(text: format.translate(holiday), color: colors.holiday),
       if (options.showSabbaths && day.isSabbath)
-        _Badge(text: format.translate('Sabbath'), color: colors.sabbath),
+        _Badge(
+          text: AstroPhrases.mark('Sabbath', format.language),
+          color: colors.sabbath,
+        ),
       if (options.showAstrology)
         for (final astro in day.astrologicalDays)
-          _Badge(text: format.translate(astro), color: colors.secondaryLabel),
+          _Badge(
+            text: AstroPhrases.mark(astro, format.language),
+            color: colors.secondaryLabel,
+          ),
     ];
     return Padding(
       padding: const EdgeInsets.only(top: 12),
@@ -428,7 +435,7 @@ class _UpcomingGroup extends StatelessWidget {
           language,
         );
         final sabbath = day.isSabbath
-            ? TranslationService.translateTo('Sabbath', language)
+            ? AstroPhrases.mark('Sabbath', language)
             : null;
         items.add(
           _Upcoming(

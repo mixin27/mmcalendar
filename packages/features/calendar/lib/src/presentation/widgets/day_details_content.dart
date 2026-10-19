@@ -10,6 +10,7 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/calendar_injection.dart';
+import 'astro_phrases.dart';
 import 'calendar_colors.dart';
 import 'day_cells.dart' show eventColor;
 
@@ -40,7 +41,6 @@ class DayDetailsContent extends StatelessWidget {
   static const _spacing = 22.0;
 
   Language get _language => MyanmarCalendar.currentLanguage;
-  String _t(String key) => TranslationService.translateTo(key, _language);
 
   @override
   Widget build(BuildContext context) {
@@ -340,13 +340,10 @@ class DayDetailsContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _t('Naga Head'),
-                      style: TextStyle(fontSize: 13, color: t.secondaryLabel),
-                    ),
-                    Text(
-                      _t(completeDate.nagahle),
+                      AstroPhrases.nagahle(completeDate.nagahle, _language),
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 18,
+                        height: 1.5,
                         fontWeight: FontWeight.w700,
                         color: t.label,
                       ),
@@ -380,9 +377,24 @@ class DayDetailsContent extends StatelessWidget {
       ...completeDate.astrologicalDays,
     ];
     final facts = [
-      ('Mahabote', completeDate.mahabote, Icons.grid_view_rounded),
-      ('Nakhat', completeDate.nakhat, Icons.star_outline_rounded),
-      ('Year Name', completeDate.yearName, Icons.calendar_month_outlined),
+      if (completeDate.mahabote.isNotEmpty)
+        (
+          'Mahabote',
+          AstroPhrases.mahabote(completeDate.mahabote, _language),
+          Icons.grid_view_rounded,
+        ),
+      if (completeDate.nakhat.isNotEmpty)
+        (
+          'Nakhat',
+          AstroPhrases.nakhat(completeDate.nakhat, _language),
+          Icons.star_outline_rounded,
+        ),
+      if (completeDate.yearName.isNotEmpty)
+        (
+          'Year Name',
+          AstroPhrases.yearName(completeDate.yearName, _language),
+          Icons.calendar_month_outlined,
+        ),
     ];
     return AppGroup(
       label: l10n?.astrological_information ?? 'Astrological Information',
@@ -406,7 +418,7 @@ class DayDetailsContent extends StatelessWidget {
                     for (final key in flags)
                       _AstroChip(
                         key: ValueKey('day-astro-$key'),
-                        label: _t(key),
+                        label: AstroPhrases.mark(key, _language),
                         icon: _astroIcon(key),
                         color: tone(_astroTone(key)),
                       ),
@@ -415,13 +427,12 @@ class DayDetailsContent extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  for (final (i, (label, value, icon)) in facts.indexed) ...[
+                  for (final (i, (kind, phrase, icon)) in facts.indexed) ...[
                     if (i > 0) const SizedBox(width: 8),
                     Expanded(
                       child: _AstroFact(
-                        key: ValueKey('day-astro-fact-$label'),
-                        label: _t(label),
-                        value: value.isEmpty ? '—' : _t(value),
+                        key: ValueKey('day-astro-fact-$kind'),
+                        phrase: phrase,
                         icon: icon,
                         color: colors.astrology,
                       ),
@@ -776,61 +787,45 @@ class _AstroChip extends StatelessWidget {
   }
 }
 
-/// A labelled astrological value, e.g. Mahabote · Marana.
+/// An astrological value said as a phrase, e.g. "ဘင်္ဂဖွား".
 class _AstroFact extends StatelessWidget {
   const _AstroFact({
     super.key,
-    required this.label,
-    required this.value,
+    required this.phrase,
     required this.icon,
     required this.color,
   });
 
-  final String label;
-  final String value;
+  final String phrase;
   final IconData icon;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Semantics(
-      label: '$label: $value',
-      excludeSemantics: true,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(10, 8, 10, 9),
-        decoration: BoxDecoration(
-          color: t.fill,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.4,
-                fontWeight: FontWeight.w700,
-                color: t.label,
-              ),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 9),
+      decoration: BoxDecoration(
+        color: t.fill,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(height: 4),
+          Text(
+            phrase,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 13.5,
+              height: 1.45,
+              fontWeight: FontWeight.w700,
+              color: t.label,
             ),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11,
-                height: 1.4,
-                color: t.secondaryLabel,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
