@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'png.dart';
+
 /// The brand: the app icon's night sky, moon and gold stars.
 const _skyTop = Color(0xFF14203D);
 const _skyBottom = Color(0xFF2B5598);
@@ -252,71 +254,12 @@ Future<List<int>> _packageGraphic(
   _paintDevice(canvas, material, const Rect.fromLTRB(800, 150, 1080, 760));
   _paintDevice(canvas, cupertino, const Rect.fromLTRB(1260, 150, 1540, 760));
   _paintDevice(canvas, glass, const Rect.fromLTRB(1010, 60, 1340, 780));
-  return _encode(recorder.endRecording(), size);
+  return encodeRgbPng(recorder.endRecording(), size);
 }
 
 Future<ui.Image> _decode(List<int> bytes) async {
   final codec = await ui.instantiateImageCodec(Uint8List.fromList(bytes));
   return (await codec.getNextFrame()).image;
-}
-
-/// [picture] as a 24-bit PNG with no alpha channel: Google Play rejects
-/// a feature graphic with one, and the App Store rejects screenshots with
-/// transparency.
-Future<List<int>> _encode(ui.Picture picture, Size size) async {
-  final width = size.width.round(), height = size.height.round();
-  final image = await picture.toImage(width, height);
-  final rgba = (await image.toByteData(
-    format: ui.ImageByteFormat.rawRgba,
-  ))!.buffer.asUint8List();
-  // Each row: filter type 0, then RGB.
-  final raw = Uint8List(height * (1 + width * 3));
-  var o = 0;
-  for (var y = 0; y < height; y++) {
-    raw[o++] = 0;
-    for (var x = 0; x < width; x++) {
-      final i = (y * width + x) * 4;
-      raw[o++] = rgba[i];
-      raw[o++] = rgba[i + 1];
-      raw[o++] = rgba[i + 2];
-    }
-  }
-  final header = ByteData(13)
-    ..setUint32(0, width)
-    ..setUint32(4, height)
-    ..setUint8(8, 8) // bit depth
-    ..setUint8(9, 2); // colour type: RGB
-  return [
-    0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // signature
-    ..._chunk('IHDR', header.buffer.asUint8List()),
-    ..._chunk('IDAT', ZLibCodec(level: 6).encode(raw)),
-    ..._chunk('IEND', const []),
-  ];
-}
-
-List<int> _chunk(String type, List<int> data) {
-  final body = [...type.codeUnits, ...data];
-  final out = ByteData(8 + data.length + 4);
-  out.setUint32(0, data.length);
-  final bytes = out.buffer.asUint8List()..setRange(4, 8 + data.length, body);
-  out.setUint32(8 + data.length, _crc32(body));
-  return bytes;
-}
-
-final _crcTable = List<int>.generate(256, (n) {
-  var c = n;
-  for (var k = 0; k < 8; k++) {
-    c = (c & 1) != 0 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
-  }
-  return c;
-});
-
-int _crc32(List<int> bytes) {
-  var c = 0xFFFFFFFF;
-  for (final b in bytes) {
-    c = _crcTable[(c ^ b) & 0xFF] ^ (c >>> 8);
-  }
-  return c ^ 0xFFFFFFFF;
 }
 
 /// The night sky with a soft moon glow and a few gold stars.
@@ -498,7 +441,7 @@ Future<List<int>> _frame(
       ),
     );
   }
-  return _encode(recorder.endRecording(), size);
+  return encodeRgbPng(recorder.endRecording(), size);
 }
 
 /// Play's 1024×500 feature graphic: the name and pitch beside the app.
@@ -533,5 +476,5 @@ Future<List<int>> _featureGraphic(ui.Image screen) {
     Paint()..color = _gold.withValues(alpha: .9),
   );
   _paintDevice(canvas, screen, const Rect.fromLTRB(660, 36, 960, 540));
-  return _encode(recorder.endRecording(), size);
+  return encodeRgbPng(recorder.endRecording(), size);
 }
