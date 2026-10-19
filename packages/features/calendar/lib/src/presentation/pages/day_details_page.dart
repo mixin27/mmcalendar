@@ -343,39 +343,25 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     buffer.writeln(
       '✨ ${l10n?.astrological_information ?? "Astrological Info"}:',
     );
-    if (completeDate.sabbath.isNotEmpty) {
-      buffer.writeln(
-        '• ${l10n?.sabbath ?? 'Sabbath'}: ${TranslationService.translateTo(completeDate.sabbath, MyanmarCalendar.currentLanguage)}',
-      );
+    // Marks that name themselves, then labelled values, all in the
+    // calendar language.
+    String t(String key) =>
+        TranslationService.translateTo(key, MyanmarCalendar.currentLanguage);
+    for (final mark in [
+      completeDate.sabbath,
+      completeDate.yatyaza,
+      completeDate.pyathada,
+      ...completeDate.astrologicalDays,
+    ]) {
+      if (mark.isNotEmpty) buffer.writeln('• ${t(mark)}');
     }
-    if (completeDate.yatyaza.isNotEmpty) {
-      buffer.writeln(
-        '• ${l10n?.dayDetailsYatyaza ?? 'Yatyaza'}: ${TranslationService.translateTo(completeDate.yatyaza, MyanmarCalendar.currentLanguage)}',
-      );
-    }
-    if (completeDate.pyathada.isNotEmpty) {
-      buffer.writeln(
-        '• ${l10n?.dayDetailsPyathada ?? 'Pyathada'}: ${TranslationService.translateTo(completeDate.pyathada, MyanmarCalendar.currentLanguage)}',
-      );
-    }
-    if (completeDate.nagahle.isNotEmpty) {
-      buffer.writeln(
-        '• ${l10n?.nagahle ?? "Nagahle"}: ${TranslationService.translateTo(completeDate.nagahle, MyanmarCalendar.currentLanguage)}',
-      );
-    }
-    if (completeDate.mahabote.isNotEmpty) {
-      buffer.writeln(
-        '• ${l10n?.mahabote ?? 'Mahabote'}: ${TranslationService.translateTo(completeDate.mahabote, MyanmarCalendar.currentLanguage)}',
-      );
-    }
-
-    if (completeDate.astrologicalDays.isNotEmpty) {
-      buffer.writeln('🌟 ${l10n?.special_days ?? "Special Days"}:');
-      for (final day in completeDate.astrologicalDays) {
-        buffer.writeln(
-          '• ${TranslationService.translateTo(day, MyanmarCalendar.currentLanguage)}',
-        );
-      }
+    for (final (label, value) in [
+      ('Mahabote', completeDate.mahabote),
+      ('Nakhat', completeDate.nakhat),
+      ('Year Name', completeDate.yearName),
+      ('Naga Head', completeDate.nagahle),
+    ]) {
+      if (value.isNotEmpty) buffer.writeln('• ${t(label)}: ${t(value)}');
     }
 
     return buffer.toString().trim();

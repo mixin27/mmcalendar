@@ -4355,6 +4355,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dragon\'s head'**
   String get dayDetailsNagahleCompass;
+
+  /// Day details: the astrology section when no Sabbath, Yatyaza, Pyathada or named astrological day falls on the day
+  ///
+  /// In en, this message translates to:
+  /// **'No special astrological days'**
+  String get dayDetailsNoAstrologicalDays;
 }
 
 class _AppLocalizationsDelegate

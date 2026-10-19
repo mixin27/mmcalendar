@@ -3179,5 +3179,9 @@
   "dayDetailsNagahleCompass": "Dragon's head",
   "@dayDetailsNagahleCompass": {
     "description": "Day details: the Nagahle compass section"
+  },
+  "dayDetailsNoAstrologicalDays": "No special astrological days",
+  "@dayDetailsNoAstrologicalDays": {
+    "description": "Day details: the astrology section when no Sabbath, Yatyaza, Pyathada or named astrological day falls on the day"
   }
 }

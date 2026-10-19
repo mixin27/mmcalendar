@@ -1948,5 +1948,6 @@
   "viewsAgenda": "အစီအစဉ်",
   "viewsAgendaSubtitle": "ရှေ့လာမည့် ရုံးပိတ်ရက်၊ ဥပုသ်၊ လပြည့်လကွယ်နှင့် သင့်ပွဲများ",
   "dayDetailsComingUp": "လာမည့်ရက်များ",
-  "dayDetailsNagahleCompass": "နဂါးခေါင်း"
+  "dayDetailsNagahleCompass": "နဂါးခေါင်း",
+  "dayDetailsNoAstrologicalDays": "ထူးခြားသော ဗေဒင်ရက် မရှိပါ"
 }

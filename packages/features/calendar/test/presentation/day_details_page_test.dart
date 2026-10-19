@@ -6,7 +6,7 @@ import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as mm;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
-    show MyanmarCalendar;
+    show Language, MyanmarCalendar;
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
@@ -191,6 +191,37 @@ void main() {
         expect(find.text('in 4 days'), findsNWidgets(2));
         expect(find.text('in 18 days'), findsOneWidget);
         expect(find.byType(mm.MoonGlyph), findsNWidgets(3));
+      });
+
+      testWidgets('astrology shows the day\'s marks as chips', (tester) async {
+        await pump(tester, style);
+        // 22 October 2026: Yatyaza and Thamanyo, no Sabbath or Pyathada.
+        for (final key in ['Yatyaza', 'Thamanyo']) {
+          expect(find.byKey(ValueKey('day-astro-$key')), findsOneWidget);
+        }
+        expect(find.byKey(const ValueKey('day-astro-Sabbath')), findsNothing);
+        expect(find.byKey(const ValueKey('day-astro-Pyathada')), findsNothing);
+        // The mark is its own label: no "Yatyaza: Yatyaza" row.
+        expect(find.text('Yatyaza'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byKey(const ValueKey('day-astro-fact-Mahabote')),
+            matching: find.text('Marana'),
+          ),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('astrology labels follow the calendar language', (
+        tester,
+      ) async {
+        final before = MyanmarCalendar.currentLanguage;
+        MyanmarCalendar.setLanguage(Language.myanmar);
+        addTearDown(() => MyanmarCalendar.setLanguage(before));
+        await pump(tester, style);
+        expect(find.text('မဟာဘုတ်'), findsOneWidget);
+        expect(find.text('ရက်ရာဇာ'), findsOneWidget);
+        expect(find.text('Mahabote'), findsNothing);
       });
 
       testWidgets('the dragon\'s head shows as a compass', (tester) async {

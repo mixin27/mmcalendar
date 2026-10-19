@@ -340,7 +340,7 @@ class DayDetailsContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n?.nagahle ?? 'Nagahle',
+                      _t('Naga Head'),
                       style: TextStyle(fontSize: 13, color: t.secondaryLabel),
                     ),
                     Text(
@@ -361,28 +361,96 @@ class DayDetailsContent extends StatelessWidget {
     );
   }
 
+  /// The day's astrology: what applies to it as chips (the name says what
+  /// it is), then Mahabote, Nakhat and the year name as labelled tiles. All
+  /// of it, labels included, in the calendar language.
   Widget _astrology(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final rows = <(String, String)>[
-      (l10n?.sabbath ?? 'Sabbath', completeDate.sabbath),
-      (l10n?.dayDetailsYatyaza ?? 'Yatyaza', completeDate.yatyaza),
-      (l10n?.dayDetailsPyathada ?? 'Pyathada', completeDate.pyathada),
-      (l10n?.mahabote ?? 'Mahabote', completeDate.mahabote),
-      (l10n?.nakhat ?? 'Nakhat', completeDate.nakhat),
-      (l10n?.year_name ?? 'Year Name', completeDate.yearName),
+    final t = context.tokens;
+    final colors = CalendarColors.of(context);
+    Color tone(_AstroTone tone) => switch (tone) {
+      _AstroTone.sabbath => colors.sabbath,
+      _AstroTone.good => t.success,
+      _AstroTone.caution => t.holiday,
+    };
+    final flags = [
+      if (completeDate.sabbath.isNotEmpty) completeDate.sabbath,
+      if (completeDate.yatyaza.isNotEmpty) completeDate.yatyaza,
+      if (completeDate.pyathada.isNotEmpty) completeDate.pyathada,
+      ...completeDate.astrologicalDays,
     ];
-    final special = completeDate.astrologicalDays.map(_t).join(', ');
+    final facts = [
+      ('Mahabote', completeDate.mahabote, Icons.grid_view_rounded),
+      ('Nakhat', completeDate.nakhat, Icons.star_outline_rounded),
+      ('Year Name', completeDate.yearName, Icons.calendar_month_outlined),
+    ];
     return AppGroup(
       label: l10n?.astrological_information ?? 'Astrological Information',
-      footer: special.isEmpty
-          ? null
-          : '${l10n?.special_days ?? 'Special Days'}: $special',
       children: [
-        for (final (label, value) in rows)
-          AppRow(title: label, value: value.isEmpty ? '—' : _t(value)),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (flags.isEmpty)
+                Text(
+                  l10n?.dayDetailsNoAstrologicalDays ??
+                      'No special astrological days',
+                  style: TextStyle(fontSize: 13, color: t.secondaryLabel),
+                )
+              else
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final key in flags)
+                      _AstroChip(
+                        key: ValueKey('day-astro-$key'),
+                        label: _t(key),
+                        icon: _astroIcon(key),
+                        color: tone(_astroTone(key)),
+                      ),
+                  ],
+                ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  for (final (i, (label, value, icon)) in facts.indexed) ...[
+                    if (i > 0) const SizedBox(width: 8),
+                    Expanded(
+                      child: _AstroFact(
+                        key: ValueKey('day-astro-fact-$label'),
+                        label: _t(label),
+                        value: value.isEmpty ? '—' : _t(value),
+                        icon: icon,
+                        color: colors.astrology,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
+
+  static _AstroTone _astroTone(String key) => switch (key) {
+    'Sabbath' || 'Sabbath Eve' => _AstroTone.sabbath,
+    'Yatyaza' || 'Amyeittasote' || 'Thamaphyu' => _AstroTone.good,
+    _ => _AstroTone.caution,
+  };
+
+  static IconData _astroIcon(String key) => switch (key) {
+    'Sabbath' => Icons.self_improvement_rounded,
+    'Sabbath Eve' => Icons.nights_stay_outlined,
+    'Afternoon Pyathada' => Icons.wb_twilight_rounded,
+    _ => switch (_astroTone(key)) {
+      _AstroTone.good => Icons.auto_awesome_rounded,
+      _ => Icons.error_outline_rounded,
+    },
+  };
 
   Widget _aiPrompt(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -655,6 +723,116 @@ class DayDetailsContent extends StatelessWidget {
         kind: AppToastKind.error,
       );
     }
+  }
+}
+
+/// How an astrological mark reads: Sabbath, a good day, or one to be
+/// careful on.
+enum _AstroTone { sabbath, good, caution }
+
+/// One astrological mark that applies to the day, e.g. Yatyaza.
+class _AstroChip extends StatelessWidget {
+  const _AstroChip({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: dark ? .2 : .12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(9, 5, 12, 5),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  fontWeight: FontWeight.w600,
+                  color: context.tokens.label,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A labelled astrological value, e.g. Mahabote · Marana.
+class _AstroFact extends StatelessWidget {
+  const _AstroFact({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Semantics(
+      label: '$label: $value',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 9),
+        decoration: BoxDecoration(
+          color: t.fill,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.4,
+                fontWeight: FontWeight.w700,
+                color: t.label,
+              ),
+            ),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                height: 1.4,
+                color: t.secondaryLabel,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -2530,4 +2530,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dayDetailsNagahleCompass => 'Dragon\'s head';
+
+  @override
+  String get dayDetailsNoAstrologicalDays => 'No special astrological days';
 }

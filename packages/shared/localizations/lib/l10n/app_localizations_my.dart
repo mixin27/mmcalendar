@@ -2510,4 +2510,7 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get dayDetailsNagahleCompass => 'နဂါးခေါင်း';
+
+  @override
+  String get dayDetailsNoAstrologicalDays => 'ထူးခြားသော ဗေဒင်ရက် မရှိပါ';
 }
