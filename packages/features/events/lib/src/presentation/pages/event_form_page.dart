@@ -446,6 +446,7 @@ class _EventFormPageState extends State<EventFormPage> {
     final choice = await showAppSheet<RepeatChoice>(
       context: context,
       title: l10n?.repeat ?? 'Repeat',
+      cancelLabel: l10n?.cancel ?? 'Cancel',
       builder: (sheetContext) => RepeatSheet(
         rule: state.recurrenceRule,
         dayTimes: state.dayTimes,
@@ -463,6 +464,7 @@ class _EventFormPageState extends State<EventFormPage> {
     showAppSheet<void>(
       context: context,
       title: AppLocalizations.of(context)?.eventsAddReminder ?? 'Add reminder',
+      cancelLabel: AppLocalizations.of(context)?.cancel ?? 'Cancel',
       builder: (sheetContext) => SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         child: AppGroup(

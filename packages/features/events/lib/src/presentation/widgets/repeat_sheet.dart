@@ -24,6 +24,19 @@ const _weekdays = [
   DateTime.saturday,
 ];
 
+/// [type]'s name in the app language: "Weekly", "အပတ်စဉ်".
+String repeatTypeName(BuildContext context, RecurrenceType type) {
+  final l10n = AppLocalizations.of(context);
+  return switch (type) {
+    RecurrenceType.none => l10n?.never ?? 'Never',
+    RecurrenceType.daily => l10n?.repeatDaily ?? 'Daily',
+    RecurrenceType.weekly => l10n?.repeatWeekly ?? 'Weekly',
+    RecurrenceType.monthly => l10n?.repeatMonthly ?? 'Monthly',
+    RecurrenceType.yearly => l10n?.repeatYearly ?? 'Yearly',
+    RecurrenceType.dates => l10n?.repeatSpecificDates ?? 'Specific dates',
+  };
+}
+
 /// "Every week · Wed, Thu · until 20 Dec", in the calendar language.
 String repeatSummary(
   BuildContext context,
@@ -61,7 +74,7 @@ String repeatSummary(
       );
     }
   } else {
-    parts.add(rule.type.displayName);
+    parts.add(repeatTypeName(context, rule.type));
   }
   if (rule.endDate != null) {
     final end = format.shortDate(rule.endDate!);
@@ -177,12 +190,7 @@ class _RepeatSheetState extends State<RepeatSheet> {
               for (final type in RecurrenceType.values)
                 AppRow(
                   key: ValueKey('repeat-type-${type.name}'),
-                  title: switch (type) {
-                    RecurrenceType.none => l10n?.never ?? 'Never',
-                    RecurrenceType.dates =>
-                      l10n?.repeatSpecificDates ?? 'Specific dates',
-                    _ => type.displayName,
-                  },
+                  title: repeatTypeName(context, type),
                   selected: _type == type,
                   onTap: () {
                     setState(() {

@@ -3350,5 +3350,21 @@
   "eventsAddMoreDates": "Add more dates",
   "@eventsAddMoreDates": {
     "description": "Event form: pick more days so the event falls on several dates"
+  },
+  "repeatDaily": "Daily",
+  "@repeatDaily": {
+    "description": "Repeat sheet: an event that repeats daily"
+  },
+  "repeatWeekly": "Weekly",
+  "@repeatWeekly": {
+    "description": "Repeat sheet: an event that repeats weekly"
+  },
+  "repeatMonthly": "Monthly",
+  "@repeatMonthly": {
+    "description": "Repeat sheet: an event that repeats monthly"
+  },
+  "repeatYearly": "Yearly",
+  "@repeatYearly": {
+    "description": "Repeat sheet: an event that repeats yearly"
   }
 }

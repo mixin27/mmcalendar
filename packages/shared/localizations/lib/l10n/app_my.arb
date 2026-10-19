@@ -1982,5 +1982,9 @@
   "repeatChooseDates": "ရက်များ ရွေးမည်",
   "repeatDatesCount": "{count} ရက်",
   "eventsRepeatsOnDates": "{count} ရက်တွင်",
-  "eventsAddMoreDates": "ရက်များ ထပ်ထည့်မည်"
+  "eventsAddMoreDates": "ရက်များ ထပ်ထည့်မည်",
+  "repeatDaily": "နေ့စဉ်",
+  "repeatWeekly": "အပတ်စဉ်",
+  "repeatMonthly": "လစဉ်",
+  "repeatYearly": "နှစ်စဉ်"
 }

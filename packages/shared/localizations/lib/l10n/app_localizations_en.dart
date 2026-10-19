@@ -2672,4 +2672,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventsAddMoreDates => 'Add more dates';
+
+  @override
+  String get repeatDaily => 'Daily';
+
+  @override
+  String get repeatWeekly => 'Weekly';
+
+  @override
+  String get repeatMonthly => 'Monthly';
+
+  @override
+  String get repeatYearly => 'Yearly';
 }

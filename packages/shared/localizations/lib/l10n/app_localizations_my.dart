@@ -2652,4 +2652,16 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get eventsAddMoreDates => 'ရက်များ ထပ်ထည့်မည်';
+
+  @override
+  String get repeatDaily => 'နေ့စဉ်';
+
+  @override
+  String get repeatWeekly => 'အပတ်စဉ်';
+
+  @override
+  String get repeatMonthly => 'လစဉ်';
+
+  @override
+  String get repeatYearly => 'နှစ်စဉ်';
 }

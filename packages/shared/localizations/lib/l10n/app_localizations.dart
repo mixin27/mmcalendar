@@ -4559,6 +4559,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add more dates'**
   String get eventsAddMoreDates;
+
+  /// Repeat sheet: an event that repeats daily
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get repeatDaily;
+
+  /// Repeat sheet: an event that repeats weekly
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get repeatWeekly;
+
+  /// Repeat sheet: an event that repeats monthly
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get repeatMonthly;
+
+  /// Repeat sheet: an event that repeats yearly
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get repeatYearly;
 }
 
 class _AppLocalizationsDelegate
