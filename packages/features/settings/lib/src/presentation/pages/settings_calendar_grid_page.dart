@@ -23,6 +23,7 @@ import '../widgets/settings_widgets.dart';
 extension CalendarGridStyleLabel on CalendarGridStyle {
   String title(AppLocalizations l10n) => switch (this) {
     CalendarGridStyle.almanac => l10n.gridLayoutAlmanacTitle,
+    CalendarGridStyle.monthRegions => l10n.gridLayoutMonthRegionsTitle,
     CalendarGridStyle.detailed => l10n.gridLayoutDetailedTitle,
     CalendarGridStyle.clean => l10n.gridLayoutCleanTitle,
     CalendarGridStyle.classic => l10n.gridLayoutClassicTitle,
@@ -42,6 +43,7 @@ extension CalendarGridStyleLabel on CalendarGridStyle {
 
   String description(AppLocalizations l10n) => switch (this) {
     CalendarGridStyle.almanac => l10n.gridLayoutAlmanacDescription,
+    CalendarGridStyle.monthRegions => l10n.gridLayoutMonthRegionsDescription,
     CalendarGridStyle.detailed => l10n.gridLayoutDetailedDescription,
     CalendarGridStyle.clean => l10n.gridLayoutCleanDescription,
     CalendarGridStyle.classic => l10n.gridLayoutClassicDescription,

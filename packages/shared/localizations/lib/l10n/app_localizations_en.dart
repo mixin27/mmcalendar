@@ -1299,6 +1299,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Lunar day, moon, holidays and events, with a strip for Sabbath and good or careful days.';
 
   @override
+  String get gridLayoutMonthRegionsTitle => 'Myanmar months';
+
+  @override
+  String get gridLayoutMonthRegionsDescription =>
+      'Each Myanmar month tinted as a region, named where it begins.';
+
+  @override
   String get gridLayoutDetailedTitle => 'Detailed';
 
   @override

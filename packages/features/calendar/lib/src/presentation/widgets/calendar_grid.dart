@@ -141,6 +141,10 @@ class CalendarGrid extends StatelessWidget {
     DayCellData data() => _data(info, date, events, options, place);
     final cell = switch (gridStyle) {
       CalendarGridStyle.almanac => AlmanacDayCell(data: data(), onTap: onTap),
+      CalendarGridStyle.monthRegions => MonthRegionsDayCell(
+        data: data(),
+        onTap: onTap,
+      ),
       CalendarGridStyle.classic => DateCell(
         dateInfo: info,
         isSelected: _isSelected(date),

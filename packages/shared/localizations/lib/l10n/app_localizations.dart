@@ -2244,6 +2244,18 @@ abstract class AppLocalizations {
   /// **'Lunar day, moon, holidays and events, with a strip for Sabbath and good or careful days.'**
   String get gridLayoutAlmanacDescription;
 
+  /// Name of the Myanmar months calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Myanmar months'**
+  String get gridLayoutMonthRegionsTitle;
+
+  /// One-line description of the Myanmar months calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Each Myanmar month tinted as a region, named where it begins.'**
+  String get gridLayoutMonthRegionsDescription;
+
   /// Name of the Detailed calendar grid layout.
   ///
   /// In en, this message translates to:

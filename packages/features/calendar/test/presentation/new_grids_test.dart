@@ -1,6 +1,5 @@
 import 'package:calendar/calendar.dart';
 import 'package:calendar/src/presentation/widgets/astro_phrases.dart';
-import 'package:calendar/src/presentation/widgets/day_cells.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
@@ -111,6 +110,15 @@ void main() {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await _pumpGrid(tester, CalendarGridStyle.almanac);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Myanmar months name each month where it begins', (tester) async {
+    await _pumpGrid(tester, CalendarGridStyle.monthRegions);
+    expect(find.byType(MonthRegionsDayCell), findsNWidgets(35));
+    // The 1st is in Tawthalin; Thadingyut begins on the 12th.
+    expect(find.text('Tawthalin'), findsOneWidget);
+    expect(find.text('Thadingyut'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

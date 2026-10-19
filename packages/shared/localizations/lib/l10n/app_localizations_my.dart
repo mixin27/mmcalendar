@@ -1291,6 +1291,13 @@ class AppLocalizationsMy extends AppLocalizations {
       'လရက်၊ လဝန်း၊ ရုံးပိတ်ရက်နှင့် ပွဲများ၊ ဥပုသ်နှင့် ရက်ကောင်း၊ သတိထားရန်ရက်ကို အရောင်တန်းဖြင့် ပြသည်။';
 
   @override
+  String get gridLayoutMonthRegionsTitle => 'မြန်မာလများ';
+
+  @override
+  String get gridLayoutMonthRegionsDescription =>
+      'မြန်မာလတစ်လစီကို အရောင်ဖြင့် ခွဲပြပြီး လစသည့်နေရာတွင် လအမည်ပြသည်။';
+
+  @override
   String get gridLayoutDetailedTitle => 'အသေးစိတ်';
 
   @override

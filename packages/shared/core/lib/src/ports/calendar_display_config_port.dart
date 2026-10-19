@@ -8,6 +8,10 @@ enum CalendarGridStyle {
   /// Myanmar month begins, a rule and the month's name.
   almanac,
 
+  /// Each Myanmar month as a tinted region of the Western grid, named
+  /// where it begins.
+  monthRegions,
+
   /// Ruled cells with the lunar day, holiday name, moon and events.
   detailed,
 

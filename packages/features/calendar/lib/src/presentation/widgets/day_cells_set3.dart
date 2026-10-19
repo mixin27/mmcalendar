@@ -200,3 +200,110 @@ class _Banner extends StatelessWidget {
     ),
   );
 }
+
+/// Myanmar months: each Myanmar month is a tinted region of the Western
+/// grid, with an edge where it changes and its name where it begins.
+/// The cells stay calm: the date, the lunar day or the moon on moon days,
+/// and a dot for a holiday or events.
+class MonthRegionsDayCell extends StatelessWidget {
+  const MonthRegionsDayCell({super.key, required this.data, this.onTap});
+
+  final DayCellData data;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalendarColors.of(context);
+    final place = data.monthPlace;
+    final inMonth = data.isInMonth;
+    final tint = place.index.isEven
+        ? colors.accent.withValues(alpha: .08)
+        : colors.anniversary.withValues(alpha: .1);
+    final edge = BorderSide(
+      color: colors.accent.withValues(alpha: .6),
+      width: 2,
+    );
+    final named = inMonth && (place.starts || data.info.westernDay == 1);
+    return _Cell(
+      data: data,
+      onTap: onTap,
+      background: tint,
+      border: Border(
+        left: place.edgeLeft ? edge : BorderSide.none,
+        top: place.edgeTop ? edge : BorderSide.none,
+      ),
+      padding: const EdgeInsets.fromLTRB(2, 5, 2, 3),
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final scale = MediaQuery.textScalerOf(context).scale(1);
+          final line = _labelLine * scale;
+          var budget = box.maxHeight - 22;
+          final lunar =
+              inMonth && data.options.showMyanmarDates && budget >= line;
+          if (lunar) budget -= line;
+          final dots = inMonth && budget >= 6;
+          if (dots) budget -= 6;
+          final name = named && budget >= line;
+          return Column(
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: _Number(data: data, colors: colors, size: 15, disc: 22),
+              ),
+              if (lunar)
+                SizedBox(
+                  height: line,
+                  child: Center(
+                    child: data.isMoonDay
+                        ? MoonGlyph(state: data.moon, size: 10)
+                        : Text(
+                            data.lunarLabel,
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.fade,
+                            style: _small(
+                              context,
+                              data.showsSabbath
+                                  ? colors.sabbath
+                                  : colors.secondaryLabel,
+                              weight: data.showsSabbath
+                                  ? FontWeight.w700
+                                  : null,
+                            ),
+                          ),
+                  ),
+                ),
+              if (dots)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (data.showsHoliday) _Dot(color: colors.holiday),
+                      if (data.events.isNotEmpty) _Dot(color: colors.accent),
+                    ],
+                  ),
+                ),
+              const Spacer(),
+              if (name)
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    data.myanmarMonthName,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.fade,
+                    style: _small(
+                      context,
+                      colors.accent,
+                      weight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}

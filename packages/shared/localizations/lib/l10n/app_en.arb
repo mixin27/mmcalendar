@@ -1621,6 +1621,14 @@
   "@gridLayoutAlmanacDescription": {
     "description": "One-line description of the Almanac calendar grid layout."
   },
+  "gridLayoutMonthRegionsTitle": "Myanmar months",
+  "@gridLayoutMonthRegionsTitle": {
+    "description": "Name of the Myanmar months calendar grid layout."
+  },
+  "gridLayoutMonthRegionsDescription": "Each Myanmar month tinted as a region, named where it begins.",
+  "@gridLayoutMonthRegionsDescription": {
+    "description": "One-line description of the Myanmar months calendar grid layout."
+  },
   "gridLayoutDetailedTitle": "Detailed",
   "@gridLayoutDetailedTitle": {
     "description": "Name of the Detailed calendar grid layout."
