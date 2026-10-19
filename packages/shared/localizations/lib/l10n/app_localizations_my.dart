@@ -1325,6 +1325,13 @@ class AppLocalizationsMy extends AppLocalizations {
       'အပတ်တိုင်းအောက်တွင် လဝန်းအလင်းကို အရောင်တန်းဖြင့် ပြပြီး လပြည့်တွင် အလင်းဆုံး။';
 
   @override
+  String get gridLayoutHeroTodayTitle => 'ယနေ့ကတ်';
+
+  @override
+  String get gridLayoutHeroTodayDescription =>
+      'ရွေးထားသောနေ့ကို ကတ်ကြီးဖြင့် လ၏အပေါ်တွင် ပြသည်။';
+
+  @override
   String get gridLayoutDetailedTitle => 'အသေးစိတ်';
 
   @override

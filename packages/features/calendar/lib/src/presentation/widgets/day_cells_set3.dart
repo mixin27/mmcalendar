@@ -741,3 +741,197 @@ class MoonBand extends StatelessWidget {
     );
   }
 }
+
+/// Hero today: the selected day (or today) as a card above a quiet month.
+/// Its date, Myanmar date in words and moon, its holidays and astrology
+/// as chips, its first events, and the next holiday in the month.
+class HeroDayCard extends StatelessWidget {
+  const HeroDayCard({
+    super.key,
+    required this.data,
+    this.nextHoliday,
+    this.onTap,
+  });
+
+  final DayCellData data;
+
+  /// The next holiday after [data] in the grid, and how many days away.
+  final (CompleteDate, int)? nextHoliday;
+
+  /// Opens the day.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalendarColors.of(context);
+    final good = context.tokens.success;
+    final l10n = AppLocalizations.of(context);
+    final language = MyanmarCalendar.currentLanguage;
+    final options = data.options;
+    Color tone(String mark) => switch (AstroPhrases.tone(mark)) {
+      AstroTone.sabbath => colors.sabbath,
+      AstroTone.good => good,
+      AstroTone.caution => colors.holiday,
+    };
+    final chips = <Widget>[
+      if (data.showsHoliday)
+        for (final holiday in data.info.allHolidays)
+          _PanelChip(
+            text: TranslationService.translateTo(holiday, language),
+            color: colors.holiday,
+          ),
+      for (final mark in AstroPhrases.marks(data.info))
+        if (AstroPhrases.tone(mark) == AstroTone.sabbath
+            ? options.showSabbaths
+            : options.showAstrology)
+          _PanelChip(
+            text: AstroPhrases.mark(mark, language),
+            color: tone(mark),
+          ),
+    ];
+    final percent = context.uiNumber(data.moon.percentLit);
+    final next = nextHoliday;
+    return Semantics(
+      container: true,
+      button: onTap != null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          key: const ValueKey('hero-day-card'),
+          margin: const EdgeInsets.fromLTRB(2, 4, 2, 8),
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [colors.accentSoft, colors.fill],
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    '${data.info.westernDay}',
+                    style: colors.numberStyle(
+                      TextStyle(
+                        fontSize: 40,
+                        height: 1.05,
+                        fontWeight: FontWeight.w800,
+                        color: colors.accent,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          MyanmarCalendar.formatMyanmar(
+                            data.info.myanmar,
+                            pattern: '&M &P &f',
+                            language: language,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 15,
+                            height: 1.45,
+                            fontWeight: FontWeight.w700,
+                            color: colors.label,
+                          ),
+                        ),
+                        Text(
+                          [
+                            context.calendarFormat.weekday(data.date),
+                            l10n?.dayDetailsPercentLit(percent) ??
+                                '$percent% lit',
+                          ].join(' · '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.4,
+                            color: colors.secondaryLabel,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  MoonGlyph(state: data.moon, size: 34),
+                ],
+              ),
+              if (chips.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Wrap(spacing: 6, runSpacing: 6, children: chips),
+              ],
+              for (final event in data.events.take(2)) ...[
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: eventColor(event, colors),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        event.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: colors.label,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              if (next != null) ...[
+                const SizedBox(height: 8),
+                Divider(height: 1, color: colors.separator),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.star_rounded, size: 14, color: colors.holiday),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        [
+                          TranslationService.translateTo(
+                            next.$1.allHolidays.first,
+                            language,
+                          ),
+                          l10n?.calendarInDays(next.$2) ?? 'in ${next.$2} days',
+                        ].join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.4,
+                          color: colors.secondaryLabel,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

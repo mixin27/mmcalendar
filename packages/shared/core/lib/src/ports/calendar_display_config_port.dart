@@ -24,6 +24,9 @@ enum CalendarGridStyle {
   /// full moon.
   moonBand,
 
+  /// The selected day (or today) as a large card above a quiet month.
+  heroToday,
+
   /// Ruled cells with the lunar day, holiday name, moon and events.
   detailed,
 

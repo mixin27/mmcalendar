@@ -2304,6 +2304,18 @@ abstract class AppLocalizations {
   /// **'The moon as a band under each week, brightest at the full moon.'**
   String get gridLayoutMoonBandDescription;
 
+  /// Name of the Hero today calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Hero today'**
+  String get gridLayoutHeroTodayTitle;
+
+  /// One-line description of the Hero today calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected day as a large card above a quiet month.'**
+  String get gridLayoutHeroTodayDescription;
+
   /// Name of the Detailed calendar grid layout.
   ///
   /// In en, this message translates to:

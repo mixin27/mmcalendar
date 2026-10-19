@@ -1333,6 +1333,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'The moon as a band under each week, brightest at the full moon.';
 
   @override
+  String get gridLayoutHeroTodayTitle => 'Hero today';
+
+  @override
+  String get gridLayoutHeroTodayDescription =>
+      'The selected day as a large card above a quiet month.';
+
+  @override
   String get gridLayoutDetailedTitle => 'Detailed';
 
   @override

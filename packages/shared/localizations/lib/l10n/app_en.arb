@@ -1661,6 +1661,14 @@
   "@gridLayoutMoonBandDescription": {
     "description": "One-line description of the Moon band calendar grid layout."
   },
+  "gridLayoutHeroTodayTitle": "Hero today",
+  "@gridLayoutHeroTodayTitle": {
+    "description": "Name of the Hero today calendar grid layout."
+  },
+  "gridLayoutHeroTodayDescription": "The selected day as a large card above a quiet month.",
+  "@gridLayoutHeroTodayDescription": {
+    "description": "One-line description of the Hero today calendar grid layout."
+  },
   "gridLayoutDetailedTitle": "Detailed",
   "@gridLayoutDetailedTitle": {
     "description": "Name of the Detailed calendar grid layout."

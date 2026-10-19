@@ -221,4 +221,32 @@ void main() {
     expect(full.moon.illumination, greaterThan(waning.moon.illumination));
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('Hero today shows the day and the next holiday', (tester) async {
+    await _pumpGrid(
+      tester,
+      CalendarGridStyle.heroToday,
+      selected: DateTime(2026, 10, 22),
+    );
+    final card = find.byKey(const ValueKey('hero-day-card'));
+    expect(card, findsOneWidget);
+    for (final text in ['22', 'Yatyaza', 'Thamanyo', 'Project review']) {
+      expect(
+        find.descendant(of: card, matching: find.text(text)),
+        findsOneWidget,
+        reason: text,
+      );
+    }
+    // The 25th is a holiday, three days on.
+    expect(
+      find.descendant(of: card, matching: find.textContaining('in 3 days')),
+      findsOneWidget,
+    );
+    // The card sits above the month.
+    expect(
+      tester.getBottomLeft(card).dy,
+      lessThan(tester.getTopLeft(find.text('1').first).dy),
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

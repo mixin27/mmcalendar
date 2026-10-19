@@ -171,6 +171,45 @@ class CalendarGrid extends StatelessWidget {
           _ => cells(r, week),
         };
 
+        if (gridStyle == CalendarGridStyle.heroToday) {
+          final cellWidth = (constraints.maxWidth - padding.horizontal) / 7;
+          Widget month(double height) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final (r, week) in rows.indexed)
+                SizedBox(height: height, child: row(r, week)),
+            ],
+          );
+          if (!bounded) {
+            return Padding(
+              padding: padding,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [_heroCard(rows, options), month(cellWidth)],
+              ),
+            );
+          }
+          // The month stays quiet but readable: rows no taller than the
+          // cells are wide, and at least 34 high. The card takes the rest
+          // and scrolls when that is not enough.
+          final rowHeight = math.min(
+            cellWidth * 1.05,
+            math.max(34.0, constraints.maxHeight * .6 / rows.length),
+          );
+          return Padding(
+            padding: padding,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: SingleChildScrollView(child: _heroCard(rows, options)),
+                ),
+                month(rowHeight),
+              ],
+            ),
+          );
+        }
+
         return Padding(
           padding: padding,
           child: Column(
@@ -199,6 +238,10 @@ class CalendarGrid extends StatelessWidget {
     final cell = switch (gridStyle) {
       CalendarGridStyle.almanac => AlmanacDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.auspice => AuspiceDayCell(data: data(), onTap: onTap),
+      CalendarGridStyle.heroToday => FocusWeekDayCell(
+        data: data(),
+        onTap: onTap,
+      ),
       CalendarGridStyle.moonBand => FocusWeekDayCell(
         data: data(),
         onTap: onTap,
@@ -279,6 +322,35 @@ class CalendarGrid extends StatelessWidget {
     events: events,
     monthPlace: place,
   );
+
+  /// The Hero today card for the day the grid opens, with the next
+  /// holiday after it in the month.
+  Widget _heroCard(List<List<CompleteDate>> rows, DayCellOptions options) {
+    final days = rows.expand((week) => week).toList();
+    final i = days.indexWhere((d) => _isSameDay(d, _focusDate));
+    final info = days[i < 0 ? 0 : i];
+    final date = DateTime(info.westernYear, info.westernMonth, info.westernDay);
+    (CompleteDate, int)? next;
+    if (showHolidays) {
+      for (var j = i + 1; j < days.length; j++) {
+        if (days[j].allHolidays.isNotEmpty) {
+          next = (days[j], j - i);
+          break;
+        }
+      }
+    }
+    return HeroDayCard(
+      data: _data(
+        info,
+        date,
+        eventsByDate[date] ?? const <CalendarEventItem>[],
+        options,
+        const MyanmarMonthPlace(),
+      ),
+      nextHoliday: next,
+      onTap: () => onDateTap(date),
+    );
+  }
 
   /// The day a Focus week grid opens: the selection, else today when it
   /// is in this month, else the 1st.
