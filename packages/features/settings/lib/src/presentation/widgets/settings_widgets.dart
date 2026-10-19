@@ -33,9 +33,13 @@ class SettingsSubPage extends StatelessWidget {
     required this.builder,
     this.previousTitle,
     this.actions = const [],
+    this.spacing = 22,
   });
 
   final String title;
+
+  /// Space between the children.
+  final double spacing;
 
   /// Buttons on the trailing side of the nav bar (e.g. Apply).
   final List<Widget> actions;
@@ -80,6 +84,7 @@ class SettingsSubPage extends StatelessWidget {
               AppLocalizations.of(context)?.settings ??
               'Settings',
           actions: actions,
+          spacing: spacing,
           children: children,
         );
       },

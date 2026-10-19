@@ -117,19 +117,58 @@ class SettingsCalendarGridPage extends StatefulWidget {
 class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
   var _tab = _Tab.layout;
 
+  // This month's grid days, worked out once rather than on every rebuild.
+  DateTime? _month;
+  List<CompleteDate> _dates = const [];
+
+  List<CompleteDate> _datesFor(DateTime month) {
+    if (_month?.year != month.year || _month?.month != month.month) {
+      _month = month;
+      _dates = AppDateUtils.getCalendarGridDates(
+        month,
+        firstDayOfWeek: 1,
+      ).map(MyanmarCalendar.getCompleteDate).toList(growable: false);
+    }
+    return _dates;
+  }
+
+  /// [cards] two or three to a row. Each row is its own child of the page's
+  /// lazy list, so only the previews on screen are built.
+  List<Widget> _rows(
+    BuildContext context,
+    List<Widget> cards, {
+    required double aspectRatio,
+  }) {
+    final columns = MediaQuery.sizeOf(context).width - 32 >= 560 ? 3 : 2;
+    return [
+      for (var i = 0; i < cards.length; i += columns)
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var j = i; j < i + columns; j++) ...[
+              if (j > i) const SizedBox(width: 12),
+              Expanded(
+                child: j < cards.length
+                    ? AspectRatio(aspectRatio: aspectRatio, child: cards[j])
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ],
+        ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return SettingsSubPage(
       title: l10n.settingsCalendarGrid,
       previousTitle: l10n.display_preferences,
+      spacing: 12,
       builder: (context, settings) {
         final current = settings.calendarGridStyle;
         final month = DateTime.now();
-        final dates = AppDateUtils.getCalendarGridDates(
-          month,
-          firstDayOfWeek: 1,
-        ).map(MyanmarCalendar.getCompleteDate).toList(growable: false);
+        final dates = _datesFor(month);
         final tabs = AppSegmented<_Tab>(
           segments: {
             _Tab.layout: l10n.settingsGridLayoutTab,
@@ -143,32 +182,20 @@ class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
         }
         return [
           tabs,
-          LayoutBuilder(
-            builder: (context, box) => GridView.count(
-              crossAxisCount: box.maxWidth >= 560 ? 3 : 2,
-              // The page already handles the safe area.
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: .68,
-              children: [
-                for (final style in CalendarGridStyle.values)
-                  _GridChoice(
-                    key: ValueKey('grid-style-${style.name}'),
-                    title: style.title(l10n),
-                    description: style.description(l10n),
-                    isDefault: style == CalendarGridStyle.defaultStyle,
-                    selected: style == current,
-                    preview: _Preview(style: style, month: month, dates: dates),
-                    onTap: () => context.read<SettingsBloc>().add(
-                      ChangeCalendarGridStyle(style),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          ..._rows(context, aspectRatio: .68, [
+            for (final style in CalendarGridStyle.values)
+              _GridChoice(
+                key: ValueKey('grid-style-${style.name}'),
+                title: style.title(l10n),
+                description: style.description(l10n),
+                isDefault: style == CalendarGridStyle.defaultStyle,
+                selected: style == current,
+                preview: _Preview(style: style, month: month, dates: dates),
+                onTap: () => context.read<SettingsBloc>().add(
+                  ChangeCalendarGridStyle(style),
+                ),
+              ),
+          ]),
           Text(
             l10n.settingsGridFitNote,
             style: TextStyle(
@@ -190,46 +217,35 @@ class _SettingsCalendarGridPageState extends State<SettingsCalendarGridPage> {
     final l10n = AppLocalizations.of(context)!;
     final brightness = Theme.of(context).brightness;
     return [
-      LayoutBuilder(
-        builder: (context, box) => GridView.count(
-          crossAxisCount: box.maxWidth >= 560 ? 3 : 2,
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: .62,
-          children: [
-            for (final theme in CalendarGridTheme.values)
-              _GridChoice(
-                key: ValueKey('grid-theme-${theme.name}'),
-                title: theme.title(l10n),
-                description: theme.description(l10n),
-                isDefault: theme == CalendarGridTheme.defaultTheme,
-                selected: theme == settings.calendarGridTheme,
-                swatches: switch (CalendarThemeLook.forTheme(theme)) {
-                  final look? => [
-                    look.of(brightness).paper,
-                    look.of(brightness).accent,
-                    look.of(brightness).holiday,
-                    look.of(brightness).moon,
-                  ],
-                  null => const [],
-                },
-                preview: _ThemePreview(
-                  theme: theme,
-                  showMotif: settings.showGridMotif,
-                  style: settings.calendarGridStyle,
-                  month: month,
-                  dates: dates,
-                ),
-                onTap: () => context.read<SettingsBloc>().add(
-                  ChangeCalendarGridTheme(theme),
-                ),
-              ),
-          ],
-        ),
-      ),
+      ..._rows(context, aspectRatio: .62, [
+        for (final theme in CalendarGridTheme.values)
+          _GridChoice(
+            key: ValueKey('grid-theme-${theme.name}'),
+            title: theme.title(l10n),
+            description: theme.description(l10n),
+            isDefault: theme == CalendarGridTheme.defaultTheme,
+            selected: theme == settings.calendarGridTheme,
+            swatches: switch (CalendarThemeLook.forTheme(theme)) {
+              final look? => [
+                look.of(brightness).paper,
+                look.of(brightness).accent,
+                look.of(brightness).holiday,
+                look.of(brightness).moon,
+              ],
+              null => const [],
+            },
+            preview: _ThemePreview(
+              theme: theme,
+              showMotif: settings.showGridMotif,
+              style: settings.calendarGridStyle,
+              month: month,
+              dates: dates,
+            ),
+            onTap: () => context.read<SettingsBloc>().add(
+              ChangeCalendarGridTheme(theme),
+            ),
+          ),
+      ]),
       AppGroup(
         footer: l10n.settingsGridThemeFooter,
         children: [
@@ -296,9 +312,13 @@ class _GridChoice extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: ColoredBox(color: t.background, child: preview),
+                  // Its own layer: a selection change repaints the card's
+                  // border, not the month inside it.
+                  child: RepaintBoundary(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: ColoredBox(color: t.background, child: preview),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),

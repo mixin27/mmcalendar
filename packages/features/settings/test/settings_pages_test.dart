@@ -1,3 +1,4 @@
+import 'package:calendar/calendar.dart' show CalendarGrid;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -108,12 +109,19 @@ void main() {
           style: style,
           page: const SettingsCalendarGridPage(),
         );
+        // Only the rows on screen are built when the page opens.
+        expect(
+          find.byType(CalendarGrid, skipOffstage: false).evaluate().length,
+          lessThan(CalendarGridStyle.values.length),
+        );
         for (final grid in CalendarGridStyle.values) {
+          await tester.scrollUntilVisible(
+            find.byKey(ValueKey('grid-style-${grid.name}')),
+            300,
+            scrollable: find.byType(Scrollable).first,
+          );
           expect(
-            find.byKey(
-              ValueKey('grid-style-${grid.name}'),
-              skipOffstage: false,
-            ),
+            find.byKey(ValueKey('grid-style-${grid.name}')),
             findsOneWidget,
           );
         }
