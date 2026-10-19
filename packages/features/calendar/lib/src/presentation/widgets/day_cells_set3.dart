@@ -237,7 +237,9 @@ class MonthRegionsDayCell extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, box) {
           final scale = MediaQuery.textScalerOf(context).scale(1);
-          final line = _labelLine * scale;
+          // Myanmar digits need a taller line than the other cells use.
+          final line = 15.0 * scale;
+          ;
           var budget = box.maxHeight - 22;
           final lunar =
               inMonth && data.options.showMyanmarDates && budget >= line;
@@ -270,7 +272,7 @@ class MonthRegionsDayCell extends StatelessWidget {
                               weight: data.showsSabbath
                                   ? FontWeight.w700
                                   : null,
-                            ),
+                            ).copyWith(height: 1.5),
                           ),
                   ),
                 ),
@@ -330,7 +332,7 @@ class FocusWeekDayCell extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(2, 3, 2, 2),
       child: LayoutBuilder(
         builder: (context, box) {
-          final line = _labelLine * MediaQuery.textScalerOf(context).scale(1);
+          final line = 15.0 * MediaQuery.textScalerOf(context).scale(1);
           final lunar =
               inMonth &&
               data.options.showMyanmarDates &&
@@ -353,7 +355,10 @@ class FocusWeekDayCell extends StatelessWidget {
                             maxLines: 1,
                             softWrap: false,
                             overflow: TextOverflow.fade,
-                            style: _small(context, colors.secondaryLabel),
+                            style: _small(
+                              context,
+                              colors.secondaryLabel,
+                            ).copyWith(height: 1.5),
                           ),
                   ),
                 ),
