@@ -103,6 +103,17 @@ void main() {
     expect(find.text('Thadingyut'), findsOneWidget);
     expect(find.text('End of Buddhist Lent'), findsOneWidget);
     expect(find.text('Project review'), findsOneWidget);
+    // The strip is drawn: the 19th has Sabbath and Pyathada segments.
+    final strip = find.descendant(
+      of: find.byWidgetPredicate(
+        (w) => w is AlmanacDayCell && w.data.info.westernDay == 19,
+      ),
+      matching: find.byType(DecoratedBox),
+    );
+    expect(
+      strip.evaluate().where((e) => e.size!.height == 4 && e.size!.width > 4),
+      hasLength(2),
+    );
     expect(tester.takeException(), isNull);
   });
 

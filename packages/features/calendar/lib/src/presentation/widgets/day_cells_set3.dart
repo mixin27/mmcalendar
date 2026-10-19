@@ -142,6 +142,7 @@ class AlmanacDayCell extends StatelessWidget {
                         SizedBox(
                           height: 4,
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               for (final (i, tone) in tones.indexed) ...[
                                 if (i > 0) const SizedBox(width: 2),
