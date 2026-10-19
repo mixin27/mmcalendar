@@ -607,10 +607,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_mmcalendar
-      sha256: "373a4b38aed07204c9a946ce41dc94d65088275c1aa41519e9beaea297ff55d1"
+      sha256: "6b5117964c85963513c97041965fd90240c550f78b4cacbb84a8bc621bb51c2c"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "4.0.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
