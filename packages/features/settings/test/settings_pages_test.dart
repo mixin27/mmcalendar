@@ -81,13 +81,13 @@ void main() {
           page: const SettingsDisplayPreferencesPage(),
         );
         expect(find.text('Calendar grid'), findsOneWidget);
-        expect(find.text('Detailed'), findsOneWidget);
+        expect(find.text('Almanac'), findsOneWidget);
         // A chosen theme shows next to the layout.
         harness.bloc.add(
           const ChangeCalendarGridTheme(CalendarGridTheme.pagoda),
         );
         await tester.pumpAndSettle();
-        expect(find.text('Detailed · Pagoda'), findsOneWidget);
+        expect(find.text('Almanac · Pagoda'), findsOneWidget);
         await tester.tap(find.text('Show Holidays'));
         await tester.pumpAndSettle();
         expect(

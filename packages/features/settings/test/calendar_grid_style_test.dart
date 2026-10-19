@@ -10,11 +10,11 @@ void main() {
   setUp(() => database = AppDatabase(NativeDatabase.memory()));
   tearDown(() => database.close());
 
-  test('a fresh install uses the Detailed grid', () async {
+  test('a fresh install uses the Almanac grid', () async {
     final config = await DatabaseDisplayPreferencesPort(
       database,
     ).getDisplayConfig();
-    expect(config.gridStyle, CalendarGridStyle.detailed);
+    expect(config.gridStyle, CalendarGridStyle.almanac);
   });
 
   test('the chosen grid style is stored and survives a restart', () async {

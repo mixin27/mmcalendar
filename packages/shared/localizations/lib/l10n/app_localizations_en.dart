@@ -1292,6 +1292,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsGridShowMotif => 'Show motif';
 
   @override
+  String get gridLayoutAlmanacTitle => 'Almanac';
+
+  @override
+  String get gridLayoutAlmanacDescription =>
+      'Lunar day, moon, holidays and events, with a strip for Sabbath and good or careful days.';
+
+  @override
   String get gridLayoutDetailedTitle => 'Detailed';
 
   @override

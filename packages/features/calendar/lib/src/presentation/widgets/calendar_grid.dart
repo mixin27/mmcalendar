@@ -95,6 +95,9 @@ class CalendarGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final rows = visibleRows(gridDates, currentMonth);
+        // Rows start at the grid's first week, so a cell's index is
+        // row * 7 + column.
+        final places = MyanmarMonthPlace.of(gridDates);
         final rowHeight = rowHeightFor(
           size: constraints.biggest,
           rows: rows.length,
@@ -107,14 +110,16 @@ class CalendarGrid extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (final week in rows)
+              for (final (r, week) in rows.indexed)
                 SizedBox(
                   height: rowHeight,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (final info in week)
-                        Expanded(child: _cell(info, options)),
+                      for (final (c, info) in week.indexed)
+                        Expanded(
+                          child: _cell(info, options, places[r * 7 + c]),
+                        ),
                     ],
                   ),
                 ),
@@ -125,11 +130,17 @@ class CalendarGrid extends StatelessWidget {
     );
   }
 
-  Widget _cell(CompleteDate info, DayCellOptions options) {
+  Widget _cell(
+    CompleteDate info,
+    DayCellOptions options,
+    MyanmarMonthPlace place,
+  ) {
     final date = DateTime(info.westernYear, info.westernMonth, info.westernDay);
     final events = eventsByDate[date] ?? const <CalendarEventItem>[];
     void onTap() => onDateTap(date);
+    DayCellData data() => _data(info, date, events, options, place);
     final cell = switch (gridStyle) {
+      CalendarGridStyle.almanac => AlmanacDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.classic => DateCell(
         dateInfo: info,
         isSelected: _isSelected(date),
@@ -144,60 +155,36 @@ class CalendarGrid extends StatelessWidget {
         eventsForDate: events,
         onTap: onTap,
       ),
-      CalendarGridStyle.detailed => DetailedDayCell(
-        data: _data(info, date, events, options),
-        onTap: onTap,
-      ),
-      CalendarGridStyle.clean => CleanDayCell(
-        data: _data(info, date, events, options),
-        onTap: onTap,
-      ),
+      CalendarGridStyle.detailed => DetailedDayCell(data: data(), onTap: onTap),
+      CalendarGridStyle.clean => CleanDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.detailedV2 => DetailedV2DayCell(
-        data: _data(info, date, events, options),
+        data: data(),
         onTap: onTap,
       ),
       CalendarGridStyle.lunarFirst => LunarFirstDayCell(
-        data: _data(info, date, events, options),
+        data: data(),
         onTap: onTap,
       ),
-      CalendarGridStyle.minimal => MinimalDayCell(
-        data: _data(info, date, events, options),
-        onTap: onTap,
-      ),
+      CalendarGridStyle.minimal => MinimalDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.moonStrip => MoonStripDayCell(
-        data: _data(info, date, events, options),
+        data: data(),
         onTap: onTap,
       ),
-      CalendarGridStyle.agenda => AgendaDayCell(
-        data: _data(info, date, events, options),
-        onTap: onTap,
-      ),
+      CalendarGridStyle.agenda => AgendaDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.classicPrint => ClassicPrintDayCell(
-        data: _data(info, date, events, options),
+        data: data(),
         onTap: onTap,
       ),
-      CalendarGridStyle.tiles => TilesDayCell(
-        data: _data(info, date, events, options),
-        onTap: onTap,
-      ),
+      CalendarGridStyle.tiles => TilesDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.moonlight => MoonlightDayCell(
-        data: _data(info, date, events, options),
+        data: data(),
         onTap: onTap,
       ),
-      CalendarGridStyle.split => SplitDayCell(
-        data: _data(info, date, events, options),
-        onTap: onTap,
-      ),
-      CalendarGridStyle.poster => PosterDayCell(
-        data: _data(info, date, events, options),
-        onTap: onTap,
-      ),
-      CalendarGridStyle.moonRing => MoonRingDayCell(
-        data: _data(info, date, events, options),
-        onTap: onTap,
-      ),
+      CalendarGridStyle.split => SplitDayCell(data: data(), onTap: onTap),
+      CalendarGridStyle.poster => PosterDayCell(data: data(), onTap: onTap),
+      CalendarGridStyle.moonRing => MoonRingDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.astrology => AstrologyDayCell(
-        data: _data(info, date, events, options),
+        data: data(),
         onTap: onTap,
       ),
     };
@@ -211,6 +198,7 @@ class CalendarGrid extends StatelessWidget {
     DateTime date,
     List<CalendarEventItem> events,
     DayCellOptions options,
+    MyanmarMonthPlace place,
   ) => DayCellData(
     info: info,
     isToday: _isToday(date),
@@ -218,6 +206,7 @@ class CalendarGrid extends StatelessWidget {
     isInMonth: _isInCurrentMonth(date),
     options: options,
     events: events,
+    monthPlace: place,
   );
 
   bool _isToday(DateTime date) =>

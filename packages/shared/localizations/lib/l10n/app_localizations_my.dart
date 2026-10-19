@@ -1284,6 +1284,13 @@ class AppLocalizationsMy extends AppLocalizations {
   String get settingsGridShowMotif => 'အလှဆင်ပုံ ပြရန်';
 
   @override
+  String get gridLayoutAlmanacTitle => 'ပြက္ခဒိန်စုံ';
+
+  @override
+  String get gridLayoutAlmanacDescription =>
+      'လရက်၊ လဝန်း၊ ရုံးပိတ်ရက်နှင့် ပွဲများ၊ ဥပုသ်နှင့် ရက်ကောင်း၊ သတိထားရန်ရက်ကို အရောင်တန်းဖြင့် ပြသည်။';
+
+  @override
   String get gridLayoutDetailedTitle => 'အသေးစိတ်';
 
   @override

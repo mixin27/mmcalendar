@@ -1613,6 +1613,14 @@
   "@settingsGridShowMotif": {
     "description": "Switch for the small drawing in the header corner of a grid theme."
   },
+  "gridLayoutAlmanacTitle": "Almanac",
+  "@gridLayoutAlmanacTitle": {
+    "description": "Name of the Almanac calendar grid layout."
+  },
+  "gridLayoutAlmanacDescription": "Lunar day, moon, holidays and events, with a strip for Sabbath and good or careful days.",
+  "@gridLayoutAlmanacDescription": {
+    "description": "One-line description of the Almanac calendar grid layout."
+  },
   "gridLayoutDetailedTitle": "Detailed",
   "@gridLayoutDetailedTitle": {
     "description": "Name of the Detailed calendar grid layout."

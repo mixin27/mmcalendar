@@ -2232,6 +2232,18 @@ abstract class AppLocalizations {
   /// **'Show motif'**
   String get settingsGridShowMotif;
 
+  /// Name of the Almanac calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Almanac'**
+  String get gridLayoutAlmanacTitle;
+
+  /// One-line description of the Almanac calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunar day, moon, holidays and events, with a strip for Sabbath and good or careful days.'**
+  String get gridLayoutAlmanacDescription;
+
   /// Name of the Detailed calendar grid layout.
   ///
   /// In en, this message translates to:

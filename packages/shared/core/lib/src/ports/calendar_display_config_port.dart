@@ -3,6 +3,11 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
 /// How the month grid draws its days. Users pick it in Settings › Display.
 enum CalendarGridStyle {
+  /// Everything about a day in its cell: lunar day and moon, holiday,
+  /// events, and a strip for Sabbath and good or careful days. Where a
+  /// Myanmar month begins, a rule and the month's name.
+  almanac,
+
   /// Ruled cells with the lunar day, holiday name, moon and events.
   detailed,
 
@@ -48,7 +53,9 @@ enum CalendarGridStyle {
   /// Astrological days and holidays as tags.
   astrology;
 
-  static const defaultStyle = CalendarGridStyle.detailed;
+  /// What a new install shows. Installs from before Almanac keep Detailed
+  /// (the database stores it for them when it upgrades to version 7).
+  static const defaultStyle = CalendarGridStyle.almanac;
 
   static CalendarGridStyle fromName(String? name) => values.firstWhere(
     (style) => style.name == name,

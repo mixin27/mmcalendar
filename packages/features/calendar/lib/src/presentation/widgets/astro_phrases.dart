@@ -6,7 +6,27 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 /// The words come from myanmar_calendar_dart; the phrasing is written out
 /// for English and Myanmar. Other languages put the core's word for the
 /// kind after the value ("ဘဒြ နှစ်"), the order Myanmar script uses.
+/// How an astrological mark reads: Sabbath, a good day, or one to be
+/// careful on.
+enum AstroTone { sabbath, good, caution }
+
 abstract final class AstroPhrases {
+  /// The tone of a mark from myanmar_calendar_dart, e.g. Yatyaza is good,
+  /// Pyathada and Thamanyo call for care.
+  static AstroTone tone(String key) => switch (key) {
+    'Sabbath' || 'Sabbath Eve' => AstroTone.sabbath,
+    'Yatyaza' || 'Amyeittasote' || 'Thamaphyu' => AstroTone.good,
+    _ => AstroTone.caution,
+  };
+
+  /// The day's marks: Sabbath, Yatyaza, Pyathada, then the named days.
+  static List<String> marks(CompleteDate day) => [
+    if (day.sabbath.isNotEmpty) day.sabbath,
+    if (day.yatyaza.isNotEmpty) day.yatyaza,
+    if (day.pyathada.isNotEmpty) day.pyathada,
+    ...day.astrologicalDays,
+  ];
+
   static String _t(String key, Language language) =>
       TranslationService.translateTo(key, language);
 

@@ -5,10 +5,12 @@ import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
+import 'astro_phrases.dart';
 import 'calendar_colors.dart';
 
 part 'day_cells_set1.dart';
 part 'day_cells_set2.dart';
+part 'day_cells_set3.dart';
 
 /// Which optional details the user wants in the grid (Settings › Display).
 @immutable
@@ -30,6 +32,49 @@ class DayCellOptions {
   final bool showMyanmarDates;
 }
 
+/// Where a day sits among the Myanmar months a grid shows.
+@immutable
+class MyanmarMonthPlace {
+  const MyanmarMonthPlace({
+    this.starts = false,
+    this.index = 0,
+    this.edgeLeft = false,
+    this.edgeTop = false,
+  });
+
+  /// The day begins a Myanmar month (never the grid's first day).
+  final bool starts;
+
+  /// Which of the grid's Myanmar months the day is in, from 0.
+  final int index;
+
+  /// The day before it, in the same row, is in another Myanmar month.
+  final bool edgeLeft;
+
+  /// The day above it is in another Myanmar month.
+  final bool edgeTop;
+
+  /// The place of every day of [dates], a run of whole weeks.
+  static List<MyanmarMonthPlace> of(List<CompleteDate> dates) {
+    String key(CompleteDate d) => '${d.myanmarYear}-${d.myanmarMonth}';
+    final places = <MyanmarMonthPlace>[];
+    var index = 0;
+    for (var i = 0; i < dates.length; i++) {
+      final starts = i > 0 && key(dates[i]) != key(dates[i - 1]);
+      if (starts) index++;
+      places.add(
+        MyanmarMonthPlace(
+          starts: starts,
+          index: index,
+          edgeLeft: starts && i % 7 != 0,
+          edgeTop: i >= 7 && key(dates[i]) != key(dates[i - 7]),
+        ),
+      );
+    }
+    return places;
+  }
+}
+
 /// Everything a grid cell draws, resolved once per day.
 @immutable
 class DayCellData {
@@ -40,6 +85,7 @@ class DayCellData {
     required this.isInMonth,
     required this.options,
     this.events = const <CalendarEventItem>[],
+    this.monthPlace = const MyanmarMonthPlace(),
   }) : date = DateTime(info.westernYear, info.westernMonth, info.westernDay),
        moon = MoonPhaseState.evening(
          DateTime(info.westernYear, info.westernMonth, info.westernDay),
@@ -52,8 +98,31 @@ class DayCellData {
   final bool isInMonth;
   final DayCellOptions options;
   final List<CalendarEventItem> events;
+  final MyanmarMonthPlace monthPlace;
 
   final MoonPhaseState moon;
+
+  /// The Myanmar month's name, "သီတင်းကျွတ်".
+  String get myanmarMonthName => TranslationService.getMonthName(
+    info.myanmarMonth,
+    info.yearType,
+    MyanmarCalendar.currentLanguage,
+  );
+
+  /// The tones of the marks the user wants shown: Sabbath when Sabbaths
+  /// are on, good and careful days when astrology is on. In that order,
+  /// once each.
+  List<AstroTone> get astroTones => [
+    for (final tone in AstroTone.values)
+      if (AstroPhrases.marks(info).any(
+        (mark) =>
+            AstroPhrases.tone(mark) == tone &&
+            (tone == AstroTone.sabbath
+                ? options.showSabbaths && mark == 'Sabbath'
+                : options.showAstrology),
+      ))
+        tone,
+  ];
 
   /// Myanmar weekday index 1 is Sunday.
   bool get isSunday => info.weekday == 1;

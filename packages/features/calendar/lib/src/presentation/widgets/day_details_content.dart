@@ -365,17 +365,12 @@ class DayDetailsContent extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final t = context.tokens;
     final colors = CalendarColors.of(context);
-    Color tone(_AstroTone tone) => switch (tone) {
-      _AstroTone.sabbath => colors.sabbath,
-      _AstroTone.good => t.success,
-      _AstroTone.caution => t.holiday,
+    Color tone(AstroTone tone) => switch (tone) {
+      AstroTone.sabbath => colors.sabbath,
+      AstroTone.good => t.success,
+      AstroTone.caution => t.holiday,
     };
-    final flags = [
-      if (completeDate.sabbath.isNotEmpty) completeDate.sabbath,
-      if (completeDate.yatyaza.isNotEmpty) completeDate.yatyaza,
-      if (completeDate.pyathada.isNotEmpty) completeDate.pyathada,
-      ...completeDate.astrologicalDays,
-    ];
+    final flags = AstroPhrases.marks(completeDate);
     final facts = [
       if (completeDate.mahabote.isNotEmpty)
         (
@@ -420,7 +415,7 @@ class DayDetailsContent extends StatelessWidget {
                         key: ValueKey('day-astro-$key'),
                         label: AstroPhrases.mark(key, _language),
                         icon: _astroIcon(key),
-                        color: tone(_astroTone(key)),
+                        color: tone(AstroPhrases.tone(key)),
                       ),
                   ],
                 ),
@@ -447,18 +442,12 @@ class DayDetailsContent extends StatelessWidget {
     );
   }
 
-  static _AstroTone _astroTone(String key) => switch (key) {
-    'Sabbath' || 'Sabbath Eve' => _AstroTone.sabbath,
-    'Yatyaza' || 'Amyeittasote' || 'Thamaphyu' => _AstroTone.good,
-    _ => _AstroTone.caution,
-  };
-
   static IconData _astroIcon(String key) => switch (key) {
     'Sabbath' => Icons.self_improvement_rounded,
     'Sabbath Eve' => Icons.nights_stay_outlined,
     'Afternoon Pyathada' => Icons.wb_twilight_rounded,
-    _ => switch (_astroTone(key)) {
-      _AstroTone.good => Icons.auto_awesome_rounded,
+    _ => switch (AstroPhrases.tone(key)) {
+      AstroTone.good => Icons.auto_awesome_rounded,
       _ => Icons.error_outline_rounded,
     },
   };
@@ -736,10 +725,6 @@ class DayDetailsContent extends StatelessWidget {
     }
   }
 }
-
-/// How an astrological mark reads: Sabbath, a good day, or one to be
-/// careful on.
-enum _AstroTone { sabbath, good, caution }
 
 /// One astrological mark that applies to the day, e.g. Yatyaza.
 class _AstroChip extends StatelessWidget {
