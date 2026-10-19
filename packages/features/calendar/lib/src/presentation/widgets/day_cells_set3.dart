@@ -307,3 +307,245 @@ class MonthRegionsDayCell extends StatelessWidget {
     );
   }
 }
+
+/// Focus week: a compact day for the month around the open week. The
+/// date, the lunar day or the moon on moon days, and dots for a holiday,
+/// Sabbath and events. The selected week's details open beneath it in a
+/// [FocusWeekPanel].
+class FocusWeekDayCell extends StatelessWidget {
+  const FocusWeekDayCell({super.key, required this.data, this.onTap});
+
+  final DayCellData data;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalendarColors.of(context);
+    final inMonth = data.isInMonth;
+    return _Cell(
+      data: data,
+      onTap: onTap,
+      radius: 12,
+      padding: const EdgeInsets.fromLTRB(2, 3, 2, 2),
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final line = _labelLine * MediaQuery.textScalerOf(context).scale(1);
+          final lunar =
+              inMonth &&
+              data.options.showMyanmarDates &&
+              box.maxHeight >= 22 + line;
+          final dots = inMonth && box.maxHeight >= 22 + (lunar ? line : 0) + 6;
+          return Column(
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: _Number(data: data, colors: colors, size: 15),
+              ),
+              if (lunar)
+                SizedBox(
+                  height: line,
+                  child: Center(
+                    child: data.isMoonDay
+                        ? MoonGlyph(state: data.moon, size: 10)
+                        : Text(
+                            data.lunarLabel,
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.fade,
+                            style: _small(context, colors.secondaryLabel),
+                          ),
+                  ),
+                ),
+              if (dots)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (data.showsHoliday) _Dot(color: colors.holiday),
+                      if (data.showsSabbath) _Dot(color: colors.sabbath),
+                      if (data.events.isNotEmpty) _Dot(color: colors.accent),
+                    ],
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// The open day of a Focus week grid: its moon and Myanmar date, its
+/// holidays and astrology as chips, and its events. Scrolls when there is
+/// more than fits.
+class FocusWeekPanel extends StatelessWidget {
+  const FocusWeekPanel({super.key, required this.data, this.onTap});
+
+  final DayCellData data;
+
+  /// Opens the day.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalendarColors.of(context);
+    final good = context.tokens.success;
+    final language = MyanmarCalendar.currentLanguage;
+    final options = data.options;
+    final marks = [
+      for (final mark in AstroPhrases.marks(data.info))
+        if (AstroPhrases.tone(mark) == AstroTone.sabbath
+            ? options.showSabbaths
+            : options.showAstrology)
+          mark,
+    ];
+    Color tone(String mark) => switch (AstroPhrases.tone(mark)) {
+      AstroTone.sabbath => colors.sabbath,
+      AstroTone.good => good,
+      AstroTone.caution => colors.holiday,
+    };
+    final chips = <Widget>[
+      if (data.showsHoliday)
+        for (final holiday in data.info.allHolidays)
+          _PanelChip(
+            text: TranslationService.translateTo(holiday, language),
+            color: colors.holiday,
+          ),
+      for (final mark in marks)
+        _PanelChip(text: AstroPhrases.mark(mark, language), color: tone(mark)),
+    ];
+    return Semantics(
+      container: true,
+      button: onTap != null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          key: const ValueKey('focus-week-panel'),
+          margin: const EdgeInsets.fromLTRB(2, 2, 2, 6),
+          decoration: BoxDecoration(
+            color: colors.fill,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    MoonGlyph(state: data.moon, size: 26),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            data.myanmarDate,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              height: 1.45,
+                              fontWeight: FontWeight.w700,
+                              color: colors.label,
+                            ),
+                          ),
+                          Text(
+                            context.calendarFormat.fullDate(data.date),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 1.4,
+                              color: colors.secondaryLabel,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 20,
+                      color: colors.tertiaryLabel,
+                    ),
+                  ],
+                ),
+                if (chips.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(spacing: 6, runSpacing: 6, children: chips),
+                ],
+                for (final event in data.events) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: eventColor(event, colors),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          event.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            height: 1.4,
+                            color: colors.label,
+                          ),
+                        ),
+                      ),
+                      if (!event.isAllDay && event.eventTime != null)
+                        Text(
+                          TimeOfDay.fromDateTime(
+                            event.eventTime!,
+                          ).format(context),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colors.secondaryLabel,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PanelChip extends StatelessWidget {
+  const _PanelChip({required this.text, required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: .14),
+      borderRadius: BorderRadius.circular(999),
+    ),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: 12,
+        height: 1.45,
+        fontWeight: FontWeight.w600,
+        color: color,
+      ),
+    ),
+  );
+}

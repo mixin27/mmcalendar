@@ -98,19 +98,51 @@ class CalendarGrid extends StatelessWidget {
         // Rows start at the grid's first week, so a cell's index is
         // row * 7 + column.
         final places = MyanmarMonthPlace.of(gridDates);
-        final rowHeight = rowHeightFor(
+        final focus = gridStyle == CalendarGridStyle.focusWeek;
+        var rowHeight = rowHeightFor(
           size: constraints.biggest,
           rows: rows.length,
           horizontalPadding: padding.horizontal,
           maxRowHeightFactor: maxRowHeightFactor,
           fallbackRatio: gridStyle == CalendarGridStyle.classic ? 1.33 : 1.25,
         );
+        // Focus week keeps the days compact and gives the rest of the
+        // height to the open week's panel.
+        final focusRow = focus ? _focusRow(rows) : -1;
+        final bounded = constraints.maxHeight.isFinite;
+        if (focus) {
+          final cellWidth = (constraints.maxWidth - padding.horizontal) / 7;
+          rowHeight = math.min(rowHeight, math.max(44, cellWidth * 1.05));
+        }
+        Widget panel() {
+          final info = rows[focusRow].firstWhere(
+            (d) => _isSameDay(d, _focusDate),
+          );
+          final date = DateTime(
+            info.westernYear,
+            info.westernMonth,
+            info.westernDay,
+          );
+          return FocusWeekPanel(
+            data: _data(
+              info,
+              date,
+              eventsByDate[date] ?? const <CalendarEventItem>[],
+              options,
+              const MyanmarMonthPlace(),
+            ),
+            onTap: () => onDateTap(date),
+          );
+        }
+
         return Padding(
           padding: padding,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: focus && bounded
+                ? MainAxisSize.max
+                : MainAxisSize.min,
             children: [
-              for (final (r, week) in rows.indexed)
+              for (final (r, week) in rows.indexed) ...[
                 SizedBox(
                   height: rowHeight,
                   child: Row(
@@ -123,6 +155,8 @@ class CalendarGrid extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (r == focusRow) bounded ? Expanded(child: panel()) : panel(),
+              ],
             ],
           ),
         );
@@ -141,6 +175,10 @@ class CalendarGrid extends StatelessWidget {
     DayCellData data() => _data(info, date, events, options, place);
     final cell = switch (gridStyle) {
       CalendarGridStyle.almanac => AlmanacDayCell(data: data(), onTap: onTap),
+      CalendarGridStyle.focusWeek => FocusWeekDayCell(
+        data: data(),
+        onTap: onTap,
+      ),
       CalendarGridStyle.monthRegions => MonthRegionsDayCell(
         data: data(),
         onTap: onTap,
@@ -212,6 +250,28 @@ class CalendarGrid extends StatelessWidget {
     events: events,
     monthPlace: place,
   );
+
+  /// The day a Focus week grid opens: the selection, else today when it
+  /// is in this month, else the 1st.
+  DateTime get _focusDate {
+    if (selectedDate != null && _isInCurrentMonth(selectedDate!)) {
+      return selectedDate!;
+    }
+    if (_isInCurrentMonth(today)) return today;
+    return DateTime(currentMonth.year, currentMonth.month);
+  }
+
+  int _focusRow(List<List<CompleteDate>> rows) {
+    final row = rows.indexWhere(
+      (week) => week.any((d) => _isSameDay(d, _focusDate)),
+    );
+    return row < 0 ? 0 : row;
+  }
+
+  static bool _isSameDay(CompleteDate d, DateTime date) =>
+      d.westernYear == date.year &&
+      d.westernMonth == date.month &&
+      d.westernDay == date.day;
 
   bool _isToday(DateTime date) =>
       date.year == today.year &&

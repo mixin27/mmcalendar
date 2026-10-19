@@ -2256,6 +2256,18 @@ abstract class AppLocalizations {
   /// **'Each Myanmar month tinted as a region, named where it begins.'**
   String get gridLayoutMonthRegionsDescription;
 
+  /// Name of the Focus week calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus week'**
+  String get gridLayoutFocusWeekTitle;
+
+  /// One-line description of the Focus week calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'A compact month; the selected week opens to show the day\'s details.'**
+  String get gridLayoutFocusWeekDescription;
+
   /// Name of the Detailed calendar grid layout.
   ///
   /// In en, this message translates to:

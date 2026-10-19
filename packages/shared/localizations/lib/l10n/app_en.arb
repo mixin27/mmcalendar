@@ -1629,6 +1629,14 @@
   "@gridLayoutMonthRegionsDescription": {
     "description": "One-line description of the Myanmar months calendar grid layout."
   },
+  "gridLayoutFocusWeekTitle": "Focus week",
+  "@gridLayoutFocusWeekTitle": {
+    "description": "Name of the Focus week calendar grid layout."
+  },
+  "gridLayoutFocusWeekDescription": "A compact month; the selected week opens to show the day's details.",
+  "@gridLayoutFocusWeekDescription": {
+    "description": "One-line description of the Focus week calendar grid layout."
+  },
   "gridLayoutDetailedTitle": "Detailed",
   "@gridLayoutDetailedTitle": {
     "description": "Name of the Detailed calendar grid layout."

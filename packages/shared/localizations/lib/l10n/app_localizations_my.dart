@@ -1298,6 +1298,13 @@ class AppLocalizationsMy extends AppLocalizations {
       'မြန်မာလတစ်လစီကို အရောင်ဖြင့် ခွဲပြပြီး လစသည့်နေရာတွင် လအမည်ပြသည်။';
 
   @override
+  String get gridLayoutFocusWeekTitle => 'ရွေးထားသောအပတ်';
+
+  @override
+  String get gridLayoutFocusWeekDescription =>
+      'ရွေးထားသောအပတ်အောက်တွင် ထိုနေ့၏ အသေးစိတ်ကို ဖွင့်ပြသည်။';
+
+  @override
   String get gridLayoutDetailedTitle => 'အသေးစိတ်';
 
   @override

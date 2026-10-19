@@ -121,4 +121,48 @@ void main() {
     expect(find.text('Thadingyut'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('Focus week opens the selected day under its week', (
+    tester,
+  ) async {
+    await _pumpGrid(
+      tester,
+      CalendarGridStyle.focusWeek,
+      selected: DateTime(2026, 10, 22),
+    );
+    final panel = find.byKey(const ValueKey('focus-week-panel'));
+    expect(panel, findsOneWidget);
+    // Yatyaza and Thamanyo, and the day's event.
+    expect(
+      find.descendant(of: panel, matching: find.text('Yatyaza')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: panel, matching: find.text('Thamanyo')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: panel, matching: find.text('Project review')),
+      findsOneWidget,
+    );
+    // Right under the week of the 18th–24th, above the 25th.
+    final top = tester.getTopLeft(panel).dy;
+    expect(top, greaterThan(tester.getBottomLeft(find.text('22')).dy));
+    expect(top, lessThan(tester.getTopLeft(find.text('25')).dy));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Focus week opens today when nothing is selected', (
+    tester,
+  ) async {
+    await _pumpGrid(tester, CalendarGridStyle.focusWeek);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('focus-week-panel')),
+        matching: find.text('Pyathada'),
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

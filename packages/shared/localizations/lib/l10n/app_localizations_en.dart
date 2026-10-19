@@ -1306,6 +1306,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Each Myanmar month tinted as a region, named where it begins.';
 
   @override
+  String get gridLayoutFocusWeekTitle => 'Focus week';
+
+  @override
+  String get gridLayoutFocusWeekDescription =>
+      'A compact month; the selected week opens to show the day\'s details.';
+
+  @override
   String get gridLayoutDetailedTitle => 'Detailed';
 
   @override

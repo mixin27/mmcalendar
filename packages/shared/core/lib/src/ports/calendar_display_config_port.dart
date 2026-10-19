@@ -12,6 +12,10 @@ enum CalendarGridStyle {
   /// where it begins.
   monthRegions,
 
+  /// A compact month whose selected week opens to show the day's
+  /// details.
+  focusWeek,
+
   /// Ruled cells with the lunar day, holiday name, moon and events.
   detailed,
 
