@@ -961,6 +961,43 @@ class WeekTimeline extends StatelessWidget {
   /// The week's seven days.
   final List<DayCellData> days;
 
+  /// A day's bars, holidays first: each a title and a colour.
+  static List<(String, Color)> _items(
+    DayCellData day,
+    CalendarColors colors,
+  ) => [
+    if (day.showsHoliday)
+      for (final holiday in day.info.allHolidays)
+        (
+          TranslationService.translateTo(
+            holiday,
+            MyanmarCalendar.currentLanguage,
+          ),
+          colors.holiday,
+        ),
+    for (final event in day.events) (event.title, eventColor(event, colors)),
+  ];
+
+  /// [items] in up to [lanes] bars, the last saying how many more there
+  /// are when they do not all fit.
+  static List<Widget> _bars(
+    List<(String, Color)> items,
+    int lanes,
+    CalendarColors colors,
+  ) => [
+    for (final (i, (text, color)) in items.take(lanes).indexed)
+      Padding(
+        padding: const EdgeInsets.only(bottom: 2),
+        child: _Banner(
+          text: i == lanes - 1 && items.length > lanes
+              ? '+${items.length - i}'
+              : text,
+          color: color == colors.holiday ? colors.holiday : colors.label,
+          background: color.withValues(alpha: .22),
+        ),
+      ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final colors = CalendarColors.of(context);
@@ -983,25 +1020,9 @@ class WeekTimeline extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 1),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (day.isInMonth)
-                          for (final (i, event)
-                              in day.events.take(lanes).indexed)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 2),
-                              child: _Banner(
-                                text:
-                                    i == lanes - 1 && day.events.length > lanes
-                                    ? '+${day.events.length - i}'
-                                    : event.title,
-                                color: colors.label,
-                                background: eventColor(
-                                  event,
-                                  colors,
-                                ).withValues(alpha: .22),
-                              ),
-                            ),
-                      ],
+                      children: day.isInMonth
+                          ? _bars(_items(day, colors), lanes, colors)
+                          : const [],
                     ),
                   ),
                 ),

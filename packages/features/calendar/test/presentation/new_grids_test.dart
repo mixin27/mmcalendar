@@ -263,6 +263,14 @@ void main() {
     final bar = tester.getRect(review);
     expect(bar.top, greaterThan(day.bottom));
     expect(bar.center.dx, closeTo(day.center.dx, 30));
+    // Holidays are on the timeline too.
+    expect(
+      find.descendant(
+        of: find.byType(WeekTimeline),
+        matching: find.text('End of Buddhist Lent'),
+      ),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 }
