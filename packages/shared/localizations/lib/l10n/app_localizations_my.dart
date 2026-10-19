@@ -1332,6 +1332,13 @@ class AppLocalizationsMy extends AppLocalizations {
       'ရွေးထားသောနေ့ကို ကတ်ကြီးဖြင့် လ၏အပေါ်တွင် ပြသည်။';
 
   @override
+  String get gridLayoutWeekRibbonsTitle => 'အပတ်ကတ်များ';
+
+  @override
+  String get gridLayoutWeekRibbonsDescription =>
+      'အပတ်တစ်ပတ်စီကို ကတ်တစ်ခုဖြင့် ပြပြီး ပွဲများကို နေ့အောက်တွင် အတန်းဖြင့် ပြသည်။';
+
+  @override
   String get gridLayoutDetailedTitle => 'အသေးစိတ်';
 
   @override

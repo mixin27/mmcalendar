@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'calendar_colors.dart';
 import 'date_cell.dart';
 import 'day_cells.dart';
 
@@ -168,6 +169,29 @@ class CalendarGrid extends StatelessWidget {
               ),
             ],
           ),
+          // Each week a card: its days, then its events on a timeline.
+          CalendarGridStyle.weekRibbons => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: CalendarColors.of(context).fill,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: math.max(36, math.min(46, rowHeight - 6 - 18)),
+                    child: cells(r, week),
+                  ),
+                  Expanded(
+                    child: WeekTimeline(
+                      days: [for (final d in week) dayData(d)],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           _ => cells(r, week),
         };
 
@@ -238,6 +262,11 @@ class CalendarGrid extends StatelessWidget {
     final cell = switch (gridStyle) {
       CalendarGridStyle.almanac => AlmanacDayCell(data: data(), onTap: onTap),
       CalendarGridStyle.auspice => AuspiceDayCell(data: data(), onTap: onTap),
+      CalendarGridStyle.weekRibbons => FocusWeekDayCell(
+        data: data(),
+        onTap: onTap,
+        dots: false,
+      ),
       CalendarGridStyle.heroToday => FocusWeekDayCell(
         data: data(),
         onTap: onTap,

@@ -935,3 +935,63 @@ class HeroDayCard extends StatelessWidget {
     );
   }
 }
+
+/// Week ribbons: the events of a week under its days, each as a bar in its
+/// day's column, as many lanes as fit and a "+n" for the rest.
+class WeekTimeline extends StatelessWidget {
+  const WeekTimeline({super.key, required this.days});
+
+  /// The week's seven days.
+  final List<DayCellData> days;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CalendarColors.of(context);
+    return LayoutBuilder(
+      builder: (context, box) {
+        final scale = MediaQuery.textScalerOf(context).scale(1);
+        final lane = _labelLine * scale + 2;
+        final lanes = ((box.maxHeight - 6) / lane).floor().clamp(0, 4);
+        return Container(
+          padding: const EdgeInsets.fromLTRB(2, 4, 2, 2),
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: colors.separator, width: .5)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final day in days)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 1),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (day.isInMonth)
+                          for (final (i, event)
+                              in day.events.take(lanes).indexed)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 2),
+                              child: _Banner(
+                                text:
+                                    i == lanes - 1 && day.events.length > lanes
+                                    ? '+${day.events.length - i}'
+                                    : event.title,
+                                color: colors.label,
+                                background: eventColor(
+                                  event,
+                                  colors,
+                                ).withValues(alpha: .22),
+                              ),
+                            ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}

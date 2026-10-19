@@ -27,6 +27,9 @@ enum CalendarGridStyle {
   /// The selected day (or today) as a large card above a quiet month.
   heroToday,
 
+  /// Each week as a card, with its events as bars under their days.
+  weekRibbons,
+
   /// Ruled cells with the lunar day, holiday name, moon and events.
   detailed,
 

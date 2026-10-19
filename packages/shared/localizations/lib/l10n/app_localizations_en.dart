@@ -1340,6 +1340,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'The selected day as a large card above a quiet month.';
 
   @override
+  String get gridLayoutWeekRibbonsTitle => 'Week ribbons';
+
+  @override
+  String get gridLayoutWeekRibbonsDescription =>
+      'Each week as a card, with its events as bars under their days.';
+
+  @override
   String get gridLayoutDetailedTitle => 'Detailed';
 
   @override

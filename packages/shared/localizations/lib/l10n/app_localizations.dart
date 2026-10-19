@@ -2316,6 +2316,18 @@ abstract class AppLocalizations {
   /// **'The selected day as a large card above a quiet month.'**
   String get gridLayoutHeroTodayDescription;
 
+  /// Name of the Week ribbons calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Week ribbons'**
+  String get gridLayoutWeekRibbonsTitle;
+
+  /// One-line description of the Week ribbons calendar grid layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Each week as a card, with its events as bars under their days.'**
+  String get gridLayoutWeekRibbonsDescription;
+
   /// Name of the Detailed calendar grid layout.
   ///
   /// In en, this message translates to:

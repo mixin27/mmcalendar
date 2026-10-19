@@ -1669,6 +1669,14 @@
   "@gridLayoutHeroTodayDescription": {
     "description": "One-line description of the Hero today calendar grid layout."
   },
+  "gridLayoutWeekRibbonsTitle": "Week ribbons",
+  "@gridLayoutWeekRibbonsTitle": {
+    "description": "Name of the Week ribbons calendar grid layout."
+  },
+  "gridLayoutWeekRibbonsDescription": "Each week as a card, with its events as bars under their days.",
+  "@gridLayoutWeekRibbonsDescription": {
+    "description": "One-line description of the Week ribbons calendar grid layout."
+  },
   "gridLayoutDetailedTitle": "Detailed",
   "@gridLayoutDetailedTitle": {
     "description": "Name of the Detailed calendar grid layout."

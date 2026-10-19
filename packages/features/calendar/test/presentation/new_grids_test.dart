@@ -249,4 +249,20 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('Week ribbons put events under their days', (tester) async {
+    await _pumpGrid(tester, CalendarGridStyle.weekRibbons);
+    expect(find.byType(WeekTimeline), findsNWidgets(5));
+    final review = find.descendant(
+      of: find.byType(WeekTimeline),
+      matching: find.text('Project review'),
+    );
+    expect(review, findsOneWidget);
+    // In the 22nd's column, under it.
+    final day = tester.getRect(find.text('22'));
+    final bar = tester.getRect(review);
+    expect(bar.top, greaterThan(day.bottom));
+    expect(bar.center.dx, closeTo(day.center.dx, 30));
+    expect(tester.takeException(), isNull);
+  });
 }
