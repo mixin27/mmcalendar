@@ -1,6 +1,6 @@
 part of 'day_cells.dart';
 
-// The grid designs from "New calendar grids" (docs/grid-designs.html).
+// The grid designs from "New calendar grids" (docs/design/grid-designs.html).
 // They share set 1's shell (_Cell), date (_Number) and states.
 
 /// Almanac: everything the calendar knows about a day, in its cell. The

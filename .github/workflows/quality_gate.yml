@@ -32,7 +32,9 @@ jobs:
           flutter pub get
           ./scripts/codegen_all.sh
 
-      - name: Run Analyzer and Architecture Guardrails
+      # Checks which packages may depend on which (tool/check_dependency_boundaries.dart),
+      # then runs the analyzer.
+      - name: Dependency boundaries and analyzer
         env:
           SKIP_PUB_GET: '1'
         run: ./scripts/analyze_all.sh
@@ -60,7 +62,7 @@ jobs:
           flutter pub get
           ./scripts/codegen_all.sh
 
-      - name: Run Test Suite and Architecture Guardrails
+      - name: Tests (every package that has tests)
         env:
           SKIP_PUB_GET: '1'
         run: ./scripts/test_all.sh

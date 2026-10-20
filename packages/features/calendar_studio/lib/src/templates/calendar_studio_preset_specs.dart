@@ -1,5 +1,5 @@
-// Round-2 preset specs, derived from docs/calendar-studio-theme-presets.html
-// (Vol 1) and docs/calendar-studio-theme-presets-2.html (Vol 2).
+// Round-2 preset specs, derived from docs/design/calendar-studio-theme-presets.html
+// (Vol 1) and docs/design/calendar-studio-theme-presets-2.html (Vol 2).
 //
 // Same shape as the docs' JSON (bounds are 0–1, colours are theme roles or
 // literals, font sizes are in the mockup canvas's units). Each spec's "fixes"

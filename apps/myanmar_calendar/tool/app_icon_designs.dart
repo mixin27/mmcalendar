@@ -1,4 +1,4 @@
-// The app icons as SVG, on a 1024 × 1024 canvas (docs/app-icons.html).
+// The app icons as SVG, on a 1024 × 1024 canvas (docs/design/app-icons.html).
 //
 // Moon page: a tear-off calendar page whose day is the moon, in eight
 // palettes from the grid themes. Pagoda: a stupa under the full moon.

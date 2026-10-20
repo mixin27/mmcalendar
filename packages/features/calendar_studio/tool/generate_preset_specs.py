@@ -2,7 +2,7 @@
 """Regenerates lib/src/templates/calendar_studio_preset_specs.dart.
 
 Reads the JSON spec in each <section class="preset"> of
-docs/calendar-studio-theme-presets.html (Vol 1) and -2.html (Vol 2), applies
+docs/design/calendar-studio-theme-presets.html (Vol 1) and -2.html (Vol 2), applies
 the per-preset UI fixes below, and writes Dart const data for
 CalendarStudioPresetBuilder. Run from the repository root:
 
@@ -16,7 +16,7 @@ import os
 import re
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
-DOCS = ['docs/calendar-studio-theme-presets.html', 'docs/calendar-studio-theme-presets-2.html']
+DOCS = ['docs/design/calendar-studio-theme-presets.html', 'docs/design/calendar-studio-theme-presets-2.html']
 OUT = 'packages/features/calendar_studio/lib/src/templates/calendar_studio_preset_specs.dart'
 
 specs = []
@@ -275,8 +275,8 @@ for s in specs:
     for b in s['blocks']: b.pop('newMotif', None)
     out.append(s)
 
-header = '''// Round-2 preset specs, derived from docs/calendar-studio-theme-presets.html
-// (Vol 1) and docs/calendar-studio-theme-presets-2.html (Vol 2).
+header = '''// Round-2 preset specs, derived from docs/design/calendar-studio-theme-presets.html
+// (Vol 1) and docs/design/calendar-studio-theme-presets-2.html (Vol 2).
 //
 // Same shape as the docs' JSON (bounds are 0–1, colours are theme roles or
 // literals, font sizes are in the mockup canvas's units). Each spec's "fixes"
