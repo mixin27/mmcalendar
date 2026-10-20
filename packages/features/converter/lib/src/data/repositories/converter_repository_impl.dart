@@ -8,18 +8,30 @@ import '../../domain/entities/date_arithmetic_result.dart';
 import '../../domain/entities/date_calculation_result.dart';
 import '../../domain/entities/moon_phase_result.dart';
 import '../../domain/repositories/converter_repository.dart';
+import '../services/shan_year_preference.dart';
 
 class ConverterRepositoryImpl extends BaseRepository
     implements ConverterRepository {
+  ConverterRepositoryImpl({ShanYearPreference? shanYear})
+    : _shanYear = shanYear ?? ShanYearPreference();
+
+  final ShanYearPreference _shanYear;
+
+  /// [date] in the calendar language, with the Shan year when preferred.
+  String _myanmar(MyanmarDateTime date, String pattern) => formatMyanmarDate(
+    date.myanmarDate,
+    pattern: pattern,
+    language: MyanmarCalendar.currentLanguage,
+    preferShanYear: _shanYear.value,
+  );
+
   @override
   Either<Failure, ConversionResult> convertWesternToMyanmar(DateTime date) {
     try {
       final myanmarDateTime = MyanmarCalendar.fromDateTime(date);
       final completeDate = myanmarDateTime.completeDate;
 
-      final formattedMyanmar = myanmarDateTime.formatMyanmar(
-        '&y &M &P &f &Yat',
-      );
+      final formattedMyanmar = _myanmar(myanmarDateTime, '&y &M &P &f &Yat');
       final formattedWestern = myanmarDateTime.formatWestern('%dd %M %yyyy');
 
       return Right(
@@ -44,7 +56,7 @@ class ConverterRepositoryImpl extends BaseRepository
       final myanmarDateTime = MyanmarCalendar.fromMyanmar(year, month, day);
       final completeDate = myanmarDateTime.completeDate;
 
-      final formattedMyanmar = myanmarDateTime.formatMyanmar('&y &M &P &ff');
+      final formattedMyanmar = _myanmar(myanmarDateTime, '&y &M &P &ff');
       final formattedWestern = myanmarDateTime.formatWestern('%dd %M %yyyy');
 
       return Right(

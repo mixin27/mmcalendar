@@ -143,6 +143,14 @@ import workmanager_apple
       alternateIconName = "AppIconPremiumDark"
     case "traditional_myanmar":
       alternateIconName = "AppIconTraditionalMyanmar"
+    case "dawn":
+      alternateIconName = "AppIconDawn"
+    case "thingyan":
+      alternateIconName = "AppIconThingyan"
+    case "pagoda":
+      alternateIconName = "AppIconPagoda"
+    case "classic":
+      alternateIconName = "AppIconClassic"
     default:
       result(FlutterError(
         code: "invalid_icon",
@@ -233,6 +241,14 @@ import workmanager_apple
       return "premium_dark"
     case "AppIconTraditionalMyanmar":
       return "traditional_myanmar"
+    case "AppIconDawn":
+      return "dawn"
+    case "AppIconThingyan":
+      return "thingyan"
+    case "AppIconPagoda":
+      return "pagoda"
+    case "AppIconClassic":
+      return "classic"
     default:
       return "default"
     }

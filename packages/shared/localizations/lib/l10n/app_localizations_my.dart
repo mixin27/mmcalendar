@@ -1622,19 +1622,19 @@ class AppLocalizationsMy extends AppLocalizations {
   String get settingsAppIconAlternate => 'အစားထိုး အိုင်ကွန်';
 
   @override
-  String get appIconMoon => 'လ';
+  String get appIconMoon => 'နေဝင်ချိန်';
 
   @override
-  String get appIconForest => 'တောအုပ်';
+  String get appIconForest => 'ကျောက်စိမ်း';
 
   @override
-  String get appIconMinimalFlat => 'ရိုးရှင်း';
+  String get appIconMinimalFlat => 'စက္ကူ';
 
   @override
-  String get appIconPremiumDark => 'အမှောင် ပရီမီယံ';
+  String get appIconPremiumDark => 'သန်းခေါင်';
 
   @override
-  String get appIconTraditionalMyanmar => 'မြန်မာ ရိုးရာ ပန်းချီ';
+  String get appIconTraditionalMyanmar => 'ယွန်းထည်';
 
   @override
   String get languageZawgyi => 'ဇော်ဂျီ';
@@ -2364,18 +2364,11 @@ class AppLocalizationsMy extends AppLocalizations {
   String get whatsNewWidgetsAction => 'ဝစ်ဂျက် ဆက်တင်';
 
   @override
-  String get whatsNewWelcomeTitle => 'ကြိုဆိုမှု အသစ်';
-
-  @override
-  String get whatsNewWelcomeBody =>
-      'အသုံးပြုသူအသစ်များအတွက် အက်ပ်မိတ်ဆက်နှင့် ဘာသာစကား၊ အသွင်အပြင်၊ ကိုယ်ရေးလုံခြုံမှု၊ သတိပေးချက်များကို အမြန်သတ်မှတ်နိုင်သည်။';
-
-  @override
-  String get whatsNewThemesTitle => 'ပြက္ခဒိန် ပုံစံများ';
+  String get whatsNewThemesTitle => 'ပြက္ခဒိန် အပြင်အဆင်နှင့် ပုံစံများ';
 
   @override
   String get whatsNewThemesBody =>
-      'စေတီ၊ ကျောက်စိမ်းမှ ကြယ်စုံညအထိ လ ပြက္ခဒိန်အတွက် ပုံစံ ဆယ့်နှစ်မျိုး၊ အလင်းနှင့် အမှောင် အရောင်များဖြင့်။';
+      'ပင်မပြက္ခဒိန်အတွက် အပြင်အဆင် ၂၂ မျိုး (ပြက္ခဒိန်စုံ ကို မူလအဖြစ်) နှင့် စေတီမှ ကြယ်စုံညအထိ ပုံစံ ဆယ့်နှစ်မျိုး။';
 
   @override
   String get whatsNewThemesAction => 'ပုံစံ ရွေးရန်';
@@ -2399,6 +2392,23 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get whatsNewIconsAction => 'အိုင်ကွန် ပြောင်းရန်';
+
+  @override
+  String get whatsNewNewIconsBody =>
+      'လ စာမျက်နှာ အိုင်ကွန်အသစ်နှင့် အရုဏ်၊ သင်္ကြန်၊ စေတီ အပါအဝင် ဒီဇိုင်း ဆယ်မျိုးမှ ရွေးနိုင်သည်။';
+
+  @override
+  String get whatsNewNewIconsTitle => 'အက်ပ်အိုင်ကွန် အသစ်';
+
+  @override
+  String get whatsNewTimetablesAction => 'ပွဲ ထည့်ရန်';
+
+  @override
+  String get whatsNewTimetablesBody =>
+      'ရွေးထားသော နေ့များတွင် နေ့တစ်နေ့စီ၏ အချိန်ဖြင့် ထပ်ခါသတ်မှတ်နိုင်သည်၊ သို့မဟုတ် မည်သည့်ရက်များကိုမဆို ပွဲတစ်ခုတည်းအဖြစ် သိမ်းနိုင်သည်။';
+
+  @override
+  String get whatsNewTimetablesTitle => 'အတန်းချိန်ဇယားနှင့် ရက်များစွာ';
 
   @override
   String get whatsNewStudioTitle => 'Calendar Studio';
@@ -2652,4 +2662,28 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get eventsAddMoreDates => 'ရက်များ ထပ်ထည့်မည်';
+
+  @override
+  String get repeatDaily => 'နေ့စဉ်';
+
+  @override
+  String get repeatWeekly => 'အပတ်စဉ်';
+
+  @override
+  String get repeatMonthly => 'လစဉ်';
+
+  @override
+  String get repeatYearly => 'နှစ်စဉ်';
+
+  @override
+  String get appIconDawn => 'အရုဏ်';
+
+  @override
+  String get appIconThingyan => 'သင်္ကြန်';
+
+  @override
+  String get appIconPagoda => 'စေတီ';
+
+  @override
+  String get appIconClassic => 'မူလ';
 }

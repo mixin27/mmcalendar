@@ -6,6 +6,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
+import '../../data/services/shan_year_preference.dart';
 import '../../di/converter_injection.dart';
 import '../../domain/entities/conversion_result.dart';
 import '../../domain/entities/date_arithmetic_result.dart';
@@ -20,6 +21,15 @@ import '../bloc/converter_state.dart';
 
 Language get _language => MyanmarCalendar.currentLanguage;
 String _t(String key) => TranslationService.translateTo(key, _language);
+
+/// A Myanmar date, with the Shan year when Settings › Prefer Shan Year.
+String _myanmar(MyanmarDate date) => formatMyanmarDate(
+  date,
+  language: _language,
+  preferShanYear:
+      !getIt.isRegistered<ShanYearPreference>() ||
+      getIt<ShanYearPreference>().value,
+);
 
 DateTime _dateOf(CompleteDate d) =>
     DateTime(d.westernYear, d.westernMonth, d.westernDay);
@@ -645,10 +655,7 @@ class _ArithmeticToolState extends State<ArithmeticTool> {
               children: [
                 AppRow(
                   title: _fullDate(context, _dateOf(result.resultDate)),
-                  subtitle: MyanmarCalendar.formatMyanmar(
-                    result.resultDate.myanmar,
-                    language: _language,
-                  ),
+                  subtitle: _myanmar(result.resultDate.myanmar),
                 ),
                 ..._dateFacts(context, result.resultDate),
               ],
@@ -660,7 +667,7 @@ class _ArithmeticToolState extends State<ArithmeticTool> {
                   '${result.operation == 'add' ? '+' : '−'} '
                   '${result.value} $unit = '
                   '${_fullDate(context, _dateOf(result.resultDate))}\n'
-                  '${MyanmarCalendar.formatMyanmar(result.resultDate.myanmar, language: _language)}\n'
+                  '${_myanmar(result.resultDate.myanmar)}\n'
                   '${_factsText(context, result.resultDate)}',
             ),
           ],
@@ -774,10 +781,7 @@ class _MoonFinderToolState extends State<MoonFinderTool> {
               children: [
                 AppRow(
                   title: l10n?.converterMyanmarDate ?? 'Myanmar date',
-                  subtitle: MyanmarCalendar.formatMyanmar(
-                    result.dateFound.myanmar,
-                    language: _language,
-                  ),
+                  subtitle: _myanmar(result.dateFound.myanmar),
                 ),
                 ..._dateFacts(context, result.dateFound),
               ],
@@ -788,7 +792,7 @@ class _MoonFinderToolState extends State<MoonFinderTool> {
                   '${l10n?.converterNextPhase(result.moonPhaseName) ?? 'Next ${result.moonPhaseName}'}: '
                   '${_fullDate(context, _dateOf(result.dateFound))} '
                   '(${l10n?.converterInDays(result.daysFromStart) ?? 'in ${result.daysFromStart} days'})\n'
-                  '${MyanmarCalendar.formatMyanmar(result.dateFound.myanmar, language: _language)}',
+                  '${_myanmar(result.dateFound.myanmar)}',
             ),
           ],
         ]),

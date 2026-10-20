@@ -2024,23 +2024,23 @@
   "@settingsAppIconAlternate": {
     "description": "Caption under an alternate icon in the icon grid."
   },
-  "appIconMoon": "Moon",
+  "appIconMoon": "Dusk",
   "@appIconMoon": {
     "description": "Name of the Moon app icon."
   },
-  "appIconForest": "Forest",
+  "appIconForest": "Jade",
   "@appIconForest": {
     "description": "Name of the Forest app icon."
   },
-  "appIconMinimalFlat": "Minimal Flat",
+  "appIconMinimalFlat": "Paper",
   "@appIconMinimalFlat": {
     "description": "Name of the Minimal Flat app icon."
   },
-  "appIconPremiumDark": "Premium Dark",
+  "appIconPremiumDark": "Midnight",
   "@appIconPremiumDark": {
     "description": "Name of the Premium Dark app icon."
   },
-  "appIconTraditionalMyanmar": "Traditional Myanmar Motif",
+  "appIconTraditionalMyanmar": "Lacquer",
   "@appIconTraditionalMyanmar": {
     "description": "Name of the Traditional Myanmar Motif app icon."
   },
@@ -2991,19 +2991,11 @@
   "@whatsNewWidgetsAction": {
     "description": "Feature button."
   },
-  "whatsNewWelcomeTitle": "A new welcome",
-  "@whatsNewWelcomeTitle": {
-    "description": "Feature title."
-  },
-  "whatsNewWelcomeBody": "New users get a short tour and a quick setup for language, look, privacy and reminders.",
-  "@whatsNewWelcomeBody": {
-    "description": "Feature description."
-  },
-  "whatsNewThemesTitle": "Calendar themes",
+  "whatsNewThemesTitle": "Calendar layouts and themes",
   "@whatsNewThemesTitle": {
     "description": "Feature title."
   },
-  "whatsNewThemesBody": "Twelve themes for the month grid, from Pagoda and Jade to Deep Field, each with light and dark colours.",
+  "whatsNewThemesBody": "22 layouts for the home calendar, with Almanac as the new default, and twelve themes from Pagoda to Deep Field.",
   "@whatsNewThemesBody": {
     "description": "Feature description."
   },
@@ -3032,6 +3024,11 @@
     "description": "Feature description."
   },
   "whatsNewIconsAction": "Change icon",
+  "whatsNewNewIconsBody": "The new Moon page icon, and ten designs to choose from, including Dawn, Thingyan and Pagoda.",
+  "whatsNewNewIconsTitle": "A new app icon",
+  "whatsNewTimetablesAction": "Add an event",
+  "whatsNewTimetablesBody": "Repeat an event on chosen weekdays with a time for each day, or save one event on any set of dates.",
+  "whatsNewTimetablesTitle": "Class timetables and several dates",
   "@whatsNewIconsAction": {
     "description": "Feature button."
   },
@@ -3350,5 +3347,37 @@
   "eventsAddMoreDates": "Add more dates",
   "@eventsAddMoreDates": {
     "description": "Event form: pick more days so the event falls on several dates"
+  },
+  "repeatDaily": "Daily",
+  "@repeatDaily": {
+    "description": "Repeat sheet: an event that repeats daily"
+  },
+  "repeatWeekly": "Weekly",
+  "@repeatWeekly": {
+    "description": "Repeat sheet: an event that repeats weekly"
+  },
+  "repeatMonthly": "Monthly",
+  "@repeatMonthly": {
+    "description": "Repeat sheet: an event that repeats monthly"
+  },
+  "repeatYearly": "Yearly",
+  "@repeatYearly": {
+    "description": "Repeat sheet: an event that repeats yearly"
+  },
+  "appIconDawn": "Dawn",
+  "@appIconDawn": {
+    "description": "App icon name in Settings"
+  },
+  "appIconThingyan": "Thingyan",
+  "@appIconThingyan": {
+    "description": "App icon name in Settings"
+  },
+  "appIconPagoda": "Pagoda",
+  "@appIconPagoda": {
+    "description": "App icon name in Settings"
+  },
+  "appIconClassic": "Classic",
+  "@appIconClassic": {
+    "description": "App icon name in Settings"
   }
 }

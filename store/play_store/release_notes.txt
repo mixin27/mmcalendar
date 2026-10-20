@@ -1,0 +1,16 @@
+<en-US>
+• Calendar Studio: design and print your own calendars, exported at real paper sizes
+• 22 calendar layouts with the new Almanac, and twelve themes
+• Class timetables: a time for each weekday, or one event on several dates
+• Holidays page with search, details and reminders
+• New widgets in five styles, including lock screen on iOS
+• Custom colours, astrology in plain words, and a new app icon
+</en-US>
+<my-MM>
+• Calendar Studio – ကိုယ်ပိုင် ပြက္ခဒိန် ဒီဇိုင်းဆွဲ၍ စာရွက်အရွယ်အစားအတိုင်း ထုတ်ယူနိုင်
+• ပြက္ခဒိန် အပြင်အဆင် ၂၂ မျိုးနှင့် ပုံစံ ၁၂ မျိုး
+• အတန်းချိန်ဇယား – နေ့တစ်နေ့စီ အချိန်ကိုယ်စီ သို့မဟုတ် ရက်များစွာတွင် ပွဲတစ်ခု
+• ရုံးပိတ်ရက် စာမျက်နှာ – ရှာဖွေခြင်းနှင့် သတိပေးချက်
+• ပုံစံ ငါးမျိုးဖြင့် ဝစ်ဂျက်အသစ်များ
+• စိတ်ကြိုက်အရောင်၊ ရှင်းလင်းသော ဗေဒင်အချက်များနှင့် အိုင်ကွန်အသစ်
+</my-MM>

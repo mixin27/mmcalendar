@@ -61,6 +61,10 @@ class WidgetAgendaEvent {
 /// - `events`: the next two weeks (`d`, `t`, `ti`, `c`, `id`, `done`).
 /// - `year`: Myanmar year `n`, `start`, `end` (exclusive), current `month`.
 /// - `styles`, `prefs`: passed through.
+///
+/// With [Language.shan] and `preferShanYear` (Settings › Prefer Shan Year)
+/// every year shown is the Shan year, and the Year widget runs from one Shan
+/// New Year to the next.
 abstract final class WidgetPayloadBuilder {
   static const version = 2;
   static const horizonDays = 180;
@@ -74,12 +78,14 @@ abstract final class WidgetPayloadBuilder {
     List<WidgetAgendaEvent> events = const [],
     Map<String, Object> styles = const {},
     Map<String, Object?> prefs = const {},
+    bool preferShanYear = true,
     DateTime? generatedAt,
     int days = horizonDays,
   }) {
     final start = DateTime(today.year, today.month, today.day);
     final format = CalendarFormat(language);
     String t(String key) => TranslationService.translateTo(key, language);
+    final shanYear = showsShanYear(language, preferShanYear: preferShanYear);
 
     final dayList = <Map<String, Object?>>[];
     for (var i = 0; i < days; i++) {
@@ -100,6 +106,7 @@ abstract final class WidgetPayloadBuilder {
             DateTime(start.year, start.month + offset),
             language,
             format,
+            shanYear: shanYear,
           ),
       },
       'upcoming': _upcoming(start, language, t),
@@ -117,7 +124,7 @@ abstract final class WidgetPayloadBuilder {
             'done': event.done,
           },
       ],
-      'year': _year(start, language, format),
+      'year': _year(start, language, format, shanYear: shanYear),
       'styles': styles,
       'prefs': prefs,
     };
@@ -164,8 +171,9 @@ abstract final class WidgetPayloadBuilder {
   static Map<String, Object?> _month(
     DateTime month,
     Language language,
-    CalendarFormat format,
-  ) {
+    CalendarFormat format, {
+    required bool shanYear,
+  }) {
     final first = DateTime(month.year, month.month);
     final last = DateTime(month.year, month.month + 1, 0);
     final gridStart = first.subtract(Duration(days: first.weekday % 7));
@@ -177,7 +185,8 @@ abstract final class WidgetPayloadBuilder {
     };
     return {
       'title': format.monthYear(first),
-      'sub': '${months.join(' – ')} · ${lastMy.formatMyanmar('&y', language)}',
+      'sub':
+          '${months.join(' – ')} · ${_yearLabel(lastMy, language, shanYear)}',
       'cells': [
         for (var i = 0; i < 42; i++)
           () {
@@ -271,21 +280,35 @@ abstract final class WidgetPayloadBuilder {
     Locale(language == Language.myanmar ? 'my' : 'en'),
   );
 
+  /// The Myanmar year, or the Shan year when [shanYear].
+  static String _yearLabel(
+    MyanmarDateTime date,
+    Language language,
+    bool shanYear,
+  ) => formatMyanmarDate(
+    date.myanmarDate,
+    pattern: '&y',
+    language: language,
+    preferShanYear: shanYear,
+  );
+
   static Map<String, Object?> _year(
     DateTime start,
     Language language,
-    CalendarFormat format,
-  ) {
+    CalendarFormat format, {
+    required bool shanYear,
+  }) {
     final now = MyanmarCalendar.fromWestern(start.year, start.month, start.day);
-    // The year number changes on Myanmar New Year Day (mid-Tagu), so find
-    // that day either side of [start] by the year number itself.
+    int yearOf(MyanmarDateTime date) =>
+        shanYear ? date.shanYear : date.myanmarYear;
+    // The year number changes on New Year Day (mid-Tagu for Myanmar, around
+    // Nadaw for Shan), so find that day either side of [start] by the year
+    // number itself.
     int yearAt(int offset) {
       final date = DateTime(start.year, start.month, start.day + offset);
-      return MyanmarCalendar.fromWestern(
-        date.year,
-        date.month,
-        date.day,
-      ).myanmarYear;
+      return yearOf(
+        MyanmarCalendar.fromWestern(date.year, date.month, date.day),
+      );
     }
 
     int firstOffset(int lo, int hi, bool Function(int) test) {
@@ -297,7 +320,7 @@ abstract final class WidgetPayloadBuilder {
       return hi;
     }
 
-    final year = now.myanmarYear;
+    final year = yearOf(now);
     final startOffset = firstOffset(-400, 0, (o) => yearAt(o) >= year);
     final endOffset = firstOffset(0, 400, (o) => yearAt(o) > year);
     DateTime at(int offset) =>
@@ -305,7 +328,7 @@ abstract final class WidgetPayloadBuilder {
     final yearStart = at(startOffset);
     final nextStart = at(endOffset);
     return {
-      'n': now.formatMyanmar('&y', language),
+      'n': _yearLabel(now, language, shanYear),
       'start': _key(yearStart),
       'end': _key(nextStart),
       'month': now.formatMyanmar('&M', language),

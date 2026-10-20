@@ -353,6 +353,10 @@ class _CalendarStudioAddPanelState extends State<CalendarStudioAddPanel>
           child: _Tile(
             key: ValueKey('studio-add-${item.id}'),
             onTap: () => widget.onAdd(item),
+            // On the page's paper, so each style reads as it will on the
+            // page, in light and dark mode alike.
+            color: Color(theme.color('paper')),
+            borderColor: Color(theme.color('line')),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -551,11 +555,17 @@ class _Tile extends StatelessWidget {
     required this.onTap,
     required this.child,
     this.padding = const EdgeInsets.all(12),
+    this.color,
+    this.borderColor,
     super.key,
   });
   final VoidCallback onTap;
   final Widget child;
   final EdgeInsets padding;
+
+  /// The tile's fill; the panel surface when null.
+  final Color? color;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -566,8 +576,9 @@ class _Tile extends StatelessWidget {
       child: Ink(
         padding: padding,
         decoration: BoxDecoration(
-          color: tokens.surface2,
+          color: color ?? tokens.surface2,
           borderRadius: BorderRadius.circular(14),
+          border: borderColor == null ? null : Border.all(color: borderColor!),
         ),
         child: child,
       ),

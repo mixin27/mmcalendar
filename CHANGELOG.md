@@ -1,3 +1,15 @@
+## [2.3.0+230] - 2026-10-20
+
+- Calendar Studio replaces Calendar Generation: design wall, desk, social and story calendars from presets, edit on the page, re-theme every page, and export PDF, PNG, JPEG or ZIP at each page's real paper size (with page-size presets).
+- Home calendar: 22 grid layouts with Almanac as the new default (saved choices are kept), twelve grid themes, and Clear and Material app styles.
+- Day details: astrology in plain words (Sabbath, Yatyaza, Pyatthada, Mahabote, Nakhat, year name, Nagahle) as chips.
+- Holidays page with search, filters, details and reminders.
+- Events: weekly class timetables with a time for each day, and one event on several chosen dates.
+- Home-screen widgets rebuilt in five styles on iOS (with lock-screen widgets) and Android (Jetpack Glance).
+- Custom colours page: one accent colour, or every colour in Advanced.
+- New Moon page app icon with iOS dark and tinted versions and an Android themed icon; ten icons in Settings › App icon.
+- Onboarding with a short tour and quick setup, and a What's new sheet after each update.
+
 ## [2.2.1+221] - 2026-03-04
 
 - Refreshed brand assets and launcher icons:

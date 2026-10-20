@@ -62,12 +62,49 @@ class CalendarFormat {
       '${weekday(date)} ${number(date.day)} ${month(date.month)} '
       '${number(date.year)}';
 
-  /// A Myanmar date with a `formatMyanmar` [pattern].
-  String myanmar(MyanmarDate date, String pattern) =>
-      MyanmarCalendar.formatMyanmar(date, pattern: pattern, language: language);
+  /// A Myanmar date with a `formatMyanmar` [pattern]. With
+  /// [preferShanYear] a Shan calendar shows the Shan year
+  /// (see [formatMyanmarDate]).
+  String myanmar(
+    MyanmarDate date,
+    String pattern, {
+    bool preferShanYear = false,
+  }) => formatMyanmarDate(
+    date,
+    pattern: pattern,
+    language: language,
+    preferShanYear: preferShanYear,
+  );
 
   /// A package translation key ("Full Moon", holiday names) in the language.
   String translate(String key) => TranslationService.translateTo(key, language);
+}
+
+/// Whether years show as Shan years: the calendar language is Shan and
+/// Settings › Prefer Shan Year ([preferShanYear]) is on.
+bool showsShanYear(Language language, {required bool preferShanYear}) =>
+    language == Language.shan && preferShanYear;
+
+/// [date] in a `formatMyanmar` [pattern] (the package default when null).
+/// When [showsShanYear], its year (`&y`, `&yyyy`) is the Shan year in Shan
+/// digits instead of the Myanmar year.
+String formatMyanmarDate(
+  MyanmarDate date, {
+  String? pattern,
+  required Language language,
+  bool preferShanYear = false,
+}) {
+  var effective = pattern ?? '&y &M &P &ff';
+  if (showsShanYear(language, preferShanYear: preferShanYear)) {
+    final shanYear = MyanmarDateTime.fromMyanmarDate(date).shanYear;
+    final year = translateNumbers('$shanYear', language: Language.shan);
+    effective = effective.replaceAll('&yyyy', year).replaceAll('&y', year);
+  }
+  return MyanmarCalendar.formatMyanmar(
+    date,
+    pattern: effective,
+    language: language,
+  );
 }
 
 /// Hands the calendar language down the tree, so calendar data never

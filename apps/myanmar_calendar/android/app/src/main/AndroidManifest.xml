@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" tools:ignore="ExactAlarmPolicy" />
 
-    <application android:label="Myanmar Calendar"
+    <application android:label="@string/app_name"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round">
@@ -114,6 +114,58 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_traditional_myanmar"
             android:roundIcon="@mipmap/ic_launcher_traditional_myanmar_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityDawn"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_dawn"
+            android:roundIcon="@mipmap/ic_launcher_dawn_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityThingyan"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_thingyan"
+            android:roundIcon="@mipmap/ic_launcher_thingyan_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityPagoda"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_pagoda"
+            android:roundIcon="@mipmap/ic_launcher_pagoda_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityClassic"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_classic"
+            android:roundIcon="@mipmap/ic_launcher_classic_round"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

@@ -285,9 +285,11 @@ class SettingsRepositoryImpl extends BaseRepository
   ) async {
     try {
       await localDataSource.setSetting(key, value.toString());
-      if (key == StorageKeys.useDeviceTimezone) {
+      // Mirrored for background isolates (home-widget refreshes).
+      if (key == StorageKeys.useDeviceTimezone ||
+          key == StorageKeys.showShanCalendar) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool(StorageKeys.useDeviceTimezone, value);
+        await prefs.setBool(key, value);
       }
 
       return const Right(null);

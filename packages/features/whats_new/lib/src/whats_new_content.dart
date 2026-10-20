@@ -39,7 +39,35 @@ class WhatsNewRelease {
 /// Every release with something to announce, newest first. Add a release
 /// here with its strings in the ARB files when a version ships features.
 const whatsNewReleases = <WhatsNewRelease>[
+  // Everything since 2.2.3, the biggest first.
   WhatsNewRelease('2.3.0', [
+    WhatsNewItem(
+      id: 'studio',
+      icon: Icons.edit_calendar_outlined,
+      color: Color(0xFFF08A1C),
+      title: _studioTitle,
+      body: _studioBody,
+      action: _studioAction,
+      route: RoutePaths.studio,
+    ),
+    WhatsNewItem(
+      id: 'gridThemes',
+      icon: Icons.palette_outlined,
+      color: Color(0xFF8E6CEF),
+      title: _themesTitle,
+      body: _themesBody,
+      action: _themesAction,
+      route: '${RoutePaths.settings}/${RoutePaths.calendarGrid}',
+    ),
+    WhatsNewItem(
+      id: 'timetables',
+      icon: Icons.event_repeat_outlined,
+      color: Color(0xFF2F9E5B),
+      title: _timetablesTitle,
+      body: _timetablesBody,
+      action: _timetablesAction,
+      route: '${RoutePaths.events}/${RoutePaths.createEvent}',
+    ),
     WhatsNewItem(
       id: 'holidays',
       icon: Icons.star_rounded,
@@ -59,24 +87,6 @@ const whatsNewReleases = <WhatsNewRelease>[
       route: '${RoutePaths.settings}/${RoutePaths.widgets}',
     ),
     WhatsNewItem(
-      id: 'welcome',
-      icon: Icons.waving_hand_outlined,
-      color: Color(0xFF2F5BEA),
-      title: _welcomeTitle,
-      body: _welcomeBody,
-    ),
-  ]),
-  WhatsNewRelease('2.2.3', [
-    WhatsNewItem(
-      id: 'gridThemes',
-      icon: Icons.palette_outlined,
-      color: Color(0xFF8E6CEF),
-      title: _themesTitle,
-      body: _themesBody,
-      action: _themesAction,
-      route: '${RoutePaths.settings}/${RoutePaths.calendarGrid}',
-    ),
-    WhatsNewItem(
       id: 'customColors',
       icon: Icons.tune,
       color: Color(0xFF4C5BD4),
@@ -85,6 +95,15 @@ const whatsNewReleases = <WhatsNewRelease>[
       action: _colorsAction,
       route:
           '${RoutePaths.settings}/${RoutePaths.themeSettings}/${RoutePaths.customColors}',
+    ),
+    WhatsNewItem(
+      id: 'newAppIcons',
+      icon: Icons.apps_rounded,
+      color: Color(0xFF2B5598),
+      title: _newIconsTitle,
+      body: _newIconsBody,
+      action: _iconsAction,
+      route: '${RoutePaths.settings}/${RoutePaths.themeSettings}',
     ),
   ]),
   WhatsNewRelease('2.2.1', [
@@ -98,17 +117,6 @@ const whatsNewReleases = <WhatsNewRelease>[
       route: '${RoutePaths.settings}/${RoutePaths.themeSettings}',
     ),
   ]),
-  WhatsNewRelease('2.2.0', [
-    WhatsNewItem(
-      id: 'studio',
-      icon: Icons.edit_calendar_outlined,
-      color: Color(0xFFF08A1C),
-      title: _studioTitle,
-      body: _studioBody,
-      action: _studioAction,
-      route: RoutePaths.studio,
-    ),
-  ]),
 ];
 
 String _holidaysTitle(AppLocalizations l) => l.whatsNewHolidaysTitle;
@@ -117,8 +125,9 @@ String _holidaysAction(AppLocalizations l) => l.whatsNewHolidaysAction;
 String _widgetsTitle(AppLocalizations l) => l.whatsNewWidgetsTitle;
 String _widgetsBody(AppLocalizations l) => l.whatsNewWidgetsBody;
 String _widgetsAction(AppLocalizations l) => l.whatsNewWidgetsAction;
-String _welcomeTitle(AppLocalizations l) => l.whatsNewWelcomeTitle;
-String _welcomeBody(AppLocalizations l) => l.whatsNewWelcomeBody;
+String _timetablesTitle(AppLocalizations l) => l.whatsNewTimetablesTitle;
+String _timetablesBody(AppLocalizations l) => l.whatsNewTimetablesBody;
+String _timetablesAction(AppLocalizations l) => l.whatsNewTimetablesAction;
 String _themesTitle(AppLocalizations l) => l.whatsNewThemesTitle;
 String _themesBody(AppLocalizations l) => l.whatsNewThemesBody;
 String _themesAction(AppLocalizations l) => l.whatsNewThemesAction;
@@ -128,6 +137,8 @@ String _colorsAction(AppLocalizations l) => l.whatsNewColorsAction;
 String _iconsTitle(AppLocalizations l) => l.whatsNewIconsTitle;
 String _iconsBody(AppLocalizations l) => l.whatsNewIconsBody;
 String _iconsAction(AppLocalizations l) => l.whatsNewIconsAction;
+String _newIconsTitle(AppLocalizations l) => l.whatsNewNewIconsTitle;
+String _newIconsBody(AppLocalizations l) => l.whatsNewNewIconsBody;
 String _studioTitle(AppLocalizations l) => l.whatsNewStudioTitle;
 String _studioBody(AppLocalizations l) => l.whatsNewStudioBody;
 String _studioAction(AppLocalizations l) => l.whatsNewStudioAction;

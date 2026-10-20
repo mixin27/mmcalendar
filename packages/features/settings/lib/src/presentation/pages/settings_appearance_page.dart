@@ -10,15 +10,11 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 import '../widgets/settings_widgets.dart';
 import '../widgets/snackbar.dart';
 
-const Map<String, String> _appIconPreviewAssets = <String, String>{
-  'default': 'assets/branding/app_icon_1024.png',
-  'moon': 'assets/branding/app_icon_moon_1024.png',
-  'forest': 'assets/branding/app_icon_forest_1024.png',
-  'minimal_flat': 'assets/branding/app_icon_minimal_flat_1024.png',
-  'premium_dark': 'assets/branding/app_icon_premium_dark_1024.png',
-  'traditional_myanmar':
-      'assets/branding/app_icon_traditional_myanmar_1024.png',
-};
+/// The preview of an icon: tool/app_icons_test.dart in the app writes
+/// these.
+String _appIconPreviewAsset(String iconId) => iconId == 'default'
+    ? 'assets/branding/app_icon_1024.png'
+    : 'assets/branding/app_icon_${iconId}_1024.png';
 
 class SettingsAppearancePage extends StatefulWidget {
   const SettingsAppearancePage({super.key});
@@ -327,7 +323,7 @@ class _SettingsAppearancePageState extends State<SettingsAppearancePage> {
     }
   }
 
-  String? _assetForIcon(String iconId) => _appIconPreviewAssets[iconId];
+  String? _assetForIcon(String iconId) => _appIconPreviewAsset(iconId);
 
   // Helper methods
 
@@ -648,6 +644,10 @@ String _appIconLabel(AppLocalizations? l10n, AppIconOption option) =>
       'minimal_flat' => l10n?.appIconMinimalFlat,
       'premium_dark' => l10n?.appIconPremiumDark,
       'traditional_myanmar' => l10n?.appIconTraditionalMyanmar,
+      'dawn' => l10n?.appIconDawn,
+      'thingyan' => l10n?.appIconThingyan,
+      'pagoda' => l10n?.appIconPagoda,
+      'classic' => l10n?.appIconClassic,
       _ => null,
     } ??
     option.label;

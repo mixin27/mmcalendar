@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
+import 'package:shared_core/shared_core.dart';
 
 import '../data/repositories/converter_repository_impl.dart';
+import '../data/services/shan_year_preference.dart';
 import '../domain/repositories/converter_repository.dart';
 import '../domain/usecases/add_subtract_dates.dart';
 import '../domain/usecases/calculate_date_difference.dart';
@@ -13,9 +15,18 @@ final getIt = GetIt.instance;
 
 /// Register all calendar feature dependencies
 Future<void> initConverterDependencies() async {
+  getIt.registerLazySingleton<ShanYearPreference>(
+    () => ShanYearPreference(
+      getIt.isRegistered<DisplayPreferencesPort>()
+          ? getIt<DisplayPreferencesPort>()
+          : null,
+    ),
+    dispose: (preference) => preference.dispose(),
+  );
+
   // Repositories
   getIt.registerLazySingleton<ConverterRepository>(
-    () => ConverterRepositoryImpl(),
+    () => ConverterRepositoryImpl(shanYear: getIt<ShanYearPreference>()),
   );
 
   // Use cases
