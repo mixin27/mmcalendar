@@ -85,7 +85,14 @@ abstract final class WidgetUpdateService {
     await HomeWidget.saveWidgetData<int>(versionKey, payload['v'] as int);
   }
 
-  static Future<void> clearLegacyData() async {
+  /// Removes the widget data older versions wrote, on Android only.
+  ///
+  /// home_widget removes a key when given null on Android, but on iOS it
+  /// passes null on to UserDefaults as NSNull, which iOS 27 rejects by
+  /// terminating the app (the 2.3.0 launch crash). The few old keys left
+  /// in the iOS app group are unused and harmless.
+  static Future<void> clearLegacyData({TargetPlatform? platform}) async {
+    if ((platform ?? defaultTargetPlatform) != TargetPlatform.android) return;
     for (final key in _legacyKeys) {
       await HomeWidget.saveWidgetData<Object>(key, null);
     }

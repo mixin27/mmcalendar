@@ -1,5 +1,6 @@
-## [2.3.0+230] - 2026-10-20
+## [2.3.0+231] - 2026-10-21
 
+- Fixed a crash on launch on iOS 27 and iPadOS 27 (home-screen widget data cleanup wrote null to UserDefaults).
 - Calendar Studio replaces Calendar Generation: design wall, desk, social and story calendars from presets, edit on the page, re-theme every page, and export PDF, PNG, JPEG or ZIP at each page's real paper size (with page-size presets).
 - Home calendar: 22 grid layouts with Almanac as the new default (saved choices are kept), twelve grid themes, and Clear and Material app styles.
 - Day details: astrology in plain words (Sabbath, Yatyaza, Pyatthada, Mahabote, Nakhat, year name, Nagahle) as chips.
