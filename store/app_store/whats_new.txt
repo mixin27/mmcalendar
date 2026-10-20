@@ -1,0 +1,30 @@
+Version 2.3 is the biggest update yet.
+
+CALENDAR STUDIO
+Design wall, desk, social and story calendars from presets. Edit text, images, shapes and calendar parts right on the page, restyle every page with a project theme, and export PDF, PNG, JPEG or ZIP at each page's real paper size, with page-size presets for print.
+
+A NEW HOME CALENDAR
+• 22 calendar layouts, with Almanac as the new default (your saved layout is kept)
+• 12 grid themes, from Pagoda and Jade to Deep Field
+• Clear and Material app styles, and custom colours with an Advanced section
+
+CLASS TIMETABLES AND MULTIPLE DATES
+Repeat an event on chosen weekdays with a time for each day, such as a class every Wednesday at 7:00 PM and Thursday at 6:30 PM, or save one event on any set of dates.
+
+HOLIDAYS
+A new Holidays page: search in Myanmar or English, filter by type, read what each day marks, and get a reminder the evening before.
+
+ASTROLOGY IN PLAIN WORDS
+Day details now say Sabbath, Yatyaza, Pyatthada, Mahabote, Nakhat, the year name and where the Naga head turns, the way people say them, with eras and dates in your calendar language.
+
+WIDGETS
+Home Screen and Lock Screen widgets rebuilt in five styles, from today's date to a countdown to Thingyan. Tap any day to open it in the app.
+
+A NEW ICON
+The new Moon page icon, with dark and tinted versions, and ten icons to choose from in Settings › App icon.
+
+ALSO NEW
+• A short tour and quick setup for new users
+• A "What's new" note after each update
+• Prefer Shan Year now also applies to widgets and the converter
+• Many fixes and performance improvements
