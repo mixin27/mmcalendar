@@ -37,11 +37,13 @@ void main() {
       () async {
         final store = await _store({WhatsNewStore.legacyKey: '2.2.0'});
         expect(store.pending().map((p) => p.item.id), [
+          'studio',
+          'gridThemes',
+          'timetables',
           'holidays',
           'widgets',
-          'welcome',
-          'gridThemes',
           'customColors',
+          'newAppIcons',
           'appIcons',
         ]);
         await store.markSeen();
@@ -56,11 +58,7 @@ void main() {
 
     test('history stops at the installed version', () async {
       final store = await _store({}, current: '2.2.3');
-      expect(store.history().map((r) => r.version), [
-        '2.2.3',
-        '2.2.1',
-        '2.2.0',
-      ]);
+      expect(store.history().map((r) => r.version), ['2.2.1']);
     });
   });
 
@@ -69,7 +67,7 @@ void main() {
       testWidgets('the sheet pages through features and opens one', (
         tester,
       ) async {
-        final store = await _store({WhatsNewStore.lastSeenKey: '2.2.1'});
+        final store = await _store({WhatsNewStore.lastSeenKey: '2.2.0'});
         String? opened;
         var seeAll = 0;
         await tester.pumpWidget(
@@ -92,26 +90,26 @@ void main() {
         await tester.tap(find.text('open'));
         await tester.pumpAndSettle();
         expect(find.text('New in 2.3'), findsOneWidget);
-        expect(find.text('1 of 5'), findsOneWidget);
-        expect(find.text('Holidays'), findsOneWidget);
+        expect(find.text('1 of 8'), findsOneWidget);
+        expect(find.text('Calendar Studio'), findsOneWidget);
 
         await tester.tap(find.byKey(const ValueKey('whats-new-next')));
         await tester.pumpAndSettle();
-        expect(find.text('2 of 5'), findsOneWidget);
-        expect(find.text('New home-screen widgets'), findsOneWidget);
+        expect(find.text('2 of 8'), findsOneWidget);
+        expect(find.text('Calendar layouts and themes'), findsOneWidget);
 
         // The last page comes from an earlier version.
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < 6; i++) {
           await tester.tap(find.byKey(const ValueKey('whats-new-next')));
           await tester.pumpAndSettle();
         }
-        expect(find.text('From 2.2.3'), findsOneWidget);
+        expect(find.text('From 2.2.1'), findsOneWidget);
         expect(find.text('See all updates'), findsOneWidget);
 
         await tester.tap(find.byKey(const ValueKey('whats-new-try')));
         await tester.pumpAndSettle();
-        expect(opened, '/settings/theme/custom-colors');
-        expect(find.text('Custom colours'), findsNothing);
+        expect(opened, '/settings/theme');
+        expect(find.text('App icons'), findsNothing);
         expect(seeAll, 0);
       });
 

@@ -2384,18 +2384,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewWidgetsAction => 'Widget settings';
 
   @override
-  String get whatsNewWelcomeTitle => 'A new welcome';
-
-  @override
-  String get whatsNewWelcomeBody =>
-      'New users get a short tour and a quick setup for language, look, privacy and reminders.';
-
-  @override
-  String get whatsNewThemesTitle => 'Calendar themes';
+  String get whatsNewThemesTitle => 'Calendar layouts and themes';
 
   @override
   String get whatsNewThemesBody =>
-      'Twelve themes for the month grid, from Pagoda and Jade to Deep Field, each with light and dark colours.';
+      '22 layouts for the home calendar, with Almanac as the new default, and twelve themes from Pagoda to Deep Field.';
 
   @override
   String get whatsNewThemesAction => 'Choose a theme';
@@ -2419,6 +2412,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get whatsNewIconsAction => 'Change icon';
+
+  @override
+  String get whatsNewNewIconsBody =>
+      'The new Moon page icon, and ten designs to choose from, including Dawn, Thingyan and Pagoda.';
+
+  @override
+  String get whatsNewNewIconsTitle => 'A new app icon';
+
+  @override
+  String get whatsNewTimetablesAction => 'Add an event';
+
+  @override
+  String get whatsNewTimetablesBody =>
+      'Repeat an event on chosen weekdays with a time for each day, or save one event on any set of dates.';
+
+  @override
+  String get whatsNewTimetablesTitle => 'Class timetables and several dates';
 
   @override
   String get whatsNewStudioTitle => 'Calendar Studio';

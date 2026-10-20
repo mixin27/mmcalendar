@@ -4095,25 +4095,13 @@ abstract class AppLocalizations {
   /// Feature title.
   ///
   /// In en, this message translates to:
-  /// **'A new welcome'**
-  String get whatsNewWelcomeTitle;
-
-  /// Feature description.
-  ///
-  /// In en, this message translates to:
-  /// **'New users get a short tour and a quick setup for language, look, privacy and reminders.'**
-  String get whatsNewWelcomeBody;
-
-  /// Feature title.
-  ///
-  /// In en, this message translates to:
-  /// **'Calendar themes'**
+  /// **'Calendar layouts and themes'**
   String get whatsNewThemesTitle;
 
   /// Feature description.
   ///
   /// In en, this message translates to:
-  /// **'Twelve themes for the month grid, from Pagoda and Jade to Deep Field, each with light and dark colours.'**
+  /// **'22 layouts for the home calendar, with Almanac as the new default, and twelve themes from Pagoda to Deep Field.'**
   String get whatsNewThemesBody;
 
   /// Feature button.
@@ -4157,6 +4145,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change icon'**
   String get whatsNewIconsAction;
+
+  /// No description provided for @whatsNewNewIconsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The new Moon page icon, and ten designs to choose from, including Dawn, Thingyan and Pagoda.'**
+  String get whatsNewNewIconsBody;
+
+  /// No description provided for @whatsNewNewIconsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A new app icon'**
+  String get whatsNewNewIconsTitle;
+
+  /// No description provided for @whatsNewTimetablesAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an event'**
+  String get whatsNewTimetablesAction;
+
+  /// No description provided for @whatsNewTimetablesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat an event on chosen weekdays with a time for each day, or save one event on any set of dates.'**
+  String get whatsNewTimetablesBody;
+
+  /// No description provided for @whatsNewTimetablesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Class timetables and several dates'**
+  String get whatsNewTimetablesTitle;
 
   /// Feature title.
   ///
