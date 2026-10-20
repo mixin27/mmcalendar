@@ -31,6 +31,68 @@ void main() {
     expect(names.values.toSet(), hasLength(Language.values.length));
   });
 
+  group('Prefer Shan Year', () {
+    // Shan New Year falls around Nadaw, so October and December 2026 sit
+    // in different Shan years but the same Myanmar year (1388).
+    final october = MyanmarCalendar.fromDateTime(day).myanmarDate;
+    final december = MyanmarCalendar.fromDateTime(
+      DateTime(2026, 12, 31),
+    ).myanmarDate;
+
+    test('a Shan calendar shows the Shan year when preferred', () {
+      expect(
+        formatMyanmarDate(
+          october,
+          pattern: '&y &M',
+          language: Language.shan,
+          preferShanYear: true,
+        ),
+        startsWith('2120 '),
+      );
+      expect(
+        formatMyanmarDate(
+          december,
+          pattern: '&y',
+          language: Language.shan,
+          preferShanYear: true,
+        ),
+        '2121',
+      );
+      expect(
+        const CalendarFormat(
+          Language.shan,
+        ).myanmar(october, '&y', preferShanYear: true),
+        '2120',
+      );
+    });
+
+    test('otherwise the Myanmar year', () {
+      expect(
+        formatMyanmarDate(
+          october,
+          pattern: '&y &M',
+          language: Language.shan,
+          preferShanYear: false,
+        ),
+        startsWith('1388 '),
+      );
+      expect(
+        formatMyanmarDate(
+          december,
+          pattern: '&y',
+          language: Language.myanmar,
+          preferShanYear: true,
+        ),
+        '၁၃၈၈',
+        reason: 'only a Shan calendar uses the Shan year',
+      );
+      expect(
+        const CalendarFormat(Language.shan).myanmar(october, '&y'),
+        '1388',
+      );
+    });
+  });
+
   testWidgets('the scope hands the calendar language down', (tester) async {
     late Language seen;
     await tester.pumpWidget(

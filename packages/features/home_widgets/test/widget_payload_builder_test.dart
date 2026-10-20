@@ -10,10 +10,12 @@ void main() {
   Map<String, Object?> build(
     Language language, {
     List<WidgetAgendaEvent>? events,
+    bool preferShanYear = true,
   }) => WidgetPayloadBuilder.build(
     today: today,
     language: language,
     events: events ?? const [],
+    preferShanYear: preferShanYear,
     styles: WidgetPalettes.all(),
     prefs: const WidgetConfig.defaults().toPayload(),
     generatedAt: DateTime(2026, 10, 18, 9),
@@ -76,6 +78,36 @@ void main() {
     expect(end.isAfter(today), isTrue);
     expect(end.difference(start).inDays, inInclusiveRange(354, 385));
     expect(year['n'], '1388');
+  });
+
+  group('Prefer Shan Year', () {
+    test('a Shan calendar shows the Shan year and its New Year bounds', () {
+      final payload = build(Language.shan);
+      final year = payload['year']! as Map;
+      expect(year['n'], '2120');
+      // Shan New Year falls around Nadaw, late in the Gregorian year.
+      final start = DateTime.parse(year['start'] as String);
+      final end = DateTime.parse(year['end'] as String);
+      expect(start.isAfter(today), isFalse);
+      expect(start.year, 2025);
+      expect(end.isAfter(today), isTrue);
+      expect(end.isAfter(DateTime(2026, 12, 31)), isFalse);
+      expect(end.difference(start).inDays, inInclusiveRange(354, 385));
+      final months = payload['months']! as Map;
+      expect((months['2026-10']! as Map)['sub'], endsWith('· 2120'));
+      expect((months['2026-12']! as Map)['sub'], endsWith('· 2121'));
+    });
+
+    test('off, or in another language, the Myanmar year', () {
+      for (final payload in [
+        build(Language.shan, preferShanYear: false),
+        build(Language.english),
+      ]) {
+        expect((payload['year']! as Map)['n'], '1388');
+        final months = payload['months']! as Map;
+        expect((months['2026-12']! as Map)['sub'], endsWith('· 1388'));
+      }
+    });
   });
 
   test('months cover last month to five ahead, 42 cells, no today flag', () {
