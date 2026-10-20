@@ -60,7 +60,10 @@ class _Target {
 }
 
 const _targets = [
-  _Target('iphone', 'app_store/iphone_6_9', Size(1320, 2868)),
+  // App Store Connect's iPhone slots: Dynamic Island (medium display) and
+  // iPhone Duo, which has no simulator yet, so it frames the iPhone shots.
+  _Target('iphone', 'app_store/iphone_6_3', Size(1206, 2622)),
+  _Target('iphone', 'app_store/iphone_duo', Size(1398, 2034)),
   _Target('ipad', 'app_store/ipad_13', Size(2064, 2752)),
   // Play caps phones at 2:1 and wants 9:16 or 16:9 for tablets; the app is
   // portrait-only, so both are 9:16.
@@ -141,6 +144,35 @@ void main() {
     File('$repo/store/play_store/feature_graphic.png')
       ..parent.createSync(recursive: true)
       ..writeAsBytesSync(bytes!);
+  });
+
+  // App Store Connect › Header and Search Results: the name and pitch
+  // beside three iPhone screens.
+  testWidgets('App Store header and search results', (tester) async {
+    final shots = [
+      for (final name in ['06_studio', '01_home', '02_day_details'])
+        File('$app/build/store_raw/iphone/$name.png'),
+    ];
+    if (shots.any((f) => !f.existsSync())) {
+      markTestSkipped('No iPhone captures yet');
+      return;
+    }
+    await tester.runAsync(() async {
+      final screens = [
+        for (final f in shots) await _decode(await f.readAsBytes()),
+      ];
+      final icon = await _decode(
+        await File('$app/assets/branding/app_icon_1024.png').readAsBytes(),
+      );
+      for (final (name, size) in [
+        ('header', const Size(3840, 1646)),
+        ('search_results', const Size(3840, 2560)),
+      ]) {
+        File('$repo/store/app_store/$name.png')
+          ..parent.createSync(recursive: true)
+          ..writeAsBytesSync(await _landscapeGraphic(size, screens, icon));
+      }
+    });
   });
 
   // The flutter_mmcalendar portfolio page: a landscape graphic from the
@@ -477,5 +509,87 @@ Future<List<int>> _featureGraphic(ui.Image screen) {
     Paint()..color = _gold.withValues(alpha: .9),
   );
   _paintDevice(canvas, screen, const Rect.fromLTRB(660, 36, 960, 540));
+  return encodeRgbPng(recorder.endRecording(), size);
+}
+
+/// A wide App Store graphic of [size]: the icon, name and pitch on the
+/// left, [screens] as three phones on the right, the middle one in front.
+Future<List<int>> _landscapeGraphic(
+  Size size,
+  List<ui.Image> screens,
+  ui.Image icon,
+) {
+  // Text scales with the shorter side's share, so a taller canvas does
+  // not push the title under the phones.
+  final unit = math.min(size.height / 100, size.width / 200);
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  _paintSky(canvas, size, glow: Offset(size.width * .82, size.height * .2));
+
+  final textWidth = size.width * .44;
+  final left = size.width * .07;
+  final iconSide = unit * 13;
+  final title = _text(
+    'မြန်မာ ပြက္ခဒိန်',
+    unit * 9.5,
+    Colors.white,
+    FontWeight.w700,
+    textWidth,
+    align: TextAlign.left,
+  );
+  final sub = _text(
+    'လရက်၊ လဝန်း၊ ဗေဒင်၊ ရုံးပိတ်ရက်၊ ပွဲများနှင့် ကိုယ်ပိုင် ပြက္ခဒိန် ဒီဇိုင်း',
+    unit * 4,
+    _subtle,
+    FontWeight.w400,
+    textWidth,
+    align: TextAlign.left,
+  );
+  final gap = unit * 3;
+  final block = iconSide + gap + title.height + gap * .6 + sub.height;
+  var y = (size.height - block) / 2;
+  final iconRect = Rect.fromLTWH(left, y, iconSide, iconSide);
+  canvas.save();
+  canvas.clipRRect(
+    RRect.fromRectAndRadius(iconRect, Radius.circular(iconSide * .23)),
+  );
+  canvas.drawImageRect(
+    icon,
+    Rect.fromLTWH(0, 0, icon.width * 1.0, icon.height * 1.0),
+    iconRect,
+    Paint()..filterQuality = FilterQuality.high,
+  );
+  canvas.restore();
+  y += iconSide + gap;
+  title.paint(canvas, Offset(left, y));
+  sub.paint(canvas, Offset(left, y + title.height + gap * .6));
+
+  // Three phones; the side ones lower and behind.
+  // The three span about 2.8 phone widths; keep them in the right half.
+  final ratio = screens[1].width / screens[1].height;
+  final phoneWidth = math.min(
+    size.height * .78 * ratio,
+    size.width * .48 / 2.8,
+  );
+  final phoneHeight = phoneWidth / ratio;
+  final centre = size.width * .74;
+  final top = (size.height - phoneHeight) / 2;
+  for (final (i, dx, dy, scale) in [
+    (0, -phoneWidth * .95, phoneHeight * .06, .88),
+    (2, phoneWidth * .95, phoneHeight * .06, .88),
+    (1, 0.0, 0.0, 1.0),
+  ]) {
+    final w = phoneWidth * scale, h = phoneHeight * scale;
+    _paintDevice(
+      canvas,
+      screens[i],
+      Rect.fromLTWH(
+        centre + dx - w / 2,
+        top + dy + (phoneHeight - h) / 2,
+        w,
+        h,
+      ),
+    );
+  }
   return encodeRgbPng(recorder.endRecording(), size);
 }

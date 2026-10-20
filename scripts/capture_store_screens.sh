@@ -129,8 +129,10 @@ capture_android() {
 
 for device in "${devices[@]}"; do
   case "$device" in
-    iphone) capture_ios iphone "Store iPhone 17 Pro Max" \
-      com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max ;;
+    # App Store Connect's "iPhone with Dynamic Island (medium display)":
+    # 6.3", 1206 x 2622.
+    iphone) capture_ios iphone "Store iPhone 17 Pro" \
+      com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro ;;
     ipad) capture_ios ipad "Store iPad Pro 13-inch" \
       com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M4-8GB ;;
     android_phone) capture_android android_phone Store_Phone pixel_9_pro ;;
