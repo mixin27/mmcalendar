@@ -11,6 +11,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/calendar_injection.dart';
 import 'astro_phrases.dart';
+import 'calendar_labels.dart';
 import 'calendar_colors.dart';
 import 'day_cells.dart' show eventColor;
 
@@ -109,18 +110,28 @@ class DayDetailsContent extends StatelessWidget {
             pattern: '&y &M &P &f &Yat',
           );
     final tiles = [
-      (l10n?.year ?? 'Year', translateNumbers('$_displayYear')),
       (
-        l10n?.month ?? 'Month',
+        CalendarLabels.of('Year', _language, l10n?.year ?? 'Year'),
+        translateNumbers('$_displayYear'),
+      ),
+      (
+        CalendarLabels.of('Month', _language, l10n?.month ?? 'Month'),
         TranslationService.getMonthName(
           completeDate.myanmarMonth,
           completeDate.yearType,
           _language,
         ),
       ),
-      (l10n?.day ?? 'Day', translateNumbers('${completeDate.myanmarDay}')),
       (
-        l10n?.dayDetailsYearType ?? 'Type',
+        CalendarLabels.day(_language, l10n?.day ?? 'Day'),
+        translateNumbers('${completeDate.myanmarDay}'),
+      ),
+      (
+        CalendarLabels.of(
+          'Year Type',
+          _language,
+          l10n?.dayDetailsYearType ?? 'Type',
+        ),
         TranslationService.getYearTypeName(completeDate.yearType, _language),
       ),
     ];
@@ -193,18 +204,34 @@ class DayDetailsContent extends StatelessWidget {
   Widget _buddhistCalendar(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return AppGroup(
-      label: l10n?.dayDetailsBuddhistCalendar ?? 'Buddhist Calendar',
+      label: CalendarLabels.of(
+        'Eras',
+        _language,
+        l10n?.dayDetailsBuddhistCalendar ?? 'Buddhist Calendar',
+      ),
       children: [
         AppRow(
-          title: l10n?.buddhist_era ?? 'Buddhist Era (BE)',
+          title: CalendarLabels.of(
+            'Buddhist Era',
+            _language,
+            l10n?.buddhist_era ?? 'Buddhist Era (BE)',
+          ),
           value: translateNumbers('${date.year + 543}'),
         ),
         AppRow(
-          title: l10n?.sasana_year ?? 'Sasana Year',
+          title: CalendarLabels.of(
+            'Sasana Year',
+            _language,
+            l10n?.sasana_year ?? 'Sasana Year',
+          ),
           value: translateNumbers('${completeDate.sasanaYear}'),
         ),
         AppRow(
-          title: l10n?.myanmar_era ?? 'Myanmar Era (ME)',
+          title: CalendarLabels.of(
+            'Myanmar Era',
+            _language,
+            l10n?.myanmar_era ?? 'Myanmar Era (ME)',
+          ),
           value: MyanmarCalendar.formatMyanmar(
             completeDate.myanmar,
             pattern: '&yyyy',
