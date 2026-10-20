@@ -26,3 +26,11 @@ Order, by file name:
 6. Calendar Studio
 7. Grid layouts
 8. Converter
+
+## Listing text
+
+| File | Limit | Where it goes |
+| --- | --- | --- |
+| `play_store/short_description.txt` | 80 characters | Play Console › Short description |
+| `play_store/full_description.txt` | 4,000 characters | Play Console › Full description |
+| `play_store/release_notes.txt` | 500 characters per language | Play Console › Release › Release notes (paste as is; drop `<my-MM>` if the listing has no Myanmar translation) |
