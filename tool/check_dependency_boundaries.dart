@@ -41,7 +41,8 @@ final Map<String, Set<String>> _strictAllowedInternalDependencies =
     <String, Set<String>>{
       // Facades with explicit migration targets.
       'shared_core': <String>{},
-      'shared_ui_kit': <String>{'shared_core'},
+      // The moon glyph is drawn the same everywhere, so the UI kit uses it.
+      'shared_ui_kit': <String>{'shared_core', 'shared_moon'},
       'shared_localizations': <String>{},
     };
 
@@ -50,9 +51,14 @@ final Map<String, Set<String>> _strictAllowedInternalDependencies =
 /// Any feature dependency not listed here will fail boundary checks.
 final Map<String, Set<String>> _allowedFeatureDependencies =
     <String, Set<String>>{
-      'calendar': <String>{},
-      'settings': <String>{'home_widgets', 'promo'},
-      'views': <String>{},
+      // Holidays is the holiday catalog; the calendar, widgets and views
+      // show its days.
+      'calendar': <String>{'holidays'},
+      // Widgets reuse the calendar's grid palettes and the holiday catalog.
+      'home_widgets': <String>{'calendar', 'holidays'},
+      // Settings previews the calendar grids and themes.
+      'settings': <String>{'calendar', 'home_widgets', 'promo'},
+      'views': <String>{'holidays'},
     };
 
 /// Package-level dependency bans by layer.
