@@ -8,6 +8,10 @@ scripts/capture_store_screens.sh            # iphone, ipad, android_phone, andro
 cd apps/myanmar_calendar && flutter test tool/store_frames_test.dart
 ```
 
+The images are not kept in git (see `.gitignore`): run the two commands
+above to make them, or download them from the GitHub release. Only the
+listing text below is tracked.
+
 | Folder | Size | Where it goes |
 | --- | --- | --- |
 | `app_store/iphone_6_3/` | 1206 × 2622 | App Store Connect › iPhone with Dynamic Island (medium display) |

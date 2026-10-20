@@ -192,9 +192,9 @@ void main() {
         await shot('tools_cupertino_light'),
       );
     });
-    File(
-        '$repo/docs/portfolio/images/projects/flutter-mmcalendar/feature-graphic.png',
-      )
+    // For the portfolio site (public/images/projects/flutter-mmcalendar/
+    // feature-graphic.png there); not kept in this repo.
+    File('$app/build/portfolio/flutter-mmcalendar-feature-graphic.png')
       ..parent.createSync(recursive: true)
       ..writeAsBytesSync(bytes!);
   });
