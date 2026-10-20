@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">မြန်မာပြက္ခဒိန်</string>
 
     <!-- Home screen widgets -->
     <string name="widget_today_name">ယနေ့</string>

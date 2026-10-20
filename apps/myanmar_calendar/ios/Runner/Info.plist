@@ -18,6 +18,11 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>my</string>
+	</array>
 	<key>FlutterDeepLinkingEnabled</key>
 	<false/>
 	<key>CFBundleURLTypes</key>
