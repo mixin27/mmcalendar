@@ -31,6 +31,6 @@ Order, by file name:
 
 | File | Limit | Where it goes |
 | --- | --- | --- |
-| `play_store/short_description.txt` | 80 characters | Play Console › Short description |
+| `play_store/short_description.txt`, `short_description_my.txt` | 80 characters | Play Console › Short description (English, Myanmar) |
 | `play_store/full_description.txt`, `full_description_my.txt` | 4,000 characters | Play Console › Full description (English, Myanmar) |
 | `play_store/release_notes.txt` | 500 characters per language | Play Console › Release › Release notes (paste as is; drop `<my-MM>` if the listing has no Myanmar translation) |
