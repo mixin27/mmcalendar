@@ -92,6 +92,8 @@ void main() {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
       if (layer != IconLayer.foreground) {
+        // Full bleed even on Android: the mask crops the bitmap's own
+        // rounded frame, as it did for the old icon.
         canvas.drawImageRect(
           classic,
           Rect.fromLTWH(0, 0, classic.width * 1.0, classic.height * 1.0),

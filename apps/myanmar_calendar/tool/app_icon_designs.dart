@@ -118,6 +118,15 @@ enum IconLayer {
   foreground,
 }
 
+/// Android shows the middle 72 of an adaptive icon's 108 dp and masks
+/// that further, so its layers draw the artwork this much smaller.
+const androidScale = .78;
+
+/// Wraps [body] in a scale of [androidScale] about the centre.
+String _androidInset(String body) =>
+    '<g transform="translate(512 512) scale($androidScale) '
+    'translate(-512 -512)">$body</g>';
+
 /// How the iOS 18 home screen shows the icon.
 enum IconAppearance { light, dark, tinted }
 
@@ -168,7 +177,7 @@ String moonPage(
       : tinted
       ? '<rect width="1024" height="1024" fill="#000000"/>'
       : '<rect width="1024" height="1024" fill="url(#sky)"/>'
-            '${_stars(p.star, [(220, 210, 26), (820, 250, 18), (790, 820, 22)])}';
+            '${_stars(p.star, layer == IconLayer.full ? [(220, 210, 26), (820, 250, 18), (790, 820, 22)] : [(290, 290, 22), (760, 300, 15), (745, 745, 18)])}';
   final page = dark
       ? '#1A2032'
       : tinted
@@ -200,36 +209,40 @@ String moonPage(
   final body = switch (layer) {
     IconLayer.full => sky + glyph,
     IconLayer.background => sky,
-    IconLayer.foreground => glyph,
+    IconLayer.foreground => _androidInset(glyph),
   };
   return _svg(body, defs: _gradient('sky', p.bg));
 }
 
 /// Android's themed (monochrome) layer: the page and moon as one shape.
 String monochrome() => _svg(
-  '<g fill="#FFFFFF">'
-  '<path fill-rule="evenodd" d="M336 262h352a104 104 0 0 1 104 104v352'
-  'a104 104 0 0 1-104 104H336a104 104 0 0 1-104-104V366a104 104 0 0 1 '
-  '104-104zM288 430v288a48 48 0 0 0 48 48h352a48 48 0 0 0 48-48V430z"/>'
-  '<rect x="352" y="214" width="44" height="104" rx="22"/>'
-  '<rect x="628" y="214" width="44" height="104" rx="22"/>'
-  '<circle cx="512" cy="598" r="120"/></g>',
+  _androidInset(
+    '<g fill="#FFFFFF">'
+    '<path fill-rule="evenodd" d="M336 262h352a104 104 0 0 1 104 104v352'
+    'a104 104 0 0 1-104 104H336a104 104 0 0 1-104-104V366a104 104 0 0 1 '
+    '104-104zM288 430v288a48 48 0 0 0 48 48h352a48 48 0 0 0 48-48V430z"/>'
+    '<rect x="352" y="214" width="44" height="104" rx="22"/>'
+    '<rect x="628" y="214" width="44" height="104" rx="22"/>'
+    '<circle cx="512" cy="598" r="120"/></g>',
+  ),
 );
 
 /// A stupa under the full moon, on the Night sky.
 String pagoda({IconLayer layer = IconLayer.full}) {
   final p = palettes['night']!;
   if (layer == IconLayer.foreground) return _svg('');
+  final scene =
+      '<circle cx="640" cy="372" r="190" fill="${p.moon}"/>'
+      '${_stars(p.star, [(230, 230, 22), (300, 380, 14), (860, 620, 16)])}'
+      '<path d="M512 210 L524 330 C590 360 620 420 630 520 L660 520 L660 560 '
+      'L700 560 L700 610 L748 610 L748 670 L276 670 L276 610 L324 610 '
+      'L324 560 L364 560 L364 520 L394 520 C404 420 434 360 500 330 Z" '
+      'fill="${p.ink}"/>'
+      '<path d="M0 700 C220 650 380 690 512 672 C660 652 820 680 1024 650 '
+      'V1024 H0Z" fill="${p.ink}"/>';
   return _svg(
     '<rect width="1024" height="1024" fill="url(#sky)"/>'
-    '<circle cx="640" cy="372" r="190" fill="${p.moon}"/>'
-    '${_stars(p.star, [(230, 230, 22), (300, 380, 14), (860, 620, 16)])}'
-    '<path d="M512 210 L524 330 C590 360 620 420 630 520 L660 520 L660 560 '
-    'L700 560 L700 610 L748 610 L748 670 L276 670 L276 610 L324 610 '
-    'L324 560 L364 560 L364 520 L394 520 C404 420 434 360 500 330 Z" '
-    'fill="${p.ink}"/>'
-    '<path d="M0 700 C220 650 380 690 512 672 C660 652 820 680 1024 650 '
-    'V1024 H0Z" fill="${p.ink}"/>',
+    '${layer == IconLayer.background ? _androidInset(scene) : scene}',
     defs: _gradient('sky', p.bg, vertical: true),
   );
 }
