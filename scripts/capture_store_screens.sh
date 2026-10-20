@@ -89,21 +89,40 @@ capture_android() {
   mv "$config.tmp" "$config"
   # -wipe-data: a clean device each run, so the demo data is never doubled.
   "$EMULATOR" -avd "$avd" -wipe-data -no-snapshot -no-boot-anim >/dev/null 2>&1 &
-  "$ADB" wait-for-device
-  serial=$("$ADB" devices | awk '/emulator-/{print $1; exit}')
+  # Wait for the emulator itself: a connected phone must never be used.
+  serial=
+  until [ -n "$serial" ]; do
+    sleep 2
+    serial=$("$ADB" devices | awk '/^emulator-/ && $2 == "device" {print $1; exit}')
+  done
   until [ "$("$ADB" -s "$serial" shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do
     sleep 2
   done
   # System UI demo mode: 9:41, full battery and signal, no notifications.
-  "$ADB" -s "$serial" shell settings put global sysui_demo_allowed 1
-  for command in "clock -e hhmm 0941" "battery -e level 100 -e plugged false" \
-    "network -e wifi show -e level 4 -e mobile show -e datatype none -e level 4" \
-    "notifications -e visible false"; do
-    # shellcheck disable=SC2086
-    "$ADB" -s "$serial" shell am broadcast -a com.android.systemui.demo \
-      -e command ${command%% *} ${command#* } >/dev/null
+  # System UI starts after boot_completed, so wait for it and send twice.
+  until "$ADB" -s "$serial" shell pidof com.android.systemui >/dev/null; do
+    sleep 2
   done
-  "$ADB" -s "$serial" shell am broadcast -a com.android.systemui.demo -e command enter >/dev/null
+  sleep 5
+  # The app is portrait-only, but large screens ignore that and letterbox
+  # it: honour the request and turn tablets upright. Sent this late, as
+  # the window manager resets both while it starts.
+  "$ADB" -s "$serial" shell wm set-ignore-orientation-request false
+  if [ "$device" = android_tablet ]; then
+    "$ADB" -s "$serial" shell wm user-rotation lock 1
+  fi
+  "$ADB" -s "$serial" shell settings put global sysui_demo_allowed 1
+  for _ in 1 2; do
+    "$ADB" -s "$serial" shell am broadcast -a com.android.systemui.demo -e command enter >/dev/null
+    for command in "clock -e hhmm 0941" "battery -e level 100 -e plugged false" \
+      "network -e wifi show -e level 4 -e mobile show -e datatype none -e level 4" \
+      "notifications -e visible false"; do
+      # shellcheck disable=SC2086
+      "$ADB" -s "$serial" shell am broadcast -a com.android.systemui.demo \
+        -e command ${command%% *} ${command#* } >/dev/null
+    done
+    sleep 2
+  done
   run_capture "$device" "$serial" "android:$serial"
   "$ADB" -s "$serial" emu kill >/dev/null 2>&1 || true
 }

@@ -62,9 +62,10 @@ class _Target {
 const _targets = [
   _Target('iphone', 'app_store/iphone_6_9', Size(1320, 2868)),
   _Target('ipad', 'app_store/ipad_13', Size(2064, 2752)),
-  // Play caps the aspect ratio at 2:1, so phones use 9:16.
+  // Play caps phones at 2:1 and wants 9:16 or 16:9 for tablets; the app is
+  // portrait-only, so both are 9:16.
   _Target('android_phone', 'play_store/phone', Size(1080, 1920)),
-  _Target('android_tablet', 'play_store/tablet_10', Size(2560, 1600)),
+  _Target('android_tablet', 'play_store/tablet_10', Size(1440, 2560)),
 ];
 
 void main() {

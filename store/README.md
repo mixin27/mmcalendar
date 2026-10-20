@@ -13,7 +13,7 @@ cd apps/myanmar_calendar && flutter test tool/store_frames_test.dart
 | `app_store/iphone_6_9/` | 1320 × 2868 | App Store Connect › iPhone 6.9" Display (scaled for smaller iPhones) |
 | `app_store/ipad_13/` | 2064 × 2752 | App Store Connect › iPad 13" Display |
 | `play_store/phone/` | 1080 × 1920 | Play Console › Phone screenshots (2–8) |
-| `play_store/tablet_10/` | 2560 × 1600 | Play Console › 10-inch tablet screenshots |
+| `play_store/tablet_10/` | 1440 × 2560 | Play Console › 10-inch tablet screenshots |
 | `play_store/feature_graphic.png` | 1024 × 500 | Play Console › Feature graphic |
 
 Order, by file name:
