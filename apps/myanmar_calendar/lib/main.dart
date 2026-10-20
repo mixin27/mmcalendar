@@ -185,6 +185,11 @@ Future<void> _initializeMyanmarCalendar() async {
     }
     final useDeviceTimezone =
         await settingsDao.getBoolSetting(StorageKeys.useDeviceTimezone) ?? true;
+    // Home widgets read Prefer Shan Year from here, also in the background.
+    await (await SharedPreferences.getInstance()).setBool(
+      StorageKeys.showShanCalendar,
+      await settingsDao.getBoolSetting(StorageKeys.showShanCalendar) ?? true,
+    );
 
     // Configure Myanmar Calendar with saved settings
     applyMyanmarCalendarRuntimeConfig(

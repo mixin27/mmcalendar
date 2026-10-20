@@ -47,6 +47,7 @@ class WidgetLocalDataSource {
       events: events,
       styles: WidgetPalettes.all(app: _appPalette()),
       prefs: effective.toPayload(),
+      preferShanYear: resolvePreferShanYear(),
     );
     await WidgetUpdateService.savePayload(payload);
     await sharedPreferences.setString(
@@ -157,9 +158,11 @@ class WidgetLocalDataSource {
       );
 
       // Format dates with correct language
-      final myanmarDate = myanmarDateTime.formatMyanmar(
-        '&y &M &P &f &Yat',
-        targetLanguage,
+      final myanmarDate = formatMyanmarDate(
+        myanmarDateTime.myanmarDate,
+        pattern: '&y &M &P &f &Yat',
+        language: targetLanguage,
+        preferShanYear: resolvePreferShanYear(),
       );
       final westernDate = myanmarDateTime.formatWestern(
         '%d %M %yyyy',
@@ -371,6 +374,11 @@ class WidgetLocalDataSource {
   Future<void> markUpdatesScheduled(bool scheduled) async {
     await sharedPreferences.setBool('widget_updates_scheduled', scheduled);
   }
+
+  /// Settings › Prefer Shan Year, mirrored here by the settings feature so
+  /// background refreshes can read it.
+  bool resolvePreferShanYear() =>
+      sharedPreferences.getBool(StorageKeys.showShanCalendar) ?? true;
 
   /// Widget language always follows app calendar language.
   String resolveCalendarLanguageCode() {

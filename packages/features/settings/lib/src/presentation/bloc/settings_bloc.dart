@@ -270,9 +270,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     final currentState = state as SettingsLoaded;
     final result = await updateDisplayPreferences(event.key, event.value);
 
-    result.fold(
-      (failure) => emit(SettingsError(_mapFailureToMessage(failure))),
-      (_) {
+    await result.fold(
+      (failure) async => emit(SettingsError(_mapFailureToMessage(failure))),
+      (_) async {
         // Log to Analytics
         analyticsService.logFeatureToggle(
           featureName: event.key,
@@ -293,6 +293,19 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           );
         }
         emit(SettingsLoaded(updatedSettings));
+
+        // Home widgets show the Shan year too.
+        if (event.key == StorageKeys.showShanCalendar) {
+          try {
+            await widgetRepository.refreshWidget();
+          } catch (e, stackTrace) {
+            await crashlyticsService.recordException(
+              exception: e,
+              stackTrace: stackTrace,
+              reason: 'Failed to refresh home widgets after Shan year change',
+            );
+          }
+        }
       },
     );
   }
