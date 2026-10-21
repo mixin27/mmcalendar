@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -54,6 +56,11 @@ class CalendarStudioRasterRenderer implements CalendarStudioPageRasterizer {
       final bytes = await assetStore?.loadBytes(assetId);
       if (bytes != null && bytes.isNotEmpty) {
         assets[assetId] = Uint8List.fromList(bytes);
+      }
+    }
+    if (kIsWeb) {
+      for (final bytes in assets.values) {
+        await _cacheAsPixels(bytes);
       }
     }
 
@@ -139,8 +146,44 @@ class CalendarStudioRasterRenderer implements CalendarStudioPageRasterizer {
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
     image.dispose();
     buildOwner.finalizeTree();
+    if (kIsWeb) {
+      for (final bytes in assets.values) {
+        PaintingBinding.instance.imageCache.evict(MemoryImage(bytes));
+      }
+    }
     if (data == null) throw StateError('Could not encode calendar page');
     return data.buffer.asUint8List();
+  }
+
+  /// Caches [bytes] for the scene's `Image.memory` as an image built from
+  /// pixels.
+  ///
+  /// The web engine keeps images the browser decodes on the GPU, and
+  /// `toImage` draws them as nothing, so exported pages lost their photos.
+  /// Images made from pixels draw everywhere.
+  static Future<void> _cacheAsPixels(Uint8List bytes) async {
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+    codec.dispose();
+    final decoded = frame.image;
+    final pixels = await decoded.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final width = decoded.width;
+    final height = decoded.height;
+    decoded.dispose();
+    if (pixels == null) return;
+    final image = Completer<ui.Image>();
+    ui.decodeImageFromPixels(
+      pixels.buffer.asUint8List(pixels.offsetInBytes, pixels.lengthInBytes),
+      width,
+      height,
+      ui.PixelFormat.rgba8888,
+      image.complete,
+    );
+    final info = ImageInfo(image: await image.future);
+    PaintingBinding.instance.imageCache.putIfAbsent(
+      MemoryImage(bytes),
+      () => OneFrameImageStreamCompleter(Future.value(info)),
+    );
   }
 
   /// [image] at exactly [width] × [height]: the ratio from design units to
