@@ -41,6 +41,13 @@ jobs:
       # - name: Create _redirects file
       #   run: echo "/*    /index.html   200" > apps/myanmar_calendar/web/_redirects
 
+      # Static font instances for Calendar Studio's vector PDF, served from
+      # /export-fonts/ and downloaded only when someone exports.
+      - name: Generate export fonts
+        run: |
+          python3 -m pip install --quiet fonttools
+          python3 packages/features/calendar_studio/tool/build_export_fonts.py apps/myanmar_calendar/web/export-fonts
+
       - name: Build Web
         run: |
           cd apps/myanmar_calendar

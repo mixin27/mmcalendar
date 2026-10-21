@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'di_setup.dart';
 import 'calendar_studio_ai.dart';
 import 'calendar_studio_asset_store.dart';
+import 'calendar_studio_export_fonts.dart';
 import 'calendar_studio_image_editor.dart';
 import 'calendar_studio_image_picker.dart';
 
@@ -30,6 +31,7 @@ final CalendarStudioConfiguration calendarStudioConfiguration =
       calendarData: const MyanmarCalendarStudioDataProvider(),
       assets: createCalendarStudioAssetStore(getIt<SharedPreferences>()),
       exportDelivery: const _StudioExportDelivery(),
+      exportFonts: calendarStudioExportFonts,
       imagePicker: AppCalendarStudioImagePicker(),
       imageEditor: const AppCalendarStudioImageEditor(),
       ai: CalendarStudioAiConfiguration(

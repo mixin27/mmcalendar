@@ -30,6 +30,7 @@ import '../services/calendar_studio_project_bundle.dart';
 import '../services/calendar_studio_template_bundle.dart';
 import '../services/calendar_studio_transform.dart';
 import '../services/calendar_studio_raster_renderer.dart';
+import '../services/calendar_studio_vector_pdf.dart';
 import '../templates/calendar_studio_bindings.dart';
 import '../templates/calendar_studio_templates.dart';
 import '../templates/calendar_studio_user_templates.dart';
@@ -4561,6 +4562,13 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
               dataProvider: _calendarData,
               assetStore: _assets,
             ),
+            vectorRenderer: CalendarStudioVectorPdfRenderer(
+              layout: CalendarStudioRasterRenderer(
+                dataProvider: _calendarData,
+                assetStore: _assets,
+              ),
+              fonts: widget.configuration.exportFonts,
+            ),
           ).export(
             project: project,
             preset: preset,
@@ -4709,7 +4717,8 @@ class _ExportSheetState extends State<_ExportSheet> {
     final pageCount = selection.length;
     final blocked = selection.where(widget.blockedPages.contains).toList();
     final extension = switch (preset.format) {
-      CalendarStudioExportFormat.pdf => '.pdf',
+      CalendarStudioExportFormat.pdf ||
+      CalendarStudioExportFormat.pdfEditable => '.pdf',
       CalendarStudioExportFormat.png => pageCount > 1 ? '.zip' : '.png',
       CalendarStudioExportFormat.jpeg => pageCount > 1 ? '.zip' : '.jpg',
       CalendarStudioExportFormat.zip => '.zip',
@@ -4842,6 +4851,10 @@ class _ExportSheetState extends State<_ExportSheet> {
                     label: Text('PDF'),
                   ),
                   ButtonSegment(
+                    value: CalendarStudioExportFormat.pdfEditable,
+                    label: Text('Vector PDF'),
+                  ),
+                  ButtonSegment(
                     value: CalendarStudioExportFormat.png,
                     label: Text('PNG'),
                   ),
@@ -4872,7 +4885,8 @@ class _ExportSheetState extends State<_ExportSheet> {
               Text(
                 '${preset.width} × ${preset.height} px · ${preset.dpi} dpi · '
                 '$pageCount page${pageCount == 1 ? '' : 's'}\n'
-                'Myanmar text is shaped by Flutter for reliable PDF output.',
+                '${preset.format == CalendarStudioExportFormat.pdfEditable ? 'Text, shapes and photos stay editable in Illustrator; '
+                          'Myanmar text is placed as sharp images.' : 'Myanmar text is shaped by Flutter for reliable PDF output.'}',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               if (blocked.isNotEmpty) ...[
@@ -4910,7 +4924,8 @@ class _ExportSheetState extends State<_ExportSheet> {
                 selected: {destination},
                 onSelectionChanged: (values) => setState(() {
                   destination = values.first;
-                  if (destination == CalendarStudioExportDestination.print) {
+                  if (destination == CalendarStudioExportDestination.print &&
+                      !preset.format.isPdf) {
                     preset = preset.copyWith(
                       format: CalendarStudioExportFormat.pdf,
                     );
@@ -4936,7 +4951,7 @@ class _ExportSheetState extends State<_ExportSheet> {
                       ),
                 icon: const Icon(Icons.download_outlined),
                 label: Text(
-                  'Export ${preset.format.name.toUpperCase()} · '
+                  'Export ${preset.format.label} · '
                   '$pageCount page${pageCount == 1 ? '' : 's'}',
                 ),
               ),

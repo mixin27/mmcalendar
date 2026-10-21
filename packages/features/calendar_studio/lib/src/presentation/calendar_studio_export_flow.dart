@@ -123,7 +123,7 @@ class StudioExportFlow extends StatelessWidget {
     final total = run.pages.length;
     final current = math.min(run.completed, total - 1);
     final label = run.stage == StudioExportStage.delivering
-        ? 'Finishing ${run.preset.format.name.toUpperCase()}…'
+        ? 'Finishing ${run.preset.format.label}…'
         : 'Rendering ${run.pages[current].label} · ${run.preset.label} · '
               '${run.preset.dpi} dpi';
     return Column(
@@ -242,7 +242,7 @@ class StudioExportFlow extends StatelessWidget {
       CalendarStudioExportDestination.share => 'Shared',
       CalendarStudioExportDestination.print => 'Sent to print',
     };
-    final pdf = run.preset.format == CalendarStudioExportFormat.pdf;
+    final pdf = run.preset.format.isPdf;
     Widget action(
       CalendarStudioExportDestination destination,
       String label,
@@ -285,7 +285,8 @@ class StudioExportFlow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             subtitle: Text(
-              '${run.preset.format.name.toUpperCase()} · $count page${count == 1 ? '' : 's'} · $size',
+              '${run.preset.format.label} · $count page${count == 1 ? '' : 's'} · $size'
+              '${artifact.note == null ? '' : '\n${artifact.note}'}',
             ),
             trailing: const Icon(Icons.check_circle, color: Color(0xFF1E8A57)),
           ),

@@ -20,7 +20,26 @@ enum CalendarStudioBlockType {
   decoration,
 }
 
-enum CalendarStudioExportFormat { pdf, png, jpeg, zip }
+enum CalendarStudioExportFormat {
+  pdf,
+
+  /// Text, shapes and photos as editable artwork (Illustrator), not a
+  /// picture of the page.
+  pdfEditable,
+  png,
+  jpeg,
+  zip;
+
+  String get label => switch (this) {
+    pdf => 'PDF',
+    pdfEditable => 'Vector PDF',
+    png => 'PNG',
+    jpeg => 'JPEG',
+    zip => 'ZIP',
+  };
+
+  bool get isPdf => this == pdf || this == pdfEditable;
+}
 
 enum CalendarStudioIssueSeverity { error, warning, tip }
 
