@@ -118,7 +118,21 @@ class CalendarStudioScene extends StatelessWidget {
     final blocks = [...page.blocks]
       ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
     final designSize = designSizeFor(page.canvas);
-    final scene = _scene(context, designSize, blocks);
+    // Text that names no font or colour (template legends, list labels)
+    // follows the page, not the host: a dark app theme made legend labels
+    // white on white paper, and export, which has no theme, drew their
+    // Myanmar words as boxes.
+    final paper = Color(page.canvas.backgroundColor);
+    final scene = DefaultTextStyle.merge(
+      style: TextStyle(
+        fontFamily: CalendarStudioFontCatalog.sansMyanmar,
+        fontFamilyFallback: const [CalendarStudioFontCatalog.serifMyanmar],
+        color: paper.computeLuminance() > .4
+            ? const Color(0xFF15201D)
+            : const Color(0xFFF5F1E8),
+      ),
+      child: _scene(context, designSize, blocks),
+    );
     final width = displayWidth;
     // How big one design unit is on screen; photos decode to match.
     return width == null
