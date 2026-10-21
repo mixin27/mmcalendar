@@ -585,11 +585,11 @@ class StudioOutputSettings extends StatelessWidget {
                 subtitle: Text(
                   preset.matchesPage
                       ? StudioStrings.outputDetailPageSize(
-                          preset.format.name.toUpperCase(),
+                          preset.format.label,
                           preset.dpi,
                         )
                       : StudioStrings.outputDetail(
-                          preset.format.name.toUpperCase(),
+                          preset.format.label,
                           preset.dpi,
                           preset.width,
                           preset.height,

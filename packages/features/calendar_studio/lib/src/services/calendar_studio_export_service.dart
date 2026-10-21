@@ -10,6 +10,7 @@ import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';
 import 'calendar_studio_contracts.dart';
 import 'calendar_studio_raster_renderer.dart';
+import 'calendar_studio_vector_pdf.dart';
 
 class CalendarStudioExportCancelled implements Exception {
   const CalendarStudioExportCancelled();
@@ -36,9 +37,15 @@ class CalendarStudioExportProgress {
 /// Builds PDF, PNG, JPEG, and multi-page ZIP artifacts from the shared Flutter
 /// scene. Myanmar text is shaped by Flutter before it reaches the PDF.
 class CalendarStudioExportService {
-  const CalendarStudioExportService({required this.renderer});
+  const CalendarStudioExportService({
+    required this.renderer,
+    this.vectorRenderer,
+  });
 
   final CalendarStudioPageRasterizer renderer;
+
+  /// Needed for [CalendarStudioExportFormat.pdfEditable].
+  final CalendarStudioVectorPdfRenderer? vectorRenderer;
 
   Future<CalendarStudioExportArtifact> export({
     required CalendarStudioProject project,
@@ -49,6 +56,33 @@ class CalendarStudioExportService {
   }) async {
     final token = cancellationToken ?? CalendarStudioExportCancellationToken();
     final selected = selectPages(project, pageIndexes);
+    if (preset.format == CalendarStudioExportFormat.pdfEditable) {
+      final vector = vectorRenderer;
+      if (vector == null) throw StateError('Vector PDF export not configured');
+      var done = 0;
+      final (bytes, report) = await vector.render(
+        project,
+        selected,
+        preset,
+        onPage: () {
+          token.throwIfCancelled();
+          onProgress?.call(
+            CalendarStudioExportProgress(
+              completed: ++done,
+              total: selected.length,
+            ),
+          );
+        },
+      );
+      token.throwIfCancelled();
+      debugPrint('Calendar Studio vector PDF: $report');
+      return CalendarStudioExportArtifact(
+        name: '${_safeName(preset.fileName)}.pdf',
+        mimeType: 'application/pdf',
+        bytes: bytes,
+        note: report.rasterized.isEmpty ? null : 'Kept as images: $report.',
+      );
+    }
     final pages = <_RenderedPage>[];
     for (var index = 0; index < selected.length; index++) {
       token.throwIfCancelled();
@@ -74,7 +108,8 @@ class CalendarStudioExportService {
     token.throwIfCancelled();
     final baseName = _safeName(preset.fileName);
     return switch (preset.format) {
-      CalendarStudioExportFormat.pdf => _pdf(pages, preset, baseName),
+      CalendarStudioExportFormat.pdf ||
+      CalendarStudioExportFormat.pdfEditable => _pdf(pages, preset, baseName),
       CalendarStudioExportFormat.png => _images(
         pages,
         baseName,

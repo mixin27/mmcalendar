@@ -1,3 +1,4 @@
+import 'calendar_studio_vector_pdf.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart' show BuildContext;
@@ -211,10 +212,14 @@ class CalendarStudioExportArtifact {
     required this.name,
     required this.mimeType,
     required this.bytes,
+    this.note,
   });
   final String name;
   final String mimeType;
   final List<int> bytes;
+
+  /// Something the person should know about the file, shown when it's done.
+  final String? note;
 }
 
 /// Dependency boundary for a host app. All ports are optional except projects.
@@ -225,6 +230,7 @@ class CalendarStudioConfiguration {
     this.calendarData,
     this.assets,
     this.exportDelivery,
+    this.exportFonts = const CalendarStudioExportFonts(),
     this.imagePicker,
     this.imageEditor,
     this.ai = const CalendarStudioAiConfiguration(),
@@ -248,6 +254,10 @@ class CalendarStudioConfiguration {
   final CalendarStudioDataProvider? calendarData;
   final CalendarStudioAssetStore? assets;
   final CalendarStudioExportDelivery? exportDelivery;
+
+  /// Static fonts for the vector PDF; without downloads, text in variable
+  /// fonts is embedded as images.
+  final CalendarStudioExportFonts exportFonts;
 
   /// Optional; defaults to a files-only picker.
   final CalendarStudioImagePicker? imagePicker;
@@ -296,6 +306,7 @@ class CalendarStudioConfiguration {
     calendarData: calendarData,
     assets: assets,
     exportDelivery: exportDelivery,
+    exportFonts: exportFonts,
     imagePicker: imagePicker,
     imageEditor: imageEditor,
     ai: ai,

@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'dart:math';
 
 import 'package:flutter/foundation.dart' show listEquals;
@@ -33,6 +34,7 @@ class CalendarStudioScene extends StatelessWidget {
     this.resolvedDays,
     this.resolvedDaysByMonth = const {},
     this.resolvedAssets = const {},
+    this.resolvedImages = const {},
     this.onTransform,
     this.onTransformStart,
     this.onTransformEnd,
@@ -65,6 +67,10 @@ class CalendarStudioScene extends StatelessWidget {
   final List<CalendarStudioDayData>? resolvedDays;
   final Map<int, List<CalendarStudioDayData>> resolvedDaysByMonth;
   final Map<String, Uint8List> resolvedAssets;
+
+  /// Decoded images by asset id, drawn at once (export). The scene borrows
+  /// them; the caller disposes them.
+  final Map<String, ui.Image> resolvedImages;
   final ValueChanged<CalendarStudioBlock>? onTransform;
   final VoidCallback? onTransformStart;
   final VoidCallback? onTransformEnd;
@@ -502,6 +508,7 @@ class CalendarStudioScene extends StatelessWidget {
         assetId: block.content['assetId'] as String?,
         assetStore: assetStore,
         resolvedBytes: resolvedAssets[block.content['assetId']],
+        resolvedImage: resolvedImages[block.content['assetId']],
         fit: switch (block.style['imageFit'] as String? ?? 'crop') {
           'fill' => BoxFit.fill,
           'fit' => BoxFit.contain,
@@ -1006,12 +1013,14 @@ class _AssetImageBlock extends StatefulWidget {
     required this.assetId,
     required this.assetStore,
     required this.resolvedBytes,
+    required this.resolvedImage,
     required this.fit,
     required this.opacity,
   });
   final String? assetId;
   final CalendarStudioAssetStore? assetStore;
   final Uint8List? resolvedBytes;
+  final ui.Image? resolvedImage;
   final BoxFit fit;
   final double opacity;
 
@@ -1057,6 +1066,23 @@ class _AssetImageBlockState extends State<_AssetImageBlock> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.resolvedImage case final image?) {
+      // Export path: already decoded at full resolution, drawn this frame.
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: LayoutBuilder(
+          builder: (context, constraints) => RawImage(
+            // RenderImage disposes what it holds; the original stays with
+            // the caller.
+            image: image.clone(),
+            fit: widget.fit,
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
+            opacity: AlwaysStoppedAnimation(widget.opacity.clamp(0, 1)),
+          ),
+        ),
+      );
+    }
     if (widget.resolvedBytes case final bytes? when bytes.isNotEmpty) {
       // Export path: decode at full resolution.
       return _image(bytes, constrainDecode: false);

@@ -21,6 +21,7 @@ export 'src/services/calendar_studio_project_bundle.dart';
 export 'src/services/calendar_studio_template_bundle.dart';
 export 'src/services/calendar_studio_transform.dart';
 export 'src/services/calendar_studio_raster_renderer.dart';
+export 'src/services/calendar_studio_vector_pdf.dart';
 export 'src/services/myanmar_calendar_studio_data_provider.dart';
 export 'src/templates/calendar_studio_bindings.dart';
 export 'src/templates/calendar_studio_templates.dart';
