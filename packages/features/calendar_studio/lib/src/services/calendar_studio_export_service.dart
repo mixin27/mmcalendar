@@ -119,22 +119,20 @@ class CalendarStudioExportService {
     CalendarStudioExportPreset preset,
     String baseName,
   ) async {
-    final output = await Isolate.run<TransferableTypedData>(
-      () => _buildPdf(<String, Object>{
-        'pages': pages
-            .map((page) => TransferableTypedData.fromList([page.png]))
-            .toList(growable: false),
-        // Each page's own size, so page-size exports keep mixed papers.
-        'sizes': [
-          for (final page in pages) [page.width, page.height],
-        ],
-        'dpi': preset.dpi,
-      }),
+    final pngs = [for (final page in pages) page.png];
+    // Each page's own size, so page-size exports keep mixed papers.
+    final sizes = [
+      for (final page in pages) [page.width, page.height],
+    ];
+    final dpi = preset.dpi;
+    final bytes = await _inBackground(
+      pngs,
+      (pngs) => _buildPdf(pngs, sizes, dpi),
     );
     return CalendarStudioExportArtifact(
       name: '$baseName.pdf',
       mimeType: 'application/pdf',
-      bytes: output.materialize().asUint8List(),
+      bytes: bytes,
     );
   }
 
@@ -148,11 +146,9 @@ class CalendarStudioExportService {
   }) async {
     if (pages.length == 1 && !forceZip) {
       final bytes = encodeJpeg
-          ? (await Isolate.run<TransferableTypedData>(
-              () => _encodeJpeg(
-                TransferableTypedData.fromList([pages.single.png]),
-              ),
-            )).materialize().asUint8List()
+          ? await _inBackground([
+              pages.single.png,
+            ], (pngs) async => _jpegBytes(pngs.single))
           : pages.single.png;
       return CalendarStudioExportArtifact(
         name: '$baseName.$extension',
@@ -160,20 +156,13 @@ class CalendarStudioExportService {
         bytes: bytes,
       );
     }
-    final output = await Isolate.run<TransferableTypedData>(
-      () => _buildImagesZip(<String, Object>{
-        'pages': pages
-            .map((page) => TransferableTypedData.fromList([page.png]))
-            .toList(growable: false),
-        'baseName': baseName,
-        'extension': extension,
-        'encodeJpeg': encodeJpeg,
-      }),
-    );
+    final bytes = await _inBackground([
+      for (final page in pages) page.png,
+    ], (pngs) async => _buildImagesZip(pngs, baseName, extension, encodeJpeg));
     return CalendarStudioExportArtifact(
       name: '$baseName-images.zip',
       mimeType: 'application/zip',
-      bytes: output.materialize().asUint8List(),
+      bytes: bytes,
     );
   }
 
@@ -190,18 +179,41 @@ class _RenderedPage {
   final int height;
 }
 
-Future<TransferableTypedData> _buildPdf(Map<String, Object> payload) async {
-  final sizes = payload['sizes']! as List<List<int>>;
-  final dpi = payload['dpi'] as int;
+/// Runs [work] on [pngs] off the UI isolate where there is one.
+///
+/// Web has no isolates (`Isolate.run` throws there), so it runs inline; the
+/// export is slower there but works. Elsewhere the pages move to the worker
+/// as [TransferableTypedData], without copying.
+Future<Uint8List> _inBackground(
+  List<Uint8List> pngs,
+  Future<Uint8List> Function(List<Uint8List> pngs) work,
+) async {
+  if (kIsWeb) return work(pngs);
+  final transfers = [
+    for (final png in pngs) TransferableTypedData.fromList([png]),
+  ];
+  final output = await Isolate.run<TransferableTypedData>(() async {
+    final bytes = await work([
+      for (final transfer in transfers) transfer.materialize().asUint8List(),
+    ]);
+    return TransferableTypedData.fromList([bytes]);
+  });
+  return output.materialize().asUint8List();
+}
+
+Future<Uint8List> _buildPdf(
+  List<Uint8List> pngs,
+  List<List<int>> sizes,
+  int dpi,
+) async {
   final document = pw.Document();
-  final pages = payload['pages']! as List<TransferableTypedData>;
-  for (var i = 0; i < pages.length; i++) {
+  for (var i = 0; i < pngs.length; i++) {
     final format = PdfPageFormat(
       sizes[i][0] / dpi * PdfPageFormat.inch,
       sizes[i][1] / dpi * PdfPageFormat.inch,
       marginAll: 0,
     );
-    final image = pw.MemoryImage(pages[i].materialize().asUint8List());
+    final image = pw.MemoryImage(pngs[i]);
     document.addPage(
       pw.Page(
         pageFormat: format,
@@ -210,31 +222,24 @@ Future<TransferableTypedData> _buildPdf(Map<String, Object> payload) async {
       ),
     );
   }
-  return TransferableTypedData.fromList([await document.save()]);
+  return document.save();
 }
 
-TransferableTypedData _encodeJpeg(TransferableTypedData transfer) {
-  final bytes = _jpegBytes(transfer.materialize().asUint8List());
-  return TransferableTypedData.fromList([bytes]);
-}
-
-TransferableTypedData _buildImagesZip(Map<String, Object> payload) {
+Uint8List _buildImagesZip(
+  List<Uint8List> pngs,
+  String baseName,
+  String extension,
+  bool encodeJpeg,
+) {
   final archive = Archive();
-  final pages = payload['pages']! as List<TransferableTypedData>;
-  final baseName = payload['baseName']! as String;
-  final extension = payload['extension']! as String;
-  final encodeJpeg = payload['encodeJpeg']! as bool;
-  for (var index = 0; index < pages.length; index++) {
-    final png = pages[index].materialize().asUint8List();
-    final bytes = encodeJpeg ? _jpegBytes(png) : png;
+  for (var index = 0; index < pngs.length; index++) {
+    final bytes = encodeJpeg ? _jpegBytes(pngs[index]) : pngs[index];
     final number = (index + 1).toString().padLeft(2, '0');
     archive.addFile(
       ArchiveFile('$baseName-$number.$extension', bytes.length, bytes),
     );
   }
-  return TransferableTypedData.fromList([
-    Uint8List.fromList(ZipEncoder().encode(archive)),
-  ]);
+  return Uint8List.fromList(ZipEncoder().encode(archive));
 }
 
 Uint8List _jpegBytes(Uint8List png) {

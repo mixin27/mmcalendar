@@ -47,6 +47,7 @@ abstract final class CalendarStudioImageImport {
     CalendarStudioPickedImage image, {
     int maxDimension = CalendarStudioImageImport.maxDimension,
   }) async {
+    if (kIsWeb) return _prepareOnWeb(image, maxDimension);
     final ui.ImmutableBuffer buffer;
     final ui.ImageDescriptor descriptor;
     try {
@@ -84,27 +85,97 @@ abstract final class CalendarStudioImageImport {
       if (rgba == null) {
         throw CalendarStudioUnsupportedImageException(image.name);
       }
-      final keepAlpha = mayHaveAlpha(image.bytes);
-      final encoded = await compute(
-        _encode,
-        _EncodeRequest(
-          rgba.buffer.asUint8List(rgba.offsetInBytes, rgba.lengthInBytes),
-          targetWidth,
-          targetHeight,
-          keepAlpha,
-        ),
-      );
-      return CalendarStudioPreparedImage(
-        name: _withExtension(image.name, keepAlpha ? 'png' : 'jpg'),
-        bytes: encoded,
-        width: targetWidth,
-        height: targetHeight,
-        resized: true,
-      );
+      return await _reencode(image, rgba, targetWidth, targetHeight);
     } finally {
       descriptor.dispose();
       buffer.dispose();
     }
+  }
+
+  /// The web engine cannot read sizes from [ui.ImageDescriptor] (it throws
+  /// UnsupportedError), so the browser decodes the image instead.
+  static Future<CalendarStudioPreparedImage> _prepareOnWeb(
+    CalendarStudioPickedImage image,
+    int maxDimension,
+  ) async {
+    final (width, height) = await _decode(image, (frame) async {
+      return (frame.width, frame.height);
+    });
+    final longEdge = math.max(width, height);
+    if (longEdge <= maxDimension) {
+      return CalendarStudioPreparedImage(
+        name: image.name,
+        bytes: image.bytes,
+        width: width,
+        height: height,
+        resized: false,
+      );
+    }
+    final scale = maxDimension / longEdge;
+    final targetWidth = math.max(1, (width * scale).round());
+    final targetHeight = math.max(1, (height * scale).round());
+    final rgba = await _decode(
+      image,
+      (frame) => frame.toByteData(format: ui.ImageByteFormat.rawRgba),
+      targetWidth: targetWidth,
+      targetHeight: targetHeight,
+    );
+    if (rgba == null) {
+      throw CalendarStudioUnsupportedImageException(image.name);
+    }
+    return _reencode(image, rgba, targetWidth, targetHeight);
+  }
+
+  /// Decodes the first frame of [image] and passes it to [read].
+  static Future<T> _decode<T>(
+    CalendarStudioPickedImage image,
+    Future<T> Function(ui.Image frame) read, {
+    int? targetWidth,
+    int? targetHeight,
+  }) async {
+    final ui.Codec codec;
+    final ui.FrameInfo frame;
+    try {
+      codec = await ui.instantiateImageCodec(
+        image.bytes,
+        targetWidth: targetWidth,
+        targetHeight: targetHeight,
+      );
+      frame = await codec.getNextFrame();
+    } catch (_) {
+      throw CalendarStudioUnsupportedImageException(image.name);
+    }
+    try {
+      return await read(frame.image);
+    } finally {
+      frame.image.dispose();
+      codec.dispose();
+    }
+  }
+
+  static Future<CalendarStudioPreparedImage> _reencode(
+    CalendarStudioPickedImage image,
+    ByteData rgba,
+    int width,
+    int height,
+  ) async {
+    final keepAlpha = mayHaveAlpha(image.bytes);
+    final encoded = await compute(
+      _encode,
+      _EncodeRequest(
+        rgba.buffer.asUint8List(rgba.offsetInBytes, rgba.lengthInBytes),
+        width,
+        height,
+        keepAlpha,
+      ),
+    );
+    return CalendarStudioPreparedImage(
+      name: _withExtension(image.name, keepAlpha ? 'png' : 'jpg'),
+      bytes: encoded,
+      width: width,
+      height: height,
+      resized: true,
+    );
   }
 
   /// PNG, WebP and GIF can carry transparency (logos); keep it lossless.
