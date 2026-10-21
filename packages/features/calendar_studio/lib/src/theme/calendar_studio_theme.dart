@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart' show listEquals;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, listEquals;
 
 enum CalendarStudioAppearance { system, light, dark }
 
@@ -244,6 +244,15 @@ abstract final class CalendarStudioTheme {
     List<String>? fontFamilyFallback,
   }) {
     final clear = chrome == CalendarStudioChrome.clear;
+    // Desktop's compact density took 8 px off every button, leaving the
+    // full-width actions as thin as a progress bar; keep them full height.
+    final desktop = switch (defaultTargetPlatform) {
+      TargetPlatform.macOS ||
+      TargetPlatform.windows ||
+      TargetPlatform.linux => true,
+      _ => false,
+    };
+    final buttonSize = Size(0, desktop ? 44 : 40);
     final scheme = ColorScheme.fromSeed(
       seedColor: tokens.primary,
       brightness: brightness,
@@ -345,7 +354,8 @@ abstract final class CalendarStudioTheme {
       dividerColor: tokens.line,
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size(0, 40),
+          minimumSize: buttonSize,
+          visualDensity: VisualDensity.standard,
           padding: const EdgeInsets.symmetric(horizontal: 18),
           backgroundColor: tokens.primary,
           foregroundColor: tokens.onPrimary,
@@ -362,7 +372,8 @@ abstract final class CalendarStudioTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(0, 40),
+          minimumSize: buttonSize,
+          visualDensity: VisualDensity.standard,
           foregroundColor: tokens.primary,
           side: BorderSide(color: tokens.line),
           shape: clear
