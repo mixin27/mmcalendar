@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:calendar_studio/calendar_studio.dart';
 import 'package:flutter/services.dart';
