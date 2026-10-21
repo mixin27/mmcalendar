@@ -1,7 +1,7 @@
 name: mmcalendar
 description: "Myanmar Calendar Application"
 publish_to: 'none'
-version: 2.3.0+230
+version: 2.3.0+231
 resolution: workspace
 
 environment:
