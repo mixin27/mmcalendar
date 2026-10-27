@@ -4463,7 +4463,15 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
       builder: (_) => _ExportSheet(
         initialPreset: target.defaultExportPreset.copyWith(
           fileName: _safeFileName(target.name),
+          // A project last exported as Vector PDF where it's offered.
+          format:
+              !widget.configuration.vectorPdf &&
+                  target.defaultExportPreset.format ==
+                      CalendarStudioExportFormat.pdfEditable
+              ? CalendarStudioExportFormat.pdf
+              : null,
         ),
+        vectorPdf: widget.configuration.vectorPdf,
         pages: target.pages,
         currentPage: currentPage ?? (fromEditor ? controller.pageIndex : null),
         blockedPages: _pagesWithErrors(target),
@@ -4622,8 +4630,12 @@ class _ExportSheet extends StatefulWidget {
     required this.pages,
     this.currentPage,
     this.blockedPages = const {},
+    this.vectorPdf = true,
   });
   final CalendarStudioExportPreset initialPreset;
+
+  /// Whether Vector PDF is one of the formats.
+  final bool vectorPdf;
   final List<CalendarStudioPage> pages;
 
   /// The page being edited; preselects "This month" when set.
@@ -4845,24 +4857,25 @@ class _ExportSheetState extends State<_ExportSheet> {
               const Text('Format'),
               const SizedBox(height: 6),
               SegmentedButton<CalendarStudioExportFormat>(
-                segments: const [
-                  ButtonSegment(
+                segments: [
+                  const ButtonSegment(
                     value: CalendarStudioExportFormat.pdf,
                     label: Text('PDF'),
                   ),
-                  ButtonSegment(
-                    value: CalendarStudioExportFormat.pdfEditable,
-                    label: Text('Vector PDF'),
-                  ),
-                  ButtonSegment(
+                  if (widget.vectorPdf)
+                    const ButtonSegment(
+                      value: CalendarStudioExportFormat.pdfEditable,
+                      label: Text('Vector PDF'),
+                    ),
+                  const ButtonSegment(
                     value: CalendarStudioExportFormat.png,
                     label: Text('PNG'),
                   ),
-                  ButtonSegment(
+                  const ButtonSegment(
                     value: CalendarStudioExportFormat.jpeg,
                     label: Text('JPEG'),
                   ),
-                  ButtonSegment(
+                  const ButtonSegment(
                     value: CalendarStudioExportFormat.zip,
                     label: Text('ZIP'),
                   ),

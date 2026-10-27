@@ -231,6 +231,7 @@ class CalendarStudioConfiguration {
     this.assets,
     this.exportDelivery,
     this.exportFonts = const CalendarStudioExportFonts(),
+    this.vectorPdf = true,
     this.imagePicker,
     this.imageEditor,
     this.ai = const CalendarStudioAiConfiguration(),
@@ -258,6 +259,11 @@ class CalendarStudioConfiguration {
   /// Static fonts for the vector PDF; without downloads, text in variable
   /// fonts is embedded as images.
   final CalendarStudioExportFonts exportFonts;
+
+  /// Offers the Vector PDF export. Hosts turn it off where [exportFonts]
+  /// can't download fonts, since text in Studio's variable fonts would be
+  /// placed as images.
+  final bool vectorPdf;
 
   /// Optional; defaults to a files-only picker.
   final CalendarStudioImagePicker? imagePicker;
@@ -307,6 +313,7 @@ class CalendarStudioConfiguration {
     assets: assets,
     exportDelivery: exportDelivery,
     exportFonts: exportFonts,
+    vectorPdf: vectorPdf,
     imagePicker: imagePicker,
     imageEditor: imageEditor,
     ai: ai,
