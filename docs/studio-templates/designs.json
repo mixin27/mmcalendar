@@ -1,0 +1,83 @@
+[
+  {
+    "id": "love-letters",
+    "name": "Love Letters",
+    "topic": "relationship",
+    "format": "square",
+    "project": "relationship/love-letters-2027.mmcstudio",
+    "template": "relationship/love-letters.mmctemplate",
+    "preview": "relationship/love-letters.png"
+  },
+  {
+    "id": "sweet-pastel",
+    "name": "Sweet Pastel",
+    "topic": "relationship",
+    "format": "square",
+    "project": "relationship/sweet-pastel-2027.mmcstudio",
+    "template": "relationship/sweet-pastel.mmctemplate",
+    "preview": "relationship/sweet-pastel.png"
+  },
+  {
+    "id": "moonlit",
+    "name": "Moonlit",
+    "topic": "relationship",
+    "format": "square",
+    "project": "relationship/moonlit-2027.mmcstudio",
+    "template": "relationship/moonlit.mmctemplate",
+    "preview": "relationship/moonlit.png"
+  },
+  {
+    "id": "family-album",
+    "name": "Family Album",
+    "topic": "family",
+    "format": "a4Portrait",
+    "project": "family/family-album-2027.mmcstudio",
+    "template": "family/family-album.mmctemplate",
+    "preview": "family/family-album.png"
+  },
+  {
+    "id": "little-home",
+    "name": "Little Home",
+    "topic": "family",
+    "format": "a4Portrait",
+    "project": "family/little-home-2027.mmcstudio",
+    "template": "family/little-home.mmctemplate",
+    "preview": "family/little-home.png"
+  },
+  {
+    "id": "good-times",
+    "name": "Good Times",
+    "topic": "friendship",
+    "format": "square",
+    "project": "friendship/good-times-2027.mmcstudio",
+    "template": "friendship/good-times.mmctemplate",
+    "preview": "friendship/good-times.png"
+  },
+  {
+    "id": "postcards",
+    "name": "Postcards",
+    "topic": "friendship",
+    "format": "square",
+    "project": "friendship/postcards-2027.mmcstudio",
+    "template": "friendship/postcards.mmctemplate",
+    "preview": "friendship/postcards.png"
+  },
+  {
+    "id": "clean-corporate",
+    "name": "Clean Corporate",
+    "topic": "business",
+    "format": "a4Landscape",
+    "project": "business/clean-corporate-2027.mmcstudio",
+    "template": "business/clean-corporate.mmctemplate",
+    "preview": "business/clean-corporate.png"
+  },
+  {
+    "id": "studio-bold",
+    "name": "Studio Bold",
+    "topic": "business",
+    "format": "a4Landscape",
+    "project": "business/studio-bold-2027.mmcstudio",
+    "template": "business/studio-bold.mmctemplate",
+    "preview": "business/studio-bold.png"
+  }
+]
