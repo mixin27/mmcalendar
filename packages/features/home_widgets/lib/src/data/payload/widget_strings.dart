@@ -49,12 +49,13 @@ abstract final class WidgetStrings {
   };
 
   /// The widget labels plus calendar words for [language]. Western dates
-  /// use `westernDigits`: English with [englishWesternDigits].
+  /// use `westernDigits` and `months`: English with [englishWesternDates].
   static Map<String, Object> forLanguage(
     Language language, {
-    bool englishWesternDigits = false,
+    bool englishWesternDates = false,
   }) {
     final labels = language == Language.myanmar ? _my : _en;
+    final western = englishWesternDates ? Language.english : language;
     String t(String key) => TranslationService.translateTo(key, language);
     // The package counts weekdays from Saturday (0); widgets count from
     // Sunday (0), like DateTime.weekday % 7.
@@ -67,7 +68,7 @@ abstract final class WidgetStrings {
     return {
       ...labels,
       'digits': translateNumbers('0123456789', language: language),
-      'westernDigits': englishWesternDigits
+      'westernDigits': englishWesternDates
           ? '0123456789'
           : translateNumbers('0123456789', language: language),
       'sabbath': t('Sabbath'),
@@ -80,11 +81,11 @@ abstract final class WidgetStrings {
       'weekdaysShort': weekdays(short: true),
       'months': [
         for (var m = 1; m <= 12; m++)
-          TranslationService.getWesternMonthName(m, language),
+          TranslationService.getWesternMonthName(m, western),
       ],
       'monthsShort': [
         for (var m = 1; m <= 12; m++)
-          TranslationService.getShortWesternMonthName(m, language),
+          TranslationService.getShortWesternMonthName(m, western),
       ],
     };
   }

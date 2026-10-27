@@ -23,14 +23,12 @@ void main() {
     expect(format.number(17), '၁၇');
   });
 
-  test('English numbers for Western dates leave Myanmar numbers alone', () {
-    const format = CalendarFormat(
-      Language.myanmar,
-      englishWesternDigits: true,
-    );
-    expect(format.monthYear(day), 'အောက်တိုဘာ 2026');
-    expect(format.shortDate(day), 'ကြာ 22 အောက်');
-    expect(format.fullDate(day), endsWith('22 အောက်တိုဘာ 2026'));
+  test('English Western dates leave Myanmar dates and weekdays alone', () {
+    const format = CalendarFormat(Language.myanmar, englishWesternDates: true);
+    expect(format.monthYear(day), 'October 2026');
+    expect(format.shortMonthYear(day), 'Oct 2026');
+    expect(format.shortDate(day), 'ကြာ 22 Oct');
+    expect(format.fullDate(day), endsWith('22 October 2026'));
     expect(format.westernNumber(17), '17');
     expect(format.number(17), '၁၇');
   });
@@ -42,7 +40,7 @@ void main() {
     await tester.pumpWidget(
       CalendarLanguageScope(
         language: Language.myanmar,
-        englishWesternDigits: true,
+        englishWesternDates: true,
         child: Builder(
           builder: (context) {
             format = CalendarFormat.of(context);
@@ -51,8 +49,8 @@ void main() {
         ),
       ),
     );
-    expect(format.englishWesternDigits, isTrue);
-    expect(format.dayMonth(day), '22 အောက်');
+    expect(format.englishWesternDates, isTrue);
+    expect(format.dayMonth(day), '22 Oct');
   });
 
   test('every calendar language has its own month and weekday names', () {

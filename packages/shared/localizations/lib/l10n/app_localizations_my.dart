@@ -936,10 +936,10 @@ class AppLocalizationsMy extends AppLocalizations {
   String get preferShanYear => 'ရှမ်းနှစ်ကို ဦးစားပေးမည်';
 
   @override
-  String get englishWesternDigits => 'အနောက်ရက်စွဲကို အင်္ဂလိပ်ဂဏန်းဖြင့် ပြမည်';
+  String get englishWesternDates => 'အနောက်ရက်စွဲကို အင်္ဂလိပ်လို ပြမည်';
 
   @override
-  String get englishWesternDigitsDescription => 'အနောက်ရက်စွဲများကို 0–9 ဂဏန်းဖြင့် ပြပါမည်။ မြန်မာရက်စွဲများမှာ မြန်မာဂဏန်းအတိုင်း ရှိပါမည်။';
+  String get englishWesternDatesDescription => 'အနောက်လအမည်နှင့် ဂဏန်းများကို အင်္ဂလိပ်လို (October 2026) ပြပါမည်။ မြန်မာရက်စွဲများမှာ မူလအတိုင်း ရှိပါမည်။';
 
   @override
   String get preferShanYearDescription => 'ရှမ်းဘာသာတွင် မြန်မာနှစ်အစား ရှမ်းနှစ်ကို ပြသမည်';

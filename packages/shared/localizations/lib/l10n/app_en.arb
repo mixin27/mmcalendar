@@ -1230,13 +1230,13 @@
   "@preferShanYear": {
     "description": "Localized text for preferShanYear."
   },
-  "englishWesternDigits": "English Numbers for Western Dates",
-  "@englishWesternDigits": {
-    "description": "Settings › Dates toggle: Western dates in English digits."
+  "englishWesternDates": "English for Western Dates",
+  "@englishWesternDates": {
+    "description": "Settings › Dates toggle: Western dates in English (month names and digits)."
   },
-  "englishWesternDigitsDescription": "Western dates use 0–9 whatever the calendar language; Myanmar dates keep their own digits.",
-  "@englishWesternDigitsDescription": {
-    "description": "Footer explaining the English numbers for Western dates toggle."
+  "englishWesternDatesDescription": "Western month names and numbers in English (October 2026) whatever the calendar language; Myanmar dates keep their own.",
+  "@englishWesternDatesDescription": {
+    "description": "Footer explaining the English for Western dates toggle."
   },
   "preferShanYearDescription": "Display Shan calendar year instead of Myanmar year in Shan language",
   "@preferShanYearDescription": {

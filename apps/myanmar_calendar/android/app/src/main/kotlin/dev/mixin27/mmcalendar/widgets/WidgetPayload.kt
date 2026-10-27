@@ -52,7 +52,7 @@ class WidgetPayload private constructor(json: JSONObject) {
         val newMoonIn = o.getString("newMoonIn")
         val digits = o.getString("digits")
 
-        /** Digits for Western dates: English with Settings › English numbers for Western dates. */
+        /** Digits for Western dates: English with Settings › English for Western dates. */
         val westernDigits = o.optString("westernDigits", digits)
         val sabbath = o.getString("sabbath")
         val sabbathEve = o.getString("sabbathEve")

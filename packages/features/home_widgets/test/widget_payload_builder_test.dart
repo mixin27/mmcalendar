@@ -11,13 +11,13 @@ void main() {
     Language language, {
     List<WidgetAgendaEvent>? events,
     bool preferShanYear = true,
-    bool englishWesternDigits = false,
+    bool englishWesternDates = false,
   }) => WidgetPayloadBuilder.build(
     today: today,
     language: language,
     events: events ?? const [],
     preferShanYear: preferShanYear,
-    englishWesternDigits: englishWesternDigits,
+    englishWesternDates: englishWesternDates,
     styles: WidgetPalettes.all(),
     prefs: const WidgetConfig.defaults().toPayload(),
     generatedAt: DateTime(2026, 10, 18, 9),
@@ -55,12 +55,16 @@ void main() {
       expect((en['s']! as Map)['inDays'], 'in {n} days');
     });
 
-    test('Western dates can use English digits', () {
+    test('Western dates can be in English', () {
       final my = build(Language.myanmar)['s']! as Map;
       expect(my['westernDigits'], '၀၁၂၃၄၅၆၇၈၉');
-      final english = build(Language.myanmar, englishWesternDigits: true);
+      final english = build(Language.myanmar, englishWesternDates: true);
       final s = english['s']! as Map;
       expect(s['westernDigits'], '0123456789');
+      expect((s['months']! as List)[9], 'October');
+      expect((s['monthsShort']! as List)[9], 'Oct');
+      expect((my['months']! as List)[9], 'အောက်တိုဘာ');
+      expect((s['weekdays']! as List), my['weekdays'], reason: 'shared');
       expect(s['digits'], '၀၁၂၃၄၅၆၇၈၉', reason: 'Myanmar dates keep theirs');
       expect(((english['days']! as List).first as Map)['ln'], '၇');
     });

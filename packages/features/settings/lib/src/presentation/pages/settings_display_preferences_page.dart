@@ -111,9 +111,10 @@ class _SettingsDisplayPreferencesPageState
           AppGroup(
             label: l10n?.settingsDates ?? 'Dates',
             footer: [
-              l10n?.englishWesternDigitsDescription ??
-                  'Western dates use 0–9 whatever the calendar language; '
-                      'Myanmar dates keep their own digits.',
+              l10n?.englishWesternDatesDescription ??
+                  'Western month names and numbers in English (October 2026) '
+                      'whatever the calendar language; Myanmar dates keep '
+                      'their own.',
               l10n?.preferShanYearDescription ??
                   'Prefer Shan year: show the Shan calendar year instead of '
                       'the Myanmar year when the calendar language is Shan.',
@@ -127,10 +128,9 @@ class _SettingsDisplayPreferencesPageState
                 SettingsIconColors.blue,
               ),
               toggle(
-                l10n?.englishWesternDigits ??
-                    'English Numbers for Western Dates',
-                StorageKeys.englishWesternDigits,
-                settings.englishWesternDigits,
+                l10n?.englishWesternDates ?? 'English for Western Dates',
+                StorageKeys.englishWesternDates,
+                settings.englishWesternDates,
                 Icons.pin_outlined,
                 SettingsIconColors.teal,
               ),
