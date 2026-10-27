@@ -1,3 +1,11 @@
+## [2.3.1+232] - 2026-10-27
+
+- Fixed photos missing from Calendar Studio exports: PDF, PNG and JPEG pages showed empty photo frames.
+- Fixed template legends (such as Jade wall) that were hard to read with a dark app theme and showed boxes instead of Myanmar words in exports.
+- Web: Calendar Studio exports PDF, JPEG and ZIP again, adds photos again (also large ones; they're now kept in the browser's IndexedDB), and includes them in exports.
+- Web: a new Vector PDF export keeps text, shapes and photos editable in Illustrator; Myanmar text is placed as sharp images.
+- Calendar Studio's action buttons are full height on desktop.
+
 ## [2.3.0+231] - 2026-10-21
 
 - Fixed a crash on launch on iOS 27 and iPadOS 27 (home-screen widget data cleanup wrote null to UserDefaults).
