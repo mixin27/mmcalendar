@@ -117,6 +117,51 @@ void main() {
     expect(find.byKey(note), findsOneWidget);
   });
 
+  testWidgets('Vector PDF is offered only where the host allows it', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    // Last exported as Vector PDF, e.g. on the web.
+    final vector = project.copyWith(
+      defaultExportPreset: CalendarStudioExportPreset.pagePdf.copyWith(
+        format: CalendarStudioExportFormat.pdfEditable,
+      ),
+    );
+    Future<void> openSheet({required bool vectorPdf}) async {
+      final store = _MemoryStore()..values[vector.id] = vector;
+      await tester.pumpWidget(
+        MaterialApp(
+          key: UniqueKey(),
+          home: CalendarStudioWorkspace(
+            configuration: CalendarStudioConfiguration(
+              projects: store,
+              exportDelivery: _Delivery(),
+              vectorPdf: vectorPdf,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Resume'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Export').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Export…'));
+      await tester.pumpAndSettle();
+    }
+
+    await openSheet(vectorPdf: false);
+    expect(find.text('Vector PDF'), findsNothing);
+    expect(find.textContaining('Export PDF ·'), findsOneWidget);
+
+    await openSheet(vectorPdf: true);
+    expect(find.text('Vector PDF'), findsOneWidget);
+    expect(find.textContaining('Export Vector PDF ·'), findsOneWidget);
+  });
+
   testWidgets('exporting from April preselects this page', (tester) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;

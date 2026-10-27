@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:calendar_studio/calendar_studio.dart';
-import 'package:flutter/foundation.dart' show compute;
+import 'package:flutter/foundation.dart' show compute, kIsWeb;
 import 'package:file_picker/file_picker.dart';
 import 'package:integrations_database/integrations_database.dart';
 import 'package:printing/printing.dart';
@@ -32,6 +32,9 @@ final CalendarStudioConfiguration calendarStudioConfiguration =
       assets: createCalendarStudioAssetStore(getIt<SharedPreferences>()),
       exportDelivery: const _StudioExportDelivery(),
       exportFonts: calendarStudioExportFonts,
+      // Only the web app can fetch export fonts (from its own site); on
+      // phones and desktop most text would come out as images.
+      vectorPdf: kIsWeb,
       imagePicker: AppCalendarStudioImagePicker(),
       imageEditor: const AppCalendarStudioImageEditor(),
       ai: CalendarStudioAiConfiguration(
