@@ -60,7 +60,14 @@ struct WidgetLook {
     }
 
     /// Numbers: serif for the heritage themes, rounded for Deep Field.
-    func number(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
+    /// Myanmar-script digits ([text]) use Myanmar Sangam MN: the system
+    /// font's fallback for them is taller than the line it lays out, so big
+    /// numbers ran into the line below.
+    func number(_ size: CGFloat, weight: Font.Weight = .bold, for text: String) -> Font {
+        if text.unicodeScalars.contains(where: { (0x1000...0x109F).contains($0.value) }) {
+            let bold = weight == .bold || weight == .semibold || weight == .heavy || weight == .black
+            return .custom(bold ? "MyanmarSangamMN-Bold" : "MyanmarSangamMN", size: size)
+        }
         switch style {
         case .pagoda, .jade: return .system(size: size, weight: weight, design: .serif)
         case .deepField: return .system(size: size, weight: weight, design: .rounded)

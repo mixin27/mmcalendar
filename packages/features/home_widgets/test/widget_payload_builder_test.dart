@@ -11,11 +11,13 @@ void main() {
     Language language, {
     List<WidgetAgendaEvent>? events,
     bool preferShanYear = true,
+    bool englishWesternDigits = false,
   }) => WidgetPayloadBuilder.build(
     today: today,
     language: language,
     events: events ?? const [],
     preferShanYear: preferShanYear,
+    englishWesternDigits: englishWesternDigits,
     styles: WidgetPalettes.all(),
     prefs: const WidgetConfig.defaults().toPayload(),
     generatedAt: DateTime(2026, 10, 18, 9),
@@ -51,6 +53,16 @@ void main() {
       final en = build(Language.english);
       expect(((en['days']! as List).first as Map)['ln'], '7');
       expect((en['s']! as Map)['inDays'], 'in {n} days');
+    });
+
+    test('Western dates can use English digits', () {
+      final my = build(Language.myanmar)['s']! as Map;
+      expect(my['westernDigits'], '၀၁၂၃၄၅၆၇၈၉');
+      final english = build(Language.myanmar, englishWesternDigits: true);
+      final s = english['s']! as Map;
+      expect(s['westernDigits'], '0123456789');
+      expect(s['digits'], '၀၁၂၃၄၅၆၇၈၉', reason: 'Myanmar dates keep theirs');
+      expect(((english['days']! as List).first as Map)['ln'], '၇');
     });
   });
 

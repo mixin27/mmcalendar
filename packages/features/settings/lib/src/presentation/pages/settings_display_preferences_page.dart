@@ -110,10 +110,14 @@ class _SettingsDisplayPreferencesPageState
           ),
           AppGroup(
             label: l10n?.settingsDates ?? 'Dates',
-            footer:
-                l10n?.preferShanYearDescription ??
-                'Prefer Shan year: show the Shan calendar year instead of '
-                    'the Myanmar year when the calendar language is Shan.',
+            footer: [
+              l10n?.englishWesternDigitsDescription ??
+                  'Western dates use 0–9 whatever the calendar language; '
+                      'Myanmar dates keep their own digits.',
+              l10n?.preferShanYearDescription ??
+                  'Prefer Shan year: show the Shan calendar year instead of '
+                      'the Myanmar year when the calendar language is Shan.',
+            ].join('\n\n'),
             children: [
               toggle(
                 l10n?.showWesternDates ?? 'Show Western Dates',
@@ -121,6 +125,14 @@ class _SettingsDisplayPreferencesPageState
                 settings.showWesternDates,
                 Icons.event_outlined,
                 SettingsIconColors.blue,
+              ),
+              toggle(
+                l10n?.englishWesternDigits ??
+                    'English Numbers for Western Dates',
+                StorageKeys.englishWesternDigits,
+                settings.englishWesternDigits,
+                Icons.pin_outlined,
+                SettingsIconColors.teal,
               ),
               toggle(
                 l10n?.showMyanmarDates ?? 'Show Myanmar Dates',

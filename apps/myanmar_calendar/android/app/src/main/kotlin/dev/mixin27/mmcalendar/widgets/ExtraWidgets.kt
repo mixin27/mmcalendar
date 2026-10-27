@@ -57,7 +57,7 @@ class CountdownWidget : CalendarWidget() {
             if (target != null && days != null) {
                 NumText(w, w.payload.num(days.toInt()), 44f)
                 val date = LocalDate.parse(target.d)
-                WText("${w.s.daysUnit} · ${w.payload.num(date.dayOfMonth)} ${w.s.monthsShort[date.monthValue - 1]}", 12f, w.p.muted)
+                WText("${w.s.daysUnit} · ${w.payload.westernNum(date.dayOfMonth)} ${w.s.monthsShort[date.monthValue - 1]}", 12f, w.p.muted)
             }
         }
     }

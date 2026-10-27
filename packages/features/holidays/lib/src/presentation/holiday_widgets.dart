@@ -14,7 +14,7 @@ extension HolidayFormat on CalendarFormat {
   String holidayRange(HolidayOccurrence o) {
     if (o.length == 1) return shortDate(o.start);
     if (o.start.month == o.end.month) {
-      return '${number(o.start.day)}–${number(o.end.day)} ${shortMonth(o.start.month)}';
+      return '${westernNumber(o.start.day)}–${westernNumber(o.end.day)} ${shortMonth(o.start.month)}';
     }
     return '${dayMonth(o.start)} – ${dayMonth(o.end)}';
   }
@@ -57,8 +57,8 @@ class HolidayDateBadge extends StatelessWidget {
     final o = occurrence;
     final closed = o.entry.officeClosed;
     final fg = closed ? t.holiday : t.secondaryLabel;
-    final top = format.number(o.start.day);
-    final bottom = o.length > 1 ? '–${format.number(o.end.day)}' : null;
+    final top = format.westernNumber(o.start.day);
+    final bottom = o.length > 1 ? '–${format.westernNumber(o.end.day)}' : null;
     return Container(
       width: 40,
       height: 40,
@@ -125,7 +125,7 @@ class HolidayRow extends StatelessWidget {
         ? l10n.holidaysPublicHoliday
         : o.entry.kind.label(l10n);
     final when = showYear
-        ? '${format.holidayRange(o)} ${format.number(o.start.year)}'
+        ? '${format.holidayRange(o)} ${format.westernNumber(o.start.year)}'
         : format.holidayRange(o);
     final value = past
         ? null

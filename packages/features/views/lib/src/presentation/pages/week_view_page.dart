@@ -127,7 +127,7 @@ class _WeekViewPageState extends State<WeekViewPage>
     return AppGroup(
       label:
           '${format.dayMonth(week.weekStart)} – ${format.dayMonth(week.weekEnd)} '
-          '${format.number(week.weekEnd.year)}',
+          '${format.westernNumber(week.weekEnd.year)}',
       children: [
         for (final day in week.days)
           Builder(
@@ -146,7 +146,7 @@ class _WeekViewPageState extends State<WeekViewPage>
               return AppRow(
                 leading: MoonGlyph(date: date, size: 28),
                 title:
-                    '${format.weekday(date, short: true)} ${format.number(date.day)}',
+                    '${format.weekday(date, short: true)} ${format.westernNumber(date.day)}',
                 subtitle: shan
                     ? '${translateNumbers('$shanYear', language: Language.shan)} $myanmar'
                     : myanmar,

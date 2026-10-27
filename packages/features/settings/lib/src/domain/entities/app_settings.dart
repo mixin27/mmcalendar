@@ -30,6 +30,9 @@ class AppSettingsEntity extends Equatable {
   final bool enableCrashlytics;
   final bool hasShownConsentDialog;
   final bool showShanCalendar;
+
+  /// Western dates in English digits whatever the calendar language.
+  final bool englishWesternDigits;
   final bool useDeviceTimezone;
 
   const AppSettingsEntity({
@@ -55,6 +58,7 @@ class AppSettingsEntity extends Equatable {
     this.enableCrashlytics = true,
     this.hasShownConsentDialog = false,
     this.showShanCalendar = true,
+    this.englishWesternDigits = false,
     this.useDeviceTimezone = true,
   });
 
@@ -81,6 +85,7 @@ class AppSettingsEntity extends Equatable {
     bool? enableCrashlytics,
     bool? hasShownConsentDialog,
     bool? showShanCalendar,
+    bool? englishWesternDigits,
     bool? useDeviceTimezone,
   }) {
     return AppSettingsEntity(
@@ -107,6 +112,7 @@ class AppSettingsEntity extends Equatable {
       hasShownConsentDialog:
           hasShownConsentDialog ?? this.hasShownConsentDialog,
       showShanCalendar: showShanCalendar ?? this.showShanCalendar,
+      englishWesternDigits: englishWesternDigits ?? this.englishWesternDigits,
       useDeviceTimezone: useDeviceTimezone ?? this.useDeviceTimezone,
     );
   }
@@ -136,6 +142,7 @@ class AppSettingsEntity extends Equatable {
     enableCrashlytics,
     hasShownConsentDialog,
     showShanCalendar,
+    englishWesternDigits,
     useDeviceTimezone,
   ];
 }

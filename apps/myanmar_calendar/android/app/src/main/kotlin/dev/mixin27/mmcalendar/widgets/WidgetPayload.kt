@@ -51,6 +51,9 @@ class WidgetPayload private constructor(json: JSONObject) {
         val fullMoonIn = o.getString("fullMoonIn")
         val newMoonIn = o.getString("newMoonIn")
         val digits = o.getString("digits")
+
+        /** Digits for Western dates: English with Settings › English numbers for Western dates. */
+        val westernDigits = o.optString("westernDigits", digits)
         val sabbath = o.getString("sabbath")
         val sabbathEve = o.getString("sabbathEve")
         val weekdays = o.getJSONArray("weekdays").strings()
@@ -124,8 +127,12 @@ class WidgetPayload private constructor(json: JSONObject) {
     fun day(date: LocalDate): Day? = dayIndex[date.toString()]
 
     /** [value] in the calendar language's digits. */
-    fun num(value: Int): String {
-        val digits = s.digits
+    fun num(value: Int): String = spell(value, s.digits)
+
+    /** A Western day or year: [value] in the Western-date digits. */
+    fun westernNum(value: Int): String = spell(value, s.westernDigits)
+
+    private fun spell(value: Int, digits: String): String {
         if (digits.length != 10) return value.toString()
         return value.toString().map { ch ->
             if (ch in '0'..'9') digits[ch - '0'] else ch
@@ -152,7 +159,7 @@ class WidgetPayload private constructor(json: JSONObject) {
         return events.filter { it.d == key }
     }
 
-    fun monthTitle(date: LocalDate) = "${s.months[date.monthValue - 1]} ${num(date.year)}"
+    fun monthTitle(date: LocalDate) = "${s.months[date.monthValue - 1]} ${westernNum(date.year)}"
 
     companion object {
         const val KEY = "widget_data_v2"

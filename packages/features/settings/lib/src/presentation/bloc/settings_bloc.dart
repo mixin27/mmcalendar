@@ -294,15 +294,17 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         }
         emit(SettingsLoaded(updatedSettings));
 
-        // Home widgets show the Shan year too.
-        if (event.key == StorageKeys.showShanCalendar) {
+        // Home widgets show the Shan year and Western digits too.
+        if (event.key == StorageKeys.showShanCalendar ||
+            event.key == StorageKeys.englishWesternDigits) {
           try {
             await widgetRepository.refreshWidget();
           } catch (e, stackTrace) {
             await crashlyticsService.recordException(
               exception: e,
               stackTrace: stackTrace,
-              reason: 'Failed to refresh home widgets after Shan year change',
+              reason:
+                  'Failed to refresh home widgets after a date display change',
             );
           }
         }
@@ -546,6 +548,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return settings.copyWith(showMyanmarDates: value);
       case StorageKeys.showShanCalendar:
         return settings.copyWith(showShanCalendar: value);
+      case StorageKeys.englishWesternDigits:
+        return settings.copyWith(englishWesternDigits: value);
       case StorageKeys.useDeviceTimezone:
         return settings.copyWith(useDeviceTimezone: value);
       case StorageKeys.calendarGridMotif:

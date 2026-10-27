@@ -352,7 +352,7 @@ class _StyleChoice extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            format.number(today.day),
+                            format.westernNumber(today.day),
                             style: TextStyle(
                               fontSize: 38,
                               height: 1.1,

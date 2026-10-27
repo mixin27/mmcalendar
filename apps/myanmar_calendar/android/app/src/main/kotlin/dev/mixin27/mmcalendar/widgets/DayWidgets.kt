@@ -44,7 +44,7 @@ class TodayWidget : CalendarWidget() {
             Moon(w, day, 22.dp)
             Spacer(GlanceModifier.width(8.dp))
             Column(modifier = GlanceModifier.defaultWeight()) {
-                WText("${w.s.weekdays[day.wd]} ${w.payload.num(w.today.dayOfMonth)} · ${day.my}", 13f, w.p.ink, bold = true)
+                WText("${w.s.weekdays[day.wd]} ${w.payload.westernNum(w.today.dayOfMonth)} · ${day.my}", 13f, w.p.ink, bold = true)
                 if (note != null) WText(note, 11.5f, w.p.muted)
             }
         }
@@ -55,7 +55,7 @@ class TodayWidget : CalendarWidget() {
         val day = w.day
         Column(modifier = GlanceModifier.fillMaxSize()) {
             Caps(w.s.weekdays[day.wd], w.p.holiday, 12f)
-            NumText(w, w.payload.num(w.today.dayOfMonth), 44f)
+            NumText(w, w.payload.westernNum(w.today.dayOfMonth), 44f)
             WText(w.s.months[w.today.monthValue - 1], 12.5f, w.p.muted)
             Spacer(GlanceModifier.defaultWeight())
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -72,7 +72,7 @@ class TodayWidget : CalendarWidget() {
         Row(modifier = GlanceModifier.fillMaxSize()) {
             Column(modifier = GlanceModifier.width(104.dp)) {
                 Caps(w.s.weekdays[day.wd], w.p.holiday, 12f)
-                NumText(w, w.payload.num(w.today.dayOfMonth), 44f)
+                NumText(w, w.payload.westernNum(w.today.dayOfMonth), 44f)
                 WText(w.payload.monthTitle(w.today), 12.5f, w.p.muted)
             }
             Column(modifier = GlanceModifier.defaultWeight()) {
@@ -101,7 +101,7 @@ class TodayWidget : CalendarWidget() {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Column(modifier = GlanceModifier.defaultWeight()) {
                     Caps(w.s.weekdays[day.wd], w.p.holiday, 12f)
-                    NumText(w, w.payload.num(w.today.dayOfMonth), 48f)
+                    NumText(w, w.payload.westernNum(w.today.dayOfMonth), 48f)
                     WText(w.payload.monthTitle(w.today), 13f, w.p.muted)
                 }
                 Moon(w, day, 60.dp)
@@ -176,7 +176,7 @@ class MoonWidget : CalendarWidget() {
                             val date = w.today.plusDays(offset)
                             Column(modifier = GlanceModifier.defaultWeight(), horizontalAlignment = Alignment.CenterHorizontally) {
                                 w.payload.day(date)?.let { Moon(w, it, 20.dp) }
-                                WText(w.payload.num(date.dayOfMonth), 10.5f, w.p.muted)
+                                WText(w.payload.westernNum(date.dayOfMonth), 10.5f, w.p.muted)
                             }
                         }
                     }

@@ -33,16 +33,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analytics => 'Analytics';
 
   @override
-  String get analyticsDisabledChangeInSettings =>
-      'Analytics disabled. You can change this in Settings.';
+  String get analyticsDisabledChangeInSettings => 'Analytics disabled. You can change this in Settings.';
 
   @override
-  String get analyticsDisabledInSettings =>
-      'Analytics disabled. You can enable it in Settings.';
+  String get analyticsDisabledInSettings => 'Analytics disabled. You can enable it in Settings.';
 
   @override
-  String get analyticsEnabledChangeInSettings =>
-      'Thank you! Analytics enabled. You can change this in Settings.';
+  String get analyticsEnabledChangeInSettings => 'Thank you! Analytics enabled. You can change this in Settings.';
 
   @override
   String get anniversary_days => 'Anniversary Days';
@@ -88,9 +85,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calendarDaysAgo(int days) {
-    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String daysString = daysNumberFormat.format(days);
 
     return '$daysString days ago';
@@ -98,9 +93,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calendarDaysFromToday(int days) {
-    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String daysString = daysNumberFormat.format(days);
 
     return '$daysString days from today';
@@ -108,9 +101,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calendarDaysShort(int days) {
-    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String daysString = daysNumberFormat.format(days);
 
     return '$daysString d';
@@ -118,8 +109,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calendarEventCount(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     String _temp0 = intl.Intl.pluralLogic(
@@ -135,14 +125,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarFullDayDetails => 'Full day details';
 
   @override
-  String get calendarFullDayDetailsSubtitle =>
-      'Astrology, Buddhist calendar, AI prompt';
+  String get calendarFullDayDetailsSubtitle => 'Astrology, Buddhist calendar, AI prompt';
 
   @override
   String calendarInDays(int days) {
-    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String daysString = daysNumberFormat.format(days);
 
     return 'in $daysString days';
@@ -210,8 +197,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkFailed => 'Check failed';
 
   @override
-  String get checkForNewVersionsAndUpdateSettings =>
-      'Check for new versions and update settings';
+  String get checkForNewVersionsAndUpdateSettings => 'Check for new versions and update settings';
 
   @override
   String get checkForUpdates => 'Check for Updates';
@@ -235,16 +221,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoon => 'Coming Soon';
 
   @override
-  String get consentDescription =>
-      'Myanmar Calendar would like to collect analytics and crash reports to help improve your experience.\n\nThis data is never shared with third parties.';
+  String get consentDescription => 'Myanmar Calendar would like to collect analytics and crash reports to help improve your experience.\n\nThis data is never shared with third parties.';
 
   @override
-  String get consentDialogDescription =>
-      'Myanmar Calendar would like to collect analytics and crash reports to help improve your experience. This data is never shared with third parties.\n\nYou can change these settings anytime in Settings > Privacy & Data.';
+  String get consentDialogDescription => 'Myanmar Calendar would like to collect analytics and crash reports to help improve your experience. This data is never shared with third parties.\n\nYou can change these settings anytime in Settings > Privacy & Data.';
 
   @override
-  String get consentSettingsHint =>
-      'You can change these settings anytime in Settings > Privacy & Data';
+  String get consentSettingsHint => 'You can change these settings anytime in Settings > Privacy & Data';
 
   @override
   String get convert => 'Convert';
@@ -282,8 +265,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get converterEnd => 'End';
 
   @override
-  String get converterEnterMyanmarDate =>
-      'Enter a Myanmar year, month and day.';
+  String get converterEnterMyanmarDate => 'Enter a Myanmar year, month and day.';
 
   @override
   String get converterEnterWholeNumber => 'Enter a whole number above 0.';
@@ -293,8 +275,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String converterInDays(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     String _temp0 = intl.Intl.pluralLogic(
@@ -310,8 +291,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get converterMonthDayRange => 'Month is 0–14 and day is 1–30.';
 
   @override
-  String get converterMonthFooter =>
-      'Month: 0 = First Waso, 1–12 = Tagu to Tabaung, 13 = Late Tagu, 14 = Second Waso.';
+  String get converterMonthFooter => 'Month: 0 = First Waso, 1–12 = Tagu to Tabaung, 13 = Late Tagu, 14 = Second Waso.';
 
   @override
   String get converterMoonPhase => 'Moon phase';
@@ -347,13 +327,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String converterUnit(String unit) {
-    String _temp0 = intl.Intl.selectLogic(unit, {
-      'days': 'days',
-      'weeks': 'weeks',
-      'months': 'months',
-      'years': 'years',
-      'other': '$unit',
-    });
+    String _temp0 = intl.Intl.selectLogic(
+      unit,
+      {
+        'days': 'days',
+        'weeks': 'weeks',
+        'months': 'months',
+        'years': 'years',
+        'other': '$unit',
+      },
+    );
     return '$_temp0';
   }
 
@@ -405,12 +388,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dayDetailsAiHoroscopePrompt => 'AI Horoscope Prompt';
 
   @override
-  String get dayDetailsAiHoroscopePromptSubtitle =>
-      'Copy a ready-made prompt for this day';
+  String get dayDetailsAiHoroscopePromptSubtitle => 'Copy a ready-made prompt for this day';
 
   @override
-  String get dayDetailsAiPromptHint =>
-      'Paste this into any AI assistant (ChatGPT, Gemini, …) for a reading of the day. Nothing is sent from this app.';
+  String get dayDetailsAiPromptHint => 'Paste this into any AI assistant (ChatGPT, Gemini, …) for a reading of the day. Nothing is sent from this app.';
 
   @override
   String get dayDetailsBuddhistCalendar => 'Buddhist Calendar';
@@ -506,8 +487,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disableAll => 'Disable All';
 
   @override
-  String get displayAnniversaryDaysIndicators =>
-      'Display anniversary days indicators';
+  String get displayAnniversaryDaysIndicators => 'Display anniversary days indicators';
 
   @override
   String get displayAppInEnglish => 'Display app in English';
@@ -574,8 +554,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsAddTagHint => 'Add a tag and press return';
 
   @override
-  String get eventsBuiltInCategoriesFooter =>
-      'Built-in categories can’t be changed.';
+  String get eventsBuiltInCategoriesFooter => 'Built-in categories can’t be changed.';
 
   @override
   String get eventsCategoryColour => 'Category colour';
@@ -590,17 +569,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsCreateEvent => 'Create Event';
 
   @override
-  String get eventsCustomCategoriesEmptyFooter =>
-      'Create categories for the events you keep.';
+  String get eventsCustomCategoriesEmptyFooter => 'Create categories for the events you keep.';
 
   @override
-  String get eventsCustomCategoriesFooter =>
-      'Tap a category to rename, recolour or delete it.';
+  String get eventsCustomCategoriesFooter => 'Tap a category to rename, recolour or delete it.';
 
   @override
   String eventsDayEventsSemantics(String date, int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$date, $countString events';
@@ -610,8 +586,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsDeleteCategory => 'Delete Category';
 
   @override
-  String get eventsDeleteCategoryMessage =>
-      'Its events are kept; they just stop being linked to this category.';
+  String get eventsDeleteCategoryMessage => 'Its events are kept; they just stop being linked to this category.';
 
   @override
   String eventsDeleteCategoryQuestion(String name) {
@@ -619,8 +594,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get eventsDeleteEventMessage =>
-      'This event will be removed. This can’t be undone.';
+  String get eventsDeleteEventMessage => 'This event will be removed. This can’t be undone.';
 
   @override
   String get eventsDeleteThisOccurrence => 'Delete this occurrence';
@@ -636,8 +610,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsEventCount(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     String _temp0 = intl.Intl.pluralLogic(
@@ -687,8 +660,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsOccurrence => 'Occurrence';
 
   @override
-  String get eventsOnlyThisOccurrenceRemoved =>
-      'Only this occurrence will be removed.';
+  String get eventsOnlyThisOccurrenceRemoved => 'Only this occurrence will be removed.';
 
   @override
   String get eventsPickAColor => 'Pick a color';
@@ -704,8 +676,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsReminderDays(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     String _temp0 = intl.Intl.pluralLogic(
@@ -719,8 +690,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsReminderHours(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString h';
@@ -728,8 +698,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsReminderMinutes(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString min';
@@ -746,8 +715,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsRepeatsEveryNDays(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return 'repeats every $countString days';
@@ -755,8 +723,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsRepeatsEveryNMonths(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return 'repeats every $countString months';
@@ -764,8 +731,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsRepeatsEveryNWeeks(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return 'repeats every $countString weeks';
@@ -773,8 +739,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsRepeatsEveryNYears(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return 'repeats every $countString years';
@@ -808,8 +773,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsTryDifferentKeyword => 'Try a different keyword';
 
   @override
-  String get failedToFetchHolidayConfig =>
-      'Failed to fetch holiday config from server.';
+  String get failedToFetchHolidayConfig => 'Failed to fetch holiday config from server.';
 
   @override
   String failedToInitializeApp(Object error) {
@@ -817,12 +781,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get fetchRemoteConfigNowAndCheckAgain =>
-      'Fetch remote config now and check again';
+  String get fetchRemoteConfigNowAndCheckAgain => 'Fetch remote config now and check again';
 
   @override
-  String get forceRefreshHolidayConfigDescription =>
-      'Force refresh and apply holiday overrides from Remote Config';
+  String get forceRefreshHolidayConfigDescription => 'Force refresh and apply holiday overrides from Remote Config';
 
   @override
   String get forceRefreshUpdateConfig => 'Force Refresh Update Config';
@@ -843,18 +805,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gregorianCalendarSystem => 'Gregorian calendar system';
 
   @override
-  String get helpImproveBySharingAnalytics =>
-      'Help improve the app by sharing usage analytics';
+  String get helpImproveBySharingAnalytics => 'Help improve the app by sharing usage analytics';
 
   @override
   String get helpUsImprove => 'Help Us Improve';
 
   @override
-  String holidayConfigRefreshed(
-    Object status,
-    Object customCount,
-    Object disabledCount,
-  ) {
+  String holidayConfigRefreshed(Object status, Object customCount, Object disabledCount) {
     return 'Holiday config refreshed ($status). Custom: $customCount, Disabled: $disabledCount';
   }
 
@@ -994,8 +951,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preferShanYear => 'Prefer Shan Year';
 
   @override
-  String get preferShanYearDescription =>
-      'Display Shan calendar year instead of Myanmar year in Shan language';
+  String get englishWesternDigits => 'English Numbers for Western Dates';
+
+  @override
+  String get englishWesternDigitsDescription => 'Western dates use 0–9 whatever the calendar language; Myanmar dates keep their own digits.';
+
+  @override
+  String get preferShanYearDescription => 'Display Shan calendar year instead of Myanmar year in Shan language';
 
   @override
   String get previous_month => 'Previous Month';
@@ -1010,19 +972,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyAndData => 'Privacy & Data';
 
   @override
-  String get privacyDataUsageDescription =>
-      'This data is used only for app improvement and is never shared with third parties.';
+  String get privacyDataUsageDescription => 'This data is used only for app improvement and is never shared with third parties.';
 
   @override
   String get privacyPolicy => 'Privacy policy';
 
   @override
-  String get privacyPolicyContentHint =>
-      'App privacy & policy contents will be here.';
+  String get privacyPolicyContentHint => 'App privacy & policy contents will be here.';
 
   @override
-  String get promoDataClearedRestartApp =>
-      'Promo data cleared! Restart app to see onboarding.';
+  String get promoDataClearedRestartApp => 'Promo data cleared! Restart app to see onboarding.';
 
   @override
   String get refresh => 'Refresh';
@@ -1046,8 +1005,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetOnboardingAnnouncements => 'Reset onboarding & announcements';
 
   @override
-  String get resetSettingsConfirmation =>
-      'This will reset all settings to their default values. This action cannot be undone.';
+  String get resetSettingsConfirmation => 'This will reset all settings to their default values. This action cannot be undone.';
 
   @override
   String get resetSettingsQuestion => 'Reset Settings?';
@@ -1071,8 +1029,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get select => 'Select';
 
   @override
-  String get sendCrashReportsToHelpFixIssues =>
-      'Send crash reports to help fix issues';
+  String get sendCrashReportsToHelpFixIssues => 'Send crash reports to help fix issues';
 
   @override
   String get settings => 'Settings';
@@ -1219,8 +1176,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewsViewFullMonth => 'View Full Month';
 
   @override
-  String get viewsWeekViewSubtitle =>
-      'Seven days with Myanmar dates and the moon';
+  String get viewsWeekViewSubtitle => 'Seven days with Myanmar dates and the moon';
 
   @override
   String get viewsYearViewSubtitle => 'All 12 months with holiday counts';
@@ -1236,8 +1192,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String weekNumber(int number) {
-    final intl.NumberFormat numberNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String numberString = numberNumberFormat.format(number);
 
     return 'Week $numberString';
@@ -1268,8 +1223,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppLanguageFooter => 'Menus, buttons and messages.';
 
   @override
-  String get settingsCalendarLanguageFooter =>
-      'Dates, month and weekday names, lunar days, holidays and moon phases everywhere in the app, including widgets.';
+  String get settingsCalendarLanguageFooter => 'Dates, month and weekday names, lunar days, holidays and moon phases everywhere in the app, including widgets.';
 
   @override
   String get settingsCalendarGrid => 'Calendar grid';
@@ -1281,12 +1235,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsGridThemeTab => 'Theme';
 
   @override
-  String get settingsGridFitNote =>
-      'Every style fits the screen: rows take the height that is left above the day sheet.';
+  String get settingsGridFitNote => 'Every style fits the screen: rows take the height that is left above the day sheet.';
 
   @override
-  String get settingsGridThemeFooter =>
-      'A theme colours the month header, weekday row and grid, and works with every layout. The day sheet keeps the app’s colours.';
+  String get settingsGridThemeFooter => 'A theme colours the month header, weekday row and grid, and works with every layout. The day sheet keeps the app’s colours.';
 
   @override
   String get settingsGridShowMotif => 'Show motif';
@@ -1301,85 +1253,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gridLayoutAlmanacTitle => 'Almanac';
 
   @override
-  String get gridLayoutAlmanacDescription =>
-      'Lunar day, moon, holidays and events, with a strip for Sabbath and good or careful days.';
+  String get gridLayoutAlmanacDescription => 'Lunar day, moon, holidays and events, with a strip for Sabbath and good or careful days.';
 
   @override
   String get gridLayoutMonthRegionsTitle => 'Myanmar months';
 
   @override
-  String get gridLayoutMonthRegionsDescription =>
-      'Each Myanmar month tinted as a region, named where it begins.';
+  String get gridLayoutMonthRegionsDescription => 'Each Myanmar month tinted as a region, named where it begins.';
 
   @override
   String get gridLayoutFocusWeekTitle => 'Focus week';
 
   @override
-  String get gridLayoutFocusWeekDescription =>
-      'A compact month; the selected week opens to show the day\'s details.';
+  String get gridLayoutFocusWeekDescription => 'A compact month; the selected week opens to show the day\'s details.';
 
   @override
   String get gridLayoutAuspiceTitle => 'Auspice';
 
   @override
-  String get gridLayoutAuspiceDescription =>
-      'Days tinted by Yatyaza, Pyathada and the other astrological days.';
+  String get gridLayoutAuspiceDescription => 'Days tinted by Yatyaza, Pyathada and the other astrological days.';
 
   @override
   String get gridLayoutMoonBandTitle => 'Moon band';
 
   @override
-  String get gridLayoutMoonBandDescription =>
-      'The moon as a band under each week, brightest at the full moon.';
+  String get gridLayoutMoonBandDescription => 'The moon as a band under each week, brightest at the full moon.';
 
   @override
   String get gridLayoutHeroTodayTitle => 'Hero today';
 
   @override
-  String get gridLayoutHeroTodayDescription =>
-      'A quiet month with the selected day as a large card under it.';
+  String get gridLayoutHeroTodayDescription => 'A quiet month with the selected day as a large card under it.';
 
   @override
   String get gridLayoutWeekRibbonsTitle => 'Week ribbons';
 
   @override
-  String get gridLayoutWeekRibbonsDescription =>
-      'Each week as a card, with its events as bars under their days.';
+  String get gridLayoutWeekRibbonsDescription => 'Each week as a card, with its events as bars under their days.';
 
   @override
   String get gridLayoutDetailedTitle => 'Detailed';
 
   @override
-  String get gridLayoutDetailedDescription =>
-      'Lunar day, holiday name, moon and events in every day.';
+  String get gridLayoutDetailedDescription => 'Lunar day, holiday name, moon and events in every day.';
 
   @override
   String get gridLayoutCleanTitle => 'Clean';
 
   @override
-  String get gridLayoutCleanDescription =>
-      'Numbers first; the moon only on moon days.';
+  String get gridLayoutCleanDescription => 'Numbers first; the moon only on moon days.';
 
   @override
   String get gridLayoutClassicTitle => 'Classic';
 
   @override
-  String get gridLayoutClassicDescription =>
-      'The original tiles and coloured dots.';
+  String get gridLayoutClassicDescription => 'The original tiles and coloured dots.';
 
   @override
   String get gridLayoutDetailedV2Title => 'Detailed v2';
 
   @override
-  String get gridLayoutDetailedV2Description =>
-      'Detailed, calmer: no lines, the moon only on moon days.';
+  String get gridLayoutDetailedV2Description => 'Detailed, calmer: no lines, the moon only on moon days.';
 
   @override
   String get gridLayoutLunarFirstTitle => 'Lunar first';
 
   @override
-  String get gridLayoutLunarFirstDescription =>
-      'The lunar day large, the date small in the corner.';
+  String get gridLayoutLunarFirstDescription => 'The lunar day large, the date small in the corner.';
 
   @override
   String get gridLayoutMinimalTitle => 'Minimal';
@@ -1397,57 +1337,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gridLayoutAgendaTitle => 'Agenda';
 
   @override
-  String get gridLayoutAgendaDescription =>
-      'Event titles and holidays inside the days.';
+  String get gridLayoutAgendaDescription => 'Event titles and holidays inside the days.';
 
   @override
   String get gridLayoutClassicPrintTitle => 'Classic print';
 
   @override
-  String get gridLayoutClassicPrintDescription =>
-      'A ruled table like a wall calendar.';
+  String get gridLayoutClassicPrintDescription => 'A ruled table like a wall calendar.';
 
   @override
   String get gridLayoutTilesTitle => 'Tiles';
 
   @override
-  String get gridLayoutTilesDescription =>
-      'Every day a card; holidays and Sabbath tinted.';
+  String get gridLayoutTilesDescription => 'Every day a card; holidays and Sabbath tinted.';
 
   @override
   String get gridLayoutMoonlightTitle => 'Moonlight';
 
   @override
-  String get gridLayoutMoonlightDescription =>
-      'Days glow brighter toward the full moon.';
+  String get gridLayoutMoonlightDescription => 'Days glow brighter toward the full moon.';
 
   @override
   String get gridLayoutSplitTitle => 'Split';
 
   @override
-  String get gridLayoutSplitDescription =>
-      'The date and the lunar day, split diagonally.';
+  String get gridLayoutSplitDescription => 'The date and the lunar day, split diagonally.';
 
   @override
   String get gridLayoutPosterTitle => 'Poster';
 
   @override
-  String get gridLayoutPosterDescription =>
-      'Big, bold numbers you can read from afar.';
+  String get gridLayoutPosterDescription => 'Big, bold numbers you can read from afar.';
 
   @override
   String get gridLayoutMoonRingTitle => 'Moon ring';
 
   @override
-  String get gridLayoutMoonRingDescription =>
-      'A ring around each date fills with moonlight.';
+  String get gridLayoutMoonRingDescription => 'A ring around each date fills with moonlight.';
 
   @override
   String get gridLayoutAstrologyTitle => 'Astrology';
 
   @override
-  String get gridLayoutAstrologyDescription =>
-      'Astrological days and holidays as tags.';
+  String get gridLayoutAstrologyDescription => 'Astrological days and holidays as tags.';
 
   @override
   String get gridThemeAppTitle => 'App colours';
@@ -1459,29 +1391,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gridThemePagodaTitle => 'Pagoda';
 
   @override
-  String get gridThemePagodaDescription =>
-      'Temple cream, maroon and pagoda gold.';
+  String get gridThemePagodaDescription => 'Temple cream, maroon and pagoda gold.';
 
   @override
   String get gridThemeJadeTitle => 'Jade';
 
   @override
-  String get gridThemeJadeDescription =>
-      'Jade green on cool white, with a seal.';
+  String get gridThemeJadeDescription => 'Jade green on cool white, with a seal.';
 
   @override
   String get gridThemeLacquerTitle => 'Lacquer';
 
   @override
-  String get gridThemeLacquerDescription =>
-      'Black lacquer, cinnabar and gold leaf.';
+  String get gridThemeLacquerDescription => 'Black lacquer, cinnabar and gold leaf.';
 
   @override
   String get gridThemeThadingyutTitle => 'Thadingyut';
 
   @override
-  String get gridThemeThadingyutDescription =>
-      'Lantern paper by day, indigo by night.';
+  String get gridThemeThadingyutDescription => 'Lantern paper by day, indigo by night.';
 
   @override
   String get gridThemeThingyanTitle => 'Thingyan';
@@ -1493,15 +1421,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gridThemeBotanicalTitle => 'Botanical';
 
   @override
-  String get gridThemeBotanicalDescription =>
-      'Pressed-leaf greens on herbarium paper.';
+  String get gridThemeBotanicalDescription => 'Pressed-leaf greens on herbarium paper.';
 
   @override
   String get gridThemeMonsoonTitle => 'Monsoon';
 
   @override
-  String get gridThemeMonsoonDescription =>
-      'Rain-season slate with a rust accent.';
+  String get gridThemeMonsoonDescription => 'Rain-season slate with a rust accent.';
 
   @override
   String get gridThemeTidewaterTitle => 'Tidewater';
@@ -1513,15 +1439,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gridThemeMorningPourTitle => 'Morning Pour';
 
   @override
-  String get gridThemeMorningPourDescription =>
-      'Coffee and cream for early risers.';
+  String get gridThemeMorningPourDescription => 'Coffee and cream for early risers.';
 
   @override
   String get gridThemeDeepFieldTitle => 'Deep Field';
 
   @override
-  String get gridThemeDeepFieldDescription =>
-      'Lavender dusk, or deep space at night.';
+  String get gridThemeDeepFieldDescription => 'Lavender dusk, or deep space at night.';
 
   @override
   String get gridThemeMoonlightTitle => 'Moonlight';
@@ -1590,15 +1514,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsChooseAppIcon => 'Choose App Icon';
 
   @override
-  String get settingsChooseAppIconSubtitle =>
-      'Select your preferred launcher icon style.';
+  String get settingsChooseAppIconSubtitle => 'Select your preferred launcher icon style.';
 
   @override
   String get settingsAppIconApplying => 'Please wait, applying app icon...';
 
   @override
-  String get settingsAppIconUnsupported =>
-      'App icon switching is not supported here.';
+  String get settingsAppIconUnsupported => 'App icon switching is not supported here.';
 
   @override
   String get settingsAppIconFailed => 'Failed to switch app icon.';
@@ -1658,8 +1580,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customColorsAccent => 'Accent';
 
   @override
-  String get customColorsAccentFooter =>
-      'Every other colour is made from this one, in light and dark.';
+  String get customColorsAccentFooter => 'Every other colour is made from this one, in light and dark.';
 
   @override
   String get customColorsMore => 'More colours…';
@@ -1671,8 +1592,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customColorsAdvanced => 'Advanced';
 
   @override
-  String get customColorsAdvancedFooter =>
-      'Set any colour by hand. Choosing a new accent clears these.';
+  String get customColorsAdvancedFooter => 'Set any colour by hand. Choosing a new accent clears these.';
 
   @override
   String get customColorsReset => 'Reset to preset';
@@ -1722,22 +1642,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetsStyle => 'Style';
 
   @override
-  String get widgetsStyleFooter =>
-      'New widgets start with this style. To change one widget, touch and hold it and choose Edit Widget (iPhone) or Reconfigure (Android).';
+  String get widgetsStyleFooter => 'New widgets start with this style. To change one widget, touch and hold it and choose Edit Widget (iPhone) or Reconfigure (Android).';
 
   @override
   String get widgetStyleApp => 'Follow app';
 
   @override
-  String get widgetStyleAppDescription =>
-      'The app\'s colours, light or dark with the system.';
+  String get widgetStyleAppDescription => 'The app\'s colours, light or dark with the system.';
 
   @override
   String get widgetStylePlain => 'Plain';
 
   @override
-  String get widgetStylePlainDescription =>
-      'Black and white, with red for holidays.';
+  String get widgetStylePlainDescription => 'Black and white, with red for holidays.';
 
   @override
   String get widgetsShow => 'Show on widgets';
@@ -1785,12 +1702,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetsHowToAdd => 'How to add a widget';
 
   @override
-  String get widgetsHowToAddIos =>
-      'Touch and hold an empty spot on the Home Screen, tap Edit, then Add Widget, and search for Myanmar Calendar. On the Lock Screen, touch and hold it and tap Customize.';
+  String get widgetsHowToAddIos => 'Touch and hold an empty spot on the Home Screen, tap Edit, then Add Widget, and search for Myanmar Calendar. On the Lock Screen, touch and hold it and tap Customize.';
 
   @override
-  String get widgetsHowToAddAndroid =>
-      'Touch and hold an empty spot on the home screen, tap Widgets, and find Myanmar Calendar. Drag a widget to resize it.';
+  String get widgetsHowToAddAndroid => 'Touch and hold an empty spot on the home screen, tap Widgets, and find Myanmar Calendar. Drag a widget to resize it.';
 
   @override
   String widgetsLanguageNote(String language) {
@@ -1801,8 +1716,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetsAddToHome => 'Add to home screen';
 
   @override
-  String get widgetsAddToHomeFooter =>
-      'Your launcher asks where to put it. You can resize it there.';
+  String get widgetsAddToHomeFooter => 'Your launcher asks where to put it. You can resize it there.';
 
   @override
   String get widgetKindToday => 'Today';
@@ -1835,218 +1749,187 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holidayNameNewYear => 'New Year\'s Day';
 
   @override
-  String get holidayAboutNewYear =>
-      'The first day of the Gregorian year, a public holiday in Myanmar since 2018.';
+  String get holidayAboutNewYear => 'The first day of the Gregorian year, a public holiday in Myanmar since 2018.';
 
   @override
   String get holidayNameIndependence => 'Independence Day';
 
   @override
-  String get holidayAboutIndependence =>
-      'Marks Myanmar\'s independence from British rule on 4 January 1948. Flags go up across the country, and many towns hold fairs and sports.';
+  String get holidayAboutIndependence => 'Marks Myanmar\'s independence from British rule on 4 January 1948. Flags go up across the country, and many towns hold fairs and sports.';
 
   @override
   String get holidayNameUnion => 'Union Day';
 
   @override
-  String get holidayAboutUnion =>
-      'Commemorates the Panglong Agreement of 12 February 1947, when leaders of the Bamar, Shan, Kachin and Chin peoples agreed to form a union.';
+  String get holidayAboutUnion => 'Commemorates the Panglong Agreement of 12 February 1947, when leaders of the Bamar, Shan, Kachin and Chin peoples agreed to form a union.';
 
   @override
   String get holidayNamePeasants => 'Peasants\' Day';
 
   @override
-  String get holidayAboutPeasants =>
-      'Honours the farmers who grow the country\'s food. It falls on 2 March.';
+  String get holidayAboutPeasants => 'Honours the farmers who grow the country\'s food. It falls on 2 March.';
 
   @override
   String get holidayNameResistance => 'Resistance Day';
 
   @override
-  String get holidayAboutResistance =>
-      'Recalls the armed uprising against the Japanese occupation that began on 27 March 1945. It is also called Armed Forces Day.';
+  String get holidayAboutResistance => 'Recalls the armed uprising against the Japanese occupation that began on 27 March 1945. It is also called Armed Forces Day.';
 
   @override
   String get holidayNameLabour => 'Labour Day';
 
   @override
-  String get holidayAboutLabour =>
-      'International Workers\' Day on 1 May, honouring working people.';
+  String get holidayAboutLabour => 'International Workers\' Day on 1 May, honouring working people.';
 
   @override
   String get holidayNameMartyrs => 'Martyrs\' Day';
 
   @override
-  String get holidayAboutMartyrs =>
-      'Remembers General Aung San and the cabinet members assassinated on 19 July 1947. Sirens sound at 10:37 am, the time of the attack.';
+  String get holidayAboutMartyrs => 'Remembers General Aung San and the cabinet members assassinated on 19 July 1947. Sirens sound at 10:37 am, the time of the attack.';
 
   @override
   String get holidayNameNationalDay => 'National Day';
 
   @override
-  String get holidayAboutNationalDay =>
-      'Commemorates the 1920 university students\' strike against the colonial education law, the start of the national movement. It falls on the 10th day of the waning moon of Tazaungmon.';
+  String get holidayAboutNationalDay => 'Commemorates the 1920 university students\' strike against the colonial education law, the start of the national movement. It falls on the 10th day of the waning moon of Tazaungmon.';
 
   @override
   String get holidayNameNewYearsEve => 'New Year\'s Eve';
 
   @override
-  String get holidayAboutNewYearsEve =>
-      'The last day of the Gregorian year, a public holiday since 2018.';
+  String get holidayAboutNewYearsEve => 'The last day of the Gregorian year, a public holiday since 2018.';
 
   @override
   String get holidayNamePublicHoliday => 'Public holiday';
 
   @override
-  String get holidayAboutPublicHoliday =>
-      'An extra day off announced by the government, often to replace a holiday that fell on a weekend.';
+  String get holidayAboutPublicHoliday => 'An extra day off announced by the government, often to replace a holiday that fell on a weekend.';
 
   @override
   String get holidayNameTabaung => 'Full Moon of Tabaung';
 
   @override
-  String get holidayAboutTabaung =>
-      'The full moon of Tabaung, the last month of the Myanmar year. Pagoda festivals are held across the country, the best known at Shwedagon.';
+  String get holidayAboutTabaung => 'The full moon of Tabaung, the last month of the Myanmar year. Pagoda festivals are held across the country, the best known at Shwedagon.';
 
   @override
   String get holidayNameBuddhaDay => 'Buddha Day';
 
   @override
-  String get holidayAboutBuddhaDay =>
-      'The full moon of Kason marks the Buddha\'s birth, enlightenment and passing. People pour water on the Bodhi trees at pagodas.';
+  String get holidayAboutBuddhaDay => 'The full moon of Kason marks the Buddha\'s birth, enlightenment and passing. People pour water on the Bodhi trees at pagodas.';
 
   @override
   String get holidayNameLentStart => 'Start of Buddhist Lent';
 
   @override
-  String get holidayAboutLentStart =>
-      'The full moon of Waso begins the three-month Buddhist Lent. Monks stay in their monasteries, and many people keep extra precepts.';
+  String get holidayAboutLentStart => 'The full moon of Waso begins the three-month Buddhist Lent. Monks stay in their monasteries, and many people keep extra precepts.';
 
   @override
   String get holidayNameThadingyut => 'Thadingyut';
 
   @override
-  String get holidayAboutThadingyut =>
-      'The full moon of Thadingyut ends the three-month Buddhist Lent. Homes and pagodas are lit with candles and lanterns for three nights, and younger people pay respects to parents, teachers and elders.';
+  String get holidayAboutThadingyut => 'The full moon of Thadingyut ends the three-month Buddhist Lent. Homes and pagodas are lit with candles and lanterns for three nights, and younger people pay respects to parents, teachers and elders.';
 
   @override
   String get holidayNameTazaungdaing => 'Tazaungdaing';
 
   @override
-  String get holidayAboutTazaungdaing =>
-      'The full moon of Tazaungmon closes the robe-offering season. It is a festival of lights, with fire balloons in Taunggyi and overnight contests weaving monks\' robes.';
+  String get holidayAboutTazaungdaing => 'The full moon of Tazaungmon closes the robe-offering season. It is a festival of lights, with fire balloons in Taunggyi and overnight contests weaving monks\' robes.';
 
   @override
   String get holidayNameChristmas => 'Christmas';
 
   @override
-  String get holidayAboutChristmas =>
-      'Christians celebrate the birth of Jesus on 25 December.';
+  String get holidayAboutChristmas => 'Christians celebrate the birth of Jesus on 25 December.';
 
   @override
   String get holidayNameDiwali => 'Diwali';
 
   @override
-  String get holidayAboutDiwali =>
-      'The Hindu festival of lights, celebrated with oil lamps, sweets and prayers.';
+  String get holidayAboutDiwali => 'The Hindu festival of lights, celebrated with oil lamps, sweets and prayers.';
 
   @override
   String get holidayNameEidAlAdha => 'Eid al-Adha';
 
   @override
-  String get holidayAboutEidAlAdha =>
-      'The Muslim festival of sacrifice, at the end of the Hajj pilgrimage. Its date follows the Islamic lunar calendar.';
+  String get holidayAboutEidAlAdha => 'The Muslim festival of sacrifice, at the end of the Hajj pilgrimage. Its date follows the Islamic lunar calendar.';
 
   @override
   String get holidayNameGoodFriday => 'Good Friday';
 
   @override
-  String get holidayAboutGoodFriday =>
-      'Christians remember the crucifixion of Jesus on the Friday before Easter.';
+  String get holidayAboutGoodFriday => 'Christians remember the crucifixion of Jesus on the Friday before Easter.';
 
   @override
   String get holidayNameEaster => 'Easter';
 
   @override
-  String get holidayAboutEaster =>
-      'Christians celebrate the resurrection of Jesus.';
+  String get holidayAboutEaster => 'Christians celebrate the resurrection of Jesus.';
 
   @override
   String get holidayNameEidAlFitr => 'Eid al-Fitr';
 
   @override
-  String get holidayAboutEidAlFitr =>
-      'The Muslim festival that ends the fasting month of Ramadan. Its date follows the Islamic lunar calendar.';
+  String get holidayAboutEidAlFitr => 'The Muslim festival that ends the fasting month of Ramadan. Its date follows the Islamic lunar calendar.';
 
   @override
   String get holidayNameMahathamaya => 'Mahathamaya Day';
 
   @override
-  String get holidayAboutMahathamaya =>
-      'The full moon of Nayon recalls the Buddha teaching the Mahasamaya Sutta to a great gathering of devas.';
+  String get holidayAboutMahathamaya => 'The full moon of Nayon recalls the Buddha teaching the Mahasamaya Sutta to a great gathering of devas.';
 
   @override
   String get holidayNameGarudhamma => 'Garudhamma Day';
 
   @override
-  String get holidayAboutGarudhamma =>
-      'The full moon of Tawthalin recalls the Buddha giving the eight Garudhamma rules to the first nuns.';
+  String get holidayAboutGarudhamma => 'The full moon of Tawthalin recalls the Buddha giving the eight Garudhamma rules to the first nuns.';
 
   @override
   String get holidayNameMetta => 'Metta Day';
 
   @override
-  String get holidayAboutMetta =>
-      'The full moon of Wagaung, a day for practising loving-kindness.';
+  String get holidayAboutMetta => 'The full moon of Wagaung, a day for practising loving-kindness.';
 
   @override
   String get holidayNameThingyan => 'Thingyan and Myanmar New Year';
 
   @override
-  String get holidayAboutThingyan =>
-      'The water festival that ends the Myanmar year: Akyo, Akya, Akyat and Atat, then New Year\'s Day. People splash water to wash away the old year, and offices stay closed through the festival and the days after New Year.';
+  String get holidayAboutThingyan => 'The water festival that ends the Myanmar year: Akyo, Akya, Akyat and Atat, then New Year\'s Day. People splash water to wash away the old year, and offices stay closed through the festival and the days after New Year.';
 
   @override
   String get holidayNameKarenNewYear => 'Karen New Year';
 
   @override
-  String get holidayAboutKarenNewYear =>
-      'The Karen New Year, on the first day of the month of Pyatho, celebrated with traditional dances and music.';
+  String get holidayAboutKarenNewYear => 'The Karen New Year, on the first day of the month of Pyatho, celebrated with traditional dances and music.';
 
   @override
   String get holidayNameChineseNewYear => 'Chinese New Year';
 
   @override
-  String get holidayAboutChineseNewYear =>
-      'The Lunar New Year, celebrated by Chinese communities with family reunions, lion dances and red envelopes.';
+  String get holidayAboutChineseNewYear => 'The Lunar New Year, celebrated by Chinese communities with family reunions, lion dances and red envelopes.';
 
   @override
   String get holidayNameShanNewYear => 'Shan New Year';
 
   @override
-  String get holidayAboutShanNewYear =>
-      'The Shan New Year, on the first day of the waxing moon of Nadaw.';
+  String get holidayAboutShanNewYear => 'The Shan New Year, on the first day of the waxing moon of Nadaw.';
 
   @override
   String get holidayNameTaungpyone => 'Taungpyone Festival';
 
   @override
-  String get holidayAboutTaungpyone =>
-      'The nat festival at Taungpyone near Mandalay, held in Wagaung for the two Taungpyone brother spirits.';
+  String get holidayAboutTaungpyone => 'The nat festival at Taungpyone near Mandalay, held in Wagaung for the two Taungpyone brother spirits.';
 
   @override
   String get holidayNameYadanagu => 'Yadanagu Festival';
 
   @override
-  String get holidayAboutYadanagu =>
-      'The nat festival at Yadanagu near Amarapura, held in Tawthalin for the mother of the Taungpyone brothers.';
+  String get holidayAboutYadanagu => 'The nat festival at Yadanagu near Amarapura, held in Tawthalin for the mother of the Taungpyone brothers.';
 
   @override
   String get holidayNameMonNational => 'Mon National Day';
 
   @override
-  String get holidayAboutMonNational =>
-      'Falls on the full moon of Tabodwe and recalls the founding of Hanthawaddy (Bago).';
+  String get holidayAboutMonNational => 'Falls on the full moon of Tabodwe and recalls the founding of Hanthawaddy (Bago).';
 
   @override
   String get holidayNameMothers => 'Mother\'s Day';
@@ -2064,15 +1947,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holidayNameAuthors => 'Authors\' Day';
 
   @override
-  String get holidayAboutAuthors =>
-      'Honours Myanmar writers and poets, with literary talks and book fairs.';
+  String get holidayAboutAuthors => 'Honours Myanmar writers and poets, with literary talks and book fairs.';
 
   @override
   String get holidayNameAungSanBirthday => 'General Aung San\'s Birthday';
 
   @override
-  String get holidayAboutAungSanBirthday =>
-      'General Aung San, the father of Myanmar\'s independence, was born on 13 February 1915. The day is also Children\'s Day.';
+  String get holidayAboutAungSanBirthday => 'General Aung San, the father of Myanmar\'s independence, was born on 13 February 1915. The day is also Children\'s Day.';
 
   @override
   String get holidayNameValentines => 'Valentine\'s Day';
@@ -2090,36 +1971,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holidayNameEarth => 'Earth Day';
 
   @override
-  String get holidayAboutEarth =>
-      'A worldwide day for protecting the environment, on 22 April.';
+  String get holidayAboutEarth => 'A worldwide day for protecting the environment, on 22 April.';
 
   @override
   String get holidayNameRedCross => 'Red Cross Day';
 
   @override
-  String get holidayAboutRedCross =>
-      'World Red Cross Day, on 8 May, the birthday of its founder Henry Dunant.';
+  String get holidayAboutRedCross => 'World Red Cross Day, on 8 May, the birthday of its founder Henry Dunant.';
 
   @override
   String get holidayNameUnitedNations => 'United Nations Day';
 
   @override
-  String get holidayAboutUnitedNations =>
-      'Marks the founding of the United Nations on 24 October 1945.';
+  String get holidayAboutUnitedNations => 'Marks the founding of the United Nations on 24 October 1945.';
 
   @override
   String get holidayNameWorldTeachers => 'World Teachers\' Day';
 
   @override
-  String get holidayAboutWorldTeachers =>
-      'UNESCO\'s day for teachers, on 5 October.';
+  String get holidayAboutWorldTeachers => 'UNESCO\'s day for teachers, on 5 October.';
 
   @override
   String get holidayNameHalloween => 'Halloween';
 
   @override
-  String get holidayAboutHalloween =>
-      'An evening of costumes and treats, on 31 October.';
+  String get holidayAboutHalloween => 'An evening of costumes and treats, on 31 October.';
 
   @override
   String get holidaysSearchHint => 'Search holidays';
@@ -2248,8 +2124,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get holidaysViewsSubtitle =>
-      'Every holiday of the year, with reminders';
+  String get holidaysViewsSubtitle => 'Every holiday of the year, with reminders';
 
   @override
   String holidaysViewsFooter(int count, String year) {
@@ -2301,15 +2176,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get holidayRemindersFooter =>
-      'Reminders cover the next 60 days and refresh each time you open the app.';
+  String get holidayRemindersFooter => 'Reminders cover the next 60 days and refresh each time you open the app.';
 
   @override
   String get holidayRemindersIncluded => 'Included in all public holidays';
 
   @override
-  String get holidayRemindersPermissionDenied =>
-      'Notifications are off for Myanmar Calendar. Turn them on in your phone\'s Settings to get reminders.';
+  String get holidayRemindersPermissionDenied => 'Notifications are off for Myanmar Calendar. Turn them on in your phone\'s Settings to get reminders.';
 
   @override
   String holidayReminderTomorrow(String holiday) {
@@ -2367,8 +2240,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewHolidaysTitle => 'Holidays';
 
   @override
-  String get whatsNewHolidaysBody =>
-      'Every holiday of the year in one place. Search in Myanmar or English, see what each day marks, and get a reminder the evening before.';
+  String get whatsNewHolidaysBody => 'Every holiday of the year in one place. Search in Myanmar or English, see what each day marks, and get a reminder the evening before.';
 
   @override
   String get whatsNewHolidaysAction => 'Explore holidays';
@@ -2377,8 +2249,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewWidgetsTitle => 'New home-screen widgets';
 
   @override
-  String get whatsNewWidgetsBody =>
-      'Nine widgets in five styles, from today\'s date to a countdown to Thingyan. Tap any day to open it in the app.';
+  String get whatsNewWidgetsBody => 'Nine widgets in five styles, from today\'s date to a countdown to Thingyan. Tap any day to open it in the app.';
 
   @override
   String get whatsNewWidgetsAction => 'Widget settings';
@@ -2387,8 +2258,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewThemesTitle => 'Calendar layouts and themes';
 
   @override
-  String get whatsNewThemesBody =>
-      '22 layouts for the home calendar, with Almanac as the new default, and twelve themes from Pagoda to Deep Field.';
+  String get whatsNewThemesBody => '22 layouts for the home calendar, with Almanac as the new default, and twelve themes from Pagoda to Deep Field.';
 
   @override
   String get whatsNewThemesAction => 'Choose a theme';
@@ -2397,8 +2267,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewColorsTitle => 'Custom colours';
 
   @override
-  String get whatsNewColorsBody =>
-      'Pick one accent colour for the whole app, or fine-tune every colour in Advanced.';
+  String get whatsNewColorsBody => 'Pick one accent colour for the whole app, or fine-tune every colour in Advanced.';
 
   @override
   String get whatsNewColorsAction => 'Pick colours';
@@ -2407,15 +2276,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewIconsTitle => 'App icons';
 
   @override
-  String get whatsNewIconsBody =>
-      'Choose from six app icons, including Moon, Forest and Traditional.';
+  String get whatsNewIconsBody => 'Choose from six app icons, including Moon, Forest and Traditional.';
 
   @override
   String get whatsNewIconsAction => 'Change icon';
 
   @override
-  String get whatsNewNewIconsBody =>
-      'The new Moon page icon, and ten designs to choose from, including Dawn, Thingyan and Pagoda.';
+  String get whatsNewNewIconsBody => 'The new Moon page icon, and ten designs to choose from, including Dawn, Thingyan and Pagoda.';
 
   @override
   String get whatsNewNewIconsTitle => 'A new app icon';
@@ -2424,8 +2291,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewTimetablesAction => 'Add an event';
 
   @override
-  String get whatsNewTimetablesBody =>
-      'Repeat an event on chosen weekdays with a time for each day, or save one event on any set of dates.';
+  String get whatsNewTimetablesBody => 'Repeat an event on chosen weekdays with a time for each day, or save one event on any set of dates.';
 
   @override
   String get whatsNewTimetablesTitle => 'Class timetables and several dates';
@@ -2434,8 +2300,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewStudioTitle => 'Calendar Studio';
 
   @override
-  String get whatsNewStudioBody =>
-      'Design wall, desk and social calendars from presets, then export print-ready PDFs and images.';
+  String get whatsNewStudioBody => 'Design wall, desk and social calendars from presets, then export print-ready PDFs and images.';
 
   @override
   String get whatsNewStudioAction => 'Open Studio';
@@ -2464,29 +2329,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingWelcomeTitle => 'Welcome to Myanmar Calendar';
 
   @override
-  String get onboardingWelcomeBody =>
-      'Myanmar and Western dates side by side, for every day of the year.';
+  String get onboardingWelcomeBody => 'Myanmar and Western dates side by side, for every day of the year.';
 
   @override
   String get onboardingCalendarsTitle => 'Two calendars in one';
 
   @override
-  String get onboardingCalendarsBody =>
-      'Every day shows its Myanmar date, moon phase and Sabbath, with astrology one tap away.';
+  String get onboardingCalendarsBody => 'Every day shows its Myanmar date, moon phase and Sabbath, with astrology one tap away.';
 
   @override
   String get onboardingHolidaysTitle => 'Never miss a holiday';
 
   @override
-  String get onboardingHolidaysBody =>
-      'Browse and search every holiday, add your own events, and get a reminder the evening before.';
+  String get onboardingHolidaysBody => 'Browse and search every holiday, add your own events, and get a reminder the evening before.';
 
   @override
   String get onboardingYoursTitle => 'Make it yours';
 
   @override
-  String get onboardingYoursBody =>
-      'Choose colours and calendar themes, add home-screen widgets, and design printable calendars in Calendar Studio.';
+  String get onboardingYoursBody => 'Choose colours and calendar themes, add home-screen widgets, and design printable calendars in Calendar Studio.';
 
   @override
   String get onboardingLanguagesTitle => 'Choose your languages';
@@ -2495,8 +2356,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingAppLanguage => 'App language';
 
   @override
-  String get onboardingCalendarLanguageFooter =>
-      'Month names, holidays and moon phases use the calendar language.';
+  String get onboardingCalendarLanguageFooter => 'Month names, holidays and moon phases use the calendar language.';
 
   @override
   String get onboardingLookTitle => 'Pick a look';
@@ -2514,22 +2374,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingColour => 'Colour';
 
   @override
-  String get onboardingColourFooter =>
-      'More colours and calendar themes are in Settings › Appearance.';
+  String get onboardingColourFooter => 'More colours and calendar themes are in Settings › Appearance.';
 
   @override
   String get onboardingPrivacyTitle => 'Your calendar stays on your phone';
 
   @override
-  String get onboardingPrivacyBody =>
-      'Events and notes never leave your device. You can help improve the app by sharing anonymous data.';
+  String get onboardingPrivacyBody => 'Events and notes never leave your device. You can help improve the app by sharing anonymous data.';
 
   @override
   String get onboardingUsageStats => 'Usage statistics';
 
   @override
-  String get onboardingUsageStatsSubtitle =>
-      'Which screens are used, never what\'s on them';
+  String get onboardingUsageStatsSubtitle => 'Which screens are used, never what\'s on them';
 
   @override
   String get onboardingCrashReports => 'Crash reports';
@@ -2538,8 +2395,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingCrashReportsSubtitle => 'Sent only when the app crashes';
 
   @override
-  String get onboardingPrivacyFooter =>
-      'Change this any time in Settings › Privacy & Data.';
+  String get onboardingPrivacyFooter => 'Change this any time in Settings › Privacy & Data.';
 
   @override
   String get onboardingNotificationsTitle => 'Reminders when they matter';
@@ -2548,15 +2404,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingEventReminders => 'Event reminders';
 
   @override
-  String get onboardingEventRemindersSubtitle =>
-      'At the time you choose for each event';
+  String get onboardingEventRemindersSubtitle => 'At the time you choose for each event';
 
   @override
   String get onboardingHolidayReminders => 'Holiday reminders';
 
   @override
-  String get onboardingHolidayRemindersSubtitle =>
-      'The evening before holidays you follow';
+  String get onboardingHolidayRemindersSubtitle => 'The evening before holidays you follow';
 
   @override
   String get onboardingAllowNotifications => 'Allow notifications';
@@ -2573,22 +2427,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingWidgetTipTitle => 'Tip: add a widget';
 
   @override
-  String get onboardingWidgetTipBody =>
-      'See the Myanmar date on your home screen. Touch and hold an empty spot, then add Myanmar Calendar.';
+  String get onboardingWidgetTipBody => 'See the Myanmar date on your home screen. Touch and hold an empty spot, then add Myanmar Calendar.';
 
   @override
   String get viewsMyanmarMonth => 'Myanmar Month';
 
   @override
-  String get viewsMyanmarMonthSubtitle =>
-      'The month by waxing and waning fortnight';
+  String get viewsMyanmarMonthSubtitle => 'The month by waxing and waning fortnight';
 
   @override
   String get viewsAgenda => 'Agenda';
 
   @override
-  String get viewsAgendaSubtitle =>
-      'Holidays, Sabbath, moon days and your events ahead';
+  String get viewsAgendaSubtitle => 'Holidays, Sabbath, moon days and your events ahead';
 
   @override
   String get dayDetailsComingUp => 'Coming up';
@@ -2607,8 +2458,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String repeatEveryWeeks(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return 'Every $countString weeks';
@@ -2625,8 +2475,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String repeatTimes(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString times';
@@ -2641,13 +2490,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get repeatTimePerDay => 'A time for each day';
 
   @override
-  String get repeatTimePerDayNote =>
-      'Days with different times are saved as one weekly event per time.';
+  String get repeatTimePerDayNote => 'Days with different times are saved as one weekly event per time.';
 
   @override
   String repeatEventsCreated(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString events created';
@@ -2664,8 +2511,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String repeatDatesCount(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString dates';
@@ -2673,8 +2519,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String eventsRepeatsOnDates(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return 'on $countString dates';

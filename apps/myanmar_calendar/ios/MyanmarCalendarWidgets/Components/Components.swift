@@ -142,8 +142,9 @@ struct MonthGridView: View {
         let isToday = c.in && c.d == todayDay
         let red = c.in && (c.hol || col == 0)
         VStack(spacing: dense ? 0 : 1.5) {
-            Text(payload.num(c.d))
-                .font(look.number(dense ? 11 : 13.5, weight: isToday ? .bold : .semibold))
+            let number = payload.westernNum(c.d)
+            Text(number)
+                .font(look.number(dense ? 11 : 13.5, weight: isToday ? .bold : .semibold, for: number))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .monospacedDigit()
@@ -200,8 +201,9 @@ struct WeekStripView: View {
                         .foregroundStyle(day?.wd == 0 ? p.holiday : p.muted)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
-                    Text(payload.num(Calendar.current.component(.day, from: date)))
-                        .font(look.number(16))
+                    let number = payload.westernNum(Calendar.current.component(.day, from: date))
+                    Text(number)
+                        .font(look.number(16, for: number))
                         .monospacedDigit()
                         .foregroundStyle(i == 0 ? p.accent : ((day?.hol.isEmpty == false) ? p.holiday : p.ink))
                     if let day {

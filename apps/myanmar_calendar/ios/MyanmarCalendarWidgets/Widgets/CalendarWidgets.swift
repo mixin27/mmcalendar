@@ -126,8 +126,8 @@ struct ComingUpView: View {
         let day = DayKey.date(item.d).map { Calendar.current.component(.day, from: $0) } ?? 0
         let days = payload.daysUntil(item.d, from: entry.date) ?? 0
         return HStack(spacing: 10) {
-            Text(payload.num(day))
-                .font(look.number(14))
+            Text(payload.westernNum(day))
+                .font(look.number(14, for: payload.westernNum(day)))
                 .monospacedDigit()
                 .foregroundStyle(holiday ? p.holiday : p.accent)
                 .frame(width: 34, height: 34)
@@ -171,8 +171,9 @@ struct AgendaView: View {
             let next = payload.events(on: tomorrow)
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center, spacing: 8) {
-                    Text(payload.num(Calendar.current.component(.day, from: entry.date)))
-                        .font(look.number(28))
+                    let number = payload.westernNum(Calendar.current.component(.day, from: entry.date))
+                    Text(number)
+                        .font(look.number(28, for: number))
                     VStack(alignment: .leading, spacing: 0) {
                         Text(payload.s.weekdays[day.wd].uppercased())
                             .font(.system(size: 11, weight: .bold))

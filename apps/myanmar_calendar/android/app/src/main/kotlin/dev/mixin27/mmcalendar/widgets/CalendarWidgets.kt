@@ -141,7 +141,7 @@ class ComingUpWidget : CalendarWidget() {
                 modifier = GlanceModifier.size(30.dp).cornerRadius(9.dp).background(if (holiday) w.p.holidaySoft else w.p.soft),
                 contentAlignment = Alignment.Center,
             ) {
-                NumText(w, w.payload.num(date.dayOfMonth), 13f, if (holiday) w.p.holiday else w.p.accent)
+                NumText(w, w.payload.westernNum(date.dayOfMonth), 13f, if (holiday) w.p.holiday else w.p.accent)
             }
             Spacer(GlanceModifier.width(10.dp))
             Column(modifier = GlanceModifier.defaultWeight()) {
@@ -173,7 +173,7 @@ class AgendaWidget : CalendarWidget() {
         val next = w.payload.events(w.today.plusDays(1))
         Column(modifier = GlanceModifier.fillMaxSize()) {
             Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                NumText(w, w.payload.num(w.today.dayOfMonth), 26f)
+                NumText(w, w.payload.westernNum(w.today.dayOfMonth), 26f)
                 Spacer(GlanceModifier.width(8.dp))
                 Column(modifier = GlanceModifier.defaultWeight()) {
                     Caps(w.s.weekdays[w.day.wd], w.p.holiday)
