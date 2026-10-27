@@ -1,8 +1,15 @@
+/** An absolute URL with no trailing slash; a bare domain gets https://. */
+function absoluteUrl(value: string | undefined) {
+  const url = value?.trim();
+  if (!url) return null;
+  return (/^https?:\/\//i.test(url) ? url : `https://${url}`).replace(/\/+$/, "");
+}
+
 /** Where the site lives; set NEXT_PUBLIC_SITE_URL on Vercel to the real domain. */
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://calendar.kyawzayartun.com").replace(/\/$/, "");
+export const siteUrl = absoluteUrl(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://calendar.kyawzayartun.com";
 
 /** The Flutter web app; the "Open the web app" links hide while it's unset. */
-export const webAppUrl = process.env.NEXT_PUBLIC_WEB_APP_URL ?? null;
+export const webAppUrl = absoluteUrl(process.env.NEXT_PUBLIC_WEB_APP_URL);
 
 export const links = {
   appStore: "https://apps.apple.com/us/app/myanmar-calendar-pyatkadain/id6811349564",
