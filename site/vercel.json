@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ../screenshots ../docs/studio-templates ../docs/design/home-widgets-v4 ../CHANGELOG.md ../apps/myanmar_calendar/assets/branding ../packages/shared/core/lib/src/constants/app_constants.dart"
+}

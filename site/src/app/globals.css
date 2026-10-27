@@ -1,0 +1,212 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Light and dark follow the system setting. */
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), var(--font-myanmar), ui-sans-serif, system-ui, sans-serif;
+  --font-myanmar: var(--font-myanmar), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-heading: var(--font-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* The app's "Moon page" brand. */
+  --color-night-950: #0d1328;
+  --color-night-900: #0a0f1f;
+  --color-night-800: #14203d;
+  --color-night-700: #1e3a73;
+  --color-night-600: #2b5598;
+  --color-night-100: #c9d4f0;
+  --color-night-50: #dce4f7;
+  --color-gold: #f4c562;
+  --color-gold-deep: #d9a33a;
+  --color-panel: var(--panel);
+  --color-chip: var(--chip);
+  --color-chip-foreground: var(--chip-foreground);
+  --color-link: var(--link);
+}
+
+:root {
+  --background: #f7f9fe;
+  --foreground: #0a0a0f;
+  --card: #ffffff;
+  --card-foreground: #0a0a0f;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0f;
+  --primary: #2f5bea;
+  --primary-foreground: #ffffff;
+  --secondary: #e4ebfb;
+  --secondary-foreground: #1e3fb8;
+  --muted: #eef3fc;
+  --muted-foreground: #4f586c;
+  --accent: #e4ebfb;
+  --accent-foreground: #1e3fb8;
+  --destructive: #e5383b;
+  --border: #e1e7f3;
+  --input: #d3dcee;
+  --ring: #2f5bea;
+  --radius: 0.75rem;
+  --panel: #eef3fc;
+  --chip: #e4ebfb;
+  --chip-foreground: #1e3fb8;
+  --link: #2f5bea;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0d0f17;
+    --foreground: #f5f5f7;
+    --card: #151a27;
+    --card-foreground: #f5f5f7;
+    --popover: #151a27;
+    --popover-foreground: #f5f5f7;
+    --primary: #5b83ff;
+    --primary-foreground: #0a0f1f;
+    --secondary: #1c2540;
+    --secondary-foreground: #c9d4f0;
+    --muted: #141a2b;
+    --muted-foreground: #a9b2c7;
+    --accent: #1c2540;
+    --accent-foreground: #c9d4f0;
+    --destructive: #ff5a5f;
+    --border: #232838;
+    --input: #2c3346;
+    --ring: #7d9bff;
+    --panel: #141a2b;
+    --chip: #1c2540;
+    --chip-foreground: #c9d4f0;
+    --link: #7d9bff;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  /* Myanmar script stacks marks above and below the line. */
+  :lang(my) {
+    line-height: 1.8;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* The privacy policy, rendered from the app's Markdown. */
+.prose-policy h2 {
+  margin: 2.2em 0 0.6em;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.prose-policy h3 {
+  margin: 1.8em 0 0.5em;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.prose-policy h4 {
+  margin: 1.4em 0 0.4em;
+  font-weight: 700;
+}
+.prose-policy p {
+  margin: 0.8em 0;
+}
+.prose-policy ul,
+.prose-policy ol {
+  margin: 0.6em 0;
+  padding-left: 1.4em;
+  list-style: disc;
+}
+.prose-policy ol {
+  list-style: decimal;
+}
+.prose-policy li {
+  margin: 0.25em 0;
+}
+.prose-policy li::marker {
+  color: var(--color-gold-deep);
+}
+.prose-policy hr {
+  margin: 2em 0;
+  border-color: var(--border);
+}
+.prose-policy a {
+  color: var(--link);
+  text-decoration: underline;
+}
+.prose-policy strong {
+  font-weight: 700;
+}
+
+/* Night-sky motion: the moon breathes, stars twinkle. */
+@keyframes moon-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 70px 18px rgb(244 197 98 / 0.32);
+  }
+  50% {
+    box-shadow: 0 0 110px 32px rgb(244 197 98 / 0.45);
+  }
+}
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.moon {
+  border-radius: 9999px;
+  background: radial-gradient(circle at 36% 34%, #fff7dd 0%, #f4c562 58%, #d9a33a 100%);
+  animation: moon-breathe 7s ease-in-out infinite;
+}
+.star {
+  animation: star-twinkle 4s ease-in-out infinite;
+}
+.night {
+  background: linear-gradient(165deg, #0d1328 0%, #14203d 50%, #2b5598 100%);
+  color: #f7f9fe;
+}
+@media (prefers-reduced-motion: reduce) {
+  .moon,
+  .star {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

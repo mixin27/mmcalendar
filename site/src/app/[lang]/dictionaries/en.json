@@ -1,0 +1,183 @@
+{
+  "meta": {
+    "title": "Myanmar Calendar — the Myanmar calendar in your pocket",
+    "description": "Myanmar and Western dates side by side, moon phases, astrology, holidays, events and printable calendars you design yourself. Free on Android, iOS and the web.",
+    "siteName": "Myanmar Calendar"
+  },
+  "appName": "Myanmar Calendar",
+  "nav": {
+    "label": "Main",
+    "features": "Features",
+    "studio": "Studio",
+    "templates": "Templates",
+    "whatsNew": "What's new",
+    "download": "Download",
+    "language": "Language",
+    "skip": "Skip to content"
+  },
+  "store": {
+    "appStoreTop": "Download on the",
+    "appStore": "App Store",
+    "playTop": "Get it on",
+    "play": "Google Play",
+    "openWeb": "Open the web app"
+  },
+  "hero": {
+    "badge": "New · Design your own calendar with Calendar Studio",
+    "title": "Myanmar Calendar",
+    "tagline": "The Myanmar calendar in your pocket",
+    "body": "Myanmar and Western dates, the moon, Sabbath days, holidays and astrology in one place — and printable calendars you design yourself.",
+    "openWeb": "Open the web app in your browser →",
+    "sampleDate": "26 October 2026",
+    "sampleValue": "1388 Thadingyut Full Moon 15",
+    "screenshotAlt": "The home calendar"
+  },
+  "highlights": {
+    "label": "Highlights",
+    "items": ["Free", "Works offline", "6 calendar languages", "Android · iOS · Web", "Your events stay on your phone"]
+  },
+  "features": {
+    "eyebrow": "Features",
+    "title": "Everything for every day",
+    "body": "From Myanmar dates to astrology, from holidays to class timetables — on your phone, no internet needed.",
+    "items": [
+      {
+        "eyebrow": "Home calendar",
+        "title": "22 grid layouts, 12 themes",
+        "body": "Myanmar and Western dates in one grid, with the moon, holidays, Sabbath days and your events on every day.",
+        "chips": ["Almanac", "Myanmar months", "Moon band", "Auspice"],
+        "images": [{ "src": "07_grid_styles.png", "alt": "Calendar grid styles" }]
+      },
+      {
+        "eyebrow": "Day details",
+        "title": "Astrology in plain words",
+        "body": "The Myanmar date, Sasana year and moon, with countdowns to the next full moon, new moon and Sabbath day.",
+        "chips": ["Sabbath", "Yatyaza", "Pyatthada", "Mahabote", "Nakhat", "Nagahle"],
+        "images": [{ "src": "02_day_details.png", "alt": "Day details with astrology" }]
+      },
+      {
+        "eyebrow": "Holidays & events",
+        "title": "Holidays, timetables, reminders",
+        "body": "Search and filter holidays and set reminders. Add weekly class timetables with a different time each day, or one event on several dates at once.",
+        "chips": ["Holiday search", "Timetables", "Several dates", "Reminders"],
+        "images": [
+          { "src": "03_holidays.png", "alt": "Holidays" },
+          { "src": "05_timetable.png", "alt": "Weekly timetable" }
+        ]
+      }
+    ],
+    "widgets": {
+      "eyebrow": "Widgets",
+      "title": "On your home screen and lock screen",
+      "body": "Today's date, the moon and what's next at a glance, without opening the app. Five styles for iOS and Android.",
+      "iosAlt": "iOS widget",
+      "androidAlt": "Android widgets"
+    }
+  },
+  "studio": {
+    "eyebrow": "Calendar Studio",
+    "title": "Design and print your own calendar",
+    "body": "Start from wall, desk, social and story presets and edit right on the page. Myanmar dates, moon days and holidays are already in place; export PDF, PNG or JPEG at real paper size.",
+    "cta": "See all {count} templates →",
+    "screenshotAlt": "Calendar Studio",
+    "previewAlt": "{name}: preview"
+  },
+  "topics": {
+    "all": "All",
+    "relationship": "Relationship",
+    "family": "Family",
+    "friendship": "Friendship",
+    "business": "Business"
+  },
+  "languages": {
+    "eyebrow": "6 calendar languages",
+    "title": "Six ways to write a date",
+    "body": "The full moon of Thadingyut, 26 October 2026, as the app writes it.",
+    "names": {
+      "en": "English",
+      "my": "Myanmar",
+      "zawgyi": "Zawgyi",
+      "mon": "Mon",
+      "shan": "Shan",
+      "karen": "Karen"
+    },
+    "zawgyiNote": "Shows correctly with a Zawgyi font"
+  },
+  "faq": {
+    "title": "Questions",
+    "items": [
+      { "q": "Is it free?", "a": "Yes. Myanmar Calendar is free on Android, iPhone, iPad and the web." },
+      { "q": "Does it work offline?", "a": "Yes. Your calendar, events and settings are kept on your phone, so it works without the internet." },
+      { "q": "What data do you collect?", "a": "Your events and settings never leave your phone. Anonymous usage and crash reports are sent only if you allow them. See the privacy policy for details." },
+      { "q": "Which languages?", "a": "The app speaks Myanmar and English, and the calendar can be shown in Myanmar, English, Zawgyi, Mon, Shan and Karen." },
+      { "q": "How do I add a Studio template?", "a": "Download the file, then in Calendar Studio tap Import project, or New calendar → Import template, and choose it." }
+    ]
+  },
+  "cta": {
+    "title": "Get Myanmar Calendar",
+    "body": "Free on Android, iPhone, iPad and the web"
+  },
+  "footer": {
+    "label": "Footer",
+    "privacy": "Privacy policy",
+    "support": "Support",
+    "whatsNew": "What's new",
+    "github": "Source on GitHub",
+    "made": "Made for the Myanmar calendar community",
+    "license": "MIT License"
+  },
+  "templatesPage": {
+    "title": "Calendar Studio templates",
+    "eyebrow": "Calendar Studio templates",
+    "heading": "Ready-made calendar designs",
+    "body": "Download one, add it to Calendar Studio, swap in your photos, edit the words, and print.",
+    "description": "Free Calendar Studio designs for couples, families, friends and businesses: {year} projects and templates for any year.",
+    "filterLabel": "Topic",
+    "downloadProject": "{year} project (.mmcstudio)",
+    "downloadTemplate": "Template, any year (.mmctemplate)",
+    "sizes": {
+      "square": "Square",
+      "a4Portrait": "A4 wall",
+      "a4Landscape": "A4 desk"
+    },
+    "stepsTitle": "Add it on your phone",
+    "steps": [
+      { "title": "Download a file", "body": ".mmcstudio for this year, or .mmctemplate for any year." },
+      { "title": "Open Calendar Studio", "body": "Tap Import project, or New calendar → Import template, and choose the file." },
+      { "title": "Add your photos", "body": "Tap a photo frame, then Replace, to put your own photo in." }
+    ],
+    "designs": {
+      "love-letters": "Cream paper, photos framed like stamps, a red wax seal and a \"Dear ___,\" note each month.",
+      "sweet-pastel": "Light blue and mint: two round photos and floating hearts.",
+      "moonlit": "Navy and gold: round moon photos, a crescent and stars.",
+      "family-album": "A three-photo collage, a family birthday list and notes.",
+      "little-home": "A little house with a photo in its window and a chores list. Kids love it.",
+      "good-times": "Tilted polaroids, star stickers and plans for the crew.",
+      "postcards": "Postcards, stamps and a next-trip list for friends who travel.",
+      "clean-corporate": "An office calendar with your logo, monthly goals and notes.",
+      "studio-bold": "A big month number, your logo, key dates and deadlines."
+    }
+  },
+  "whatsNewPage": {
+    "eyebrow": "Release notes",
+    "title": "What's new",
+    "body": "Every update to Myanmar Calendar, newest first.",
+    "version": "Version {version}"
+  },
+  "privacyPage": {
+    "title": "Privacy policy",
+    "description": "How Myanmar Calendar handles your data."
+  },
+  "supportPage": {
+    "title": "Support",
+    "body": "Questions, ideas or something not working? Get in touch.",
+    "emailTitle": "Email",
+    "emailBody": "Write to us and we'll reply as soon as we can.",
+    "issuesTitle": "Report a problem",
+    "issuesBody": "Report a bug or suggest a feature on GitHub."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "home": "Back to the home page"
+  }
+}
