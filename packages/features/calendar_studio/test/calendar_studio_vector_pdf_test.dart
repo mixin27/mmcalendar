@@ -25,75 +25,84 @@ void main() {
     }
   });
 
-  testWidgets('Hearth & Home exports as editable vectors', (tester) async {
-    final photo = Uint8List.fromList(
-      img.encodeJpg(
-        img.Image(width: 300, height: 200)..clear(img.ColorRgb8(40, 140, 120)),
-      ),
-    );
-    var project = CalendarStudioTemplates.byId('family').create(
-      id: 'vector',
-      source: const CalendarStudioSource(
-        year: 2027,
-        month: 1,
-        period: CalendarStudioPeriod.month,
-      ),
-      now: DateTime(2027),
-    );
-    final page = project.pages.first;
-    project = project.copyWith(
-      pages: [
-        page.copyWith(
-          blocks: [
-            for (final block in page.blocks)
-              block.type == CalendarStudioBlockType.image
-                  ? block.copyWith(
-                      content: {...block.content, 'assetId': 'photo'},
-                    )
-                  : block,
-          ],
-        ),
-      ],
-    );
-    final renderer = CalendarStudioVectorPdfRenderer(
-      layout: CalendarStudioRasterRenderer(
-        dataProvider: const MyanmarCalendarStudioDataProvider(),
-        assetStore: _OnePhoto(photo),
-      ),
-      fonts: CalendarStudioExportFonts(
-        download: (name) async {
-          final file = File(
-            '../../../apps/myanmar_calendar/web/export-fonts/$name',
-          );
-          return file.existsSync() ? file.readAsBytesSync() : null;
-        },
-      ),
-    );
+  // Embedding needs the export fonts, built by tool/build_export_fonts.py
+  // into the web app (gitignored), so CI doesn't have them.
+  final exportFonts = Directory(
+    '../../../apps/myanmar_calendar/web/export-fonts',
+  );
 
-    final (bytes, report) = (await tester.runAsync(
-      () => renderer.render(
-        project,
-        [project.pages.first],
-        CalendarStudioExportPreset.pagePdf.copyWith(
-          format: CalendarStudioExportFormat.pdfEditable,
+  testWidgets(
+    'Hearth & Home exports as editable vectors',
+    skip: !exportFonts.existsSync(),
+    (tester) async {
+      final photo = Uint8List.fromList(
+        img.encodeJpg(
+          img.Image(width: 300, height: 200)
+            ..clear(img.ColorRgb8(40, 140, 120)),
         ),
-        compress: false,
-      ),
-    ))!;
-    if (Platform.environment['VECTOR_PDF_OUT'] case final out?) {
-      File(out).writeAsBytesSync(bytes);
-    }
+      );
+      var project = CalendarStudioTemplates.byId('family').create(
+        id: 'vector',
+        source: const CalendarStudioSource(
+          year: 2027,
+          month: 1,
+          period: CalendarStudioPeriod.month,
+        ),
+        now: DateTime(2027),
+      );
+      final page = project.pages.first;
+      project = project.copyWith(
+        pages: [
+          page.copyWith(
+            blocks: [
+              for (final block in page.blocks)
+                block.type == CalendarStudioBlockType.image
+                    ? block.copyWith(
+                        content: {...block.content, 'assetId': 'photo'},
+                      )
+                    : block,
+            ],
+          ),
+        ],
+      );
+      final renderer = CalendarStudioVectorPdfRenderer(
+        layout: CalendarStudioRasterRenderer(
+          dataProvider: const MyanmarCalendarStudioDataProvider(),
+          assetStore: _OnePhoto(photo),
+        ),
+        fonts: CalendarStudioExportFonts(
+          download: (name) async {
+            final file = File('${exportFonts.path}/$name');
+            return file.existsSync() ? file.readAsBytesSync() : null;
+          },
+        ),
+      );
 
-    final pdf = String.fromCharCodes(bytes);
-    expect(pdf, startsWith('%PDF'));
-    // Fonts embedded as TrueType and real text operators, not a page image.
-    expect(pdf, contains('/FontFile2'));
-    expect(pdf, contains('Tj'));
-    // The photo is the original JPEG.
-    expect(pdf, contains('/DCTDecode'));
-    // The display font is bundled with Studio, so its text stays text.
-    expect(pdf, contains('/Fraunces-'));
-  });
+      final (bytes, report) = (await tester.runAsync(
+        () => renderer.render(
+          project,
+          [project.pages.first],
+          CalendarStudioExportPreset.pagePdf.copyWith(
+            format: CalendarStudioExportFormat.pdfEditable,
+          ),
+          compress: false,
+        ),
+      ))!;
+      if (Platform.environment['VECTOR_PDF_OUT'] case final out?) {
+        File(out).writeAsBytesSync(bytes);
+      }
+
+      final pdf = String.fromCharCodes(bytes);
+      expect(pdf, startsWith('%PDF'));
+      // Fonts embedded as TrueType and real text operators, not a page image.
+      expect(pdf, contains('/FontFile2'));
+      expect(pdf, contains('Tj'));
+      // The photo is the original JPEG.
+      expect(pdf, contains('/DCTDecode'));
+      // The display font is bundled with Studio, so its text stays text.
+      expect(pdf, contains('/Fraunces-'));
+    },
+  );
 }
 
 class _OnePhoto implements CalendarStudioAssetStore {
