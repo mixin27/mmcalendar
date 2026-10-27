@@ -10,6 +10,8 @@ on:
       - 'screenshots/**'
       - '.gitignore'
       - '.vscode/**'
+      # The website deploys on Vercel, not with the Flutter web app.
+      - 'site/**'
 
 jobs:
   build-and-deploy:
