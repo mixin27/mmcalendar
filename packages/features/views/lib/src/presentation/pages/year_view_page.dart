@@ -175,7 +175,7 @@ class _YearViewPageState extends State<YearViewPage>
     final l10n = AppLocalizations.of(context);
     showAppSheet<void>(
       context: context,
-      title: '$title ${context.calendarFormat.number(month.year)}',
+      title: '$title ${context.calendarFormat.westernNumber(month.year)}',
       cancelLabel: l10n?.close ?? 'Close',
       builder: (sheetContext) => SizedBox(
         height: MediaQuery.sizeOf(sheetContext).height * .68,

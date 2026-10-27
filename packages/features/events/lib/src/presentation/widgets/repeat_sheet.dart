@@ -310,7 +310,7 @@ class _RepeatSheetState extends State<RepeatSheet> {
                       title: l10n?.repeatEnds ?? 'Ends',
                       value:
                           '${format.shortDate(_endDate)} '
-                          '${format.number(_endDate.year)}',
+                          '${format.westernNumber(_endDate.year)}',
                       chevron: true,
                       onTap: _pickEndDate,
                     )

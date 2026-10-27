@@ -53,7 +53,7 @@ struct LockScreenDayWidget: Widget {
                             .font(.system(size: 10, weight: .bold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
-                        Text(payload.num(Calendar.current.component(.day, from: entry.date)))
+                        Text(payload.westernNum(Calendar.current.component(.day, from: entry.date)))
                             .font(.system(size: 22, weight: .bold))
                             .widgetAccentable()
                         Text(day.ln).font(.system(size: 9, weight: .semibold))

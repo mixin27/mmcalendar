@@ -163,7 +163,7 @@ fun WeekStrip(w: WidgetScope, start: LocalDate) {
             ) {
                 WText(day?.let { w.s.weekdaysShort[it.wd] } ?: "", 9.5f, if (day?.wd == 0) p.holiday else p.muted, medium = true)
                 NumText(
-                    w, w.payload.num(date.dayOfMonth), 15f,
+                    w, w.payload.westernNum(date.dayOfMonth), 15f,
                     when {
                         highlight -> p.accent
                         day?.hol?.isNotEmpty() == true -> p.holiday
@@ -216,7 +216,7 @@ fun MonthGrid(w: WidgetScope, month: WidgetPayload.Month, monthDate: LocalDate, 
                         cell = cell.clickable(widgetAction(w.context, "day/${monthDate.withDayOfMonth(c.d)}"))
                     }
                     Column(modifier = cell, horizontalAlignment = Alignment.CenterHorizontally, verticalAlignment = Alignment.CenterVertically) {
-                        NumText(w, w.payload.num(c.d), if (dense) 10.5f else 13f, ink)
+                        NumText(w, w.payload.westernNum(c.d), if (dense) 10.5f else 13f, ink)
                         if (!dense) {
                             when {
                                 c.ph == 1 -> Dot(if (fade) p.line else p.moon, 5.dp)

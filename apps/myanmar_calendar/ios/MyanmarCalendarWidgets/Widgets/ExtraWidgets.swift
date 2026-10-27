@@ -41,7 +41,7 @@ struct CountdownView: View {
                 Spacer(minLength: 0)
                 if let target, let days = payload.daysUntil(target.d, from: entry.date) {
                     Text(payload.num(days))
-                        .font(look.number(52))
+                        .font(look.number(52, for: payload.num(days)))
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                     Text("\(payload.s.daysUnit) · \(formatted(target.d, payload))")
@@ -72,7 +72,7 @@ struct CountdownView: View {
     private func formatted(_ key: String, _ payload: WidgetPayload) -> String {
         guard let date = DayKey.date(key) else { return key }
         let month = Calendar.current.component(.month, from: date)
-        return "\(payload.num(Calendar.current.component(.day, from: date))) \(payload.s.monthsShort[month - 1])"
+        return "\(payload.westernNum(Calendar.current.component(.day, from: date))) \(payload.s.monthsShort[month - 1])"
     }
 }
 
@@ -184,7 +184,7 @@ struct YearView: View {
                     .rotationEffect(.degrees(-90))
                     .widgetAccentable()
                 VStack(spacing: 9) {
-                    Text(payload.year.n).font(look.number(20)).lineLimit(1).minimumScaleFactor(0.6)
+                    Text(payload.year.n).font(look.number(20, for: payload.year.n)).lineLimit(1).minimumScaleFactor(0.6)
                     Text(payload.year.month).calendarText(11).foregroundStyle(p.muted).lineLimit(1).minimumScaleFactor(0.7)
                 }
                 .padding(.horizontal, 16)

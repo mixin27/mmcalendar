@@ -200,7 +200,7 @@ class _HolidaysViewState extends State<_HolidaysView> {
               if (match(o) case final m?) hit(o, m),
         ];
         if (hits.isNotEmpty) {
-          out.add(AppGroup(label: format.number(y), children: hits));
+          out.add(AppGroup(label: format.westernNumber(y), children: hits));
         }
       }
       return out.isEmpty
@@ -425,7 +425,7 @@ class _YearSwitcher extends StatelessWidget {
         GestureDetector(
           onTap: () => onChanged(DateTime.now().year),
           child: Text(
-            format.number(year),
+            format.westernNumber(year),
             style: TextStyle(
               color: t.label,
               fontSize: 17,

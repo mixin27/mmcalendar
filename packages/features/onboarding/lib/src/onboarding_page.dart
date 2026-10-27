@@ -897,7 +897,7 @@ class _WeekArt extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Text(
-                          format.number(d.day),
+                          format.westernNumber(d.day),
                           style: TextStyle(
                             color: i == 0 ? t.onAccent : t.label,
                             fontSize: 14,

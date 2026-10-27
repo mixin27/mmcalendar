@@ -79,11 +79,15 @@ abstract final class WidgetPayloadBuilder {
     Map<String, Object> styles = const {},
     Map<String, Object?> prefs = const {},
     bool preferShanYear = true,
+    bool englishWesternDigits = false,
     DateTime? generatedAt,
     int days = horizonDays,
   }) {
     final start = DateTime(today.year, today.month, today.day);
-    final format = CalendarFormat(language);
+    final format = CalendarFormat(
+      language,
+      englishWesternDigits: englishWesternDigits,
+    );
     String t(String key) => TranslationService.translateTo(key, language);
     final shanYear = showsShanYear(language, preferShanYear: preferShanYear);
 
@@ -98,7 +102,10 @@ abstract final class WidgetPayloadBuilder {
       'lang': language.code,
       'gen': (generatedAt ?? DateTime.now()).toIso8601String(),
       'start': _key(start),
-      's': WidgetStrings.forLanguage(language),
+      's': WidgetStrings.forLanguage(
+        language,
+        englishWesternDigits: englishWesternDigits,
+      ),
       'days': dayList,
       'months': {
         for (var offset = -1; offset <= 5; offset++)

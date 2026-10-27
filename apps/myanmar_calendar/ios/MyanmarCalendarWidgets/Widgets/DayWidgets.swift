@@ -24,7 +24,7 @@ struct TodayView: View {
     var body: some View {
         WidgetShell(entry: entry, link: "day/\(DayKey.string(entry.date))") { payload, day, look in
             let p = look.palette
-            let dayNumber = payload.num(Calendar.current.component(.day, from: entry.date))
+            let dayNumber = payload.westernNum(Calendar.current.component(.day, from: entry.date))
             let month = payload.s.months[Calendar.current.component(.month, from: entry.date) - 1]
             let chips = TodayChips(payload: payload, day: day, look: look)
             switch family {
@@ -34,7 +34,7 @@ struct TodayView: View {
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(p.holiday)
                     Text(dayNumber)
-                        .font(look.number(hasBackground ? 52 : 64))
+                        .font(look.number(hasBackground ? 52 : 64, for: dayNumber))
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
                     Text(month).calendarText(12.5).foregroundStyle(p.muted)
@@ -51,7 +51,7 @@ struct TodayView: View {
                         Text(payload.s.weekdays[day.wd].uppercased())
                             .font(.system(size: 12, weight: .bold))
                             .foregroundStyle(p.holiday)
-                        Text(dayNumber).font(look.number(50)).lineLimit(1).minimumScaleFactor(0.6)
+                        Text(dayNumber).font(look.number(50, for: dayNumber)).lineLimit(1).minimumScaleFactor(0.6)
                         Text(payload.monthTitle(entry.date)).calendarText(12.5).foregroundStyle(p.muted)
                     }
                     .frame(width: 112, alignment: .leading)
@@ -74,7 +74,7 @@ struct TodayView: View {
                             Text(payload.s.weekdays[day.wd].uppercased())
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundStyle(p.holiday)
-                            Text(dayNumber).font(look.number(56)).lineLimit(1)
+                            Text(dayNumber).font(look.number(56, for: dayNumber)).lineLimit(1)
                             Text(payload.monthTitle(entry.date)).calendarText(13).foregroundStyle(p.muted)
                         }
                         Spacer()
@@ -222,7 +222,7 @@ struct MoonWidgetView: View {
                                     if let d = payload.day(for: date) {
                                         MoonView(day: d, palette: p).frame(width: 22, height: 22)
                                     }
-                                    Text(payload.num(Calendar.current.component(.day, from: date)))
+                                    Text(payload.westernNum(Calendar.current.component(.day, from: date)))
                                         .font(.system(size: 10.5)).monospacedDigit().foregroundStyle(p.muted)
                                 }
                                 .frame(maxWidth: .infinity)

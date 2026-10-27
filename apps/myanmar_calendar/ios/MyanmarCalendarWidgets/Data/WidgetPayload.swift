@@ -23,6 +23,9 @@ struct WidgetPayload: Decodable {
         let nextGoodDay, goodDay, avoidDay, plainDay, myanmarYear, thingyan: String
         let fullMoonIn, newMoonIn, holidays, digits, sabbath, sabbathEve: String
         let moonPhases, weekdays, weekdaysShort, months, monthsShort: [String]
+        /// Digits for Western dates: English when Settings › English numbers
+        /// for Western dates is on. Older payloads leave it out.
+        let westernDigits: String?
     }
 
     struct Day: Decodable {
@@ -143,8 +146,13 @@ extension WidgetPayload {
     }
 
     /// [value] in the calendar language's digits.
-    func num(_ value: Int) -> String {
-        let digits = Array(s.digits)
+    func num(_ value: Int) -> String { Self.spell(value, s.digits) }
+
+    /// A Western day or year: [value] in the Western-date digits.
+    func westernNum(_ value: Int) -> String { Self.spell(value, s.westernDigits ?? s.digits) }
+
+    private static func spell(_ value: Int, _ digitString: String) -> String {
+        let digits = Array(digitString)
         guard digits.count == 10 else { return "\(value)" }
         return String(String(value).map { ch in
             ch.wholeNumberValue.map { digits[$0] } ?? ch
@@ -180,6 +188,6 @@ extension WidgetPayload {
     func monthTitle(_ date: Date) -> String {
         let month = Calendar.current.component(.month, from: date)
         let year = Calendar.current.component(.year, from: date)
-        return "\(s.months[month - 1]) \(num(year))"
+        return "\(s.months[month - 1]) \(westernNum(year))"
     }
 }

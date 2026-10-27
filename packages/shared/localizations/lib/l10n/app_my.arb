@@ -1230,6 +1230,14 @@
   "@preferShanYear": {
     "description": "Localized text for preferShanYear."
   },
+  "englishWesternDigits": "အနောက်ရက်စွဲကို အင်္ဂလိပ်ဂဏန်းဖြင့် ပြမည်",
+  "@englishWesternDigits": {
+    "description": "Settings › Dates toggle: Western dates in English digits."
+  },
+  "englishWesternDigitsDescription": "အနောက်ရက်စွဲများကို 0–9 ဂဏန်းဖြင့် ပြပါမည်။ မြန်မာရက်စွဲများမှာ မြန်မာဂဏန်းအတိုင်း ရှိပါမည်။",
+  "@englishWesternDigitsDescription": {
+    "description": "Footer explaining the English numbers for Western dates toggle."
+  },
   "preferShanYearDescription": "ရှမ်းဘာသာတွင် မြန်မာနှစ်အစား ရှမ်းနှစ်ကို ပြသမည်",
   "@preferShanYearDescription": {
     "description": "Localized text for preferShanYearDescription."

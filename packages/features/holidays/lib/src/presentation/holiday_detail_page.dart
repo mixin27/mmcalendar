@@ -102,7 +102,7 @@ class HolidayDetailPage extends StatelessWidget {
             onPressed: () => share(
               title: title,
               content:
-                  '$title · ${format.holidayRange(occurrence)} ${format.number(occurrence.start.year)}'
+                  '$title · ${format.holidayRange(occurrence)} ${format.westernNumber(occurrence.start.year)}'
                   '${about == null ? '' : '\n\n$about'}',
             ),
           ),
@@ -169,7 +169,7 @@ class HolidayDetailPage extends StatelessWidget {
               for (final (y, o) in otherYears)
                 AppRow(
                   key: ValueKey('holiday-year-$y'),
-                  title: format.number(y),
+                  title: format.westernNumber(y),
                   value: o == null
                       ? l10n.holidaysNotThisYear('$y')
                       : format.holidayRange(o),
@@ -220,7 +220,7 @@ class _Weekday extends StatelessWidget {
             ),
           ),
           Text(
-            format.number(date.day),
+            format.westernNumber(date.day),
             style: TextStyle(
               color: t.label,
               fontSize: 17,

@@ -201,6 +201,7 @@ class _AppContentState extends State<_AppContent> {
                 language:
                     settings?.calendarLanguage ??
                     MyanmarCalendar.currentLanguage,
+                englishWesternDigits: settings?.englishWesternDigits ?? false,
                 // flutter_mmcalendar widgets (the date picker) follow the
                 // same language, the app's style and its calendar config.
                 child: AppMyanmarCalendarScope(

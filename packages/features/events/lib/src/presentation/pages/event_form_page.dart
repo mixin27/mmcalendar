@@ -183,7 +183,7 @@ class _EventFormPageState extends State<EventFormPage> {
               title: l10n?.date ?? 'Date',
               value:
                   '${context.calendarFormat.shortDate(state.eventDate)} '
-                  '${context.calendarFormat.number(state.eventDate.year)}',
+                  '${context.calendarFormat.westernNumber(state.eventDate.year)}',
               chevron: true,
               onTap: () => _selectDate(context, state.eventDate),
             ),

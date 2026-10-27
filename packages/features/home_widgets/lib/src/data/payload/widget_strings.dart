@@ -48,8 +48,12 @@ abstract final class WidgetStrings {
     'holidays': 'Holiday',
   };
 
-  /// The widget labels plus calendar words for [language].
-  static Map<String, Object> forLanguage(Language language) {
+  /// The widget labels plus calendar words for [language]. Western dates
+  /// use `westernDigits`: English with [englishWesternDigits].
+  static Map<String, Object> forLanguage(
+    Language language, {
+    bool englishWesternDigits = false,
+  }) {
     final labels = language == Language.myanmar ? _my : _en;
     String t(String key) => TranslationService.translateTo(key, language);
     // The package counts weekdays from Saturday (0); widgets count from
@@ -63,6 +67,9 @@ abstract final class WidgetStrings {
     return {
       ...labels,
       'digits': translateNumbers('0123456789', language: language),
+      'westernDigits': englishWesternDigits
+          ? '0123456789'
+          : translateNumbers('0123456789', language: language),
       'sabbath': t('Sabbath'),
       'sabbathEve': t('Sabbath Eve'),
       'moonPhases': [

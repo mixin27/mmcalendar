@@ -7,14 +7,20 @@ import 'translate_numbers.dart';
 /// names, dates and numbers, and Myanmar dates. Interface words (Today,
 /// Events, buttons) come from the app's localizations instead.
 class CalendarFormat {
-  const CalendarFormat(this.language);
+  const CalendarFormat(this.language, {this.englishWesternDigits = false});
 
   final Language language;
 
+  /// Western dates in English digits (Settings › English numbers for
+  /// Western dates); Myanmar dates and other numbers keep the language's.
+  final bool englishWesternDigits;
+
   /// The format for the calendar language in [context]
   /// (see [CalendarLanguageScope]).
-  factory CalendarFormat.of(BuildContext context) =>
-      CalendarFormat(CalendarLanguageScope.of(context));
+  factory CalendarFormat.of(BuildContext context) => CalendarFormat(
+    CalendarLanguageScope.of(context),
+    englishWesternDigits: CalendarLanguageScope.englishWesternDigitsOf(context),
+  );
 
   /// "October" / "အောက်တိုဘာ".
   String month(int month) =>
@@ -27,13 +33,18 @@ class CalendarFormat {
   /// [value] in the language's digits ("၂၀၂၆" in Myanmar).
   String number(int value) => translateNumbers('$value', language: language);
 
+  /// A Western day or year: [number], or English digits with
+  /// [englishWesternDigits].
+  String westernNumber(int value) =>
+      englishWesternDigits ? '$value' : number(value);
+
   /// "October 2026".
   String monthYear(DateTime date) =>
-      '${month(date.month)} ${number(date.year)}';
+      '${month(date.month)} ${westernNumber(date.year)}';
 
   /// "Oct 2026", for narrow titles.
   String shortMonthYear(DateTime date) =>
-      '${shortMonth(date.month)} ${number(date.year)}';
+      '${shortMonth(date.month)} ${westernNumber(date.year)}';
 
   /// "Thursday", or "Thu" when [short].
   String weekday(DateTime date, {bool short = false}) =>
@@ -50,17 +61,17 @@ class CalendarFormat {
 
   /// "Thu 22 Oct".
   String shortDate(DateTime date) =>
-      '${weekday(date, short: true)} ${number(date.day)} '
+      '${weekday(date, short: true)} ${westernNumber(date.day)} '
       '${shortMonth(date.month)}';
 
   /// "22 Oct".
   String dayMonth(DateTime date) =>
-      '${number(date.day)} ${shortMonth(date.month)}';
+      '${westernNumber(date.day)} ${shortMonth(date.month)}';
 
   /// "Thursday 22 October 2026".
   String fullDate(DateTime date) =>
-      '${weekday(date)} ${number(date.day)} ${month(date.month)} '
-      '${number(date.year)}';
+      '${weekday(date)} ${westernNumber(date.day)} ${month(date.month)} '
+      '${westernNumber(date.year)}';
 
   /// A Myanmar date with a `formatMyanmar` [pattern]. With
   /// [preferShanYear] a Shan calendar shows the Shan year
@@ -113,10 +124,14 @@ class CalendarLanguageScope extends InheritedWidget {
   const CalendarLanguageScope({
     super.key,
     required this.language,
+    this.englishWesternDigits = false,
     required super.child,
   });
 
   final Language language;
+
+  /// See [CalendarFormat.englishWesternDigits].
+  final bool englishWesternDigits;
 
   /// The nearest scope's language, else the configured global default.
   static Language of(BuildContext context) =>
@@ -125,9 +140,17 @@ class CalendarLanguageScope extends InheritedWidget {
           ?.language ??
       MyanmarCalendar.currentLanguage;
 
+  /// The nearest scope's [englishWesternDigits], else false.
+  static bool englishWesternDigitsOf(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<CalendarLanguageScope>()
+          ?.englishWesternDigits ??
+      false;
+
   @override
   bool updateShouldNotify(CalendarLanguageScope oldWidget) =>
-      language != oldWidget.language;
+      language != oldWidget.language ||
+      englishWesternDigits != oldWidget.englishWesternDigits;
 }
 
 extension CalendarLanguageContext on BuildContext {
