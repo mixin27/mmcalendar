@@ -951,10 +951,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preferShanYear => 'Prefer Shan Year';
 
   @override
-  String get englishWesternDigits => 'English Numbers for Western Dates';
+  String get englishWesternDates => 'English for Western Dates';
 
   @override
-  String get englishWesternDigitsDescription => 'Western dates use 0–9 whatever the calendar language; Myanmar dates keep their own digits.';
+  String get englishWesternDatesDescription => 'Western month names and numbers in English (October 2026) whatever the calendar language; Myanmar dates keep their own.';
 
   @override
   String get preferShanYearDescription => 'Display Shan calendar year instead of Myanmar year in Shan language';

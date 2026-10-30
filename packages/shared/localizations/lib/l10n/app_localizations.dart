@@ -1673,17 +1673,17 @@ abstract class AppLocalizations {
   /// **'Prefer Shan Year'**
   String get preferShanYear;
 
-  /// Settings › Dates toggle: Western dates in English digits.
+  /// Settings › Dates toggle: Western dates in English (month names and digits).
   ///
   /// In en, this message translates to:
-  /// **'English Numbers for Western Dates'**
-  String get englishWesternDigits;
+  /// **'English for Western Dates'**
+  String get englishWesternDates;
 
-  /// Footer explaining the English numbers for Western dates toggle.
+  /// Footer explaining the English for Western dates toggle.
   ///
   /// In en, this message translates to:
-  /// **'Western dates use 0–9 whatever the calendar language; Myanmar dates keep their own digits.'**
-  String get englishWesternDigitsDescription;
+  /// **'Western month names and numbers in English (October 2026) whatever the calendar language; Myanmar dates keep their own.'**
+  String get englishWesternDatesDescription;
 
   /// Localized text for preferShanYearDescription.
   ///

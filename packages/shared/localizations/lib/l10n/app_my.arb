@@ -1230,13 +1230,13 @@
   "@preferShanYear": {
     "description": "Localized text for preferShanYear."
   },
-  "englishWesternDigits": "အနောက်ရက်စွဲကို အင်္ဂလိပ်ဂဏန်းဖြင့် ပြမည်",
-  "@englishWesternDigits": {
-    "description": "Settings › Dates toggle: Western dates in English digits."
+  "englishWesternDates": "အနောက်ရက်စွဲကို အင်္ဂလိပ်လို ပြမည်",
+  "@englishWesternDates": {
+    "description": "Settings › Dates toggle: Western dates in English (month names and digits)."
   },
-  "englishWesternDigitsDescription": "အနောက်ရက်စွဲများကို 0–9 ဂဏန်းဖြင့် ပြပါမည်။ မြန်မာရက်စွဲများမှာ မြန်မာဂဏန်းအတိုင်း ရှိပါမည်။",
-  "@englishWesternDigitsDescription": {
-    "description": "Footer explaining the English numbers for Western dates toggle."
+  "englishWesternDatesDescription": "အနောက်လအမည်နှင့် ဂဏန်းများကို အင်္ဂလိပ်လို (October 2026) ပြပါမည်။ မြန်မာရက်စွဲများမှာ မူလအတိုင်း ရှိပါမည်။",
+  "@englishWesternDatesDescription": {
+    "description": "Footer explaining the English for Western dates toggle."
   },
   "preferShanYearDescription": "ရှမ်းဘာသာတွင် မြန်မာနှစ်အစား ရှမ်းနှစ်ကို ပြသမည်",
   "@preferShanYearDescription": {

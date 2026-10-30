@@ -141,8 +141,8 @@ class SettingsRepositoryImpl extends BaseRepository
           enableCrashlytics: enableCrashlytics,
           hasShownConsentDialog: hasShownConsentDialog,
           showShanCalendar: showShanCalendar,
-          englishWesternDigits: _parseBool(
-            settings[StorageKeys.englishWesternDigits] ?? 'false',
+          englishWesternDates: _parseBool(
+            settings[StorageKeys.englishWesternDates] ?? 'false',
           ),
           useDeviceTimezone: useDeviceTimezone,
         ),
@@ -291,7 +291,7 @@ class SettingsRepositoryImpl extends BaseRepository
       // Mirrored for background isolates (home-widget refreshes).
       if (key == StorageKeys.useDeviceTimezone ||
           key == StorageKeys.showShanCalendar ||
-          key == StorageKeys.englishWesternDigits) {
+          key == StorageKeys.englishWesternDates) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(key, value);
       }

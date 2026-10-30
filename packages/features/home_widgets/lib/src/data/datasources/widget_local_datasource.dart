@@ -48,7 +48,7 @@ class WidgetLocalDataSource {
       styles: WidgetPalettes.all(app: _appPalette()),
       prefs: effective.toPayload(),
       preferShanYear: resolvePreferShanYear(),
-      englishWesternDigits: resolveEnglishWesternDigits(),
+      englishWesternDates: resolveEnglishWesternDates(),
     );
     await WidgetUpdateService.savePayload(payload);
     await sharedPreferences.setString(
@@ -381,10 +381,10 @@ class WidgetLocalDataSource {
   bool resolvePreferShanYear() =>
       sharedPreferences.getBool(StorageKeys.showShanCalendar) ?? true;
 
-  /// Settings › English numbers for Western dates, mirrored like
+  /// Settings › English for Western dates, mirrored like
   /// [resolvePreferShanYear].
-  bool resolveEnglishWesternDigits() =>
-      sharedPreferences.getBool(StorageKeys.englishWesternDigits) ?? false;
+  bool resolveEnglishWesternDates() =>
+      sharedPreferences.getBool(StorageKeys.englishWesternDates) ?? false;
 
   /// Widget language always follows app calendar language.
   String resolveCalendarLanguageCode() {

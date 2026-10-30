@@ -23,7 +23,7 @@ struct WidgetPayload: Decodable {
         let nextGoodDay, goodDay, avoidDay, plainDay, myanmarYear, thingyan: String
         let fullMoonIn, newMoonIn, holidays, digits, sabbath, sabbathEve: String
         let moonPhases, weekdays, weekdaysShort, months, monthsShort: [String]
-        /// Digits for Western dates: English when Settings › English numbers
+        /// Digits for Western dates: English when Settings › English
         /// for Western dates is on. Older payloads leave it out.
         let westernDigits: String?
     }
