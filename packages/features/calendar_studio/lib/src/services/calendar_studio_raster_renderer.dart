@@ -168,6 +168,7 @@ class CalendarStudioRasterRenderer implements CalendarStudioPageRasterizer {
                       source: project.source,
                       resolvedDaysByMonth: daysByMonth,
                       resolvedImages: images,
+                      forPrint: true,
                     ),
                   ),
                 ),

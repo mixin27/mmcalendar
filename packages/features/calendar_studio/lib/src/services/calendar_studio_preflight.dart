@@ -40,9 +40,9 @@ abstract final class CalendarStudioPreflight {
             (block.content['assetId'] == null)) {
           issues.add(
             CalendarStudioIssue(
-              severity: CalendarStudioIssueSeverity.error,
-              title: 'Missing image',
-              detail: 'Replace the image before exporting.',
+              severity: CalendarStudioIssueSeverity.warning,
+              title: 'No photo yet',
+              detail: 'Prints as an empty frame, for a photo you add by hand.',
               pageId: page.id,
               blockId: block.id,
             ),

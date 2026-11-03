@@ -224,6 +224,7 @@ abstract final class CalendarStudioProjectBundle {
       name: '${source.name} (imported)',
       templateId: source.templateId,
       source: source.source,
+      theme: source.theme,
       createdAt: time,
       updatedAt: time,
       defaultExportPreset: source.defaultExportPreset,

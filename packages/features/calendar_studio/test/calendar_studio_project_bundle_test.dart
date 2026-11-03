@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
@@ -19,6 +20,7 @@ CalendarStudioProject _projectWithImages() {
   final page = template.pages.first;
   return template.copyWith(
     name: 'Temple days',
+    theme: CalendarStudioProjectThemes.library.last,
     pages: [
       page.copyWith(
         blocks: [
@@ -50,6 +52,43 @@ CalendarStudioProject _projectWithImages() {
 }
 
 void main() {
+  test('a shipped Studio pack moves to a new year without overlaps', () async {
+    // Pack pages aren't made by their base preset (templateId); a new year
+    // used to stack the preset's own grid and titles on top of them.
+    for (final pack
+        in Directory('../../../docs/studio-templates')
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.mmcstudio'))) {
+      final file = await CalendarStudioProjectBundle.read(
+        pack.readAsBytesSync(),
+      );
+      final imported = await CalendarStudioProjectBundle.import(
+        file,
+        projects: _Projects(),
+        assets: _Assets(),
+      );
+      final controller = CalendarStudioController(
+        CalendarStudioConfiguration(projects: _Projects()),
+      );
+      await controller.open(imported);
+      final year = imported.source.year + 1;
+      controller.updateConfiguration(imported.source.copyWith(year: year));
+
+      final moved = controller.project!.pages;
+      expect(moved, hasLength(imported.pages.length), reason: pack.path);
+      for (var i = 0; i < moved.length; i++) {
+        expect(
+          moved[i].blocks.map((block) => block.id),
+          imported.pages[i].blocks.map((block) => block.id),
+          reason: '${pack.path} page $i keeps its own blocks',
+        );
+        expect(moved[i].year, year, reason: pack.path);
+      }
+      controller.dispose();
+    }
+  });
+
   test('a project file round-trips with its images and new ids', () async {
     final sourceAssets = _Assets()
       ..put('original', 'stupa.jpg', [1, 2, 3])
@@ -83,6 +122,7 @@ void main() {
     );
     expect(imported.id, isNot(project.id));
     expect(imported.name, 'Temple days (imported)');
+    expect(imported.theme, CalendarStudioProjectThemes.library.last);
     expect(store.values[imported.id], imported);
     final photo = imported.pages.first.blocks.firstWhere(
       (b) => b.id == 'photo',

@@ -2,7 +2,7 @@ import 'package:calendar_studio/calendar_studio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('preflight blocks a required image without an asset', () {
+  test('an empty photo frame is a warning, so the page still exports', () {
     final now = DateTime(2026);
     final project = CalendarStudioProject(
       id: '1',
@@ -29,11 +29,16 @@ void main() {
         ),
       ],
     );
+    final issues = CalendarStudioPreflight.check(project);
     expect(
-      CalendarStudioPreflight.check(
-        project,
-      ).any((issue) => issue.severity == CalendarStudioIssueSeverity.error),
-      isTrue,
+      issues.any(
+        (issue) => issue.severity == CalendarStudioIssueSeverity.error,
+      ),
+      isFalse,
+    );
+    expect(
+      issues.where((issue) => issue.blockId == 'image').single.severity,
+      CalendarStudioIssueSeverity.warning,
     );
   });
 
