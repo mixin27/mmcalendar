@@ -28,7 +28,7 @@ dependencies:
     path: ../../integrations/telegram_web
 
   # Myanmar Calendar Package
-  myanmar_calendar_dart: ^3.0.1
+  myanmar_calendar_dart: ^3.0.2
   flutter_mmcalendar: ^4.0.1
 
   # Utilities
