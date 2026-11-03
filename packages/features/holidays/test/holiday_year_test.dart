@@ -69,13 +69,16 @@ void main() {
     );
   });
 
-  test('2026 has 16 public holidays', () {
+  test('2026 has 17 public holidays', () {
     final closed = HolidayYears.of(
       2026,
       Language.english,
     ).where((o) => o.entry.officeClosed);
-    // 1 January and 31 December stopped being public holidays after 2021.
-    expect(closed.length, 16);
+    // 31 December stopped being a public holiday after 2021; 1 January
+    // stayed one.
+    expect(closed.length, 17);
+    expect(closed.map((o) => o.entry.id), contains('newYear'));
+    expect(closed.map((o) => o.entry.id), isNot(contains('newYearsEve')));
   });
 
   test('labels follow the calendar language', () {
