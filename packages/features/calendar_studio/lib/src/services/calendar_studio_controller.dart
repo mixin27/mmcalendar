@@ -6,6 +6,7 @@ import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_project_theme.dart';
 import '../models/calendar_studio_types.dart';
 import '../models/calendar_studio_user_template.dart';
+import '../templates/calendar_studio_bindings.dart';
 import '../templates/calendar_studio_templates.dart';
 import 'calendar_studio_arrange.dart';
 import 'calendar_studio_contracts.dart';
@@ -192,67 +193,74 @@ class CalendarStudioController extends ChangeNotifier {
   void updateConfiguration(CalendarStudioSource source) {
     final value = _project;
     if (value == null || value.source == source) return;
-    final template = templateOf(value.templateId);
-    if (template == null) {
-      // The template is gone, so its pages can't be regenerated; keep the
-      // design and change only the calendar settings.
-      updateSource(source);
-      return;
-    }
     final now = configuration.now?.call() ?? DateTime.now();
-    final previousDefaults = template.create(
+    // Without its template (deleted, or a project from another device) the
+    // pages still move to the new months; only gained months can't be made.
+    final template = templateOf(value.templateId);
+    final previousDefaults = template?.create(
       id: value.id,
       source: value.source,
       now: value.createdAt,
     );
-    final refreshed = template.create(
+    final refreshed = template?.create(
       id: value.id,
       source: source,
       now: value.createdAt,
     );
+    final slotCount =
+        refreshed?.pages.length ??
+        (source.period == CalendarStudioPeriod.year ? 12 : 1);
     // Pages are paired by slot (their month's offset from the start month),
     // not by position, so pages the user reordered, duplicated or deleted
     // keep their own edits. An untouched project pairs exactly as by index.
     int slotOf(CalendarStudioPage page) => studioPageSlot(page, value.source);
-    CalendarStudioPage regenerate(
-      CalendarStudioPage oldPage,
-      CalendarStudioPage freshPage,
-      CalendarStudioPage? oldDefaults,
-    ) {
-      if (oldDefaults == null) {
-        return freshPage.copyWith(canvas: oldPage.canvas).withId(oldPage.id);
-      }
-      final defaultIds = oldDefaults.blocks.map((block) => block.id).toSet();
-      final oldById = {for (final block in oldPage.blocks) block.id: block};
+    // A page keeps its own blocks in its own order: imported designs whose
+    // blocks the template didn't make (Studio packs) and blocks the user
+    // deleted must not get the template's blocks back. Untouched template
+    // content follows the template; bound text follows the new month.
+    CalendarStudioPage regenerate(CalendarStudioPage oldPage, int slot) {
+      final months = source.year * 12 + source.month - 1 + slot;
+      final year = months ~/ 12;
+      final month = months % 12 + 1;
+      final oldDefaults = slot < (previousDefaults?.pages.length ?? 0)
+          ? previousDefaults!.pages[slot]
+          : null;
+      final freshPage = slot < (refreshed?.pages.length ?? 0)
+          ? refreshed!.pages[slot]
+          : null;
       final oldDefaultById = {
-        for (final block in oldDefaults.blocks) block.id: block,
+        for (final block
+            in oldDefaults?.blocks ?? const <CalendarStudioBlock>[])
+          block.id: block,
       };
-      final templateBlocks = <CalendarStudioBlock>[
-        for (final freshBlock in freshPage.blocks)
-          if (oldById[freshBlock.id] case final oldBlock?)
-            oldBlock.copyWith(
-              content:
-                  mapEquals(
-                    oldBlock.content,
-                    oldDefaultById[freshBlock.id]?.content,
-                  )
-                  ? freshBlock.content
-                  : oldBlock.content,
-            )
-          else
-            freshBlock,
-      ];
-      return freshPage
-          .copyWith(
-            canvas: oldPage.canvas,
-            blocks: [
-              ...templateBlocks,
-              ...oldPage.blocks.where(
-                (block) => !defaultIds.contains(block.id),
-              ),
-            ],
-          )
-          .withId(oldPage.id);
+      final freshById = {
+        for (final block in freshPage?.blocks ?? const <CalendarStudioBlock>[])
+          block.id: block,
+      };
+      CalendarStudioBlock refresh(CalendarStudioBlock oldBlock) {
+        final fresh = freshById[oldBlock.id];
+        final oldDefault = oldDefaultById[oldBlock.id];
+        if (fresh != null &&
+            oldDefault != null &&
+            mapEquals(oldBlock.content, oldDefault.content)) {
+          return oldBlock.copyWith(content: fresh.content);
+        }
+        return CalendarStudioBindings.apply(
+          oldBlock,
+          language: source.language,
+          year: year,
+          month: month,
+        );
+      }
+
+      return oldPage.copyWith(
+        label: freshPage != null && oldPage.label == oldDefaults?.label
+            ? freshPage.label
+            : null,
+        year: year,
+        month: month,
+        blocks: [for (final block in oldPage.blocks) refresh(block)],
+      );
     }
 
     final pages = <CalendarStudioPage>[];
@@ -260,36 +268,36 @@ class CalendarStudioController extends ChangeNotifier {
     for (final oldPage in value.pages) {
       final slot = slotOf(oldPage);
       // Months that fall outside the new period are dropped.
-      if (slot < 0 || slot >= refreshed.pages.length) continue;
-      pages.add(
-        regenerate(
-          oldPage,
-          refreshed.pages[slot],
-          slot < previousDefaults.pages.length
-              ? previousDefaults.pages[slot]
-              : null,
-        ),
-      );
+      if (slot < 0 || slot >= slotCount) continue;
+      pages.add(regenerate(oldPage, slot));
       slots.add(slot);
     }
     // Months the period gained come in at their place in the year. Months
     // the old period had but the user deleted stay deleted.
-    for (var slot = 0; slot < refreshed.pages.length; slot++) {
-      if (slots.contains(slot) || slot < previousDefaults.pages.length) {
-        continue;
+    if (refreshed != null) {
+      final oldSlotCount = previousDefaults!.pages.length;
+      for (var slot = 0; slot < refreshed.pages.length; slot++) {
+        if (slots.contains(slot) || slot < oldSlotCount) continue;
+        final at = slots.indexWhere((s) => s > slot);
+        final index = at < 0 ? pages.length : at;
+        pages.insert(index, refreshed.pages[slot].withId(_newPageId()));
+        slots.insert(index, slot);
       }
-      final at = slots.indexWhere((s) => s > slot);
-      final index = at < 0 ? pages.length : at;
-      pages.insert(index, refreshed.pages[slot].withId(_newPageId()));
-      slots.insert(index, slot);
     }
     if (pages.isEmpty) {
+      if (refreshed == null) {
+        // Nothing to move and no template to start from.
+        updateSource(source);
+        return;
+      }
       // Every page fell outside the new period: start from the template.
       pages.addAll(refreshed.pages);
     }
     _pushUndo(value);
     _project = value.copyWith(
-      name: value.name == previousDefaults.name ? refreshed.name : value.name,
+      name: previousDefaults != null && value.name == previousDefaults.name
+          ? refreshed!.name
+          : value.name,
       source: source,
       pages: pages,
       updatedAt: now,

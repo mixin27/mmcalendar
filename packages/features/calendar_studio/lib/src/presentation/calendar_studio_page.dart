@@ -4237,6 +4237,7 @@ class _CalendarStudioPageState extends State<_CalendarStudioBody> {
                   dataProvider: _calendarData,
                   assetStore: _assets,
                   showSafeArea: safeArea,
+                  forPrint: true,
                 ),
               ),
             ),

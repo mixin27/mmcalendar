@@ -65,6 +65,57 @@ void main() {
       reason: 'expected the photo, found $pixel in the frame',
     );
   });
+
+  testWidgets('an empty photo frame prints as an outline, not a grey box', (
+    tester,
+  ) async {
+    final project = CalendarStudioTemplates.byId('family').create(
+      id: 'empty',
+      source: const CalendarStudioSource(
+        year: 2027,
+        month: 1,
+        period: CalendarStudioPeriod.month,
+      ),
+      now: DateTime(2027),
+    );
+    final preset = project.pages.first;
+    final frame = preset.blocks.firstWhere(
+      (block) => block.type == CalendarStudioBlockType.image,
+    );
+    expect(frame.content['assetId'], isNull);
+    // The frame alone: presets often draw their own border over it.
+    final page = preset.copyWith(blocks: [frame]);
+    final withoutFrame = preset.copyWith(blocks: const []);
+
+    const width = 600;
+    const height = 848;
+    Future<img.Image> render(CalendarStudioPage page) async => img.decodePng(
+      (await tester.runAsync(
+        () => CalendarStudioRasterRenderer(
+          assetStore: _OnePhoto(Uint8List(0)),
+        ).renderPage(project, page, width: width, height: height),
+      ))!,
+    )!;
+    final empty = await render(page);
+    final bare = await render(withoutFrame);
+
+    final x = ((frame.bounds.left + frame.bounds.width / 2) * width).round();
+    final y = ((frame.bounds.top + frame.bounds.height / 2) * height).round();
+    expect(
+      empty.getPixel(x, y),
+      bare.getPixel(x, y),
+      reason: 'inside an empty frame is whatever is behind it',
+    );
+    final left = (frame.bounds.left * width).round();
+    expect(
+      [
+        for (var x = left - 3; x <= left + 3; x++)
+          if (empty.getPixel(x, y) != bare.getPixel(x, y)) x,
+      ],
+      isNotEmpty,
+      reason: 'the outline marks where the photo goes',
+    );
+  });
 }
 
 class _OnePhoto implements CalendarStudioAssetStore {

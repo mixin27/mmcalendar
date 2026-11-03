@@ -28,6 +28,7 @@ class CalendarStudioScene extends StatelessWidget {
     this.selectedBlockId,
     this.selectedBlockIds = const {},
     this.showSafeArea = false,
+    this.forPrint = false,
     this.onSelect,
     this.dataProvider,
     this.assetStore,
@@ -61,6 +62,11 @@ class CalendarStudioScene extends StatelessWidget {
   /// with handles.
   final Set<String> selectedBlockIds;
   final bool showSafeArea;
+
+  /// The page as it prints: an empty photo frame is a thin outline to paste
+  /// a photo into later, and an empty logo is left out, instead of the
+  /// editor's grey "add an image" box.
+  final bool forPrint;
   final ValueChanged<CalendarStudioBlock?>? onSelect;
   final CalendarStudioDataProvider? dataProvider;
   final CalendarStudioAssetStore? assetStore;
@@ -529,6 +535,8 @@ class CalendarStudioScene extends StatelessWidget {
           _ => BoxFit.cover,
         },
         opacity: (block.style['opacity'] as num?)?.toDouble() ?? 1,
+        forPrint: forPrint,
+        isLogo: block.type == CalendarStudioBlockType.logo,
       ),
     ),
     CalendarStudioBlockType.eventList =>
@@ -1022,6 +1030,10 @@ class _ShapePainter extends CustomPainter {
       filled != oldDelegate.filled;
 }
 
+/// The outline an empty photo frame prints with (see
+/// [CalendarStudioScene.forPrint]).
+const _printFrameOutline = Color(0xFFBFC7C3);
+
 class _AssetImageBlock extends StatefulWidget {
   const _AssetImageBlock({
     required this.assetId,
@@ -1030,6 +1042,8 @@ class _AssetImageBlock extends StatefulWidget {
     required this.resolvedImage,
     required this.fit,
     required this.opacity,
+    this.forPrint = false,
+    this.isLogo = false,
   });
   final String? assetId;
   final CalendarStudioAssetStore? assetStore;
@@ -1037,6 +1051,8 @@ class _AssetImageBlock extends StatefulWidget {
   final ui.Image? resolvedImage;
   final BoxFit fit;
   final double opacity;
+  final bool forPrint;
+  final bool isLogo;
 
   @override
   State<_AssetImageBlock> createState() => _AssetImageBlockState();
@@ -1145,13 +1161,25 @@ class _AssetImageBlockState extends State<_AssetImageBlock> {
     ),
   );
 
-  Widget _placeholder() => DecoratedBox(
-    decoration: BoxDecoration(
-      color: const Color(0xFFE1E8E4),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: const Center(child: Icon(Icons.image_outlined)),
-  );
+  Widget _placeholder() {
+    if (widget.forPrint) {
+      if (widget.isLogo) return const SizedBox.expand();
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(color: _printFrameOutline),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const SizedBox.expand(),
+      );
+    }
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFFE1E8E4),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Center(child: Icon(Icons.image_outlined)),
+    );
+  }
 }
 
 class _TextBlock extends StatelessWidget {
