@@ -43,6 +43,9 @@ class PlannedHolidayReminder {
 /// Which holidays the user follows and when to be reminded, plus scheduling
 /// the reminders as local notifications for the next [horizonDays] days.
 ///
+/// Sabbath days can be followed too ([sabbath]); a Sabbath that is also
+/// the first day of a reminded holiday shares that holiday's notification.
+///
 /// Holiday notifications have payloads starting with [payloadPrefix] and
 /// ids from [idBase] up, so event scheduling can leave them alone.
 class HolidayReminders extends ChangeNotifier {
@@ -63,6 +66,11 @@ class HolidayReminders extends ChangeNotifier {
   static const _followedKey = 'holiday_reminders_followed';
   static const _allPublicKey = 'holiday_reminders_all_public';
   static const _timeKey = 'holiday_reminders_time';
+  static const _sabbathKey = 'holiday_reminders_sabbath';
+
+  /// Holiday ids are [idBase] + day × 100 + slot, below this offset;
+  /// Sabbath ids ([idBase] + offset + day × 2 + time) start past them.
+  static const _sabbathSlot = 100000 * 100;
 
   final SharedPreferences _prefs;
   final Future<bool> Function() _requestPermission;
@@ -73,6 +81,9 @@ class HolidayReminders extends ChangeNotifier {
 
   Set<String> get followed => {...?_prefs.getStringList(_followedKey)};
   bool get allPublic => _prefs.getBool(_allPublicKey) ?? false;
+
+  /// Whether Sabbath days get reminders.
+  bool get sabbath => _prefs.getBool(_sabbathKey) ?? false;
   HolidayReminderTime get time => HolidayReminderTime.values.firstWhere(
     (t) => t.name == _prefs.getString(_timeKey),
     orElse: () => HolidayReminderTime.evening,
@@ -97,6 +108,11 @@ class HolidayReminders extends ChangeNotifier {
 
   Future<bool> setAllPublic(bool on) async {
     await _prefs.setBool(_allPublicKey, on);
+    return _changed(asking: on);
+  }
+
+  Future<bool> setSabbath(bool on) async {
+    await _prefs.setBool(_sabbathKey, on);
     return _changed(asking: on);
   }
 
@@ -136,6 +152,7 @@ class HolidayReminders extends ChangeNotifier {
         now: now ?? DateTime.now(),
         followed: followed,
         allPublic: allPublic,
+        sabbath: sabbath,
         time: time,
         calendarLanguage: _calendarLanguage,
         l10n: lookupAppLocalizations(_appLocale),
@@ -178,47 +195,45 @@ class HolidayReminders extends ChangeNotifier {
     ),
   );
 
-  /// The reminders for holidays starting within [horizonDays] of [now].
+  /// The reminders for holidays starting, and with [sabbath] Sabbath days
+  /// falling, within [horizonDays] of [now], in time order.
   static List<PlannedHolidayReminder> plan({
     required DateTime now,
     required Set<String> followed,
     required bool allPublic,
+    bool sabbath = false,
     required HolidayReminderTime time,
     required Language calendarLanguage,
     required AppLocalizations l10n,
   }) {
     final today = DateTime(now.year, now.month, now.day);
+    final end = today.add(const Duration(days: horizonDays));
     final format = CalendarFormat(calendarLanguage);
+    final sabbathDays = sabbath
+        ? {
+            for (
+              var d = today;
+              !d.isAfter(end);
+              d = DateTime(d.year, d.month, d.day + 1)
+            )
+              if (MyanmarCalendar.getCompleteDateFor(
+                d.year,
+                d.month,
+                d.day,
+              ).isSabbath)
+                d,
+          }
+        : <DateTime>{};
     final out = <PlannedHolidayReminder>[];
-    for (final o in HolidayYears.between(
-      today,
-      today.add(const Duration(days: horizonDays)),
-      calendarLanguage,
-    )) {
-      final e = o.entry;
-      if (!followed.contains(e.id) && !(allPublic && e.officeClosed)) continue;
-      final name = e.title(l10n);
-      final dates = format.holidayRange(o);
-      final body = [
-        e.officeClosed ? l10n.holidayReminderBodyPublic(dates) : dates,
-        ?e.about(l10n),
-      ].join('\n');
-      final index = HolidayCatalog.all.indexOf(e);
-      final day = o.start.difference(DateTime(1970)).inDays % 100000;
-      int id(int slot) =>
-          idBase + day * 100 + (index < 0 ? 49 : index) * 2 + slot;
-      final evening = DateTime(
-        o.start.year,
-        o.start.month,
-        o.start.day - 1,
-        eveningHour,
-      );
-      final morning = DateTime(
-        o.start.year,
-        o.start.month,
-        o.start.day,
-        morningHour,
-      );
+    void add(
+      DateTime day,
+      int Function(int slot) id,
+      String name,
+      String body,
+      String payload,
+    ) {
+      final evening = DateTime(day.year, day.month, day.day - 1, eveningHour);
+      final morning = DateTime(day.year, day.month, day.day, morningHour);
       if (time.hasEvening && evening.isAfter(now)) {
         out.add(
           PlannedHolidayReminder(
@@ -226,7 +241,7 @@ class HolidayReminders extends ChangeNotifier {
             at: evening,
             title: l10n.holidayReminderTomorrow(name),
             body: body,
-            payload: '$payloadPrefix${e.id}_${o.start.year}',
+            payload: payload,
           ),
         );
       }
@@ -237,11 +252,52 @@ class HolidayReminders extends ChangeNotifier {
             at: morning,
             title: l10n.holidayReminderToday(name),
             body: body,
-            payload: '$payloadPrefix${e.id}_${o.start.year}',
+            payload: payload,
           ),
         );
       }
     }
-    return out;
+
+    int dayIndex(DateTime day) =>
+        day.difference(DateTime(1970)).inDays % 100000;
+
+    for (final o in HolidayYears.between(today, end, calendarLanguage)) {
+      final e = o.entry;
+      if (!followed.contains(e.id) && !(allPublic && e.officeClosed)) continue;
+      // A Sabbath on the holiday's first day joins its notification.
+      final alsoSabbath = sabbathDays.remove(o.start);
+      final name = alsoSabbath
+          ? '${e.title(l10n)} · ${l10n.sabbathReminderName}'
+          : e.title(l10n);
+      final dates = format.holidayRange(o);
+      final body = [
+        e.officeClosed ? l10n.holidayReminderBodyPublic(dates) : dates,
+        ?e.about(l10n),
+      ].join('\n');
+      final index = HolidayCatalog.all.indexOf(e);
+      final day = dayIndex(o.start);
+      add(
+        o.start,
+        (slot) => idBase + day * 100 + (index < 0 ? 49 : index) * 2 + slot,
+        name,
+        body,
+        '$payloadPrefix${e.id}_${o.start.year}',
+      );
+    }
+    for (final d in sabbathDays) {
+      final myanmar = MyanmarCalendar.getCompleteDateFor(
+        d.year,
+        d.month,
+        d.day,
+      ).myanmar;
+      add(
+        d,
+        (slot) => idBase + _sabbathSlot + dayIndex(d) * 2 + slot,
+        l10n.sabbathReminderName,
+        '${format.myanmar(myanmar, '&M &P &f')} · ${format.dayMonth(d)}',
+        '${payloadPrefix}sabbath_${d.toIso8601String().substring(0, 10)}',
+      );
+    }
+    return out..sort((a, b) => a.at.compareTo(b.at));
   }
 }

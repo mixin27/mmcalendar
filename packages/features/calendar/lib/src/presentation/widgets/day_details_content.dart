@@ -68,6 +68,7 @@ class DayDetailsContent extends StatelessWidget {
           if (completeDate.hasHolidays || completeDate.hasAnniversaryDays)
             _holidays(context),
           _astrology(context),
+          if (completeDate.isSabbath) const SabbathReminderGroup(),
           if (completeDate.nagahle.isNotEmpty) _nagahle(context),
           _aiPrompt(context),
           _summary(context, eventCount: events.length),

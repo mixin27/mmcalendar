@@ -4031,6 +4031,30 @@ abstract class AppLocalizations {
   /// **'Today: {holiday}'**
   String holidayReminderToday(String holiday);
 
+  /// Name in Sabbath reminders, e.g. 'Tomorrow: Sabbath day'.
+  ///
+  /// In en, this message translates to:
+  /// **'Sabbath day'**
+  String get sabbathReminderName;
+
+  /// Toggle: remind me of every Sabbath day.
+  ///
+  /// In en, this message translates to:
+  /// **'Sabbath days'**
+  String get holidayRemindersSabbath;
+
+  /// Which days are Sabbath days.
+  ///
+  /// In en, this message translates to:
+  /// **'Full moon, new moon and the 8th of each fortnight'**
+  String get holidayRemindersSabbathSubtitle;
+
+  /// Day details row on a Sabbath day.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me of Sabbath days'**
+  String get sabbathRemindMe;
+
   /// Holiday notification body.
   ///
   /// In en, this message translates to:

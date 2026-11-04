@@ -2210,6 +2210,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get sabbathReminderName => 'Sabbath day';
+
+  @override
+  String get holidayRemindersSabbath => 'Sabbath days';
+
+  @override
+  String get holidayRemindersSabbathSubtitle => 'Full moon, new moon and the 8th of each fortnight';
+
+  @override
+  String get sabbathRemindMe => 'Remind me of Sabbath days';
+
+  @override
   String holidayReminderBodyPublic(String dates) {
     return 'Public holiday · $dates';
   }
