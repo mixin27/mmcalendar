@@ -52,6 +52,16 @@ void main() {
       },
     );
 
+    test('updating from 2.3.1 to 2.4.0 shows only 2.4.0', () async {
+      final store = await _store({
+        WhatsNewStore.lastSeenKey: '2.3.1',
+      }, current: '2.4.0');
+      expect(store.pending().map((p) => p.item.route), [
+        '/views/holidays',
+        '/settings/display-preferences',
+      ]);
+    });
+
     test('a first run shows nothing', () async {
       expect((await _store({})).pending(), isEmpty);
     });

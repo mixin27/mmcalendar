@@ -2286,6 +2286,21 @@ class AppLocalizationsMy extends AppLocalizations {
   String get whatsNewStudioAction => 'Studio ဖွင့်ရန်';
 
   @override
+  String get whatsNewGuideTitle => 'ပွဲတော်များ ရှင်းလင်းချက်';
+
+  @override
+  String get whatsNewGuideBody => 'ပြက္ခဒိန်ပေါ်ရှိ ရုံးပိတ်ရက်ကို နှိပ်လျှင် ထိုနေ့၏ အဓိပ္ပာယ်ကို ဖတ်နိုင်သည်။ ရုံးပိတ်ရက် စာမျက်နှာတိုင်းတွင် ဘာတွေလုပ်ကြသလဲ၊ အသုံးဝင်သော အကြံပြုချက်များ၊ ယဉ်ကျေးမှုနှင့် ဘယ်မှာကြည့်ရမလဲ ပါသော \"သိထားသင့်သည်များ\" ပါဝင်လာပါပြီ။';
+
+  @override
+  String get whatsNewEnglishDatesTitle => 'အနောက်ရက်စွဲ အင်္ဂလိပ်လို';
+
+  @override
+  String get whatsNewEnglishDatesBody => 'ပြက္ခဒိန်ဘာသာစကား မည်သို့ပင်ဖြစ်စေ အနောက်လအမည်နှင့် ဂဏန်းများကို အက်ပ်နှင့် widget များတွင် အင်္ဂလိပ်လို (October 2026) ပြနိုင်ပါပြီ။';
+
+  @override
+  String get whatsNewEnglishDatesAction => 'ဖွင့်ရန်';
+
+  @override
   String get onboardingSkip => 'ကျော်ရန်';
 
   @override

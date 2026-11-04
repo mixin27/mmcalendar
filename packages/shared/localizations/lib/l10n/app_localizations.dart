@@ -4229,6 +4229,36 @@ abstract class AppLocalizations {
   /// **'Open Studio'**
   String get whatsNewStudioAction;
 
+  /// Feature title.
+  ///
+  /// In en, this message translates to:
+  /// **'Festivals explained'**
+  String get whatsNewGuideTitle;
+
+  /// Feature description.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap any holiday on the calendar to read what it marks. Each holiday page now has Good to know: what happens, practical tips, etiquette and where to see it.'**
+  String get whatsNewGuideBody;
+
+  /// Feature title.
+  ///
+  /// In en, this message translates to:
+  /// **'Western dates in English'**
+  String get whatsNewEnglishDatesTitle;
+
+  /// Feature description.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Western months and numbers in English (October 2026) in the app and widgets, whatever the calendar language.'**
+  String get whatsNewEnglishDatesBody;
+
+  /// Feature button.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn it on'**
+  String get whatsNewEnglishDatesAction;
+
   /// Skip the tour.
   ///
   /// In en, this message translates to:
