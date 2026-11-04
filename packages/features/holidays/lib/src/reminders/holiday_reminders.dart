@@ -146,7 +146,7 @@ class HolidayReminders extends ChangeNotifier {
           title: r.title,
           body: r.body,
           scheduledDate: tz.TZDateTime.from(r.at, tz.local),
-          notificationDetails: _details,
+          notificationDetails: _details(r.body),
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           payload: r.payload,
         );
@@ -157,16 +157,25 @@ class HolidayReminders extends ChangeNotifier {
     }
   }
 
-  static const _details = NotificationDetails(
+  /// Android shows [body] in full when the notification is expanded; its
+  /// second line explains the holiday.
+  static NotificationDetails _details(String body) => NotificationDetails(
     android: AndroidNotificationDetails(
       'holidays_channel',
       'Holiday reminders',
       channelDescription: 'Reminders for holidays you follow',
       importance: Importance.defaultImportance,
       icon: '@mipmap/ic_launcher',
+      styleInformation: BigTextStyleInformation(body),
     ),
-    iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
-    macOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
+    iOS: const DarwinNotificationDetails(
+      presentAlert: true,
+      presentSound: true,
+    ),
+    macOS: const DarwinNotificationDetails(
+      presentAlert: true,
+      presentSound: true,
+    ),
   );
 
   /// The reminders for holidays starting within [horizonDays] of [now].
@@ -190,9 +199,10 @@ class HolidayReminders extends ChangeNotifier {
       if (!followed.contains(e.id) && !(allPublic && e.officeClosed)) continue;
       final name = e.title(l10n);
       final dates = format.holidayRange(o);
-      final body = e.officeClosed
-          ? l10n.holidayReminderBodyPublic(dates)
-          : dates;
+      final body = [
+        e.officeClosed ? l10n.holidayReminderBodyPublic(dates) : dates,
+        ?e.about(l10n),
+      ].join('\n');
       final index = HolidayCatalog.all.indexOf(e);
       final day = o.start.difference(DateTime(1970)).inDays % 100000;
       int id(int slot) =>

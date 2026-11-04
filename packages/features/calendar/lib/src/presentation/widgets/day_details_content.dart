@@ -309,13 +309,17 @@ class DayDetailsContent extends StatelessWidget {
                 ? colors.anniversary
                 : colors.holiday,
             title: o.entry.title(l10n),
+            // The day's names and dates, then what the holiday is.
             subtitle: [
-              ...o.days
-                  .firstWhere((d) => d.date == day)
-                  .labels
-                  .where((label) => label != o.entry.title(l10n)),
-              if (o.length > 1) context.calendarFormat.holidayRange(o),
-            ].join(' · '),
+              [
+                ...o.days
+                    .firstWhere((d) => d.date == day)
+                    .labels
+                    .where((label) => label != o.entry.title(l10n)),
+                if (o.length > 1) context.calendarFormat.holidayRange(o),
+              ].join(' · '),
+              ?o.entry.about(l10n),
+            ].where((line) => line.isNotEmpty).join('\n'),
             chevron: true,
             onTap: () => GoRouter.of(context).push(
               inViews

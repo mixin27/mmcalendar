@@ -136,6 +136,7 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
                 ),
               ),
               _DayBadges(day: widget.day, options: widget.options),
+              _HolidayAbout(day: widget.day, options: widget.options),
               const SizedBox(height: 14),
               AppGroup(
                 label: l10n?.events ?? 'Events',
@@ -371,6 +372,54 @@ class _DayBadges extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Wrap(spacing: 5, runSpacing: 5, children: badges),
+    );
+  }
+}
+
+/// What the day's holidays are, for visitors and anyone curious; each row
+/// opens the holiday's page.
+class _HolidayAbout extends StatelessWidget {
+  const _HolidayAbout({required this.day, required this.options});
+  final CompleteDate day;
+  final DayCellOptions options;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!options.showHolidays || !day.hasHolidays && !day.hasAnniversaryDays) {
+      return const SizedBox.shrink();
+    }
+    final l10n =
+        AppLocalizations.of(context) ??
+        lookupAppLocalizations(const Locale('en'));
+    final colors = CalendarColors.of(context);
+    final date = DateTime(day.westernYear, day.westernMonth, day.westernDay);
+    final holidays = [
+      for (final o in HolidayYears.of(date.year, context.calendarLanguage))
+        if (o.contains(date) && o.entry.about(l10n) != null) o,
+    ];
+    if (holidays.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: AppGroup(
+        children: [
+          for (final o in holidays.take(2))
+            AppRow(
+              key: ValueKey('sheet-holiday-${o.entry.id}'),
+              icon: o.entry.kind == HolidayKind.anniversary
+                  ? Icons.celebration_outlined
+                  : Icons.star_rounded,
+              iconColor: o.entry.kind == HolidayKind.anniversary
+                  ? colors.anniversary
+                  : colors.holiday,
+              title: o.entry.title(l10n),
+              subtitle: o.entry.about(l10n),
+              chevron: true,
+              onTap: () => GoRouter.of(
+                context,
+              ).push(RoutePaths.holidayInHome(o.entry.id, date.year)),
+            ),
+        ],
+      ),
     );
   }
 }
