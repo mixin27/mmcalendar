@@ -25,7 +25,10 @@ void main() {
     final r = plan(followed: {'thadingyut'}).single;
     expect(r.at, DateTime(2026, 10, 24, 18));
     expect(r.title, 'Tomorrow: Thadingyut');
-    expect(r.body, 'Public holiday · 25–27 Oct');
+    expect(
+      r.body,
+      'Public holiday · 25–27 Oct\n${HolidayCatalog.thadingyut.about(l10n)}',
+    );
     expect(r.payload, startsWith(HolidayReminders.payloadPrefix));
     expect(r.id, greaterThanOrEqualTo(HolidayReminders.idBase));
   });
