@@ -133,6 +133,143 @@ These are the sources for the "Good to know" text on holiday pages, in `packages
 - **Covered:** a public holiday since 2018; Myanmar's own new year is in April; hotel parties and public countdowns that change each year; Kandawgyi Park and the area near Shwedagon.
 - **Left out:** curfews and other one-year events.
 
+## Buddhist full moons: Mahathamaya, Garudhamma, Metta
+
+- **Sources:**
+  - https://en.wikipedia.org/wiki/Nayon
+  - https://en.wikipedia.org/wiki/Monastic_examinations
+  - https://en.wikipedia.org/wiki/Tawthalin
+  - https://myanmarupperland.com/month/wagaung/
+  - https://myanmarupperland.com/month/tawthalin/
+  - https://myanmarinternational.tv/news/maha-thamaya-day-celebration-shwedagon-pagoda
+  - state-media (mdn.gov.mm) reports of the Shwedagon ceremonies (node 173542, 190387, 175484, 95552), from search results only
+- **Covered:**
+  - Mahathamaya: the Shwedagon procession and recitation; Nayon is exam month.
+  - Garudhamma: the Lent full moon and the Shwedagon ceremony; Tawthalin is the boat-race month.
+  - Metta: the dawn meal for monks; salakabat lot-drawing in village monasteries.
+- **Left out:**
+  - The link between Garudhamma Day and nuns (no source; see "Corrected explanations").
+  - The 84,000-flower stupas (single source).
+  - Inle boat races (they belong to the Phaung Daw Oo festival).
+
+## Nat festivals: Taungpyone, Yadanagu
+
+- **Sources:**
+  - https://en.wikipedia.org/wiki/Taungbyone_Festival
+  - https://en.wikipedia.org/wiki/Shwe_Hpyin_Nyidaw
+  - https://www.nationthailand.com/life/30213378
+  - https://en.wikipedia.org/wiki/Yadana_Cave_Festival
+  - https://12go.asia/en/post/6212/amarapura-to-host-yadana-gu-nat-festival-in-september
+- **Covered:** the Shwe Hpyin brothers, nat kadaw dancing to hsaing waing, bathing and procession of the statues, crowds, avoiding pork; Popa Medaw, offerings by boat, a calmer festival near Amarapura.
+- **Left out:**
+  - The exact length (sources say 6 to 11 days).
+  - The exact Yadanagu site (lake or river).
+  - Drinking and gambling.
+
+## Mon National Day
+
+- **Sources:**
+  - https://en.wikipedia.org/wiki/Mon_National_Day
+  - https://www.bnionline.net/en/news/mon-national-day-celebrated
+- **Covered:** the founding of Hanthawaddy, contests, boxing, dance, red-and-white dress, a venue that moves each year, not a national holiday.
+- **Corrected:** it falls on the 1st waning day of Tabodwe, not the full moon (see below).
+
+## Authors' Day
+
+- **Sources:**
+  - https://my.wikipedia.org/wiki/စာဆိုတော်နေ့
+  - https://mdn.gov.mm/en/my-random-thoughts-sarsodaw-nay-or-literati-day
+- **Covered:** first held in 1944; writers' associations; tributes, talks, contests; literary awards around the same time.
+- **Left out:** book fairs (unverified).
+
+## National days: Union, Peasants', Armed Forces (Resistance), Labour, Martyrs', National Day, General Aung San's birthday
+
+- **Sources:**
+  - https://en.wikipedia.org/wiki/Union_Day_(Myanmar)
+  - https://en.wikipedia.org/wiki/Peasants%27_Day
+  - https://en.wikipedia.org/wiki/Armed_Forces_Day_(Myanmar)
+  - https://en.wikipedia.org/wiki/Martyrs%27_Day_(Myanmar)
+  - https://en.wikipedia.org/wiki/Martyrs%27_Mausoleum
+  - https://en.wikipedia.org/wiki/National_Day_(Myanmar)
+  - https://www.thestar.com.my/aseanplus/aseanplus-news/2023/02/13/three-major-myanmar-cities-mark-76th-union-day
+  - https://www.thestar.com.my/aseanplus/aseanplus-news/2025/07/20/junta-chief-attends-event-honouring-suu-kyis-father
+  - https://www.aljazeera.com/news/2013/7/19/myanmar-honours-slain-democracy-activists
+  - https://www.officeholidays.com/countries/myanmar/2026
+- **Covered, neutrally:** what each day marks, the main ceremony, closures; the 10:37 am sirens and horns on Martyrs' Day; access to the mausoleum varies; Aung San's birthday is also Children's Day and isn't a public holiday of its own.
+- **Left out:**
+  - Political context and commentary.
+  - The 1962 date link for Peasants' Day.
+  - Parade details.
+  - The dawn flag-raising time.
+
+## New Year's Eve and bridge days
+
+- **Sources:**
+  - https://www.gnlm.com.mm/govt-designates-continuous-public-days-for-2024-2025-to-ease-travel-and-extend-leisure/
+  - https://myanmarlabournews.com/en/posts/there-will-be-32-public-holidays-in-2026
+  - https://www.officeholidays.com/countries/myanmar/2021
+- **Covered:**
+  - 31 December was a holiday from 2017 to 2021 and is now only an occasional bridge day.
+  - Bridge days are made up with working Saturdays.
+  - The yearly list comes out near the end of the year before.
+
+## Other faiths: Christmas, Diwali, Eid al-Adha, Eid al-Fitr, Good Friday, Easter
+
+- **Sources:**
+  - https://en.wikipedia.org/wiki/Christianity_in_Myanmar
+  - https://vaticannews.va/en/church/news/2023-12/myanmar-christians-observe-christmas-as-rebel-campaign-continues.html
+  - https://www.ucanews.com/amp/silent-christmas-for-christians-in-war-torn-myanmar/99743
+  - https://en.wikivoyage.org/wiki/Yangon
+  - https://cnimyanmar.com/index.php/english-edition/25476-sac-chairman-says-deepawali-shows-unity
+  - https://en.wikipedia.org/wiki/Shri_Kali_Temple,_Burma
+  - https://rfa.org/english/multimedia/eid-al-fitr-celebration-05142021163011.html
+  - https://seasia.co/2026/10/27/what-to-know-about-saint-marys-cathedral-yangon-myanmars-neo-gothic-cathedral
+  - https://en.wikipedia.org/wiki/Public_holidays_in_Myanmar
+- **Covered:**
+  - Holiday status: Christmas, Diwali and Eid al-Adha are holidays; Eid al-Fitr, Good Friday and Easter are not.
+  - Christmas and Eid are quieter in some areas recently.
+  - Places of worship in Yangon.
+- **Left out:**
+  - Rules on slaughter.
+  - Single-source mall decorations.
+  - Mandalay details (no source).
+
+## Chinese New Year
+
+- **Sources:**
+  - https://nationthailand.com/news/world/40039542
+  - https://www.thestar.com.my/aseanplus/aseanplus-news/2025/01/29/chinese-families-in-myanmar-honour-tradition-for-lunar-new-year
+  - https://www.mylocalpassion.com/posts/chinese-new-year-in-yangon-2026
+  - https://en.wikipedia.org/wiki/Kheng_Hock_Keong
+- **Covered:** a public holiday since 2025 (announced mid-2024); lion and dragon dances on poles; Latha Chinatown; Kheng Hock Keong.
+- **App data:** the calendar still shows it as an observance, not a day off. That needs a `myanmar_calendar_dart` change; 2026 had two days off.
+
+## Mothers' and Fathers' Day, and international days
+
+- **Sources:**
+  - https://en.wikipedia.org/wiki/Father%27s_Day
+  - https://hlamin.com/2025/05/16/mothers-day-2
+  - https://en.wikipedia.org/wiki/Myanmar_Red_Cross_Society
+  - https://digitallibrary.un.org/record/210015
+  - https://en.wikipedia.org/wiki/Gadaw
+  - https://www.irrawaddy.com/?p=31213
+  - https://www.leedsbeckett.ac.uk/blogs/student-blog-squad/2024/10/halloween-in-myanmar/
+- **Covered:**
+  - Mothers' Day on the Pyatho full moon (sources disagree; some use May).
+  - Fathers' Day on the Tabaung full moon.
+  - The Myanmar Red Cross's history.
+  - Myanmar joined the UN in 1948, and U Thant was Secretary-General.
+  - Respect for teachers (gadaw).
+  - Valentine's Day and Halloween in cities.
+- April Fools' Day and Earth Day have no Myanmar-specific angle, so they only say what the day is and that it isn't a holiday.
+
+## Corrected explanations (`holidayAbout*`)
+
+- **New Year's Day:** it said "a public holiday since 2018". Sources show 2018–2021, then again from 2025. `myanmar_calendar_dart` 3.0.2 still marks 2022–2024 as holidays, so it needs a follow-up fix.
+- **New Year's Eve:** it said "a public holiday since 2018". It was a holiday in 2017–2021, and since then only an occasional bridge day.
+- **Garudhamma:** it said the day recalls the Buddha giving the eight rules to the first nuns. No source ties the Myanmar observance to nuns, so it now describes the day as a Lent full moon kept with precepts and offerings.
+- **Mon National Day:** it said "falls on the full moon of Tabodwe". It falls the day after. The calendar package already gives the right date.
+
 ## Myanmar text: please review
 
 - **ရေကစားမဏ္ဍပ်** (pandal): no source page uses this exact term; it's the common word.
@@ -140,3 +277,6 @@ These are the sources for the "Good to know" text on holiday pages, in `packages
 - **ရှမ်းဗုံရှည်** (Shan long drum): check that this is the usual name.
 - **ကျီးမနိုး** (the Tazaungdaing pranks): check that the phrasing reads naturally.
 - **စိန်နားပန်း** (lantern balloons): this follows the English "seinnapan"; check the spelling.
+- **ဆွမ်းစာရေးပွဲ** (salakabat): couldn't be confirmed from a fetched source.
+- **ရှရီကာလီ ဟိန္ဒူဘုရားကျောင်း** (Shri Kali Temple), **ကိန်ဟော့ခွန်** (Kheng Hock Keong), **ဂျပ်ဆင်** (Judson): please check these transliterations.
+- **The four corrected explanations** above, in Myanmar.

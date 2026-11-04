@@ -12,21 +12,6 @@ void main() {
   final ids = {for (final e in HolidayCatalog.all) e.id};
   final parts = {for (final p in HolidayGuidePart.values) p.name};
 
-  /// The holidays visitors meet most. Each says what happens, the practical
-  /// side and where to see it; etiquette only where there is any.
-  const main = [
-    'thingyan',
-    'thadingyut',
-    'tazaungdaing',
-    'buddhaDay',
-    'lentStart',
-    'tabaung',
-    'karenNewYear',
-    'shanNewYear',
-    'independence',
-    'newYear',
-  ];
-
   for (final (name, guide) in [
     ('en', holidayGuideEn),
     ('my', holidayGuideMy),
@@ -44,22 +29,18 @@ void main() {
     });
   }
 
-  test('the main festivals are covered in both languages', () {
-    for (final id in main) {
-      final entry = HolidayCatalog.byId(id)!;
+  test('every holiday is covered in both languages', () {
+    for (final entry in HolidayCatalog.all) {
+      // At least what it is and whether it's a day off.
       expect(
         HolidayGuide.of(entry, en).keys,
-        containsAll([
-          HolidayGuidePart.happens,
-          HolidayGuidePart.practical,
-          HolidayGuidePart.where,
-        ]),
-        reason: id,
+        containsAll([HolidayGuidePart.happens, HolidayGuidePart.practical]),
+        reason: entry.id,
       );
       expect(
-        holidayGuideMy[id]?.keys,
-        unorderedEquals(holidayGuideEn[id]!.keys),
-        reason: '$id: Myanmar has the same parts as English',
+        holidayGuideMy[entry.id]?.keys,
+        unorderedEquals(holidayGuideEn[entry.id]!.keys),
+        reason: '${entry.id}: Myanmar has the same parts as English',
       );
     }
   });

@@ -1749,7 +1749,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holidayNameNewYear => 'New Year\'s Day';
 
   @override
-  String get holidayAboutNewYear => 'The first day of the Gregorian year, a public holiday in Myanmar since 2018.';
+  String get holidayAboutNewYear => 'The first day of the Gregorian year, a public holiday in Myanmar from 2018 to 2021 and again since 2025.';
 
   @override
   String get holidayNameIndependence => 'Independence Day';
@@ -1797,7 +1797,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holidayNameNewYearsEve => 'New Year\'s Eve';
 
   @override
-  String get holidayAboutNewYearsEve => 'The last day of the Gregorian year, a public holiday since 2018.';
+  String get holidayAboutNewYearsEve => 'The last day of the Gregorian year. It was a public holiday from 2017 to 2021; since then it is a day off only in years the government adds it as a bridge day.';
 
   @override
   String get holidayNamePublicHoliday => 'Public holiday';
@@ -1881,7 +1881,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holidayNameGarudhamma => 'Garudhamma Day';
 
   @override
-  String get holidayAboutGarudhamma => 'The full moon of Tawthalin recalls the Buddha giving the eight Garudhamma rules to the first nuns.';
+  String get holidayAboutGarudhamma => 'The full moon of Tawthalin, one of the Buddhist observance days of Lent, kept with precepts and offerings at pagodas.';
 
   @override
   String get holidayNameMetta => 'Metta Day';
@@ -1929,7 +1929,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holidayNameMonNational => 'Mon National Day';
 
   @override
-  String get holidayAboutMonNational => 'Falls on the full moon of Tabodwe and recalls the founding of Hanthawaddy (Bago).';
+  String get holidayAboutMonNational => 'Falls the day after the full moon of Tabodwe and recalls the founding of Hanthawaddy (Bago).';
 
   @override
   String get holidayNameMothers => 'Mother\'s Day';
