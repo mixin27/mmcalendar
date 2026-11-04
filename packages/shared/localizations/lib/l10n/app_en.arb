@@ -2922,6 +2922,22 @@
       }
     }
   },
+  "sabbathReminderName": "Sabbath day",
+  "@sabbathReminderName": {
+    "description": "Name in Sabbath reminders, e.g. 'Tomorrow: Sabbath day'."
+  },
+  "holidayRemindersSabbath": "Sabbath days",
+  "@holidayRemindersSabbath": {
+    "description": "Toggle: remind me of every Sabbath day."
+  },
+  "holidayRemindersSabbathSubtitle": "Full moon, new moon and the 8th of each fortnight",
+  "@holidayRemindersSabbathSubtitle": {
+    "description": "Which days are Sabbath days."
+  },
+  "sabbathRemindMe": "Remind me of Sabbath days",
+  "@sabbathRemindMe": {
+    "description": "Day details row on a Sabbath day."
+  },
   "holidayReminderBodyPublic": "Public holiday · {dates}",
   "@holidayReminderBodyPublic": {
     "description": "Holiday notification body.",

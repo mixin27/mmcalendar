@@ -2175,6 +2175,18 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
+  String get sabbathReminderName => 'ဥပုသ်နေ့';
+
+  @override
+  String get holidayRemindersSabbath => 'ဥပုသ်နေ့များ';
+
+  @override
+  String get holidayRemindersSabbathSubtitle => 'လပြည့်၊ လကွယ်နှင့် လဆန်း၊ လဆုတ် ၈ ရက်နေ့များ';
+
+  @override
+  String get sabbathRemindMe => 'ဥပုသ်နေ့တိုင်း သတိပေးရန်';
+
+  @override
   String holidayReminderBodyPublic(String dates) {
     return 'ရုံးပိတ်ရက် · $dates';
   }

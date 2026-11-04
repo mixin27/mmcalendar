@@ -186,5 +186,35 @@ void main() {
       expect(reminders.isOn(HolidayCatalog.thingyan), isTrue);
       expect(reminders.isOn(HolidayCatalog.halloween), isFalse);
     });
+
+    testWidgets('the sheet follows Sabbath days', (tester) async {
+      await _pump(tester, AppStyle.clear, '/views/holidays?year=2030');
+      await tester.tap(find.byKey(const ValueKey('holidays-reminders')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('holiday-reminder-sabbath')));
+      await tester.pumpAndSettle();
+      expect(reminders.sabbath, isTrue);
+      expect(asked, 1);
+    });
+
+    testWidgets('a Sabbath day offers Sabbath reminders', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: AppTheme.build(
+            style: AppStyle.clear,
+            colorScheme: AppColorSchemes.modernLight,
+          ),
+          home: const Scaffold(body: SabbathReminderGroup()),
+        ),
+      );
+      expect(find.text('Remind me of Sabbath days'), findsOneWidget);
+      await tester.tap(find.byType(AppSwitch));
+      await tester.pumpAndSettle();
+      expect(reminders.sabbath, isTrue);
+      expect(find.text('The evening before, at 6 pm'), findsOneWidget);
+    });
   });
 }

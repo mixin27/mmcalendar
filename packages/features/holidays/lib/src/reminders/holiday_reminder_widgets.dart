@@ -80,7 +80,44 @@ class HolidayReminderGroup extends StatelessWidget {
   }
 }
 
-/// When reminders come, and following all public holidays.
+/// "Remind me of Sabbath days", for a Sabbath day's details; tapping the
+/// row opens the reminder options.
+class SabbathReminderGroup extends StatelessWidget {
+  const SabbathReminderGroup({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final reminders = holidayReminders;
+    if (reminders == null) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
+    return ListenableBuilder(
+      listenable: reminders,
+      builder: (context, _) => AppGroup(
+        children: [
+          AppRow(
+            key: const ValueKey('sabbath-remind-me'),
+            icon: Icons.notifications_outlined,
+            iconColor: context.tokens.moon,
+            title: l10n.sabbathRemindMe,
+            subtitle: reminders.sabbath
+                ? _timeText(l10n, reminders.time)
+                : null,
+            trailing: AppSwitch(
+              value: reminders.sabbath,
+              onChanged: (v) async {
+                final granted = await reminders.setSabbath(v);
+                if (context.mounted) _deniedToast(context, granted);
+              },
+            ),
+            onTap: () => showHolidayReminderSheet(context),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// When reminders come, following all public holidays, and Sabbath days.
 Future<void> showHolidayReminderSheet(BuildContext context) async {
   final reminders = holidayReminders;
   if (reminders == null) return;
@@ -143,6 +180,20 @@ Future<void> showHolidayReminderSheet(BuildContext context) async {
                   value: reminders.allPublic,
                   onChanged: (v) async {
                     final granted = await reminders.setAllPublic(v);
+                    if (sheetContext.mounted) {
+                      _deniedToast(sheetContext, granted);
+                    }
+                  },
+                ),
+                AppRow.toggle(
+                  key: const ValueKey('holiday-reminder-sabbath'),
+                  icon: Icons.self_improvement_rounded,
+                  iconColor: sheetContext.tokens.moon,
+                  title: l10n.holidayRemindersSabbath,
+                  subtitle: l10n.holidayRemindersSabbathSubtitle,
+                  value: reminders.sabbath,
+                  onChanged: (v) async {
+                    final granted = await reminders.setSabbath(v);
                     if (sheetContext.mounted) {
                       _deniedToast(sheetContext, granted);
                     }
