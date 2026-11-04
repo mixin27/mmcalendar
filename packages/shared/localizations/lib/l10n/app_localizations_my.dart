@@ -2078,6 +2078,21 @@ class AppLocalizationsMy extends AppLocalizations {
   String get holidaysNextYear => 'နောက်တစ်ကြိမ်';
 
   @override
+  String get holidayGuideTitle => 'သိထားသင့်သည်များ';
+
+  @override
+  String get holidayGuideHappens => 'ဘာတွေ ကျင်းပကြသလဲ';
+
+  @override
+  String get holidayGuidePractical => 'လက်တွေ့ အကြံပြုချက်များ';
+
+  @override
+  String get holidayGuideEtiquette => 'လိုက်နာသင့်သော ဓလေ့များ';
+
+  @override
+  String get holidayGuideWhere => 'ဘယ်မှာ ကြည့်ရှုနိုင်သလဲ';
+
+  @override
   String get holidaysOtherYears => 'အခြားနှစ်များ';
 
   @override

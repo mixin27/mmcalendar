@@ -3857,6 +3857,36 @@ abstract class AppLocalizations {
   /// **'Next'**
   String get holidaysNextYear;
 
+  /// Holiday detail group label: visitor notes about the holiday.
+  ///
+  /// In en, this message translates to:
+  /// **'Good to know'**
+  String get holidayGuideTitle;
+
+  /// Holiday guide part: the customs you will see.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens'**
+  String get holidayGuideHappens;
+
+  /// Holiday guide part: closures, transport and other practical notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Practical tips'**
+  String get holidayGuidePractical;
+
+  /// Holiday guide part: what is welcome and what to avoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Etiquette'**
+  String get holidayGuideEtiquette;
+
+  /// Holiday guide part: the best-known places to see the holiday.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to see it'**
+  String get holidayGuideWhere;
+
   /// Holiday detail group label.
   ///
   /// In en, this message translates to:

@@ -3,6 +3,7 @@ library;
 export 'src/catalog/holiday_catalog.dart';
 export 'src/domain/holiday_search.dart';
 export 'src/domain/holiday_year.dart';
+export 'src/guide/holiday_guide.dart';
 export 'src/models/remote_holiday_models.dart';
 export 'src/presentation/holiday_detail_page.dart';
 export 'src/presentation/holiday_text.dart';
