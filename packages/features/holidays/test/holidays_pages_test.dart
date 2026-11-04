@@ -102,12 +102,32 @@ void main() {
         expect(find.text('End of Buddhist Lent'), findsWidgets);
         expect(find.text('Holiday'), findsNWidgets(2));
         expect(
-          find.textContaining('ends the three-month Buddhist Lent'),
+          find.textContaining('ends the three-month Buddhist Lent. Homes'),
           findsOneWidget,
         );
         expect(find.text('Public holiday'), findsOneWidget);
         expect(find.byKey(const ValueKey('holiday-year-2027')), findsOneWidget);
         expect(find.text('14–16 Oct'), findsOneWidget);
+      });
+
+      testWidgets('detail has a Good to know section for visitors', (
+        tester,
+      ) async {
+        await _pump(tester, style, '/views/holidays/thingyan?year=2026');
+        // Clear writes group labels in capitals.
+        expect(
+          find.textContaining(RegExp('Good to know', caseSensitive: false)),
+          findsOneWidget,
+        );
+        for (final part in HolidayGuidePart.values) {
+          expect(
+            find.byKey(ValueKey('holiday-guide-${part.name}')),
+            findsOneWidget,
+            reason: part.name,
+          );
+        }
+        await _pump(tester, style, '/views/holidays/halloween?year=2026');
+        expect(find.byKey(const ValueKey('holiday-guide')), findsNothing);
       });
     });
   }

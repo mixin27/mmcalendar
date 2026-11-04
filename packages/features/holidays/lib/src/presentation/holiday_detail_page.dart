@@ -7,6 +7,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../catalog/holiday_catalog.dart';
 import '../domain/holiday_year.dart';
+import '../guide/holiday_guide.dart';
 import '../reminders/holiday_reminder_widgets.dart';
 import 'holiday_text.dart';
 import 'holiday_widgets.dart';
@@ -46,6 +47,7 @@ class HolidayDetailPage extends StatelessWidget {
         );
     final title = entry.title(l10n);
     final about = entry.about(l10n);
+    final guide = HolidayGuide.of(entry, l10n);
     final base = GoRouterState.of(context).uri.path;
 
     final localNames =
@@ -103,7 +105,8 @@ class HolidayDetailPage extends StatelessWidget {
               title: title,
               content:
                   '$title · ${format.holidayRange(occurrence)} ${format.westernNumber(occurrence.start.year)}'
-                  '${about == null ? '' : '\n\n$about'}',
+                  '${about == null ? '' : '\n\n$about'}'
+                  '${[for (final MapEntry(key: part, value: text) in guide.entries) '\n\n${part.label(l10n)}\n$text'].join()}',
             ),
           ),
       ],
@@ -161,6 +164,26 @@ class HolidayDetailPage extends StatelessWidget {
               about,
               style: TextStyle(color: t.label, fontSize: 15, height: 1.6),
             ),
+          ),
+        if (guide.isNotEmpty)
+          AppGroup(
+            key: const ValueKey('holiday-guide'),
+            label: l10n.holidayGuideTitle,
+            children: [
+              for (final MapEntry(key: part, value: text) in guide.entries)
+                AppRow(
+                  key: ValueKey('holiday-guide-${part.name}'),
+                  icon: switch (part) {
+                    HolidayGuidePart.happens => Icons.celebration_outlined,
+                    HolidayGuidePart.practical => Icons.info_outline,
+                    HolidayGuidePart.etiquette =>
+                      Icons.volunteer_activism_outlined,
+                    HolidayGuidePart.where => Icons.place_outlined,
+                  },
+                  title: part.label(l10n),
+                  subtitle: text,
+                ),
+            ],
           ),
         if (otherYears.isNotEmpty)
           AppGroup(

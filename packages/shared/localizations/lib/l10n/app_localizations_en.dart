@@ -2113,6 +2113,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holidaysNextYear => 'Next';
 
   @override
+  String get holidayGuideTitle => 'Good to know';
+
+  @override
+  String get holidayGuideHappens => 'What happens';
+
+  @override
+  String get holidayGuidePractical => 'Practical tips';
+
+  @override
+  String get holidayGuideEtiquette => 'Etiquette';
+
+  @override
+  String get holidayGuideWhere => 'Where to see it';
+
+  @override
   String get holidaysOtherYears => 'Other years';
 
   @override

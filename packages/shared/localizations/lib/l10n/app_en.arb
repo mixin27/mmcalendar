@@ -2775,6 +2775,26 @@
   "@holidaysNextYear": {
     "description": "The next time a holiday comes round, in search."
   },
+  "holidayGuideTitle": "Good to know",
+  "@holidayGuideTitle": {
+    "description": "Holiday detail group label: visitor notes about the holiday."
+  },
+  "holidayGuideHappens": "What happens",
+  "@holidayGuideHappens": {
+    "description": "Holiday guide part: the customs you will see."
+  },
+  "holidayGuidePractical": "Practical tips",
+  "@holidayGuidePractical": {
+    "description": "Holiday guide part: closures, transport and other practical notes."
+  },
+  "holidayGuideEtiquette": "Etiquette",
+  "@holidayGuideEtiquette": {
+    "description": "Holiday guide part: what is welcome and what to avoid."
+  },
+  "holidayGuideWhere": "Where to see it",
+  "@holidayGuideWhere": {
+    "description": "Holiday guide part: the best-known places to see the holiday."
+  },
   "holidaysOtherYears": "Other years",
   "@holidaysOtherYears": {
     "description": "Holiday detail group label."
