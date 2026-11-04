@@ -27,7 +27,7 @@ dependencies:
     path: ../holidays
 
   # Myanmar calendar
-  myanmar_calendar_dart: ^3.0.2
+  myanmar_calendar_dart: ^3.0.3
 
   # State management
   bloc: ^9.2.0

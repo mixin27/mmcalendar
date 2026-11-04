@@ -69,16 +69,21 @@ void main() {
     );
   });
 
-  test('2026 has 17 public holidays', () {
+  test('2026 has 18 public holidays', () {
     final closed = HolidayYears.of(
       2026,
       Language.english,
     ).where((o) => o.entry.officeClosed);
-    // 31 December stopped being a public holiday after 2021; 1 January
-    // stayed one.
-    expect(closed.length, 17);
+    // 1 January and Chinese New Year are public holidays again from 2025;
+    // 31 December stopped being one after 2021.
+    expect(closed.length, 18);
     expect(closed.map((o) => o.entry.id), contains('newYear'));
     expect(closed.map((o) => o.entry.id), isNot(contains('newYearsEve')));
+    final chinese = closed.singleWhere(
+      (o) => o.entry == HolidayCatalog.chineseNewYear,
+    );
+    expect(chinese.start, DateTime(2026, 2, 16));
+    expect(chinese.length, 2);
   });
 
   test('labels follow the calendar language', () {

@@ -22,7 +22,7 @@ dependencies:
     path: ../../shared/localizations
 
   # Myanmar Calendar Package
-  myanmar_calendar_dart: ^3.0.2
+  myanmar_calendar_dart: ^3.0.3
 
   # Utilities
   intl: ^0.20.2

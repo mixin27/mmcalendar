@@ -262,10 +262,12 @@ abstract final class HolidayCatalog {
     officeClosed: true,
     aliases: ['ကရင်'],
   );
+  // A public holiday since 2025 (myanmar_calendar_dart 3.0.3).
   static const chineseNewYear = HolidayEntry(
     id: 'chineseNewYear',
     kind: HolidayKind.cultural,
     names: ["Chinese New Year's"],
+    officeClosed: true,
     aliases: ['Lunar New Year', 'Spring Festival', 'တရုတ်'],
   );
   static const shanNewYear = HolidayEntry(
