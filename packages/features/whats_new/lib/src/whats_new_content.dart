@@ -39,6 +39,26 @@ class WhatsNewRelease {
 /// Every release with something to announce, newest first. Add a release
 /// here with its strings in the ARB files when a version ships features.
 const whatsNewReleases = <WhatsNewRelease>[
+  WhatsNewRelease('2.4.0', [
+    WhatsNewItem(
+      id: 'holidayGuide',
+      icon: Icons.menu_book_outlined,
+      color: Color(0xFFE5383B),
+      title: _guideTitle,
+      body: _guideBody,
+      action: _holidaysAction,
+      route: '${RoutePaths.views}/${RoutePaths.holidays}',
+    ),
+    WhatsNewItem(
+      id: 'englishWesternDates',
+      icon: Icons.translate,
+      color: Color(0xFF2B5598),
+      title: _englishDatesTitle,
+      body: _englishDatesBody,
+      action: _englishDatesAction,
+      route: '${RoutePaths.settings}/${RoutePaths.displayPreferences}',
+    ),
+  ]),
   // Everything since 2.2.3, the biggest first.
   WhatsNewRelease('2.3.0', [
     WhatsNewItem(
@@ -142,3 +162,8 @@ String _newIconsBody(AppLocalizations l) => l.whatsNewNewIconsBody;
 String _studioTitle(AppLocalizations l) => l.whatsNewStudioTitle;
 String _studioBody(AppLocalizations l) => l.whatsNewStudioBody;
 String _studioAction(AppLocalizations l) => l.whatsNewStudioAction;
+String _guideTitle(AppLocalizations l) => l.whatsNewGuideTitle;
+String _guideBody(AppLocalizations l) => l.whatsNewGuideBody;
+String _englishDatesTitle(AppLocalizations l) => l.whatsNewEnglishDatesTitle;
+String _englishDatesBody(AppLocalizations l) => l.whatsNewEnglishDatesBody;
+String _englishDatesAction(AppLocalizations l) => l.whatsNewEnglishDatesAction;

@@ -1,3 +1,11 @@
+## [2.4.0+240] - 2026-11-05
+
+- Festivals explained: tap a holiday on the calendar, or open it from a reminder, to read what it marks. Every holiday page now has Good to know: what happens, practical tips, etiquette and where to see it, in English and Myanmar.
+- Settings › Display Preferences: "English for Western Dates" shows Western months and numbers in English (October 2026) in the app and in home-screen widgets, whatever the calendar language.
+- Holidays: New Year's Day (1 January) is a public holiday again from 2025, and Chinese New Year is a public holiday from 2025. Corrected the explanations for New Year's Day, New Year's Eve, Garudhamma Day and Mon National Day.
+- Calendar Studio: changing the year of an imported design (.mmcstudio or .mmctemplate) no longer piles preset elements on top of it, and imported designs keep their colours.
+- Calendar Studio: designs with empty photo frames can be exported; each empty frame prints as a thin outline, for a photo you add by hand.
+
 ## [2.3.1+232] - 2026-10-27
 
 - Fixed photos missing from Calendar Studio exports: PDF, PNG and JPEG pages showed empty photo frames.

@@ -2321,6 +2321,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewStudioAction => 'Open Studio';
 
   @override
+  String get whatsNewGuideTitle => 'Festivals explained';
+
+  @override
+  String get whatsNewGuideBody => 'Tap any holiday on the calendar to read what it marks. Each holiday page now has Good to know: what happens, practical tips, etiquette and where to see it.';
+
+  @override
+  String get whatsNewEnglishDatesTitle => 'Western dates in English';
+
+  @override
+  String get whatsNewEnglishDatesBody => 'Show Western months and numbers in English (October 2026) in the app and widgets, whatever the calendar language.';
+
+  @override
+  String get whatsNewEnglishDatesAction => 'Turn it on';
+
+  @override
   String get onboardingSkip => 'Skip';
 
   @override

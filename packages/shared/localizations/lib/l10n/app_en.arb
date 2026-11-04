@@ -3072,6 +3072,26 @@
   "@whatsNewStudioAction": {
     "description": "Feature button."
   },
+  "whatsNewGuideTitle": "Festivals explained",
+  "@whatsNewGuideTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewGuideBody": "Tap any holiday on the calendar to read what it marks. Each holiday page now has Good to know: what happens, practical tips, etiquette and where to see it.",
+  "@whatsNewGuideBody": {
+    "description": "Feature description."
+  },
+  "whatsNewEnglishDatesTitle": "Western dates in English",
+  "@whatsNewEnglishDatesTitle": {
+    "description": "Feature title."
+  },
+  "whatsNewEnglishDatesBody": "Show Western months and numbers in English (October 2026) in the app and widgets, whatever the calendar language.",
+  "@whatsNewEnglishDatesBody": {
+    "description": "Feature description."
+  },
+  "whatsNewEnglishDatesAction": "Turn it on",
+  "@whatsNewEnglishDatesAction": {
+    "description": "Feature button."
+  },
   "onboardingSkip": "Skip",
   "@onboardingSkip": {
     "description": "Skip the tour."
