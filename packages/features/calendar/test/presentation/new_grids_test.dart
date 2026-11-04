@@ -38,6 +38,7 @@ Future<void> _pumpGrid(
   WidgetTester tester,
   CalendarGridStyle style, {
   DateTime? selected,
+  Set<DateTime> noteDates = const {},
 }) async {
   tester.view
     ..devicePixelRatio = 1
@@ -59,6 +60,7 @@ Future<void> _pumpGrid(
             selectedDate: selected,
             onDateTap: (_) {},
             eventsByDate: _events,
+            noteDates: noteDates,
             gridStyle: style,
           ),
         ),
@@ -68,6 +70,25 @@ Future<void> _pumpGrid(
 }
 
 void main() {
+  testWidgets('days with a note get a mark in every grid style', (
+    tester,
+  ) async {
+    for (final style in CalendarGridStyle.values) {
+      await _pumpGrid(
+        tester,
+        style,
+        // The 30th of September shows in the grid but isn't this month.
+        noteDates: {DateTime(2026, 10, 22), DateTime(2026, 9, 30)},
+      );
+      expect(
+        find.byKey(const ValueKey('grid-note-2026-10-22')),
+        findsOneWidget,
+        reason: style.name,
+      );
+      expect(find.byKey(const ValueKey('grid-note-2026-9-30')), findsNothing);
+    }
+  });
+
   test('Myanmar month places mark where Thadingyut begins', () {
     final places = MyanmarMonthPlace.of(_dates);
     final i = _dates.indexOf(_day(12));

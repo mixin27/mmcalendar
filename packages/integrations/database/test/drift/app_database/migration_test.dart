@@ -7,8 +7,8 @@ import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 void main() {
-  test('manual migration from v1 to v7 preserves data, adds Studio storage '
-      'and keeps the Detailed grid', () async {
+  test('manual migration from v1 to v8 preserves data, adds Studio and '
+      'notes storage and keeps the Detailed grid', () async {
     final tempDir = await Directory.systemTemp.createTemp(
       'mmcalendar_migration_',
     );
@@ -26,7 +26,17 @@ void main() {
           .customSelect('PRAGMA user_version')
           .map((row) => row.read<int>('user_version'))
           .getSingle();
-      expect(userVersion, 7);
+      expect(userVersion, 8);
+
+      final hasDayNotesTable = await migratedDb
+          .customSelect('''
+            SELECT COUNT(*) AS c
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'day_notes'
+            ''')
+          .map((row) => row.read<int>('c'))
+          .getSingle();
+      expect(hasDayNotesTable, 1);
 
       // The install never picked a grid: it keeps Detailed rather than
       // switching to the new default.

@@ -4031,6 +4031,66 @@ abstract class AppLocalizations {
   /// **'Today: {holiday}'**
   String holidayReminderToday(String holiday);
 
+  /// Notes page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesTitle;
+
+  /// Views row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What you wrote on each day'**
+  String get notesViewsSubtitle;
+
+  /// Day's note row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get noteTitle;
+
+  /// Row that opens the note editor for a day.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get noteAdd;
+
+  /// Note editor placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Write anything for this day'**
+  String get noteHint;
+
+  /// Destructive row in the note editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get noteDelete;
+
+  /// Confirm deleting a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this note?'**
+  String get noteDeleteQuestion;
+
+  /// Notes page with no notes.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes yet. Open any day and tap Add a note.'**
+  String get notesEmpty;
+
+  /// Notes search placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search notes'**
+  String get notesSearch;
+
+  /// Notes search with no results.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes match your search.'**
+  String get notesNoMatches;
+
   /// Name in Sabbath reminders, e.g. 'Tomorrow: Sabbath day'.
   ///
   /// In en, this message translates to:

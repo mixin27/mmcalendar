@@ -16,10 +16,12 @@ Future<T?> showAppSheet<T>({
   String? doneLabel,
   VoidCallback? onDone,
   bool expand = false,
+  bool useRootNavigator = false,
 }) {
   final t = context.tokens;
   return showModalBottomSheet<T>(
     context: context,
+    useRootNavigator: useRootNavigator,
     isScrollControlled: true,
     useSafeArea: true,
     showDragHandle: !t.isClear,

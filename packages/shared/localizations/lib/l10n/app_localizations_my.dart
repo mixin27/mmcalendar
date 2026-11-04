@@ -2175,6 +2175,36 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
+  String get notesTitle => 'မှတ်စုများ';
+
+  @override
+  String get notesViewsSubtitle => 'နေ့အလိုက် ရေးထားသော မှတ်စုများ';
+
+  @override
+  String get noteTitle => 'မှတ်စု';
+
+  @override
+  String get noteAdd => 'မှတ်စု ထည့်ရန်';
+
+  @override
+  String get noteHint => 'ဒီနေ့အတွက် မှတ်ထားချင်တာ ရေးပါ';
+
+  @override
+  String get noteDelete => 'မှတ်စု ဖျက်ရန်';
+
+  @override
+  String get noteDeleteQuestion => 'ဤမှတ်စုကို ဖျက်မလား?';
+
+  @override
+  String get notesEmpty => 'မှတ်စု မရှိသေးပါ။ မည်သည့်နေ့ကိုမဆို ဖွင့်ပြီး “မှတ်စု ထည့်ရန်” ကို နှိပ်ပါ။';
+
+  @override
+  String get notesSearch => 'မှတ်စု ရှာရန်';
+
+  @override
+  String get notesNoMatches => 'ရှာသည့်စာနှင့် ကိုက်ညီသော မှတ်စု မရှိပါ။';
+
+  @override
   String get sabbathReminderName => 'ဥပုသ်နေ့';
 
   @override

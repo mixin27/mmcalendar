@@ -48,6 +48,8 @@ dependencies:
     path: ../../packages/integrations/telegram_web
   holidays:
     path: ../../packages/features/holidays
+  notes:
+    path: ../../packages/features/notes
   whats_new:
     path: ../../packages/features/whats_new
   onboarding:

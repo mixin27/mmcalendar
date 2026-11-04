@@ -2922,6 +2922,46 @@
       }
     }
   },
+  "notesTitle": "Notes",
+  "@notesTitle": {
+    "description": "Notes page title."
+  },
+  "notesViewsSubtitle": "What you wrote on each day",
+  "@notesViewsSubtitle": {
+    "description": "Views row subtitle."
+  },
+  "noteTitle": "Note",
+  "@noteTitle": {
+    "description": "Day's note row title."
+  },
+  "noteAdd": "Add a note",
+  "@noteAdd": {
+    "description": "Row that opens the note editor for a day."
+  },
+  "noteHint": "Write anything for this day",
+  "@noteHint": {
+    "description": "Note editor placeholder."
+  },
+  "noteDelete": "Delete note",
+  "@noteDelete": {
+    "description": "Destructive row in the note editor."
+  },
+  "noteDeleteQuestion": "Delete this note?",
+  "@noteDeleteQuestion": {
+    "description": "Confirm deleting a note."
+  },
+  "notesEmpty": "No notes yet. Open any day and tap Add a note.",
+  "@notesEmpty": {
+    "description": "Notes page with no notes."
+  },
+  "notesSearch": "Search notes",
+  "@notesSearch": {
+    "description": "Notes search placeholder."
+  },
+  "notesNoMatches": "No notes match your search.",
+  "@notesNoMatches": {
+    "description": "Notes search with no results."
+  },
   "sabbathReminderName": "Sabbath day",
   "@sabbathReminderName": {
     "description": "Name in Sabbath reminders, e.g. 'Tomorrow: Sabbath day'."

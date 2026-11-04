@@ -52,8 +52,8 @@ final Map<String, Set<String>> _strictAllowedInternalDependencies =
 final Map<String, Set<String>> _allowedFeatureDependencies =
     <String, Set<String>>{
       // Holidays is the holiday catalog; the calendar, widgets and views
-      // show its days.
-      'calendar': <String>{'holidays'},
+      // show its days. Notes are day notes the calendar shows and edits.
+      'calendar': <String>{'holidays', 'notes'},
       // Widgets reuse the calendar's grid palettes and the holiday catalog.
       'home_widgets': <String>{'calendar', 'holidays'},
       // Settings previews the calendar grids and themes.

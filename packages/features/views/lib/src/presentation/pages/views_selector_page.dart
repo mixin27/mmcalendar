@@ -105,6 +105,16 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
               chevron: true,
               onTap: () => context.go('/views/day'),
             ),
+            AppRow(
+              key: const ValueKey('views-notes'),
+              icon: Icons.sticky_note_2_outlined,
+              iconColor: const Color(0xFFE0A21B),
+              title: l10n?.notesTitle ?? 'Notes',
+              subtitle: l10n?.notesViewsSubtitle,
+              chevron: true,
+              onTap: () =>
+                  context.go('${RoutePaths.views}/${RoutePaths.notes}'),
+            ),
           ],
         ),
         AppGroup(

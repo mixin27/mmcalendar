@@ -24,6 +24,8 @@ dependencies:
     path: ../../shared/motifs
   holidays:
     path: ../holidays
+  notes:
+    path: ../notes
   telegram_web:
     path: ../../integrations/telegram_web
 
