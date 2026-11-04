@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:holidays/holidays.dart';
 import 'package:myanmar_calendar_dart/ai.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:notes/notes.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
@@ -71,6 +72,7 @@ class DayDetailsContent extends StatelessWidget {
           if (completeDate.isSabbath) const SabbathReminderGroup(),
           if (completeDate.nagahle.isNotEmpty) _nagahle(context),
           _aiPrompt(context),
+          DayNoteGroup(date: date),
           _summary(context, eventCount: events.length),
           _events(
             context,

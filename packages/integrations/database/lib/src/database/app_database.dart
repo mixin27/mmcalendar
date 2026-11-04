@@ -19,6 +19,8 @@ import 'tables/calendar_studio_templates_table.dart';
 import 'daos/calendar_dao.dart';
 import 'daos/settings_dao.dart';
 import 'daos/holidays_dao.dart';
+import 'daos/day_notes_dao.dart';
+import 'tables/day_notes_table.dart';
 
 part 'app_database.g.dart';
 
@@ -34,6 +36,7 @@ part 'app_database.g.dart';
     EventRecurrenceRules,
     CalendarStudioProjects,
     CalendarStudioTemplates,
+    DayNotes,
   ],
   daos: [
     CalendarDao,
@@ -42,6 +45,7 @@ part 'app_database.g.dart';
     EventsDao,
     EventsV2Dao,
     RecurringExceptionsDao,
+    DayNotesDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -56,7 +60,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -96,6 +100,9 @@ class AppDatabase extends _$AppDatabase {
               SELECT 1 FROM app_settings WHERE key = 'calendar_grid_style'
             )
             ''');
+        }
+        if (from < 8) {
+          await m.create(dayNotes);
         }
       },
       beforeOpen: (details) async {

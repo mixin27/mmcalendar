@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:holidays/holidays.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:notes/notes.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:whats_new/whats_new.dart';
 import 'package:integrations_app_update/integrations_app_update.dart';
@@ -33,6 +34,9 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   // Initialize SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerSingleton<SharedPreferences>(sharedPreferences);
+  getIt.registerSingleton<DayNotesRepository>(
+    DayNotesRepository(database.dayNotesDao),
+  );
 
   // The installed version, for About, App Update and What's new.
   final packageInfo = await PackageInfo.fromPlatform();

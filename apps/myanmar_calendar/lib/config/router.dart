@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:holidays/holidays.dart';
 import 'package:home_widgets/home_widgets.dart';
+import 'package:notes/notes.dart';
 import 'package:settings/settings.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:views/views.dart';
@@ -132,6 +133,10 @@ final GoRouter router = GoRouter(
                       ),
                     ),
                   ],
+                ),
+                GoRoute(
+                  path: RoutePaths.notes,
+                  builder: (context, state) => const NotesPage(),
                 ),
                 // Views › Day is the Day Details screen (events, share and
                 // the AI prompt included), not a separate copy.

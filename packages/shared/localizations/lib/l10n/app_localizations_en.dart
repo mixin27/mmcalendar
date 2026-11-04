@@ -2210,6 +2210,36 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get notesTitle => 'Notes';
+
+  @override
+  String get notesViewsSubtitle => 'What you wrote on each day';
+
+  @override
+  String get noteTitle => 'Note';
+
+  @override
+  String get noteAdd => 'Add a note';
+
+  @override
+  String get noteHint => 'Write anything for this day';
+
+  @override
+  String get noteDelete => 'Delete note';
+
+  @override
+  String get noteDeleteQuestion => 'Delete this note?';
+
+  @override
+  String get notesEmpty => 'No notes yet. Open any day and tap Add a note.';
+
+  @override
+  String get notesSearch => 'Search notes';
+
+  @override
+  String get notesNoMatches => 'No notes match your search.';
+
+  @override
   String get sabbathReminderName => 'Sabbath day';
 
   @override

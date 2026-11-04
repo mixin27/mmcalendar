@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:notes/notes.dart' show dayNoteColor;
 import 'calendar_colors.dart';
 import 'date_cell.dart';
 import 'day_cells.dart';
@@ -26,6 +27,10 @@ class CalendarGrid extends StatelessWidget {
   final bool showWesternDates;
   final bool showMyanmarDates;
   final Map<DateTime, List<CalendarEventItem>> eventsByDate;
+
+  /// Days with a note; each gets a small mark in its top corner, the same
+  /// in every grid style.
+  final Set<DateTime> noteDates;
   final CalendarGridStyle gridStyle;
   final double maxRowHeightFactor;
   final EdgeInsets padding;
@@ -44,6 +49,7 @@ class CalendarGrid extends StatelessWidget {
     this.showWesternDates = true,
     this.showMyanmarDates = true,
     this.eventsByDate = const <DateTime, List<CalendarEventItem>>{},
+    this.noteDates = const <DateTime>{},
     this.gridStyle = CalendarGridStyle.defaultStyle,
     this.maxRowHeightFactor = 1.6,
     this.padding = const EdgeInsets.symmetric(horizontal: 6),
@@ -342,7 +348,34 @@ class CalendarGrid extends StatelessWidget {
     };
     // No Hero: nothing flies to a day, and many grids of the same month
     // (Settings previews, the month switcher, the year view) would share tags.
-    return cell;
+    if (!noteDates.contains(date) || !_isInCurrentMonth(date)) return cell;
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        cell,
+        // Top centre: date numbers sit left and moons right in most styles.
+        Positioned(
+          top: 2,
+          left: 0,
+          right: 0,
+          child: IgnorePointer(
+            child: Center(
+              child: Container(
+                key: ValueKey(
+                  'grid-note-${date.year}-${date.month}-${date.day}',
+                ),
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: dayNoteColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   DayCellData _data(

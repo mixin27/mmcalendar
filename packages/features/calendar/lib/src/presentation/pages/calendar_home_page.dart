@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:telegram_web/telegram_web.dart';
+import 'package:notes/notes.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 
@@ -562,22 +563,26 @@ class _CalendarHomePageState extends State<CalendarHomePage>
               alignment: Alignment.topCenter,
               children: [...previous, ?current],
             ),
-            child: CalendarGrid(
+            child: MonthNoteDays(
               key: ValueKey(state.calendarMonth.month),
-              gridDates: state.calendarMonth.gridDates,
-              currentMonth: state.calendarMonth.month,
-              selectedDate: selectedDate,
-              today: state.today,
-              gridStyle: config.gridStyle,
-              maxRowHeightFactor: maxRowHeightFactor,
-              showHolidays: config.showHolidays,
-              showAnniversaryDays: config.showAnniversaryDays,
-              showSabbaths: config.showSabbaths,
-              showAstrology: config.showAstrology,
-              showWesternDates: config.showWesternDates,
-              showMyanmarDates: config.showMyanmarDates,
-              eventsByDate: eventsByDate,
-              onDateTap: onDateTap,
+              month: state.calendarMonth.month,
+              builder: (context, noteDates) => CalendarGrid(
+                gridDates: state.calendarMonth.gridDates,
+                currentMonth: state.calendarMonth.month,
+                selectedDate: selectedDate,
+                today: state.today,
+                gridStyle: config.gridStyle,
+                maxRowHeightFactor: maxRowHeightFactor,
+                showHolidays: config.showHolidays,
+                showAnniversaryDays: config.showAnniversaryDays,
+                showSabbaths: config.showSabbaths,
+                showAstrology: config.showAstrology,
+                showWesternDates: config.showWesternDates,
+                showMyanmarDates: config.showMyanmarDates,
+                eventsByDate: eventsByDate,
+                noteDates: noteDates,
+                onDateTap: onDateTap,
+              ),
             ),
           ),
         ),

@@ -17,6 +17,7 @@ class RoutePaths {
   static const String myanmarMonthView = 'myanmar-month';
   static const String agendaView = 'agenda';
   static const String dayView = 'day';
+  static const String notes = 'notes';
   static const String holidays = 'holidays';
   static const String holidayDetail = ':id';
 
