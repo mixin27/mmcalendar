@@ -1733,7 +1733,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get holidayNameNewYear => 'နှစ်သစ်ကူးနေ့';
 
   @override
-  String get holidayAboutNewYear => 'ခရစ်နှစ်သစ်၏ ပထမဆုံးနေ့ ဖြစ်ပြီး ၂၀၁၈ ခုနှစ်မှစ၍ ရုံးပိတ်ရက် ဖြစ်သည်။';
+  String get holidayAboutNewYear => 'ခရစ်နှစ်သစ်၏ ပထမဆုံးနေ့ ဖြစ်ပြီး ၂၀၁၈ မှ ၂၀၂၁ ခုနှစ်အထိနှင့် ၂၀၂၅ ခုနှစ်မှစ၍ ရုံးပိတ်ရက် ဖြစ်သည်။';
 
   @override
   String get holidayNameIndependence => 'လွတ်လပ်ရေးနေ့';
@@ -1781,7 +1781,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get holidayNameNewYearsEve => 'နှစ်ကုန်ရက်';
 
   @override
-  String get holidayAboutNewYearsEve => 'ခရစ်နှစ်၏ နောက်ဆုံးနေ့ ဖြစ်ပြီး ၂၀၁၈ ခုနှစ်မှစ၍ ရုံးပိတ်ရက် ဖြစ်သည်။';
+  String get holidayAboutNewYearsEve => 'ခရစ်နှစ်၏ နောက်ဆုံးနေ့ ဖြစ်သည်။ ၂၀၁၇ မှ ၂၀၂၁ ခုနှစ်အထိ ရုံးပိတ်ရက် ဖြစ်ခဲ့ပြီး ယခုအခါ အစိုးရက ဆက်တိုက်ပိတ်ရက် အဖြစ် ထည့်သွင်းသည့် နှစ်များတွင်သာ ပိတ်ရက် ဖြစ်သည်။';
 
   @override
   String get holidayNamePublicHoliday => 'ရုံးပိတ်ရက်';
@@ -1865,7 +1865,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get holidayNameGarudhamma => 'ဂရုဓမ္မနေ့';
 
   @override
-  String get holidayAboutGarudhamma => 'တော်သလင်းလပြည့်နေ့တွင် မြတ်စွာဘုရား ပထမဆုံး ဘိက္ခုနီများအား ဂရုဓမ္မ ရှစ်ပါးကို ပေးတော်မူခဲ့ခြင်းကို အောက်မေ့သည်။';
+  String get holidayAboutGarudhamma => 'ဝါတွင်းအတွင်း ကျရောက်သော တော်သလင်းလပြည့် ဥပုသ်နေ့ ဖြစ်ပြီး ဘုရားများတွင် သီလယူခြင်း၊ လှူဒါန်းခြင်းများ ပြုကြသည်။';
 
   @override
   String get holidayNameMetta => 'မေတ္တာနေ့';
@@ -1913,7 +1913,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get holidayNameMonNational => 'မွန်အမျိုးသားနေ့';
 
   @override
-  String get holidayAboutMonNational => 'တပို့တွဲလပြည့်နေ့တွင် ကျရောက်ပြီး ဟံသာဝတီ (ပဲခူး) တည်ထောင်ခြင်းကို အောက်မေ့သည့် မွန်အမျိုးသားနေ့ ဖြစ်သည်။';
+  String get holidayAboutMonNational => 'တပို့တွဲလပြည့်ကျော် ၁ ရက်နေ့တွင် ကျရောက်ပြီး ဟံသာဝတီ (ပဲခူး) တည်ထောင်ခြင်းကို အောက်မေ့သည့် မွန်အမျိုးသားနေ့ ဖြစ်သည်။';
 
   @override
   String get holidayNameMothers => 'အမေများနေ့';

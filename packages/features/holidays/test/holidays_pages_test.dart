@@ -126,8 +126,10 @@ void main() {
             reason: part.name,
           );
         }
+        // Holidays have only the parts that fit them.
         await _pump(tester, style, '/views/holidays/halloween?year=2026');
-        expect(find.byKey(const ValueKey('holiday-guide')), findsNothing);
+        expect(find.byKey(const ValueKey('holiday-guide')), findsOneWidget);
+        expect(find.byKey(const ValueKey('holiday-guide-where')), findsNothing);
       });
     });
   }
