@@ -499,6 +499,7 @@ class _CalendarHomePageState extends State<CalendarHomePage>
             ? null
             : () => context.read<CalendarBloc>().add(const NavigateToToday()),
         onStudioTap: () => GoRouter.of(context).push(RoutePaths.studio),
+        onSearchTap: () => GoRouter.of(context).push(RoutePaths.searchPath()),
         onPreviousMonth: () => _changeMonth(state, -1),
         onNextMonth: () => _changeMonth(state, 1),
         onMonthYearTap: () {

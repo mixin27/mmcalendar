@@ -23,6 +23,7 @@ class CalendarHeader extends StatelessWidget {
   /// Shown only when it would move somewhere (another month or day).
   final VoidCallback? onToday;
   final VoidCallback? onStudioTap;
+  final VoidCallback? onSearchTap;
 
   const CalendarHeader({
     super.key,
@@ -35,6 +36,7 @@ class CalendarHeader extends StatelessWidget {
     this.showShanCalendar = true,
     this.onToday,
     this.onStudioTap,
+    this.onSearchTap,
   });
 
   @override
@@ -114,6 +116,15 @@ class CalendarHeader extends StatelessWidget {
             previousLabel: l10n?.previous_month ?? 'Previous Month',
             nextLabel: l10n?.next_month ?? 'Next Month',
           ),
+          if (onSearchTap != null)
+            IconButton(
+              key: const ValueKey('calendar-search'),
+              icon: const Icon(Icons.search_rounded),
+              onPressed: onSearchTap,
+              color: colors.primary,
+              visualDensity: VisualDensity.compact,
+              tooltip: l10n?.searchTitle ?? 'Search',
+            ),
           if (onStudioTap != null)
             IconButton(
               icon: const Icon(Icons.edit_calendar_outlined),

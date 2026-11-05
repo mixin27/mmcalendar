@@ -10,6 +10,14 @@ class RoutePaths {
 
   // Calendar Routes
   static const String dayDetails = 'day-details';
+  static const String search = 'search';
+
+  /// Search: dates, holidays, events and notes.
+  static String searchPath() => '$home/$search';
+
+  /// Day details for [date], inside Home.
+  static String dayDetailsInHome(DateTime date) =>
+      '$home/$dayDetails?date=${DateTime(date.year, date.month, date.day).toIso8601String()}';
 
   // Views Routes
   static const String yearView = 'year';

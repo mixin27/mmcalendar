@@ -14,6 +14,7 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:views/views.dart';
 import 'package:whats_new/whats_new.dart';
 
+import '../presentation/pages/search_page.dart';
 import '../presentation/pages/welcome_page.dart';
 import '../presentation/pages/privacy_policy_page.dart';
 import '../presentation/shell/app_shell.dart';
@@ -80,6 +81,10 @@ final GoRouter router = GoRouter(
 
                     return DayDetailsPage(date: date);
                   },
+                ),
+                GoRoute(
+                  path: RoutePaths.search,
+                  builder: (context, state) => const SearchPage(),
                 ),
                 GoRoute(
                   path: RoutePaths.homeHoliday,
