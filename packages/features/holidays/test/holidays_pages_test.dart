@@ -187,6 +187,25 @@ void main() {
       expect(reminders.isOn(HolidayCatalog.halloween), isFalse);
     });
 
+    test('reminder choices survive a backup', () async {
+      await reminders.setAllPublic(true);
+      await reminders.setSabbath(true);
+      await reminders.setTime(HolidayReminderTime.both);
+      await reminders.follow(HolidayCatalog.halloween, true);
+      final saved = reminders.toBackup();
+
+      SharedPreferences.setMockInitialValues({});
+      final fresh = HolidayReminders(
+        preferences: await SharedPreferences.getInstance(),
+        requestPermission: () async => true,
+      );
+      await fresh.restoreBackup(saved);
+      expect(fresh.allPublic, isTrue);
+      expect(fresh.sabbath, isTrue);
+      expect(fresh.time, HolidayReminderTime.both);
+      expect(fresh.followed, {'halloween'});
+    });
+
     testWidgets('the sheet follows Sabbath days', (tester) async {
       await _pump(tester, AppStyle.clear, '/views/holidays?year=2030');
       await tester.tap(find.byKey(const ValueKey('holidays-reminders')));

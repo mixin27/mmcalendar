@@ -3035,6 +3035,87 @@
   "@goodDaysFooter": {
     "description": "Explains the rule."
   },
+  "backupTitle": "Backup and restore",
+  "@backupTitle": {
+    "description": "Settings row and page title."
+  },
+  "backupSubtitle": "Events, notes and reminders in one file",
+  "@backupSubtitle": {
+    "description": "Settings row subtitle."
+  },
+  "backupNow": "Back up now",
+  "@backupNow": {
+    "description": "Saves a backup file."
+  },
+  "backupRestore": "Restore from a backup",
+  "@backupRestore": {
+    "description": "Opens a backup file."
+  },
+  "backupFooter": "Saves your events, categories, notes, custom holidays and holiday reminder choices in one file. Keep it somewhere safe, such as Google Drive or iCloud, to restore on a new phone. Calendar Studio projects have their own export.",
+  "@backupFooter": {
+    "description": "Explains backups."
+  },
+  "backupIcs": "Export events to other calendars",
+  "@backupIcs": {
+    "description": "Saves events as an .ics file."
+  },
+  "backupIcsFooter": "An .ics file that Google Calendar, Apple Calendar and others can import. Reminders and categories stay in this app.",
+  "@backupIcsFooter": {
+    "description": "Explains the .ics export."
+  },
+  "backupRestoreTitle": "Restore backup",
+  "@backupRestoreTitle": {
+    "description": "Restore sheet title."
+  },
+  "backupMadeOn": "Backed up on {date}",
+  "@backupMadeOn": {
+    "description": "When the backup was made.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "backupCustomHolidays": "Custom holidays",
+  "@backupCustomHolidays": {
+    "description": "Row label."
+  },
+  "backupMerge": "Add to what's here",
+  "@backupMerge": {
+    "description": "Merge the backup."
+  },
+  "backupMergeSubtitle": "Keeps everything here and skips what you already have",
+  "@backupMergeSubtitle": {
+    "description": "Merge explanation."
+  },
+  "backupReplace": "Replace everything",
+  "@backupReplace": {
+    "description": "Replace with the backup."
+  },
+  "backupReplaceSubtitle": "Deletes the events and notes here first",
+  "@backupReplaceSubtitle": {
+    "description": "Replace explanation."
+  },
+  "backupReplaceConfirm": "Delete the events and notes here and restore the backup?",
+  "@backupReplaceConfirm": {
+    "description": "Confirm replacing."
+  },
+  "backupRestored": "Backup restored",
+  "@backupRestored": {
+    "description": "Toast after restoring."
+  },
+  "backupNotABackup": "This file isn't a Myanmar Calendar backup.",
+  "@backupNotABackup": {
+    "description": "Wrong file."
+  },
+  "backupNewer": "This backup is from a newer version of the app. Update the app, then try again.",
+  "@backupNewer": {
+    "description": "Newer backup."
+  },
+  "backupFailed": "Something went wrong. Please try again.",
+  "@backupFailed": {
+    "description": "Backup or restore failed."
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

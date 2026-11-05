@@ -116,6 +116,36 @@ class HolidayReminders extends ChangeNotifier {
     return _changed(asking: on);
   }
 
+  /// The reminder choices, for a backup.
+  Map<String, Object?> toBackup() => {
+    _followedKey: followed.toList()..sort(),
+    _allPublicKey: allPublic,
+    _sabbathKey: sabbath,
+    _timeKey: time.name,
+  };
+
+  /// Restores choices from [toBackup] (unknown keys are ignored) and
+  /// reschedules. Doesn't ask for notification permission.
+  Future<void> restoreBackup(Map<String, Object?> backup) async {
+    if (backup[_followedKey] case final List<Object?> ids) {
+      await _prefs.setStringList(_followedKey, [
+        for (final id in ids)
+          if (id is String) id,
+      ]);
+    }
+    if (backup[_allPublicKey] case final bool on) {
+      await _prefs.setBool(_allPublicKey, on);
+    }
+    if (backup[_sabbathKey] case final bool on) {
+      await _prefs.setBool(_sabbathKey, on);
+    }
+    if (backup[_timeKey] case final String name
+        when HolidayReminderTime.values.any((t) => t.name == name)) {
+      await _prefs.setString(_timeKey, name);
+    }
+    await _changed(asking: false);
+  }
+
   Future<void> setTime(HolidayReminderTime value) async {
     await _prefs.setString(_timeKey, value.name);
     await _changed(asking: false);

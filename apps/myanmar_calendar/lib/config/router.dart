@@ -14,6 +14,7 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:views/views.dart';
 import 'package:whats_new/whats_new.dart';
 
+import '../presentation/pages/backup_page.dart';
 import '../presentation/pages/search_page.dart';
 import '../presentation/pages/welcome_page.dart';
 import '../presentation/pages/privacy_policy_page.dart';
@@ -300,6 +301,12 @@ final GoRouter router = GoRouter(
                 GoRoute(
                   path: RoutePaths.privacyAndData,
                   builder: (context, state) => const SettingsPrivacyDataPage(),
+                  routes: [
+                    GoRoute(
+                      path: RoutePaths.backup,
+                      builder: (context, state) => const BackupPage(),
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: RoutePaths.appUpdate,

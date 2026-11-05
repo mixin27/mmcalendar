@@ -2320,6 +2320,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goodDaysFooter => 'A good day has a good mark (Yatyaza, Amyeittasote or Thamaphyu) and none that calls for care, such as Pyathada or Thamanyo. For an important date, ask an astrologer too.';
 
   @override
+  String get backupTitle => 'Backup and restore';
+
+  @override
+  String get backupSubtitle => 'Events, notes and reminders in one file';
+
+  @override
+  String get backupNow => 'Back up now';
+
+  @override
+  String get backupRestore => 'Restore from a backup';
+
+  @override
+  String get backupFooter => 'Saves your events, categories, notes, custom holidays and holiday reminder choices in one file. Keep it somewhere safe, such as Google Drive or iCloud, to restore on a new phone. Calendar Studio projects have their own export.';
+
+  @override
+  String get backupIcs => 'Export events to other calendars';
+
+  @override
+  String get backupIcsFooter => 'An .ics file that Google Calendar, Apple Calendar and others can import. Reminders and categories stay in this app.';
+
+  @override
+  String get backupRestoreTitle => 'Restore backup';
+
+  @override
+  String backupMadeOn(String date) {
+    return 'Backed up on $date';
+  }
+
+  @override
+  String get backupCustomHolidays => 'Custom holidays';
+
+  @override
+  String get backupMerge => 'Add to what\'s here';
+
+  @override
+  String get backupMergeSubtitle => 'Keeps everything here and skips what you already have';
+
+  @override
+  String get backupReplace => 'Replace everything';
+
+  @override
+  String get backupReplaceSubtitle => 'Deletes the events and notes here first';
+
+  @override
+  String get backupReplaceConfirm => 'Delete the events and notes here and restore the backup?';
+
+  @override
+  String get backupRestored => 'Backup restored';
+
+  @override
+  String get backupNotABackup => 'This file isn\'t a Myanmar Calendar backup.';
+
+  @override
+  String get backupNewer => 'This backup is from a newer version of the app. Update the app, then try again.';
+
+  @override
+  String get backupFailed => 'Something went wrong. Please try again.';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override
