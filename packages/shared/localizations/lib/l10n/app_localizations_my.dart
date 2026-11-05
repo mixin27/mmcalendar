@@ -2392,6 +2392,31 @@ class AppLocalizationsMy extends AppLocalizations {
   String get whatsNewBackupAction_250 => 'ယခု အရန်သိမ်းရန်';
 
   @override
+  String get dailySummary => 'နေ့စဉ် အကျဉ်းချုပ်';
+
+  @override
+  String get dailySummarySubtitle => 'နံနက်တိုင်း မြန်မာ ရက်စွဲ၊ ရုံးပိတ်ရက်၊ ဥပုသ်နှင့် ထိုနေ့၏ နက္ခတ်များ';
+
+  @override
+  String get dailySummaryTime => 'အချိန်';
+
+  @override
+  String get dailySummaryFooter => 'ရက် ၁၀ ရက်စာ ကြိုတင်သတ်မှတ်ပြီး အက်ပ်ဖွင့်တိုင်း အသစ်ပြင်ဆင်သည်။';
+
+  @override
+  String dailySummaryGood(String marks) {
+    return 'ကောင်း: $marks';
+  }
+
+  @override
+  String dailySummaryCaution(String marks) {
+    return 'သတိ: $marks';
+  }
+
+  @override
+  String get dailySummaryPlain => 'ယနေ့ ရုံးပိတ်ရက် သို့မဟုတ် ထူးခြားသည့် နက္ခတ် မရှိပါ။';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

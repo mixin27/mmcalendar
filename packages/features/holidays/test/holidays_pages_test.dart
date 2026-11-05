@@ -192,6 +192,8 @@ void main() {
       await reminders.setSabbath(true);
       await reminders.setTime(HolidayReminderTime.both);
       await reminders.follow(HolidayCatalog.halloween, true);
+      await reminders.setDaily(true);
+      await reminders.setDailyHour(6);
       final saved = reminders.toBackup();
 
       SharedPreferences.setMockInitialValues({});
@@ -204,6 +206,25 @@ void main() {
       expect(fresh.sabbath, isTrue);
       expect(fresh.time, HolidayReminderTime.both);
       expect(fresh.followed, {'halloween'});
+      expect(fresh.daily, isTrue);
+      expect(fresh.dailyHour, 6);
+    });
+
+    testWidgets('the sheet turns on the daily summary', (tester) async {
+      await _pump(tester, AppStyle.clear, '/views/holidays?year=2030');
+      await tester.tap(find.byKey(const ValueKey('holidays-reminders')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('holiday-reminder-daily-time')),
+        findsNothing,
+      );
+      await tester.tap(find.byKey(const ValueKey('holiday-reminder-daily')));
+      await tester.pumpAndSettle();
+      expect(reminders.daily, isTrue);
+      expect(
+        find.byKey(const ValueKey('holiday-reminder-daily-time')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('the sheet follows Sabbath days', (tester) async {

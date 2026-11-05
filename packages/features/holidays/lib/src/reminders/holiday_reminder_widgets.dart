@@ -127,6 +127,8 @@ Future<void> showHolidayReminderSheet(BuildContext context) async {
     context: context,
     title: l10n.holidayRemindersTitle,
     cancelLabel: MaterialLocalizations.of(context).closeButtonLabel,
+    // Above the tab bar, so the whole sheet shows.
+    useRootNavigator: true,
     builder: (sheetContext) => ListenableBuilder(
       listenable: reminders,
       builder: (sheetContext, _) {
@@ -134,74 +136,119 @@ Future<void> showHolidayReminderSheet(BuildContext context) async {
           year,
           sheetContext.calendarLanguage,
         ).where((o) => o.entry.officeClosed).length;
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AppGroup(
-              label: l10n.holidayRemindersWhen,
-              children: [
-                for (final (time, label) in [
-                  (
-                    HolidayReminderTime.evening,
-                    l10n.holidayRemindersEveningOption,
+        // Scrolls on short screens.
+        return SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppGroup(
+                label: l10n.holidayRemindersWhen,
+                children: [
+                  for (final (time, label) in [
+                    (
+                      HolidayReminderTime.evening,
+                      l10n.holidayRemindersEveningOption,
+                    ),
+                    (
+                      HolidayReminderTime.morning,
+                      l10n.holidayRemindersMorningOption,
+                    ),
+                    (HolidayReminderTime.both, l10n.holidayRemindersBothOption),
+                  ])
+                    AppRow(
+                      key: ValueKey('holiday-reminder-time-${time.name}'),
+                      title: label,
+                      subtitle: time == HolidayReminderTime.both
+                          ? null
+                          : _timeText(l10n, time),
+                      selected: reminders.time == time,
+                      onTap: () => reminders.setTime(time),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 22),
+              AppGroup(
+                label: l10n.holidayRemindersFollow,
+                footer: l10n.holidayRemindersFooter,
+                children: [
+                  AppRow.toggle(
+                    key: const ValueKey('holiday-reminder-all-public'),
+                    icon: Icons.star_rounded,
+                    iconColor: sheetContext.tokens.holiday,
+                    title: l10n.holidayRemindersAllPublic,
+                    subtitle: l10n.holidayRemindersAllPublicSubtitle(
+                      publicCount,
+                      '$year',
+                    ),
+                    value: reminders.allPublic,
+                    onChanged: (v) async {
+                      final granted = await reminders.setAllPublic(v);
+                      if (sheetContext.mounted) {
+                        _deniedToast(sheetContext, granted);
+                      }
+                    },
                   ),
-                  (
-                    HolidayReminderTime.morning,
-                    l10n.holidayRemindersMorningOption,
+                  AppRow.toggle(
+                    key: const ValueKey('holiday-reminder-sabbath'),
+                    icon: Icons.self_improvement_rounded,
+                    iconColor: sheetContext.tokens.moon,
+                    title: l10n.holidayRemindersSabbath,
+                    subtitle: l10n.holidayRemindersSabbathSubtitle,
+                    value: reminders.sabbath,
+                    onChanged: (v) async {
+                      final granted = await reminders.setSabbath(v);
+                      if (sheetContext.mounted) {
+                        _deniedToast(sheetContext, granted);
+                      }
+                    },
                   ),
-                  (HolidayReminderTime.both, l10n.holidayRemindersBothOption),
-                ])
-                  AppRow(
-                    key: ValueKey('holiday-reminder-time-${time.name}'),
-                    title: label,
-                    subtitle: time == HolidayReminderTime.both
-                        ? null
-                        : _timeText(l10n, time),
-                    selected: reminders.time == time,
-                    onTap: () => reminders.setTime(time),
+                ],
+              ),
+              const SizedBox(height: 22),
+              AppGroup(
+                footer: l10n.dailySummaryFooter,
+                children: [
+                  AppRow.toggle(
+                    key: const ValueKey('holiday-reminder-daily'),
+                    icon: Icons.wb_twilight_rounded,
+                    iconColor: sheetContext.tokens.accent,
+                    title: l10n.dailySummary,
+                    subtitle: l10n.dailySummarySubtitle,
+                    value: reminders.daily,
+                    onChanged: (v) async {
+                      final granted = await reminders.setDaily(v);
+                      if (sheetContext.mounted) {
+                        _deniedToast(sheetContext, granted);
+                      }
+                    },
                   ),
-              ],
-            ),
-            const SizedBox(height: 22),
-            AppGroup(
-              label: l10n.holidayRemindersFollow,
-              footer: l10n.holidayRemindersFooter,
-              children: [
-                AppRow.toggle(
-                  key: const ValueKey('holiday-reminder-all-public'),
-                  icon: Icons.star_rounded,
-                  iconColor: sheetContext.tokens.holiday,
-                  title: l10n.holidayRemindersAllPublic,
-                  subtitle: l10n.holidayRemindersAllPublicSubtitle(
-                    publicCount,
-                    '$year',
-                  ),
-                  value: reminders.allPublic,
-                  onChanged: (v) async {
-                    final granted = await reminders.setAllPublic(v);
-                    if (sheetContext.mounted) {
-                      _deniedToast(sheetContext, granted);
-                    }
-                  },
-                ),
-                AppRow.toggle(
-                  key: const ValueKey('holiday-reminder-sabbath'),
-                  icon: Icons.self_improvement_rounded,
-                  iconColor: sheetContext.tokens.moon,
-                  title: l10n.holidayRemindersSabbath,
-                  subtitle: l10n.holidayRemindersSabbathSubtitle,
-                  value: reminders.sabbath,
-                  onChanged: (v) async {
-                    final granted = await reminders.setSabbath(v);
-                    if (sheetContext.mounted) {
-                      _deniedToast(sheetContext, granted);
-                    }
-                  },
-                ),
-              ],
-            ),
-          ],
+                  if (reminders.daily)
+                    AppRow(
+                      key: const ValueKey('holiday-reminder-daily-time'),
+                      title: l10n.dailySummaryTime,
+                      value: TimeOfDay(
+                        hour: reminders.dailyHour,
+                        minute: 0,
+                      ).format(sheetContext),
+                      chevron: true,
+                      onTap: () async {
+                        final picked = await showTimePicker(
+                          context: sheetContext,
+                          initialTime: TimeOfDay(
+                            hour: reminders.dailyHour,
+                            minute: 0,
+                          ),
+                        );
+                        if (picked != null) {
+                          await reminders.setDailyHour(picked.hour);
+                        }
+                      },
+                    ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     ),
