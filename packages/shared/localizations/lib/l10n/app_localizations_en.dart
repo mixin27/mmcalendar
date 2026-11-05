@@ -2297,6 +2297,29 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get goodDaysTitle => 'Good days';
+
+  @override
+  String get goodDaysViewsSubtitle => 'Days with good astrological marks';
+
+  @override
+  String goodDaysMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months',
+      one: '1 month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get goodDaysNone => 'No good days in this period.';
+
+  @override
+  String get goodDaysFooter => 'A good day has a good mark (Yatyaza, Amyeittasote or Thamaphyu) and none that calls for care, such as Pyathada or Thamanyo. For an important date, ask an astrologer too.';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

@@ -27,9 +27,7 @@ void main() {
   });
 
   test('old widget data is removed on Android', () async {
-    await WidgetUpdateService.clearLegacyData(
-      platform: TargetPlatform.android,
-    );
+    await WidgetUpdateService.clearLegacyData(platform: TargetPlatform.android);
     expect(saved, isNotEmpty);
     expect(saved.every((args) => args['data'] == null), isTrue);
   });
