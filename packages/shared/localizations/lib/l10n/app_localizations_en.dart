@@ -2379,6 +2379,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupFailed => 'Something went wrong. Please try again.';
 
   @override
+  String get whatsNewNotesTitle_250 => 'Day notes';
+
+  @override
+  String get whatsNewNotesBody_250 => 'Write a note on any day from the day sheet or day details. Days with a note get a dot, and Views › Notes lists them all.';
+
+  @override
+  String get whatsNewNotesAction_250 => 'Open notes';
+
+  @override
+  String get whatsNewSearchTitle_250 => 'Search everything';
+
+  @override
+  String get whatsNewSearchBody_250 => 'Search dates in English or Myanmar (13 Apr, Tabaung full moon, next Sabbath), plus holidays, events and notes.';
+
+  @override
+  String get whatsNewSearchAction_250 => 'Try search';
+
+  @override
+  String get whatsNewSabbathTitle_250 => 'Sabbath reminders';
+
+  @override
+  String get whatsNewSabbathBody_250 => 'Get a reminder the evening before or the morning of every Sabbath day. Turn it on in Holidays › Reminders.';
+
+  @override
+  String get whatsNewSabbathAction_250 => 'Set reminders';
+
+  @override
+  String get whatsNewGoodDaysTitle_250 => 'Good days';
+
+  @override
+  String get whatsNewGoodDaysBody_250 => 'Find the days with good astrological marks in the next months, by weekday if you like.';
+
+  @override
+  String get whatsNewGoodDaysAction_250 => 'See good days';
+
+  @override
+  String get whatsNewBirthTitle_250 => 'Birth date';
+
+  @override
+  String get whatsNewBirthBody_250 => 'Converter › Birth: your birth sign, Mahabote, exact age, and your next Myanmar birthday.';
+
+  @override
+  String get whatsNewBirthAction_250 => 'Open Converter';
+
+  @override
+  String get whatsNewBackupTitle_250 => 'Backup and restore';
+
+  @override
+  String get whatsNewBackupBody_250 => 'Keep your events and notes in one file and restore them on a new phone. Export events to Google or Apple Calendar too.';
+
+  @override
+  String get whatsNewBackupAction_250 => 'Back up now';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

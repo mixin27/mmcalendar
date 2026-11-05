@@ -3116,6 +3116,78 @@
   "@backupFailed": {
     "description": "Backup or restore failed."
   },
+  "whatsNewNotesTitle_250": "Day notes",
+  "@whatsNewNotesTitle_250": {
+    "description": "Feature title. (2.5.0)"
+  },
+  "whatsNewNotesBody_250": "Write a note on any day from the day sheet or day details. Days with a note get a dot, and Views › Notes lists them all.",
+  "@whatsNewNotesBody_250": {
+    "description": "Feature description. (2.5.0)"
+  },
+  "whatsNewNotesAction_250": "Open notes",
+  "@whatsNewNotesAction_250": {
+    "description": "Feature button. (2.5.0)"
+  },
+  "whatsNewSearchTitle_250": "Search everything",
+  "@whatsNewSearchTitle_250": {
+    "description": "Feature title. (2.5.0)"
+  },
+  "whatsNewSearchBody_250": "Search dates in English or Myanmar (13 Apr, Tabaung full moon, next Sabbath), plus holidays, events and notes.",
+  "@whatsNewSearchBody_250": {
+    "description": "Feature description. (2.5.0)"
+  },
+  "whatsNewSearchAction_250": "Try search",
+  "@whatsNewSearchAction_250": {
+    "description": "Feature button. (2.5.0)"
+  },
+  "whatsNewSabbathTitle_250": "Sabbath reminders",
+  "@whatsNewSabbathTitle_250": {
+    "description": "Feature title. (2.5.0)"
+  },
+  "whatsNewSabbathBody_250": "Get a reminder the evening before or the morning of every Sabbath day. Turn it on in Holidays › Reminders.",
+  "@whatsNewSabbathBody_250": {
+    "description": "Feature description. (2.5.0)"
+  },
+  "whatsNewSabbathAction_250": "Set reminders",
+  "@whatsNewSabbathAction_250": {
+    "description": "Feature button. (2.5.0)"
+  },
+  "whatsNewGoodDaysTitle_250": "Good days",
+  "@whatsNewGoodDaysTitle_250": {
+    "description": "Feature title. (2.5.0)"
+  },
+  "whatsNewGoodDaysBody_250": "Find the days with good astrological marks in the next months, by weekday if you like.",
+  "@whatsNewGoodDaysBody_250": {
+    "description": "Feature description. (2.5.0)"
+  },
+  "whatsNewGoodDaysAction_250": "See good days",
+  "@whatsNewGoodDaysAction_250": {
+    "description": "Feature button. (2.5.0)"
+  },
+  "whatsNewBirthTitle_250": "Birth date",
+  "@whatsNewBirthTitle_250": {
+    "description": "Feature title. (2.5.0)"
+  },
+  "whatsNewBirthBody_250": "Converter › Birth: your birth sign, Mahabote, exact age, and your next Myanmar birthday.",
+  "@whatsNewBirthBody_250": {
+    "description": "Feature description. (2.5.0)"
+  },
+  "whatsNewBirthAction_250": "Open Converter",
+  "@whatsNewBirthAction_250": {
+    "description": "Feature button. (2.5.0)"
+  },
+  "whatsNewBackupTitle_250": "Backup and restore",
+  "@whatsNewBackupTitle_250": {
+    "description": "Feature title. (2.5.0)"
+  },
+  "whatsNewBackupBody_250": "Keep your events and notes in one file and restore them on a new phone. Export events to Google or Apple Calendar too.",
+  "@whatsNewBackupBody_250": {
+    "description": "Feature description. (2.5.0)"
+  },
+  "whatsNewBackupAction_250": "Back up now",
+  "@whatsNewBackupAction_250": {
+    "description": "Feature button. (2.5.0)"
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

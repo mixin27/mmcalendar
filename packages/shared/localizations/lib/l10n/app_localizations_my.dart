@@ -2338,6 +2338,60 @@ class AppLocalizationsMy extends AppLocalizations {
   String get backupFailed => 'တစ်ခုခု မှားယွင်းသွားသည်။ ထပ်ကြိုးစားပါ။';
 
   @override
+  String get whatsNewNotesTitle_250 => 'နေ့စဉ် မှတ်စု';
+
+  @override
+  String get whatsNewNotesBody_250 => 'မည်သည့်နေ့တွင်မဆို မှတ်စု ရေးနိုင်ပါပြီ။ မှတ်စုရှိသော နေ့များကို အမှတ်အသားပြပြီး အမြင်များ › မှတ်စုများ တွင် အားလုံး ကြည့်နိုင်သည်။';
+
+  @override
+  String get whatsNewNotesAction_250 => 'မှတ်စုများ ဖွင့်ရန်';
+
+  @override
+  String get whatsNewSearchTitle_250 => 'အားလုံး ရှာဖွေရန်';
+
+  @override
+  String get whatsNewSearchBody_250 => 'ရက်စွဲများကို အင်္ဂလိပ် သို့မဟုတ် မြန်မာလို (၁၃ ဧပြီ၊ တပေါင်းလပြည့်၊ ဥပုသ်) ရှာနိုင်ပြီး ရုံးပိတ်ရက်၊ ပွဲနှင့် မှတ်စုများကိုလည်း ရှာနိုင်သည်။';
+
+  @override
+  String get whatsNewSearchAction_250 => 'ရှာကြည့်ရန်';
+
+  @override
+  String get whatsNewSabbathTitle_250 => 'ဥပုသ်နေ့ သတိပေးချက်';
+
+  @override
+  String get whatsNewSabbathBody_250 => 'ဥပုသ်နေ့တိုင်း၏ အကြိုညနေ သို့မဟုတ် ထိုနေ့နံနက်တွင် သတိပေးချက် ရယူနိုင်သည်။ ရုံးပိတ်ရက်များ › သတိပေးချက်များ တွင် ဖွင့်ပါ။';
+
+  @override
+  String get whatsNewSabbathAction_250 => 'သတိပေးချက် ဖွင့်ရန်';
+
+  @override
+  String get whatsNewGoodDaysTitle_250 => 'ရက်ကောင်းများ';
+
+  @override
+  String get whatsNewGoodDaysBody_250 => 'နောက်လများအတွင်း ဗေဒင်အရ ကောင်းသော ရက်များကို နေ့အလိုက်ပါ ရှာနိုင်သည်။';
+
+  @override
+  String get whatsNewGoodDaysAction_250 => 'ရက်ကောင်း ကြည့်ရန်';
+
+  @override
+  String get whatsNewBirthTitle_250 => 'မွေးနေ့';
+
+  @override
+  String get whatsNewBirthBody_250 => 'ပြောင်းလဲခြင်း › မွေးနေ့ တွင် မွေးနေ့ နံ၊ မဟာဘုတ်၊ အသက်အတိအကျနှင့် နောက် မြန်မာ မွေးနေ့ကို ကြည့်နိုင်သည်။';
+
+  @override
+  String get whatsNewBirthAction_250 => 'ပြောင်းလဲခြင်း ဖွင့်ရန်';
+
+  @override
+  String get whatsNewBackupTitle_250 => 'အရန်သိမ်းခြင်းနှင့် ပြန်ယူခြင်း';
+
+  @override
+  String get whatsNewBackupBody_250 => 'ပွဲများနှင့် မှတ်စုများကို ဖိုင်တစ်ခုတည်းတွင် သိမ်းပြီး ဖုန်းအသစ်တွင် ပြန်ယူနိုင်သည်။ Google သို့မဟုတ် Apple Calendar သို့လည်း ထုတ်နိုင်သည်။';
+
+  @override
+  String get whatsNewBackupAction_250 => 'ယခု အရန်သိမ်းရန်';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

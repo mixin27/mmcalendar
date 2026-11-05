@@ -39,6 +39,63 @@ class WhatsNewRelease {
 /// Every release with something to announce, newest first. Add a release
 /// here with its strings in the ARB files when a version ships features.
 const whatsNewReleases = <WhatsNewRelease>[
+  WhatsNewRelease('2.5.0', [
+    WhatsNewItem(
+      id: 'dayNotes',
+      icon: Icons.sticky_note_2_outlined,
+      color: Color(0xFFE0A21B),
+      title: _wnNotesTitle,
+      body: _wnNotesBody,
+      action: _wnNotesAction,
+      route: '${RoutePaths.views}/${RoutePaths.notes}',
+    ),
+    WhatsNewItem(
+      id: 'search',
+      icon: Icons.search_rounded,
+      color: Color(0xFF4C5BD4),
+      title: _wnSearchTitle,
+      body: _wnSearchBody,
+      action: _wnSearchAction,
+      route: '${RoutePaths.home}/${RoutePaths.search}',
+    ),
+    WhatsNewItem(
+      id: 'sabbathReminders',
+      icon: Icons.self_improvement_rounded,
+      color: Color(0xFF8E6CEF),
+      title: _wnSabbathTitle,
+      body: _wnSabbathBody,
+      action: _wnSabbathAction,
+      route: '${RoutePaths.views}/${RoutePaths.holidays}',
+    ),
+    WhatsNewItem(
+      id: 'goodDays',
+      icon: Icons.auto_awesome_rounded,
+      color: Color(0xFF2F9E5B),
+      title: _wnGoodDaysTitle,
+      body: _wnGoodDaysBody,
+      action: _wnGoodDaysAction,
+      route: '${RoutePaths.views}/${RoutePaths.goodDays}',
+    ),
+    WhatsNewItem(
+      id: 'birthTool',
+      icon: Icons.cake_outlined,
+      color: Color(0xFFE0457B),
+      title: _wnBirthTitle,
+      body: _wnBirthBody,
+      action: _wnBirthAction,
+      route: RoutePaths.converter,
+    ),
+    WhatsNewItem(
+      id: 'backup',
+      icon: Icons.cloud_upload_outlined,
+      color: Color(0xFF16A3B0),
+      title: _wnBackupTitle,
+      body: _wnBackupBody,
+      action: _wnBackupAction,
+      route:
+          '${RoutePaths.settings}/${RoutePaths.privacyAndData}/${RoutePaths.backup}',
+    ),
+  ]),
   WhatsNewRelease('2.4.0', [
     WhatsNewItem(
       id: 'holidayGuide',
@@ -167,3 +224,21 @@ String _guideBody(AppLocalizations l) => l.whatsNewGuideBody;
 String _englishDatesTitle(AppLocalizations l) => l.whatsNewEnglishDatesTitle;
 String _englishDatesBody(AppLocalizations l) => l.whatsNewEnglishDatesBody;
 String _englishDatesAction(AppLocalizations l) => l.whatsNewEnglishDatesAction;
+String _wnNotesTitle(AppLocalizations l) => l.whatsNewNotesTitle_250;
+String _wnNotesBody(AppLocalizations l) => l.whatsNewNotesBody_250;
+String _wnNotesAction(AppLocalizations l) => l.whatsNewNotesAction_250;
+String _wnSearchTitle(AppLocalizations l) => l.whatsNewSearchTitle_250;
+String _wnSearchBody(AppLocalizations l) => l.whatsNewSearchBody_250;
+String _wnSearchAction(AppLocalizations l) => l.whatsNewSearchAction_250;
+String _wnSabbathTitle(AppLocalizations l) => l.whatsNewSabbathTitle_250;
+String _wnSabbathBody(AppLocalizations l) => l.whatsNewSabbathBody_250;
+String _wnSabbathAction(AppLocalizations l) => l.whatsNewSabbathAction_250;
+String _wnGoodDaysTitle(AppLocalizations l) => l.whatsNewGoodDaysTitle_250;
+String _wnGoodDaysBody(AppLocalizations l) => l.whatsNewGoodDaysBody_250;
+String _wnGoodDaysAction(AppLocalizations l) => l.whatsNewGoodDaysAction_250;
+String _wnBirthTitle(AppLocalizations l) => l.whatsNewBirthTitle_250;
+String _wnBirthBody(AppLocalizations l) => l.whatsNewBirthBody_250;
+String _wnBirthAction(AppLocalizations l) => l.whatsNewBirthAction_250;
+String _wnBackupTitle(AppLocalizations l) => l.whatsNewBackupTitle_250;
+String _wnBackupBody(AppLocalizations l) => l.whatsNewBackupBody_250;
+String _wnBackupAction(AppLocalizations l) => l.whatsNewBackupAction_250;

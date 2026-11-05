@@ -1,3 +1,13 @@
+## [2.5.0+250] - 2026-11-05
+
+- Day notes: write a note on any day from the home sheet or day details. Days with a note get a dot in every grid style, and Views › Notes lists and searches them all.
+- Search (the search button on Home): dates typed in English or Myanmar ("13 Apr 2027", "Tabaung full moon 1388", "တန်ခူးလဆန်း ၅", "next Sabbath"), plus holidays, events and notes.
+- Sabbath reminders: the evening before or the morning of every Sabbath day, from Holidays › Reminders or a Sabbath's day details.
+- Views › Good days: the days with good astrological marks in the next 1, 3 or 6 months, optionally by weekday.
+- Converter › Birth: the birth sign (with Wednesday before or after noon), Mahabote, Nakhat, exact age, and the next Western and Myanmar birthdays.
+- Settings › Privacy & Data › Backup and restore: back up events, notes, custom holidays and reminder choices to one file and restore them (merge or replace); export events as an .ics file for Google or Apple Calendar.
+- Fixed the Astrology widget, which showed Yatyaza as a day to avoid and Thamanyo as good; it now matches day details.
+
 ## [2.4.0+240] - 2026-11-05
 
 - Festivals explained: tap a holiday on the calendar, or open it from a reminder, to read what it marks. Every holiday page now has Good to know: what happens, practical tips, etiquette and where to see it, in English and Myanmar.

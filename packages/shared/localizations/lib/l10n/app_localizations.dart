@@ -4277,6 +4277,114 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Please try again.'**
   String get backupFailed;
 
+  /// Feature title. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Day notes'**
+  String get whatsNewNotesTitle_250;
+
+  /// Feature description. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Write a note on any day from the day sheet or day details. Days with a note get a dot, and Views › Notes lists them all.'**
+  String get whatsNewNotesBody_250;
+
+  /// Feature button. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Open notes'**
+  String get whatsNewNotesAction_250;
+
+  /// Feature title. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Search everything'**
+  String get whatsNewSearchTitle_250;
+
+  /// Feature description. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Search dates in English or Myanmar (13 Apr, Tabaung full moon, next Sabbath), plus holidays, events and notes.'**
+  String get whatsNewSearchBody_250;
+
+  /// Feature button. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Try search'**
+  String get whatsNewSearchAction_250;
+
+  /// Feature title. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Sabbath reminders'**
+  String get whatsNewSabbathTitle_250;
+
+  /// Feature description. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Get a reminder the evening before or the morning of every Sabbath day. Turn it on in Holidays › Reminders.'**
+  String get whatsNewSabbathBody_250;
+
+  /// Feature button. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Set reminders'**
+  String get whatsNewSabbathAction_250;
+
+  /// Feature title. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Good days'**
+  String get whatsNewGoodDaysTitle_250;
+
+  /// Feature description. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Find the days with good astrological marks in the next months, by weekday if you like.'**
+  String get whatsNewGoodDaysBody_250;
+
+  /// Feature button. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'See good days'**
+  String get whatsNewGoodDaysAction_250;
+
+  /// Feature title. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Birth date'**
+  String get whatsNewBirthTitle_250;
+
+  /// Feature description. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Converter › Birth: your birth sign, Mahabote, exact age, and your next Myanmar birthday.'**
+  String get whatsNewBirthBody_250;
+
+  /// Feature button. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Open Converter'**
+  String get whatsNewBirthAction_250;
+
+  /// Feature title. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Backup and restore'**
+  String get whatsNewBackupTitle_250;
+
+  /// Feature description. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your events and notes in one file and restore them on a new phone. Export events to Google or Apple Calendar too.'**
+  String get whatsNewBackupBody_250;
+
+  /// Feature button. (2.5.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get whatsNewBackupAction_250;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:
