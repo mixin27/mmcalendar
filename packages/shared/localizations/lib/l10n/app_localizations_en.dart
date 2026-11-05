@@ -2475,6 +2475,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsRepeatsMyanmarMonthly => 'repeats monthly by Myanmar date';
 
   @override
+  String get shareDayTitle => 'Share this day';
+
+  @override
+  String get shareDaySquare => 'Square';
+
+  @override
+  String get shareDayStory => 'Story';
+
+  @override
+  String get shareDayImage => 'Share image';
+
+  @override
+  String get shareDayText => 'Share as text';
+
+  @override
+  String get shareCardFooter => 'Myanmar Calendar';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

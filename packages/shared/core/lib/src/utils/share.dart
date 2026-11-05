@@ -6,6 +6,10 @@ Future<void> share({
   String? content,
   String? subject,
   List<XFile>? files,
+
+  /// The names [files] get in the share sheet; on phones a file made from
+  /// bytes is otherwise unnamed.
+  List<String>? fileNameOverrides,
   Uri? uri,
 }) async {
   final params = ShareParams(
@@ -13,6 +17,7 @@ Future<void> share({
     text: content,
     subject: subject,
     files: files,
+    fileNameOverrides: fileNameOverrides,
     uri: uri,
   );
   final result = await SharePlus.instance.share(params);
