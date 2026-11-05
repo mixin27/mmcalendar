@@ -131,6 +131,16 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
               chevron: true,
               onTap: () => context.go(RoutePaths.holidaysPath()),
             ),
+            AppRow(
+              key: const ValueKey('views-good-days'),
+              icon: Icons.auto_awesome_rounded,
+              iconColor: const Color(0xFF2F9E5B),
+              title: l10n?.goodDaysTitle ?? 'Good days',
+              subtitle: l10n?.goodDaysViewsSubtitle,
+              chevron: true,
+              onTap: () =>
+                  context.go('${RoutePaths.views}/${RoutePaths.goodDays}'),
+            ),
           ],
         ),
       ],

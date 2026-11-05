@@ -140,6 +140,10 @@ final GoRouter router = GoRouter(
                   ],
                 ),
                 GoRoute(
+                  path: RoutePaths.goodDays,
+                  builder: (context, state) => const GoodDaysPage(),
+                ),
+                GoRoute(
                   path: RoutePaths.notes,
                   builder: (context, state) => const NotesPage(),
                 ),

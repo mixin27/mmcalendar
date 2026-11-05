@@ -18,6 +18,7 @@ export 'src/presentation/bloc/views_bloc.dart';
 export 'src/presentation/bloc/views_event.dart';
 export 'src/presentation/bloc/views_state.dart';
 export 'src/presentation/pages/views_selector_page.dart';
+export 'src/presentation/pages/good_days_page.dart';
 export 'src/presentation/pages/year_view_page.dart';
 export 'src/presentation/pages/week_view_page.dart';
 export 'src/presentation/pages/myanmar_month_view_page.dart';

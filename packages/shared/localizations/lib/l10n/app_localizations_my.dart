@@ -2262,6 +2262,23 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
+  String get goodDaysTitle => 'ရက်ကောင်းများ';
+
+  @override
+  String get goodDaysViewsSubtitle => 'ဗေဒင်အရ ကောင်းသော ရက်များ';
+
+  @override
+  String goodDaysMonths(int count) {
+    return '$count လ';
+  }
+
+  @override
+  String get goodDaysNone => 'ဤကာလတွင် ရက်ကောင်း မရှိပါ။';
+
+  @override
+  String get goodDaysFooter => 'ရက်ကောင်းဆိုသည်မှာ ရက်ရာဇာ၊ အမြိတ္တစုတ် သို့မဟုတ် သမားဖြူ ကျပြီး ပြဿဒါး၊ သမားညို ကဲ့သို့ သတိထားရမည့်ရက် မကျသောနေ့ ဖြစ်သည်။ အရေးကြီးသော ရက်အတွက် ဗေဒင်ဆရာကိုလည်း မေးမြန်းပါ။';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

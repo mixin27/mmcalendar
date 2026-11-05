@@ -3010,6 +3010,31 @@
       }
     }
   },
+  "goodDaysTitle": "Good days",
+  "@goodDaysTitle": {
+    "description": "Good-day finder title."
+  },
+  "goodDaysViewsSubtitle": "Days with good astrological marks",
+  "@goodDaysViewsSubtitle": {
+    "description": "Views row subtitle."
+  },
+  "goodDaysMonths": "{count, plural, =1{1 month} other{{count} months}}",
+  "@goodDaysMonths": {
+    "description": "How far ahead to look.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "goodDaysNone": "No good days in this period.",
+  "@goodDaysNone": {
+    "description": "No results."
+  },
+  "goodDaysFooter": "A good day has a good mark (Yatyaza, Amyeittasote or Thamaphyu) and none that calls for care, such as Pyathada or Thamanyo. For an important date, ask an astrologer too.",
+  "@goodDaysFooter": {
+    "description": "Explains the rule."
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

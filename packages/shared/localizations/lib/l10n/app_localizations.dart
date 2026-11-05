@@ -4133,6 +4133,36 @@ abstract class AppLocalizations {
   /// **'Nothing found for “{query}”.'**
   String searchNoResults(String query);
 
+  /// Good-day finder title.
+  ///
+  /// In en, this message translates to:
+  /// **'Good days'**
+  String get goodDaysTitle;
+
+  /// Views row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Days with good astrological marks'**
+  String get goodDaysViewsSubtitle;
+
+  /// How far ahead to look.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 month} other{{count} months}}'**
+  String goodDaysMonths(int count);
+
+  /// No results.
+  ///
+  /// In en, this message translates to:
+  /// **'No good days in this period.'**
+  String get goodDaysNone;
+
+  /// Explains the rule.
+  ///
+  /// In en, this message translates to:
+  /// **'A good day has a good mark (Yatyaza, Amyeittasote or Thamaphyu) and none that calls for care, such as Pyathada or Thamanyo. For an important date, ask an astrologer too.'**
+  String get goodDaysFooter;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:

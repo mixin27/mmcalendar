@@ -51,7 +51,7 @@ class WidgetAgendaEvent {
 ///   0), `my` Myanmar date, `lu` short lunar label, `ln` lunar day, `ph`
 ///   moon phase (0 waxing, 1 full, 2 waning, 3 new), `il` illumination, `wx`
 ///   waxing, `hol` holidays, `sab` (1 Sabbath, 2 Sabbath eve), `good` /
-///   `avoid` / `info` astrological days.
+///   `avoid` astrological days (`info` is always empty).
 /// - `months`: `yyyy-MM` → `title`, `sub` (Myanmar months and year), and 42
 ///   Sunday-first `cells` (`d`, `in`, `ln`, `ph`, `hol`, `sab`). There is no
 ///   "today" flag: widgets compare with their own date.
@@ -68,9 +68,6 @@ class WidgetAgendaEvent {
 abstract final class WidgetPayloadBuilder {
   static const version = 2;
   static const horizonDays = 180;
-
-  static const _good = {'Thamanyo', 'Thamaphyu'};
-  static const _info = {'Nagapor'};
 
   static Map<String, Object?> build({
     required DateTime today,
@@ -145,18 +142,15 @@ abstract final class WidgetPayloadBuilder {
   ) {
     final mdt = MyanmarCalendar.fromWestern(date.year, date.month, date.day);
     final moon = MoonPhaseState.evening(date);
-    final good = <String>[], avoid = <String>[], info = <String>[];
+    final good = <String>[], avoid = <String>[];
     for (final name in [
       ...mdt.astrologicalDays,
       if (mdt.isYatyaza) mdt.yatyaza,
       if (mdt.hasPyathada) mdt.pyathada,
     ]) {
-      (_good.contains(name)
-              ? good
-              : _info.contains(name)
-              ? info
-              : avoid)
-          .add(t(name));
+      // Good and avoid follow the app's one rule (GoodDays), as day details
+      // and the grid do.
+      (GoodDays.tone(name) == AstroTone.good ? good : avoid).add(t(name));
     }
     return {
       'd': _key(date),
@@ -171,7 +165,8 @@ abstract final class WidgetPayloadBuilder {
       'sab': mdt.isSabbath ? 1 : (mdt.isSabbathEve ? 2 : 0),
       'good': good,
       'avoid': avoid,
-      'info': info,
+      // Kept, empty, for widget builds that still read it.
+      'info': const <String>[],
     };
   }
 

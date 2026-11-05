@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:home_widgets/home_widgets.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:shared_core/shared_core.dart';
 
 void main() {
   final today = DateTime(2026, 10, 18);
@@ -42,6 +43,30 @@ void main() {
       expect(days['2026-10-18']!['sab'], 2, reason: 'the eve before');
       expect(days['2026-10-26']!['ph'], 1, reason: 'full moon');
       expect(days['2026-10-25']!['hol'], isNotEmpty);
+    });
+
+    test('good and avoid follow the app rule, as day details does', () {
+      for (final d in build(Language.english)['days']! as List) {
+        final day = d as Map;
+        final date = DateTime.parse(day['d'] as String);
+        final complete = MyanmarCalendar.getCompleteDateFor(
+          date.year,
+          date.month,
+          date.day,
+        );
+        // The widget's "next good day" test is good and nothing to avoid.
+        expect(
+          (day['good'] as List).isNotEmpty && (day['avoid'] as List).isEmpty,
+          GoodDays.isGood(complete),
+          reason: day['d'] as String,
+        );
+        if (complete.yatyaza.isNotEmpty) {
+          expect(day['good'], contains('Yatyaza'), reason: day['d'] as String);
+        }
+        if (complete.astrologicalDays.contains('Thamanyo')) {
+          expect(day['avoid'], contains('Thamanyo'));
+        }
+      }
     });
 
     test('Myanmar text and digits follow the language', () {
