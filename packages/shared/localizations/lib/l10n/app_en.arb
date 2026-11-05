@@ -2922,6 +2922,31 @@
       }
     }
   },
+  "searchTitle": "Search",
+  "@searchTitle": {
+    "description": "Search page title and home header button."
+  },
+  "searchPlaceholder": "Dates, holidays, events, notes",
+  "@searchPlaceholder": {
+    "description": "Search field placeholder."
+  },
+  "searchHint": "Try “13 Apr”, “Tabaung full moon” or “next Sabbath”, or a holiday, event or note.",
+  "@searchHint": {
+    "description": "Search page before typing."
+  },
+  "searchDate": "Date",
+  "@searchDate": {
+    "description": "Search group for the date the query names."
+  },
+  "searchNoResults": "Nothing found for “{query}”.",
+  "@searchNoResults": {
+    "description": "Search with no results.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

@@ -2175,6 +2175,23 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
+  String get searchTitle => 'ရှာရန်';
+
+  @override
+  String get searchPlaceholder => 'ရက်စွဲ၊ ရုံးပိတ်ရက်၊ ပွဲ၊ မှတ်စု';
+
+  @override
+  String get searchHint => '“၁၃ ဧပြီ”၊ “တပေါင်းလပြည့်”၊ “တန်ခူးလဆန်း ၅”၊ “ဥပုသ်” သို့မဟုတ် ရုံးပိတ်ရက်၊ ပွဲ၊ မှတ်စု တစ်ခုခုကို ရှာကြည့်ပါ။';
+
+  @override
+  String get searchDate => 'ရက်စွဲ';
+
+  @override
+  String searchNoResults(String query) {
+    return '“$query” နှင့် ကိုက်ညီသည့် အရာ မတွေ့ပါ။';
+  }
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

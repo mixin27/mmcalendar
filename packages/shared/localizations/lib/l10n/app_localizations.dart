@@ -4031,6 +4031,36 @@ abstract class AppLocalizations {
   /// **'Today: {holiday}'**
   String holidayReminderToday(String holiday);
 
+  /// Search page title and home header button.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchTitle;
+
+  /// Search field placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates, holidays, events, notes'**
+  String get searchPlaceholder;
+
+  /// Search page before typing.
+  ///
+  /// In en, this message translates to:
+  /// **'Try “13 Apr”, “Tabaung full moon” or “next Sabbath”, or a holiday, event or note.'**
+  String get searchHint;
+
+  /// Search group for the date the query names.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get searchDate;
+
+  /// Search with no results.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found for “{query}”.'**
+  String searchNoResults(String query);
+
   /// Notes page title.
   ///
   /// In en, this message translates to:

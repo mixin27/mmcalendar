@@ -2210,6 +2210,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get searchTitle => 'Search';
+
+  @override
+  String get searchPlaceholder => 'Dates, holidays, events, notes';
+
+  @override
+  String get searchHint => 'Try “13 Apr”, “Tabaung full moon” or “next Sabbath”, or a holiday, event or note.';
+
+  @override
+  String get searchDate => 'Date';
+
+  @override
+  String searchNoResults(String query) {
+    return 'Nothing found for “$query”.';
+  }
+
+  @override
   String get notesTitle => 'Notes';
 
   @override
