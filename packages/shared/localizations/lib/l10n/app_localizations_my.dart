@@ -2297,7 +2297,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get backupIcs => 'ပွဲများကို အခြားပြက္ခဒိန်များသို့ ထုတ်ရန်';
 
   @override
-  String get backupIcsFooter => 'Google Calendar၊ Apple Calendar စသည်တို့တွင် ထည့်သွင်းနိုင်သော .ics ဖိုင် ဖြစ်သည်။ သတိပေးချက်များနှင့် အမျိုးအစားများမှာ ဤအက်ပ်တွင်သာ ရှိမည်။';
+  String get backupIcsFooter => 'Google Calendar၊ Apple Calendar စသည်တို့နှင့် .ics ဖိုင်ဖြင့် ပွဲများ အပြန်အလှန် ရွှေ့နိုင်သည်။ သတိပေးချက်များနှင့် အမျိုးအစားများမှာ ဤအက်ပ်တွင်သာ ရှိမည်။';
 
   @override
   String get backupRestoreTitle => 'အရန်ဖိုင် ပြန်ယူရန်';
@@ -2450,6 +2450,44 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get shareCardFooter => 'မြန်မာ ပြက္ခဒိန်';
+
+  @override
+  String get icsImport => 'အခြားပြက္ခဒိန်များမှ ထည့်ရန်';
+
+  @override
+  String icsImportQuestion(int count) {
+    return 'ပွဲ $count ခု ထည့်မလား?';
+  }
+
+  @override
+  String get icsImportConfirm => 'ထည့်ရန်';
+
+  @override
+  String icsSimplified(int count) {
+    return 'ပွဲ $count ခုမှာ ဤအက်ပ်တွင် မရှိသော ထပ်ခါပုံစံ ဖြစ်၍ တစ်ကြိမ်တည်းအဖြစ် ထည့်မည်။';
+  }
+
+  @override
+  String icsSkipped(int count) {
+    return 'ပယ်ဖျက်ထားသော သို့မဟုတ် ပြောင်းထားသော $count ခုကို ချန်ထားမည်။';
+  }
+
+  @override
+  String icsImported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ပွဲ $count ခု ထည့်ပြီးပါပြီ',
+      zero: 'အသစ် မရှိပါ - ထိုပွဲများ ရှိပြီးသား ဖြစ်သည်',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get icsNotACalendar => 'ဤဖိုင်သည် ပြက္ခဒိန် (.ics) ဖိုင် မဟုတ်ပါ။';
+
+  @override
+  String get icsNoEvents => 'ဤဖိုင်တွင် ပွဲ မရှိပါ။';
 
   @override
   String get notesTitle => 'မှတ်စုများ';

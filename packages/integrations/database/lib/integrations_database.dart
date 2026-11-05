@@ -30,3 +30,4 @@ export 'src/repositories/base_repository.dart';
 export 'src/database_module.dart';
 export 'src/backup/app_backup.dart';
 export 'src/backup/events_ics.dart';
+export 'src/backup/ics_import.dart';

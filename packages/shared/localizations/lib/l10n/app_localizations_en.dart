@@ -2338,7 +2338,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupIcs => 'Export events to other calendars';
 
   @override
-  String get backupIcsFooter => 'An .ics file that Google Calendar, Apple Calendar and others can import. Reminders and categories stay in this app.';
+  String get backupIcsFooter => 'Move events to and from Google Calendar, Apple Calendar and others with .ics files. Reminders and categories stay in this app.';
 
   @override
   String get backupRestoreTitle => 'Restore backup';
@@ -2491,6 +2491,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareCardFooter => 'Myanmar Calendar';
+
+  @override
+  String get icsImport => 'Import from other calendars';
+
+  @override
+  String icsImportQuestion(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import $count events?',
+      one: 'Import 1 event?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get icsImportConfirm => 'Import';
+
+  @override
+  String icsSimplified(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count events repeat in ways this app can\'t follow and come in once.',
+      one: '1 event repeats in a way this app can\'t follow and comes in once.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String icsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cancelled or changed occurrences are left out.',
+      one: '1 cancelled or changed occurrence is left out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String icsImported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Imported $count events',
+      one: 'Imported 1 event',
+      zero: 'Nothing new: those events are already here',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get icsNotACalendar => 'This file isn\'t a calendar (.ics) file.';
+
+  @override
+  String get icsNoEvents => 'There are no events in this file.';
 
   @override
   String get notesTitle => 'Notes';

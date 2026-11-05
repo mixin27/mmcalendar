@@ -3059,7 +3059,7 @@
   "@backupIcs": {
     "description": "Saves events as an .ics file."
   },
-  "backupIcsFooter": "An .ics file that Google Calendar, Apple Calendar and others can import. Reminders and categories stay in this app.",
+  "backupIcsFooter": "Move events to and from Google Calendar, Apple Calendar and others with .ics files. Reminders and categories stay in this app.",
   "@backupIcsFooter": {
     "description": "Explains the .ics export."
   },
@@ -3274,6 +3274,58 @@
   "shareCardFooter": "Myanmar Calendar",
   "@shareCardFooter": {
     "description": "Signature at the bottom of the shared card."
+  },
+  "icsImport": "Import from other calendars",
+  "@icsImport": {
+    "description": "Imports an .ics file."
+  },
+  "icsImportQuestion": "{count, plural, =1{Import 1 event?} other{Import {count} events?}}",
+  "@icsImportQuestion": {
+    "description": "Confirm the import.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "icsImportConfirm": "Import",
+  "@icsImportConfirm": {
+    "description": "Confirm button."
+  },
+  "icsSimplified": "{count, plural, =1{1 event repeats in a way this app can't follow and comes in once.} other{{count} events repeat in ways this app can't follow and come in once.}}",
+  "@icsSimplified": {
+    "description": "Note in the confirmation.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "icsSkipped": "{count, plural, =1{1 cancelled or changed occurrence is left out.} other{{count} cancelled or changed occurrences are left out.}}",
+  "@icsSkipped": {
+    "description": "Note in the confirmation.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "icsImported": "{count, plural, =0{Nothing new: those events are already here} =1{Imported 1 event} other{Imported {count} events}}",
+  "@icsImported": {
+    "description": "Toast after importing.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "icsNotACalendar": "This file isn't a calendar (.ics) file.",
+  "@icsNotACalendar": {
+    "description": "Wrong file."
+  },
+  "icsNoEvents": "There are no events in this file.",
+  "@icsNoEvents": {
+    "description": "Empty calendar."
   },
   "notesTitle": "Notes",
   "@notesTitle": {
