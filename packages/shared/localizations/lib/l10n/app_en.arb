@@ -3188,6 +3188,44 @@
   "@whatsNewBackupAction_250": {
     "description": "Feature button. (2.5.0)"
   },
+  "dailySummary": "Daily summary",
+  "@dailySummary": {
+    "description": "Toggle: a morning summary of the day."
+  },
+  "dailySummarySubtitle": "Each morning: the Myanmar date, holidays, Sabbath and the day's marks",
+  "@dailySummarySubtitle": {
+    "description": "Toggle subtitle."
+  },
+  "dailySummaryTime": "Time",
+  "@dailySummaryTime": {
+    "description": "When the summary comes (the hour)."
+  },
+  "dailySummaryFooter": "Scheduled ten days ahead and refreshed each time you open the app.",
+  "@dailySummaryFooter": {
+    "description": "Footer."
+  },
+  "dailySummaryGood": "Good: {marks}",
+  "@dailySummaryGood": {
+    "description": "Good marks in the summary.",
+    "placeholders": {
+      "marks": {
+        "type": "String"
+      }
+    }
+  },
+  "dailySummaryCaution": "Take care: {marks}",
+  "@dailySummaryCaution": {
+    "description": "Caution marks in the summary.",
+    "placeholders": {
+      "marks": {
+        "type": "String"
+      }
+    }
+  },
+  "dailySummaryPlain": "No holidays or special marks today.",
+  "@dailySummaryPlain": {
+    "description": "Summary for an ordinary day."
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

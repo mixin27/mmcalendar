@@ -4385,6 +4385,48 @@ abstract class AppLocalizations {
   /// **'Back up now'**
   String get whatsNewBackupAction_250;
 
+  /// Toggle: a morning summary of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily summary'**
+  String get dailySummary;
+
+  /// Toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Each morning: the Myanmar date, holidays, Sabbath and the day\'s marks'**
+  String get dailySummarySubtitle;
+
+  /// When the summary comes (the hour).
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get dailySummaryTime;
+
+  /// Footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled ten days ahead and refreshed each time you open the app.'**
+  String get dailySummaryFooter;
+
+  /// Good marks in the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Good: {marks}'**
+  String dailySummaryGood(String marks);
+
+  /// Caution marks in the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Take care: {marks}'**
+  String dailySummaryCaution(String marks);
+
+  /// Summary for an ordinary day.
+  ///
+  /// In en, this message translates to:
+  /// **'No holidays or special marks today.'**
+  String get dailySummaryPlain;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:

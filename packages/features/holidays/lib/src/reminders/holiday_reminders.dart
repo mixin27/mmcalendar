@@ -67,10 +67,21 @@ class HolidayReminders extends ChangeNotifier {
   static const _allPublicKey = 'holiday_reminders_all_public';
   static const _timeKey = 'holiday_reminders_time';
   static const _sabbathKey = 'holiday_reminders_sabbath';
+  static const _dailyKey = 'holiday_reminders_daily';
+  static const _dailyHourKey = 'holiday_reminders_daily_hour';
+
+  /// Days ahead the daily summary is scheduled. Short, because iOS keeps
+  /// at most 64 pending notifications per app; it refreshes on each launch.
+  static const dailyHorizonDays = 10;
+  static const defaultDailyHour = 7;
 
   /// Holiday ids are [idBase] + day × 100 + slot, below this offset;
   /// Sabbath ids ([idBase] + offset + day × 2 + time) start past them.
   static const _sabbathSlot = 100000 * 100;
+
+  /// Daily summary ids ([idBase] + offset + day) start past the Sabbath
+  /// ones.
+  static const _dailySlot = 2 * _sabbathSlot;
 
   final SharedPreferences _prefs;
   final Future<bool> Function() _requestPermission;
@@ -84,6 +95,10 @@ class HolidayReminders extends ChangeNotifier {
 
   /// Whether Sabbath days get reminders.
   bool get sabbath => _prefs.getBool(_sabbathKey) ?? false;
+
+  /// Whether a summary of the day comes every morning, and at what hour.
+  bool get daily => _prefs.getBool(_dailyKey) ?? false;
+  int get dailyHour => _prefs.getInt(_dailyHourKey) ?? defaultDailyHour;
   HolidayReminderTime get time => HolidayReminderTime.values.firstWhere(
     (t) => t.name == _prefs.getString(_timeKey),
     orElse: () => HolidayReminderTime.evening,
@@ -116,12 +131,24 @@ class HolidayReminders extends ChangeNotifier {
     return _changed(asking: on);
   }
 
+  Future<bool> setDaily(bool on) async {
+    await _prefs.setBool(_dailyKey, on);
+    return _changed(asking: on);
+  }
+
+  Future<void> setDailyHour(int hour) async {
+    await _prefs.setInt(_dailyHourKey, hour.clamp(0, 23));
+    await _changed(asking: false);
+  }
+
   /// The reminder choices, for a backup.
   Map<String, Object?> toBackup() => {
     _followedKey: followed.toList()..sort(),
     _allPublicKey: allPublic,
     _sabbathKey: sabbath,
     _timeKey: time.name,
+    _dailyKey: daily,
+    _dailyHourKey: dailyHour,
   };
 
   /// Restores choices from [toBackup] (unknown keys are ignored) and
@@ -138,6 +165,12 @@ class HolidayReminders extends ChangeNotifier {
     }
     if (backup[_sabbathKey] case final bool on) {
       await _prefs.setBool(_sabbathKey, on);
+    }
+    if (backup[_dailyKey] case final bool on) {
+      await _prefs.setBool(_dailyKey, on);
+    }
+    if (backup[_dailyHourKey] case final int hour when hour >= 0 && hour < 24) {
+      await _prefs.setInt(_dailyHourKey, hour);
     }
     if (backup[_timeKey] case final String name
         when HolidayReminderTime.values.any((t) => t.name == name)) {
@@ -183,6 +216,7 @@ class HolidayReminders extends ChangeNotifier {
         followed: followed,
         allPublic: allPublic,
         sabbath: sabbath,
+        dailyHour: daily ? dailyHour : null,
         time: time,
         calendarLanguage: _calendarLanguage,
         l10n: lookupAppLocalizations(_appLocale),
@@ -226,12 +260,14 @@ class HolidayReminders extends ChangeNotifier {
   );
 
   /// The reminders for holidays starting, and with [sabbath] Sabbath days
-  /// falling, within [horizonDays] of [now], in time order.
+  /// falling, within [horizonDays] of [now], and with [dailyHour] a summary
+  /// each morning for [dailyHorizonDays], in time order.
   static List<PlannedHolidayReminder> plan({
     required DateTime now,
     required Set<String> followed,
     required bool allPublic,
     bool sabbath = false,
+    int? dailyHour,
     required HolidayReminderTime time,
     required Language calendarLanguage,
     required AppLocalizations l10n,
@@ -328,6 +364,64 @@ class HolidayReminders extends ChangeNotifier {
         '${payloadPrefix}sabbath_${d.toIso8601String().substring(0, 10)}',
       );
     }
+    if (dailyHour != null) {
+      for (var i = 0; i <= dailyHorizonDays; i++) {
+        final d = DateTime(today.year, today.month, today.day + i);
+        final at = DateTime(d.year, d.month, d.day, dailyHour);
+        if (!at.isAfter(now)) continue;
+        final (title, body) = dailySummary(d, calendarLanguage, l10n);
+        out.add(
+          PlannedHolidayReminder(
+            id: idBase + _dailySlot + dayIndex(d),
+            at: at,
+            title: title,
+            body: body,
+            payload:
+                '${payloadPrefix}daily_${d.toIso8601String().substring(0, 10)}',
+          ),
+        );
+      }
+    }
     return out..sort((a, b) => a.at.compareTo(b.at));
+  }
+
+  /// The daily summary for [day]: the Myanmar date and weekday, then the
+  /// day's holidays, Sabbath, and good and caution marks ([GoodDays]).
+  static (String, String) dailySummary(
+    DateTime day,
+    Language calendarLanguage,
+    AppLocalizations l10n,
+  ) {
+    final format = CalendarFormat(calendarLanguage);
+    final complete = MyanmarCalendar.getCompleteDateFor(
+      day.year,
+      day.month,
+      day.day,
+    );
+    String t(String key) =>
+        TranslationService.translateTo(key, calendarLanguage);
+    final holidays = [
+      for (final o in HolidayYears.of(day.year, calendarLanguage))
+        if (o.contains(day)) o.entry.title(l10n),
+    ];
+    final marks = GoodDays.marks(complete);
+    final good = [
+      for (final m in marks)
+        if (GoodDays.tone(m) == AstroTone.good) t(m),
+    ];
+    final caution = [
+      for (final m in marks)
+        if (GoodDays.tone(m) == AstroTone.caution) t(m),
+    ];
+    final lines = [
+      if (holidays.isNotEmpty) holidays.join(' · '),
+      if (complete.isSabbath) l10n.sabbathReminderName,
+      if (good.isNotEmpty) l10n.dailySummaryGood(good.join(', ')),
+      if (caution.isNotEmpty) l10n.dailySummaryCaution(caution.join(', ')),
+    ];
+    return (
+      '${format.myanmar(complete.myanmar, '&M &P &f')} · ${format.weekday(day)}',
+      lines.isEmpty ? l10n.dailySummaryPlain : lines.join('\n'),
+    );
   }
 }

@@ -2433,6 +2433,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewBackupAction_250 => 'Back up now';
 
   @override
+  String get dailySummary => 'Daily summary';
+
+  @override
+  String get dailySummarySubtitle => 'Each morning: the Myanmar date, holidays, Sabbath and the day\'s marks';
+
+  @override
+  String get dailySummaryTime => 'Time';
+
+  @override
+  String get dailySummaryFooter => 'Scheduled ten days ahead and refreshed each time you open the app.';
+
+  @override
+  String dailySummaryGood(String marks) {
+    return 'Good: $marks';
+  }
+
+  @override
+  String dailySummaryCaution(String marks) {
+    return 'Take care: $marks';
+  }
+
+  @override
+  String get dailySummaryPlain => 'No holidays or special marks today.';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

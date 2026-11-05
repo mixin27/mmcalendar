@@ -12,12 +12,14 @@ void main() {
     Set<String> followed = const {},
     bool allPublic = false,
     bool sabbath = false,
+    int? dailyHour,
     HolidayReminderTime time = HolidayReminderTime.evening,
   }) => HolidayReminders.plan(
     now: now,
     followed: followed,
     allPublic: allPublic,
     sabbath: sabbath,
+    dailyHour: dailyHour,
     time: time,
     calendarLanguage: Language.english,
     l10n: l10n,
@@ -103,10 +105,61 @@ void main() {
     expect(evening.single.payload, contains('lentStart'));
   });
 
+  group('daily summary', () {
+    List<PlannedHolidayReminder> daily() => HolidayReminders.plan(
+      now: now,
+      followed: const {},
+      allPublic: false,
+      dailyHour: 7,
+      time: HolidayReminderTime.evening,
+      calendarLanguage: Language.english,
+      l10n: l10n,
+    );
+
+    test('every morning for the next ten days, from tomorrow at 7', () {
+      final r = daily();
+      // Today's 7 am has passed (now is 9 am).
+      expect(r, hasLength(HolidayReminders.dailyHorizonDays));
+      expect(r.first.at, DateTime(2026, 10, 19, 7));
+      expect(r.last.at, DateTime(2026, 10, 28, 7));
+      expect(r.every((e) => e.payload.startsWith('holiday_daily_')), isTrue);
+    });
+
+    test('says the Myanmar date, Sabbath, holidays and marks', () {
+      final r = {for (final e in daily()) e.at.day: e};
+      // 19 Oct 2026 is Thadingyut waxing 8, a Sabbath.
+      expect(r[19]!.title, 'Thadingyut Waxing 8 · Monday');
+      expect(r[19]!.body, contains('Sabbath day'));
+      // 25 Oct: the Thadingyut holidays.
+      expect(r[25]!.body, contains('Thadingyut'));
+      for (final e in r.values) {
+        expect(e.body, isNotEmpty);
+      }
+    });
+
+    test('an ordinary day says so', () {
+      final (_, body) = HolidayReminders.dailySummary(
+        DateTime(2026, 10, 18),
+        Language.english,
+        l10n,
+      );
+      expect(body, isNotEmpty);
+      expect(
+        HolidayReminders.dailySummary(
+          DateTime(2026, 10, 19),
+          Language.english,
+          l10n,
+        ).$2,
+        isNot(l10n.dailySummaryPlain),
+      );
+    });
+  });
+
   test('ids fit in 32 bits and never repeat', () {
     final r = plan(
       allPublic: true,
       sabbath: true,
+      dailyHour: 7,
       time: HolidayReminderTime.both,
     );
     for (final e in r) {
