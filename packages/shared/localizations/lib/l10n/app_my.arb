@@ -295,6 +295,18 @@
   "@converter": {
     "description": "Converter label"
   },
+  "converterBirth": "မွေးနေ့",
+  "converterConvertTab": "ပြောင်း",
+  "birthDate": "မွေးသက္ကရာဇ်",
+  "birthBeforeNoon": "မွန်းမတည့်မီ",
+  "birthAfterNoon": "မွန်းလွဲ",
+  "birthBornOn": "{weekday} နေ့ မွေး",
+  "birthAnimal": "{sign, select, sunday{ဂဠုန်} monday{ကျား} tuesday{ခြင်္သေ့} wednesday{ဆင်} rahu{ဟိုင်း} thursday{ကြွက်} friday{ပူး} saturday{နဂါး} other{}}",
+  "birthPlanet": "{sign, select, sunday{တနင်္ဂနွေ} monday{တနင်္လာ} tuesday{အင်္ဂါ} wednesday{ဗုဒ္ဓဟူး} rahu{ရာဟု} thursday{ကြာသပတေး} friday{သောကြာ} saturday{စနေ} other{}}",
+  "birthAge": "အသက်",
+  "birthNextBirthday": "နောက် မွေးနေ့",
+  "birthMyanmarBirthday": "မြန်မာ မွေးနေ့",
+  "birthMyanmarFooter": "နှစ်စဉ် မြန်မာ လနှင့် ရက် တူသည့်နေ့ ဖြစ်သည်။ လကွယ်နေ့ မွေးလျှင် ထိုလ၏ လကွယ်နေ့၊ ပဝါဆိုလ မွေးလျှင် ဝါဆိုလ ဖြစ်သည်။",
   "converterAddSub": "ပေါင်း/နုတ်",
   "@converterAddSub": {
     "description": "Localized text for converterAddSub."
@@ -320,7 +332,7 @@
       }
     }
   },
-  "converterDifference": "ကွာခြားချက်",
+  "converterDifference": "ကွာခြား",
   "@converterDifference": {
     "description": "Localized text for converterDifference."
   },

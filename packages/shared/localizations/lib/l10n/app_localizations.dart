@@ -479,6 +479,78 @@ abstract class AppLocalizations {
   /// **'Converter'**
   String get converter;
 
+  /// Converter segment: birth date tool.
+  ///
+  /// In en, this message translates to:
+  /// **'Birth'**
+  String get converterBirth;
+
+  /// Converter segment: the convert tool. Short, it shares a row with four others.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert'**
+  String get converterConvertTab;
+
+  /// Birth date row.
+  ///
+  /// In en, this message translates to:
+  /// **'Birth date'**
+  String get birthDate;
+
+  /// Wednesday birth before noon (Mercury).
+  ///
+  /// In en, this message translates to:
+  /// **'Before noon'**
+  String get birthBeforeNoon;
+
+  /// Wednesday birth after noon (Rahu).
+  ///
+  /// In en, this message translates to:
+  /// **'After noon'**
+  String get birthAfterNoon;
+
+  /// Birth tool headline.
+  ///
+  /// In en, this message translates to:
+  /// **'Born on {weekday}'**
+  String birthBornOn(String weekday);
+
+  /// Burmese birth-sign animal.
+  ///
+  /// In en, this message translates to:
+  /// **'{sign, select, sunday{Garuda} monday{Tiger} tuesday{Lion} wednesday{Tusked elephant} rahu{Tuskless elephant} thursday{Rat} friday{Guinea pig} saturday{Naga} other{}}'**
+  String birthAnimal(String sign);
+
+  /// Burmese birth-sign planet.
+  ///
+  /// In en, this message translates to:
+  /// **'{sign, select, sunday{Sun} monday{Moon} tuesday{Mars} wednesday{Mercury} rahu{Rahu} thursday{Jupiter} friday{Venus} saturday{Saturn} other{}}'**
+  String birthPlanet(String sign);
+
+  /// Group label.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get birthAge;
+
+  /// Row: next Western birthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Next birthday'**
+  String get birthNextBirthday;
+
+  /// Row: next birthday by the Myanmar date.
+  ///
+  /// In en, this message translates to:
+  /// **'Myanmar birthday'**
+  String get birthMyanmarBirthday;
+
+  /// Footer under the birthdays.
+  ///
+  /// In en, this message translates to:
+  /// **'The same Myanmar month and day each year. A new-moon birthday falls on the month\'s new moon, and First Waso on Waso.'**
+  String get birthMyanmarFooter;
+
   /// Localized text for converterAddSub.
   ///
   /// In en, this message translates to:

@@ -6,7 +6,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 import '../../di/converter_injection.dart';
 import '../widgets/converter_tools.dart';
 
-/// Converter tab: four tools behind one segmented control. Every tool stays
+/// Converter tab: five tools behind one segmented control. Every tool stays
 /// alive while hidden, so its inputs and last result survive switching.
 class ConverterPage extends StatefulWidget {
   const ConverterPage({super.key});
@@ -15,7 +15,7 @@ class ConverterPage extends StatefulWidget {
   State<ConverterPage> createState() => _ConverterPageState();
 }
 
-enum _Tool { convert, difference, arithmetic, moon }
+enum _Tool { convert, difference, arithmetic, moon, birth }
 
 class _ConverterPageState extends State<ConverterPage> {
   final AnalyticsPort _analyticsService = getIt<AnalyticsPort>();
@@ -38,10 +38,11 @@ class _ConverterPageState extends State<ConverterPage> {
       children: [
         AppSegmented<_Tool>(
           segments: {
-            _Tool.convert: l10n?.convert ?? 'Convert',
+            _Tool.convert: l10n?.converterConvertTab ?? 'Convert',
             _Tool.difference: l10n?.converterDifference ?? 'Difference',
             _Tool.arithmetic: l10n?.converterAddSub ?? 'Add/Sub',
             _Tool.moon: l10n?.moon ?? 'Moon',
+            _Tool.birth: l10n?.converterBirth ?? 'Birth',
           },
           value: _tool,
           onChanged: (tool) {
@@ -60,6 +61,7 @@ class _ConverterPageState extends State<ConverterPage> {
               (_Tool.difference, DifferenceTool()),
               (_Tool.arithmetic, ArithmeticTool()),
               (_Tool.moon, MoonFinderTool()),
+              (_Tool.birth, BirthDateTool()),
             ])
               Visibility(
                 visible: tool == _tool,
