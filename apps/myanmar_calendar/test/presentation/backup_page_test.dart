@@ -52,7 +52,7 @@ void main() {
           database: db,
           today: DateTime(2026, 11, 5),
           saveFile: (bytes, name, _) async => saved[name] = bytes,
-          pickFile: () async => toPick,
+          pickFile: (_) async => toPick,
         ),
       ),
     );
@@ -93,6 +93,24 @@ void main() {
     await tapAndWait(tester, find.byKey(const ValueKey('backup-ics')));
     final ics = utf8.decode(saved['myanmar-calendar-events-2026-11-05.ics']!);
     expect(ics, contains('SUMMARY:Dentist'));
+  });
+
+  testWidgets('events come in from another calendar', (tester) async {
+    await pump(tester);
+    toPick = Uint8List.fromList(
+      utf8.encode(
+        'BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART;VALUE=DATE:20261212\r\n'
+        'SUMMARY:Wedding\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n',
+      ),
+    );
+    await tapAndWait(tester, find.byKey(const ValueKey('backup-ics-import')));
+    expect(find.text('Import 1 event?'), findsOneWidget);
+    await tapAndWait(tester, find.text('Import'));
+    expect(find.text('Imported 1 event'), findsOneWidget);
+    final events = await tester.runAsync(
+      () => db.select(db.calendarEvents).get(),
+    );
+    expect(events!.map((e) => e.title), containsAll(['Dentist', 'Wedding']));
   });
 
   testWidgets('another file says it is not a backup', (tester) async {

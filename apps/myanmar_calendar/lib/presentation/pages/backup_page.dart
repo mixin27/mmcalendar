@@ -17,12 +17,12 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 typedef BackupFileSaver =
     Future<void> Function(Uint8List bytes, String name, String mimeType);
 
-/// Lets the user pick a file; null when they cancel.
-typedef BackupFilePicker = Future<Uint8List?> Function();
+/// Lets the user pick a file with [extension]; null when they cancel.
+typedef BackupFilePicker = Future<Uint8List?> Function(String extension);
 
 /// Settings › Privacy & Data › Backup and restore: one file with events,
 /// categories, notes, custom holidays and holiday reminder choices; restore
-/// by merging or replacing; and events as an .ics calendar file.
+/// by merging or replacing; and events to and from .ics calendar files.
 class BackupPage extends StatefulWidget {
   const BackupPage({
     super.key,
@@ -69,12 +69,12 @@ class _BackupPageState extends State<BackupPage> {
     }
   }
 
-  Future<Uint8List?> _pick() async {
-    if (widget.pickFile case final pick?) return pick();
+  Future<Uint8List?> _pick(String extension) async {
+    if (widget.pickFile case final pick?) return pick(extension);
     // Phone pickers can't filter by an unregistered extension.
     final result = await FilePicker.platform.pickFiles(
       type: _phone ? FileType.any : FileType.custom,
-      allowedExtensions: _phone ? null : const [AppBackup.extension],
+      allowedExtensions: _phone ? null : [extension],
       withData: true,
     );
     return result?.files.single.bytes;
@@ -132,7 +132,7 @@ class _BackupPageState extends State<BackupPage> {
   });
 
   Future<void> _restore() => _run(() async {
-    final bytes = await _pick();
+    final bytes = await _pick(AppBackup.extension);
     if (bytes == null || !mounted) return;
     final file = AppBackup.read(bytes);
     final replace = await _askHow(file);
@@ -158,6 +158,44 @@ class _BackupPageState extends State<BackupPage> {
     }
     if (mounted) {
       context.showToast(l10n.backupRestored, kind: AppToastKind.success);
+    }
+  });
+
+  /// Adds the events of an .ics file from another calendar.
+  Future<void> _importIcs() => _run(() async {
+    final bytes = await _pick(EventsIcs.extension);
+    if (bytes == null || !mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    final IcsCalendar calendar;
+    try {
+      calendar = IcsImport.parse(utf8.decode(bytes, allowMalformed: true));
+    } on FormatException {
+      context.showToast(l10n.icsNotACalendar, kind: AppToastKind.error);
+      return;
+    }
+    if (calendar.events.isEmpty) {
+      context.showToast(l10n.icsNoEvents, kind: AppToastKind.error);
+      return;
+    }
+    final notes = [
+      if (calendar.simplified > 0) l10n.icsSimplified(calendar.simplified),
+      if (calendar.skipped > 0) l10n.icsSkipped(calendar.skipped),
+    ];
+    final yes = await showAppConfirm(
+      context: context,
+      title: l10n.icsImportQuestion(calendar.events.length),
+      message: notes.isEmpty ? null : notes.join('\n'),
+      confirmLabel: l10n.icsImportConfirm,
+      cancelLabel: l10n.cancel,
+    );
+    if (!yes) return;
+    final added = await IcsImport.importInto(_db, calendar);
+    final getIt = GetIt.instance;
+    if (getIt.isRegistered<SmartNotificationScheduler>()) {
+      await getIt<SmartNotificationScheduler>().rescheduleAllNotifications();
+    }
+    if (mounted) {
+      context.showToast(l10n.icsImported(added), kind: AppToastKind.success);
     }
   });
 
@@ -254,6 +292,13 @@ class _BackupPageState extends State<BackupPage> {
               iconColor: const Color(0xFFF08A1C),
               title: l10n.backupIcs,
               onTap: _busy ? null : _exportIcs,
+            ),
+            AppRow(
+              key: const ValueKey('backup-ics-import'),
+              icon: Icons.event_note_outlined,
+              iconColor: const Color(0xFF8E6CEF),
+              title: l10n.icsImport,
+              onTap: _busy ? null : _importIcs,
             ),
           ],
         ),

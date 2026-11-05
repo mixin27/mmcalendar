@@ -4202,7 +4202,7 @@ abstract class AppLocalizations {
   /// Explains the .ics export.
   ///
   /// In en, this message translates to:
-  /// **'An .ics file that Google Calendar, Apple Calendar and others can import. Reminders and categories stay in this app.'**
+  /// **'Move events to and from Google Calendar, Apple Calendar and others with .ics files. Reminders and categories stay in this app.'**
   String get backupIcsFooter;
 
   /// Restore sheet title.
@@ -4492,6 +4492,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Myanmar Calendar'**
   String get shareCardFooter;
+
+  /// Imports an .ics file.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from other calendars'**
+  String get icsImport;
+
+  /// Confirm the import.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Import 1 event?} other{Import {count} events?}}'**
+  String icsImportQuestion(int count);
+
+  /// Confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get icsImportConfirm;
+
+  /// Note in the confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 event repeats in a way this app can\'t follow and comes in once.} other{{count} events repeat in ways this app can\'t follow and come in once.}}'**
+  String icsSimplified(int count);
+
+  /// Note in the confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 cancelled or changed occurrence is left out.} other{{count} cancelled or changed occurrences are left out.}}'**
+  String icsSkipped(int count);
+
+  /// Toast after importing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing new: those events are already here} =1{Imported 1 event} other{Imported {count} events}}'**
+  String icsImported(int count);
+
+  /// Wrong file.
+  ///
+  /// In en, this message translates to:
+  /// **'This file isn\'t a calendar (.ics) file.'**
+  String get icsNotACalendar;
+
+  /// Empty calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no events in this file.'**
+  String get icsNoEvents;
 
   /// Notes page title.
   ///
