@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:shared_core/shared_core.dart';
 
 /// The eight Burmese birth signs: one per weekday, with Wednesday split at
 /// noon into Mercury (before) and Rahu (after).
@@ -106,7 +107,7 @@ class BirthDetails {
       sign: BirthSign.of(day.weekday, afternoon: afternoon),
       age: Age.between(day, now),
       nextBirthday: nextWesternBirthday(day, now),
-      nextMyanmarBirthday: nextMyanmarBirthdayOf(date.myanmar, now),
+      nextMyanmarBirthday: MyanmarRecurrence.next(day, now),
     );
   }
 
@@ -116,7 +117,8 @@ class BirthDetails {
   final Age age;
   final DateTime nextBirthday;
 
-  /// Null only when the date can't be found in the coming years.
+  /// The next day with the birth's Myanmar month and day
+  /// ([MyanmarRecurrence]); null only when none falls in the next years.
   final DateTime? nextMyanmarBirthday;
 
   /// The next [birth] day and month from [today], today included; 29
@@ -129,61 +131,5 @@ class BirthDetails {
 
     final thisYear = inYear(today.year);
     return thisYear.isBefore(today) ? inYear(today.year + 1) : thisYear;
-  }
-
-  /// The next day, from [today] and today included, with [birth]'s Myanmar
-  /// month and day.
-  ///
-  /// When a year lacks that day, it follows the moon:
-  /// - a new-moon birthday is that month's new moon (the 29th or 30th);
-  /// - First Waso, which only watat years have, is Waso;
-  /// - Late Tagu and Late Kason (the days before Thingyan) are Tagu and
-  ///   Kason.
-  static DateTime? nextMyanmarBirthdayOf(MyanmarDate birth, DateTime today) {
-    final month = switch (birth.month) {
-      0 => 4,
-      13 => 1,
-      14 => 2,
-      final m => m,
-    };
-    final newMoon = birth.moonPhase == 3;
-
-    DateTime? inMonth(int year, int monthIndex) {
-      try {
-        final first = MyanmarCalendar.fromMyanmar(year, monthIndex, 1);
-        final length = first.monthLength;
-        final day = newMoon || birth.day > length ? length : birth.day;
-        final d = MyanmarCalendar.fromMyanmar(year, monthIndex, day);
-        if (d.myanmarMonth != monthIndex || d.myanmarYear != year) {
-          return null;
-        }
-        return DateTime(d.westernYear, d.westernMonth, d.westernDay);
-      } on Exception {
-        return null;
-      }
-    }
-
-    // Tagu and Kason days before the new year belong to the old year's
-    // Late Tagu and Late Kason.
-    DateTime? inYear(int year) =>
-        inMonth(year, month) ??
-        switch (month) {
-          1 => inMonth(year - 1, 13),
-          2 => inMonth(year - 1, 14),
-          _ => null,
-        };
-
-    final thisYear = MyanmarCalendar.getCompleteDateFor(
-      today.year,
-      today.month,
-      today.day,
-    ).myanmarYear;
-    DateTime? best;
-    for (var y = thisYear - 1; y <= thisYear + 2; y++) {
-      final d = inYear(y);
-      if (d == null || d.isBefore(today)) continue;
-      if (best == null || d.isBefore(best)) best = d;
-    }
-    return best;
   }
 }

@@ -2417,6 +2417,23 @@ class AppLocalizationsMy extends AppLocalizations {
   String get dailySummaryPlain => 'ယနေ့ ရုံးပိတ်ရက် သို့မဟုတ် ထူးခြားသည့် နက္ခတ် မရှိပါ။';
 
   @override
+  String get repeatMyanmarYearly => 'နှစ်စဉ် မြန်မာ ရက်စွဲအတိုင်း';
+
+  @override
+  String get repeatMyanmarMonthly => 'လစဉ် မြန်မာ ရက်အတိုင်း';
+
+  @override
+  String repeatMyanmarEvery(String day) {
+    return '$day တိုင်း';
+  }
+
+  @override
+  String get eventsRepeatsMyanmarYearly => 'နှစ်စဉ် မြန်မာ ရက်စွဲအတိုင်း ထပ်ခါ';
+
+  @override
+  String get eventsRepeatsMyanmarMonthly => 'လစဉ် မြန်မာ ရက်အတိုင်း ထပ်ခါ';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

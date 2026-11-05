@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:shared_core/shared_core.dart';
 
 /// Recurrence rule for recurring events
 class RecurrenceRule extends Equatable {
@@ -69,6 +70,19 @@ class RecurrenceRule extends Equatable {
               !isException(day))
             day,
       ];
+    }
+
+    if (type.myanmarRepeat case final repeat?) {
+      return MyanmarRecurrence.occurrences(
+        anchor,
+        repeat,
+        from: start,
+        to: end,
+        interval: interval,
+        count: occurrenceCount,
+        until: endDate,
+        skip: isException,
+      );
     }
 
     if (type == RecurrenceType.none) {
@@ -148,6 +162,8 @@ class RecurrenceRule extends Equatable {
 
       case RecurrenceType.none:
       case RecurrenceType.dates:
+      case RecurrenceType.myanmarYearly:
+      case RecurrenceType.myanmarMonthly:
         return currentDate;
     }
   }
@@ -312,7 +328,22 @@ enum RecurrenceType {
   yearly,
 
   /// On chosen days only ([RecurrenceRule.dates]).
-  dates;
+  dates,
+
+  /// Each year on the first day's Myanmar month and day: birthdays,
+  /// anniversaries ([MyanmarRecurrence]).
+  myanmarYearly,
+
+  /// Each month on the first day's Myanmar day: every full moon, every
+  /// waxing 8.
+  myanmarMonthly;
+
+  /// The Myanmar repeat, for the Myanmar-date types.
+  MyanmarRepeat? get myanmarRepeat => switch (this) {
+    RecurrenceType.myanmarYearly => MyanmarRepeat.yearly,
+    RecurrenceType.myanmarMonthly => MyanmarRepeat.monthly,
+    _ => null,
+  };
 
   String get displayName {
     switch (this) {
@@ -328,6 +359,10 @@ enum RecurrenceType {
         return 'Yearly';
       case RecurrenceType.dates:
         return 'Specific dates';
+      case RecurrenceType.myanmarYearly:
+        return 'Yearly (Myanmar date)';
+      case RecurrenceType.myanmarMonthly:
+        return 'Monthly (Myanmar date)';
     }
   }
 }

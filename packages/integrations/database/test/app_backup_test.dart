@@ -237,6 +237,43 @@ void main() {
     );
   });
 
+  test('a Myanmar-date repeat exports as the next ten years of days', () {
+    final event = CalendarEvent(
+      id: 1,
+      title: 'Birthday',
+      eventDate: DateTime(1990, 3, 11),
+      isAllDay: true,
+      timezoneId: 'Asia/Yangon',
+      categoryName: 'Personal',
+      status: 'pending',
+      priority: 1,
+      createdAt: _t,
+      updatedAt: _t,
+    );
+    final ics = EventsIcs.encode(
+      events: [event],
+      rules: [
+        EventRecurrenceRule(
+          eventId: 1,
+          recurrenceType: 'myanmarYearly',
+          recurrenceInterval: 1,
+          createdAt: _t,
+          updatedAt: _t,
+        ),
+      ],
+      now: DateTime.utc(2026, 11, 5),
+    );
+    final rdate = ics
+        .replaceAll('\r\n ', '')
+        .split('\r\n')
+        .singleWhere((l) => l.startsWith('RDATE'));
+    final days = rdate.split(':').last.split(',');
+    // From today (5 Nov 2026), not from 1990: Tabaung waning 1 1388.
+    expect(days, hasLength(10));
+    expect(days.first, '20270323');
+    expect(ics, isNot(contains('RRULE')));
+  });
+
   test('events export as iCalendar', () async {
     final db = await _open();
     addTearDown(db.close);

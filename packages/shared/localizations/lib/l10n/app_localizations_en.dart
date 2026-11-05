@@ -2458,6 +2458,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailySummaryPlain => 'No holidays or special marks today.';
 
   @override
+  String get repeatMyanmarYearly => 'Yearly by Myanmar date';
+
+  @override
+  String get repeatMyanmarMonthly => 'Monthly by Myanmar date';
+
+  @override
+  String repeatMyanmarEvery(String day) {
+    return 'Every $day';
+  }
+
+  @override
+  String get eventsRepeatsMyanmarYearly => 'repeats yearly by Myanmar date';
+
+  @override
+  String get eventsRepeatsMyanmarMonthly => 'repeats monthly by Myanmar date';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

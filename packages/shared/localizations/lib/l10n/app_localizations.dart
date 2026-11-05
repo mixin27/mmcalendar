@@ -4427,6 +4427,36 @@ abstract class AppLocalizations {
   /// **'No holidays or special marks today.'**
   String get dailySummaryPlain;
 
+  /// Repeat type: same Myanmar month and day each year.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly by Myanmar date'**
+  String get repeatMyanmarYearly;
+
+  /// Repeat type: same Myanmar day each month.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly by Myanmar date'**
+  String get repeatMyanmarMonthly;
+
+  /// Which Myanmar day, e.g. 'Every Tabaung Full Moon 15'.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {day}'**
+  String repeatMyanmarEvery(String day);
+
+  /// Event row.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats yearly by Myanmar date'**
+  String get eventsRepeatsMyanmarYearly;
+
+  /// Event row.
+  ///
+  /// In en, this message translates to:
+  /// **'repeats monthly by Myanmar date'**
+  String get eventsRepeatsMyanmarMonthly;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:

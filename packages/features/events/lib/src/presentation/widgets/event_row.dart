@@ -164,6 +164,14 @@ class EventRow extends StatelessWidget {
       final count = rule.dates?.length ?? 0;
       return l10n?.eventsRepeatsOnDates(count) ?? 'on $count dates';
     }
+    if (rule.type == RecurrenceType.myanmarYearly) {
+      return l10n?.eventsRepeatsMyanmarYearly ??
+          'repeats yearly by Myanmar date';
+    }
+    if (rule.type == RecurrenceType.myanmarMonthly) {
+      return l10n?.eventsRepeatsMyanmarMonthly ??
+          'repeats monthly by Myanmar date';
+    }
     const units = {
       RecurrenceType.daily: ('daily', 'days'),
       RecurrenceType.weekly: ('weekly', 'weeks'),
@@ -180,14 +188,14 @@ class EventRow extends StatelessWidget {
             RecurrenceType.weekly => l10n.eventsRepeatsEveryNWeeks(n),
             RecurrenceType.monthly => l10n.eventsRepeatsEveryNMonths(n),
             RecurrenceType.yearly => l10n.eventsRepeatsEveryNYears(n),
-            RecurrenceType.none || RecurrenceType.dates => null,
+            _ => null,
           }
         : switch (rule.type) {
             RecurrenceType.daily => l10n.eventsRepeatsDaily,
             RecurrenceType.weekly => l10n.eventsRepeatsWeekly,
             RecurrenceType.monthly => l10n.eventsRepeatsMonthly,
             RecurrenceType.yearly => l10n.eventsRepeatsYearly,
-            RecurrenceType.none || RecurrenceType.dates => null,
+            _ => null,
           };
     return localized ?? (n > 1 ? 'repeats every $n $plural' : 'repeats $once');
   }
