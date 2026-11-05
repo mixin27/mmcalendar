@@ -3251,6 +3251,30 @@
   "@eventsRepeatsMyanmarMonthly": {
     "description": "Event row."
   },
+  "shareDayTitle": "Share this day",
+  "@shareDayTitle": {
+    "description": "Share sheet title and home row."
+  },
+  "shareDaySquare": "Square",
+  "@shareDaySquare": {
+    "description": "Image shape for posts."
+  },
+  "shareDayStory": "Story",
+  "@shareDayStory": {
+    "description": "Image shape for stories."
+  },
+  "shareDayImage": "Share image",
+  "@shareDayImage": {
+    "description": "Shares the card as a picture."
+  },
+  "shareDayText": "Share as text",
+  "@shareDayText": {
+    "description": "Shares the day as text."
+  },
+  "shareCardFooter": "Myanmar Calendar",
+  "@shareCardFooter": {
+    "description": "Signature at the bottom of the shared card."
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

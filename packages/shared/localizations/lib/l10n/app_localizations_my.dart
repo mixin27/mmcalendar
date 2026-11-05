@@ -2434,6 +2434,24 @@ class AppLocalizationsMy extends AppLocalizations {
   String get eventsRepeatsMyanmarMonthly => 'လစဉ် မြန်မာ ရက်အတိုင်း ထပ်ခါ';
 
   @override
+  String get shareDayTitle => 'ဤနေ့ကို မျှဝေရန်';
+
+  @override
+  String get shareDaySquare => 'လေးထောင့်';
+
+  @override
+  String get shareDayStory => 'Story';
+
+  @override
+  String get shareDayImage => 'ပုံအဖြစ် မျှဝေရန်';
+
+  @override
+  String get shareDayText => 'စာသားအဖြစ် မျှဝေရန်';
+
+  @override
+  String get shareCardFooter => 'မြန်မာ ပြက္ခဒိန်';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

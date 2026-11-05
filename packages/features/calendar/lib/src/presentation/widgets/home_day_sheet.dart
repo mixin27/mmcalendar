@@ -10,6 +10,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'astro_phrases.dart';
 import 'calendar_colors.dart';
 import 'day_cells.dart';
+import 'day_share_card.dart';
 
 /// The pull-up sheet under the month on phones.
 ///
@@ -169,6 +170,26 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
                         'Astrology, Buddhist calendar, AI prompt',
                     chevron: true,
                     onTap: () => widget.onOpenDetails(_date(widget.day)),
+                  ),
+                  AppRow(
+                    key: const ValueKey('home-share-day'),
+                    icon: Icons.ios_share_rounded,
+                    iconColor: colors.accent,
+                    title: l10n?.shareDayTitle ?? 'Share this day',
+                    chevron: true,
+                    onTap: () {
+                      final date = _date(widget.day);
+                      final format = context.calendarFormat;
+                      showDayShareSheet(
+                        context,
+                        date: date,
+                        shareText: () => share(
+                          content:
+                              '${format.fullDate(date)}\n'
+                              '${format.myanmar(widget.day.myanmar, '&y &M &P &f')}',
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

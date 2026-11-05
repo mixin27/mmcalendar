@@ -6,6 +6,7 @@ import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 import '../../di/calendar_injection.dart';
+import '../widgets/day_share_card.dart';
 import '../widgets/astro_phrases.dart';
 import '../widgets/day_details_content.dart';
 
@@ -163,11 +164,16 @@ class _DayDetailsPageState extends State<DayDetailsPage>
               IconButton(
                 icon: Icon(t.isClear ? Icons.ios_share : Icons.share_outlined),
                 tooltip: l10n?.share ?? 'Share',
-                onPressed: () => _shareDate(
-                  _formatDetailedShareText(
-                    context,
-                    _completeDate,
-                    showShanCalendar,
+                // An image to share, with the text one tap away.
+                onPressed: () => showDayShareSheet(
+                  context,
+                  date: _currentDate,
+                  shareText: () => _shareDate(
+                    _formatDetailedShareText(
+                      context,
+                      _completeDate,
+                      showShanCalendar,
+                    ),
                   ),
                 ),
               ),

@@ -4457,6 +4457,42 @@ abstract class AppLocalizations {
   /// **'repeats monthly by Myanmar date'**
   String get eventsRepeatsMyanmarMonthly;
 
+  /// Share sheet title and home row.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this day'**
+  String get shareDayTitle;
+
+  /// Image shape for posts.
+  ///
+  /// In en, this message translates to:
+  /// **'Square'**
+  String get shareDaySquare;
+
+  /// Image shape for stories.
+  ///
+  /// In en, this message translates to:
+  /// **'Story'**
+  String get shareDayStory;
+
+  /// Shares the card as a picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Share image'**
+  String get shareDayImage;
+
+  /// Shares the day as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as text'**
+  String get shareDayText;
+
+  /// Signature at the bottom of the shared card.
+  ///
+  /// In en, this message translates to:
+  /// **'Myanmar Calendar'**
+  String get shareCardFooter;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:
