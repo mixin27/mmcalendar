@@ -3226,6 +3226,31 @@
   "@dailySummaryPlain": {
     "description": "Summary for an ordinary day."
   },
+  "repeatMyanmarYearly": "Yearly by Myanmar date",
+  "@repeatMyanmarYearly": {
+    "description": "Repeat type: same Myanmar month and day each year."
+  },
+  "repeatMyanmarMonthly": "Monthly by Myanmar date",
+  "@repeatMyanmarMonthly": {
+    "description": "Repeat type: same Myanmar day each month."
+  },
+  "repeatMyanmarEvery": "Every {day}",
+  "@repeatMyanmarEvery": {
+    "description": "Which Myanmar day, e.g. 'Every Tabaung Full Moon 15'.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsRepeatsMyanmarYearly": "repeats yearly by Myanmar date",
+  "@eventsRepeatsMyanmarYearly": {
+    "description": "Event row."
+  },
+  "eventsRepeatsMyanmarMonthly": "repeats monthly by Myanmar date",
+  "@eventsRepeatsMyanmarMonthly": {
+    "description": "Event row."
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

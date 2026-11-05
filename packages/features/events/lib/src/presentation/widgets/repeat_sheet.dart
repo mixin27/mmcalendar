@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_core/shared_core.dart'
     show
         CalendarLanguageContext,
+        MyanmarRecurrence,
+        MyanmarRepeat,
         showAppMyanmarDatePicker,
         showAppMyanmarMultiDatePicker;
 import 'package:shared_localizations/shared_localizations.dart';
@@ -34,7 +36,29 @@ String repeatTypeName(BuildContext context, RecurrenceType type) {
     RecurrenceType.monthly => l10n?.repeatMonthly ?? 'Monthly',
     RecurrenceType.yearly => l10n?.repeatYearly ?? 'Yearly',
     RecurrenceType.dates => l10n?.repeatSpecificDates ?? 'Specific dates',
+    RecurrenceType.myanmarYearly =>
+      l10n?.repeatMyanmarYearly ?? 'Yearly by Myanmar date',
+    RecurrenceType.myanmarMonthly =>
+      l10n?.repeatMyanmarMonthly ?? 'Monthly by Myanmar date',
   };
+}
+
+/// For the Myanmar-date repeats, which day they keep: "Every Tabaung Full
+/// Moon", "Every Waxing 8"; null for other types.
+String? myanmarRepeatDay(
+  BuildContext context,
+  RecurrenceType type,
+  DateTime start,
+) {
+  final repeat = type.myanmarRepeat;
+  if (repeat == null) return null;
+  final l10n = AppLocalizations.of(context);
+  final myanmar = MyanmarRecurrence.myanmarOf(start);
+  final day = context.calendarFormat.myanmar(
+    myanmar,
+    repeat == MyanmarRepeat.yearly ? '&M &P &f' : '&P &f',
+  );
+  return l10n?.repeatMyanmarEvery(day) ?? 'Every $day';
 }
 
 /// "Every week · Wed, Thu · until 20 Dec", in the calendar language.
@@ -191,6 +215,7 @@ class _RepeatSheetState extends State<RepeatSheet> {
                 AppRow(
                   key: ValueKey('repeat-type-${type.name}'),
                   title: repeatTypeName(context, type),
+                  subtitle: myanmarRepeatDay(context, type, widget.startDate),
                   selected: _type == type,
                   onTap: () {
                     setState(() {

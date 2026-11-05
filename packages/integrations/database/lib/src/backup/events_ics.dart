@@ -1,14 +1,17 @@
 import 'dart:convert';
 
+import 'package:shared_core/shared_core.dart';
+
 import '../database/app_database.dart';
 
 /// The app's events as an iCalendar (.ics) file, for Google Calendar,
 /// Apple Calendar and others.
 ///
 /// All-day events are whole days; timed events last an hour, at the same
-/// local time wherever the file is opened. Repeats become `RRULE`, picked
-/// dates `RDATE`, and occurrences deleted in the app `EXDATE`. Reminders,
-/// categories and edits to single occurrences stay in the app.
+/// local time wherever the file is opened. Repeats become `RRULE`; picked
+/// dates and Myanmar-date repeats (ten years ahead) `RDATE`; occurrences
+/// deleted in the app `EXDATE`. Reminders, categories and edits to single
+/// occurrences stay in the app.
 abstract final class EventsIcs {
   static const extension = 'ics';
   static const mimeType = 'text/calendar';
@@ -64,7 +67,7 @@ abstract final class EventsIcs {
         out.add(_text('LOCATION', l));
       }
       if (ruleOf[e.id] case final rule?) {
-        out.addAll(_repeat(rule, start, allDay));
+        out.addAll(_repeat(rule, start, allDay, now));
         final deleted = [
           for (final x in exceptions)
             if (x.masterEventId == e.id && x.exceptionType == 'deleted')
@@ -88,7 +91,35 @@ abstract final class EventsIcs {
     EventRecurrenceRule rule,
     DateTime start,
     bool allDay,
+    DateTime now,
   ) {
+    // iCalendar has no Myanmar calendar: the days in the ten years from
+    // today (or from the start, if later).
+    final myanmar = switch (rule.recurrenceType) {
+      'myanmarYearly' => MyanmarRepeat.yearly,
+      'myanmarMonthly' => MyanmarRepeat.monthly,
+      _ => null,
+    };
+    if (myanmar != null) {
+      final days = MyanmarRecurrence.occurrences(
+        start,
+        myanmar,
+        from: start.isAfter(now) ? start : now,
+        to: DateTime(
+          (start.isAfter(now) ? start : now).year + 10,
+          now.month,
+          now.day,
+        ),
+        interval: rule.recurrenceInterval,
+        count: rule.recurrenceCount,
+        until: rule.recurrenceEndDate,
+      ).where((d) => !_sameDay(d, start));
+      if (days.isEmpty) return const [];
+      return [
+        'RDATE${allDay ? ';VALUE=DATE' : ''}:'
+            '${days.map((d) => allDay ? _date(d) : _local(_at(d, start))).join(',')}',
+      ];
+    }
     if (rule.recurrenceType == 'dates') {
       final days = _list(rule.recurrenceDays)
           .map((v) => DateTime.tryParse('$v'))
