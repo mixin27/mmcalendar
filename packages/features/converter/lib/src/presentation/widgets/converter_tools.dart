@@ -12,11 +12,12 @@ import '../../domain/entities/conversion_result.dart';
 import '../../domain/entities/date_arithmetic_result.dart';
 import '../../domain/entities/date_calculation_result.dart';
 import '../../domain/entities/moon_phase_result.dart';
+import '../../domain/services/birth_details.dart';
 import '../bloc/converter_bloc.dart';
 import '../bloc/converter_event.dart';
 import '../bloc/converter_state.dart';
 
-// The four converter tools. They share one ConverterBloc, so each listens
+// The five converter tools. They share one ConverterBloc, so each listens
 // only to its own states and keeps its last result.
 
 Language get _language => MyanmarCalendar.currentLanguage;
@@ -44,16 +45,23 @@ class _DateRow extends StatelessWidget {
     required this.label,
     required this.date,
     required this.onChanged,
+    this.withYear = false,
   });
 
   final String label;
   final DateTime date;
   final ValueChanged<DateTime> onChanged;
 
+  /// Show the year too, for dates far from now.
+  final bool withYear;
+
   @override
   Widget build(BuildContext context) => AppRow(
     title: label,
-    value: context.calendarFormat.shortDate(date),
+    value: withYear
+        ? '${context.calendarFormat.dayMonth(date)} '
+              '${context.calendarFormat.westernNumber(date.year)}'
+        : context.calendarFormat.shortDate(date),
     chevron: true,
     onTap: () async {
       final picked = await showAppMyanmarDatePicker(
@@ -797,6 +805,171 @@ class _MoonFinderToolState extends State<MoonFinderTool> {
           ],
         ]),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────── Birth date ───────────────────────────────
+
+/// A birth date's Myanmar date and signs, the age, and the next Western
+/// and Myanmar birthdays.
+class BirthDateTool extends StatefulWidget {
+  const BirthDateTool({super.key, this.today, this.initialBirth});
+
+  /// Today; now when null.
+  final DateTime? today;
+
+  /// The birth date it opens with; the 1st of this month 25 years ago when
+  /// null.
+  final DateTime? initialBirth;
+
+  @override
+  State<BirthDateTool> createState() => _BirthDateToolState();
+}
+
+class _BirthDateToolState extends State<BirthDateTool> {
+  late final DateTime _today = DateUtils.dateOnly(
+    widget.today ?? DateTime.now(),
+  );
+  late DateTime _birth =
+      widget.initialBirth ?? DateTime(_today.year - 25, _today.month, 1);
+  bool _afternoon = false;
+
+  String _until(AppLocalizations? l10n, DateTime date) {
+    final days = DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+    ).difference(DateTime.utc(_today.year, _today.month, _today.day)).inDays;
+    return days == 0
+        ? l10n?.converterTodayLower ?? 'today'
+        : l10n?.converterInDays(days) ?? 'in $days days';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final t = context.tokens;
+    final details = BirthDetails.of(
+      _birth,
+      today: _today,
+      afternoon: _afternoon,
+    );
+    final d = details.date;
+    final weekday = TranslationService.getWeekdayName(d.weekday, _language);
+    final animal = l10n?.birthAnimal(details.sign.name) ?? details.sign.name;
+    final planet = l10n?.birthPlanet(details.sign.name) ?? details.sign.name;
+    final bornOn = l10n?.birthBornOn(weekday) ?? 'Born on $weekday';
+    final myanmarBirthday = details.nextMyanmarBirthday;
+    final age = details.age;
+    String n(int v) => translateNumbers('$v');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: _spaced([
+        AppGroup(
+          children: [
+            _DateRow(
+              label: l10n?.birthDate ?? 'Birth date',
+              date: _birth,
+              withYear: true,
+              onChanged: (v) => setState(() => _birth = v),
+            ),
+          ],
+        ),
+        // Wednesday has two signs: Mercury before noon, Rahu after.
+        if (_birth.weekday == DateTime.wednesday)
+          AppSegmented<bool>(
+            key: const ValueKey('birth-noon'),
+            segments: {
+              false: l10n?.birthBeforeNoon ?? 'Before noon',
+              true: l10n?.birthAfterNoon ?? 'After noon',
+            },
+            value: _afternoon,
+            onChanged: (v) => setState(() => _afternoon = v),
+          ),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+            child: Column(
+              children: [
+                Text(
+                  bornOn,
+                  key: const ValueKey('birth-born-on'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$animal · $planet',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: t.secondaryLabel, fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ),
+        AppGroup(
+          children: [
+            AppRow(
+              title: l10n?.converterMyanmarDate ?? 'Myanmar date',
+              subtitle: _myanmar(d.myanmar),
+            ),
+            AppRow(title: l10n?.mahabote ?? 'Mahabote', value: _t(d.mahabote)),
+            AppRow(title: l10n?.nakhat ?? 'Nakhat', value: _t(d.nakhat)),
+            AppRow(
+              title: l10n?.year_name ?? 'Year name',
+              value: _t(d.yearName),
+            ),
+          ],
+        ),
+        AppGroup(
+          label: l10n?.birthAge ?? 'Age',
+          children: [
+            AppRow(title: l10n?.years ?? 'Years', value: n(age.years)),
+            AppRow(title: l10n?.months ?? 'Months', value: n(age.months)),
+            AppRow(title: l10n?.days ?? 'Days', value: n(age.days)),
+          ],
+        ),
+        AppGroup(
+          footer: l10n?.birthMyanmarFooter,
+          children: [
+            AppRow(
+              key: const ValueKey('birth-next'),
+              title: l10n?.birthNextBirthday ?? 'Next birthday',
+              subtitle:
+                  '${_fullDate(context, details.nextBirthday)} · '
+                  '${_until(l10n, details.nextBirthday)}',
+            ),
+            if (myanmarBirthday != null)
+              AppRow(
+                key: const ValueKey('birth-next-myanmar'),
+                title: l10n?.birthMyanmarBirthday ?? 'Myanmar birthday',
+                subtitle:
+                    '${_myanmar(MyanmarCalendar.getCompleteDateFor(myanmarBirthday.year, myanmarBirthday.month, myanmarBirthday.day).myanmar)}\n'
+                    '${_fullDate(context, myanmarBirthday)} · '
+                    '${_until(l10n, myanmarBirthday)}',
+              ),
+          ],
+        ),
+        _ResultActions(
+          title: l10n?.converterBirth ?? 'Birth',
+          text: [
+            '${_fullDate(context, _birth)} · ${_myanmar(d.myanmar)}',
+            '$bornOn · $animal · $planet',
+            '${l10n?.mahabote ?? 'Mahabote'}: ${_t(d.mahabote)} · '
+                '${l10n?.nakhat ?? 'Nakhat'}: ${_t(d.nakhat)}',
+            '${l10n?.birthAge ?? 'Age'}: ${n(age.years)} '
+                '${l10n?.years ?? 'years'}, ${n(age.months)} '
+                '${l10n?.months ?? 'months'}, ${n(age.days)} '
+                '${l10n?.days ?? 'days'}',
+          ].join('\n'),
+        ),
+      ]),
     );
   }
 }

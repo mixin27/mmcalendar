@@ -295,6 +295,69 @@
   "@converter": {
     "description": "Converter label"
   },
+  "converterBirth": "Birth",
+  "converterConvertTab": "Convert",
+  "@converterConvertTab": {
+    "description": "Converter segment: the convert tool. Short, it shares a row with four others."
+  },
+  "@converterBirth": {
+    "description": "Converter segment: birth date tool."
+  },
+  "birthDate": "Birth date",
+  "@birthDate": {
+    "description": "Birth date row."
+  },
+  "birthBeforeNoon": "Before noon",
+  "@birthBeforeNoon": {
+    "description": "Wednesday birth before noon (Mercury)."
+  },
+  "birthAfterNoon": "After noon",
+  "@birthAfterNoon": {
+    "description": "Wednesday birth after noon (Rahu)."
+  },
+  "birthBornOn": "Born on {weekday}",
+  "@birthBornOn": {
+    "description": "Birth tool headline.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "birthAnimal": "{sign, select, sunday{Garuda} monday{Tiger} tuesday{Lion} wednesday{Tusked elephant} rahu{Tuskless elephant} thursday{Rat} friday{Guinea pig} saturday{Naga} other{}}",
+  "@birthAnimal": {
+    "description": "Burmese birth-sign animal.",
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      }
+    }
+  },
+  "birthPlanet": "{sign, select, sunday{Sun} monday{Moon} tuesday{Mars} wednesday{Mercury} rahu{Rahu} thursday{Jupiter} friday{Venus} saturday{Saturn} other{}}",
+  "@birthPlanet": {
+    "description": "Burmese birth-sign planet.",
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      }
+    }
+  },
+  "birthAge": "Age",
+  "@birthAge": {
+    "description": "Group label."
+  },
+  "birthNextBirthday": "Next birthday",
+  "@birthNextBirthday": {
+    "description": "Row: next Western birthday."
+  },
+  "birthMyanmarBirthday": "Myanmar birthday",
+  "@birthMyanmarBirthday": {
+    "description": "Row: next birthday by the Myanmar date."
+  },
+  "birthMyanmarFooter": "The same Myanmar month and day each year. A new-moon birthday falls on the month's new moon, and First Waso on Waso.",
+  "@birthMyanmarFooter": {
+    "description": "Footer under the birthdays."
+  },
   "converterAddSub": "Add/Sub",
   "@converterAddSub": {
     "description": "Localized text for converterAddSub."

@@ -236,6 +236,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String get converter => 'Converter';
 
   @override
+  String get converterBirth => 'Birth';
+
+  @override
+  String get converterConvertTab => 'Convert';
+
+  @override
+  String get birthDate => 'Birth date';
+
+  @override
+  String get birthBeforeNoon => 'Before noon';
+
+  @override
+  String get birthAfterNoon => 'After noon';
+
+  @override
+  String birthBornOn(String weekday) {
+    return 'Born on $weekday';
+  }
+
+  @override
+  String birthAnimal(String sign) {
+    String _temp0 = intl.Intl.selectLogic(
+      sign,
+      {
+        'sunday': 'Garuda',
+        'monday': 'Tiger',
+        'tuesday': 'Lion',
+        'wednesday': 'Tusked elephant',
+        'rahu': 'Tuskless elephant',
+        'thursday': 'Rat',
+        'friday': 'Guinea pig',
+        'saturday': 'Naga',
+        'other': '',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String birthPlanet(String sign) {
+    String _temp0 = intl.Intl.selectLogic(
+      sign,
+      {
+        'sunday': 'Sun',
+        'monday': 'Moon',
+        'tuesday': 'Mars',
+        'wednesday': 'Mercury',
+        'rahu': 'Rahu',
+        'thursday': 'Jupiter',
+        'friday': 'Venus',
+        'saturday': 'Saturn',
+        'other': '',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get birthAge => 'Age';
+
+  @override
+  String get birthNextBirthday => 'Next birthday';
+
+  @override
+  String get birthMyanmarBirthday => 'Myanmar birthday';
+
+  @override
+  String get birthMyanmarFooter => 'The same Myanmar month and day each year. A new-moon birthday falls on the month\'s new moon, and First Waso on Waso.';
+
+  @override
   String get converterAddSub => 'Add/Sub';
 
   @override

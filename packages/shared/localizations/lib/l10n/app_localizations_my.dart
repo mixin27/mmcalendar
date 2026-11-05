@@ -235,6 +235,76 @@ class AppLocalizationsMy extends AppLocalizations {
   String get converter => 'ပြောင်းလဲခြင်း';
 
   @override
+  String get converterBirth => 'မွေးနေ့';
+
+  @override
+  String get converterConvertTab => 'ပြောင်း';
+
+  @override
+  String get birthDate => 'မွေးသက္ကရာဇ်';
+
+  @override
+  String get birthBeforeNoon => 'မွန်းမတည့်မီ';
+
+  @override
+  String get birthAfterNoon => 'မွန်းလွဲ';
+
+  @override
+  String birthBornOn(String weekday) {
+    return '$weekday နေ့ မွေး';
+  }
+
+  @override
+  String birthAnimal(String sign) {
+    String _temp0 = intl.Intl.selectLogic(
+      sign,
+      {
+        'sunday': 'ဂဠုန်',
+        'monday': 'ကျား',
+        'tuesday': 'ခြင်္သေ့',
+        'wednesday': 'ဆင်',
+        'rahu': 'ဟိုင်း',
+        'thursday': 'ကြွက်',
+        'friday': 'ပူး',
+        'saturday': 'နဂါး',
+        'other': '',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String birthPlanet(String sign) {
+    String _temp0 = intl.Intl.selectLogic(
+      sign,
+      {
+        'sunday': 'တနင်္ဂနွေ',
+        'monday': 'တနင်္လာ',
+        'tuesday': 'အင်္ဂါ',
+        'wednesday': 'ဗုဒ္ဓဟူး',
+        'rahu': 'ရာဟု',
+        'thursday': 'ကြာသပတေး',
+        'friday': 'သောကြာ',
+        'saturday': 'စနေ',
+        'other': '',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get birthAge => 'အသက်';
+
+  @override
+  String get birthNextBirthday => 'နောက် မွေးနေ့';
+
+  @override
+  String get birthMyanmarBirthday => 'မြန်မာ မွေးနေ့';
+
+  @override
+  String get birthMyanmarFooter => 'နှစ်စဉ် မြန်မာ လနှင့် ရက် တူသည့်နေ့ ဖြစ်သည်။ လကွယ်နေ့ မွေးလျှင် ထိုလ၏ လကွယ်နေ့၊ ပဝါဆိုလ မွေးလျှင် ဝါဆိုလ ဖြစ်သည်။';
+
+  @override
   String get converterAddSub => 'ပေါင်း/နုတ်';
 
   @override
@@ -257,7 +327,7 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
-  String get converterDifference => 'ကွာခြားချက်';
+  String get converterDifference => 'ကွာခြား';
 
   @override
   String get converterEnd => 'ပြီးဆုံးရက်';
