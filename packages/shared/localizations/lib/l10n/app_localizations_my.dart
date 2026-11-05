@@ -2279,6 +2279,65 @@ class AppLocalizationsMy extends AppLocalizations {
   String get goodDaysFooter => 'ရက်ကောင်းဆိုသည်မှာ ရက်ရာဇာ၊ အမြိတ္တစုတ် သို့မဟုတ် သမားဖြူ ကျပြီး ပြဿဒါး၊ သမားညို ကဲ့သို့ သတိထားရမည့်ရက် မကျသောနေ့ ဖြစ်သည်။ အရေးကြီးသော ရက်အတွက် ဗေဒင်ဆရာကိုလည်း မေးမြန်းပါ။';
 
   @override
+  String get backupTitle => 'အရန်သိမ်းခြင်းနှင့် ပြန်ယူခြင်း';
+
+  @override
+  String get backupSubtitle => 'ပွဲများ၊ မှတ်စုများနှင့် သတိပေးချက်များကို ဖိုင်တစ်ခုတည်းဖြင့်';
+
+  @override
+  String get backupNow => 'ယခု အရန်သိမ်းရန်';
+
+  @override
+  String get backupRestore => 'အရန်ဖိုင်မှ ပြန်ယူရန်';
+
+  @override
+  String get backupFooter => 'ပွဲများ၊ အမျိုးအစားများ၊ မှတ်စုများ၊ ကိုယ်ပိုင် ရုံးပိတ်ရက်များနှင့် ရုံးပိတ်ရက် သတိပေးချက် ရွေးချယ်မှုများကို ဖိုင်တစ်ခုတည်းတွင် သိမ်းသည်။ ဖုန်းအသစ်တွင် ပြန်ယူနိုင်ရန် Google Drive သို့မဟုတ် iCloud ကဲ့သို့ လုံခြုံသောနေရာတွင် သိမ်းထားပါ။ Calendar Studio ပရောဂျက်များကို သီးခြား ထုတ်ယူနိုင်သည်။';
+
+  @override
+  String get backupIcs => 'ပွဲများကို အခြားပြက္ခဒိန်များသို့ ထုတ်ရန်';
+
+  @override
+  String get backupIcsFooter => 'Google Calendar၊ Apple Calendar စသည်တို့တွင် ထည့်သွင်းနိုင်သော .ics ဖိုင် ဖြစ်သည်။ သတိပေးချက်များနှင့် အမျိုးအစားများမှာ ဤအက်ပ်တွင်သာ ရှိမည်။';
+
+  @override
+  String get backupRestoreTitle => 'အရန်ဖိုင် ပြန်ယူရန်';
+
+  @override
+  String backupMadeOn(String date) {
+    return '$date တွင် အရန်သိမ်းခဲ့သည်';
+  }
+
+  @override
+  String get backupCustomHolidays => 'ကိုယ်ပိုင် ရုံးပိတ်ရက်များ';
+
+  @override
+  String get backupMerge => 'ရှိပြီးသားများထဲသို့ ပေါင်းထည့်ရန်';
+
+  @override
+  String get backupMergeSubtitle => 'ဤနေရာရှိ အားလုံးကို ထားပြီး ရှိပြီးသားများကို ကျော်မည်';
+
+  @override
+  String get backupReplace => 'အားလုံးကို အစားထိုးရန်';
+
+  @override
+  String get backupReplaceSubtitle => 'ဤနေရာရှိ ပွဲများနှင့် မှတ်စုများကို အရင်ဖျက်မည်';
+
+  @override
+  String get backupReplaceConfirm => 'ဤနေရာရှိ ပွဲများနှင့် မှတ်စုများကို ဖျက်ပြီး အရန်ဖိုင်မှ ပြန်ယူမလား?';
+
+  @override
+  String get backupRestored => 'အရန်ဖိုင်မှ ပြန်ယူပြီးပါပြီ';
+
+  @override
+  String get backupNotABackup => 'ဤဖိုင်သည် Myanmar Calendar အရန်ဖိုင် မဟုတ်ပါ။';
+
+  @override
+  String get backupNewer => 'ဤအရန်ဖိုင်သည် အက်ပ်ဗားရှင်းအသစ်မှ ဖြစ်သည်။ အက်ပ်ကို အပ်ဒိတ်လုပ်ပြီး ထပ်ကြိုးစားပါ။';
+
+  @override
+  String get backupFailed => 'တစ်ခုခု မှားယွင်းသွားသည်။ ထပ်ကြိုးစားပါ။';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

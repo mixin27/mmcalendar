@@ -2,6 +2,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:settings/settings.dart';
 import 'package:settings/src/di/settings_injection.dart';
 import 'package:shared_localizations/shared_localizations.dart';
@@ -62,6 +63,22 @@ class _SettingsPrivacyDataPageState extends State<SettingsPrivacyDataPage> {
               value: settings.enableCrashlytics,
               onChanged: (value) => context.read<SettingsBloc>().add(
                 UpdateCrashlyticsConsent(value),
+              ),
+            ),
+          ],
+        ),
+        AppGroup(
+          children: [
+            AppRow(
+              key: const ValueKey('settings-backup'),
+              title: l10n?.backupTitle ?? 'Backup and restore',
+              subtitle: l10n?.backupSubtitle,
+              icon: Icons.cloud_upload_outlined,
+              iconColor: SettingsIconColors.green,
+              chevron: true,
+              onTap: () => GoRouter.of(context).push(
+                '${RoutePaths.settings}/${RoutePaths.privacyAndData}/'
+                '${RoutePaths.backup}',
               ),
             ),
           ],

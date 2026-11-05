@@ -4163,6 +4163,120 @@ abstract class AppLocalizations {
   /// **'A good day has a good mark (Yatyaza, Amyeittasote or Thamaphyu) and none that calls for care, such as Pyathada or Thamanyo. For an important date, ask an astrologer too.'**
   String get goodDaysFooter;
 
+  /// Settings row and page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup and restore'**
+  String get backupTitle;
+
+  /// Settings row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Events, notes and reminders in one file'**
+  String get backupSubtitle;
+
+  /// Saves a backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get backupNow;
+
+  /// Opens a backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a backup'**
+  String get backupRestore;
+
+  /// Explains backups.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves your events, categories, notes, custom holidays and holiday reminder choices in one file. Keep it somewhere safe, such as Google Drive or iCloud, to restore on a new phone. Calendar Studio projects have their own export.'**
+  String get backupFooter;
+
+  /// Saves events as an .ics file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export events to other calendars'**
+  String get backupIcs;
+
+  /// Explains the .ics export.
+  ///
+  /// In en, this message translates to:
+  /// **'An .ics file that Google Calendar, Apple Calendar and others can import. Reminders and categories stay in this app.'**
+  String get backupIcsFooter;
+
+  /// Restore sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore backup'**
+  String get backupRestoreTitle;
+
+  /// When the backup was made.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up on {date}'**
+  String backupMadeOn(String date);
+
+  /// Row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom holidays'**
+  String get backupCustomHolidays;
+
+  /// Merge the backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to what\'s here'**
+  String get backupMerge;
+
+  /// Merge explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps everything here and skips what you already have'**
+  String get backupMergeSubtitle;
+
+  /// Replace with the backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace everything'**
+  String get backupReplace;
+
+  /// Replace explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes the events and notes here first'**
+  String get backupReplaceSubtitle;
+
+  /// Confirm replacing.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the events and notes here and restore the backup?'**
+  String get backupReplaceConfirm;
+
+  /// Toast after restoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup restored'**
+  String get backupRestored;
+
+  /// Wrong file.
+  ///
+  /// In en, this message translates to:
+  /// **'This file isn\'t a Myanmar Calendar backup.'**
+  String get backupNotABackup;
+
+  /// Newer backup.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is from a newer version of the app. Update the app, then try again.'**
+  String get backupNewer;
+
+  /// Backup or restore failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get backupFailed;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:
