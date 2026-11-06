@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as mm;
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
+import 'date_query_parser.dart';
 import 'myanmar_calendar_runtime.dart';
 
 /// The app's design colours that flutter_mmcalendar widgets use. Plain
@@ -162,8 +163,13 @@ class AppMyanmarCalendarScope extends StatelessWidget {
   }
 }
 
+/// A date typed into a picker, in English or Myanmar ("13 Apr 2027",
+/// "Tabaung full moon 1388", "next Sabbath"), via [DateQueryParser].
+DateTime? parseTypedDate(String text) =>
+    DateQueryParser.parse(text, today: DateTime.now())?.date;
+
 /// Shows the Myanmar date picker in the app's style and returns the chosen
-/// day, or `null` if the user cancels.
+/// day, or `null` if the user cancels. Dates can be typed as well as picked.
 Future<DateTime?> showAppMyanmarDatePicker({
   required BuildContext context,
   required DateTime initialDate,
@@ -177,6 +183,7 @@ Future<DateTime?> showAppMyanmarDatePicker({
     initialDate: initialDate,
     firstDate: firstDate,
     lastDate: lastDate,
+    dateParser: parseTypedDate,
   );
   if (selected == null) return null;
   final w = selected.western;
@@ -197,6 +204,7 @@ Future<List<DateTime>?> showAppMyanmarMultiDatePicker({
     initialDates: initialDates,
     firstDate: firstDate,
     lastDate: lastDate,
+    dateParser: parseTypedDate,
   );
   if (selected == null) return null;
   return [
