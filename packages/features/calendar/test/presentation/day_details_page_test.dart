@@ -132,6 +132,13 @@ void main() {
         expect(find.byType(MoonGlyph), findsOneWidget);
       });
 
+      testWidgets('large text fits (easy reading)', (tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await pump(tester, style);
+        expect(find.byType(MoonGlyph), findsOneWidget);
+      });
+
       testWidgets('events can be completed, opened and added', (tester) async {
         await pump(tester, style);
         await tester.tap(find.bySemanticsLabel('Mark complete'));

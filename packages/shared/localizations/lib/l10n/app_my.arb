@@ -1989,6 +1989,8 @@
   "icsNoEvents": "ဤဖိုင်တွင် ပွဲ မရှိပါ။",
   "widgetKindNote": "ယနေ့ မှတ်စု",
   "widgetKindGoodDays": "ရက်ကောင်းများ",
+  "easyReading": "စာလုံးကြီး",
+  "easyReadingDescription": "ဖုန်း၏ စာလုံးအရွယ်အပြင် အက်ပ်တစ်ခုလုံးတွင် စာလုံးကို ပိုကြီးစွာ ပြမည်။",
   "notesTitle": "မှတ်စုများ",
   "notesViewsSubtitle": "နေ့အလိုက် ရေးထားသော မှတ်စုများ",
   "noteTitle": "မှတ်စု",

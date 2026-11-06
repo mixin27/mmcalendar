@@ -154,6 +154,15 @@ void main() {
     await _unmount(tester);
   });
 
+  testWidgets('results fit large text', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester);
+    await _type(tester, 'dentist');
+    expect(find.byKey(const ValueKey('search-event-7')), findsOneWidget);
+    await _unmount(tester);
+  });
+
   testWidgets('nothing found says so', (tester) async {
     await _pump(tester);
     await _type(tester, 'zzzz');

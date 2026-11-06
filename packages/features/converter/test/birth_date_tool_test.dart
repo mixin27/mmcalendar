@@ -54,6 +54,13 @@ void main() {
     );
   });
 
+  testWidgets('the Birth tool fits large text', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, DateTime(2026, 11, 4));
+    expect(find.text('After noon'), findsOneWidget);
+  });
+
   testWidgets('Wednesday asks before or after noon', (tester) async {
     await _pump(tester, DateTime(2026, 11, 4));
     expect(find.text('Tusked elephant · Mercury'), findsOneWidget);

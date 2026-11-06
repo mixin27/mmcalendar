@@ -94,6 +94,18 @@ void main() {
         expect(find.text('Agenda'), findsOneWidget);
       });
 
+      testWidgets('Views fits large text', (tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await _pump(
+          tester,
+          style,
+          const ViewsSelectorPage(),
+          const LoadYearView(2026),
+        );
+        expect(find.text('Year View'), findsOneWidget);
+      });
+
       testWidgets('Agenda: days with holidays, moons and events', (
         tester,
       ) async {

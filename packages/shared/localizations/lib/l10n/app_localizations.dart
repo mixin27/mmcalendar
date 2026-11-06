@@ -4553,6 +4553,18 @@ abstract class AppLocalizations {
   /// **'Good days'**
   String get widgetKindGoodDays;
 
+  /// Display setting: larger text.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy reading'**
+  String get easyReading;
+
+  /// Footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Larger text throughout the app, on top of your phone\'s text size.'**
+  String get easyReadingDescription;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:

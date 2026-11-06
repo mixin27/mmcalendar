@@ -134,6 +134,14 @@ void main() {
     });
   }
 
+  testWidgets('holidays and a holiday page fit large text', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, AppStyle.clear, '/views/holidays?year=2026');
+    await _pump(tester, AppStyle.clear, '/views/holidays/thingyan?year=2026');
+    expect(find.textContaining('Thingyan'), findsWidgets);
+  });
+
   group('reminders', () {
     late HolidayReminders reminders;
     var asked = 0;
