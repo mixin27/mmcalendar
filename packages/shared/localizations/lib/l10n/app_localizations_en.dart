@@ -2550,6 +2550,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get icsNoEvents => 'There are no events in this file.';
 
   @override
+  String get widgetKindNote => 'Today\'s note';
+
+  @override
+  String get widgetKindGoodDays => 'Good days';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:integrations_database/integrations_database.dart';
+import 'package:shared_core/shared_core.dart' show DayNotesPort;
 
 import 'day_note.dart';
 
@@ -10,7 +11,7 @@ DayNotesRepository? get dayNotes =>
     : null;
 
 /// Notes by calendar day, stored in the app database.
-class DayNotesRepository {
+class DayNotesRepository implements DayNotesPort {
   DayNotesRepository(this._dao, {DateTime Function()? clock})
     : _clock = clock ?? DateTime.now;
 
@@ -39,6 +40,14 @@ class DayNotesRepository {
   Stream<Set<DateTime>> watchDays(DateTime from, DateTime to) => _dao
       .watchBetween(keyOf(from), keyOf(to))
       .map((rows) => {for (final r in rows) dayOf(r.day)});
+
+  @override
+  Stream<Map<DateTime, String>> watchNotePreviews(DateTime from, DateTime to) =>
+      _dao
+          .watchBetween(keyOf(from), keyOf(to))
+          .map(
+            (rows) => {for (final r in rows) dayOf(r.day): _note(r).preview},
+          );
 
   /// Every note, latest day first.
   Stream<List<DayNote>> watchAll() =>

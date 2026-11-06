@@ -154,6 +154,130 @@ struct AstrologyView: View {
     }
 }
 
+// MARK: - Today's note
+
+struct NoteWidget: Widget {
+    let kind = "NoteWidget"
+
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: kind, intent: StyleIntent.self, provider: PayloadProvider<StyleIntent>()) { entry in
+            NoteView(entry: entry)
+        }
+        .configurationDisplayName("Today's note")
+        .description("Your note for today; tap to open the day and write one.")
+        .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
+struct NoteView: View {
+    let entry: PayloadEntry
+
+    var body: some View {
+        WidgetShell(entry: entry, link: "day/\(DayKey.string(entry.date))") { payload, day, look in
+            let p = look.palette
+            let note = payload.notes?.first(where: { $0.d == day.d })?.t
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 4) {
+                    Text((payload.s.note ?? "Note").uppercased())
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(p.muted)
+                    Spacer(minLength: 4)
+                    Text(day.lu)
+                        .calendarText(11)
+                        .foregroundStyle(p.muted)
+                        .lineLimit(1)
+                }
+                if let note {
+                    Text(note)
+                        .calendarText(14)
+                        .foregroundStyle(p.ink)
+                        .lineLimit(6)
+                } else {
+                    Text(payload.s.addNote ?? "Add a note")
+                        .calendarText(15, weight: .semibold)
+                        .foregroundStyle(p.accent)
+                }
+                Spacer(minLength: 0)
+            }
+        }
+    }
+}
+
+// MARK: - Good days
+
+struct GoodDaysWidget: Widget {
+    let kind = "GoodDaysWidget"
+
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: kind, intent: StyleIntent.self, provider: PayloadProvider<StyleIntent>()) { entry in
+            GoodDaysView(entry: entry)
+        }
+        .configurationDisplayName("Good days")
+        .description("The next days with good astrological marks.")
+        .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
+struct GoodDaysView: View {
+    let entry: PayloadEntry
+    @Environment(\.widgetFamily) private var family
+    private let good = Color(red: 0.12, green: 0.62, blue: 0.39)
+
+    var body: some View {
+        WidgetShell(entry: entry, link: "today") { payload, _, look in
+            let p = look.palette
+            let key = DayKey.string(entry.date)
+            // Good and nothing to avoid: the app's good-day rule.
+            let days = payload.days
+                .filter { $0.d >= key && !$0.good.isEmpty && $0.avoid.isEmpty }
+                .prefix(family == .systemSmall ? 2 : 3)
+            VStack(alignment: .leading, spacing: 5) {
+                Text((payload.s.goodDays ?? "Good days").uppercased())
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(p.muted)
+                if days.isEmpty {
+                    Text(payload.s.noGoodDays ?? "No good days soon")
+                        .calendarText(13)
+                        .foregroundStyle(p.muted)
+                }
+                ForEach(Array(days), id: \.d) { day in
+                    Link(destination: widgetLink("day/\(day.d)")) {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(label(payload, day))
+                                    .calendarText(13, weight: .semibold)
+                                    .foregroundStyle(p.ink)
+                                    .lineLimit(1)
+                                Text(day.good.joined(separator: " · "))
+                                    .calendarText(11)
+                                    .foregroundStyle(good)
+                                    .lineLimit(1)
+                            }
+                            Spacer(minLength: 4)
+                            if family != .systemSmall,
+                               let n = payload.daysUntil(day.d, from: entry.date) {
+                                Text(payload.countdown(n))
+                                    .calendarText(11)
+                                    .foregroundStyle(p.muted)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    /// "Mon 30 Nov".
+    private func label(_ payload: WidgetPayload, _ day: WidgetPayload.Day) -> String {
+        guard let date = DayKey.date(day.d) else { return day.lu }
+        let c = Calendar.current.dateComponents([.day, .month], from: date)
+        let month = payload.s.monthsShort[(c.month ?? 1) - 1]
+        return "\(payload.s.weekdaysShort[day.wd]) \(payload.westernNum(c.day ?? 1)) \(month)"
+    }
+}
+
 // MARK: - Myanmar year
 
 struct YearWidget: Widget {

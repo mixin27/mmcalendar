@@ -60,6 +60,7 @@ class WidgetAgendaEvent {
 /// - `thingyan`: the next Thingyan's first day and name.
 /// - `events`: the next two weeks (`d`, `t`, `ti`, `c`, `id`, `done`).
 /// - `year`: Myanmar year `n`, `start`, `end` (exclusive), current `month`.
+/// - `notes`: day notes' previews (`d`, `t`) over the events' fortnight.
 /// - `styles`, `prefs`: passed through.
 ///
 /// With [Language.shan] and `preferShanYear` (Settings › Prefer Shan Year)
@@ -79,6 +80,7 @@ abstract final class WidgetPayloadBuilder {
     bool englishWesternDates = false,
     DateTime? generatedAt,
     int days = horizonDays,
+    Map<DateTime, String> notes = const {},
   }) {
     final start = DateTime(today.year, today.month, today.day);
     final format = CalendarFormat(
@@ -127,6 +129,11 @@ abstract final class WidgetPayloadBuilder {
             'id': event.id,
             'done': event.done,
           },
+      ],
+      // Day notes' previews, earliest first.
+      'notes': [
+        for (final day in (notes.keys.toList()..sort()))
+          {'d': _key(day), 't': notes[day]},
       ],
       'year': _year(start, language, format, shanYear: shanYear),
       'styles': styles,

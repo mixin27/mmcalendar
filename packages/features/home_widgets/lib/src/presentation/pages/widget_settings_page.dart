@@ -258,6 +258,8 @@ class _WidgetSettingsPageState extends State<WidgetSettingsPage> {
     ('CountdownWidgetReceiver', l10n.widgetKindCountdown),
     ('AstrologyWidgetReceiver', l10n.widgetKindAstrology),
     ('YearWidgetReceiver', l10n.widgetKindYear),
+    ('NoteWidgetReceiver', l10n.widgetKindNote),
+    ('GoodDaysWidgetReceiver', l10n.widgetKindGoodDays),
   ];
 
   static String _styleTitle(WidgetStyleId style, AppLocalizations l10n) =>

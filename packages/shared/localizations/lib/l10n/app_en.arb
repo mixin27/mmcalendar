@@ -3327,6 +3327,14 @@
   "@icsNoEvents": {
     "description": "Empty calendar."
   },
+  "widgetKindNote": "Today's note",
+  "@widgetKindNote": {
+    "description": "Widget picker: the note widget."
+  },
+  "widgetKindGoodDays": "Good days",
+  "@widgetKindGoodDays": {
+    "description": "Widget picker: the good days widget."
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

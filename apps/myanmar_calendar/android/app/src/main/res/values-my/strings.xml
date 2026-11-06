@@ -21,6 +21,10 @@
     <string name="widget_astrology_description">ယနေ့ ရက်ကောင်း ရက်ဆိုးနှင့် နောက်လာမည့် ရက်ကောင်း။</string>
     <string name="widget_year_name">မြန်မာနှစ်</string>
     <string name="widget_year_description">မြန်မာနှစ် မည်မျှ ကုန်ဆုံးပြီလဲ။</string>
+    <string name="widget_note_name">ယနေ့ မှတ်စု</string>
+    <string name="widget_note_description">ယနေ့အတွက် မှတ်စု၊ နှိပ်ပြီး ရေးနိုင်သည်။</string>
+    <string name="widget_good_days_name">ရက်ကောင်းများ</string>
+    <string name="widget_good_days_description">နောက်လာမည့် ဗေဒင်အရ ရက်ကောင်းများ။</string>
 
     <!-- Edit widget -->
     <string name="widget_config_title">ဝစ်ဂျက် ပြင်ရန်</string>

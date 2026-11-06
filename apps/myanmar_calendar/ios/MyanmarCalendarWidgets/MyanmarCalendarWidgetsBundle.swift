@@ -5,6 +5,7 @@ import WidgetKit
 struct MyanmarCalendarWidgetsBundle: WidgetBundle {
     var body: some Widget {
         HomeScreenWidgets().body
+        MoreHomeScreenWidgets().body
         LockScreenWidgets().body
     }
 }
@@ -20,6 +21,14 @@ struct HomeScreenWidgets: WidgetBundle {
         CountdownWidget()
         AstrologyWidget()
         YearWidget()
+    }
+}
+
+/// A bundle body takes at most ten widgets.
+struct MoreHomeScreenWidgets: WidgetBundle {
+    var body: some Widget {
+        NoteWidget()
+        GoodDaysWidget()
     }
 }
 

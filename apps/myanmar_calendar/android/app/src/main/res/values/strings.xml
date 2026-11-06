@@ -21,6 +21,10 @@
     <string name="widget_astrology_description">Today\'s good and inauspicious days, and the next good day.</string>
     <string name="widget_year_name">Myanmar year</string>
     <string name="widget_year_description">How far through the Myanmar year we are.</string>
+    <string name="widget_note_name">Today\'s note</string>
+    <string name="widget_note_description">Your note for today; tap to open the day and write one.</string>
+    <string name="widget_good_days_name">Good days</string>
+    <string name="widget_good_days_description">The next days with good astrological marks.</string>
 
     <!-- Edit widget -->
     <string name="widget_config_title">Edit widget</string>

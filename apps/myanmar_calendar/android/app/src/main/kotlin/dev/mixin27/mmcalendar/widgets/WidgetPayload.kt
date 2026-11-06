@@ -33,6 +33,10 @@ class WidgetPayload private constructor(json: JSONObject) {
         }
     val prefs = Prefs(json.getJSONObject("prefs"))
 
+    /** Day notes' previews by day; older payloads leave them out. */
+    val notes: Map<String, String> = json.optJSONArray("notes")?.map { it }
+        ?.associate { it.getString("d") to it.getString("t") } ?: emptyMap()
+
     private val dayIndex = days.associateBy { it.d }
 
     class Strings(o: JSONObject) {
@@ -54,6 +58,10 @@ class WidgetPayload private constructor(json: JSONObject) {
 
         /** Digits for Western dates: English with Settings › English for Western dates. */
         val westernDigits = o.optString("westernDigits", digits)
+        val note = o.optString("note", "Note")
+        val addNote = o.optString("addNote", "Add a note")
+        val goodDays = o.optString("goodDays", "Good days")
+        val noGoodDays = o.optString("noGoodDays", "No good days soon")
         val sabbath = o.getString("sabbath")
         val sabbathEve = o.getString("sabbathEve")
         val weekdays = o.getJSONArray("weekdays").strings()

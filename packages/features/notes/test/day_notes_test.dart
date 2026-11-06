@@ -84,6 +84,18 @@ void main() {
       expect(await _notes.search(''), hasLength(3));
     });
 
+    test('the widgets read previews by day', () async {
+      await _notes.save(DateTime(2027, 3, 5), 'Pagoda\nfestival');
+      await _notes.save(DateTime(2027, 4, 2), 'Trip');
+      final DayNotesPort port = _notes;
+      expect(
+        await port
+            .watchNotePreviews(DateTime(2027, 3), DateTime(2027, 3, 31))
+            .first,
+        {DateTime(2027, 3, 5): 'Pagoda\nfestival'},
+      );
+    });
+
     test('preview keeps the first three lines', () {
       final note = DayNote(
         date: DateTime(2027),

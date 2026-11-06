@@ -268,6 +268,28 @@
                 android:resource="@xml/widget_astrology_info" />
         </receiver>
         <receiver
+            android:name=".widgets.NoteWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_note_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_note_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.GoodDaysWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_good_days_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_good_days_info" />
+        </receiver>
+        <receiver
             android:name=".widgets.YearWidgetReceiver"
             android:exported="true"
             android:label="@string/widget_year_name">

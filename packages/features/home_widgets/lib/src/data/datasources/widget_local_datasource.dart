@@ -31,7 +31,15 @@ class WidgetLocalDataSource {
   /// the last written events are kept instead.
   final WidgetEventsLoader? loadEvents;
 
-  WidgetLocalDataSource(this.sharedPreferences, {this.loadEvents});
+  /// Day notes' previews over a range; null where notes aren't open.
+  final Future<Map<DateTime, String>> Function(DateTime start, DateTime end)?
+  loadNotes;
+
+  WidgetLocalDataSource(
+    this.sharedPreferences, {
+    this.loadEvents,
+    this.loadNotes,
+  });
 
   /// Builds and saves the widgets' data (see [WidgetPayloadBuilder]) and
   /// redraws every widget.
@@ -41,6 +49,7 @@ class WidgetLocalDataSource {
     );
     final today = _dateOnly(DateTime.now());
     final events = await _events(today);
+    final notes = await _notes(today);
     final payload = WidgetPayloadBuilder.build(
       today: today,
       language: Language.fromCode(effective.language),
@@ -49,6 +58,7 @@ class WidgetLocalDataSource {
       prefs: effective.toPayload(),
       preferShanYear: resolvePreferShanYear(),
       englishWesternDates: resolveEnglishWesternDates(),
+      notes: notes,
     );
     await WidgetUpdateService.savePayload(payload);
     await sharedPreferences.setString(
@@ -62,6 +72,18 @@ class WidgetLocalDataSource {
       await sharedPreferences.setBool(_legacyClearedKey, true);
     }
     await WidgetUpdateService.reloadAll();
+  }
+
+  /// The next two weeks of notes; none when they can't be read.
+  Future<Map<DateTime, String>> _notes(DateTime today) async {
+    final load = loadNotes;
+    if (load == null) return const {};
+    try {
+      return await load(today, today.add(const Duration(days: 14)));
+    } catch (e) {
+      debugPrint('Widget notes not loaded: $e');
+      return const {};
+    }
   }
 
   /// Days of data left before the widgets run out.

@@ -34,9 +34,9 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   // Initialize SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerSingleton<SharedPreferences>(sharedPreferences);
-  getIt.registerSingleton<DayNotesRepository>(
-    DayNotesRepository(database.dayNotesDao),
-  );
+  final dayNotes = DayNotesRepository(database.dayNotesDao);
+  getIt.registerSingleton<DayNotesRepository>(dayNotes);
+  getIt.registerSingleton<DayNotesPort>(dayNotes);
 
   // The installed version, for About, App Update and What's new.
   final packageInfo = await PackageInfo.fromPlatform();
