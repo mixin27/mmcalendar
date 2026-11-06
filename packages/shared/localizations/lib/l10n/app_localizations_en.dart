@@ -2562,6 +2562,66 @@ class AppLocalizationsEn extends AppLocalizations {
   String get easyReadingDescription => 'Larger text throughout the app, on top of your phone\'s text size.';
 
   @override
+  String get whatsNewDailyTitle_260 => 'Daily summary';
+
+  @override
+  String get whatsNewDailyBody_260 => 'A morning notification with the Myanmar date, holidays, Sabbath and the day\'s marks. Turn it on in Holidays › Reminders.';
+
+  @override
+  String get whatsNewDailyAction_260 => 'Set it up';
+
+  @override
+  String get whatsNewMyanmarRepeatTitle_260 => 'Repeat by Myanmar date';
+
+  @override
+  String get whatsNewMyanmarRepeatBody_260 => 'Birthdays, anniversaries and Buddhist days can repeat yearly or monthly by the Myanmar date, such as every Tabaung full moon.';
+
+  @override
+  String get whatsNewMyanmarRepeatAction_260 => 'New event';
+
+  @override
+  String get whatsNewShareDayTitle_260 => 'Share a day as a picture';
+
+  @override
+  String get whatsNewShareDayBody_260 => 'Share any day as an image for Facebook or Viber, square or story size, from the day sheet or day details.';
+
+  @override
+  String get whatsNewShareDayAction_260 => 'Open Home';
+
+  @override
+  String get whatsNewTypedDatesTitle_260 => 'Type a date';
+
+  @override
+  String get whatsNewTypedDatesBody_260 => 'Every date picker now takes a typed date, in English or Myanmar: 13 Apr 2027, Tabaung full moon 1388.';
+
+  @override
+  String get whatsNewWidgetsTitle_260 => 'Two new widgets';
+
+  @override
+  String get whatsNewWidgetsBody_260 => 'Today\'s note and Good days, on your home screen.';
+
+  @override
+  String get whatsNewWidgetsAction_260 => 'Widget settings';
+
+  @override
+  String get whatsNewIcsImportTitle_260 => 'Import from other calendars';
+
+  @override
+  String get whatsNewIcsImportBody_260 => 'Bring events in from Google or Apple Calendar with an .ics file.';
+
+  @override
+  String get whatsNewIcsImportAction_260 => 'Import';
+
+  @override
+  String get whatsNewEasyReadingTitle_260 => 'Easy reading';
+
+  @override
+  String get whatsNewEasyReadingBody_260 => 'Larger text throughout the app, for anyone who finds it small.';
+
+  @override
+  String get whatsNewEasyReadingAction_260 => 'Turn it on';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

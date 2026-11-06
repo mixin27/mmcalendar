@@ -39,6 +39,70 @@ class WhatsNewRelease {
 /// Every release with something to announce, newest first. Add a release
 /// here with its strings in the ARB files when a version ships features.
 const whatsNewReleases = <WhatsNewRelease>[
+  WhatsNewRelease('2.6.0', [
+    WhatsNewItem(
+      id: 'dailySummary',
+      icon: Icons.wb_twilight_rounded,
+      color: Color(0xFFF08A1C),
+      title: _wnDailyTitle,
+      body: _wnDailyBody,
+      action: _wnDailyAction,
+      route: '${RoutePaths.views}/${RoutePaths.holidays}',
+    ),
+    WhatsNewItem(
+      id: 'myanmarRepeats',
+      icon: Icons.event_repeat_outlined,
+      color: Color(0xFF2F9E5B),
+      title: _wnMyanmarRepeatTitle,
+      body: _wnMyanmarRepeatBody,
+      action: _wnMyanmarRepeatAction,
+      route: '${RoutePaths.events}/${RoutePaths.createEvent}',
+    ),
+    WhatsNewItem(
+      id: 'shareDay',
+      icon: Icons.ios_share_rounded,
+      color: Color(0xFF4C5BD4),
+      title: _wnShareDayTitle,
+      body: _wnShareDayBody,
+      action: _wnShareDayAction,
+      route: RoutePaths.home,
+    ),
+    WhatsNewItem(
+      id: 'typedDates',
+      icon: Icons.keyboard_outlined,
+      color: Color(0xFF8E6CEF),
+      title: _wnTypedDatesTitle,
+      body: _wnTypedDatesBody,
+    ),
+    WhatsNewItem(
+      id: 'widgets260',
+      icon: Icons.widgets_outlined,
+      color: Color(0xFF16A3B0),
+      title: _wnWidgetsTitle,
+      body: _wnWidgetsBody,
+      action: _wnWidgetsAction,
+      route: '${RoutePaths.settings}/${RoutePaths.widgets}',
+    ),
+    WhatsNewItem(
+      id: 'icsImport',
+      icon: Icons.event_note_outlined,
+      color: Color(0xFFE0457B),
+      title: _wnIcsImportTitle,
+      body: _wnIcsImportBody,
+      action: _wnIcsImportAction,
+      route:
+          '${RoutePaths.settings}/${RoutePaths.privacyAndData}/${RoutePaths.backup}',
+    ),
+    WhatsNewItem(
+      id: 'easyReading',
+      icon: Icons.format_size_rounded,
+      color: Color(0xFF2B5598),
+      title: _wnEasyReadingTitle,
+      body: _wnEasyReadingBody,
+      action: _wnEasyReadingAction,
+      route: '${RoutePaths.settings}/${RoutePaths.displayPreferences}',
+    ),
+  ]),
   WhatsNewRelease('2.5.0', [
     WhatsNewItem(
       id: 'dayNotes',
@@ -242,3 +306,28 @@ String _wnBirthAction(AppLocalizations l) => l.whatsNewBirthAction_250;
 String _wnBackupTitle(AppLocalizations l) => l.whatsNewBackupTitle_250;
 String _wnBackupBody(AppLocalizations l) => l.whatsNewBackupBody_250;
 String _wnBackupAction(AppLocalizations l) => l.whatsNewBackupAction_250;
+String _wnDailyTitle(AppLocalizations l) => l.whatsNewDailyTitle_260;
+String _wnDailyBody(AppLocalizations l) => l.whatsNewDailyBody_260;
+String _wnDailyAction(AppLocalizations l) => l.whatsNewDailyAction_260;
+String _wnMyanmarRepeatTitle(AppLocalizations l) =>
+    l.whatsNewMyanmarRepeatTitle_260;
+String _wnMyanmarRepeatBody(AppLocalizations l) =>
+    l.whatsNewMyanmarRepeatBody_260;
+String _wnMyanmarRepeatAction(AppLocalizations l) =>
+    l.whatsNewMyanmarRepeatAction_260;
+String _wnShareDayTitle(AppLocalizations l) => l.whatsNewShareDayTitle_260;
+String _wnShareDayBody(AppLocalizations l) => l.whatsNewShareDayBody_260;
+String _wnShareDayAction(AppLocalizations l) => l.whatsNewShareDayAction_260;
+String _wnTypedDatesTitle(AppLocalizations l) => l.whatsNewTypedDatesTitle_260;
+String _wnTypedDatesBody(AppLocalizations l) => l.whatsNewTypedDatesBody_260;
+String _wnWidgetsTitle(AppLocalizations l) => l.whatsNewWidgetsTitle_260;
+String _wnWidgetsBody(AppLocalizations l) => l.whatsNewWidgetsBody_260;
+String _wnWidgetsAction(AppLocalizations l) => l.whatsNewWidgetsAction_260;
+String _wnIcsImportTitle(AppLocalizations l) => l.whatsNewIcsImportTitle_260;
+String _wnIcsImportBody(AppLocalizations l) => l.whatsNewIcsImportBody_260;
+String _wnIcsImportAction(AppLocalizations l) => l.whatsNewIcsImportAction_260;
+String _wnEasyReadingTitle(AppLocalizations l) =>
+    l.whatsNewEasyReadingTitle_260;
+String _wnEasyReadingBody(AppLocalizations l) => l.whatsNewEasyReadingBody_260;
+String _wnEasyReadingAction(AppLocalizations l) =>
+    l.whatsNewEasyReadingAction_260;

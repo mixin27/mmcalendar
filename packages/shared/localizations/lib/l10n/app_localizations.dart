@@ -4565,6 +4565,126 @@ abstract class AppLocalizations {
   /// **'Larger text throughout the app, on top of your phone\'s text size.'**
   String get easyReadingDescription;
 
+  /// Feature title. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Daily summary'**
+  String get whatsNewDailyTitle_260;
+
+  /// Feature description. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'A morning notification with the Myanmar date, holidays, Sabbath and the day\'s marks. Turn it on in Holidays › Reminders.'**
+  String get whatsNewDailyBody_260;
+
+  /// Feature button. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Set it up'**
+  String get whatsNewDailyAction_260;
+
+  /// Feature title. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat by Myanmar date'**
+  String get whatsNewMyanmarRepeatTitle_260;
+
+  /// Feature description. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Birthdays, anniversaries and Buddhist days can repeat yearly or monthly by the Myanmar date, such as every Tabaung full moon.'**
+  String get whatsNewMyanmarRepeatBody_260;
+
+  /// Feature button. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'New event'**
+  String get whatsNewMyanmarRepeatAction_260;
+
+  /// Feature title. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Share a day as a picture'**
+  String get whatsNewShareDayTitle_260;
+
+  /// Feature description. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Share any day as an image for Facebook or Viber, square or story size, from the day sheet or day details.'**
+  String get whatsNewShareDayBody_260;
+
+  /// Feature button. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Open Home'**
+  String get whatsNewShareDayAction_260;
+
+  /// Feature title. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Type a date'**
+  String get whatsNewTypedDatesTitle_260;
+
+  /// Feature description. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Every date picker now takes a typed date, in English or Myanmar: 13 Apr 2027, Tabaung full moon 1388.'**
+  String get whatsNewTypedDatesBody_260;
+
+  /// Feature title. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Two new widgets'**
+  String get whatsNewWidgetsTitle_260;
+
+  /// Feature description. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s note and Good days, on your home screen.'**
+  String get whatsNewWidgetsBody_260;
+
+  /// Feature button. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Widget settings'**
+  String get whatsNewWidgetsAction_260;
+
+  /// Feature title. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Import from other calendars'**
+  String get whatsNewIcsImportTitle_260;
+
+  /// Feature description. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Bring events in from Google or Apple Calendar with an .ics file.'**
+  String get whatsNewIcsImportBody_260;
+
+  /// Feature button. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get whatsNewIcsImportAction_260;
+
+  /// Feature title. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Easy reading'**
+  String get whatsNewEasyReadingTitle_260;
+
+  /// Feature description. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Larger text throughout the app, for anyone who finds it small.'**
+  String get whatsNewEasyReadingBody_260;
+
+  /// Feature button. (2.6.0)
+  ///
+  /// In en, this message translates to:
+  /// **'Turn it on'**
+  String get whatsNewEasyReadingAction_260;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:

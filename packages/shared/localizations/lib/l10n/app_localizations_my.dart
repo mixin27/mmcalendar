@@ -2502,6 +2502,66 @@ class AppLocalizationsMy extends AppLocalizations {
   String get easyReadingDescription => 'ဖုန်း၏ စာလုံးအရွယ်အပြင် အက်ပ်တစ်ခုလုံးတွင် စာလုံးကို ပိုကြီးစွာ ပြမည်။';
 
   @override
+  String get whatsNewDailyTitle_260 => 'နေ့စဉ် အကျဉ်းချုပ်';
+
+  @override
+  String get whatsNewDailyBody_260 => 'နံနက်တိုင်း မြန်မာ ရက်စွဲ၊ ရုံးပိတ်ရက်၊ ဥပုသ်နှင့် ထိုနေ့၏ နက္ခတ်များကို အသိပေးမည်။ ရုံးပိတ်ရက်များ › သတိပေးချက်များ တွင် ဖွင့်ပါ။';
+
+  @override
+  String get whatsNewDailyAction_260 => 'ဖွင့်ရန်';
+
+  @override
+  String get whatsNewMyanmarRepeatTitle_260 => 'မြန်မာ ရက်စွဲအတိုင်း ထပ်ခါ';
+
+  @override
+  String get whatsNewMyanmarRepeatBody_260 => 'မွေးနေ့၊ နှစ်ပတ်လည်နှင့် ဗုဒ္ဓဘာသာ နေ့ထူးများကို မြန်မာ ရက်စွဲအတိုင်း နှစ်စဉ် သို့မဟုတ် လစဉ် (ဥပမာ တပေါင်းလပြည့်တိုင်း) ထပ်ခါ သတ်မှတ်နိုင်ပါပြီ။';
+
+  @override
+  String get whatsNewMyanmarRepeatAction_260 => 'ပွဲအသစ်';
+
+  @override
+  String get whatsNewShareDayTitle_260 => 'နေ့ကို ပုံအဖြစ် မျှဝေရန်';
+
+  @override
+  String get whatsNewShareDayBody_260 => 'မည်သည့်နေ့ကိုမဆို Facebook၊ Viber အတွက် ပုံအဖြစ် (လေးထောင့် သို့မဟုတ် Story) မျှဝေနိုင်သည်။';
+
+  @override
+  String get whatsNewShareDayAction_260 => 'ပင်မ ဖွင့်ရန်';
+
+  @override
+  String get whatsNewTypedDatesTitle_260 => 'ရက်စွဲ ရိုက်ထည့်ရန်';
+
+  @override
+  String get whatsNewTypedDatesBody_260 => 'ရက်စွဲ ရွေးသည့်နေရာတိုင်းတွင် အင်္ဂလိပ် သို့မဟုတ် မြန်မာလို ရက်စွဲ ရိုက်ထည့်နိုင်ပါပြီ (၁၃ ဧပြီ ၂၀၂၇၊ တပေါင်းလပြည့် ၁၃၈၈)။';
+
+  @override
+  String get whatsNewWidgetsTitle_260 => 'widget အသစ် နှစ်ခု';
+
+  @override
+  String get whatsNewWidgetsBody_260 => 'ယနေ့ မှတ်စုနှင့် ရက်ကောင်းများ ကို ပင်မမျက်နှာပြင်တွင် ထားနိုင်ပါပြီ။';
+
+  @override
+  String get whatsNewWidgetsAction_260 => 'Widget ဆက်တင်';
+
+  @override
+  String get whatsNewIcsImportTitle_260 => 'အခြားပြက္ခဒိန်များမှ ထည့်ရန်';
+
+  @override
+  String get whatsNewIcsImportBody_260 => 'Google သို့မဟုတ် Apple Calendar မှ ပွဲများကို .ics ဖိုင်ဖြင့် ထည့်နိုင်ပါပြီ။';
+
+  @override
+  String get whatsNewIcsImportAction_260 => 'ထည့်ရန်';
+
+  @override
+  String get whatsNewEasyReadingTitle_260 => 'စာလုံးကြီး';
+
+  @override
+  String get whatsNewEasyReadingBody_260 => 'စာလုံး သေးသည်ဟု ထင်သူများအတွက် အက်ပ်တစ်ခုလုံးတွင် စာလုံးကို ပိုကြီးစွာ ပြနိုင်ပါပြီ။';
+
+  @override
+  String get whatsNewEasyReadingAction_260 => 'ဖွင့်ရန်';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override
