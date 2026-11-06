@@ -21,12 +21,17 @@ Future<void> initHomeWidgetsDependencies() async {
 
   // Data Sources
   getIt.registerLazySingleton<WidgetLocalDataSource>(
-    () => WidgetLocalDataSource(sharedPreferences, loadEvents: _loadEvents),
+    () => WidgetLocalDataSource(
+      sharedPreferences,
+      loadEvents: _loadEvents,
+      loadNotes: _loadNotes,
+    ),
   );
 
   getIt.registerLazySingleton<WidgetSync>(
     () => WidgetSync(
       getIt<WidgetLocalDataSource>(),
+      notes: getIt.isRegistered<DayNotesPort>() ? getIt<DayNotesPort>() : null,
       events: getIt.isRegistered<EventMarkersPort>()
           ? getIt<EventMarkersPort>()
           : null,
@@ -54,6 +59,15 @@ Future<void> initHomeWidgetsDependencies() async {
       repository: getIt<WidgetRepository>(),
     ),
   );
+}
+
+/// Day notes' previews, when notes are registered.
+Future<Map<DateTime, String>> _loadNotes(DateTime start, DateTime end) async {
+  if (!getIt.isRegistered<DayNotesPort>()) return const {};
+  return getIt<DayNotesPort>()
+      .watchNotePreviews(start, end)
+      .first
+      .timeout(const Duration(seconds: 3));
 }
 
 /// The next two weeks of events, when the events feature is registered.

@@ -7,6 +7,8 @@ import android.content.Intent
 import android.util.Log
 import dev.mixin27.mmcalendar.widgets.AgendaWidgetReceiver
 import dev.mixin27.mmcalendar.widgets.AstrologyWidgetReceiver
+import dev.mixin27.mmcalendar.widgets.GoodDaysWidgetReceiver
+import dev.mixin27.mmcalendar.widgets.NoteWidgetReceiver
 import dev.mixin27.mmcalendar.widgets.ComingUpWidgetReceiver
 import dev.mixin27.mmcalendar.widgets.CountdownWidgetReceiver
 import dev.mixin27.mmcalendar.widgets.MonthWidgetReceiver
@@ -28,6 +30,8 @@ object WidgetUpdateBroadcaster {
         CountdownWidgetReceiver::class.java,
         AstrologyWidgetReceiver::class.java,
         YearWidgetReceiver::class.java,
+        NoteWidgetReceiver::class.java,
+        GoodDaysWidgetReceiver::class.java,
     )
 
     fun updateAllWidgets(context: Context, reason: String) {

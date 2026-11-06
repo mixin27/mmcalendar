@@ -8,6 +8,9 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.background
+import androidx.glance.layout.padding
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.action.clickable
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -127,6 +130,83 @@ class AstrologyWidget : CalendarWidget() {
 
 class AstrologyWidgetReceiver : CalendarWidgetReceiver<AstrologyWidget>() {
     override val glanceAppWidget = AstrologyWidget()
+}
+
+// MARK: Today's note
+
+class NoteWidget : CalendarWidget() {
+    override val sizes = setOf(WidgetSizes.small, WidgetSizes.medium)
+
+    override fun link(w: WidgetScope) = "day/${w.today}"
+
+    @Composable
+    override fun Content(w: WidgetScope) {
+        val note = w.payload.notes[w.today.toString()]
+        Column(modifier = GlanceModifier.fillMaxSize()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Caps(w.s.note, w.p.muted)
+                Spacer(GlanceModifier.defaultWeight())
+                WText(w.day.lu, 11f, w.p.muted)
+            }
+            Spacer(GlanceModifier.height(4.dp))
+            if (note != null) {
+                WText(note, 14f, w.p.ink, maxLines = 6)
+            } else {
+                WText(w.s.addNote, 15f, w.p.accent, bold = true)
+            }
+        }
+    }
+}
+
+class NoteWidgetReceiver : CalendarWidgetReceiver<NoteWidget>() {
+    override val glanceAppWidget = NoteWidget()
+}
+
+// MARK: Good days
+
+class GoodDaysWidget : CalendarWidget() {
+    override val sizes = setOf(WidgetSizes.small, WidgetSizes.medium)
+
+    private val good = DayNightColor(day = Color(0xFF1F9E63), night = Color(0xFF4CC38A))
+
+    @Composable
+    override fun Content(w: WidgetScope) {
+        val key = w.today.toString()
+        // Good and nothing to avoid: the app's good-day rule.
+        val days = w.payload.days
+            .filter { it.d >= key && it.good.isNotEmpty() && it.avoid.isEmpty() }
+            .take(if (w.size == WidgetSizes.small) 2 else 3)
+        Column(modifier = GlanceModifier.fillMaxSize()) {
+            Caps(w.s.goodDays, w.p.muted)
+            Spacer(GlanceModifier.height(4.dp))
+            if (days.isEmpty()) WText(w.s.noGoodDays, 13f, w.p.muted, maxLines = 2)
+            days.forEach { day ->
+                val date = LocalDate.parse(day.d)
+                Row(
+                    modifier = GlanceModifier.fillMaxWidth().padding(bottom = 4.dp)
+                        .clickable(widgetAction(w.context, "day/${day.d}")),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = GlanceModifier.defaultWeight()) {
+                        WText(
+                            "${w.s.weekdaysShort[day.wd]} ${w.payload.westernNum(date.dayOfMonth)} ${w.s.monthsShort[date.monthValue - 1]}",
+                            13f, w.p.ink, bold = true,
+                        )
+                        WText(day.good.joinToString(" · "), 11f, good)
+                    }
+                    if (w.size != WidgetSizes.small) {
+                        w.payload.daysUntil(day.d, w.today)?.let {
+                            WText(w.payload.countdown(it), 11f, w.p.muted)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+class GoodDaysWidgetReceiver : CalendarWidgetReceiver<GoodDaysWidget>() {
+    override val glanceAppWidget = GoodDaysWidget()
 }
 
 // MARK: Myanmar year

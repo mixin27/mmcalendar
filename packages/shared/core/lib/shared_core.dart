@@ -42,6 +42,7 @@ export 'src/ports/crashlytics_port.dart';
 export 'src/ports/display_preferences_port.dart';
 export 'src/ports/event_actions_port.dart';
 export 'src/ports/event_markers_port.dart';
+export 'src/ports/day_notes_port.dart';
 export 'src/ports/holiday_config_port.dart';
 export 'src/ports/holiday_overrides_port.dart';
 export 'src/ports/month_preview_port.dart';

@@ -9,23 +9,33 @@ import '../datasources/widget_local_datasource.dart';
 import '../payload/widget_palettes.dart';
 
 /// Keeps the widgets current while the app runs: rewrites their data when
-/// the app's colours or the next two weeks of events change.
+/// the app's colours, the next two weeks of events or of notes change.
 class WidgetSync {
-  WidgetSync(this._dataSource, {EventMarkersPort? events})
-    : _eventsPort = events;
+  WidgetSync(this._dataSource, {EventMarkersPort? events, DayNotesPort? notes})
+    : _eventsPort = events,
+      _notesPort = notes;
 
   final WidgetLocalDataSource _dataSource;
   final EventMarkersPort? _eventsPort;
+  final DayNotesPort? _notesPort;
   StreamSubscription<Object?>? _events;
+  StreamSubscription<Object?>? _notes;
   Timer? _debounce;
   String? _palette;
 
-  /// Starts watching events. Safe to call more than once.
+  /// Starts watching events and notes. Safe to call more than once.
   void start() {
-    final port = _eventsPort;
-    if (port == null || _events != null) return;
     final today = DateTime.now();
     final start = DateTime(today.year, today.month, today.day);
+    final notes = _notesPort;
+    if (notes != null && _notes == null) {
+      _notes = notes
+          .watchNotePreviews(start, start.add(const Duration(days: 14)))
+          .skip(1)
+          .listen((_) => schedule());
+    }
+    final port = _eventsPort;
+    if (port == null || _events != null) return;
     _events = port
         .watchEventMarkers(
           startDate: start,
@@ -65,5 +75,6 @@ class WidgetSync {
   void dispose() {
     _debounce?.cancel();
     _events?.cancel();
+    _notes?.cancel();
   }
 }

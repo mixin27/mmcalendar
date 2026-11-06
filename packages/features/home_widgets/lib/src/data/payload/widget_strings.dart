@@ -26,6 +26,10 @@ abstract final class WidgetStrings {
     'fullMoonIn': 'လပြည့်ရန် {n} ရက်',
     'newMoonIn': 'လကွယ်ရန် {n} ရက်',
     'holidays': 'ပိတ်ရက်',
+    'note': 'မှတ်စု',
+    'addNote': 'မှတ်စု ထည့်ရန်',
+    'goodDays': 'ရက်ကောင်းများ',
+    'noGoodDays': 'မကြာမီ ရက်ကောင်း မရှိပါ',
   };
 
   static const _en = {
@@ -46,6 +50,10 @@ abstract final class WidgetStrings {
     'fullMoonIn': 'Full moon in {n} days',
     'newMoonIn': 'New moon in {n} days',
     'holidays': 'Holiday',
+    'note': 'Note',
+    'addNote': 'Add a note',
+    'goodDays': 'Good days',
+    'noGoodDays': 'No good days soon',
   };
 
   /// The widget labels plus calendar words for [language]. Western dates

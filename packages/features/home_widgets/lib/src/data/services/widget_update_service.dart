@@ -20,6 +20,8 @@ abstract final class WidgetUpdateService {
     'CountdownWidget',
     'AstrologyWidget',
     'YearWidget',
+    'NoteWidget',
+    'GoodDaysWidget',
     'LockScreenMoonWidget',
     'LockScreenDayWidget',
     'LockScreenDateWidget',
@@ -37,6 +39,8 @@ abstract final class WidgetUpdateService {
     'CountdownWidgetReceiver',
     'AstrologyWidgetReceiver',
     'YearWidgetReceiver',
+    'NoteWidgetReceiver',
+    'GoodDaysWidgetReceiver',
   ];
 
   static const _androidPackage = 'dev.mixin27.mmcalendar.widgets';

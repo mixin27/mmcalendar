@@ -2490,6 +2490,12 @@ class AppLocalizationsMy extends AppLocalizations {
   String get icsNoEvents => 'ဤဖိုင်တွင် ပွဲ မရှိပါ။';
 
   @override
+  String get widgetKindNote => 'ယနေ့ မှတ်စု';
+
+  @override
+  String get widgetKindGoodDays => 'ရက်ကောင်းများ';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

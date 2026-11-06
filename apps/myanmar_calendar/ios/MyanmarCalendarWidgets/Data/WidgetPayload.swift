@@ -17,6 +17,8 @@ struct WidgetPayload: Decodable {
     let year: Year
     let styles: [String: StylePair]
     let prefs: Prefs
+    /// Day notes' previews; older payloads leave them out.
+    let notes: [Note]?
 
     struct Strings: Decodable {
         let today, tomorrow, inDays, daysUnit, comingUp, events, noEvents, allDay: String
@@ -26,6 +28,13 @@ struct WidgetPayload: Decodable {
         /// Digits for Western dates: English when Settings › English
         /// for Western dates is on. Older payloads leave it out.
         let westernDigits: String?
+        /// The note and good-days widgets' words; older payloads leave them out.
+        let note, addNote, goodDays, noGoodDays: String?
+    }
+
+    struct Note: Decodable {
+        let d: String
+        let t: String
     }
 
     struct Day: Decodable {

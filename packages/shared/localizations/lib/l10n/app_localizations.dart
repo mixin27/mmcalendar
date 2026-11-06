@@ -4541,6 +4541,18 @@ abstract class AppLocalizations {
   /// **'There are no events in this file.'**
   String get icsNoEvents;
 
+  /// Widget picker: the note widget.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s note'**
+  String get widgetKindNote;
+
+  /// Widget picker: the good days widget.
+  ///
+  /// In en, this message translates to:
+  /// **'Good days'**
+  String get widgetKindGoodDays;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:

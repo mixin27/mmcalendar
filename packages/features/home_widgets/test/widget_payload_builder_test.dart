@@ -163,6 +163,32 @@ void main() {
     expect((cells.first as Map).containsKey('today'), isFalse);
   });
 
+  test('notes go in by day, earliest first, with the widget words', () {
+    final payload = WidgetPayloadBuilder.build(
+      today: today,
+      language: Language.english,
+      notes: {
+        DateTime(2026, 10, 20): 'Dentist',
+        DateTime(2026, 10, 18): 'Offer food to monks',
+      },
+    );
+    expect(payload['notes'], [
+      {'d': '2026-10-18', 't': 'Offer food to monks'},
+      {'d': '2026-10-20', 't': 'Dentist'},
+    ]);
+    final s = payload['s']! as Map;
+    expect(s['addNote'], 'Add a note');
+    expect(s['goodDays'], 'Good days');
+    expect(
+      (WidgetPayloadBuilder.build(
+            today: today,
+            language: Language.myanmar,
+          )['s']!
+          as Map)['note'],
+      'မှတ်စု',
+    );
+  });
+
   test('events, styles and prefs are passed through', () {
     final payload = build(
       Language.english,
