@@ -1,3 +1,14 @@
+## [2.6.0+260] - 2026-11-06
+
+- Events repeat by Myanmar date: yearly (birthdays, anniversaries) or monthly (every full moon), on the first day's Myanmar month and day. New-moon dates follow the new moon, First Waso falls on Waso in other years, and the Birth tool's Myanmar birthday uses the same rule.
+- Daily summary (Holidays › Reminders): a morning notification with the Myanmar date, holidays, Sabbath and the day's good and caution marks, at the hour you choose.
+- Share a day as an image from day details or the home sheet: square or story size, in your theme and calendar language.
+- Every date picker takes a typed date, in English or Myanmar ("13 Apr 2027", "Tabaung full moon 1388", "next Sabbath").
+- Import events from Google Calendar, Apple Calendar and other .ics files (Settings › Privacy & Data › Backup and restore), with their repeats and deleted days.
+- New home-screen widgets: Today's note and Good days.
+- Easy reading (Settings › Display Preferences): larger text throughout the app.
+- Fixed English for Western Dates not applying until another setting changed, and holiday date badges overflowing at large text.
+
 ## [2.5.0+250] - 2026-11-05
 
 - Day notes: write a note on any day from the home sheet or day details. Days with a note get a dot in every grid style, and Views › Notes lists and searches them all.

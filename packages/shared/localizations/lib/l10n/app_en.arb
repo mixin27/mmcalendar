@@ -3343,6 +3343,86 @@
   "@easyReadingDescription": {
     "description": "Footer."
   },
+  "whatsNewDailyTitle_260": "Daily summary",
+  "@whatsNewDailyTitle_260": {
+    "description": "Feature title. (2.6.0)"
+  },
+  "whatsNewDailyBody_260": "A morning notification with the Myanmar date, holidays, Sabbath and the day's marks. Turn it on in Holidays › Reminders.",
+  "@whatsNewDailyBody_260": {
+    "description": "Feature description. (2.6.0)"
+  },
+  "whatsNewDailyAction_260": "Set it up",
+  "@whatsNewDailyAction_260": {
+    "description": "Feature button. (2.6.0)"
+  },
+  "whatsNewMyanmarRepeatTitle_260": "Repeat by Myanmar date",
+  "@whatsNewMyanmarRepeatTitle_260": {
+    "description": "Feature title. (2.6.0)"
+  },
+  "whatsNewMyanmarRepeatBody_260": "Birthdays, anniversaries and Buddhist days can repeat yearly or monthly by the Myanmar date, such as every Tabaung full moon.",
+  "@whatsNewMyanmarRepeatBody_260": {
+    "description": "Feature description. (2.6.0)"
+  },
+  "whatsNewMyanmarRepeatAction_260": "New event",
+  "@whatsNewMyanmarRepeatAction_260": {
+    "description": "Feature button. (2.6.0)"
+  },
+  "whatsNewShareDayTitle_260": "Share a day as a picture",
+  "@whatsNewShareDayTitle_260": {
+    "description": "Feature title. (2.6.0)"
+  },
+  "whatsNewShareDayBody_260": "Share any day as an image for Facebook or Viber, square or story size, from the day sheet or day details.",
+  "@whatsNewShareDayBody_260": {
+    "description": "Feature description. (2.6.0)"
+  },
+  "whatsNewShareDayAction_260": "Open Home",
+  "@whatsNewShareDayAction_260": {
+    "description": "Feature button. (2.6.0)"
+  },
+  "whatsNewTypedDatesTitle_260": "Type a date",
+  "@whatsNewTypedDatesTitle_260": {
+    "description": "Feature title. (2.6.0)"
+  },
+  "whatsNewTypedDatesBody_260": "Every date picker now takes a typed date, in English or Myanmar: 13 Apr 2027, Tabaung full moon 1388.",
+  "@whatsNewTypedDatesBody_260": {
+    "description": "Feature description. (2.6.0)"
+  },
+  "whatsNewWidgetsTitle_260": "Two new widgets",
+  "@whatsNewWidgetsTitle_260": {
+    "description": "Feature title. (2.6.0)"
+  },
+  "whatsNewWidgetsBody_260": "Today's note and Good days, on your home screen.",
+  "@whatsNewWidgetsBody_260": {
+    "description": "Feature description. (2.6.0)"
+  },
+  "whatsNewWidgetsAction_260": "Widget settings",
+  "@whatsNewWidgetsAction_260": {
+    "description": "Feature button. (2.6.0)"
+  },
+  "whatsNewIcsImportTitle_260": "Import from other calendars",
+  "@whatsNewIcsImportTitle_260": {
+    "description": "Feature title. (2.6.0)"
+  },
+  "whatsNewIcsImportBody_260": "Bring events in from Google or Apple Calendar with an .ics file.",
+  "@whatsNewIcsImportBody_260": {
+    "description": "Feature description. (2.6.0)"
+  },
+  "whatsNewIcsImportAction_260": "Import",
+  "@whatsNewIcsImportAction_260": {
+    "description": "Feature button. (2.6.0)"
+  },
+  "whatsNewEasyReadingTitle_260": "Easy reading",
+  "@whatsNewEasyReadingTitle_260": {
+    "description": "Feature title. (2.6.0)"
+  },
+  "whatsNewEasyReadingBody_260": "Larger text throughout the app, for anyone who finds it small.",
+  "@whatsNewEasyReadingBody_260": {
+    "description": "Feature description. (2.6.0)"
+  },
+  "whatsNewEasyReadingAction_260": "Turn it on",
+  "@whatsNewEasyReadingAction_260": {
+    "description": "Feature button. (2.6.0)"
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."
