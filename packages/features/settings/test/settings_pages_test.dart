@@ -101,6 +101,21 @@ void main() {
         );
       });
 
+      testWidgets('Easy reading writes the preference, in large text', (
+        tester,
+      ) async {
+        tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        final harness = await SettingsHarness.pump(
+          tester,
+          style: style,
+          page: const SettingsDisplayPreferencesPage(),
+        );
+        await tester.tap(find.text('Easy reading'));
+        await tester.pumpAndSettle();
+        expect(harness.repository.preferences[StorageKeys.easyReading], isTrue);
+      });
+
       testWidgets('Calendar grid previews every style and saves the pick', (
         tester,
       ) async {

@@ -2556,6 +2556,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetKindGoodDays => 'Good days';
 
   @override
+  String get easyReading => 'Easy reading';
+
+  @override
+  String get easyReadingDescription => 'Larger text throughout the app, on top of your phone\'s text size.';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

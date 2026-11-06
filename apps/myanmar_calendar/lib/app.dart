@@ -121,7 +121,11 @@ class _AppContentState extends State<_AppContent> {
               prev.settings.appLanguage != curr.settings.appLanguage ||
               prev.settings.calendarLanguage !=
                   curr.settings.calendarLanguage ||
-              prev.settings.calendarConfig != curr.settings.calendarConfig;
+              prev.settings.calendarConfig != curr.settings.calendarConfig ||
+              // Read below: the text size and the calendar scope.
+              prev.settings.easyReading != curr.settings.easyReading ||
+              prev.settings.englishWesternDates !=
+                  curr.settings.englishWesternDates;
         }
         return true;
       },
@@ -188,11 +192,12 @@ class _AppContentState extends State<_AppContent> {
           builder: (context, child) {
             final mediaQuery = MediaQuery.of(context);
             final width = mediaQuery.size.width;
-            final maxTextScale = width < 360 ? 1.15 : 1.3;
             final content = MediaQuery(
               data: mediaQuery.copyWith(
-                textScaler: mediaQuery.textScaler.clamp(
-                  maxScaleFactor: maxTextScale,
+                textScaler: appTextScaler(
+                  mediaQuery.textScaler,
+                  width: width,
+                  easyReading: settings?.easyReading ?? false,
                 ),
               ),
               // Calendar data follows the calendar language; the interface
@@ -421,4 +426,23 @@ AppCalendarColors _calendarColors(BuildContext context) {
     sabbath: t.sabbath,
     moon: t.moon,
   );
+}
+
+/// The app's text size: the system's, at most 1.3× (1.15× on narrow
+/// phones). With Settings › Easy reading it is at least 1.3× and at most
+/// 1.5× (1.3× narrow). Calendar grid cells clamp their own text further.
+TextScaler appTextScaler(
+  TextScaler system, {
+  required double width,
+  bool easyReading = false,
+}) {
+  final narrow = width < 360;
+  if (!easyReading) {
+    return system.clamp(maxScaleFactor: narrow ? 1.15 : 1.3);
+  }
+  const floor = 1.3;
+  final factor = system.scale(10) / 10;
+  return TextScaler.linear(
+    factor < floor ? floor : factor,
+  ).clamp(maxScaleFactor: narrow ? 1.3 : 1.5);
 }

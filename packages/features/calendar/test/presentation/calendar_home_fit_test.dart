@@ -188,6 +188,28 @@ void main() {
     }
   }
 
+  // Easy reading: 1.5× text (1.3× on narrow phones), with the default
+  // Almanac grid and the 6-row month.
+  for (final MapEntry(key: phone, value: size) in phones.entries) {
+    for (final language in [Language.english, Language.myanmar]) {
+      testWidgets('$phone, ${language.name}: large text fits', (tester) async {
+        tester.platformDispatcher.textScaleFactorTestValue = size.width < 360
+            ? 1.3
+            : 1.5;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await _pumpHome(
+          tester,
+          size: size,
+          month: DateTime(2027, 1),
+          style: CalendarGridStyle.almanac,
+          language: language,
+        );
+        expect(find.byType(AlmanacDayCell), findsNWidgets(42));
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+
   testWidgets('tapping another day selects it and moves the sheet to it', (
     tester,
   ) async {

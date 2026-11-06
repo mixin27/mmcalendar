@@ -109,6 +109,18 @@ class _SettingsDisplayPreferencesPageState
             ],
           ),
           AppGroup(
+            footer: l10n?.easyReadingDescription,
+            children: [
+              toggle(
+                l10n?.easyReading ?? 'Easy reading',
+                StorageKeys.easyReading,
+                settings.easyReading,
+                Icons.format_size_rounded,
+                SettingsIconColors.green,
+              ),
+            ],
+          ),
+          AppGroup(
             label: l10n?.settingsDates ?? 'Dates',
             footer: [
               l10n?.englishWesternDatesDescription ??

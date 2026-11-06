@@ -550,6 +550,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return settings.copyWith(showShanCalendar: value);
       case StorageKeys.englishWesternDates:
         return settings.copyWith(englishWesternDates: value);
+      case StorageKeys.easyReading:
+        return settings.copyWith(easyReading: value);
       case StorageKeys.useDeviceTimezone:
         return settings.copyWith(useDeviceTimezone: value);
       case StorageKeys.calendarGridMotif:

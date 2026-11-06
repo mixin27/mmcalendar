@@ -144,6 +144,7 @@ class SettingsRepositoryImpl extends BaseRepository
           englishWesternDates: _parseBool(
             settings[StorageKeys.englishWesternDates] ?? 'false',
           ),
+          easyReading: _parseBool(settings[StorageKeys.easyReading] ?? 'false'),
           useDeviceTimezone: useDeviceTimezone,
         ),
       );

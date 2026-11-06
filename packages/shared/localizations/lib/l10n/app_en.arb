@@ -3335,6 +3335,14 @@
   "@widgetKindGoodDays": {
     "description": "Widget picker: the good days widget."
   },
+  "easyReading": "Easy reading",
+  "@easyReading": {
+    "description": "Display setting: larger text."
+  },
+  "easyReadingDescription": "Larger text throughout the app, on top of your phone's text size.",
+  "@easyReadingDescription": {
+    "description": "Footer."
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

@@ -74,6 +74,14 @@ void main() {
     });
   }
 
+  testWidgets('good days fit large text', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, AppStyle.clear);
+    // Taller rows: the last ones are below the fold.
+    expect(_goodDays(), findsWidgets);
+  });
+
   testWidgets('no good days says so', (tester) async {
     await _pump(tester, AppStyle.clear);
     await tester.tap(find.text('1 month'));

@@ -67,30 +67,34 @@ class HolidayDateBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       alignment: Alignment.center,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            top,
-            style: TextStyle(
-              color: fg,
-              fontWeight: FontWeight.w700,
-              fontSize: bottom == null ? 17 : 15,
-              height: 1.15,
-            ),
-          ),
-          if (bottom != null)
+      // Large text (Easy reading) shrinks to fit the fixed badge.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             Text(
-              bottom,
-              maxLines: 1,
+              top,
               style: TextStyle(
                 color: fg,
                 fontWeight: FontWeight.w700,
-                fontSize: 10.5,
-                height: 1.2,
+                fontSize: bottom == null ? 17 : 15,
+                height: 1.15,
               ),
             ),
-        ],
+            if (bottom != null)
+              Text(
+                bottom,
+                maxLines: 1,
+                style: TextStyle(
+                  color: fg,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 10.5,
+                  height: 1.2,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

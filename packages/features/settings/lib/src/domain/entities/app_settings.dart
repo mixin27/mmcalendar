@@ -34,6 +34,9 @@ class AppSettingsEntity extends Equatable {
   /// Western dates in English (month names and digits) whatever the
   /// calendar language.
   final bool englishWesternDates;
+
+  /// Larger text throughout the app, for people who find it small.
+  final bool easyReading;
   final bool useDeviceTimezone;
 
   const AppSettingsEntity({
@@ -60,6 +63,7 @@ class AppSettingsEntity extends Equatable {
     this.hasShownConsentDialog = false,
     this.showShanCalendar = true,
     this.englishWesternDates = false,
+    this.easyReading = false,
     this.useDeviceTimezone = true,
   });
 
@@ -87,6 +91,7 @@ class AppSettingsEntity extends Equatable {
     bool? hasShownConsentDialog,
     bool? showShanCalendar,
     bool? englishWesternDates,
+    bool? easyReading,
     bool? useDeviceTimezone,
   }) {
     return AppSettingsEntity(
@@ -114,6 +119,7 @@ class AppSettingsEntity extends Equatable {
           hasShownConsentDialog ?? this.hasShownConsentDialog,
       showShanCalendar: showShanCalendar ?? this.showShanCalendar,
       englishWesternDates: englishWesternDates ?? this.englishWesternDates,
+      easyReading: easyReading ?? this.easyReading,
       useDeviceTimezone: useDeviceTimezone ?? this.useDeviceTimezone,
     );
   }
@@ -144,6 +150,7 @@ class AppSettingsEntity extends Equatable {
     hasShownConsentDialog,
     showShanCalendar,
     englishWesternDates,
+    easyReading,
     useDeviceTimezone,
   ];
 }

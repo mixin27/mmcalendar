@@ -2496,6 +2496,12 @@ class AppLocalizationsMy extends AppLocalizations {
   String get widgetKindGoodDays => 'ရက်ကောင်းများ';
 
   @override
+  String get easyReading => 'စာလုံးကြီး';
+
+  @override
+  String get easyReadingDescription => 'ဖုန်း၏ စာလုံးအရွယ်အပြင် အက်ပ်တစ်ခုလုံးတွင် စာလုံးကို ပိုကြီးစွာ ပြမည်။';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override
