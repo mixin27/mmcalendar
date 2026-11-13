@@ -21,7 +21,11 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          # Pinned to the version local builds use. 3.50 deprecates
+          # package:flutter/material.dart (use material_ui); upgrade the
+          # pin with that migration.
           channel: stable
+          flutter-version: 3.47.7
           cache: true
 
       - name: Create firebase_options.dart from secret
@@ -51,7 +55,11 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          # Pinned to the version local builds use. 3.50 deprecates
+          # package:flutter/material.dart (use material_ui); upgrade the
+          # pin with that migration.
           channel: stable
+          flutter-version: 3.47.7
           cache: true
 
       - name: Create firebase_options.dart from secret
