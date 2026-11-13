@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 
 /// Writes the widgets' data and asks every native widget to redraw.
@@ -102,12 +103,26 @@ abstract final class WidgetUpdateService {
     }
   }
 
-  /// Redraws every widget kind on both platforms.
+  /// The Runner's WatchConnectivity bridge (ios/Runner/WatchSync.swift).
+  static const watchChannel = MethodChannel('dev.mixin27.mmcalendar/watch');
+
+  /// Sends the saved payload on to a paired Apple Watch, on iOS only.
+  ///
+  /// The native side reads the payload from the app group, so nothing is
+  /// passed. Without a paired watch, or in the background isolate (which
+  /// has no channel), this does nothing.
+  static Future<void> syncWatch({TargetPlatform? platform}) async {
+    if ((platform ?? defaultTargetPlatform) != TargetPlatform.iOS) return;
+    await _reload(() => watchChannel.invokeMethod<void>('sync'));
+  }
+
+  /// Redraws every widget kind on both platforms, and the Apple Watch.
   static Future<void> reloadAll() async {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       for (final kind in iosKinds) {
         await _reload(() => HomeWidget.updateWidget(iOSName: kind));
       }
+      await syncWatch();
     } else if (defaultTargetPlatform == TargetPlatform.android) {
       for (final receiver in androidReceivers) {
         await _reload(

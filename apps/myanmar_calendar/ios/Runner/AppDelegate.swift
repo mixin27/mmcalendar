@@ -8,6 +8,7 @@ import workmanager_apple
   private let appIconChannelName = "dev.mixin27.mmcalendar/app_icon"
   private let widgetPeriodicTaskIdentifier = "dev.mixin27.mmcalendar.periodic_task"
   private var appIconChannel: FlutterMethodChannel?
+  private var watchChannel: FlutterMethodChannel?
   @available(iOS 10.3, *)
   private var isSettingAppIcon = false
 
@@ -23,6 +24,9 @@ import workmanager_apple
       earliestBeginInSeconds: NSNumber(value: 24 * 60 * 60)
     )
     WorkmanagerPlugin.registerLaunchHandlers()
+    // Started here, not with the Flutter engine, so a watch asking for data
+    // can wake the app in the background.
+    WatchSync.shared.start()
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
@@ -38,6 +42,27 @@ import workmanager_apple
     configureAppIconChannel(
       messenger: engineBridge.applicationRegistrar.messenger()
     )
+    configureWatchChannel(
+      messenger: engineBridge.applicationRegistrar.messenger()
+    )
+  }
+
+  /// Flutter calls `sync` after saving the widgets' payload.
+  private func configureWatchChannel(messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(
+      name: "dev.mixin27.mmcalendar/watch",
+      binaryMessenger: messenger
+    )
+    channel.setMethodCallHandler { call, result in
+      switch call.method {
+      case "sync":
+        WatchSync.shared.send()
+        result(nil)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+    watchChannel = channel
   }
 
   /// Called when user taps "Configure in App" button in notification's context menu

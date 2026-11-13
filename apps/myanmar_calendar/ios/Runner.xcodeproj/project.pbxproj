@@ -8,8 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
+		2BA78F1E7D870CAB905F2CAB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 997A69ACD82E919DDAFF4A19 /* Foundation.framework */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		3BB125E4407918D25B8484C8 /* WatchSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AB21D26D5B5B9A0FF23024 /* WatchSync.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
@@ -17,18 +19,36 @@
 		85D3AB4C3055513000502744 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 85D3AB4B3055513000502744 /* SwiftUI.framework */; };
 		85D3AB573055513100502744 /* MyanmarCalendarWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 85D3AB483055513000502744 /* MyanmarCalendarWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8D2C11A02F9A00010012E9DA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8D2C11A12F9A00010012E9DA /* InfoPlist.strings */; };
+		8E974CA5F18383C75B251F8D /* MyanmarCalendarWatchWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1367EEF36F55AEE1F61C08D6 /* MyanmarCalendarWatchWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		953C2993AD55AB4ED4EC5280 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 997A69ACD82E919DDAFF4A19 /* Foundation.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		D7BB791B098FC999D526A4BB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 997A69ACD82E919DDAFF4A19 /* Foundation.framework */; };
+		F894C8D6FF52FC3BF33F7C1C /* MyanmarCalendarWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = BCD582FF75B1C502BEB32F4E /* MyanmarCalendarWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0AA19CF1C93DBAB567FCC87F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DDD3846BFF70523C038DD2F7;
+			remoteInfo = MyanmarCalendarWatchWidgetsExtension;
+		};
 		331C8085294A63A400263BE5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
 			remoteInfo = Runner;
+		};
+		824D2A6BD7420F2B3CAE0F3E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6A9FC461AC0FF96A7278B267;
+			remoteInfo = MyanmarCalendarWatch;
 		};
 		85D3AB553055513100502744 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -37,9 +57,27 @@
 			remoteGlobalIDString = 85D3AB473055513000502744;
 			remoteInfo = MyanmarCalendarWidgetsExtension;
 		};
+		E5CE937AF058F3933EA7599D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6A9FC461AC0FF96A7278B267;
+			remoteInfo = MyanmarCalendarWatch;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		328608936FCF37C4FD288377 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8E974CA5F18383C75B251F8D /* MyanmarCalendarWatchWidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		85D3AB583055513100502744 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -61,13 +99,26 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CB58DBCAC00A164D17CF3592 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				F894C8D6FF52FC3BF33F7C1C /* MyanmarCalendarWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1367EEF36F55AEE1F61C08D6 /* MyanmarCalendarWatchWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MyanmarCalendarWatchWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		34AB21D26D5B5B9A0FF23024 /* WatchSync.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchSync.swift; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -80,6 +131,7 @@
 		85D3AB4B3055513000502744 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		85D3AB5E305551C600502744 /* MyanmarCalendarWidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyanmarCalendarWidgetsExtension.entitlements; sourceTree = "<group>"; };
 		8D2C11A22F9A00010012E9DA /* my */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = my; path = my.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		930AC90CE6DF29539AC659AA /* MyanmarCalendarWatchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyanmarCalendarWatchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -87,10 +139,19 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		997A69ACD82E919DDAFF4A19 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		BCD582FF75B1C502BEB32F4E /* MyanmarCalendarWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyanmarCalendarWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		85D3AB5C3055513100502744 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		07DD16804D009581FE7D04F4 /* Exceptions for "MyanmarCalendarWatchWidgets" folder in "MyanmarCalendarWatchWidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DDD3846BFF70523C038DD2F7 /* MyanmarCalendarWatchWidgetsExtension */;
+		};
+		85D3AB5C3055513100502744 /* Exceptions for "MyanmarCalendarWidgets" folder in "MyanmarCalendarWidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -100,10 +161,58 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		85D3AB4D3055513000502744 /* MyanmarCalendarWidgets */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (85D3AB5C3055513100502744 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MyanmarCalendarWidgets; sourceTree = "<group>"; };
+		264A812CD7D6A728270C3C07 /* MyanmarCalendarWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = MyanmarCalendarWatch;
+			sourceTree = "<group>";
+		};
+		85D3AB4D3055513000502744 /* MyanmarCalendarWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				85D3AB5C3055513100502744 /* Exceptions for "MyanmarCalendarWidgets" folder in "MyanmarCalendarWidgetsExtension" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = MyanmarCalendarWidgets;
+			sourceTree = "<group>";
+		};
+		9465AFCFD7541C64F6FE9BCD /* WidgetShared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = WidgetShared;
+			sourceTree = "<group>";
+		};
+		B057DCAF61B9A715CE564505 /* MyanmarCalendarWatchWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				07DD16804D009581FE7D04F4 /* Exceptions for "MyanmarCalendarWatchWidgets" folder in "MyanmarCalendarWatchWidgetsExtension" target */,
+			);
+			path = MyanmarCalendarWatchWidgets;
+			sourceTree = "<group>";
+		};
+		D3FF946D91B08A31B0ADF3D4 /* MyanmarCalendarWatchTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = MyanmarCalendarWatchTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		354545A4F403FD6EB2B3E095 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BA78F1E7D870CAB905F2CAB /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7D8E588BFFCD8055E25D1D4A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,9 +237,33 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9B86093B2DA021D30CEAD7E6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				953C2993AD55AB4ED4EC5280 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E7C09B9176A516D2254C9A7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7BB791B098FC999D526A4BB /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1DAE04F0C2A8DBBF7878A53F /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				997A69ACD82E919DDAFF4A19 /* Foundation.framework */,
+			);
+			name = watchOS;
+			sourceTree = "<group>";
+		};
 		331C8082294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -144,6 +277,7 @@
 			children = (
 				85D3AB493055513000502744 /* WidgetKit.framework */,
 				85D3AB4B3055513000502744 /* SwiftUI.framework */,
+				1DAE04F0C2A8DBBF7878A53F /* watchOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -170,6 +304,10 @@
 				97C146EF1CF9000F007C117D /* Products */,
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				4C37BFA9BFBB5E0BE132C3EE /* Frameworks */,
+				9465AFCFD7541C64F6FE9BCD /* WidgetShared */,
+				264A812CD7D6A728270C3C07 /* MyanmarCalendarWatch */,
+				B057DCAF61B9A715CE564505 /* MyanmarCalendarWatchWidgets */,
+				D3FF946D91B08A31B0ADF3D4 /* MyanmarCalendarWatchTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -179,6 +317,9 @@
 				97C146EE1CF9000F007C117D /* Runner.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
 				85D3AB483055513000502744 /* MyanmarCalendarWidgetsExtension.appex */,
+				BCD582FF75B1C502BEB32F4E /* MyanmarCalendarWatch.app */,
+				1367EEF36F55AEE1F61C08D6 /* MyanmarCalendarWatchWidgetsExtension.appex */,
+				930AC90CE6DF29539AC659AA /* MyanmarCalendarWatchTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -197,6 +338,7 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				34AB21D26D5B5B9A0FF23024 /* WatchSync.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -222,6 +364,29 @@
 			productReference = 331C8081294A63A400263BE5 /* RunnerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		6A9FC461AC0FF96A7278B267 /* MyanmarCalendarWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 788536A5F927BBB39EC918B5 /* Build configuration list for PBXNativeTarget "MyanmarCalendarWatch" */;
+			buildPhases = (
+				9572C385947DAF71068B542D /* Sources */,
+				354545A4F403FD6EB2B3E095 /* Frameworks */,
+				86E17CF72542A9457A08F855 /* Resources */,
+				328608936FCF37C4FD288377 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B67FD694B59A622447DDC827 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				264A812CD7D6A728270C3C07 /* MyanmarCalendarWatch */,
+				9465AFCFD7541C64F6FE9BCD /* WidgetShared */,
+			);
+			name = MyanmarCalendarWatch;
+			productName = MyanmarCalendarWatch;
+			productReference = BCD582FF75B1C502BEB32F4E /* MyanmarCalendarWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 		85D3AB473055513000502744 /* MyanmarCalendarWidgetsExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 85D3AB5D3055513100502744 /* Build configuration list for PBXNativeTarget "MyanmarCalendarWidgetsExtension" */;
@@ -236,6 +401,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				85D3AB4D3055513000502744 /* MyanmarCalendarWidgets */,
+				9465AFCFD7541C64F6FE9BCD /* WidgetShared */,
 			);
 			name = MyanmarCalendarWidgetsExtension;
 			productName = MyanmarCalendarWidgetsExtension;
@@ -252,12 +418,14 @@
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				85D3AB583055513100502744 /* Embed Foundation Extensions */,
+				CB58DBCAC00A164D17CF3592 /* Embed Watch Content */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				85D3AB563055513100502744 /* PBXTargetDependency */,
+				95D4913533C8F778A0DDBC36 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -266,6 +434,48 @@
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
+		};
+		B05DF64267593574A771868E /* MyanmarCalendarWatchTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B9886D9860943682FF2B9EE5 /* Build configuration list for PBXNativeTarget "MyanmarCalendarWatchTests" */;
+			buildPhases = (
+				4F6F447C58AB11A93E869CAF /* Sources */,
+				9B86093B2DA021D30CEAD7E6 /* Frameworks */,
+				5696B9AC4FD79AFB0BAEC743 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7E9C8439E89FE7F7EC1AD811 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D3FF946D91B08A31B0ADF3D4 /* MyanmarCalendarWatchTests */,
+			);
+			name = MyanmarCalendarWatchTests;
+			productName = MyanmarCalendarWatchTests;
+			productReference = 930AC90CE6DF29539AC659AA /* MyanmarCalendarWatchTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DDD3846BFF70523C038DD2F7 /* MyanmarCalendarWatchWidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 923222410E51F75E45ACA253 /* Build configuration list for PBXNativeTarget "MyanmarCalendarWatchWidgetsExtension" */;
+			buildPhases = (
+				261C18552DCE47D6DFCCA5D0 /* Sources */,
+				9E7C09B9176A516D2254C9A7 /* Frameworks */,
+				0F98C14FF822BFD53A545BEF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B057DCAF61B9A715CE564505 /* MyanmarCalendarWatchWidgets */,
+				9465AFCFD7541C64F6FE9BCD /* WidgetShared */,
+			);
+			name = MyanmarCalendarWatchWidgetsExtension;
+			productName = MyanmarCalendarWatchWidgetsExtension;
+			productReference = 1367EEF36F55AEE1F61C08D6 /* MyanmarCalendarWatchWidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -302,7 +512,7 @@
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
-				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */,
+				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
 			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
@@ -311,11 +521,21 @@
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
 				85D3AB473055513000502744 /* MyanmarCalendarWidgetsExtension */,
+				6A9FC461AC0FF96A7278B267 /* MyanmarCalendarWatch */,
+				DDD3846BFF70523C038DD2F7 /* MyanmarCalendarWatchWidgetsExtension */,
+				B05DF64267593574A771868E /* MyanmarCalendarWatchTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0F98C14FF822BFD53A545BEF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		331C807F294A63A400263BE5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -323,7 +543,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5696B9AC4FD79AFB0BAEC743 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		85D3AB463055513000502744 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		86E17CF72542A9457A08F855 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -379,6 +613,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		261C18552DCE47D6DFCCA5D0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		331C807D294A63A400263BE5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -387,7 +628,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4F6F447C58AB11A93E869CAF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		85D3AB443055513000502744 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9572C385947DAF71068B542D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -401,6 +656,7 @@
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */,
+				3BB125E4407918D25B8484C8 /* WatchSync.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,10 +668,28 @@
 			target = 97C146ED1CF9000F007C117D /* Runner */;
 			targetProxy = 331C8085294A63A400263BE5 /* PBXContainerItemProxy */;
 		};
+		7E9C8439E89FE7F7EC1AD811 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MyanmarCalendarWatch;
+			target = 6A9FC461AC0FF96A7278B267 /* MyanmarCalendarWatch */;
+			targetProxy = E5CE937AF058F3933EA7599D /* PBXContainerItemProxy */;
+		};
 		85D3AB563055513100502744 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 85D3AB473055513000502744 /* MyanmarCalendarWidgetsExtension */;
 			targetProxy = 85D3AB553055513100502744 /* PBXContainerItemProxy */;
+		};
+		95D4913533C8F778A0DDBC36 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MyanmarCalendarWatch;
+			target = 6A9FC461AC0FF96A7278B267 /* MyanmarCalendarWatch */;
+			targetProxy = 824D2A6BD7420F2B3CAE0F3E /* PBXContainerItemProxy */;
+		};
+		B67FD694B59A622447DDC827 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MyanmarCalendarWatchWidgetsExtension;
+			target = DDD3846BFF70523C038DD2F7 /* MyanmarCalendarWatchWidgetsExtension */;
+			targetProxy = 0AA19CF1C93DBAB567FCC87F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -447,6 +721,154 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		023EE637A1FBD101D7290C14 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyanmarCalendarWatch/MyanmarCalendarWatch.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = J3T5Q8M599;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Myanmar Calendar";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = dev.mixin27.mmcalendar;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Production Profile";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		11DBD5F749D5A9D658888058 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MyanmarCalendarWatchWidgets/MyanmarCalendarWatchWidgets.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = J3T5Q8M599;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MyanmarCalendarWatchWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Myanmar Calendar";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Widgets Production Profile";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		11E5C5420A2175B48E6F1FA3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyanmarCalendarWatch/MyanmarCalendarWatch.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = J3T5Q8M599;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Myanmar Calendar";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = dev.mixin27.mmcalendar;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Production Profile";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		215AFC810C1692D3A95409AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MyanmarCalendarWatchWidgets/MyanmarCalendarWatchWidgets.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = J3T5Q8M599;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MyanmarCalendarWatchWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Myanmar Calendar";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Widgets Production Profile";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 		249021D3217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -577,6 +999,79 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = Profile;
+		};
+		69DD038F605BD721C6799E34 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MyanmarCalendarWatchWidgets/MyanmarCalendarWatchWidgets.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = J3T5Q8M599;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MyanmarCalendarWatchWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Myanmar Calendar";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Widgets Production Profile";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Profile;
+		};
+		6B5AC9ABB852168A3F2115BF /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyanmarCalendarWatch/MyanmarCalendarWatch.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = J3T5Q8M599;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Myanmar Calendar";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = dev.mixin27.mmcalendar;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Production Profile";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Profile;
 		};
@@ -721,6 +1216,24 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Profile;
+		};
+		93AA8489BF72AEA65692F090 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyanmarCalendarWatch.app/MyanmarCalendarWatch";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Profile;
 		};
@@ -898,6 +1411,43 @@
 			};
 			name = Release;
 		};
+		B2936733B8AB72004A99FB40 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyanmarCalendarWatch.app/MyanmarCalendarWatch";
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		E793746C2265E8E799F9D14D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyanmarCalendarWatch.app/MyanmarCalendarWatch";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -911,12 +1461,32 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		788536A5F927BBB39EC918B5 /* Build configuration list for PBXNativeTarget "MyanmarCalendarWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				11E5C5420A2175B48E6F1FA3 /* Release */,
+				023EE637A1FBD101D7290C14 /* Debug */,
+				6B5AC9ABB852168A3F2115BF /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		85D3AB5D3055513100502744 /* Build configuration list for PBXNativeTarget "MyanmarCalendarWidgetsExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				85D3AB593055513100502744 /* Debug */,
 				85D3AB5A3055513100502744 /* Release */,
 				85D3AB5B3055513100502744 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		923222410E51F75E45ACA253 /* Build configuration list for PBXNativeTarget "MyanmarCalendarWatchWidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				215AFC810C1692D3A95409AC /* Release */,
+				11DBD5F749D5A9D658888058 /* Debug */,
+				69DD038F605BD721C6799E34 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -941,10 +1511,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		B9886D9860943682FF2B9EE5 /* Build configuration list for PBXNativeTarget "MyanmarCalendarWatchTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E793746C2265E8E799F9D14D /* Release */,
+				B2936733B8AB72004A99FB40 /* Debug */,
+				93AA8489BF72AEA65692F090 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */ = {
+		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
 		};
