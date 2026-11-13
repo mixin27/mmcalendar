@@ -2601,6 +2601,78 @@ class AppLocalizationsMy extends AppLocalizations {
   String get longWeekendsFooter => 'စနေ၊ တနင်္ဂနွေနှင့် ရုံးပိတ်ရက်များကို ပိတ်ရက်အဖြစ် တွက်သည်။ မိမိ အလုပ်ဌာန၏ ပိတ်ရက်ကိုလည်း စစ်ဆေးပါ။';
 
   @override
+  String get meritTitle => 'ကုသိုလ်';
+
+  @override
+  String get meritDiaryTitle => 'ကုသိုလ်မှတ်တမ်း';
+
+  @override
+  String get meritViewsSubtitle => 'ဒါန၊ သီလ၊ ဘာဝနာ';
+
+  @override
+  String get meritAdd => 'ကုသိုလ် မှတ်ရန်';
+
+  @override
+  String get meritKindDonation => 'ဒါန';
+
+  @override
+  String get meritKindPrecepts => 'သီလ';
+
+  @override
+  String get meritKindMeditation => 'ဘာဝနာ';
+
+  @override
+  String get meritKindOther => 'အခြား';
+
+  @override
+  String get meritNoteHint => 'ဘာလုပ်ခဲ့သလဲ (မထည့်လည်းရ)';
+
+  @override
+  String get meritAmountKyats => 'ကျပ် (မထည့်လည်းရ)';
+
+  @override
+  String get meritAmountMinutes => 'မိနစ် (မထည့်လည်းရ)';
+
+  @override
+  String meritKyats(int amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return '$amountString ကျပ်';
+  }
+
+  @override
+  String meritMinutes(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString မိနစ်';
+  }
+
+  @override
+  String meritStreak(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ဥပုသ် $countString ကြိမ် ဆက်တိုက်',
+      zero: 'ဥပုသ် ဆက်တိုက် မရှိသေးပါ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get meritStreakFooter => 'သီလ ဆောက်တည်ခြင်း သို့မဟုတ် ဘာဝနာ ပွားများခြင်း မှတ်ထားသော ဥပုသ်နေ့ ဆက်တိုက် အရေအတွက်။';
+
+  @override
+  String get meritThisYear => 'ယခုနှစ်';
+
+  @override
+  String get meritEmpty => 'မှတ်တမ်း မရှိသေးပါ။ မည်သည့်နေ့တွင်မဆို ကုသိုလ် မှတ်နိုင်သည်။';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

@@ -20,6 +20,8 @@ export 'src/database/daos/events_v2_dao.dart';
 export 'src/database/daos/recurring_exceptions_dao.dart';
 export 'src/database/tables/day_notes_table.dart';
 export 'src/database/daos/day_notes_dao.dart';
+export 'src/database/tables/merit_entries_table.dart';
+export 'src/database/daos/merit_dao.dart';
 
 // Models
 export 'src/models/base_model.dart';

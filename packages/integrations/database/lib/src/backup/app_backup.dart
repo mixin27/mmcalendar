@@ -24,6 +24,7 @@ class BackupSummary {
     required this.categories,
     required this.notes,
     required this.customHolidays,
+    this.merit = 0,
   });
 
   final int events;
@@ -31,13 +32,20 @@ class BackupSummary {
   final int notes;
   final int customHolidays;
 
+  /// Merit diary entries.
+  final int merit;
+
   bool get isEmpty =>
-      events == 0 && categories == 0 && notes == 0 && customHolidays == 0;
+      events == 0 &&
+      categories == 0 &&
+      notes == 0 &&
+      customHolidays == 0 &&
+      merit == 0;
 
   @override
   String toString() =>
       'BackupSummary(events: $events, categories: $categories, '
-      'notes: $notes, customHolidays: $customHolidays)';
+      'notes: $notes, customHolidays: $customHolidays, merit: $merit)';
 }
 
 /// A parsed backup file.
@@ -64,13 +72,14 @@ class BackupFile {
     categories: _rows(AppBackup._categories).length,
     notes: _rows(AppBackup._notes).length,
     customHolidays: _rows(AppBackup._customHolidays).length,
+    merit: _rows(AppBackup._merit).length,
   );
 }
 
 /// Backs up and restores what people make in the app: events (with their
 /// reminders, repeat rules and edited or skipped occurrences), event
-/// categories, custom holidays and day notes. Calendar Studio projects have
-/// their own export and aren't included.
+/// categories, custom holidays, day notes and merit diary entries. Calendar
+/// Studio projects have their own export and aren't included.
 ///
 /// The file is JSON: `{format, version, createdAt, settings, tables}`, each
 /// table a list of rows as drift writes them.
@@ -93,6 +102,7 @@ class AppBackup {
   static const _exceptions = 'recurringEventExceptions';
   static const _customHolidays = 'customHolidays';
   static const _notes = 'dayNotes';
+  static const _merit = 'meritEntries';
 
   /// Everything, as the bytes of a backup file. [settings] are stored as
   /// they are and handed back by [BackupFile.settings].
@@ -116,6 +126,7 @@ class AppBackup {
         _exceptions: rows(await _db.select(_db.recurringEventExceptions).get()),
         _customHolidays: rows(await _db.select(_db.customHolidays).get()),
         _notes: rows(await _db.select(_db.dayNotes).get()),
+        _merit: rows(await _db.select(_db.meritEntries).get()),
       },
     };
     return utf8.encode(jsonEncode(json));
@@ -163,6 +174,7 @@ class AppBackup {
     await _db.delete(_db.eventCategories).go();
     await _db.delete(_db.customHolidays).go();
     await _db.delete(_db.dayNotes).go();
+    await _db.delete(_db.meritEntries).go();
     await _db.batch((b) {
       b.insertAll(_db.eventCategories, [
         for (final r in file._rows(_categories)) EventCategory.fromJson(r),
@@ -185,6 +197,9 @@ class AppBackup {
       ]);
       b.insertAll(_db.dayNotes, [
         for (final r in file._rows(_notes)) DayNoteRow.fromJson(r),
+      ]);
+      b.insertAll(_db.meritEntries, [
+        for (final r in file._rows(_merit)) MeritEntryRow.fromJson(r),
       ]);
     });
     return file.summary;
@@ -309,11 +324,29 @@ class AppBackup {
       if (here == null) addedNotes++;
     }
 
+    // Merit entries, matched by day, kind, note, amount and when added.
+    String meritKey(MeritEntryRow m) =>
+        '${m.day}|${m.kind}|${m.note}|${m.amount}|'
+        '${m.createdAt.millisecondsSinceEpoch}';
+    final existingMerit = {
+      for (final m in await _db.select(_db.meritEntries).get()) meritKey(m),
+    };
+    var addedMerit = 0;
+    for (final r in file._rows(_merit)) {
+      final m = MeritEntryRow.fromJson(r);
+      if (!existingMerit.add(meritKey(m))) continue;
+      await _db
+          .into(_db.meritEntries)
+          .insert(m.toCompanion(true).copyWith(id: const Value.absent()));
+      addedMerit++;
+    }
+
     return BackupSummary(
       events: addedEvents,
       categories: addedCategories,
       notes: addedNotes,
       customHolidays: addedHolidays,
+      merit: addedMerit,
     );
   }
 }

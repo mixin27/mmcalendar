@@ -4727,6 +4727,108 @@ abstract class AppLocalizations {
   /// **'Saturdays, Sundays and public holidays count as days off. Check your workplace\'s own days off.'**
   String get longWeekendsFooter;
 
+  /// Group label of a day's merit entries.
+  ///
+  /// In en, this message translates to:
+  /// **'Merit'**
+  String get meritTitle;
+
+  /// Diary page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Merit diary'**
+  String get meritDiaryTitle;
+
+  /// Views row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Donations, precepts and meditation'**
+  String get meritViewsSubtitle;
+
+  /// Opens the entry sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add merit'**
+  String get meritAdd;
+
+  /// Kind: dāna.
+  ///
+  /// In en, this message translates to:
+  /// **'Donation'**
+  String get meritKindDonation;
+
+  /// Kind: sīla.
+  ///
+  /// In en, this message translates to:
+  /// **'Precepts'**
+  String get meritKindPrecepts;
+
+  /// Kind: bhāvanā.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation'**
+  String get meritKindMeditation;
+
+  /// Kind: other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get meritKindOther;
+
+  /// Note field.
+  ///
+  /// In en, this message translates to:
+  /// **'What did you do? (optional)'**
+  String get meritNoteHint;
+
+  /// Amount field for a donation.
+  ///
+  /// In en, this message translates to:
+  /// **'Kyats (optional)'**
+  String get meritAmountKyats;
+
+  /// Amount field for meditation.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes (optional)'**
+  String get meritAmountMinutes;
+
+  /// Kyats donated.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} Ks'**
+  String meritKyats(int amount);
+
+  /// Minutes of meditation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String meritMinutes(int count);
+
+  /// Sabbath streak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No Sabbath streak yet} =1{1 Sabbath in a row} other{{count} Sabbaths in a row}}'**
+  String meritStreak(int count);
+
+  /// Explains the streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Sabbath days in a row on which you kept precepts or meditated.'**
+  String get meritStreakFooter;
+
+  /// Summary group label.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get meritThisYear;
+
+  /// Empty diary.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet. Add merit from any day.'**
+  String get meritEmpty;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:

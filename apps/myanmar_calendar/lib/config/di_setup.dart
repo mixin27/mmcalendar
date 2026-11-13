@@ -37,6 +37,7 @@ Future<void> initializeDependencies({bool firebaseInitialized = true}) async {
   final dayNotes = DayNotesRepository(database.dayNotesDao);
   getIt.registerSingleton<DayNotesRepository>(dayNotes);
   getIt.registerSingleton<DayNotesPort>(dayNotes);
+  getIt.registerSingleton<MeritRepository>(MeritRepository(database.meritDao));
 
   // The installed version, for About, App Update and What's new.
   final packageInfo = await PackageInfo.fromPlatform();

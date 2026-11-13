@@ -106,6 +106,16 @@ class _ViewsSelectorPageState extends State<ViewsSelectorPage> {
               onTap: () => context.go('/views/day'),
             ),
             AppRow(
+              key: const ValueKey('views-merit'),
+              icon: Icons.spa_outlined,
+              iconColor: const Color(0xFFD4881C),
+              title: l10n?.meritDiaryTitle ?? 'Merit diary',
+              subtitle: l10n?.meritViewsSubtitle,
+              chevron: true,
+              onTap: () =>
+                  context.go('${RoutePaths.views}/${RoutePaths.merit}'),
+            ),
+            AppRow(
               key: const ValueKey('views-notes'),
               icon: Icons.sticky_note_2_outlined,
               iconColor: const Color(0xFFE0A21B),

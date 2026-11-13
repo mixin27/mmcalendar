@@ -73,6 +73,7 @@ class DayDetailsContent extends StatelessWidget {
           if (completeDate.nagahle.isNotEmpty) _nagahle(context),
           _aiPrompt(context),
           DayNoteGroup(date: date),
+          MeritGroup(date: date),
           _summary(context, eventCount: events.length),
           _events(
             context,
