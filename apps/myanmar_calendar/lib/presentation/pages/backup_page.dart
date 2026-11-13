@@ -229,6 +229,7 @@ class _BackupPageState extends State<BackupPage> {
                   title: l10n.backupCustomHolidays,
                   value: n(s.customHolidays),
                 ),
+                AppRow(title: l10n.meritDiaryTitle, value: n(s.merit)),
               ],
             ),
             const SizedBox(height: 18),

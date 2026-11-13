@@ -88,6 +88,13 @@ Future<void> _seed(AppDatabase db) async {
         ),
       );
   await db.dayNotesDao.save('2026-11-20', 'Bring X-ray', _t);
+  await db.meritDao.add(
+    MeritEntriesCompanion.insert(
+      day: '2026-11-09',
+      kind: 'precepts',
+      createdAt: _t,
+    ),
+  );
 }
 
 void main() {
@@ -108,6 +115,7 @@ void main() {
     expect(file.summary.categories, 1);
     expect(file.summary.notes, 1);
     expect(file.summary.customHolidays, 1);
+    expect(file.summary.merit, 1);
     expect(file.settings, {'holiday_reminders_sabbath': true});
     expect(file.createdAt, _t);
   });
@@ -139,6 +147,7 @@ void main() {
       (await db.select(db.customHolidays).get()).single.name,
       'Family day',
     );
+    expect((await db.select(db.meritEntries).get()).single.kind, 'precepts');
   });
 
   test('merging keeps what is here and skips what is already here', () async {
@@ -186,8 +195,10 @@ void main() {
     expect((await db.dayNotesDao.all()).single.body, 'Newer note');
 
     // Restoring the same file again adds nothing.
+    expect(await db.select(db.meritEntries).get(), hasLength(1));
     final again = await restore(AppBackup.read(backup));
     expect(again.isEmpty, isTrue);
+    expect(await db.select(db.meritEntries).get(), hasLength(1));
     expect(await db.select(db.calendarEvents).get(), hasLength(3));
     expect(await db.select(db.eventReminders).get(), hasLength(1));
   });

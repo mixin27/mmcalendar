@@ -3468,6 +3468,92 @@
   "@longWeekendsFooter": {
     "description": "Footer."
   },
+  "meritTitle": "Merit",
+  "@meritTitle": {
+    "description": "Group label of a day's merit entries."
+  },
+  "meritDiaryTitle": "Merit diary",
+  "@meritDiaryTitle": {
+    "description": "Diary page title."
+  },
+  "meritViewsSubtitle": "Donations, precepts and meditation",
+  "@meritViewsSubtitle": {
+    "description": "Views row subtitle."
+  },
+  "meritAdd": "Add merit",
+  "@meritAdd": {
+    "description": "Opens the entry sheet."
+  },
+  "meritKindDonation": "Donation",
+  "@meritKindDonation": {
+    "description": "Kind: dāna."
+  },
+  "meritKindPrecepts": "Precepts",
+  "@meritKindPrecepts": {
+    "description": "Kind: sīla."
+  },
+  "meritKindMeditation": "Meditation",
+  "@meritKindMeditation": {
+    "description": "Kind: bhāvanā."
+  },
+  "meritKindOther": "Other",
+  "@meritKindOther": {
+    "description": "Kind: other."
+  },
+  "meritNoteHint": "What did you do? (optional)",
+  "@meritNoteHint": {
+    "description": "Note field."
+  },
+  "meritAmountKyats": "Kyats (optional)",
+  "@meritAmountKyats": {
+    "description": "Amount field for a donation."
+  },
+  "meritAmountMinutes": "Minutes (optional)",
+  "@meritAmountMinutes": {
+    "description": "Amount field for meditation."
+  },
+  "meritKyats": "{amount} Ks",
+  "@meritKyats": {
+    "description": "Kyats donated.",
+    "placeholders": {
+      "amount": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "meritMinutes": "{count} min",
+  "@meritMinutes": {
+    "description": "Minutes of meditation.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "meritStreak": "{count, plural, =0{No Sabbath streak yet} =1{1 Sabbath in a row} other{{count} Sabbaths in a row}}",
+  "@meritStreak": {
+    "description": "Sabbath streak.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "meritStreakFooter": "Sabbath days in a row on which you kept precepts or meditated.",
+  "@meritStreakFooter": {
+    "description": "Explains the streak."
+  },
+  "meritThisYear": "This year",
+  "@meritThisYear": {
+    "description": "Summary group label."
+  },
+  "meritEmpty": "Nothing yet. Add merit from any day.",
+  "@meritEmpty": {
+    "description": "Empty diary."
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

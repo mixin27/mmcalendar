@@ -21,6 +21,8 @@ import 'daos/settings_dao.dart';
 import 'daos/holidays_dao.dart';
 import 'daos/day_notes_dao.dart';
 import 'tables/day_notes_table.dart';
+import 'daos/merit_dao.dart';
+import 'tables/merit_entries_table.dart';
 
 part 'app_database.g.dart';
 
@@ -37,6 +39,7 @@ part 'app_database.g.dart';
     CalendarStudioProjects,
     CalendarStudioTemplates,
     DayNotes,
+    MeritEntries,
   ],
   daos: [
     CalendarDao,
@@ -46,6 +49,7 @@ part 'app_database.g.dart';
     EventsV2Dao,
     RecurringExceptionsDao,
     DayNotesDao,
+    MeritDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -60,7 +64,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -103,6 +107,9 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 8) {
           await m.create(dayNotes);
+        }
+        if (from < 9) {
+          await m.create(meritEntries);
         }
       },
       beforeOpen: (details) async {

@@ -2667,6 +2667,79 @@ class AppLocalizationsEn extends AppLocalizations {
   String get longWeekendsFooter => 'Saturdays, Sundays and public holidays count as days off. Check your workplace\'s own days off.';
 
   @override
+  String get meritTitle => 'Merit';
+
+  @override
+  String get meritDiaryTitle => 'Merit diary';
+
+  @override
+  String get meritViewsSubtitle => 'Donations, precepts and meditation';
+
+  @override
+  String get meritAdd => 'Add merit';
+
+  @override
+  String get meritKindDonation => 'Donation';
+
+  @override
+  String get meritKindPrecepts => 'Precepts';
+
+  @override
+  String get meritKindMeditation => 'Meditation';
+
+  @override
+  String get meritKindOther => 'Other';
+
+  @override
+  String get meritNoteHint => 'What did you do? (optional)';
+
+  @override
+  String get meritAmountKyats => 'Kyats (optional)';
+
+  @override
+  String get meritAmountMinutes => 'Minutes (optional)';
+
+  @override
+  String meritKyats(int amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return '$amountString Ks';
+  }
+
+  @override
+  String meritMinutes(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString min';
+  }
+
+  @override
+  String meritStreak(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString Sabbaths in a row',
+      one: '1 Sabbath in a row',
+      zero: 'No Sabbath streak yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get meritStreakFooter => 'Sabbath days in a row on which you kept precepts or meditated.';
+
+  @override
+  String get meritThisYear => 'This year';
+
+  @override
+  String get meritEmpty => 'Nothing yet. Add merit from any day.';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

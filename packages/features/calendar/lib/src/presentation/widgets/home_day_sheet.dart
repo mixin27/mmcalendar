@@ -161,6 +161,8 @@ class _HomeDaySheetState extends State<HomeDaySheet> {
               const SizedBox(height: 14),
               DayNoteGroup(date: _date(widget.day)),
               const SizedBox(height: 14),
+              MeritGroup(date: _date(widget.day)),
+              const SizedBox(height: 14),
               AppGroup(
                 children: [
                   AppRow(
