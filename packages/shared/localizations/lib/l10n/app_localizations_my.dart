@@ -2562,6 +2562,45 @@ class AppLocalizationsMy extends AppLocalizations {
   String get whatsNewEasyReadingAction_260 => 'ဖွင့်ရန်';
 
   @override
+  String get longWeekendsTitle => 'ရုံးပိတ်ရက်ရှည်များ';
+
+  @override
+  String longWeekendsTake(String days) {
+    return '$days ခွင့်ယူပါ';
+  }
+
+  @override
+  String get longWeekendsNoLeave => 'ခွင့်ယူစရာ မလို';
+
+  @override
+  String longWeekendsDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'ပိတ်ရက် $countString ရက်';
+  }
+
+  @override
+  String longWeekendsLeaveDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ခွင့် $countString ရက်အထိ',
+      one: 'ခွင့် ၁ ရက်',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get longWeekendsNone => 'ယခုနှစ်တွင် ရုံးပိတ်ရက်ရှည် မကျန်တော့ပါ။';
+
+  @override
+  String get longWeekendsFooter => 'စနေ၊ တနင်္ဂနွေနှင့် ရုံးပိတ်ရက်များကို ပိတ်ရက်အဖြစ် တွက်သည်။ မိမိ အလုပ်ဌာန၏ ပိတ်ရက်ကိုလည်း စစ်ဆေးပါ။';
+
+  @override
   String get notesTitle => 'မှတ်စုများ';
 
   @override

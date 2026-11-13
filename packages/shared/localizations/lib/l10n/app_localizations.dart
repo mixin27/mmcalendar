@@ -4685,6 +4685,48 @@ abstract class AppLocalizations {
   /// **'Turn it on'**
   String get whatsNewEasyReadingAction_260;
 
+  /// Planner title and Holidays row.
+  ///
+  /// In en, this message translates to:
+  /// **'Long weekends'**
+  String get longWeekendsTitle;
+
+  /// Leave to take, e.g. 'Take Fri 10 Apr off'.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {days} off'**
+  String longWeekendsTake(String days);
+
+  /// A break the holidays already make.
+  ///
+  /// In en, this message translates to:
+  /// **'No leave needed'**
+  String get longWeekendsNoLeave;
+
+  /// Length of a break.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day off} other{{count} days off}}'**
+  String longWeekendsDays(int count);
+
+  /// Segment: how many days of leave.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 leave day} other{Up to {count}}}'**
+  String longWeekendsLeaveDays(int count);
+
+  /// Empty list.
+  ///
+  /// In en, this message translates to:
+  /// **'No long weekends left this year.'**
+  String get longWeekendsNone;
+
+  /// Footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturdays, Sundays and public holidays count as days off. Check your workplace\'s own days off.'**
+  String get longWeekendsFooter;
+
   /// Notes page title.
   ///
   /// In en, this message translates to:
