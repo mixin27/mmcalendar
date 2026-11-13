@@ -14,6 +14,7 @@ Scopes:
   android-icons    Verify Android app icon setup only
   android-widgets  Verify Android home widget setup only
   ios-icons        Verify iOS app icon setup only
+  ios-watch        Verify the Apple Watch app and complications only
 EOF
 }
 
@@ -182,11 +183,36 @@ verify_ios_icons() {
   echo "OK: iOS app icon setup looks valid."
 }
 
+verify_ios_watch() {
+  local ios="$ROOT_DIR/apps/myanmar_calendar/ios"
+  local project="$ios/Runner.xcodeproj/project.pbxproj"
+  local app_delegate="$ios/Runner/AppDelegate.swift"
+
+  require_file "$ios/Runner/WatchSync.swift"
+  require_file "$ios/WidgetShared/WidgetPayload.swift"
+  require_file "$ios/MyanmarCalendarWatch/MyanmarCalendarWatchApp.swift"
+  require_file "$ios/MyanmarCalendarWatch/WatchStore.swift"
+  require_file "$ios/MyanmarCalendarWatch/MyanmarCalendarWatch.entitlements"
+  require_file "$ios/MyanmarCalendarWatchWidgets/WatchComplications.swift"
+  require_file "$ios/MyanmarCalendarWatchWidgets/MyanmarCalendarWatchWidgets.entitlements"
+
+  require_pattern "$project" 'name = MyanmarCalendarWatch;' "The watch app target exists"
+  require_pattern "$project" 'name = MyanmarCalendarWatchWidgetsExtension;' "The complications target exists"
+  require_pattern "$project" 'Embed Watch Content' "Runner embeds the watch app"
+  require_pattern "$project" 'path = WidgetShared;' "The shared widget Swift folder is in the project"
+  require_pattern "$project" 'WatchSync\.swift in Sources' "WatchSync.swift is in Runner"
+  require_pattern "$app_delegate" 'WatchSync\.shared\.start\(\)' "AppDelegate starts WatchConnectivity"
+  require_pattern "$app_delegate" '"dev\.mixin27\.mmcalendar/watch"' "AppDelegate has the watch channel"
+
+  echo "OK: Apple Watch setup looks valid."
+}
+
 case "$SCOPE" in
   all)
     verify_android_icons
     verify_android_widgets
     verify_ios_icons
+    verify_ios_watch
     ;;
   android)
     verify_android_icons
@@ -200,6 +226,9 @@ case "$SCOPE" in
     ;;
   ios-icons)
     verify_ios_icons
+    ;;
+  ios-watch)
+    verify_ios_watch
     ;;
   *)
     echo "Unknown scope: $SCOPE"
@@ -215,6 +244,6 @@ echo "Recommended build checks:"
 if [[ "$SCOPE" == "all" || "$SCOPE" == "android" || "$SCOPE" == "android-icons" || "$SCOPE" == "android-widgets" ]]; then
   echo "- cd apps/myanmar_calendar/android && ./gradlew app:processDebugMainManifest app:processReleaseMainManifest app:compileDebugKotlin app:processDebugResources"
 fi
-if [[ "$SCOPE" == "all" || "$SCOPE" == "ios-icons" ]]; then
+if [[ "$SCOPE" == "all" || "$SCOPE" == "ios-icons" || "$SCOPE" == "ios-watch" ]]; then
   echo "- cd apps/myanmar_calendar/ios && pod install"
 fi
