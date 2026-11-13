@@ -1,9 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_widget_payload/shared_widget_payload.dart';
 
 import '../data/datasources/widget_local_datasource.dart';
-import '../data/payload/widget_payload_builder.dart';
 import '../data/repositories/widget_repository_impl.dart';
 import '../data/services/widget_sync.dart';
 import '../domain/repositories/widget_repository.dart';

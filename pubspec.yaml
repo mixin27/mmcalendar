@@ -16,6 +16,7 @@ workspace:
   - packages/shared/moon
   - packages/shared/motifs
   - packages/shared/localizations
+  - packages/shared/widget_payload
   - packages/features/calendar
   - packages/features/views
   - packages/features/converter

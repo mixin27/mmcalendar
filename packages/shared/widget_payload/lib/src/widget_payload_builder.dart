@@ -70,6 +70,10 @@ abstract final class WidgetPayloadBuilder {
   static const version = 2;
   static const horizonDays = 180;
 
+  /// Days in the watch's slim payload. The watch rewrites it on launch and
+  /// daily, so three months is plenty to outlast a missed refresh.
+  static const slimDays = 90;
+
   static Map<String, Object?> build({
     required DateTime today,
     required Language language,
@@ -87,25 +91,16 @@ abstract final class WidgetPayloadBuilder {
       language,
       englishWesternDates: englishWesternDates,
     );
-    String t(String key) => TranslationService.translateTo(key, language);
     final shanYear = showsShanYear(language, preferShanYear: preferShanYear);
 
-    final dayList = <Map<String, Object?>>[];
-    for (var i = 0; i < days; i++) {
-      final date = DateTime(start.year, start.month, start.day + i);
-      dayList.add(_day(date, language, format, t));
-    }
-
     return {
-      'v': version,
-      'lang': language.code,
-      'gen': (generatedAt ?? DateTime.now()).toIso8601String(),
-      'start': _key(start),
-      's': WidgetStrings.forLanguage(
-        language,
+      ...buildSlim(
+        today: today,
+        language: language,
         englishWesternDates: englishWesternDates,
+        generatedAt: generatedAt,
+        days: days,
       ),
-      'days': dayList,
       'months': {
         for (var offset = -1; offset <= 5; offset++)
           _monthKey(DateTime(start.year, start.month + offset)): _month(
@@ -115,7 +110,6 @@ abstract final class WidgetPayloadBuilder {
             shanYear: shanYear,
           ),
       },
-      'upcoming': _upcoming(start, language, t),
       'thingyan': _thingyan(start, language),
       'events': [
         for (final event in events.take(40))
@@ -138,6 +132,46 @@ abstract final class WidgetPayloadBuilder {
       'year': _year(start, language, format, shanYear: shanYear),
       'styles': styles,
       'prefs': prefs,
+    };
+  }
+
+  /// The watch's slim payload: `v`, `lang`, `gen`, `start`, `s`, `days` and
+  /// `upcoming`, exactly as [build] makes them. The Wear OS Tile and
+  /// complications read it; it leaves out the month grids, year, events,
+  /// notes and styles that only phone widgets draw.
+  static Map<String, Object?> buildSlim({
+    required DateTime today,
+    required Language language,
+    bool englishWesternDates = false,
+    DateTime? generatedAt,
+    int days = slimDays,
+  }) {
+    final start = DateTime(today.year, today.month, today.day);
+    final format = CalendarFormat(
+      language,
+      englishWesternDates: englishWesternDates,
+    );
+    String t(String key) => TranslationService.translateTo(key, language);
+
+    return {
+      'v': version,
+      'lang': language.code,
+      'gen': (generatedAt ?? DateTime.now()).toIso8601String(),
+      'start': _key(start),
+      's': WidgetStrings.forLanguage(
+        language,
+        englishWesternDates: englishWesternDates,
+      ),
+      'days': [
+        for (var i = 0; i < days; i++)
+          _day(
+            DateTime(start.year, start.month, start.day + i),
+            language,
+            format,
+            t,
+          ),
+      ],
+      'upcoming': _upcoming(start, language, t),
     };
   }
 

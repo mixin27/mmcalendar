@@ -44,6 +44,15 @@ final Map<String, Set<String>> _strictAllowedInternalDependencies =
       // The moon glyph is drawn the same everywhere, so the UI kit uses it.
       'shared_ui_kit': <String>{'shared_core', 'shared_moon'},
       'shared_localizations': <String>{},
+      // The widget payload titles holidays from the holiday catalog, so the
+      // phone's widgets and the watch (which cannot take home_widgets with
+      // its database and Workmanager) build the same JSON.
+      'shared_widget_payload': <String>{
+        'holidays',
+        'shared_core',
+        'shared_localizations',
+        'shared_ui_kit',
+      },
     };
 
 /// Explicit feature-to-feature dependency allowlist.

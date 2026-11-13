@@ -25,6 +25,8 @@ dependencies:
     path: ../calendar
   holidays:
     path: ../holidays
+  shared_widget_payload:
+    path: ../../shared/widget_payload
 
   # Myanmar calendar
   myanmar_calendar_dart: ^3.0.3

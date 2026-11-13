@@ -7,12 +7,12 @@ import 'package:home_widgets/src/domain/entities/widget_data.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' show MoonPhaseState;
+import 'package:shared_widget_payload/shared_widget_payload.dart';
 import 'package:workmanager/workmanager.dart';
 
 import '../../domain/entities/widget_config.dart';
 import '../../home_widget_configuration.dart';
 import '../payload/widget_palettes.dart';
-import '../payload/widget_payload_builder.dart';
 import '../services/widget_update_service.dart';
 
 /// Loads the next two weeks of events for the Agenda widget.
