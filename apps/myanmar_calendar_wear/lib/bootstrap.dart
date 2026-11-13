@@ -17,8 +17,8 @@ class AppBlocObserver extends BlocObserver {
   }
 }
 
-/// Loads the saved calendar language, writes the Tile and complication
-/// payload for today, schedules the daily rewrite, then runs the app.
+/// Loads the saved calendar language and runs the app, then writes the
+/// Tile and complication payload for today and schedules the daily rewrite.
 Future<void> bootstrap(Widget Function(WatchSettings settings) builder) async {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterError.onError = (details) {
@@ -27,8 +27,10 @@ Future<void> bootstrap(Widget Function(WatchSettings settings) builder) async {
   Bloc.observer = const AppBlocObserver();
 
   final settings = await WatchSettings.load();
-  await WatchPayloadWriter(settings.preferences).write(settings.language);
-  unawaited(WatchPayloadScheduler.schedule());
-
   runApp(builder(settings));
+
+  // After the first frame: building 90 days takes a moment on a watch.
+  await WidgetsBinding.instance.endOfFrame;
+  unawaited(WatchPayloadWriter(settings.preferences).write(settings.language));
+  unawaited(WatchPayloadScheduler.schedule());
 }

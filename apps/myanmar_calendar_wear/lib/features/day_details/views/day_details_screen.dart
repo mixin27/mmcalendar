@@ -107,7 +107,7 @@ class _DayContent extends StatelessWidget {
       child: Stack(
         children: [
           SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(edge, isRound ? 52 : 40, edge, 32),
+            padding: EdgeInsets.fromLTRB(edge, isRound ? 50 : 44, edge, 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

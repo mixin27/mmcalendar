@@ -49,7 +49,7 @@ class DayDetails extends Equatable {
   /// as the phone does by default (Settings › Prefer Shan Year).
   String get myanmarDate => formatMyanmarDate(
     myanmar.myanmarDate,
-    pattern: '&y &M &P &ff',
+    pattern: '&y &M &P &f',
     language: language,
     preferShanYear: true,
   );
