@@ -5681,6 +5681,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t add the event'**
   String get sharedEventFailed;
+
+  /// Watch app: button that shows the day before.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get watchPreviousDay;
+
+  /// Watch app: button that shows the day after.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get watchNextDay;
+
+  /// Watch app: hint under the day that swiping sideways changes the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe for other days'**
+  String get watchSwipeHint;
 }
 
 class _AppLocalizationsDelegate

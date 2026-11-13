@@ -1,0 +1,44 @@
+name: myanmar_calendar_wear
+description: "Myanmar Calendar for Wear OS: the day, swipe for others, a Tile and complications."
+publish_to: none
+# The watch app never shipped on its own, so its build number follows the
+# phone's: 1_000_000 + the phone build number (apps/myanmar_calendar is
+# 2.6.0+260). Raise both together.
+version: 2.6.0+1000260
+resolution: workspace
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  holidays:
+    path: ../../packages/features/holidays
+  shared_core:
+    path: ../../packages/shared/core
+  shared_moon:
+    path: ../../packages/shared/moon
+  shared_localizations:
+    path: ../../packages/shared/localizations
+  shared_widget_payload:
+    path: ../../packages/shared/widget_payload
+
+  myanmar_calendar_dart: ^3.0.3
+  bloc: ^9.2.0
+  flutter_bloc: ^9.1.1
+  equatable: ^2.1.0
+  shared_preferences: ^2.5.5
+  workmanager: ^0.10.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  bloc_test: ^10.0.0
+
+flutter:
+  uses-material-design: true

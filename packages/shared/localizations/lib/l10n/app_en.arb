@@ -4188,5 +4188,17 @@
   "sharedEventFailed": "Couldn't add the event",
   "@sharedEventFailed": {
     "description": "Toast when saving fails."
+  },
+  "watchPreviousDay": "Previous day",
+  "@watchPreviousDay": {
+    "description": "Watch app: button that shows the day before."
+  },
+  "watchNextDay": "Next day",
+  "@watchNextDay": {
+    "description": "Watch app: button that shows the day after."
+  },
+  "watchSwipeHint": "Swipe for other days",
+  "@watchSwipeHint": {
+    "description": "Watch app: hint under the day that swiping sideways changes the day."
   }
 }

@@ -20,7 +20,7 @@ export 'src/data/services/widget_background_service.dart';
 export 'src/data/services/widget_update_service.dart';
 export 'src/data/services/widget_sync.dart';
 export 'src/data/payload/widget_palettes.dart';
-export 'src/data/payload/widget_payload_builder.dart';
+export 'package:shared_widget_payload/shared_widget_payload.dart';
 
 // Presentation
 export 'src/presentation/bloc/widget_bloc.dart';

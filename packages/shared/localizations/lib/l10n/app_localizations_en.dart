@@ -3403,4 +3403,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sharedEventFailed => 'Couldn\'t add the event';
+
+  @override
+  String get watchPreviousDay => 'Previous day';
+
+  @override
+  String get watchNextDay => 'Next day';
+
+  @override
+  String get watchSwipeHint => 'Swipe for other days';
 }

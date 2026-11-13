@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">မြန်မာ ပြက္ခဒိန်</string>
+    <string name="tile_label">မြန်မာ ရက်စွဲ</string>
+    <string name="tile_description">ယနေ့ မြန်မာ ရက်စွဲ၊ လ နှင့် နောက်ရုံးပိတ်ရက် သို့မဟုတ် ဥပုသ်နေ့။</string>
+    <string name="tile_title">မြန်မာ ပြက္ခဒိန်</string>
+    <string name="tile_open_app">ယနေ့ ရက်စွဲ ပြရန် အက်ပ်ကို တစ်ကြိမ် ဖွင့်ပါ။</string>
+    <string name="complication_label">မြန်မာ ရက်စွဲနှင့် လ</string>
+</resources>
