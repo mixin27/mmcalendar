@@ -3356,4 +3356,13 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get sharedEventFailed => 'ပွဲစဉ်ကို ထည့်၍ မရပါ';
+
+  @override
+  String get watchPreviousDay => 'ယခင်နေ့';
+
+  @override
+  String get watchNextDay => 'နောက်နေ့';
+
+  @override
+  String get watchSwipeHint => 'အခြားနေ့များအတွက် ဘေးသို့ ပွတ်ဆွဲပါ';
 }

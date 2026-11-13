@@ -26,6 +26,7 @@ workspace:
   - packages/features/events
   - packages/features/home_widgets
   - apps/myanmar_calendar
+  - apps/myanmar_calendar_wear
   - packages/integrations/telegram_web
   - packages/integrations/database
   - packages/integrations/firebase

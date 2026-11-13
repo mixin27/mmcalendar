@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Myanmar Calendar</string>
+    <string name="tile_label">Myanmar date</string>
+    <string name="tile_description">Today\'s Myanmar date, the moon and the next holiday or Sabbath.</string>
+    <string name="tile_title">Myanmar Calendar</string>
+    <string name="tile_open_app">Open the app once to show today\'s date here.</string>
+    <string name="complication_label">Myanmar date and moon</string>
+</resources>
