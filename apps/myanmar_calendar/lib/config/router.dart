@@ -220,6 +220,12 @@ final GoRouter router = GoRouter(
                     );
                   },
                 ),
+                // A shared event link. Before ':id', like categories.
+                GoRoute(
+                  path: RoutePaths.sharedEvent,
+                  builder: (context, state) =>
+                      SharedEventPage(data: state.uri.queryParameters['e']),
+                ),
                 // Categories management. Must come before ':id', which would
                 // otherwise match "categories" and fail to parse it as an id.
                 GoRoute(

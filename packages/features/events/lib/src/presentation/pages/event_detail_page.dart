@@ -11,6 +11,7 @@ import '../bloc/user_events_bloc.dart';
 import '../bloc/user_events_event.dart';
 import '../bloc/user_events_state.dart';
 import '../widgets/category_icon.dart';
+import '../widgets/event_share_sheet.dart';
 
 class EventDetailPage extends StatefulWidget {
   final int eventId;
@@ -127,6 +128,16 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
   }
 
+  /// Shares the saved event, not the occurrence on screen, so a repeat
+  /// keeps its first day (and its count or end).
+  Future<void> _share(Event shown) async {
+    final saved =
+        (await context.read<UserEventsBloc>().eventsRepository.getEventById(
+          widget.eventId,
+        )).fold((_) => shown, (e) => e);
+    if (mounted) await showEventShareSheet(context, saved);
+  }
+
   Future<void> _edit() async {
     await context.push(RoutePaths.eventsEdit(widget.eventId));
     if (mounted) _loadEvent();
@@ -164,6 +175,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
             previousTitle: l10n?.events ?? 'Events',
             actions: [
               if (event != null) ...[
+                IconButton(
+                  key: const ValueKey('event-share'),
+                  icon: const Icon(Icons.ios_share_rounded),
+                  tooltip: l10n?.share ?? 'Share',
+                  onPressed: () => _share(event),
+                ),
                 if (t.isClear)
                   TextButton(
                     onPressed: _edit,

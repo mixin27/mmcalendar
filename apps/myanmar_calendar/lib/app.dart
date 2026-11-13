@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:app_links/app_links.dart';
+
 import 'package:converter/converter.dart';
 import 'package:calendar/calendar.dart';
 import 'package:calendar_studio/calendar_studio.dart'
@@ -8,6 +10,7 @@ import 'package:calendar_studio/calendar_studio.dart'
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:holidays/holidays.dart';
 import 'package:onboarding/onboarding.dart';
@@ -70,6 +73,7 @@ class _AppContent extends StatefulWidget {
 
 class _AppContentState extends State<_AppContent> {
   StreamSubscription<Uri?>? _widgetClicks;
+  StreamSubscription<Uri>? _sharedLinks;
 
   @override
   void initState() {
@@ -77,11 +81,22 @@ class _AppContentState extends State<_AppContent> {
     // Widget taps open the app at the right place (mmcalendar:// links).
     HomeWidget.initiallyLaunchedFromHomeWidget().then(_openWidgetLink);
     _widgetClicks = HomeWidget.widgetClicked.listen(_openWidgetLink);
+    // Shared event links (mmcalendar://add-event?e=…) opened from a chat or
+    // a scanned QR code. Widget links arrive above, so only these are taken
+    // here. On the web the link is the page's own address.
+    if (!kIsWeb) {
+      _sharedLinks = AppLinks().uriLinkStream.listen((uri) {
+        if (uri.scheme == EventShare.scheme && uri.host == EventShare.host) {
+          _openWidgetLink(uri);
+        }
+      }, onError: (Object e) => log('Link failed: $e'));
+    }
   }
 
   @override
   void dispose() {
     _widgetClicks?.cancel();
+    _sharedLinks?.cancel();
     super.dispose();
   }
 

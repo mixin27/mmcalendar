@@ -25,6 +25,28 @@ abstract final class EventsIcs {
         now: now ?? DateTime.now(),
       );
 
+  /// Reads event [id] from [db] and encodes it alone; null when it's gone.
+  static Future<String?> forEvent(
+    AppDatabase db,
+    int id, {
+    DateTime? now,
+  }) async {
+    final event = await (db.select(
+      db.calendarEvents,
+    )..where((e) => e.id.equals(id))).getSingleOrNull();
+    if (event == null) return null;
+    return encode(
+      events: [event],
+      rules: await (db.select(
+        db.eventRecurrenceRules,
+      )..where((r) => r.eventId.equals(id))).get(),
+      exceptions: await (db.select(
+        db.recurringEventExceptions,
+      )..where((x) => x.masterEventId.equals(id))).get(),
+      now: now ?? DateTime.now(),
+    );
+  }
+
   static String encode({
     required List<CalendarEvent> events,
     List<EventRecurrenceRule> rules = const [],

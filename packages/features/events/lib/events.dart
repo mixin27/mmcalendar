@@ -7,6 +7,7 @@ export 'src/domain/entities/recurrence_rule.dart';
 export 'src/domain/entities/notification_setting.dart';
 export 'src/domain/repositories/events_repository.dart';
 export 'src/domain/services/event_validation_service.dart';
+export 'src/domain/services/event_share.dart';
 
 // Use Cases
 export 'src/domain/usecases/create_user_event.dart';
@@ -37,9 +38,11 @@ export 'src/presentation/pages/events_list_page.dart';
 export 'src/presentation/pages/event_form_page.dart';
 export 'src/presentation/pages/event_detail_page.dart';
 export 'src/presentation/pages/categories_page.dart';
+export 'src/presentation/pages/shared_event_page.dart';
 
 // Widgets
 export 'src/presentation/widgets/event_row.dart';
+export 'src/presentation/widgets/event_share_sheet.dart';
 
 // Services
 export 'src/services/notification_service.dart';

@@ -194,4 +194,26 @@ END:VCALENDAR
     expect(rule.recurrenceDays, '[1,3]');
     expect(rule.recurrenceCount, 10);
   });
+
+  test('one event exports alone', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final t = DateTime(2026, 11, 1);
+    Future<int> add(String title) => db
+        .into(db.calendarEvents)
+        .insert(
+          CalendarEventsCompanion.insert(
+            title: title,
+            eventDate: DateTime(2026, 11, 2),
+            createdAt: t,
+            updatedAt: t,
+          ),
+        );
+    await add('Standup');
+    final id = await add('Retreat');
+    final ics = (await EventsIcs.forEvent(db, id, now: t))!;
+    final events = IcsImport.parse(ics).events;
+    expect(events.map((e) => e.title), ['Retreat']);
+    expect(await EventsIcs.forEvent(db, 999, now: t), isNull);
+  });
 }

@@ -49,11 +49,16 @@ class RoutePaths {
   static const String eventDetail = ':id/detail';
   static const String eventCategories = 'categories';
 
+  /// A shared event link's preview (`?e=` holds the event).
+  static const String sharedEvent = 'shared';
+
   // Events full paths
   static String eventsCreate() => '$events/$createEvent';
   static String eventsEdit(int eventId) => '$events/$eventId';
   static String eventsDetail(int eventId) => '$events/$eventId/detail';
   static String eventsCategoriesPath() => '$events/$eventCategories';
+  static String eventsShared(String data) =>
+      '$events/$sharedEvent?e=${Uri.encodeQueryComponent(data)}';
 
   // Settings Routes
   static const String widgets = 'widgets';

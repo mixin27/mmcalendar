@@ -4115,5 +4115,78 @@
   "appIconClassic": "Classic",
   "@appIconClassic": {
     "description": "App icon name in Settings"
+  },
+  "eventShareTitle": "Share event",
+  "@eventShareTitle": {
+    "description": "Share sheet title."
+  },
+  "eventShareQrHint": "Scan with a phone camera to add this event to Myanmar Calendar.",
+  "@eventShareQrHint": {
+    "description": "Under the QR code."
+  },
+  "eventShareQrNoNotes": "The QR code leaves out the notes. The link and the file have them.",
+  "@eventShareQrNoNotes": {
+    "description": "When the notes don't fit in the QR code."
+  },
+  "eventShareTooLarge": "This event is too long for a QR code. Share the link or a file instead.",
+  "@eventShareTooLarge": {
+    "description": "When the event doesn't fit in a QR code."
+  },
+  "eventShareLink": "Share link",
+  "@eventShareLink": {
+    "description": "Row: share the link."
+  },
+  "eventShareCopyLink": "Copy link",
+  "@eventShareCopyLink": {
+    "description": "Row: copy the link."
+  },
+  "eventShareLinkCopied": "Link copied",
+  "@eventShareLinkCopied": {
+    "description": "Toast."
+  },
+  "eventShareFile": "Share as calendar file (.ics)",
+  "@eventShareFile": {
+    "description": "Row: share an .ics file."
+  },
+  "eventShareFooter": "The link opens in Myanmar Calendar. The file works in any calendar app. Reminders aren't shared.",
+  "@eventShareFooter": {
+    "description": "Footer under the share rows."
+  },
+  "eventShareMessage": "Add \"{title}\" to Myanmar Calendar:",
+  "@eventShareMessage": {
+    "description": "Text sent with the link.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedEventTitle": "Shared event",
+  "@sharedEventTitle": {
+    "description": "Title of the page a shared link opens."
+  },
+  "sharedEventAdd": "Add to my calendar",
+  "@sharedEventAdd": {
+    "description": "Button."
+  },
+  "sharedEventAdded": "Added to your calendar",
+  "@sharedEventAdded": {
+    "description": "Toast after adding."
+  },
+  "sharedEventFooter": "Someone shared this event with you. Reminders aren't shared; add your own after.",
+  "@sharedEventFooter": {
+    "description": "Footer on the shared event page."
+  },
+  "sharedEventInvalid": "Can't read this event",
+  "@sharedEventInvalid": {
+    "description": "When the link can't be read."
+  },
+  "sharedEventInvalidMessage": "The link may be cut short, or it's from a newer version of the app.",
+  "@sharedEventInvalidMessage": {
+    "description": "Explains an unreadable link."
+  },
+  "sharedEventFailed": "Couldn't add the event",
+  "@sharedEventFailed": {
+    "description": "Toast when saving fails."
   }
 }
