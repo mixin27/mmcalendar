@@ -6,6 +6,7 @@ import 'package:shared_core/shared_core.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
+import '../domain/long_weekends.dart';
 import '../domain/holiday_search.dart';
 import '../domain/holiday_year.dart';
 import '../reminders/holiday_reminder_widgets.dart';
@@ -130,6 +131,12 @@ class _HolidaysViewState extends State<_HolidaysView> {
             onTap: () => _open(context, next),
           ),
         );
+      }
+      if (state.year == today.year) {
+        final breaks = LongWeekends.plan(state.year, language, today: today);
+        if (breaks.isNotEmpty) {
+          children.add(_LongWeekendRow(next: breaks.first, year: state.year));
+        }
       }
       children.add(_YearSwitcher(year: state.year, onChanged: cubit.showYear));
       if (state.year == today.year) {
@@ -398,6 +405,44 @@ class _NextUp extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The next long weekend, opening the full list.
+class _LongWeekendRow extends StatelessWidget {
+  const _LongWeekendRow({required this.next, required this.year});
+
+  final LongWeekend next;
+  final int year;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final format = context.calendarFormat;
+    final leave = next.leave.isEmpty
+        ? l10n.longWeekendsNoLeave
+        : l10n.longWeekendsTake(
+            next.leave
+                .map(
+                  (d) =>
+                      '${format.weekday(d, short: true)} ${format.dayMonth(d)}',
+                )
+                .join(', '),
+          );
+    return AppGroup(
+      children: [
+        AppRow(
+          key: const ValueKey('holidays-long-weekends'),
+          icon: Icons.beach_access_outlined,
+          iconColor: const Color(0xFF16A3B0),
+          title: l10n.longWeekendsTitle,
+          subtitle: '$leave → ${l10n.longWeekendsDays(next.length)}',
+          chevron: true,
+          onTap: () =>
+              GoRouter.of(context).push(RoutePaths.longWeekendsPath(year)),
+        ),
+      ],
     );
   }
 }

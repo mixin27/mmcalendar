@@ -29,11 +29,14 @@ class RoutePaths {
   static const String goodDays = 'good-days';
   static const String holidays = 'holidays';
   static const String holidayDetail = ':id';
+  static const String longWeekends = 'long-weekends';
 
   /// A holiday inside Home (from the day sheet or day details).
   static const String homeHoliday = 'holiday/:id';
 
   static String holidaysPath() => '$views/$holidays';
+  static String longWeekendsPath(int year) =>
+      '$views/$holidays/$longWeekends?year=$year';
   static String holidayInViews(String id, int year) =>
       '$views/$holidays/${Uri.encodeComponent(id)}?year=$year';
   static String holidayInHome(String id, int year) =>

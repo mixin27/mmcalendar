@@ -2622,6 +2622,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatsNewEasyReadingAction_260 => 'Turn it on';
 
   @override
+  String get longWeekendsTitle => 'Long weekends';
+
+  @override
+  String longWeekendsTake(String days) {
+    return 'Take $days off';
+  }
+
+  @override
+  String get longWeekendsNoLeave => 'No leave needed';
+
+  @override
+  String longWeekendsDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString days off',
+      one: '1 day off',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String longWeekendsLeaveDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Up to $countString',
+      one: '1 leave day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get longWeekendsNone => 'No long weekends left this year.';
+
+  @override
+  String get longWeekendsFooter => 'Saturdays, Sundays and public holidays count as days off. Check your workplace\'s own days off.';
+
+  @override
   String get notesTitle => 'Notes';
 
   @override

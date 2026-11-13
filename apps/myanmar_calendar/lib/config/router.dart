@@ -131,6 +131,15 @@ final GoRouter router = GoRouter(
                     year: int.tryParse(state.uri.queryParameters['year'] ?? ''),
                   ),
                   routes: [
+                    // Before ':id', which would match it too.
+                    GoRoute(
+                      path: RoutePaths.longWeekends,
+                      builder: (context, state) => LongWeekendsPage(
+                        year: int.tryParse(
+                          state.uri.queryParameters['year'] ?? '',
+                        ),
+                      ),
+                    ),
                     GoRoute(
                       path: RoutePaths.holidayDetail,
                       builder: (context, state) => HolidayDetailPage(

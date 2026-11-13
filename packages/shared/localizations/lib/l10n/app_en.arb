@@ -3423,6 +3423,51 @@
   "@whatsNewEasyReadingAction_260": {
     "description": "Feature button. (2.6.0)"
   },
+  "longWeekendsTitle": "Long weekends",
+  "@longWeekendsTitle": {
+    "description": "Planner title and Holidays row."
+  },
+  "longWeekendsTake": "Take {days} off",
+  "@longWeekendsTake": {
+    "description": "Leave to take, e.g. 'Take Fri 10 Apr off'.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "longWeekendsNoLeave": "No leave needed",
+  "@longWeekendsNoLeave": {
+    "description": "A break the holidays already make."
+  },
+  "longWeekendsDays": "{count, plural, =1{1 day off} other{{count} days off}}",
+  "@longWeekendsDays": {
+    "description": "Length of a break.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "longWeekendsLeaveDays": "{count, plural, =1{1 leave day} other{Up to {count}}}",
+  "@longWeekendsLeaveDays": {
+    "description": "Segment: how many days of leave.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "longWeekendsNone": "No long weekends left this year.",
+  "@longWeekendsNone": {
+    "description": "Empty list."
+  },
+  "longWeekendsFooter": "Saturdays, Sundays and public holidays count as days off. Check your workplace's own days off.",
+  "@longWeekendsFooter": {
+    "description": "Footer."
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."
