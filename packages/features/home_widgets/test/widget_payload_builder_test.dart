@@ -233,6 +233,11 @@ void main() {
         '/events/create?date=2026-10-18',
       );
       expect(go('mmcalendar://events'), '/events');
+      expect(
+        go('mmcalendar://add-event?e=eyJ2Ijox'),
+        '/events/shared?e=eyJ2Ijox',
+      );
+      expect(go('mmcalendar://add-event'), '/events');
     });
 
     test('ignore other schemes', () {

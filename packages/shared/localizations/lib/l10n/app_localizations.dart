@@ -62,7 +62,8 @@ import 'app_localizations_my.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,17 +84,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('my')
+    Locale('my'),
   ];
 
   /// About label
@@ -1485,7 +1488,11 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Holiday config refreshed ({status}). Custom: {customCount}, Disabled: {disabledCount}'**
-  String holidayConfigRefreshed(Object status, Object customCount, Object disabledCount);
+  String holidayConfigRefreshed(
+    Object status,
+    Object customCount,
+    Object disabledCount,
+  );
 
   /// Localized text for holidayConfigRemote.
   ///
@@ -5572,9 +5579,112 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Classic'**
   String get appIconClassic;
+
+  /// Share sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Share event'**
+  String get eventShareTitle;
+
+  /// Under the QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan with a phone camera to add this event to Myanmar Calendar.'**
+  String get eventShareQrHint;
+
+  /// When the notes don't fit in the QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'The QR code leaves out the notes. The link and the file have them.'**
+  String get eventShareQrNoNotes;
+
+  /// When the event doesn't fit in a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'This event is too long for a QR code. Share the link or a file instead.'**
+  String get eventShareTooLarge;
+
+  /// Row: share the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Share link'**
+  String get eventShareLink;
+
+  /// Row: copy the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get eventShareCopyLink;
+
+  /// Toast.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get eventShareLinkCopied;
+
+  /// Row: share an .ics file.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as calendar file (.ics)'**
+  String get eventShareFile;
+
+  /// Footer under the share rows.
+  ///
+  /// In en, this message translates to:
+  /// **'The link opens in Myanmar Calendar. The file works in any calendar app. Reminders aren\'t shared.'**
+  String get eventShareFooter;
+
+  /// Text sent with the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Add \"{title}\" to Myanmar Calendar:'**
+  String eventShareMessage(String title);
+
+  /// Title of the page a shared link opens.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared event'**
+  String get sharedEventTitle;
+
+  /// Button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my calendar'**
+  String get sharedEventAdd;
+
+  /// Toast after adding.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to your calendar'**
+  String get sharedEventAdded;
+
+  /// Footer on the shared event page.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone shared this event with you. Reminders aren\'t shared; add your own after.'**
+  String get sharedEventFooter;
+
+  /// When the link can't be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t read this event'**
+  String get sharedEventInvalid;
+
+  /// Explains an unreadable link.
+  ///
+  /// In en, this message translates to:
+  /// **'The link may be cut short, or it\'s from a newer version of the app.'**
+  String get sharedEventInvalidMessage;
+
+  /// Toast when saving fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t add the event'**
+  String get sharedEventFailed;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -5583,25 +5693,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'my'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'my'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'my': return AppLocalizationsMy();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'my':
+      return AppLocalizationsMy();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

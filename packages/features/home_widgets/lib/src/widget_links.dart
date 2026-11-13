@@ -9,6 +9,7 @@ import 'package:shared_core/shared_core.dart';
 /// - `mmcalendar://event/12` → the event
 /// - `mmcalendar://events/new?date=2026-10-18` → a new event on that day
 /// - `mmcalendar://events` → the events list
+/// - `mmcalendar://add-event?e=…` → a shared event, to add
 abstract final class WidgetLinks {
   static const scheme = 'mmcalendar';
 
@@ -37,6 +38,11 @@ abstract final class WidgetLinks {
             : '${RoutePaths.eventsCreate()}?date=$date';
       case 'events':
         return RoutePaths.events;
+      case 'add-event':
+        final data = uri.queryParameters['e'];
+        return data == null || data.isEmpty
+            ? RoutePaths.events
+            : RoutePaths.eventsShared(data);
     }
     return RoutePaths.home;
   }
