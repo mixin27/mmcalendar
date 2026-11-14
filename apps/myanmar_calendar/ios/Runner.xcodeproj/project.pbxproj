@@ -165,6 +165,10 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = MyanmarCalendarWatch;
 			sourceTree = "<group>";
 		};
@@ -184,6 +188,10 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = WidgetShared;
 			sourceTree = "<group>";
 		};
@@ -192,12 +200,20 @@
 			exceptions = (
 				07DD16804D009581FE7D04F4 /* Exceptions for "MyanmarCalendarWatchWidgets" folder in "MyanmarCalendarWatchWidgetsExtension" target */,
 			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = MyanmarCalendarWatchWidgets;
 			sourceTree = "<group>";
 		};
 		D3FF946D91B08A31B0ADF3D4 /* MyanmarCalendarWatchTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
 			);
 			path = MyanmarCalendarWatchTests;
 			sourceTree = "<group>";
@@ -469,8 +485,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				B057DCAF61B9A715CE564505 /* MyanmarCalendarWatchWidgets */,
 				9465AFCFD7541C64F6FE9BCD /* WidgetShared */,
+				B057DCAF61B9A715CE564505 /* MyanmarCalendarWatchWidgets */,
 			);
 			name = MyanmarCalendarWatchWidgetsExtension;
 			productName = MyanmarCalendarWatchWidgetsExtension;
@@ -748,9 +764,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Production Profile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Myanmar Calendar WatchApp Production Profile";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -784,9 +801,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Widgets Production Profile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Myanmar Calendar WatchApp Widgets Profile";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -823,9 +841,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Production Profile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Myanmar Calendar WatchApp Production Profile";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -858,9 +877,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Widgets Production Profile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Myanmar Calendar WatchApp Widgets Profile";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -1026,9 +1046,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Widgets Production Profile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Myanmar Calendar WatchApp Widgets Profile";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -1064,9 +1085,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "MyanmarCalendar Watch Production Profile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Myanmar Calendar WatchApp Production Profile";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -1229,6 +1251,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyanmarCalendarWatch.app/MyanmarCalendarWatch";
@@ -1421,6 +1444,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1440,6 +1464,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mixin27.mmcalendar.watchkitapp.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyanmarCalendarWatch.app/MyanmarCalendarWatch";

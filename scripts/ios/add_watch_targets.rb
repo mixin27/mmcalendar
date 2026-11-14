@@ -56,6 +56,9 @@ def common_settings(bundle_id, entitlements, profile)
     'PRODUCT_NAME' => '$(TARGET_NAME)',
     'PRODUCT_BUNDLE_IDENTIFIER' => bundle_id,
     'SDKROOT' => 'watchos',
+    # Flutter's project-level Release and Profile say iphoneos; without
+    # this an archive builds the watch targets for iOS.
+    'SUPPORTED_PLATFORMS' => 'watchos watchsimulator',
     'TARGETED_DEVICE_FAMILY' => '4',
     'WATCHOS_DEPLOYMENT_TARGET' => WATCHOS,
     'SWIFT_VERSION' => '5.0',
@@ -117,7 +120,7 @@ phone_widgets.file_system_synchronized_groups << shared
 watch_app = new_watch_target(
   project, 'MyanmarCalendarWatch', :application,
   common_settings(WATCH_APP_ID, 'MyanmarCalendarWatch/MyanmarCalendarWatch.entitlements',
-                  'MyanmarCalendar Watch Production Profile').merge(
+                  'Myanmar Calendar WatchApp Production Profile').merge(
     'ASSETCATALOG_COMPILER_APPICON_NAME' => 'AppIcon',
     'INFOPLIST_KEY_WKCompanionAppBundleIdentifier' => APP_ID,
     'INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp' => 'NO',
@@ -135,7 +138,7 @@ watch_widgets = new_watch_target(
   project, 'MyanmarCalendarWatchWidgetsExtension', :app_extension,
   common_settings(WATCH_WIDGETS_ID,
                   'MyanmarCalendarWatchWidgets/MyanmarCalendarWatchWidgets.entitlements',
-                  'MyanmarCalendar Watch Widgets Production Profile').merge(
+                  'Myanmar Calendar WatchApp Widgets Profile').merge(
     'INFOPLIST_FILE' => 'MyanmarCalendarWatchWidgets/Info.plist',
     'LD_RUNPATH_SEARCH_PATHS' => ['$(inherited)', '@executable_path/Frameworks',
                                   '@executable_path/../../Frameworks'],
@@ -169,6 +172,9 @@ watch_tests = new_watch_target(
     'PRODUCT_NAME' => '$(TARGET_NAME)',
     'PRODUCT_BUNDLE_IDENTIFIER' => "#{WATCH_APP_ID}.tests",
     'SDKROOT' => 'watchos',
+    # Flutter's project-level Release and Profile say iphoneos; without
+    # this an archive builds the watch targets for iOS.
+    'SUPPORTED_PLATFORMS' => 'watchos watchsimulator',
     'TARGETED_DEVICE_FAMILY' => '4',
     'WATCHOS_DEPLOYMENT_TARGET' => WATCHOS,
     'SWIFT_VERSION' => '5.0',

@@ -70,7 +70,7 @@ The targets were added with `ruby scripts/ios/add_watch_targets.rb` (the `xcodep
 
 Building:
 - Every iOS build now needs the watchOS platform in Xcode (Xcode › Settings › Components, or `xcodebuild -downloadPlatform watchOS`).
-- Release builds need two more provisioning profiles, "MyanmarCalendar Watch Production Profile" and "MyanmarCalendar Watch Widgets Production Profile", for the bundle ids above with the `group.dev.mixin27.mmcalendar` App Group.
+- Release builds need two more provisioning profiles, "Myanmar Calendar WatchApp Production Profile" and "Myanmar Calendar WatchApp Widgets Profile", for the bundle ids above with the `group.dev.mixin27.mmcalendar` App Group.
 
 ## One-Time Android Launcher Cleanup
 
