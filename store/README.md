@@ -44,6 +44,7 @@ Order, by file name:
 | `play_store/short_description.txt`, `short_description_my.txt` | 80 characters | Play Console › Short description (English, Myanmar) |
 | `play_store/full_description.txt`, `full_description_my.txt` | 4,000 characters | Play Console › Full description (English, Myanmar) |
 | `play_store/release_notes.txt` | 500 characters per language | Play Console › Release › Release notes (paste as is; drop `<my-MM>` if the listing has no Myanmar translation) |
+| `play_store/release_notes_wear.txt` | 500 characters per language | Play Console › the Wear OS release's notes (same format) |
 
 ## App Store text
 
