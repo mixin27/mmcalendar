@@ -91,6 +91,43 @@ void main() {
     });
   });
 
+  test('events say which are repeating, for ticking one day done', () {
+    final events = build(
+      Language.english,
+      events: [
+        WidgetAgendaEvent(
+          id: 1,
+          date: today,
+          title: 'Pagoda',
+          color: 0xFF2F5BEA,
+          recurring: true,
+        ),
+        WidgetAgendaEvent(
+          id: 2,
+          date: today,
+          title: 'Dentist',
+          color: 0xFF2F5BEA,
+          done: true,
+        ),
+      ],
+    )['events']! as List;
+    expect([for (final e in events) ((e as Map)['id'], e['rec'], e['done'])], [
+      (1, true, false),
+      (2, false, true),
+    ]);
+  });
+
+  test('copyWith changes done only', () {
+    final e = WidgetAgendaEvent(
+      id: 1,
+      date: today,
+      title: 'Pagoda',
+      color: 1,
+      recurring: true,
+    ).copyWith(done: true);
+    expect((e.id, e.title, e.recurring, e.done), (1, 'Pagoda', true, true));
+  });
+
   test('coming up lists the next Sabbath, holiday and full moon in order', () {
     final upcoming = build(Language.english)['upcoming']! as List;
     final dates = [for (final u in upcoming) (u as Map)['d'] as String];

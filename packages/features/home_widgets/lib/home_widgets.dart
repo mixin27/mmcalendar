@@ -19,6 +19,7 @@ export 'src/data/repositories/widget_repository_impl.dart';
 export 'src/data/services/widget_background_service.dart';
 export 'src/data/services/widget_update_service.dart';
 export 'src/data/services/widget_sync.dart';
+export 'src/data/services/widget_actions.dart';
 export 'src/data/payload/widget_palettes.dart';
 export 'package:shared_widget_payload/shared_widget_payload.dart';
 

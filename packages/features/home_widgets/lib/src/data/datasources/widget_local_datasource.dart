@@ -13,6 +13,7 @@ import 'package:workmanager/workmanager.dart';
 import '../../domain/entities/widget_config.dart';
 import '../../home_widget_configuration.dart';
 import '../payload/widget_palettes.dart';
+import '../services/widget_actions.dart';
 import '../services/widget_update_service.dart';
 
 /// Loads the next two weeks of events for the Agenda widget.
@@ -121,7 +122,14 @@ class WidgetLocalDataSource {
 
   Future<List<WidgetAgendaEvent>> _events(DateTime today) async {
     final loader = loadEvents;
-    if (loader == null) return _cachedEvents(today);
+    if (loader == null) {
+      // No database here: the cached events, with any ticks made on the
+      // widgets since (see WidgetActions).
+      return WidgetActions.overlay(
+        _cachedEvents(today),
+        await WidgetActions.read(),
+      );
+    }
     try {
       final events = await loader(today, today.add(const Duration(days: 14)));
       await sharedPreferences.setString(
@@ -135,13 +143,17 @@ class WidgetLocalDataSource {
               'c': e.color,
               't': e.time?.toIso8601String(),
               'done': e.done,
+              'rec': e.recurring,
             },
         ]),
       );
       return events;
     } catch (e) {
       debugPrint('Widget events unavailable: $e');
-      return _cachedEvents(today);
+      return WidgetActions.overlay(
+        _cachedEvents(today),
+        await WidgetActions.read(),
+      );
     }
   }
 
@@ -158,6 +170,7 @@ class WidgetLocalDataSource {
             color: e['c'] as int,
             time: e['t'] == null ? null : DateTime.parse(e['t'] as String),
             done: e['done'] as bool? ?? false,
+            recurring: e['rec'] as bool? ?? false,
           ),
       ].where((e) => !e.date.isBefore(today)).toList();
     } catch (_) {

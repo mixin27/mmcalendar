@@ -127,9 +127,15 @@ private fun Shell(look: WidgetLook, link: String, content: @Composable () -> Uni
     }
 }
 
-/** `mmcalendar://<path>?homeWidget`; the app opens the matching screen. */
+/**
+ * `mmcalendar://<path>?homeWidget` (`&homeWidget` when [path] has a query);
+ * the app opens the matching screen.
+ */
 fun widgetAction(context: Context, path: String) =
-    actionStartActivity<MainActivity>(context, Uri.parse("mmcalendar://$path?homeWidget"))
+    actionStartActivity<MainActivity>(
+        context,
+        Uri.parse("mmcalendar://$path${if ('?' in path) "&" else "?"}homeWidget"),
+    )
 
 @Composable
 private fun OpenApp(look: WidgetLook) {

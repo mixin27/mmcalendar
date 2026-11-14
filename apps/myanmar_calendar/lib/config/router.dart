@@ -80,7 +80,10 @@ final GoRouter router = GoRouter(
                     // If no date provided, default to today
                     date ??= DateTime.now();
 
-                    return DayDetailsPage(date: date);
+                    return DayDetailsPage(
+                      date: date,
+                      openNote: state.uri.queryParameters['note'] == '1',
+                    );
                   },
                 ),
                 GoRoute(

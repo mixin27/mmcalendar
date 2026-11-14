@@ -18,6 +18,7 @@ class WidgetAgendaEvent {
     required this.color,
     this.time,
     this.done = false,
+    this.recurring = false,
   });
 
   final int? id;
@@ -29,6 +30,19 @@ class WidgetAgendaEvent {
   final DateTime? time;
   final bool done;
 
+  /// A repeating event's occurrence: ticking it done completes that day only.
+  final bool recurring;
+
+  WidgetAgendaEvent copyWith({bool? done}) => WidgetAgendaEvent(
+    id: id,
+    date: date,
+    title: title,
+    color: color,
+    time: time,
+    done: done ?? this.done,
+    recurring: recurring,
+  );
+
   factory WidgetAgendaEvent.fromItem(CalendarEventItem item, DateTime day) =>
       WidgetAgendaEvent(
         id: item.id,
@@ -37,6 +51,7 @@ class WidgetAgendaEvent {
         color: item.effectiveColor,
         time: item.isAllDay ? null : item.eventTime,
         done: item.isCompleted,
+        recurring: item.isRecurring,
       );
 }
 
@@ -58,7 +73,8 @@ class WidgetAgendaEvent {
 /// - `upcoming`: next holidays, Sabbath days, full and new moons (`d`, `k`,
 ///   `n`), oldest first.
 /// - `thingyan`: the next Thingyan's first day and name.
-/// - `events`: the next two weeks (`d`, `t`, `ti`, `c`, `id`, `done`).
+/// - `events`: the next two weeks (`d`, `t`, `ti`, `c`, `id`, `done`, and
+///   `rec` for a repeating event's occurrence).
 /// - `year`: Myanmar year `n`, `start`, `end` (exclusive), current `month`.
 /// - `notes`: day notes' previews (`d`, `t`) over the events' fortnight.
 /// - `styles`, `prefs`: passed through.
@@ -122,6 +138,7 @@ abstract final class WidgetPayloadBuilder {
             'c': event.color,
             'id': event.id,
             'done': event.done,
+            'rec': event.recurring,
           },
       ],
       // Day notes' previews, earliest first.

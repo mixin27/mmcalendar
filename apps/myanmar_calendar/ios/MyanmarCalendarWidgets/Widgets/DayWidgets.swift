@@ -1,3 +1,4 @@
+import AppIntents
 import SwiftUI
 import WidgetKit
 
@@ -282,7 +283,8 @@ struct WeekWidgetView: View {
     }
 }
 
-/// A coloured bar, the title and its time.
+/// A tick circle, a coloured bar, the title and its time. The circle marks
+/// the event done; the rest of the row opens it.
 struct EventRow: View {
     let event: WidgetPayload.Event
     let payload: WidgetPayload
@@ -291,6 +293,17 @@ struct EventRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
+            if let id = event.id {
+                Button(intent: ToggleEventIntent(event: event, id: id)) {
+                    Image(systemName: event.done ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(event.done ? palette.accent : palette.muted)
+                        .frame(width: 22, height: 28)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(event.ti))
+            }
             RoundedRectangle(cornerRadius: 1.5)
                 .fill(Color(argb: event.c))
                 .frame(width: 3, height: 28)
@@ -298,6 +311,7 @@ struct EventRow: View {
                 Text(event.ti)
                     .font(.system(size: 13, weight: .semibold))
                     .strikethrough(event.done)
+                    .foregroundStyle(event.done ? palette.muted : palette.ink)
                     .lineLimit(1)
                 Text([event.t ?? payload.s.allDay, subtitle].compactMap { $0 }.joined(separator: " · "))
                     .calendarText(11)

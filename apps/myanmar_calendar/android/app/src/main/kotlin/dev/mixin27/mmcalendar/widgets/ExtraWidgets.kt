@@ -137,7 +137,8 @@ class AstrologyWidgetReceiver : CalendarWidgetReceiver<AstrologyWidget>() {
 class NoteWidget : CalendarWidget() {
     override val sizes = setOf(WidgetSizes.small, WidgetSizes.medium)
 
-    override fun link(w: WidgetScope) = "day/${w.today}"
+    /** Opens the day with its note editor (new or existing note). */
+    override fun link(w: WidgetScope) = "day/${w.today}?note=1"
 
     @Composable
     override fun Content(w: WidgetScope) {

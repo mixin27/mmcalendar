@@ -68,6 +68,10 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     // Home screen widgets (same Glance as the home_widget plugin).
     implementation("androidx.glance:glance-appwidget:1.1.1")
+    // JVM tests for the widgets' JSON code; Android's own org.json is a stub
+    // off the device.
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
     // If enabling desugaring may result in a Flutter apps crashing on Android 12L and above occur error
     // implementation("androidx.window:window:1.0.0")
     // implementation("androidx.window:window-java:1.0.0")

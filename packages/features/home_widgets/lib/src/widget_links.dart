@@ -5,6 +5,7 @@ import 'package:shared_core/shared_core.dart';
 ///
 /// - `mmcalendar://today` → home
 /// - `mmcalendar://day/2026-10-18` → that day's details
+/// - `mmcalendar://day/2026-10-18?note=1` → the same, with its note open
 /// - `mmcalendar://month/2026-10` → home on that month
 /// - `mmcalendar://event/12` → the event
 /// - `mmcalendar://events/new?date=2026-10-18` → a new event on that day
@@ -23,7 +24,9 @@ abstract final class WidgetLinks {
       case 'today':
         return RoutePaths.home;
       case 'day' when parts.length > 1 && _date(parts[1]) != null:
-        return '${RoutePaths.home}/${RoutePaths.dayDetails}?date=${parts[1]}';
+        final note = uri.queryParameters['note'] == '1' ? '&note=1' : '';
+        return '${RoutePaths.home}/${RoutePaths.dayDetails}'
+            '?date=${parts[1]}$note';
       case 'month' when parts.length > 1:
         final month = DateTime.tryParse('${parts[1]}-01');
         return month == null

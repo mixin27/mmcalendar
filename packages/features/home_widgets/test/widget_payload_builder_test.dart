@@ -58,6 +58,10 @@ void main() {
         go('mmcalendar://day/2026-10-18?homeWidget'),
         '/home/day-details?date=2026-10-18',
       );
+      expect(
+        go('mmcalendar://day/2026-10-18?note=1&homeWidget'),
+        '/home/day-details?date=2026-10-18&note=1',
+      );
       expect(go('mmcalendar://month/2026-11'), '/home?date=2026-11-01');
       expect(go('mmcalendar://event/12'), '/events/12/detail');
       expect(
