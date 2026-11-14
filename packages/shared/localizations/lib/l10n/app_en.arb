@@ -3554,6 +3554,62 @@
   "@meritEmpty": {
     "description": "Empty diary."
   },
+  "whatsNewLongWeekendsTitle_270": "Long weekends",
+  "@whatsNewLongWeekendsTitle_270": {
+    "description": "Feature title. (2.7.0)"
+  },
+  "whatsNewLongWeekendsBody_270": "See this year's long breaks, and the days of leave that make them longer: take one day off, get five.",
+  "@whatsNewLongWeekendsBody_270": {
+    "description": "Feature description. (2.7.0)"
+  },
+  "whatsNewLongWeekendsAction_270": "See them",
+  "@whatsNewLongWeekendsAction_270": {
+    "description": "Feature button. (2.7.0)"
+  },
+  "whatsNewMeritTitle_270": "Merit diary",
+  "@whatsNewMeritTitle_270": {
+    "description": "Feature title. (2.7.0)"
+  },
+  "whatsNewMeritBody_270": "Log donations, precepts and meditation on any day, and keep your Sabbath streak.",
+  "@whatsNewMeritBody_270": {
+    "description": "Feature description. (2.7.0)"
+  },
+  "whatsNewMeritAction_270": "Open the diary",
+  "@whatsNewMeritAction_270": {
+    "description": "Feature button. (2.7.0)"
+  },
+  "whatsNewShareEventsTitle_270": "Share an event",
+  "@whatsNewShareEventsTitle_270": {
+    "description": "Feature title. (2.7.0)"
+  },
+  "whatsNewShareEventsBody_270": "Share an event as a QR code, a link or an .ics file. Myanmar-date repeats come along.",
+  "@whatsNewShareEventsBody_270": {
+    "description": "Feature description. (2.7.0)"
+  },
+  "whatsNewShareEventsAction_270": "Your events",
+  "@whatsNewShareEventsAction_270": {
+    "description": "Feature button. (2.7.0)"
+  },
+  "whatsNewWidgetTicksTitle_270": "Tick events off on widgets",
+  "@whatsNewWidgetTicksTitle_270": {
+    "description": "Feature title. (2.7.0)"
+  },
+  "whatsNewWidgetTicksBody_270": "Tap the circle on the Agenda and Today widgets to mark an event done. The Today's note widget opens the note editor.",
+  "@whatsNewWidgetTicksBody_270": {
+    "description": "Feature description. (2.7.0)"
+  },
+  "whatsNewWidgetTicksAction_270": "Widget settings",
+  "@whatsNewWidgetTicksAction_270": {
+    "description": "Feature button. (2.7.0)"
+  },
+  "whatsNewWatchTitle_270": "On your watch",
+  "@whatsNewWatchTitle_270": {
+    "description": "Feature title. (2.7.0)"
+  },
+  "whatsNewWatchBody_270": "Myanmar dates, holidays and the moon on Apple Watch and Wear OS, with watch-face complications.",
+  "@whatsNewWatchBody_270": {
+    "description": "Feature description. (2.7.0)"
+  },
   "notesTitle": "Notes",
   "@notesTitle": {
     "description": "Notes page title."

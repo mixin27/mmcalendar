@@ -8,10 +8,10 @@ Six features picked after 2.6.0. Each is its own PR with English and Myanmar str
 | 2 | Merit diary | M | Done, #81 |
 | 3 | Share events by QR / link | M | Done, #82 |
 | 4 | Ask the calendar (AI) | M–L | On hold: needs its own plan |
-| 5 | Interactive widgets | M–L | In progress |
+| 5 | Interactive widgets | M–L | Done, #85 |
 | 6 | Watch app | L | Done, #83 (Apple Watch), #84 (Wear OS) |
 
-Then: release 2.7.0 (CHANGELOG, What's new cards, store text, tag and GitHub release).
+Then: release 2.7.0 (CHANGELOG, What's new cards, store text, tag and GitHub release): in progress.
 
 ---
 
@@ -35,7 +35,7 @@ First idea, kept for the dedicated plan:
 - Only calendar facts are sent, never the user's events, notes or merit entries.
 - Still open: what it should answer, whether it can read or create events, and whether the model or the app writes the answer.
 
-## 5. Interactive widgets: in progress
+## 5. Interactive widgets (done, #85)
 - **Already there:** previous/next month buttons on both platforms (iOS `ChangeMonthIntent`, Android `ChangeMonthAction`).
 - **Tick an event done:** a tick circle starts every event row: the shared `EventRow`, in the Agenda and Today widgets. The rest of the row still opens the event.
   - The widget's own code (an iOS App Intent, an Android Glance `ActionCallback`) flips `done` in the saved payload, so the widget redraws at once, and adds `{id, day, recurring, done}` to a queue (`widget_actions_v1`) in the same storage.

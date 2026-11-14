@@ -1,30 +1,16 @@
-Version 2.3 is the biggest update yet.
+Version 2.7 brings Myanmar Calendar to your wrist.
 
-CALENDAR STUDIO
-Design wall, desk, social and story calendars from presets. Edit text, images, shapes and calendar parts right on the page, restyle every page with a project theme, and export PDF, PNG, JPEG or ZIP at each page's real paper size, with page-size presets for print.
+APPLE WATCH
+Today's Myanmar date, the moon, holidays and Sabbath days, swipe through the days ahead, and see what's coming up. Add a complication to your watch face for the date or the moon. Your iPhone keeps the watch up to date, and it carries on for months on its own.
 
-A NEW HOME CALENDAR
-• 22 calendar layouts, with Almanac as the new default (your saved layout is kept)
-• 12 grid themes, from Pagoda and Jade to Deep Field
-• Clear and Material app styles, and custom colours with an Advanced section
+LONG WEEKENDS
+Holidays › Long weekends lists this year's breaks and the days of leave that make them longer: take one day off, get five. Share them with family and friends.
 
-CLASS TIMETABLES AND MULTIPLE DATES
-Repeat an event on chosen weekdays with a time for each day, such as a class every Wednesday at 7:00 PM and Thursday at 6:30 PM, or save one event on any set of dates.
+MERIT DIARY
+Log donations, precepts, meditation and other merit on any day. Views › Merit diary shows your Sabbath streak, this year's totals and every entry by month.
 
-HOLIDAYS
-A new Holidays page: search in Myanmar or English, filter by type, read what each day marks, and get a reminder the evening before.
+SHARE AN EVENT
+Share any event as a QR code, a link or an .ics file. Whoever opens it sees the event, Myanmar-date repeats included, and can add it to their calendar.
 
-ASTROLOGY IN PLAIN WORDS
-Day details now say Sabbath, Yatyaza, Pyatthada, Mahabote, Nakhat, the year name and where the Naga head turns, the way people say them, with eras and dates in your calendar language.
-
-WIDGETS
-Home Screen and Lock Screen widgets rebuilt in five styles, from today's date to a countdown to Thingyan. Tap any day to open it in the app.
-
-A NEW ICON
-The new Moon page icon, with dark and tinted versions, and ten icons to choose from in Settings › App icon.
-
-ALSO NEW
-• A short tour and quick setup for new users
-• A "What's new" note after each update
-• Prefer Shan Year now also applies to widgets and the converter
-• Many fixes and performance improvements
+WIDGETS YOU CAN TAP
+Tick an event done straight from the Agenda and Today widgets, and open the note editor from the Today's note widget.
