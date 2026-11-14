@@ -54,6 +54,24 @@ class DayDetails extends Equatable {
     preferShanYear: true,
   );
 
+  /// "Waxing 5", or "Full Moon" and "New Moon" alone, as people say them.
+  String get phaseLine => myanmar.moonPhase.isOdd
+      ? moonPhaseName
+      : formatMyanmarDate(
+          myanmar.myanmarDate,
+          pattern: '&P &f',
+          language: language,
+          preferShanYear: true,
+        ).trim();
+
+  /// "1388 Tazaungmon", with the Shan year for a Shan calendar.
+  String get monthYear => formatMyanmarDate(
+    myanmar.myanmarDate,
+    pattern: '&y &M',
+    language: language,
+    preferShanYear: true,
+  ).trim();
+
   /// "Tazaungmon".
   String get monthName => myanmar.formatMyanmar('&M', language);
 

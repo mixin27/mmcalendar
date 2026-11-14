@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
+import 'package:myanmar_calendar_wear/app/watch_colors.dart';
 import 'package:myanmar_calendar_wear/settings/watch_settings.dart';
 import 'package:shared_localizations/shared_localizations.dart';
 import 'package:myanmar_calendar_wear/shared/watch_shape.dart';
@@ -30,7 +31,7 @@ class LanguageSettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: WatchColors.background,
       body: WatchShape(
         builder: (context, shape, child) {
           final isRound = shape == WearShape.round;
@@ -44,9 +45,9 @@ class LanguageSettingsScreen extends StatelessWidget {
                   l10n.language,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: WatchColors.accent,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -85,19 +86,12 @@ class _LanguageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(22),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: selected
-              ? Colors.blue.shade700.withValues(alpha: 0.5)
-              : Colors.grey.shade900.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected
-                ? Colors.blue.shade500
-                : Colors.grey.shade700.withValues(alpha: 0.5),
-          ),
+          color: selected ? WatchColors.accentSoft : WatchColors.surface,
+          borderRadius: BorderRadius.circular(22),
         ),
         child: Row(
           children: [
@@ -107,7 +101,7 @@ class _LanguageTile extends StatelessWidget {
                 child: Icon(
                   Icons.check_circle,
                   size: 16,
-                  color: Colors.blue.shade300,
+                  color: WatchColors.accent,
                 ),
               ),
             Expanded(
@@ -115,7 +109,7 @@ class _LanguageTile extends StatelessWidget {
                 name,
                 style: TextStyle(
                   fontSize: 13,
-                  color: selected ? Colors.white : Colors.grey.shade300,
+                  color: selected ? WatchColors.label : WatchColors.secondary,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),

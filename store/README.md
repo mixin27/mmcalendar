@@ -22,6 +22,7 @@ listing text below is tracked.
 | `play_store/phone/` | 1080 × 1920 | Play Console › Phone screenshots (2–8) |
 | `play_store/tablet_10/` | 1440 × 2560 | Play Console › 10-inch tablet screenshots |
 | `play_store/feature_graphic.png` | 1024 × 500 | Play Console › Feature graphic |
+| `play_store/wear/en/`, `wear/my/` | 454 × 454 JPEG | Play Console › Wear OS screenshots (1:1, no transparency): today, a Sabbath day, astrology, Coming up, the Tile, a watch face with the complication. Taken on the Wear OS Large Round emulator |
 
 Order, by file name:
 
