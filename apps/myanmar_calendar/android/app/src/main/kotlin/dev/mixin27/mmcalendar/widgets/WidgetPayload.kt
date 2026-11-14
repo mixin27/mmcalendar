@@ -114,6 +114,9 @@ class WidgetPayload private constructor(json: JSONObject) {
         val c: Int = o.getLong("c").toInt()
         val id: Int? = if (o.isNull("id")) null else o.getInt("id")
         val done: Boolean = o.optBoolean("done")
+
+        /** A repeating event's occurrence; older payloads leave it out. */
+        val rec: Boolean = o.optBoolean("rec")
     }
 
     class Year(o: JSONObject) {

@@ -101,6 +101,48 @@ struct ChangeMonthIntent: AppIntent {
     }
 }
 
+// MARK: - Ticking events done
+
+/// The tick circle on an event row: marks that day's occurrence done (or
+/// not) on the widget at once, and queues it for the app (WidgetTicks).
+struct ToggleEventIntent: AppIntent {
+    static var title: LocalizedStringResource = "Tick event"
+    static var isDiscoverable = false
+
+    @Parameter(title: "Event")
+    var eventId: Int
+
+    @Parameter(title: "Day")
+    var day: String
+
+    @Parameter(title: "Repeating")
+    var recurring: Bool
+
+    @Parameter(title: "Done")
+    var done: Bool
+
+    init() {}
+
+    /// Toggles [event]: done becomes not done and the other way round.
+    init(event: WidgetPayload.Event, id: Int) {
+        eventId = id
+        day = event.d
+        recurring = event.rec ?? false
+        done = !event.done
+    }
+
+    func perform() async throws -> some IntentResult {
+        WidgetTicks.toggle(
+            id: eventId,
+            day: day,
+            recurring: recurring,
+            done: done,
+            in: UserDefaults(suiteName: PayloadStore.appGroup)
+        )
+        return .result()
+    }
+}
+
 // MARK: - Timeline
 
 struct PayloadEntry: TimelineEntry {

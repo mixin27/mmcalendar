@@ -85,6 +85,8 @@ struct WidgetPayload: Decodable {
         let c: Int
         let id: Int?
         let done: Bool
+        /// A repeating event's occurrence; older payloads leave it out.
+        let rec: Bool?
     }
 
     struct Year: Decodable {

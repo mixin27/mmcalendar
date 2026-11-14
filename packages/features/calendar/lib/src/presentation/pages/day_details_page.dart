@@ -1,5 +1,6 @@
 import 'package:shared_core/shared_core.dart';
 import 'package:flutter/material.dart';
+import 'package:notes/notes.dart' show showDayNoteEditor;
 import 'package:flutter/services.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_localizations/shared_localizations.dart';
@@ -13,7 +14,11 @@ import '../widgets/day_details_content.dart';
 class DayDetailsPage extends StatefulWidget {
   final DateTime date;
 
-  const DayDetailsPage({super.key, required this.date});
+  /// Opens the day's note editor once the page shows (the Note widget's
+  /// "Add a note").
+  final bool openNote;
+
+  const DayDetailsPage({super.key, required this.date, this.openNote = false});
 
   @override
   State<DayDetailsPage> createState() => _DayDetailsPageState();
@@ -50,6 +55,11 @@ class _DayDetailsPageState extends State<DayDetailsPage>
     _currentDate = widget.date;
     _completeDate = MyanmarCalendar.getCompleteDate(widget.date);
     _initializeAnimations();
+    if (widget.openNote) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) showDayNoteEditor(context, widget.date);
+      });
+    }
   }
 
   void _initializeAnimations() {

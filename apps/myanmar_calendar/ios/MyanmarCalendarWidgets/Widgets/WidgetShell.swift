@@ -1,9 +1,10 @@
 import SwiftUI
 import WidgetKit
 
-/// `mmcalendar://<path>?homeWidget`; the app opens the matching screen.
+/// `mmcalendar://<path>?homeWidget` (`&homeWidget` when [path] has a query);
+/// the app opens the matching screen.
 func widgetLink(_ path: String) -> URL {
-    URL(string: "mmcalendar://\(path)?homeWidget")!
+    URL(string: "mmcalendar://\(path)\(path.contains("?") ? "&" : "?")homeWidget")!
 }
 
 /// The frame every home-screen widget shares: its style's background with

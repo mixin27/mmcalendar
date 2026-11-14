@@ -9,7 +9,9 @@ import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -233,18 +235,63 @@ fun MonthGrid(w: WidgetScope, month: WidgetPayload.Month, monthDate: LocalDate, 
     }
 }
 
-/** A coloured bar, the title and its time. */
+/**
+ * A tick circle, a coloured bar, the title and its time. The circle marks
+ * the event done (see [ToggleEventAction]); the rest of the row opens it.
+ */
 @Composable
 fun EventRow(w: WidgetScope, event: WidgetPayload.Event, subtitle: String? = null, modifier: GlanceModifier = GlanceModifier) {
-    Row(
-        modifier = modifier.fillMaxWidth().clickable(widgetAction(w.context, event.id?.let { "event/$it" } ?: "events")),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(modifier = GlanceModifier.width(3.dp).height(26.dp).cornerRadius(2.dp).background(ColorProvider(Color(event.c)))) {}
-        Spacer(GlanceModifier.width(8.dp))
-        Column {
-            WText(event.ti, 13f, w.p.ink, medium = true, strike = event.done)
-            WText(listOfNotNull(event.t ?: w.s.allDay, subtitle).joinToString(" · "), 11f, w.p.muted)
+    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        event.id?.let { id ->
+            Box(
+                modifier = GlanceModifier
+                    .size(width = 26.dp, height = 30.dp)
+                    .clickable(
+                        actionRunCallback<ToggleEventAction>(
+                            actionParametersOf(
+                                ToggleEventAction.eventId to id,
+                                ToggleEventAction.day to event.d,
+                                ToggleEventAction.recurring to event.rec,
+                                ToggleEventAction.done to !event.done,
+                            ),
+                        ),
+                    ),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                TickCircle(w, event.done)
+            }
+        }
+        Row(
+            modifier = GlanceModifier.defaultWeight().clickable(widgetAction(w.context, event.id?.let { "event/$it" } ?: "events")),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(modifier = GlanceModifier.width(3.dp).height(26.dp).cornerRadius(2.dp).background(ColorProvider(Color(event.c)))) {}
+            Spacer(GlanceModifier.width(8.dp))
+            Column {
+                WText(event.ti, 13f, if (event.done) w.p.muted else w.p.ink, medium = true, strike = event.done)
+                WText(listOfNotNull(event.t ?: w.s.allDay, subtitle).joinToString(" · "), 11f, w.p.muted)
+            }
+        }
+    }
+}
+
+/** An empty ring, or a filled circle with a tick when [done]. */
+@Composable
+private fun TickCircle(w: WidgetScope, done: Boolean) {
+    val size = 18.dp
+    if (done) {
+        Box(
+            modifier = GlanceModifier.size(size).cornerRadius(size / 2).background(w.p.accent),
+            contentAlignment = Alignment.Center,
+        ) {
+            WText("✓", 11f, w.p.onAccent, bold = true, align = TextAlign.Center)
+        }
+    } else {
+        Box(
+            modifier = GlanceModifier.size(size).cornerRadius(size / 2).background(w.p.muted),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(modifier = GlanceModifier.size(size - 3.dp).cornerRadius((size - 3.dp) / 2).background(w.p.bg)) {}
         }
     }
 }

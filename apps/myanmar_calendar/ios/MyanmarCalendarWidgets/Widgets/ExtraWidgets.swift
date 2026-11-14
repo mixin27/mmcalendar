@@ -173,7 +173,7 @@ struct NoteView: View {
     let entry: PayloadEntry
 
     var body: some View {
-        WidgetShell(entry: entry, link: "day/\(DayKey.string(entry.date))") { payload, day, look in
+        WidgetShell(entry: entry, link: "day/\(DayKey.string(entry.date))?note=1") { payload, day, look in
             let p = look.palette
             let note = payload.notes?.first(where: { $0.d == day.d })?.t
             VStack(alignment: .leading, spacing: 4) {

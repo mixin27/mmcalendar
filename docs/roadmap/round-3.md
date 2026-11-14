@@ -8,8 +8,8 @@ Six features picked after 2.6.0. Each is its own PR with English and Myanmar str
 | 2 | Merit diary | M | Done, #81 |
 | 3 | Share events by QR / link | M | Done, #82 |
 | 4 | Ask the calendar (AI) | M–L | On hold: needs its own plan |
-| 5 | Interactive widgets | M–L | To do |
-| 6 | Watch app | L | In progress: Apple Watch, then Wear OS |
+| 5 | Interactive widgets | M–L | In progress |
+| 6 | Watch app | L | Done, #83 (Apple Watch), #84 (Wear OS) |
 
 Then: release 2.7.0 (CHANGELOG, What's new cards, store text, tag and GitHub release).
 
@@ -35,12 +35,18 @@ First idea, kept for the dedicated plan:
 - Only calendar facts are sent, never the user's events, notes or merit entries.
 - Still open: what it should answer, whether it can read or create events, and whether the model or the app writes the answer.
 
-## 5. Interactive widgets: to do
-- `home_widget` interactivity with Dart background callbacks: iOS 17+ AppIntent buttons, Android Glance `actionRunCallback`.
-- Agenda / Coming up: tick an event done. Month widget: previous/next month on iOS. Today's note: "Add" opens the editor.
+## 5. Interactive widgets: in progress
+- **Already there:** previous/next month buttons on both platforms (iOS `ChangeMonthIntent`, Android `ChangeMonthAction`).
+- **Tick an event done:** a tick circle starts every event row: the shared `EventRow`, in the Agenda and Today widgets. The rest of the row still opens the event.
+  - The widget's own code (an iOS App Intent, an Android Glance `ActionCallback`) flips `done` in the saved payload, so the widget redraws at once, and adds `{id, day, recurring, done}` to a queue (`widget_actions_v1`) in the same storage.
+  - The app applies the queue when it starts or comes back, through `EventMarkersPort.toggleEventCompletion`: a recurring event is completed for that one day, as in day details. The widget sync then rebuilds the payload.
+  - A background refresh that draws from the cached events applies the queue too, so a tick isn't undone before the app opens.
+  - Chosen over home_widget's Dart background callback: that would link Flutter into the iOS widget extension and start a Flutter engine per tap, and the background refresh doesn't open the database today.
+  - Limit: the database catches up when the app next opens or resumes.
+- **Today's note:** "Add a note" opens day details with the note editor already open (`mmcalendar://day/<date>?note=1`).
 - Needs a real-device check before release.
 
-## 6. Watch app: in progress
+## 6. Watch app (done, #83 and #84)
 Two PRs:
 - **Apple Watch:** a SwiftUI watchOS app and WidgetKit complications in this repo. They draw the same 180-day `widget_data_v2` payload as the iPhone widgets, sent over WatchConnectivity, and share the widgets' Swift code.
 - **Wear OS:** the separate `myanmar_calendar_wear` Flutter app (never released) moves into `apps/myanmar_calendar_wear`, on `myanmar_calendar_dart` 3.x and the shared holidays and payload code, with a Kotlin Tile and complication.
