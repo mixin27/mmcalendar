@@ -28,8 +28,6 @@ dependencies:
     path: ../../packages/shared/widget_payload
 
   myanmar_calendar_dart: ^3.0.3
-  bloc: ^9.2.0
-  flutter_bloc: ^9.1.1
   equatable: ^2.1.0
   shared_preferences: ^2.5.5
   workmanager: ^0.10.0
@@ -38,7 +36,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  bloc_test: ^10.0.0
 
 flutter:
   uses-material-design: true

@@ -17,11 +17,13 @@ listing text below is tracked.
 | `app_store/iphone_6_3/` | 1206 × 2622 | App Store Connect › iPhone with Dynamic Island (medium display) |
 | `app_store/iphone_duo/` | 1398 × 2034 | App Store Connect › iPhone Duo (the iPhone shots, framed; no Duo simulator yet) |
 | `app_store/ipad_13/` | 2064 × 2752 | App Store Connect › iPad 13" display |
+| `app_store/apple_watch/` | 416 × 496 JPEG | App Store Connect › Apple Watch (Series 10/11 size): today, a Sabbath day, Coming up, in Myanmar. Unframed, as Apple shows watch screenshots in a watch itself. Taken on the Apple Watch Series 12 (46 mm) simulator |
 | `app_store/header.png` | 3840 × 1646 | App Store Connect › Header and Search Results › Header |
 | `app_store/search_results.png` | 3840 × 2560 | App Store Connect › Header and Search Results › Search Results |
 | `play_store/phone/` | 1080 × 1920 | Play Console › Phone screenshots (2–8) |
 | `play_store/tablet_10/` | 1440 × 2560 | Play Console › 10-inch tablet screenshots |
 | `play_store/feature_graphic.png` | 1024 × 500 | Play Console › Feature graphic |
+| `play_store/wear/en/`, `wear/my/` | 454 × 454 JPEG | Play Console › Wear OS screenshots (1:1, no transparency; Play forbids frames, captions and backgrounds on these): today, a Sabbath day, astrology, Coming up, the Tile, a watch face with the complication. Taken on the Wear OS Large Round emulator |
 
 Order, by file name:
 
@@ -42,6 +44,7 @@ Order, by file name:
 | `play_store/short_description.txt`, `short_description_my.txt` | 80 characters | Play Console › Short description (English, Myanmar) |
 | `play_store/full_description.txt`, `full_description_my.txt` | 4,000 characters | Play Console › Full description (English, Myanmar) |
 | `play_store/release_notes.txt` | 500 characters per language | Play Console › Release › Release notes (paste as is; drop `<my-MM>` if the listing has no Myanmar translation) |
+| `play_store/release_notes_wear.txt` | 500 characters per language | Play Console › the Wear OS release's notes (same format) |
 
 ## App Store text
 

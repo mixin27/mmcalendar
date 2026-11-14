@@ -8,7 +8,8 @@ enum WidgetStyleId: String {
 }
 
 extension Color {
-    init(argb: Int) {
+    /// ARGB values pass 2^31, and Int is 32 bits on arm64_32 watches.
+    init(argb: Int64) {
         let v = UInt32(truncatingIfNeeded: argb)
         self.init(
             .sRGB,
@@ -25,8 +26,8 @@ struct Palette {
     let bg, ink, muted, accent, onAccent, holiday, moon, sabbath: Color
     let soft, holidaySoft, line, shade: Color
 
-    init(_ values: [String: Int]) {
-        func c(_ key: String, _ fallback: Int) -> Color { Color(argb: values[key] ?? fallback) }
+    init(_ values: [String: Int64]) {
+        func c(_ key: String, _ fallback: Int64) -> Color { Color(argb: values[key] ?? fallback) }
         bg = c("bg", 0xFFFFFFFF)
         ink = c("ink", 0xFF111216)
         muted = c("muted", 0xFF6B6B73)

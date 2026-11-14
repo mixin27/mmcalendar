@@ -5,11 +5,13 @@ the phone app: `myanmar_calendar_dart`, the holiday catalog
 (`HolidayYears` in `packages/features/holidays`), the good-day rule
 (`GoodDays`) and `shared_localizations`.
 
-- **App:** the day's Myanmar date, holidays, Sabbath, moon and astrology.
-  Swipe or tap the side arrows for other days, **Today** to come back, the
-  globe for the calendar language (Myanmar, English, Shan, Mon, Karen).
-  Interface words are Myanmar for Myanmar and English otherwise. The screen
-  dims in ambient mode.
+- **App:** the Apple Watch app's layout. Vertical pages for today and the
+  next six days (the moon, the Myanmar date, the Western date, Sabbath and
+  holidays), then **Coming up** (the next holidays, Sabbath days and moons,
+  from the Tile's payload) with the calendar language button (Myanmar,
+  English, Shan, Mon, Karen). Tap a day for its astrology. Interface words
+  are Myanmar for Myanmar and English otherwise. Ambient mode shows today
+  dimmed.
 - **Tile:** today's Myanmar date, the moon phase and the next holiday or
   Sabbath.
 - **Complication:** `SHORT_TEXT` (moon and day of the fortnight),

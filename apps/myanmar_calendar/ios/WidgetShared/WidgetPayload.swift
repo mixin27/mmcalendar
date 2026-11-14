@@ -82,7 +82,7 @@ struct WidgetPayload: Decodable {
         let d: String
         let t: String?
         let ti: String
-        let c: Int
+        let c: Int64
         let id: Int?
         let done: Bool
         /// A repeating event's occurrence; older payloads leave it out.
@@ -97,8 +97,8 @@ struct WidgetPayload: Decodable {
     }
 
     struct StylePair: Decodable {
-        let light: [String: Int]
-        let dark: [String: Int]
+        let light: [String: Int64]
+        let dark: [String: Int64]
     }
 
     struct Prefs: Decodable {

@@ -5,7 +5,7 @@
 - Share an event from its details as a QR code, an mmcalendar:// link or an .ics file. Opening the link shows the event, Myanmar-date repeats included, with "Add to my calendar".
 - Widgets: tick an event done from the Agenda and Today widgets (a repeating event for that day only); the app saves it the next time it opens. The Today's note widget opens the note editor.
 - Apple Watch: an app with today and the next days, coming up, and watch-face complications, kept up to date by the iPhone app.
-- Wear OS: the watch app now lives with the phone app, with the same dates and holidays, plus a Tile and a watch-face complication.
+- Wear OS: a new watch app with today and the next days, Coming up, and each day's astrology, plus a Tile and a watch-face complication. Dates and holidays match the phone app, in Myanmar, English, Shan, Mon or Karen.
 
 ## [2.6.0+260] - 2026-11-06
 

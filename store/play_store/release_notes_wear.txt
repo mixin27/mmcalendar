@@ -1,0 +1,16 @@
+<en-US>
+Myanmar Calendar is now on Wear OS.
+• Today and the next six days: the moon, Myanmar date, Sabbath and holidays
+• Tap a day for its astrology
+• Coming up: the next holidays, Sabbath days and full moons
+• A Tile and a watch-face complication with today's Myanmar date
+• Myanmar, English, Shan, Mon and Karen
+</en-US>
+<my-MM>
+မြန်မာ ပြက္ခဒိန် Wear OS နာရီပေါ်သို့ ရောက်ပါပြီ။
+• ယနေ့နှင့် နောက် ၆ ရက် – လဝန်း၊ မြန်မာ ရက်စွဲ၊ ဥပုသ်နှင့် ရုံးပိတ်ရက်
+• နေ့ကို နှိပ်၍ နက္ခတ်ဗေဒင် ကြည့်နိုင်
+• လာမည့်နေ့ထူးများ – ရုံးပိတ်ရက်၊ ဥပုသ်နှင့် လပြည့်
+• ယနေ့ မြန်မာ ရက်စွဲပြ Tile နှင့် နာရီမျက်နှာပြင် complication
+• မြန်မာ၊ အင်္ဂလိပ်၊ ရှမ်း၊ မွန်နှင့် ကရင် ဘာသာ
+</my-MM>
