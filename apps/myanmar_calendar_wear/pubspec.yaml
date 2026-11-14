@@ -4,7 +4,7 @@ publish_to: none
 # The watch app never shipped on its own, so its build number follows the
 # phone's: 1_000_000 + the phone build number (apps/myanmar_calendar is
 # 2.6.0+260). Raise both together.
-version: 2.6.0+1000260
+version: 2.7.0+1000270
 resolution: workspace
 
 environment:

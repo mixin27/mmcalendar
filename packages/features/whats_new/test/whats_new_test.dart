@@ -52,6 +52,19 @@ void main() {
       },
     );
 
+    test('updating from 2.6.0 to 2.7.0 shows only 2.7.0', () async {
+      final store = await _store({
+        WhatsNewStore.lastSeenKey: '2.6.0',
+      }, current: '2.7.0');
+      expect(store.pending().map((p) => p.item.id), [
+        'longWeekends',
+        'meritDiary',
+        'shareEvents',
+        'widgetTicks',
+        'watch',
+      ]);
+    });
+
     test('updating from 2.5.0 to 2.6.0 shows only 2.6.0', () async {
       final store = await _store({
         WhatsNewStore.lastSeenKey: '2.5.0',

@@ -39,6 +39,52 @@ class WhatsNewRelease {
 /// Every release with something to announce, newest first. Add a release
 /// here with its strings in the ARB files when a version ships features.
 const whatsNewReleases = <WhatsNewRelease>[
+  WhatsNewRelease('2.7.0', [
+    WhatsNewItem(
+      id: 'longWeekends',
+      icon: Icons.beach_access_outlined,
+      color: Color(0xFFF08A1C),
+      title: _wnLongWeekendsTitle,
+      body: _wnLongWeekendsBody,
+      action: _wnLongWeekendsAction,
+      route:
+          '${RoutePaths.views}/${RoutePaths.holidays}/${RoutePaths.longWeekends}',
+    ),
+    WhatsNewItem(
+      id: 'meritDiary',
+      icon: Icons.volunteer_activism_outlined,
+      color: Color(0xFFC9A227),
+      title: _wnMeritTitle,
+      body: _wnMeritBody,
+      action: _wnMeritAction,
+      route: '${RoutePaths.views}/${RoutePaths.merit}',
+    ),
+    WhatsNewItem(
+      id: 'shareEvents',
+      icon: Icons.qr_code_2_rounded,
+      color: Color(0xFF4C5BD4),
+      title: _wnShareEventsTitle,
+      body: _wnShareEventsBody,
+      action: _wnShareEventsAction,
+      route: RoutePaths.events,
+    ),
+    WhatsNewItem(
+      id: 'widgetTicks',
+      icon: Icons.task_alt_rounded,
+      color: Color(0xFF16A3B0),
+      title: _wnWidgetTicksTitle,
+      body: _wnWidgetTicksBody,
+      action: _wnWidgetTicksAction,
+      route: '${RoutePaths.settings}/${RoutePaths.widgets}',
+    ),
+    WhatsNewItem(
+      id: 'watch',
+      icon: Icons.watch_outlined,
+      color: Color(0xFF2B5598),
+      title: _wnWatchTitle,
+      body: _wnWatchBody,
+    ),
+  ]),
   WhatsNewRelease('2.6.0', [
     WhatsNewItem(
       id: 'dailySummary',
@@ -331,3 +377,24 @@ String _wnEasyReadingTitle(AppLocalizations l) =>
 String _wnEasyReadingBody(AppLocalizations l) => l.whatsNewEasyReadingBody_260;
 String _wnEasyReadingAction(AppLocalizations l) =>
     l.whatsNewEasyReadingAction_260;
+String _wnLongWeekendsTitle(AppLocalizations l) =>
+    l.whatsNewLongWeekendsTitle_270;
+String _wnLongWeekendsBody(AppLocalizations l) =>
+    l.whatsNewLongWeekendsBody_270;
+String _wnLongWeekendsAction(AppLocalizations l) =>
+    l.whatsNewLongWeekendsAction_270;
+String _wnMeritTitle(AppLocalizations l) => l.whatsNewMeritTitle_270;
+String _wnMeritBody(AppLocalizations l) => l.whatsNewMeritBody_270;
+String _wnMeritAction(AppLocalizations l) => l.whatsNewMeritAction_270;
+String _wnShareEventsTitle(AppLocalizations l) =>
+    l.whatsNewShareEventsTitle_270;
+String _wnShareEventsBody(AppLocalizations l) => l.whatsNewShareEventsBody_270;
+String _wnShareEventsAction(AppLocalizations l) =>
+    l.whatsNewShareEventsAction_270;
+String _wnWidgetTicksTitle(AppLocalizations l) =>
+    l.whatsNewWidgetTicksTitle_270;
+String _wnWidgetTicksBody(AppLocalizations l) => l.whatsNewWidgetTicksBody_270;
+String _wnWidgetTicksAction(AppLocalizations l) =>
+    l.whatsNewWidgetTicksAction_270;
+String _wnWatchTitle(AppLocalizations l) => l.whatsNewWatchTitle_270;
+String _wnWatchBody(AppLocalizations l) => l.whatsNewWatchBody_270;
