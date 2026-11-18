@@ -21,6 +21,9 @@ export function SiteFooter({ dict, locale }: { dict: Dictionary; locale: Locale 
           <Link href={`/${locale}/privacy`} className="text-night-100 hover:text-white">
             {dict.footer.privacy}
           </Link>
+          <Link href={`/${locale}/delete-data`} className="text-night-100 hover:text-white">
+            {dict.footer.deleteData}
+          </Link>
           <Link href={`/${locale}/support`} className="text-night-100 hover:text-white">
             {dict.footer.support}
           </Link>
