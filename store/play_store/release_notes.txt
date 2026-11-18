@@ -4,6 +4,7 @@
 • Share an event by QR code, link or .ics file
 • Tick events done right on the Agenda and Today widgets
 • Wear OS: Myanmar dates on your watch, with a Tile and a complication
+• Analytics and crash reports stay off until you turn them on
 </en-US>
 <my-MM>
 • ရုံးပိတ်ရက်ရှည်များ – ခွင့်ဘယ်နှရက်ယူလျှင် ပိုရှည်မည်ကို ကြည့်နိုင်
@@ -11,4 +12,5 @@
 • ပွဲစဉ်ကို QR ကုဒ်၊ လင့်ခ် သို့မဟုတ် .ics ဖိုင်ဖြင့် မျှဝေနိုင်
 • Agenda နှင့် ယနေ့ widget မှ ပွဲစဉ် ပြီးကြောင်း မှတ်နိုင်
 • Wear OS – နာရီပေါ်တွင် မြန်မာ ရက်စွဲ၊ Tile နှင့် complication
+• အသုံးပြုမှုနှင့် ပြဿနာ အစီရင်ခံစာများကို သင် ဖွင့်မှသာ ပို့မည်
 </my-MM>

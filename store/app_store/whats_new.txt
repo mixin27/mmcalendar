@@ -1,5 +1,8 @@
 Version 2.7 brings Myanmar Calendar to your wrist.
 
+PRIVACY
+Analytics and crash reports now stay off until you turn them on, during setup or in Settings › Privacy & Data, and the privacy policy is rewritten to say exactly what the app does.
+
 APPLE WATCH
 Today's Myanmar date, the moon, holidays and Sabbath days, swipe through the days ahead, and see what's coming up. Add a complication to your watch face for the date or the moon. Your iPhone keeps the watch up to date, and it carries on for months on its own.
 
