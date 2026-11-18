@@ -1,3 +1,9 @@
+## [2.7.1+271] - 2026-11-18
+
+- Analytics and crash reports are off until you turn them on, during setup or in Settings › Privacy & Data. Nothing is sent before you choose.
+- A rewritten privacy policy (Settings › About › Privacy Policy) that says exactly what stays on your device, what you share, and what goes to Google Firebase.
+- Built with Flutter 3.50.
+
 ## [2.7.0+270] - 2026-11-14
 
 - Long weekends (Holidays › Long weekends): the breaks this year's public holidays and weekends make, and the 1, 2 or 3 days of leave that make them longer ("Take Fri 20 Nov off → 5 days off"), with Share.
