@@ -96,10 +96,10 @@ class SettingsRepositoryImpl extends BaseRepository
 
       // Parse analytics consent
       final enableAnalytics = _parseBool(
-        settings[StorageKeys.enableAnalytics] ?? 'true',
+        settings[StorageKeys.enableAnalytics] ?? 'false',
       );
       final enableCrashlytics = _parseBool(
-        settings[StorageKeys.enableCrashlytics] ?? 'true',
+        settings[StorageKeys.enableCrashlytics] ?? 'false',
       );
 
       // Check if consent dialog has been shown

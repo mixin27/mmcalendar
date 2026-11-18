@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
+	<key>FirebaseCrashlyticsCollectionEnabled</key>
+	<false/>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>dev.mixin27.mmcalendar.periodic_task</string>
@@ -62,8 +66,6 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is used to take photos to use in the app's calendar generation feature.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location access is used when capturing photos to add location metadata.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Photo library access is used to save images from the app's calendar generation feature.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -28,6 +28,7 @@ dependencies:
   firebase_app_check: '>=0.4.7 <0.4.8'
 
 dev_dependencies:
+  drift: ^2.35.0
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
