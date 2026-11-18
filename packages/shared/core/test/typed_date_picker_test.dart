@@ -21,10 +21,7 @@ void main() {
         builder: (context, child) => AppMyanmarCalendarScope(
           language: Language.english,
           clearStyle: false,
-          // As in app.dart: flutter_mmcalendar's dialog is still on
-          // package:flutter/material.dart.
-          // ignore: deprecated_member_use
-          child: MaterialUiCompatibilityBridge(child: child!),
+          child: child!,
         ),
         home: Scaffold(
           body: Builder(
