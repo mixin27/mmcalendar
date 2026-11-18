@@ -232,7 +232,7 @@ class _AppContentState extends State<_AppContent> {
                   child: CalendarFontScope(
                     resolve: _calendarFont,
                     // Packages still on package:flutter/material.dart
-                    // (flutter_mmcalendar, markdown_widget, printing...)
+                    // (markdown_widget, printing...)
                     // read the legacy Theme and MaterialLocalizations; the
                     // bridge maps ours onto them. Routes, dialogs and sheets
                     // are all inside [child].
