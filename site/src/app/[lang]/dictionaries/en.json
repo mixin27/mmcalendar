@@ -120,6 +120,7 @@
   "footer": {
     "label": "Footer",
     "privacy": "Privacy policy",
+    "deleteData": "Delete your data",
     "support": "Support",
     "whatsNew": "What's new",
     "github": "Source on GitHub",
@@ -167,6 +168,36 @@
   "privacyPage": {
     "title": "Privacy policy",
     "description": "How Myanmar Calendar handles your data."
+  },
+  "deleteDataPage": {
+    "title": "Delete your data",
+    "description": "How to delete what Myanmar Calendar keeps on your device, and how to ask us to delete what Google Firebase holds.",
+    "appName": "Myanmar Calendar (dev.mixin27.mmcalendar), by Kyaw Zayar Tun",
+    "deviceTitle": "Data on your device",
+    "deviceBody": "Your events, reminders, day notes, merit diary, custom holidays, Calendar Studio projects and settings are stored only on your device. We never receive them, so there is nothing for us to delete.",
+    "deviceSteps": [
+      "Delete an event, note or merit entry in the app to remove it.",
+      "Uninstall the app to remove everything it stored, including on your Apple Watch or Wear OS watch.",
+      "Delete any backup files you saved or shared yourself, wherever you put them."
+    ],
+    "stopTitle": "Stop collection",
+    "stopBody": "Analytics and crash reports are off unless you turned them on. To stop them, open Settings › Privacy & Data and turn off Analytics and Crash reports.",
+    "firebaseTitle": "Data held by Google Firebase",
+    "firebaseBody": "If you turned on Analytics or Crash reports, Google Firebase keeps usage and crash data about your app installation. It is not linked to a name, email address or account. To have it deleted:",
+    "firebaseSteps": [
+      "Email us at the address below with the subject \"Data deletion request\".",
+      "Tell us the device model and roughly when you used the app, so we can find your installation's data.",
+      "We delete it and confirm by email within 30 days."
+    ],
+    "emailButton": "Email a deletion request",
+    "emailSubject": "Data deletion request",
+    "deletedTitle": "What is deleted and what is kept",
+    "deleted": [
+      "Deleted: analytics events (screens and features used, dates viewed, error messages) and crash reports for your installation.",
+      "Kept: nothing. The app has no accounts, so there is no profile or other record to keep.",
+      "Without a request, Firebase deletes analytics data after at most 14 months and crash reports after about 90 days."
+    ],
+    "policy": "Read the full privacy policy"
   },
   "supportPage": {
     "title": "Support",

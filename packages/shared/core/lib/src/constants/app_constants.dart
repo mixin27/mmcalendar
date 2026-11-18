@@ -165,7 +165,7 @@ The app is suitable for all ages. It does not ask for names, email addresses or 
 - Turn Analytics and crash reports on or off in **Settings › Privacy & Data**.
 - Edit or delete your events, notes and merit entries in the app, or uninstall it to remove all local data.
 - Turn off notifications, or remove widgets and the watch apps, at any time.
-- Ask us about, or ask us to delete, analytics or crash data related to your device by email. Because this data is not linked to your name, we may need your help to identify it.
+- Ask us about, or ask us to delete, analytics or crash data related to your device by email. Because this data is not linked to your name, we may need your help to identify it. The steps are at [calendar.kyawzayartun.com/en/delete-data](https://calendar.kyawzayartun.com/en/delete-data).
 
 Depending on where you live (for example under the GDPR or CCPA), you may have rights to access, correct, delete or object to the processing of your data. Contact us and we will respond within 30 days.
 
