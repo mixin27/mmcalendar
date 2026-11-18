@@ -26,13 +26,10 @@ android {
     compileOptions {
         // Flag to enable support for the new language APIs
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
 
     buildFeatures {
         compose = true
@@ -75,6 +72,12 @@ dependencies {
     // If enabling desugaring may result in a Flutter apps crashing on Android 12L and above occur error
     // implementation("androidx.window:window:1.0.0")
     // implementation("androidx.window:window-java:1.0.0")
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
 }
 
 flutter {
