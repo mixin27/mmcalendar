@@ -108,7 +108,7 @@
     "items": [
       { "q": "Is it free?", "a": "Yes. Myanmar Calendar is free on Android, iPhone, iPad and the web." },
       { "q": "Does it work offline?", "a": "Yes. Your calendar, events and settings are kept on your phone, so it works without the internet." },
-      { "q": "What data do you collect?", "a": "Your events and settings never leave your phone. Anonymous usage and crash reports are sent only if you allow them. See the privacy policy for details." },
+      { "q": "What data do you collect?", "a": "Your events, notes and settings stay on your phone unless you back them up or share them yourself. Usage and crash reports are off until you turn them on. See the privacy policy for details." },
       { "q": "Which languages?", "a": "The app speaks Myanmar and English, and the calendar can be shown in Myanmar, English, Zawgyi, Mon, Shan and Karen." },
       { "q": "How do I add a Studio template?", "a": "Download the file, then in Calendar Studio tap Import project, or New calendar → Import template, and choose it." }
     ]

@@ -28,10 +28,13 @@ final class FirebaseConsentBootstrap {
     final appDatabase = database ?? DatabaseModule.createDatabase();
     final settingsDao = appDatabase.settingsDao;
 
+    // Off until the user turns them on (onboarding or Settings › Privacy
+    // & Data). The native SDKs also start disabled, from the Android
+    // manifest and iOS Info.plist, so nothing is sent before this runs.
     final analyticsConsent =
-        await settingsDao.getSetting(_analyticsConsentKey) ?? 'true';
+        await settingsDao.getSetting(_analyticsConsentKey) ?? 'false';
     final crashlyticsConsent =
-        await settingsDao.getSetting(_crashlyticsConsentKey) ?? 'true';
+        await settingsDao.getSetting(_crashlyticsConsentKey) ?? 'false';
 
     return FirebaseConsentSettings(
       enableAnalytics: analyticsConsent.toLowerCase() == 'true',

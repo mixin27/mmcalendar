@@ -40,665 +40,147 @@ class AppConstants {
   static const String privacyPolicyMarkdown = '''
 # Privacy Policy
 
-**Last Updated: November 4, 2025**
+**Last updated: 18 November 2026** · Applies to Myanmar Calendar 2.7 and later on Android, iOS, Apple Watch, Wear OS and the web.
 
-## Introduction
-
-Thank you for using Myanmar Calendar ("we," "our," or "the App"). We respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our mobile application.
+Myanmar Calendar ("the app", "we") is made by Kyaw Zayar Tun. This policy explains what the app keeps on your device, what it sends and to whom, and the choices you have. In short: your events, notes and merit diary stay on your device unless you share them yourself; analytics and crash reports are off until you turn them on; there are no ads and we never sell data.
 
 ---
 
-## Information We Collect
+## 1. What stays on your device
 
-### 1. Information We DO NOT Collect
+The app stores the following in a database on your device (in the browser's storage for the web app):
 
-Myanmar Calendar does not collect:
+- Your events: titles, dates and times, notes, locations, categories, repeats, reminders and whether they are done
+- Day notes and merit diary entries
+- Custom holidays and reminder choices (Sabbath reminders, holiday reminders, the daily summary)
+- Calendar Studio projects, templates and the photos you add to them
+- Your settings: languages, theme, layout, widget styles and the like
 
-- Personal identification information (name, email, phone number)
-- Location data or GPS coordinates
-- Contact lists or social media information
-- Payment information (app is free)
-- Device identifiers (IMEI, MAC address, etc.) - *except as noted below for Firebase*
-- **Your event details, descriptions, or locations**
-- **Your reminder times or notification preferences**
+We have no servers that receive this data, and we cannot see it. The app does not add its own encryption to this database; it is protected by your device's security (screen lock and app sandbox). Deleting an event or note removes it; uninstalling the app removes everything it stored.
 
-### 2. Information Stored Locally on Your Device
+### Widgets and watches
 
-The following data is stored **ONLY** on your device and never transmitted to our servers:
+- **Home-screen and lock-screen widgets** show a summary that the app saves in its own storage on your device: calendar days, holidays, the next two weeks of event titles and times, and short previews of day notes. Anyone who can see your home or lock screen can see what the widgets show. Ticking an event done on a widget is saved the same way and applied the next time you open the app.
+- **Apple Watch:** the iPhone app sends the same summary to your paired Apple Watch through Apple's WatchConnectivity. It goes from your phone to your watch only.
+- **Wear OS:** the Wear OS app runs on its own. It has no internet permission and holds only calendar data (dates, moon, holidays, Sabbath and astrology), with no events or notes.
 
-- **App Settings**: Your theme preferences, language selection, calendar configuration
-- **User Events**: All events, reminders, and recurring events you create
-  - Event titles, descriptions, and locations
-  - Event dates, times, and durations
-  - Event categories and priorities
-  - Recurring event rules and exceptions
-  - Notification settings for events
-  - Event completion status
-- **Custom Holidays**: Personal holidays you add
-- **Event Categories**: Custom event categories you create
-- **Notes**: Notes you create
+### Notifications
 
-All local data is stored using a secure SQLite database on your device with the following security measures:
-- Database encryption at rest
-- Secure data access through our app only
-- No cloud synchronization (unless you explicitly enable backup in future)
-- Complete data isolation - we have zero access to your event data
-
-**Important**: Your event data never leaves your device. We cannot see, access, or share your event information.
-
-### 3. Information Collected by Firebase
-
-We use **Firebase Analytics** and **Firebase Crashlytics** to improve app performance and reliability. These services collect the following information:
-
-#### Firebase Analytics Collects:
-
-- App events and user interactions (e.g., which features you use)
-  - *Example: "User created an event" (NOT the event details)*
-  - *Example: "User set a reminder" (NOT when or what for)*
-  - *Example: "User viewed calendar" (NOT what dates or events)*
-- App session data (e.g., when you open the app, how long you use it)
-- Device information (device type, OS version, language setting)
-- Approximate location based on IP address (not exact GPS)
-- Performance metrics and app crashes
-
-#### Firebase Crashlytics Collects:
-
-- Crash logs and error reports
-- Stack traces from app crashes
-- Device model and OS version
-- App version information
-- Custom error messages (sanitized - no personal data)
-
-#### What Firebase Does NOT Collect:
-
-- Your personal identity (name, email, phone number)
-- Your calendar data or events
-- Your event titles, descriptions, or locations
-- Your reminder times or notification settings
-- Your precise location
-- Your browsing history outside the app
-- Any content you create in the app
-
-### 4. How We Use Firebase Data
-
-We use this information to:
-
-- Identify and fix bugs and crashes
-- Improve app performance and stability
-- Understand which features are most popular
-- Monitor app health and reliability
-- Enhance the user experience
-- Optimize notification delivery
-- Improve event creation workflow
+Event reminders, Sabbath and holiday reminders and the daily summary are local notifications scheduled on your device. They work offline and nothing about them is sent to us. The app asks for notification permission during setup; you can turn it off in your device settings at any time.
 
 ---
 
-## Local Notifications and Reminders
+## 2. What you choose to share
 
-### How Event Notifications Work
+Some features send data only when you use them, and only where you send it:
 
-Myanmar Calendar uses **local notifications** scheduled on your device:
-
-- **Scheduled Locally**: All notifications are created and managed by your device operating system
-- **No Server Required**: Notifications work completely offline without any internet connection
-- **Privacy First**: Notification content (event title, time, location) never leaves your device
-- **Your Control**: You can enable/disable notifications anytime in app settings
-
-### What Notifications Collect
-
-**We do NOT collect**:
-- When notifications are triggered
-- What notifications you receive
-- How you interact with notifications
-- Notification content or timing
-
-**System Collects** (handled by Android/iOS, not by us):
-- Basic notification delivery metrics (handled by your device OS)
-- These metrics are not accessible to our app or Firebase
-
-### Notification Permissions
-
-When you enable event reminders, the app requests:
-- **Android**: `POST_NOTIFICATIONS` permission for Android 13+
-- **iOS**: Notification permission through system prompt
-
-You can revoke these permissions anytime through device settings.
+- **Backup** (Settings › Privacy & Data › Backup and restore) makes one file with your events, reminders, repeats, categories, custom holidays, day notes, merit entries and reminder choices. The file is not encrypted. It goes wherever you save or send it (for example Files, Google Drive or iCloud), and anyone with the file can read it.
+- **.ics export and import** move events to and from other calendar apps, using files you pick.
+- **Sharing an event** creates a link, a QR code or an .ics file that contains the event's title, date, time, notes, location, category name and repeat. Anyone you give it to can read those details. The link opens in Myanmar Calendar; it is not stored on any server.
+- **Sharing a day** creates an image or text of the date, Myanmar date, moon, holidays and astrology. It contains no events or notes.
+- **The AI prompt** in day details builds text on your device for you to copy or share into an AI app of your choice. The app itself sends nothing.
 
 ---
 
-## Recurring Events and Exceptions
+## 3. Analytics and crash reports (off until you turn them on)
 
-### How Recurring Events Work
+We use **Google Firebase Analytics** and **Firebase Crashlytics** to see which features are used and to fix crashes. Both are **off** when you install the app. You can turn each one on or off during setup or at any time in **Settings › Privacy & Data**. Collection only happens in release versions of the app.
 
-Myanmar Calendar implements recurring events with a "master event + virtual instances" pattern:
+**When Analytics is on**, it records:
 
-- **Master Event**: One database entry containing the recurrence rule
-- **Virtual Instances**: Generated on-demand when viewing the calendar (not stored)
-- **Exceptions**: Modifications to specific occurrences (stored locally)
-  - Completed instances
-  - Deleted instances
-  - Modified instances (changed time, title, etc.)
+- Which screens you open and which buttons and settings you use (for example "changed the theme" or "opened the converter")
+- The calendar date being viewed or shared, and the app's internal number for an event you open
+- Error messages from the app
+- Information Firebase collects automatically: an app instance ID, device model, operating system, app version, language, session times and approximate location from your IP address (city or country level, not GPS)
 
-### Privacy of Recurring Event Data
+**It never records** event titles, notes, descriptions or locations, merit entries, day notes or anything you type into the app.
 
-All recurring event data is stored locally:
-- Recurrence patterns (daily, weekly, monthly, yearly)
-- Exception dates and modifications
-- Instance-specific changes
-- Completion status of individual occurrences
+**When crash reports are on**, Crashlytics receives crash details: the error and stack trace, device model, operating system, app version and the app's state at the time. Error messages can contain technical details about what failed.
 
-**We do NOT collect**:
-- Your recurrence patterns
-- How many recurring events you create
-- Which occurrences you complete or modify
+On Android, the Firebase Analytics library can read your device's advertising ID while Analytics is on. We do not use it for advertising and the app shows no ads. You can reset or delete your advertising ID in your device settings.
+
+Firebase keeps Analytics data for up to 14 months and crash reports for about 90 days. No name, email address or phone number is attached to it.
 
 ---
 
-## Data Sharing and Third Parties
+## 4. Services the app always uses
 
-### Firebase Privacy
+These run whatever your analytics choice, because the app needs them to work properly:
 
-Firebase is operated by Google and processes data according to:
+- **Firebase Remote Config** downloads updates to the holiday list, notices about new app versions and on/off switches for features, so they can change without an app update. To do this, the app sends Google a Firebase installation ID, the app version, the platform and your device's language and country settings.
+- **Firebase App Check** asks Google Play Integrity (Android) or Apple App Attest (iOS) to confirm that requests come from the genuine app. This involves a device attestation token, not your personal information.
 
-- Google's Privacy Policy: https://policies.google.com/privacy
-- Firebase Terms of Service: https://firebase.google.com/terms
-
-Firebase may share aggregated, non-personal information with Google for their services, but they do not share personal identifying information with advertisers.
-
-### Third-Party Services We Use
-
-- **Firebase Analytics** (Google) - For app analytics and crash reporting
-- **Firebase Crashlytics** (Google) - For error tracking and reporting
-
-We do NOT use:
-
-- Third-party advertising networks
-- Social media analytics
-- User tracking services
-- Data brokers or marketing platforms
-- Cloud storage services (unless you opt-in to future backup feature)
-
-### Data Sharing
-
-We do NOT share your data with:
-
-- Third-party advertisers
-- Marketing companies
-- Social media platforms
-- Data brokers
-- Any other organizations except as required by law
-
-**Your event data is never shared** because it never leaves your device.
+When you are offline, the calendar, events, notes, reminders and widgets keep working; only these updates wait until you are back online.
 
 ---
 
-## Data Storage and Security
+## 5. Calendar Studio "Suggest text" (AI)
 
-### Where Your Data is Stored
+When this feature is available and you tap **Suggest text**, the app sends a request to **Google's Gemini models through Firebase AI Logic**. The request contains:
 
-- **Local Data**: Stored encrypted on your device using SQLite
-  - Event database file
-  - Settings database file
-  - Categories database file
-- **Firebase Data**: Stored on Google's secure servers in multiple regions
-  - Anonymous analytics
-  - Crash reports
-  - Performance metrics
+- The kind of text you want (for example a title or a caption), the language, the year and month, and the page name
+- The name of the template or design you are working on
+- That month's public holidays and Sabbath days
+- Any text already in the selected text box
 
-### Security Measures
-
-#### Local Data Security:
-- SQLite database encryption
-- Secure file storage in app sandbox
-- No external access without device unlock
-- Protected by your device's security (PIN/password/biometric)
-
-#### Network Security:
-- HTTPS encryption for all Firebase communication
-- Certificate pinning
-- Secure authentication tokens
-
-#### Application Security:
-- Regular security audits
-- Dependency vulnerability scanning
-- Secure coding practices
-- Code obfuscation in production builds
+It does not contain your events, notes, merit entries or photos. Google processes the request under its own terms (linked below). If you don't tap Suggest text, nothing is sent.
 
 ---
 
-## Your Rights and Choices
+## 6. The web app
 
-### Control Your Data
-
-1. **View Your Events**: All your event data is accessible within the app
-2. **Export Your Data**: Export events to ICS/CSV format (future feature)
-3. **Delete Events**: Delete individual events or clear all events
-4. **Delete Local Data**: Uninstall the app to remove all local data from your device
-5. **Opt Out of Crashlytics**:
-   - On Android: You can disable Firebase Crashlytics in app settings
-   - On iOS: You can disable analytics in System Settings > Privacy > Analytics
-
-### Firebase Opt-Out
-
-To opt out of Firebase Analytics collection:
-
-- **Android**: Open the app, go to Settings > Privacy, and toggle "Analytics" off
-- **iOS**: Go to System Settings > Privacy > Analytics and disable "Share iPhone Analytics"
-
-Note: You cannot fully opt out of Crashlytics while using the app, as it's necessary for stability reporting. Uninstalling the app removes all associated data.
-
-### Event Data Control
-
-You have complete control over your event data:
-
-- **Create**: Add events with any information you choose
-- **Read**: View all your events anytime
-- **Update**: Modify events including recurring instances
-- **Delete**: Remove events permanently
-- **Export**: Export to standard calendar formats (future feature)
-- **Clear All**: Wipe all event data from Settings
+The web app works the same way as the phone app, with your data kept in your browser's storage. It also loads Telegram's Mini App script from telegram.org, so it can run inside Telegram; Telegram receives that request like any website visit. Inside Telegram, the app can show your Telegram username in Settings, on your device only. It sends nothing to Telegram.
 
 ---
 
-## Permissions
+## 7. Permissions
 
-### Android Permissions
+**Android:** internet and network state (Firebase, holiday updates); notifications, exact alarms, vibration, wake lock and "run at startup" (reminders that survive a restart); foreground and background work (refreshing widgets); and, from the Firebase libraries, the advertising ID and install referrer, used only as described in section 3.
 
-Myanmar Calendar requests **minimal permissions**:
+**iOS:** notifications (reminders); camera and photo library (adding photos to Calendar Studio and saving exports), only when you use those features; background refresh (widgets); and an app group shared with the app's widgets and watch app.
 
-#### Current Permissions:
-- **INTERNET**: Required for Firebase Analytics and Crashlytics
-
-#### Event & Notification Permissions:
-- **POST_NOTIFICATIONS** (Android 13+): For event reminder notifications
-  - Only requested when you enable reminders
-  - Can be revoked in system settings
-  - Notifications still work locally without this permission (silent reminders)
-- **SCHEDULE_EXACT_ALARM** (Android 12+): For precise reminder timing
-  - Ensures notifications trigger at exact scheduled times
-  - Only requested when you create a notification
-  - Required for reliable event reminders
-- **USE_EXACT_ALARM** (Android 14+): Alternative permission for exact alarms
-- **VIBRATE**: For haptic feedback and reminder vibrations
-  - Provides tactile feedback when creating events
-  - Vibrates device for notification alerts
-- **RECEIVE_BOOT_COMPLETED**: To reschedule notifications after device restart
-  - Ensures your reminders persist after rebooting
-  - Only schedules notifications you already created
-
-#### Future Permissions (Optional Cloud Backup):
-- **ACCESS_NETWORK_STATE**: To check internet connectivity for backup
-
-### iOS Permissions
-
-- **Network**: Required for Firebase
-- **Notifications**: Only if you enable event reminders
-- **Background Refresh**: To reschedule notifications (system manages this)
-
-### Permission Explanations
-
-When requesting permissions, we explain:
-- Why we need the permission
-- What features require it
-- What happens if you deny it
-- How to revoke it later
-
-All permissions are optional except INTERNET (required for crash reporting).
+The app does not use your location, contacts, microphone or calendar accounts.
 
 ---
 
-## Information We Collect and How We Use It
+## 8. Third parties
 
-### App Usage Analytics
+- **Google Firebase** (Analytics, Crashlytics, Remote Config, App Check, AI Logic with Gemini): [Google Privacy Policy](https://policies.google.com/privacy), [Firebase privacy and security](https://firebase.google.com/support/privacy), [Gemini API terms](https://ai.google.dev/gemini-api/terms)
+- **Google Play Integrity** and **Apple App Attest** for App Check
+- **Apple WatchConnectivity**, between your own iPhone and Apple Watch
+- **Telegram**, only for the web app (section 6)
 
-**What we collect**:
-- Which features you use and how often
-  - *Example: "Event creation feature used 50 times today"*
-  - *NOT: "User created event titled 'Doctor Appointment'"*
-- How long you use the app
-- App crashes and errors
-- Device type and OS version
-- Performance metrics
-
-**How we use it**:
-- Improve app performance
-- Fix bugs and crashes
-- Understand user preferences
-- Prioritize feature development
-- Optimize event creation workflow
-- Improve notification reliability
-
-**Examples**:
-- If we see many crashes when creating recurring events, we prioritize fixing it
-- If event notifications fail frequently on certain devices, we investigate
-- If users rarely use custom categories, we may redesign the feature
-- If crashes spike on Android 14, we test compatibility
-
-### Error and Crash Reporting
-
-**What we collect**:
-- When the app crashes, what caused it
-- Error logs and stack traces (sanitized)
-- Device information at time of crash
-- App state before crash (no personal data)
-
-**How we use it**:
-- Identify critical bugs
-- Fix errors quickly
-- Improve app stability
-- Test fixes on various devices
-- Ensure notification scheduling works reliably
-
-**Sanitization Example**:
-```
-❌ Bad: "Failed to create event 'Doctor Appointment at 2pm'"
-✅ Good: "Failed to create event with notification at index 2"
-```
+We do not use advertising networks, data brokers or cross-app tracking, and we do not sell or rent any data.
 
 ---
 
-## Children's Privacy
+## 9. Children
 
-Myanmar Calendar is suitable for all ages, including children under 13. Since we only collect aggregate analytics data (not personal information), the app complies with:
-
-- COPPA (Children's Online Privacy Protection Act)
-- GDPR requirements for children's privacy
-- Similar international regulations
-
-We do not:
-- Collect personal information from children
-- Allow children to share personal information
-- Target advertising to children (we have no ads)
-- Collect event data from children's calendars
-
-Parents/Guardians can:
-- Monitor app usage through device parental controls
-- Disable analytics in app settings
-- Delete all event data at any time
-- Review this privacy policy with children
+The app is suitable for all ages. It does not ask for names, email addresses or other personal information, and analytics and crash reports stay off unless they are turned on.
 
 ---
 
-## Data Retention
+## 10. Your choices and rights
 
-### Local Data on Your Device
-- **Events**: Stored indefinitely until you delete them
-  - Individual event deletion
-  - Bulk deletion options
-  - Clear all events from settings
-- **Settings**: Stored until you change them or uninstall
-- **Categories**: Stored until you delete them
-- **All Data**: Removed when you uninstall the app
-- You have full control over your local data
+- Turn Analytics and crash reports on or off in **Settings › Privacy & Data**.
+- Edit or delete your events, notes and merit entries in the app, or uninstall it to remove all local data.
+- Turn off notifications, or remove widgets and the watch apps, at any time.
+- Ask us about, or ask us to delete, analytics or crash data related to your device by email. Because this data is not linked to your name, we may need your help to identify it.
 
-### Firebase Analytics Data
-- Retained for 14 months by default
-- Automatically deleted after 14 months of inactivity
-- You can request data deletion at any time
-
-### Firebase Crashlytics Data
-- Retained for 90 days
-- Older data is automatically deleted
-- Critical crash data may be retained longer for analysis
-
-### Notification Data
-- **Local Notifications**: Stored on device until triggered or cancelled
-- **Scheduled Notifications**: Managed by your device's notification system
-- **Past Notifications**: Automatically cleared by your OS
-- We do NOT have access to notification history
-
-### Cloud Backup Data (Future Feature)
-- Only if you opt-in
-- End-to-end encrypted
-- You can delete anytime from settings
-- Deleted within 30 days of request
-- Includes events, categories, and settings
-- Excludes analytics and crash data
+Depending on where you live (for example under the GDPR or CCPA), you may have rights to access, correct, delete or object to the processing of your data. Contact us and we will respond within 30 days.
 
 ---
 
-## Changes to This Privacy Policy
+## 11. Changes to this policy
 
-We may update this Privacy Policy from time to time. Changes will be reflected by updating the "Last Updated" date at the top.
-
-### How We Notify You
-
-- In-app notification for major changes
-- Updated policy in app settings
-- Play Store/App Store description update
-- Email notification (if we add account features in future)
-
-### Your Continued Use
-
-Continued use of the app after policy changes constitutes acceptance of those changes. For major changes affecting your data rights, we'll request explicit consent.
+When we change this policy, we update the date at the top and the copy in the app (Settings › About › Privacy Policy) and on [calendar.kyawzayartun.com](https://calendar.kyawzayartun.com/en/privacy). If a change affects what is collected, we will say so in the app's What's new notes.
 
 ---
 
-## International Users
+## 12. Contact
 
-Myanmar Calendar complies with international privacy regulations:
+**Email:** kyawzayartun.contact@gmail.com
 
-- **GDPR** (European Union)
-- **CCPA** (California, USA)
-- **UK GDPR** (United Kingdom)
-- **PIPEDA** (Canada)
-- **Privacy Act** (Australia)
-- **LGPD** (Brazil)
-
-If you are located in the EU, you have additional rights:
-- Right to access your data
-- Right to deletion
-- Right to correct inaccurate data
-- Right to data portability
-- Right to object to processing
-- Right to restrict processing
-- Right not to be subject to automated decision-making
-
----
-
-## Open Source Components
-
-Myanmar Calendar uses open-source packages with their own privacy policies:
-
-- **Flutter Framework**: https://flutter.dev/privacy
-- **Dart Language**: https://dart.dev/privacy
-- **Firebase SDK**: https://firebase.google.com/terms
-- **Drift (SQLite)**: Local database - no data collection
-- **flutter_local_notifications**: Local notifications - no data collection
-
-No open-source components collect personal data without your knowledge.
-
----
-
-## Contact Us
-
-If you have questions or concerns about this Privacy Policy or our privacy practices:
-
-**Email**: kyawzayartun.contact@gmail.com
-
-**Website**: https://kyawzayartun.com/apps/myanmar-calendar/privacy
-
-**Response Time**: We aim to respond to all inquiries within 48 hours.
-
-**Data Requests**: For GDPR/CCPA data requests, use subject line "Data Rights Request"
-
----
-
-## Your Privacy Rights (GDPR and Similar Laws)
-
-If you are in a jurisdiction with privacy laws (EU, California, etc.), you have the right to:
-
-### Right to Access
-- Request a copy of the analytics data we collect about you
-- **Note**: Your event data is already on your device - you have full access
-- Submit a request via email with "Data Access Request" as subject
-
-### Right to Deletion
-- Request deletion of your Firebase analytics data
-- Delete your local event data anytime in app settings
-- **Local Data**: Delete through app settings or uninstall
-- **Firebase Data**: Request deletion via email
-- Submit a request via email with "Data Deletion Request" as subject
-
-### Right to Portability
-- Export your event data to standard formats (future feature)
-- Request your Firebase data in a portable format
-- We will provide exported data within 30 days
-
-### Right to Object
-- Object to Firebase analytics collection
-- Disable analytics in app settings
-- Opt out of crash reporting (with reduced support)
-- Uninstall the app
-
-### Right to Rectification
-- Correct inaccurate information in your local app data
-- Update or fix event details anytime
-- Firebase analytics data cannot be individually rectified but is automatically deleted after 14 months
-
----
-
-## Cookies and Tracking
-
-Myanmar Calendar does NOT use:
-- Cookies
-- Tracking pixels
-- Web beacons
-- Device fingerprinting
-- Cross-app tracking
-- Location tracking
-- Behavioral profiling
-
-Firebase may use minimal cookies for authentication purposes only (if we add cloud features).
-
----
-
-## Advertising
-
-Myanmar Calendar is **100% ad-free** and will always remain ad-free.
-
-We will never:
-- Show advertisements
-- Sell ad space
-- Share data with advertisers for ad targeting
-- Use data for behavioral advertising
-- Sell your event data to third parties
-- Monetize your personal information
-
-Our business model: One-time purchase or freemium features (never ads or data selling).
-
----
-
-## Updates and Notifications
-
-### App Updates
-- Downloaded through official app stores
-- No additional data collection during updates
-- Update notes explain any privacy changes
-
-### Push Notifications
-- **Only local notifications** for features you enable
-- No remote push notifications (no server-side notifications)
-- No marketing or promotional notifications
-- Fully controlled by you
-- Event reminders only
-- Can be disabled per-event or globally
-
-### Notification Content
-- Contains only information you entered (event title, time)
-- Stored and displayed locally on your device
-- Never sent to our servers
-- Not visible to us or any third party
-
----
-
-## Transparency and Your Trust
-
-We believe in transparent data practices:
-
-**What we collect**:
-- App analytics and crash reports (via Firebase)
-- No personal information
-- No event details
-
-**How we use it**:
-- Improve app quality and fix bugs
-- Optimize event creation and notification features
-- Enhance user experience
-
-**Who has access**:
-- Only our development team and Google Firebase
-- Zero access to your event data
-
-**Your control**:
-- You can opt out of analytics anytime
-- Complete control over your event data
-- Delete all data by uninstalling
-
-We cannot misuse data we don't collect. Your events are private by design - they never leave your device.
-
----
-
-## Data Breach Notification
-
-In the unlikely event of a data breach:
-
-### What We'll Do
-1. Investigate the breach immediately
-2. Notify affected users within 72 hours (GDPR requirement)
-3. Report to relevant authorities if required
-4. Provide clear information about what data was affected
-5. Offer remediation steps and support
-
-### What's at Risk
-Since your event data never leaves your device, a server-side breach cannot expose:
-- Your events
-- Your reminders
-- Your categories
-- Your personal calendar information
-
-Only anonymous analytics data is on our servers, which contains no personal information.
-
----
-
-## Summary
-
-Myanmar Calendar:
-- Works completely offline for calendar and event functions
-- **Stores all event data locally - never on our servers**
-- **Your events are 100% private and never transmitted**
-- Uses local notifications - no server required
-- Collects minimal analytics data to improve quality
-- Uses industry-standard Firebase for crash reporting
-- Respects your privacy with local-first data storage
-- Has zero ads and zero tracking
-- Allows you to opt out of analytics
-- Respects international privacy laws
-- Gives you complete control over your event data
-
-### Privacy by Design
-- **Local-First**: All calendar data stays on your device
-- **Zero-Knowledge**: We cannot see your events, even if we wanted to
-- **Offline-Capable**: Full functionality without internet
-- **Transparent**: Clear about what little data we collect
-- **User Control**: You own and control all your data
-
----
-
-**Last Updated**: November 4, 2025
-**Version**: 2.1
-**Effective Date**: November 4, 2025
-
-**Changelog**:
-- Added section on Event and Notification features
-- Clarified local-first data storage for events
-- Explained notification privacy and permissions
-- Added details about recurring events and exceptions
-- Updated permissions list for event reminders
-- Clarified what analytics do NOT include (event details)
-
----
-
-© 2024-2025 Kyaw Zayar Tun. All rights reserved.
+**Website:** https://calendar.kyawzayartun.com
 ''';
 }
