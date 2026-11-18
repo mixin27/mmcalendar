@@ -3,7 +3,7 @@ import 'package:calendar_studio/calendar_studio.dart';
 import 'package:converter/converter.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:events/events.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:holidays/holidays.dart';

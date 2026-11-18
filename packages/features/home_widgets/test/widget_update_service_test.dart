@@ -30,9 +30,7 @@ void main() {
     final calls = <String>[];
     void handle(Future<Object?> Function(MethodCall call) handler) =>
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(WidgetUpdateService.watchChannel, (
-              call,
-            ) {
+            .setMockMethodCallHandler(WidgetUpdateService.watchChannel, (call) {
               calls.add(call.method);
               return handler(call);
             });
@@ -67,9 +65,7 @@ void main() {
   });
 
   test('old widget data is removed on Android', () async {
-    await WidgetUpdateService.clearLegacyData(
-      platform: TargetPlatform.android,
-    );
+    await WidgetUpdateService.clearLegacyData(platform: TargetPlatform.android);
     expect(saved, isNotEmpty);
     expect(saved.every((args) => args['data'] == null), isTrue);
   });

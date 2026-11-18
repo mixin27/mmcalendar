@@ -1,6 +1,6 @@
 import 'package:calendar_studio/calendar_studio.dart';
 import 'package:calendar_studio/src/presentation/calendar_studio_strings.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 CalendarStudioScene _scene(WidgetTester tester) =>

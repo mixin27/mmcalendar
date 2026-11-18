@@ -1,6 +1,6 @@
 import 'package:calendar/calendar.dart';
 import 'package:calendar/src/presentation/widgets/home_day_sheet.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -73,7 +73,7 @@ void main() {
       MaterialApp.router(
         routerConfig: router,
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        localizationsDelegates: appLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         theme: AppTheme.build(
           style: AppStyle.clear,

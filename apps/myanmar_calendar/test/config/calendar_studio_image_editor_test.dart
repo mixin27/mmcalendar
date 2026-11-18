@@ -1,12 +1,11 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:mmcalendar/config/calendar_studio_image_editor.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
+import 'package:shared_localizations/shared_localizations.dart';
 
 Future<Uint8List> _png() async {
   final recorder = ui.PictureRecorder();
@@ -27,13 +26,7 @@ void main() {
     late BuildContext hostContext;
     await tester.pumpWidget(
       MaterialApp(
-        // Mirrors app.dart: SDK delegates plus material_ui's.
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          ...material_ui.GlobalMaterialLocalizations.delegates,
-        ],
+        localizationsDelegates: appLocalizationsDelegates,
         home: Builder(
           builder: (context) {
             hostContext = context;

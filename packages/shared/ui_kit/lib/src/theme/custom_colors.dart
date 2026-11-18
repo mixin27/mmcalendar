@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The ten colours a person can set by hand under Custom colours › Advanced.
 enum CustomColorSlot {

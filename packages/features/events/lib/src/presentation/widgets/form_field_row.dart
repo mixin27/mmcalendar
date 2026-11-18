@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' hide ContextExtension;
 
 /// A borderless text field that sits in an [AppGroup] like a row.

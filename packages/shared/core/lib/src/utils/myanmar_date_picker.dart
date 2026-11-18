@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+// ignore: deprecated_member_use
+import 'package:flutter/material.dart' as legacy show ColorScheme;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as mm;
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 
@@ -43,8 +45,10 @@ class AppCalendarColors {
   /// teal.
   mm.MmCalendarThemeData toTheme() {
     final dark = brightness == Brightness.dark;
+    // flutter_mmcalendar 4 still takes package:flutter/material.dart's
+    // ColorScheme; drop the legacy import when it moves to material_ui.
     final base = mm.MmCalendarThemeData.fromColorScheme(
-      ColorScheme.fromSeed(seedColor: accent, brightness: brightness),
+      legacy.ColorScheme.fromSeed(seedColor: accent, brightness: brightness),
     );
     return base.copyWith(
       accent: accent,

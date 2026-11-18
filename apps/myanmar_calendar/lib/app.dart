@@ -11,13 +11,12 @@ import 'package:shared_core/shared_core.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 import 'package:events/events.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:holidays/holidays.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:home_widgets/home_widgets.dart';
-import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
     show MyanmarCalendar;
 import 'package:shared_localizations/shared_localizations.dart';
@@ -196,12 +195,7 @@ class _AppContentState extends State<_AppContent> {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeMode,
-          localizationsDelegates: [
-            ...AppLocalizations.localizationsDelegates,
-            // pro_image_editor (Calendar Studio "Edit image") is built on
-            // material_ui, which needs its own localizations.
-            ...material_ui.GlobalMaterialLocalizations.delegates,
-          ],
+          localizationsDelegates: appLocalizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: locale,
           builder: (context, child) {
@@ -237,7 +231,15 @@ class _AppContentState extends State<_AppContent> {
                   // Grid themes draw numbers in Studio's bundled typefaces.
                   child: CalendarFontScope(
                     resolve: _calendarFont,
-                    child: child ?? const SizedBox.shrink(),
+                    // Packages still on package:flutter/material.dart
+                    // (flutter_mmcalendar, markdown_widget, printing...)
+                    // read the legacy Theme and MaterialLocalizations; the
+                    // bridge maps ours onto them. Routes, dialogs and sheets
+                    // are all inside [child].
+                    // ignore: deprecated_member_use, a temporary bridge until those packages move
+                    child: MaterialUiCompatibilityBridge(
+                      child: child ?? const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               ),

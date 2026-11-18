@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // Small color chip for preview
 class ColorChip extends StatelessWidget {

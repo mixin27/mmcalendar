@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The icon for a category's stored icon name.
 IconData categoryIcon(String iconName) => switch (iconName) {

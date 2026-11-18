@@ -1,6 +1,6 @@
 import 'package:alchemist/alchemist.dart';
 import 'package:calendar_studio/calendar_studio.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   const sizes = {

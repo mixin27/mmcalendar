@@ -3,7 +3,7 @@ import 'package:events/events.dart';
 import 'package:events/src/data/datasources/events_local_datasource.dart';
 import 'package:events/src/data/datasources/recurring_exceptions_datasource.dart';
 import 'package:events/src/presentation/widgets/repeat_sheet.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integrations_database/integrations_database.dart' as db;
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart' show Language;
@@ -81,7 +81,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        localizationsDelegates: appLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         theme: AppTheme.build(
           style: AppStyle.clear,

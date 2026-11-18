@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:calendar/src/presentation/widgets/day_share_card.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:share_plus/share_plus.dart' show XFile;
@@ -12,7 +12,7 @@ import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 Widget _app(Widget home) => MaterialApp(
   locale: const Locale('en'),
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  localizationsDelegates: appLocalizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   theme: AppTheme.build(
     style: AppStyle.clear,

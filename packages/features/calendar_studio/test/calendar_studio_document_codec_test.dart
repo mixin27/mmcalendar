@@ -1,5 +1,5 @@
 import 'package:calendar_studio/calendar_studio.dart';
-import 'package:flutter/material.dart' show Rect, Size;
+import 'package:material_ui/material_ui.dart' show Rect, Size;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

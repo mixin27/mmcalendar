@@ -1,5 +1,5 @@
 import 'package:calendar_studio/calendar_studio.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_core/shared_core.dart' show CalendarLanguageContext;
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 

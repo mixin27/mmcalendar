@@ -92,7 +92,7 @@ dependencies:
   firebase_core: ^4.14.0
   image_picker: ^1.2.4
   pro_image_editor: ^14.14.2
-  material_ui: ^1.2.0
+  material_ui: ^1.11.1
   firebase_ai: ^4.0.0
   # Transitive via firebase_ai. Capped below 6.7.0, which pins
   # firebase-ios-sdk 12.19.0; the other FlutterFire plugins pin 12.18.0

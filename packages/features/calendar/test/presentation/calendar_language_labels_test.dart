@@ -1,6 +1,6 @@
 import 'package:calendar/calendar.dart';
 import 'package:calendar/src/presentation/widgets/calendar_labels.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart' show translateNumbers;
@@ -38,7 +38,7 @@ void main() {
     Future<void> pump(WidgetTester tester, {required bool preferShan}) =>
         tester.pumpWidget(
           MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            localizationsDelegates: appLocalizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             theme: AppTheme.build(
               style: AppStyle.clear,

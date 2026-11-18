@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_mmcalendar/flutter_mmcalendar.dart' as mm;
 import 'package:go_router/go_router.dart';
 import 'package:shared_core/shared_core.dart';

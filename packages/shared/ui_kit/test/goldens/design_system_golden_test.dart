@@ -1,5 +1,5 @@
 import 'package:alchemist/alchemist.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart';
 
 /// One settings-like screen in each style and brightness: guards the

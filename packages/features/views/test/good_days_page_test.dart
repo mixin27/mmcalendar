@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
@@ -28,7 +28,7 @@ Future<void> _pump(WidgetTester tester, AppStyle style) async {
     MaterialApp.router(
       routerConfig: router,
       locale: const Locale('en'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: appLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.build(
         style: style,
