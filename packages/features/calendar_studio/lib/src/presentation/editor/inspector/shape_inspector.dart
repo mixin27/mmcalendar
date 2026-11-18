@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../models/calendar_studio_document.dart';
 import '../../../widgets/calendar_studio_decorations.dart';

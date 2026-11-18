@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:alchemist/alchemist.dart';
 import 'package:calendar_studio/calendar_studio.dart';
 import 'package:calendar_studio/src/presentation/calendar_studio_export_flow.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   StudioExportRun run() {

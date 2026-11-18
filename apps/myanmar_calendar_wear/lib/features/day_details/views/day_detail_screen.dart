@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:myanmar_calendar_wear/app/watch_colors.dart';
 import 'package:myanmar_calendar_wear/features/day_details/models/day_details.dart';
 import 'package:shared_core/shared_core.dart';

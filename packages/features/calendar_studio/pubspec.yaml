@@ -26,11 +26,13 @@ dependencies:
   file_picker: ^10.3.2
   image: ^4.5.4
 
+  material_ui: ^1.11.1
+  cupertino_ui: ^1.1.7
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  alchemist: ^0.14.1
+  alchemist: ^0.15.0
 
 # Preset display fonts (SIL Open Font License; licences in assets/fonts/*/OFL.txt).
 # Hosts reference them as `packages/calendar_studio/<family>`, resolved by

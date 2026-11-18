@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:calendar_studio/calendar_studio.dart';
 import 'package:calendar_studio/src/presentation/calendar_studio_shimmer.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final _now = DateTime(2027, 3, 10, 12);

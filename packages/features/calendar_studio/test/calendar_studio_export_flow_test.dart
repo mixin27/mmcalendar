@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:calendar_studio/calendar_studio.dart';
 import 'package:calendar_studio/src/presentation/calendar_studio_export_flow.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 StudioExportRun _run({

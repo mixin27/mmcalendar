@@ -25,7 +25,7 @@ jobs:
           # package:flutter/material.dart (use material_ui); upgrade the
           # pin with that migration.
           channel: stable
-          flutter-version: 3.47.7
+          flutter-version: 3.50.0
           cache: true
 
       - name: Create firebase_options.dart from secret
@@ -59,7 +59,7 @@ jobs:
           # package:flutter/material.dart (use material_ui); upgrade the
           # pin with that migration.
           channel: stable
-          flutter-version: 3.47.7
+          flutter-version: 3.50.0
           cache: true
 
       - name: Create firebase_options.dart from secret

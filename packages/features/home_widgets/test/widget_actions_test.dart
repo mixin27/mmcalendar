@@ -102,11 +102,10 @@ void main() {
         ]),
       ),
     );
-    expect([for (final t in latest) (t.id, t.date.day, t.done)], [
-      (2, 13, true),
-      (1, 13, false),
-      (1, 14, true),
-    ]);
+    expect(
+      [for (final t in latest) (t.id, t.date.day, t.done)],
+      [(2, 13, true), (1, 13, false), (1, 14, true)],
+    );
   });
 
   test('overlay ticks the matching occurrences only', () {
@@ -118,10 +117,7 @@ void main() {
     final shown = WidgetActions.overlay(
       events,
       WidgetActions.parse(
-        jsonEncode([
-          tick(1, '2026-11-13'),
-          tick(2, '2026-11-13', done: false),
-        ]),
+        jsonEncode([tick(1, '2026-11-13'), tick(2, '2026-11-13', done: false)]),
       ),
     );
     expect([for (final e in shown) e.done], [true, false, false]);
@@ -156,7 +152,9 @@ void main() {
       };
       await WidgetActions.apply((_) async {});
       expect(
-        WidgetActions.parse(store[WidgetActions.key] as String).map((t) => t.id),
+        WidgetActions.parse(
+          store[WidgetActions.key] as String,
+        ).map((t) => t.id),
         [7],
       );
     });

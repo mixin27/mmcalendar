@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:shared_core/shared_core.dart';
@@ -21,7 +21,10 @@ void main() {
         builder: (context, child) => AppMyanmarCalendarScope(
           language: Language.english,
           clearStyle: false,
-          child: child!,
+          // As in app.dart: flutter_mmcalendar's dialog is still on
+          // package:flutter/material.dart.
+          // ignore: deprecated_member_use
+          child: MaterialUiCompatibilityBridge(child: child!),
         ),
         home: Scaffold(
           body: Builder(

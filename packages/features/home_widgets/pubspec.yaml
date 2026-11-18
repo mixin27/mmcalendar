@@ -51,6 +51,7 @@ dependencies:
   get_it: ^9.2.1
   injectable: ^3.0.0
 
+  material_ui: ^1.11.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

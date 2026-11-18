@@ -1,6 +1,6 @@
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart'
     show TranslationService;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../models/calendar_studio_document.dart';
 import '../models/calendar_studio_types.dart';

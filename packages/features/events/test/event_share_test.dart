@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:events/events.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart' show Language;
@@ -39,7 +39,7 @@ SharedEvent _roundTrip(Event e) =>
 
 Widget _app(Widget child) => MaterialApp(
   locale: const Locale('en'),
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  localizationsDelegates: appLocalizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   theme: AppTheme.build(
     style: AppStyle.clear,
@@ -245,7 +245,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp.router(
           locale: const Locale('en'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          localizationsDelegates: appLocalizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.build(
             style: AppStyle.clear,

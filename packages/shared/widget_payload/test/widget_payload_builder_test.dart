@@ -92,29 +92,31 @@ void main() {
   });
 
   test('events say which are repeating, for ticking one day done', () {
-    final events = build(
-      Language.english,
-      events: [
-        WidgetAgendaEvent(
-          id: 1,
-          date: today,
-          title: 'Pagoda',
-          color: 0xFF2F5BEA,
-          recurring: true,
-        ),
-        WidgetAgendaEvent(
-          id: 2,
-          date: today,
-          title: 'Dentist',
-          color: 0xFF2F5BEA,
-          done: true,
-        ),
-      ],
-    )['events']! as List;
-    expect([for (final e in events) ((e as Map)['id'], e['rec'], e['done'])], [
-      (1, true, false),
-      (2, false, true),
-    ]);
+    final events =
+        build(
+              Language.english,
+              events: [
+                WidgetAgendaEvent(
+                  id: 1,
+                  date: today,
+                  title: 'Pagoda',
+                  color: 0xFF2F5BEA,
+                  recurring: true,
+                ),
+                WidgetAgendaEvent(
+                  id: 2,
+                  date: today,
+                  title: 'Dentist',
+                  color: 0xFF2F5BEA,
+                  done: true,
+                ),
+              ],
+            )['events']!
+            as List;
+    expect(
+      [for (final e in events) ((e as Map)['id'], e['rec'], e['done'])],
+      [(1, true, false), (2, false, true)],
+    );
   });
 
   test('copyWith changes done only', () {

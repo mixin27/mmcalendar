@@ -247,10 +247,7 @@ class MotifPainter extends CustomPainter {
         ..quadraticBezierTo(leafLength * .5, -leafLength * .28, leafLength, 0)
         ..quadraticBezierTo(leafLength * .5, leafLength * .28, 0, 0);
       canvas
-        ..drawPath(
-          leaf,
-          _fill(accent.withValues(alpha: accent.a * .35)),
-        )
+        ..drawPath(leaf, _fill(accent.withValues(alpha: accent.a * .35)))
         ..drawPath(leaf, _stroke(color, stroke * .8))
         ..drawLine(
           Offset.zero,
@@ -403,10 +400,7 @@ class MotifPainter extends CustomPainter {
       canvas.drawLine(
         c + dir * r * (cardinal ? .58 : .72),
         c + dir * r,
-        _stroke(
-          cardinal ? accent : color,
-          cardinal ? stroke * 1.6 : stroke,
-        ),
+        _stroke(cardinal ? accent : color, cardinal ? stroke * 1.6 : stroke),
       );
       final mid = (i + .5) / 12 * 2 * math.pi - math.pi / 2;
       canvas.drawCircle(
@@ -486,11 +480,7 @@ class MotifPainter extends CustomPainter {
         _stroke(color, size.shortestSide * (long ? .03 : .016)),
       );
     }
-    canvas.drawCircle(
-      Offset.zero,
-      size.shortestSide * .3,
-      _fill(accent),
-    );
+    canvas.drawCircle(Offset.zero, size.shortestSide * .3, _fill(accent));
   }
 
   void _steam(Canvas canvas, Size size) {
@@ -535,10 +525,7 @@ class MotifPainter extends CustomPainter {
         );
       canvas.drawPath(
         curl,
-        _stroke(
-          accent.withValues(alpha: accent.a * alpha),
-          stroke,
-        ),
+        _stroke(accent.withValues(alpha: accent.a * alpha), stroke),
       );
     }
   }

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:myanmar_calendar_dart/myanmar_calendar_dart.dart';
 import 'package:myanmar_calendar_wear/ambient_mode/ambient_mode.dart';
 import 'package:myanmar_calendar_wear/app/watch_colors.dart';
@@ -72,7 +72,7 @@ class _AppState extends State<App> {
         onGenerateTitle: (context) =>
             AppLocalizations.of(context)!.myanmarCalendar,
         locale: WatchSettings.localeFor(_language),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        localizationsDelegates: appLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(
           useMaterial3: true,

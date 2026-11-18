@@ -28,7 +28,7 @@ jobs:
           # package:flutter/material.dart (use material_ui); upgrade the
           # pin with that migration.
           channel: 'stable'
-          flutter-version: 3.47.7
+          flutter-version: 3.50.0
 
       - name: Install Dependencies
         run: flutter pub get

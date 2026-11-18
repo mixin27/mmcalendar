@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:calendar_studio/calendar_studio.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:pro_image_editor/pro_image_editor.dart';
 

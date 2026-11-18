@@ -1,0 +1,9 @@
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+# Flutter 3.50's gen-l10n still adds the flutter_localizations delegates,
+# which are deprecated in favour of material_ui's. The app passes
+# material_ui's own (apps/*/lib/app.dart), so the generated list is unused
+# there; this keeps the analyzer quiet about it.
+header: "// ignore_for_file: deprecated_member_use"
+format: false

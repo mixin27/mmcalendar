@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_ui_kit/shared_ui_kit.dart' show showAppColorPicker;
 
 import '../../../models/calendar_studio_project_theme.dart';
