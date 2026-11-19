@@ -44,6 +44,6 @@ All text is in `src/app/[lang]/dictionaries/{my,en}.json`. Add a page by adding 
 1. Import the repository and set **Root Directory** to `site`. Vercel detects Next.js and pnpm.
 2. **Environment variables:**
    - `NEXT_PUBLIC_SITE_URL`: the site's address, e.g. `https://calendar.kyawzayartun.com`. Used for canonical URLs, the sitemap and share images.
-   - `NEXT_PUBLIC_WEB_APP_URL`: optional. The Flutter web app on Netlify. The "Open the web app" links appear only when it is set.
+   - `NEXT_PUBLIC_WEB_APP_URL`: optional. The Flutter web app on Vercel, https://mmcalendar.kyawzayartun.com. The "Open the web app" links appear only when it is set.
 3. **Domain:** add the subdomain in Vercel, then add a `CNAME` record for it pointing to `cname.vercel-dns.com` at your DNS provider.
 4. **Builds:** `vercel.json` has an `ignoreCommand` that skips a build unless the site, or something it copies in (screenshots, templates, widgets, changelog, brand icon, privacy text), changed in the last commit.
