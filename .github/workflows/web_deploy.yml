@@ -1,17 +1,20 @@
-name: Deploy to Netlify
+name: Deploy web app
 
+# Builds the Flutter web app here and uploads build/web to Vercel. The Vercel
+# project is not connected to Git, so Vercel never tries to build Flutter.
+# See docs/architecture/web_app_deploy.md.
+#
+# Deploys release tags only (v2.7.1, ...), never on pushes or PRs. To
+# redeploy, run it by hand from the Actions tab and pick the tag.
 on:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE'
-      - 'screenshots/**'
-      - '.gitignore'
-      - '.vscode/**'
-      # The website deploys on Vercel, not with the Flutter web app.
-      - 'site/**'
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+concurrency:
+  group: web-deploy
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -44,9 +47,6 @@ jobs:
       - name: Create firebase_options.dart from secret
         run: echo "${{ secrets.FIREBASE_OPTIONS_BASE64 }}" | base64 -d > apps/myanmar_calendar/lib/firebase_options.dart
 
-      # - name: Create _redirects file
-      #   run: echo "/*    /index.html   200" > apps/myanmar_calendar/web/_redirects
-
       # Static font instances for Calendar Studio's vector PDF, served from
       # /export-fonts/ and downloaded only when someone exports.
       - name: Generate export fonts
@@ -59,15 +59,14 @@ jobs:
           cd apps/myanmar_calendar
           flutter build web --release --base-href "/"
 
-      - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v2.1
-        with:
-          publish-dir: './apps/myanmar_calendar/build/web'
-          production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions"
-          enable-pull-request-comment: false
-          enable-commit-comment: true
+      # web/vercel.json (copied into build/web) holds the SPA rewrite and
+      # cache headers.
+      - name: Deploy to Vercel
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm install --global vercel@65.12.1
+          url=$(vercel deploy apps/myanmar_calendar/build/web --prod --yes --token "$VERCEL_TOKEN")
+          echo "Deployed: $url" >> "$GITHUB_STEP_SUMMARY"
