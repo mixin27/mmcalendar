@@ -28,7 +28,8 @@ no `firebase_options.dart` and no `build_runner`.
    <https://vercel.com/account/tokens>.
 4. Add the GitHub Actions secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` and
    `VERCEL_PROJECT_ID`. The build also needs `FIREBASE_OPTIONS_BASE64`.
-5. Add the domain in the Vercel project.
+5. Add the domain in the Vercel project: `mmcalendar.kyawzayartun.com`. It replaced
+   `myanmarcalendar.kyawzayartun.com`, the Netlify domain.
 
 When the web app's URL changes:
 
