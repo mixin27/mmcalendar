@@ -14,6 +14,11 @@ See the Myanmar and Western date of every day side by side, with the moon, Sabba
 • Home-screen widgets in five styles
 • Myanmar and English interface; calendar data in Myanmar, English, Zawgyi, Mon, Shan and Karen
 
+<b>On your Wear OS watch:</b>
+• Watch app: today and the next six days with the moon, Myanmar date, Sabbath and holidays. Tap a day for its astrology, and see the coming holidays, Sabbath days and full moons
+• Tile: swipe from the watch face to see today's Myanmar date, the moon and the next Sabbath or holiday
+• Complication: put today's Myanmar date, the moon's day or how full the moon is on your watch face
+
 <b>Class timetables and multiple dates:</b>
 Set up a weekly timetable in one go: pick the weekdays (say, every Wednesday and Thursday), give each day its own time, choose when the term ends, and add a reminder. For irregular days such as exams or make-up classes, pick any set of dates on the Myanmar calendar and save them as one event.
 
